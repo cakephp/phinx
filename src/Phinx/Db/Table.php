@@ -156,16 +156,6 @@ class Table
     }
     
     /**
-     * Create a database table.
-     *
-     * @param string $tableName Table Name
-     * @return void
-     */
-    protected function createTable($tableName)
-    {
-    }
-    
-    /**
      * Drops the database table.
      *
      * @return void
