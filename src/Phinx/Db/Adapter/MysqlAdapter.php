@@ -110,6 +110,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createTable($tableName, $columns, $indexes = array(), $options = null)
     {
+        // This method is based on the MySQL docs here: http://dev.mysql.com/doc/refman/5.1/en/create-index.html
+        
         if (null === $options) {
             $options = array(
                 'engine' => 'InnoDB'
