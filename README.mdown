@@ -1,0 +1,133 @@
+# Phinx: Simple PHP Database Migrations
+
+Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx using PEAR and create your first database migration. Phinx is only concerned with one thing and it does it bloody well.
+
+### Phinx lets you
+
+* Migrate up and down.
+* Integrate with PHPUnit.
+* Migrate on deployment.
+* Get going in less than 5 minutes.
+* Stop worrying about the state of your database.
+* Write database agnostic PHP code.
+* Run `phinx` and magically migrate(TM) to the latest schema.
+* Take advantage of SCM features such as branching.
+
+### Compared with other tools, Phinx _does not…_
+
+* **Write log files.** The screen is better.
+* **Try to do too much.** Migrations only.
+* **Have unreadable source code.** We aim to be transparent.
+* **Rely on a framework.** Phinx is independent. Use it with any app.
+* **Support anything other than MySQL.** Feel free to fork and contribute if you desire.
+
+### Install & Run
+
+Mac OS X / Unix
+
+1. `sudo pear channel-discover pear.phinx.org`
+1. `sudo pear install phinx/phinx`
+1. `cd myapp`
+1. `phinx init`
+1. Edit your configuration file (phinx.yml)
+1. `phinx`
+
+Windows
+
+TODO
+
+Goals
+=====
+
+ * Force developers to write migrations using PHP code rather than SQL code thereby making it database agnostic
+ * Timestamps for migration files to prevent branching conflicts
+ * Framework independent (don't rely on Zend_Db, Symfony etc)
+ * Support migrating both up & down
+ * Database Changelog table (allows databases to be copied and allows files to be changed on the file-system)
+ * Installable via PEAR
+ * Few dependencies
+ * Support multiple databases
+ * Integrate with PHPUnit (Easily create a Test database and empty it between each test)
+ * Comprehensive documentation (coming soon)
+ * Simple command-line operation (phinx )
+     - phinx create CreateUserTable (writes the class CreateUserTable in the file XXXX_XX_XX_XXXXXX_create_user_table.php)
+    - or just 'phinx' or 'phinx migrate' to automatically migrate the database
+    - `phinx rollback` - Rollback the most recent migration
+    - `phinx rollback -t 20110101` - date
+    - 'phinx status' - prints the current db version
+    - 'phinx version' - prints the version of phinx you are using
+    - 'phinx help' - displays a list of commands
+ * PHP 5.3 and above requirement
+ * Low Barrier to Entry - Install via PEAR, Configure Your App and Migrate in Less Than 5 Minutes!
+ * Integrates with build tools such as Phing
+ * Full PHP docs (docblox)
+
+Features
+========
+
+ * Migrate up & down
+ * Integrate with PHPUnit (Create a Test Database)
+ * Auto-migrations (Switch to branch 'x' and run migrations, but meanwhile branch 'y' has been modified)
+     - This tool will automatically migrate down to the first available shared patch
+    - then migrate up to the latest available patch
+ * Text strings after timestamps in migration file names. e.g. '2012_01_03_151238_add_user_table.php'
+ * Simple YAML-based configuration (uses Symfony YAML)
+     - DB adapter type, host, port, db name, db user, db pass, supports both testing & production
+    - Migration directory
+    - Schema Database Name
+    - set default DB
+ * Only MySQL is supported for now
+ * Produces a Schema Script (useful for unit tests)
+ * Supports multiple databases for your application (prod, dev, test)
+ 
+Outstanding Tasks
+=================
+
+ * up & down commands
+ * init command
+ * php code sniffer rules
+ * git symfony submodules
+ * installation via PEAR
+ * project website
+ * comprehensive documentation
+ 
+News & Updates
+==============
+
+Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
+
+References
+==========
+  * https://bitbucket.org/drarok/ladder
+  * https://github.com/ruckus/ruckusing-migrations
+  * https://github.com/davedevelopment/phpmig
+  * Ruby On Rails Migrations
+  * PHPUnit
+  * Behat
+  
+### Future Features
+
+ * Wrap migrations in transactions if supported by the database
+ * Detect duplicate migrations
+
+### Contributors
+
+Feel free to fork on GitHub http://github.com/robmorgan/phinx and send me pull requests. Please file tickets there as well.
+
+### Version History
+
+**0.1.0** (Friday, 13th January 2012)
+
+* Initial public release.
+  
+### License
+
+(The MIT license)
+
+Copyright (c) 2012 Rob Morgan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
