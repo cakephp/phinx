@@ -1,0 +1,30 @@
+### Writing Migrations With Phinx
+
+First of all type: `phinx create YourNewMigrationName` in the root of your project directory (or whereever your phinx.yml file is located). Phinx will generate a new empty migration. Open this migration using your favourite text editor.
+
+- TODO: Phinx auto open (editor var in phinx.yml, actually that will clash with other developers in SCM, so we need to have phinx global prefs per user, per system)
+
+Inside your migrations file you will find 3 methods. 'up', 'down' & 'change'.
+
+The change method is very powerful, you can describe the changes your migration makes to the database. Phinx is able to read this information and automatically migrate up and down.
+
+Phinx supports the following column types:
+
+    :primary_key
+    :string
+    :text
+    :integer
+    :float
+    :decimal
+    :datetime
+    :timestamp
+    :time
+    :date
+    :binary
+    :boolean
+
+These will be automatically mapped onto an appropriate underlying database type, for example with MySQL :string is mapped to 'VARCHAR(255)'. You can create columns of types not supported by Phinx using the following syntax:
+
+TODO - code
+
+However this may hinder portability to other databases.
