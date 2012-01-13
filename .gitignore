@@ -1,0 +1,11 @@
+build/api
+build/code-browser
+build/coverage
+build/logs
+build/pdepend
+*.tgz
+*.phar
+composer.lock
+composer.phar
+.DS_Store
+tests/log
