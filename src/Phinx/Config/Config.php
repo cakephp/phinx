@@ -225,7 +225,7 @@ class Config implements \ArrayAccess
     function offsetGet($id)
     {
         if (!array_key_exists($id, $this->values)) {
-            throw new InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $id));
+            throw new \InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $id));
         }
 
         return $this->values[$id] instanceof \Closure ? $this->values[$id]($this) : $this->values[$id];

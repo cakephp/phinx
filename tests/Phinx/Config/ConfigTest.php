@@ -100,4 +100,24 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $config = new \Phinx\Config\Config(array());
         $this->assertNull($config->getMigrationPath());
     }
+    
+    public function testArrayAccessMethods()
+    {
+        $config = new \Phinx\Config\Config(array());
+        $config['foo'] = 'bar';
+        $this->assertEquals('bar', $config['foo']);
+        $this->assertTrue(isset($config['foo']));
+        unset($config['foo']);
+        $this->assertFalse(isset($config['foo']));
+    }
+    
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Identifier "foo" is not defined.
+     */
+    public function testUndefinedArrayAccess()
+    {
+        $config = new \Phinx\Config\Config(array());
+        $config['foo'];
+    }
 }
