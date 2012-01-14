@@ -32,6 +32,16 @@ use Phinx\Db\Table,
     Phinx\Db\Adapter\AdapterInterface,
     Phinx\Migration\MigrationInterface;
 
+/**
+ * Abstract Migration Class. 
+ *
+ * It is expected that the migrations you write extend from this class.
+ * 
+ * This abstract class proxies the various database methods to your specified
+ * adapter.
+ *
+ * @author Rob Morgan <rob@robmorgan.id.au>
+ */
 abstract class AbstractMigration implements MigrationInterface
 {
     /**
@@ -121,6 +131,7 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function execute($sql)
     {
+        return $this->getAdapter()->execute($sql);
     }
     
     /**
@@ -128,6 +139,7 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function query($sql)
     {
+        return $this->getAdapter()->query($sql);
     }
     
     /**
@@ -135,6 +147,7 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function fetchRow($sql)
     {
+        return $this->getAdapter()->fetchRow($sql);
     }
     
     /**
@@ -142,6 +155,7 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function fetchAll($sql)
     {
+        return $this->getAdapter()->fetchAll($sql);
     }
     
     /**
@@ -149,6 +163,7 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function createDatabase($name, $options)
     {
+        $this->getAdapter()->createDatabase($name, $options);
     }
     
     /**
@@ -156,6 +171,7 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function dropDatabase($name)
     {
+        $this->getAdapter()->dropDatabase($name);
     }
 
     /**
@@ -163,6 +179,7 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function hasTable($tableName)
     {
+        return $this->getAdapter()->hasTable($tableName);
     }
 
     /**
