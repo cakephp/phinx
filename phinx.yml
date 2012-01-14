@@ -24,7 +24,7 @@ environments:
     testing:
         adapter: mysql
         host: localhost
-        name: phinx_testing
+        name: testing_db
         user: root
         pass: ''
         port: 3306
