@@ -74,14 +74,34 @@ class Config implements \ArrayAccess
     }
     
     /**
+     * Returns the configuration for each environment.
+     * 
+     * This method returns <code>null</code> if no environments exist.
+     * 
+     * @return array|null
+     */
+    public function getEnvironments()
+    {
+        if (isset($this->values) && isset($this->values['environments']))
+            return $this->values['environments'];
+            
+        return null;
+    }
+    
+    /**
      * Returns the configuration for a given environment.
+     * 
+     * This method returns <code>null</code> if the specified environment
+     * doesn't exist.
      *
-     * @return array
+     * @return array|null
      */
     public function getEnvironment($name)
     {
-        if (isset($this->values['environments'][$name]))
-            return $this->values['environments'][$name];
+        $environments = $this->getEnvironments();
+        
+        if (isset($environments[$name]))
+            return $environments[$name];
         
         return null;
     }
@@ -106,16 +126,24 @@ class Config implements \ArrayAccess
     {
         // if the user has configured a default database then use it,
         // providing it actually exists!
-        if (isset($this->values['environments']['default_database'])
-            && $this->getEnvironment($this->values['environments']['default_database'])) {
-            return $this->values['environments']['default_database'];
+        if (isset($this->values['environments']['default_database'])) {
+            if ($this->getEnvironment($this->values['environments']['default_database'])) {
+                return $this->values['environments']['default_database'];    
+            }
+            
+            throw new \RuntimeException(sprintf(
+                'The environment configuration for \'%s\' is missing',
+                $this->values['environments']['default_database']
+            ));
         }
         
         // else default to the first available one
-        foreach ($this->values['environments'] as $key => $value) {
-            if (is_array($value)) {
-                return $key;
-            }
+        if (null !== $this->getEnvironments()) {
+            foreach ($this->getEnvironments() as $key => $value) {
+                if (is_array($value)) {
+                    return $key;
+                }
+            }    
         }
         
         throw new \RuntimeException('Could not find a default environment');

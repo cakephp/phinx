@@ -20,7 +20,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             ),
             'environments' => array(
                 'default_migration_table' => 'phinxlog',
-                'default_database' => 'development',
+                'default_database' => 'testing',
                 'testing' => array(
                     'adapter' => 'sqllite',
                     'path' => '%%PHINX_CONFIG_PATH%%/testdb/test.db'
@@ -29,11 +29,6 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         );
     }
     
-    /**
-     * Tests the <code>getEnvironment</code> method works as expected.
-     *
-     * @return void
-     */
     public function testGetEnvironmentMethodWorksAsExpected()
     {
         $configArray = $this->getConfigArray();
@@ -52,9 +47,41 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     
     public function testGetDefaultEnvironmentMethodWorksAsExpected()
     {
-        // TODO - implement
-        // test a Yaml file with no 'default_database' key
-        // test a Yaml file with no key or entries
-        // test a Yaml file with entries only
+        $path = __DIR__ . '/_files';
+        
+        // test with the config array
+        $configArray = $this->getConfigArray();
+        $config = new \Phinx\Config\Config($configArray);
+        $this->assertEquals('testing', $config->getDefaultEnvironment());
+        
+        // test using a Yaml file without the 'default_database' key.
+        // (it should default to the first one).
+        $config = \Phinx\Config\Config::fromYaml($path . '/no_default_database_key.yml');
+        $this->assertEquals('production', $config->getDefaultEnvironment());
+    }
+    
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Could not find a default environment
+     */
+    public function testGetDefaultEnvironmentWithAnEmptyYamlFile()
+    {
+        // test using a Yaml file with no key or entries
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromYaml($path . '/empty.yml');
+        $config->getDefaultEnvironment();
+    }
+    
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage The environment configuration for 'staging' is missing
+     */
+    public function testGetDefaultEnvironmentWithAMissingEnvironmentEntry()
+    {
+        // test using a Yaml file with a 'default_database' key, but without a
+        // corresponding entry
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromYaml($path . '/missing_environment_entry.yml');
+        $config->getDefaultEnvironment();
     }
 }
