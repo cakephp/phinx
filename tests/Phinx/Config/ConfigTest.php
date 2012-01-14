@@ -24,20 +24,30 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                 'testing' => array(
                     'adapter' => 'sqllite',
                     'path' => '%%PHINX_CONFIG_PATH%%/testdb/test.db'
+                ),
+                'production' => array(
+                    'adapter' => 'mysql'
                 )
             )
         );
     }
     
-    public function testGetEnvironmentMethodWorksAsExpected()
+    public function testGetEnvironmentsMethod()
     {
-        $configArray = $this->getConfigArray();
-        $config = new \Phinx\Config\Config($configArray);
+        $config = new \Phinx\Config\Config($this->getConfigArray());
+        $this->assertEquals(2, sizeof($config->getEnvironments()));
+        $this->assertArrayHasKey('testing', $config->getEnvironments());
+        $this->assertArrayHasKey('production', $config->getEnvironments());
+    }
+    
+    public function testGetEnvironmentMethod()
+    {
+        $config = new \Phinx\Config\Config($this->getConfigArray());
         $db = $config->getEnvironment('testing');
         $this->assertEquals('sqllite', $db['adapter']);
     }
     
-    public function testHasEnvironmentMethodWorksAsExpected()
+    public function testHasEnvironmentMethod()
     {
         $configArray = $this->getConfigArray();
         $config = new \Phinx\Config\Config($configArray);
@@ -45,7 +55,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($config->hasEnvironment('fakeenvironment'));
     }
     
-    public function testGetDefaultEnvironmentMethodWorksAsExpected()
+    public function testGetDefaultEnvironmentMethod()
     {
         $path = __DIR__ . '/_files';
         
