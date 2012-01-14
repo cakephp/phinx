@@ -41,14 +41,14 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $db = $config->getEnvironment('testing');
         $this->assertEquals('sqllite', $db['adapter']);
     }
-	
-	public function testHasEnvironmentMethodWorksAsExpected()
-	{
+    
+    public function testHasEnvironmentMethodWorksAsExpected()
+    {
         $configArray = $this->getConfigArray();
         $config = new \Phinx\Config\Config($configArray);
-		$this->assertTrue($config->hasEnvironment('testing'));
-		$this->assertFalse($config->hasEnvironment('fakeenvironment'));
-	}
+        $this->assertTrue($config->hasEnvironment('testing'));
+        $this->assertFalse($config->hasEnvironment('fakeenvironment'));
+    }
     
     public function testGetDefaultEnvironmentMethodWorksAsExpected()
     {
