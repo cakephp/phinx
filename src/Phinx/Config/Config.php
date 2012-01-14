@@ -208,8 +208,9 @@ class Config implements \ArrayAccess
      *
      * @param string $id    The unique identifier for the parameter or object
      * @param mixed  $value The value of the parameter or a closure to defined an object
+     * @return void
      */
-    function offsetSet($id, $value)
+    public function offsetSet($id, $value)
     {
         $this->values[$id] = $value;
     }
@@ -218,10 +219,8 @@ class Config implements \ArrayAccess
      * Gets a parameter or an object.
      *
      * @param  string $id The unique identifier for the parameter or object
-     *
-     * @return mixed  The value of the parameter or an object
-     *
      * @throws InvalidArgumentException if the identifier is not defined
+     * @return mixed  The value of the parameter or an object
      */
     function offsetGet($id)
     {
@@ -236,8 +235,7 @@ class Config implements \ArrayAccess
      * Checks if a parameter or an object is set.
      *
      * @param  string $id The unique identifier for the parameter or object
-     *
-     * @return Boolean
+     * @return boolean
      */
     function offsetExists($id)
     {
@@ -248,6 +246,7 @@ class Config implements \ArrayAccess
      * Unsets a parameter or an object.
      *
      * @param  string $id The unique identifier for the parameter or object
+     * @return void
      */
     function offsetUnset($id)
     {
