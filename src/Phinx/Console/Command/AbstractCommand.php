@@ -71,9 +71,11 @@ abstract class AbstractCommand extends Command
 		// report the migrations path
 		$output->writeln('<info>using migration path</info> ' . $this->getConfig()->getMigrationPath());
 	
-		// load the migrations manager and inject the config
-		$manager = new Manager($this->getConfig(), $output);
-		$this->setManager($manager);
+		if (null === $this->getManager()) {
+    		// load the migrations manager and inject the config
+	    	$manager = new Manager($this->getConfig(), $output);
+		    $this->setManager($manager);
+		}
 	}
 	
 	/**

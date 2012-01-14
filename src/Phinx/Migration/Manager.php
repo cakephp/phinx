@@ -236,7 +236,7 @@ class Manager
         
         // Check the target version exists
         if (0 !== $version && !isset($migrations[$version])) {
-            $output->writeln("<error>Target version ($version) not found</error>");
+            $this->getOutput()->writeln("<error>Target version ($version) not found</error>");
             return;
         }
         
