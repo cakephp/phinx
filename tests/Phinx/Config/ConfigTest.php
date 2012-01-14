@@ -84,4 +84,10 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $config = \Phinx\Config\Config::fromYaml($path . '/missing_environment_entry.yml');
         $config->getDefaultEnvironment();
     }
+    
+    public function testGetMigrationPathReturnsNullForNoPath()
+    {
+        $config = new \Phinx\Config\Config(array());
+        $this->assertNull($config->getMigrationPath());
+    }
 }
