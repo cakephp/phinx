@@ -26,6 +26,7 @@
  * @package    Phinx
  * @subpackage Phinx\Migration
  */
+use Phinx\Migration\Manager;
 namespace Phinx\Migration;
 
 use Symfony\Component\Config\FileLocator,
@@ -251,6 +252,18 @@ class Manager
                 $this->executeMigration($environment, $migration, 'down');
             }
         }
+    }
+    
+    /**
+     * Sets the environments.
+     *
+     * @param array $environments Environments
+     * @return Manager
+     */
+    public function setEnvironments($environments = array())
+    {
+        $this->environments = $environments;
+        return $this;
     }
     
     /**
