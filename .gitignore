@@ -12,3 +12,4 @@ tests/log
 .buildpath
 .project
 .settings
+dist
