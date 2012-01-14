@@ -2,28 +2,20 @@
 
 namespace Test\Phinx\Console\Command;
 
-use Symfony\Component\Console\Tester\CommandTester;
-use Phinx\Console\Command\Migrate;
+use Symfony\Component\Console\Tester\CommandTester,
+    Phinx\Console\Command\Migrate;
 
 class MigrateTest extends \PHPUnit_Framework_TestCase
 {
-	/**
-	 * @dataProvider provider
-	 */
-	 public function testExecute($options)
-	 {
-		 $commandTester = new CommandTester(new Migrate());
-		 $commandTester->execute();
-		 $this->assertEquals($commandTester->getDisplay(), 'migrating');
-	 }
-	 
-	 /**
-	  * Data Provider for execute method.
-	  */
-	 public function provider()
-	 {
-		 return array(
-			 array()
-		 );
-	 }
+    public function testExecute()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Migrate());
+        
+        $command = $application->find('migrate');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName()));
+        
+        $this->assertRegExp('/using migration path/', $commandTester->getDisplay());
+    }
 }
