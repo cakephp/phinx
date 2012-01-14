@@ -145,12 +145,9 @@ class Config implements \ArrayAccess
         }
         
         // else default to the first available one
-        if (null !== $this->getEnvironments()) {
-            foreach ($this->getEnvironments() as $key => $value) {
-                if (is_array($value)) {
-                    return $key;
-                }
-            }    
+        if (is_array($this->getEnvironments()) && count($this->getEnvironments()) > 0) {
+            $names = array_keys($this->getEnvironments());
+            return $names[0];
         }
         
         throw new \RuntimeException('Could not find a default environment');
