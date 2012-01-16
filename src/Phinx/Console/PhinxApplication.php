@@ -32,9 +32,8 @@ use Symfony\Component\Console\Application,
     Symfony\Component\Console\Input\InputInterface,
     Symfony\Component\Console\Input\InputDefinition,
     Symfony\Component\Console\Input\InputOption,
-	Symfony\Component\Console\Output\OutputInterface;
-	
-use Phinx\Console\Command;
+    Symfony\Component\Console\Output\OutputInterface,
+    Phinx\Console\Command;
 
 /**
  * Phinx console application.
@@ -43,41 +42,41 @@ use Phinx\Console\Command;
  */
 class PhinxApplication extends Application
 {
-    /**
+	/**
      * Class Constructor.
-	 *
-	 * Initialize the Phinx console application.
-	 *
-	 * @param string $version The Application Version
-	 * @return void
+     *
+     * Initialize the Phinx console application.
+     *
+     * @param string $version The Application Version
+     * @return void
      */
-	 public function __construct($version)
-     {
-		 parent::__construct('Phinx by Rob Morgan.', $version);
+    public function __construct($version)
+    {
+        parent::__construct('Phinx by Rob Morgan.', $version);
 
-		 $this->add(new Command\Init());
-		 $this->add(new Command\Create());
-		 $this->add(new Command\Migrate());
-		 $this->add(new Command\Rollback());
-		 $this->add(new Command\Status());
-	 }
-	 
-	 /**
-	  * Runs the current application.
-	  *
-	  * @param InputInterface $input An Input instance
-	  * @param OutputInterface $output An Output instance
-	  * @return integer 0 if everything went fine, or an error code
-	  */
-	 public function doRun(InputInterface $input, OutputInterface $output)
-	 {
-		 // always show the version information except when the user invokes the help
-		 // command as that already does it
-		 if (false === $input->hasParameterOption(array('--help', '-h'))) {
-		 	 $output->writeln($this->getLongVersion());
-			 $output->writeln('');
-		 }
-		 
-		 return parent::doRun($input, $output);
-	 }
+        $this->add(new Command\Init());
+        $this->add(new Command\Create());
+        $this->add(new Command\Migrate());
+        $this->add(new Command\Rollback());
+        $this->add(new Command\Status());
+    }
+     
+	/**
+	 * Runs the current application.
+	 *
+     * @param InputInterface $input An Input instance
+     * @param OutputInterface $output An Output instance
+     * @return integer 0 if everything went fine, or an error code
+     */
+    public function doRun(InputInterface $input, OutputInterface $output)
+    {
+        // always show the version information except when the user invokes the help
+        // command as that already does it
+        if (false === $input->hasParameterOption(array('--help', '-h'))) {
+            $output->writeln($this->getLongVersion());
+            $output->writeln('');
+        }
+         
+        return parent::doRun($input, $output);
+    }
 }
