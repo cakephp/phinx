@@ -33,11 +33,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function getConfigArray()
     {
         return array(
-            'default' => array(
-                'paths' => array(
-                    'migrations' => '%%PHINX_CONFIG_PATH%%/testmigrations2',
-                    'schema' => '%%PHINX_CONFIG_PATH%%/testmigrations2/schema.sql',
-                )
+            'paths' => array(
+                'migrations' => __DIR__ . '/_files'
             ),
             'environments' => array(
                 'default_migration_table' => 'phinxlog',
@@ -55,6 +52,23 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     }
     
     public function testPrintStatusMethod()
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->once())
+                ->method('getVersions')
+                ->will($this->returnValue(array('20120111235330', '20120116183504')));
+        
+        $this->manager->setEnvironments(array('mockenv' => $envStub));                
+        $this->manager->printStatus('mockenv');   
+        
+        rewind($this->manager->getOutput()->getStream());
+        $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
+        $this->assertRegExp('/up  20120111235330  TestMigration/', $outputStr);
+        $this->assertRegExp('/up  20120116183504  TestMigration2/', $outputStr);
+    }
+    
+    public function testPrintStatusMethodWithMissingMigrations()
     {
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
