@@ -85,13 +85,49 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/up  20120815145812  \*\* MISSING \*\*/', $outputStr);
     }
 
-    public function testGetMigrationsWithDuplicateMigrations()
+    public function testGetMigrationsWithDuplicateMigrationVersions()
     {
         $this->setExpectedException(
             'InvalidArgumentException',
-            'Duplicate migration - "' . __DIR__ . '/_files/duplicates/20120111235330_duplicate_migration_2.php" has the same version as "20120111235330"'
+            'Duplicate migration - "' . __DIR__ . '/_files/duplicateversions/20120111235330_duplicate_migration_2.php" has the same version as "20120111235330"'
         );
-        $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files/duplicates')));
+        $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files/duplicateversions')));
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $manager = new Manager($config, $output);
+        $manager->getMigrations();
+    }
+    
+    public function testGetMigrationsWithDuplicateMigrationNames()
+    {
+        $this->setExpectedException(
+            'InvalidArgumentException',
+            'Migration "20120111235331_duplicate_migration_name.php" has the same name as "20120111235330_duplicate_migration_name.php"'
+        );
+        $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files/duplicatenames')));
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $manager = new Manager($config, $output);
+        $manager->getMigrations();
+    }
+    
+    public function testGetMigrationsWithInvalidMigrationClassName()
+    {
+        $this->setExpectedException(
+            'InvalidArgumentException',
+            'Could not find class "InvalidClass" in file "' . __DIR__ . '/_files/invalidclassname/20120111235330_invalid_class.php"'
+        );
+        $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files/invalidclassname')));
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $manager = new Manager($config, $output);
+        $manager->getMigrations();
+    }
+    
+    public function testGetMigrationsWithClassThatDoesntExtendAbstractMigration()
+    {
+        $this->setExpectedException(
+            'InvalidArgumentException',
+            'The class "InvalidSuperClass" in file "' . __DIR__ . '/_files/invalidsuperclass/20120111235330_invalid_super_class.php" must extend \Phinx\Migration\AbstractMigration'
+        );
+        $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files/invalidsuperclass')));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $manager = new Manager($config, $output);
         $manager->getMigrations();

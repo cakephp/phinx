@@ -345,10 +345,7 @@ class Manager
             foreach ($phpFiles as $filePath) {
                 if (preg_match('/([0-9]+)_([_a-z0-9]*).php/', basename($filePath))) {
                     $matches = array();
-                    if (!preg_match('/^[0-9]+/', basename($filePath), $matches)) {
-                        throw new \InvalidArgumentException(sprintf('The file "%s" does not have a valid migration filename', $filePath));
-                    }
-
+                    preg_match('/^[0-9]+/', basename($filePath), $matches); // get the version from the start of the filename
                     $version = $matches[0];
                     
                     if (isset($versions[$version])) {
