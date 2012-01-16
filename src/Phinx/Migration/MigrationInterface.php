@@ -37,17 +37,17 @@ use Phinx\Db\Adapter\AdapterInterface;
  */
 interface MigrationInterface
 {
-	/**
-	 * @var string
-	 */
-	const UP = 'up';
-	
-	/**
-	 * @var string
-	 */
-	const DOWN = 'down';
-	
-	/**
+    /**
+     * @var string
+     */
+    const UP = 'up';
+    
+    /**
+     * @var string
+     */
+    const DOWN = 'down';
+    
+    /**
      * Migrate Up
      *
      * @return void
@@ -60,97 +60,102 @@ interface MigrationInterface
      * @return void
      */
     public function down();
-	
-	/**
-	 * Sets the database adapter.
-	 *
-	 * @param AdapterInterface $adapter Database Adapter
-	 * @return MigrationInterface
-	 */
-	public function setAdapter(AdapterInterface $adapter);
-	
-	/**
-	 * Gets the database adapter.
-	 *
-	 * @return AdapterInterface
-	 */
-	public function getAdapter();
-	
-	/**
+    
+    /**
+     * Sets the database adapter.
+     *
+     * @param AdapterInterface $adapter Database Adapter
+     * @return MigrationInterface
+     */
+    public function setAdapter(AdapterInterface $adapter);
+    
+    /**
+     * Gets the database adapter.
+     *
+     * @return AdapterInterface
+     */
+    public function getAdapter();
+    
+    /**
      * Gets the name.
      *
      * @return string
      */
-	public function getName();
-	
-	/**
+    public function getName();
+    
+    /**
      * Sets the migration version number.
      *
-     * @param int $version Version
+     * @param float $version Version
      * @return MigrationInterface
      */
-	public function setVersion($version);
-	
-	/**
+    public function setVersion($version);
+    
+    /**
      * Gets the migration version number.
      *
+     * @return float
+     */
+    public function getVersion();
+    
+    /**
+     * Executes a SQL statement and returns the number of affected rows.
+     * 
+     * @param string $sql SQL
      * @return int
      */
-	public function getVersion();
-	
-	/**
-     * Execute a database query
+    public function execute($sql);
+    
+    /**
+     * Executes a SQL statement and returns the result as an array. 
      *
-     * @param string $sql Query SQL
-     * @return void
+     * @param string $sql SQL
+     * @return array
      */
-	public function execute($sql);
-	
-	
-	public function query($sql);
-	
-	/**
-     * Fetch a database row.
+    public function query($sql);
+    
+    /**
+     * Executes a query and returns only one row as an array.
      *
-     * @param string $sql Query SQL
-     * @return void
+     * @param string $sql SQL
+     * @return array
      */
-	public function fetchRow($sql);
-	
-	/**
-     * Fetch all matching rows.
+    public function fetchRow($sql);
+    
+    /**
+     * Executes a query and returns an array of rows.
      *
-     * @param string $sql Query SQL
-     * @return void
+     * @param string $sql SQL
+     * @return array
      */
-	public function fetchAll($sql);
-	
-	/**
+    public function fetchAll($sql);
+    
+    /**
      * Create a new database.
      *
      * @param string $name Database Name
      * @param array $options Options
      * @return void
      */
-	public function createDatabase($name, $options);
-	
-	/**
+    public function createDatabase($name, $options);
+    
+    /**
      * Drop a database.
      *
      * @param string $name Database Name
      * @return void
      */
-	public function dropDatabase($name);
-	
+    public function dropDatabase($name);
+    
     /**
      * Checks to see if a table exists.
      *
      * @param string $tableName Table Name
      * @return boolean
-     */	
-	public function hasTable($tableName);
-	
-	/**
+     */    
+    public function hasTable($tableName);
+    
+    /**
      * Returns an instance of the <code>\Table</code> class.
      *
      * You can use this class to create and manipulate tables.
