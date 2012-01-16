@@ -118,7 +118,7 @@ interface AdapterInterface
      *
      * @param string $sql SQL
      * @return array
-     */    
+     */
     public function fetchAll($sql);
     
     /**
