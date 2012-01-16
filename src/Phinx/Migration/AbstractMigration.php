@@ -45,6 +45,11 @@ use Phinx\Db\Table,
 abstract class AbstractMigration implements MigrationInterface
 {
     /**
+     * @var float
+     */
+    protected $version;
+    
+    /**
      * @var AdapterInterface
      */
     protected $adapter;
