@@ -4,7 +4,8 @@ namespace Test\Phinx\Migration;
 
 use Symfony\Component\Console\Output\StreamOutput,
     Phinx\Config\Config,
-    Phinx\Migration\Manager;
+    Phinx\Migration\Manager,
+    Phinx\Migration\Manager\Environment;
 
 class ManagerTest extends \PHPUnit_Framework_TestCase
 {
@@ -131,6 +132,11 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $manager = new Manager($config, $output);
         $manager->getMigrations();
+    }
+    
+    public function testGettingAValidEnvironment()
+    {
+        $this->assertTrue($this->manager->getEnvironment('production') instanceof Environment);
     }
     
     /**
