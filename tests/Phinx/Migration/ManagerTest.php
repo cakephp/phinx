@@ -34,7 +34,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             'paths' => array(
-                'migrations' => __DIR__ . '/_files'
+                'migrations' => __DIR__ . '/_files/migrations'
             ),
             'environments' => array(
                 'default_migration_table' => 'phinxlog',
@@ -83,6 +83,18 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
         $this->assertRegExp('/up  20120103083300  \*\* MISSING \*\*/', $outputStr);
         $this->assertRegExp('/up  20120815145812  \*\* MISSING \*\*/', $outputStr);
+    }
+
+    public function testGetMigrationsWithDuplicateMigrations()
+    {
+        $this->setExpectedException(
+            'InvalidArgumentException',
+            'Duplicate migration - "' . __DIR__ . '/_files/duplicates/20120111235330_duplicate_migration_2.php" has the same version as "20120111235330"'
+        );
+        $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files/duplicates')));
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $manager = new Manager($config, $output);
+        $manager->getMigrations();
     }
     
     /**

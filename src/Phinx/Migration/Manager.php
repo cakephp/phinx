@@ -346,13 +346,13 @@ class Manager
                 if (preg_match('/([0-9]+)_([_a-z0-9]*).php/', basename($filePath))) {
                     $matches = array();
                     if (!preg_match('/^[0-9]+/', basename($filePath), $matches)) {
-                        throw new \InvalidArgumentException(sprintf('The file "%s" does not have a valid migration filename', $path));
+                        throw new \InvalidArgumentException(sprintf('The file "%s" does not have a valid migration filename', $filePath));
                     }
 
                     $version = $matches[0];
                     
                     if (isset($versions[$version])) {
-                        throw new \InvalidArgumentException(sprintf('Duplicate migration, "%s" has the same version as "%s"', $path, $versions[$version]));
+                        throw new \InvalidArgumentException(sprintf('Duplicate migration - "%s" has the same version as "%s"', $filePath, $versions[$version]->getVersion()));
                     }
                     
                     // convert the filename to a class name
