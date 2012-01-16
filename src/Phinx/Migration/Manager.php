@@ -101,7 +101,7 @@ class Manager
         
         foreach ($versions as $missing) {
             $output->writeln(
-                '   <error>up</error> '
+                '     <error>up</error> '
                 . sprintf(' %14.0f ', $missing)
                 . ' <error>** MISSING **</error>'
             );
@@ -341,6 +341,7 @@ class Manager
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
             $versions = array();
+            
             foreach ($phpFiles as $filePath) {
                 if (preg_match('/([0-9]+)_([_a-z0-9]*).php/', basename($filePath))) {
                     $matches = array();
