@@ -26,7 +26,6 @@
  * @package    Phinx
  * @subpackage Phinx\Migration
  */
-use Phinx\Migration\Manager;
 namespace Phinx\Migration;
 
 use Symfony\Component\Config\FileLocator,
@@ -95,7 +94,7 @@ class Manager
             
             $output->writeln(
                 $status
-                . sprintf(' %14d ', $migration->getVersion())
+                . sprintf(' %14.0f ', $migration->getVersion())
                 . ' <comment>' . $migration->getName() . '</comment>'
             );
         }
@@ -103,7 +102,7 @@ class Manager
         foreach ($versions as $missing) {
             $output->writeln(
                 '   <error>up</error> '
-                . sprintf(' %14d ', $missing)
+                . sprintf(' %14.0f ', $missing)
                 . ' <error>** MISSING **</error>'
             );
         }
