@@ -2,30 +2,32 @@
 
 namespace Test\Phinx\Console;
  
-use Symfony\Component\Console\Tester\ApplicationTester;
+use Symfony\Component\Console\Tester\ApplicationTester,
+    Phinx\Console\PhinxApplication;
 
-class PhinxApplicationTest
+class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
 {
-	/**
-	 * @dataProvider provider
-	 */
-	public function testRun($command, $result)
-	{
-		$app = new \Phinx\Console\PhinxApplication();
-		$app->setAutoExit(false); // Set autoExit to false when testing
-		
-		$appTester = new ApplicationTester($app);
-		$appTester->run(array('command' => $command));
-		$stream = $appTester->getOutput()->getStream();
-		rewind($stream);
-		
-		$this->assertEquals(stream_get_contents($stream), $result);
-	}
+    /**
+     * @dataProvider provider
+     */
+    public function testRun($command, $result)
+    {
+        $app = new \Phinx\Console\PhinxApplication('testing');
+        $app->setAutoExit(false); // Set autoExit to false when testing
+        $app->setCatchExceptions(false);
+
+        $appTester = new ApplicationTester($app);
+        $appTester->run(array('command' => $command));
+        $stream = $appTester->getOutput()->getStream();
+        rewind($stream);
+
+        $this->assertRegExp($result, stream_get_contents($stream));
+    }
  
-	public function provider()
-	{
-		return array(
-	    	array('migrate', 'migrating')
-	    );
-	}
+    public function provider()
+    {
+        return array(
+            array('help', '/help \[--xml\] \[command_name\]/')
+        );
+    }
 }
