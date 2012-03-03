@@ -181,7 +181,7 @@ interface AdapterInterface
      * @param array  $options    Options
      * @return boolean
      */
-    public function hasColumn($tableName, $columnName, $options);
+    public function hasColumn($tableName, $columnName, $options = array());
     
     /**
      * Adds the specified column to a database table.
