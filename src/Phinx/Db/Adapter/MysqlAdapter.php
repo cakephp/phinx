@@ -233,9 +233,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasColumn($tableName, $columnName, $options)
+    public function hasColumn($tableName, $columnName, $options = array())
     {
-        // TODO - implement
+        // TODO - do we need $options? I think we borrowed the signature from
+        // Rails and it's meant to test indexes or something??
+        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $tableName));
+        foreach ($rows as $column) {
+            if (strtolower($column['Field']) == strtolower($columnName)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     /**
@@ -251,7 +260,28 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameColumn($tableName, $columnName, $newColumnName)
     {
-        // TODO - implement
+        $rows = $this->fetchAll(sprintf('DESCRIBE %s', $this->quoteTableName($tableName)));
+        foreach ($rows as $row) {
+            if (strtolower($row['Field']) == strtolower($columnName)) {
+                $null = ($row['Null'] == 'NO') ? 'NOT NULL' : 'NULL';
+                $extra = ' ' . strtoupper($row['Extra']);
+                $definition = $row['Type'] . ' ' . $null . $extra;
+        
+                return $this->execute(
+                    sprintf('ALTER TABLE %s CHANGE COLUMN %s %s %s',
+                            $this->quoteTableName($tableName),
+                            $this->quoteColumnName($columnName),
+                            $this->quoteColumnName($newColumnName),
+                            $definition
+                    )
+                );
+            }
+        }
+        
+        throw new \InvalidArgumentException(sprintf(
+            'The specified column doesn\'t exist: '
+            . $columnName
+        ));
     }
     
     /**
@@ -260,6 +290,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function dropColumn($tableName, $columnName)
     {
         // TODO - implement
+        // ALTER TABLE t2 DROP COLUMN c, DROP COLUMN d;
     }
     
     /**
