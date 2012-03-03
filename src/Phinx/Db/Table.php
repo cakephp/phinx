@@ -54,12 +54,12 @@ class Table
     /**
      * @var array
      */
-    protected $columns;
+    protected $columns = array();
     
     /**
      * @var array
      */
-    protected $indexes;
+    protected $indexes = array();
     
     /**
      * Class Constuctor.
@@ -321,7 +321,6 @@ class Table
     {
         if ($this->exists()) {
             // update table
-            echo 'updating table: ' . $this->getName() . PHP_EOL;
             foreach ($this->getColumns() as $column) {
                 $this->getAdapter()->addColumn($this->getName(), $column['name'], $column['type'], $column['options']);
             }
