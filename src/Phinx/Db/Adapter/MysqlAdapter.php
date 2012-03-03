@@ -39,23 +39,31 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         if (null === $this->connection) {
             if (!class_exists('PDO') || !in_array('mysql', \PDO::getAvailableDrivers(), true)) {
+                // @codeCoverageIgnoreStart
                 throw new \RuntimeException('You need to enable the PDO_Mysql extension for Phinx to run properly.');
+                // @codeCoverageIgnoreEnd
             }
             
             $dsn = '';
             $db = null;
             $options = $this->getOptions();
-            $dsn = 'mysql:host=' . $options['host'] . ';dbname=' . $options['name'];
-        
+            
+            // if port is specified use it, otherwise use the MySQL default
+            if (isset($options['port'])) {
+                $dsn = 'mysql:host=' . $options['host'] . ';port=' . $options['port'] . ';dbname=' . $options['name'];
+            } else {
+                $dsn = 'mysql:host=' . $options['host'] . ';dbname=' . $options['name'];
+            }
+
             try {
-                $db = new \PDO($dsn, $options['user'], $options['pass']);
+                $db = new \PDO($dsn, $options['user'], $options['pass'], array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
             } catch(\PDOException $exception) {
                 throw new \InvalidArgumentException(sprintf(
                     'There was a problem connecting to the database: '
                     . $exception->getMessage()
                 ));
             }
-            
+
             $this->setConnection($db);
             
             // Create the schema table if it doesn't already exist
@@ -70,7 +78,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function disconnect()
     {
-        // TODO - Implement
+        $this->connection = null;
     }
     
     /**
@@ -211,7 +219,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameTable($tableName, $newName)
     {
-        // TODO - implement
+        $this->execute(sprintf('RENAME TABLE %s TO %s', $tableName, $newName));
     }
     
     /**
