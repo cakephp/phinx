@@ -4,6 +4,9 @@ namespace Test\Phinx\Migration\Manager;
 
 class EnvironmentTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var \Phinx\Migration\Manager\Environment
+     */
     private $environment;
     
     public function setUp()
