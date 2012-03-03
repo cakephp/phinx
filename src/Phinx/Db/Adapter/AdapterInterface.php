@@ -244,11 +244,11 @@ interface AdapterInterface
     public function dropIndex($tableName, $columns, $options);
     
     /**
-     * Returns an array of the logical Phinx types.
+     * Returns an array of the supported Phinx column types.
      * 
      * @return array
      */
-    public function getLogicalTypes();
+    public function getColumnTypes();
     
     /**
      * Converts the Phinx logical type to the adapter's SQL type.

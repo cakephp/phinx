@@ -295,7 +295,7 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getLogicalTypes()
+    public function getColumnTypes()
     {
         return array(
             'primary_key',

@@ -200,7 +200,7 @@ class Table
     public function addColumn($columnName, $type, $options = array())
     {
         // check column type
-        if (is_null($type) || !in_array($type, $this->getAdapter()->getLogicalTypes())) {
+        if (is_null($type) || !in_array($type, $this->getAdapter()->getColumnTypes())) {
             throw new \RuntimeException('An invalid column type was specified.');
         }
         
