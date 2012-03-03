@@ -124,13 +124,13 @@ abstract class PdoAdapter implements AdapterInterface
      *
      * @return \PDO
      */
-     public function getConnection()
-     {
-         if (null === $this->connection) {
-             $this->connect();
-         }
-         return $this->connection;
-     }
+    public function getConnection()
+    {
+        if (null === $this->connection) {
+            $this->connect();
+        }
+        return $this->connection;
+    }
      
     /**
      * {@inheritdoc}
@@ -145,7 +145,7 @@ abstract class PdoAdapter implements AdapterInterface
     public function disconnect()
     {
     }
-    
+     
     /**
      * {@inheritdoc}
      */
@@ -154,7 +154,7 @@ abstract class PdoAdapter implements AdapterInterface
         return $this->getConnection()->exec($sql);
     }
     
-	/**
+    /**
      * {@inheritdoc}
      */
     public function query($sql)
@@ -162,7 +162,7 @@ abstract class PdoAdapter implements AdapterInterface
         return $this->getConnection()->query($sql);
     }
     
-	/**
+    /**
      * {@inheritdoc}
      */
     public function fetchRow($sql)
@@ -300,11 +300,11 @@ abstract class PdoAdapter implements AdapterInterface
         return array(
             'primary_key',
             'string',
-			'text',
+            'text',
             'integer',
-			'float',
+            'float',
             'decimal',
-			'datetime',
+            'datetime',
             'timestamp',
             'time',
             'date',
