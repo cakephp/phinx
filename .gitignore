@@ -13,3 +13,4 @@ tests/log
 .project
 .settings
 dist
+tests/TestConfiguration.php
