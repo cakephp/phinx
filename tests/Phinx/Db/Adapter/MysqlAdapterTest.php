@@ -183,4 +183,10 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->dropColumn('t', 'column1');
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
     }
+    
+    public function testHasDatabase()
+    {
+        $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
+        $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE));
+    }
 }

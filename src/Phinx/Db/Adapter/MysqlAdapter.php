@@ -406,6 +406,27 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function hasDatabase($name)
+    {
+        $rows = $this->fetchAll(
+            sprintf(
+                'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \'%s\'',
+                $name
+            )
+        );
+        
+        foreach ($rows as $row) {
+            if (!empty($row)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
     public function dropDatabase($name)
     {
         $this->execute(sprintf('DROP DATABASE IF EXISTS `%s`', $name));

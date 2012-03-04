@@ -265,6 +265,14 @@ interface AdapterInterface
      * @return void
      */
     public function createDatabase($name, $options);
+	
+	/**
+	 * Checks to see if a database exists.
+	 *
+	 * @param string $name Database Name
+	 * @return boolean
+	 */
+	public function hasDatabase($name);
     
     /**
      * Drops the specified database.
