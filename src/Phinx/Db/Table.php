@@ -240,6 +240,7 @@ class Table
      */
     public function removeColumn($columnName)
     {
+        // TODO - Implement
         return $this;
     }
     
@@ -252,6 +253,7 @@ class Table
      */
     public function renameColumn($oldName, $newName)
     {
+        // TODO - Implement
         return $this;
     }
     
@@ -264,6 +266,7 @@ class Table
      */
     public function changeColumn($columnName, $newColumnType)
     {
+        // TODO - Implement
         return $this;
     }
     
