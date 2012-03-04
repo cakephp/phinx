@@ -218,10 +218,9 @@ interface AdapterInterface
      *
      * @param string $tableName Table Name
      * @param mixed $columns Column(s)
-     * @param array $options Options
      * @return boolean
      */
-    public function hasIndex($tableName, $columns, $options);
+    public function hasIndex($tableName, $columns);
     
     /**
      * Adds the specified index to a database table.

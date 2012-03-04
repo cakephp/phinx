@@ -27,6 +27,9 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         foreach ($tables as $table) {
             $this->adapter->dropTable($table[0]);
         }
+        
+        // leave the adapter in a disconnected state for each test
+        $this->adapter->disconnect();
     }
     
     public function tearDown()
@@ -91,6 +94,31 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     
     public function testCreateTable()
     {
+    }
+    
+    public function testCreateTableWithMultiplePKs()
+    {
+        $options = array(
+            'id'            => false,
+            'primary_key'   => array('user_id', 'tag_id')
+        );
+        $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
+        $table->addColumn('user_id', 'integer')
+              ->addColumn('tag_id', 'integer')
+              ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', array('user_id', 'tag_id'), array('primary' => true)));
+        $this->assertTrue($this->adapter->hasIndex('table1', array('tag_id', 'USER_ID'), array('primary' => true)));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('tag_id', 'user_email'), array('primary' => true)));
+    }
+    
+    public function testCreateTableWithUniqueIndexes()
+    {
+    
+    }
+    
+    public function testCreateTableWithMultiplePKsAndUniqueIndexes()
+    {
+        
     }
     
     public function testRenameTable()

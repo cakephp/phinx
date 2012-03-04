@@ -219,7 +219,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameTable($tableName, $newName)
     {
-        $this->execute(sprintf('RENAME TABLE %s TO %s', $tableName, $newName));
+        $this->execute(sprintf('RENAME TABLE %s TO %s', $this->quoteTableName($tableName), $this->quoteTableName($newName)));
     }
     
     /**
@@ -301,19 +301,28 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasIndex($tableName, $columns, $options)
+    public function hasIndex($tableName, $columns)
     {
         $options = $this->getOptions();
-        
         $indexes = array();
-        $rows = $this->fetchAll(sprintf('SHOW KEYS FROM %s', $this->quoteTableName($tableName)));
+        $columns = array_map('strtolower', $columns);
+        
+        $rows = $this->fetchAll(sprintf('SHOW INDEXES FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $row) {
-            $indexes[] = strtolower($row[0]);
-            // TODO - this is tricky because we get n rows which might be part of the same index, thefore
-            // we'll need to progressively build the array
+            if (!isset($indexes[$row['Key_name']])) {
+                $indexes[$row['Key_name']] = array('columns' => array());
+            }
+            $indexes[$row['Key_name']]['columns'][] = strtolower($row['Column_name']);
         }
         
-        return in_array(strtolower($tableName), $indexes);
+        foreach ($indexes as $index) {
+            $a = array_diff($index['columns'], $columns);
+            if (empty($a)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     /**
