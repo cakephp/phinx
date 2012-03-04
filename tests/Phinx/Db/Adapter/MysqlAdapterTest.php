@@ -94,6 +94,15 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     
     public function testCreateTable()
     {
+        $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
+        $table->addColumn('realname', 'string')
+              ->addColumn('email', 'integer')
+              ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
     
     public function testCreateTableWithMultiplePKs()
@@ -106,14 +115,19 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('user_id', 'integer')
               ->addColumn('tag_id', 'integer')
               ->save();
-        $this->assertTrue($this->adapter->hasIndex('table1', array('user_id', 'tag_id'), array('primary' => true)));
-        $this->assertTrue($this->adapter->hasIndex('table1', array('tag_id', 'USER_ID'), array('primary' => true)));
-        $this->assertFalse($this->adapter->hasIndex('table1', array('tag_id', 'user_email'), array('primary' => true)));
+        $this->assertTrue($this->adapter->hasIndex('table1', array('user_id', 'tag_id')));
+        $this->assertTrue($this->adapter->hasIndex('table1', array('tag_id', 'USER_ID')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('tag_id', 'user_email')));
     }
     
     public function testCreateTableWithUniqueIndexes()
     {
-    
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addIndex('email', array('unique' => true))
+              ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
     }
     
     public function testCreateTableWithMultiplePKsAndUniqueIndexes()

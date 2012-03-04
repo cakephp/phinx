@@ -316,7 +316,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
         
         foreach ($indexes as $index) {
-            $a = array_diff($index['columns'], $columns);
+            $a = array_diff($columns, $index['columns']);
             if (empty($a)) {
                 return true;
             }
