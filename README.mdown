@@ -1,6 +1,6 @@
 # Phinx: Simple PHP Database Migrations
 
-Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx using PEAR and create your first database migration. Phinx is only concerned with one thing and it does it bloody well.
+Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx using PEAR and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system.
 
 **NOTE:** Phinx is super-alpha software. It barely works and isn't currently installable via PEAR, so proceed at your own risk!
 
