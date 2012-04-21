@@ -28,7 +28,9 @@
  */
 namespace Phinx\Db;
 
-use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Table\Column,
+    Phinx\Db\Table\Index,
+    Phinx\Db\Adapter\AdapterInterface;
 
 /**
  *
@@ -44,7 +46,7 @@ class Table
     /**
      * @var array
      */
-    protected $options;
+    protected $options = array();
     
     /**
      * @var AdapterInterface
@@ -188,6 +190,18 @@ class Table
     }
     
     /**
+     * Sets an array of columns waiting to be indexed.
+     *
+     * @param array $indexes Indexes
+     * @return Table
+     */
+    public function setIndexes($indexes)
+    {
+        $this->indexes = $indexes;
+        return $this;
+    }
+    
+    /**
      * Gets an array of indexes waiting to be committed.
      * 
      * @return array
@@ -204,44 +218,29 @@ class Table
      * 
      * Valid options can be: limit, default, null, precision or scale.
      *
-     * @param string $columnName Column Name
+     * @param string|Phinx\Db\Table\Column $columnName Column Name
      * @param string $type Column Type
      * @param array $options Column Options
      * @return Table
      */
     public function addColumn($columnName, $type, $options = array())
     {
-        // TODO - should also accept a Phinx\Db\Table\Column object
+        // create a new column object if only strings were supplied
+        if (!$columnName instanceof Column) {
+            $column = new Column();
+            $column->setName($columnName);
+            $column->setType($type);
+            $column->setOptions($options); // map options to column methods
+        } else {
+            $column = $columnName;
+        }
+        
         // check column type
-        if (is_null($type) || !in_array($type, $this->getAdapter()->getColumnTypes())) {
+        if (!in_array($column->getType(), $this->getAdapter()->getColumnTypes())) {
             throw new \RuntimeException('An invalid column type was specified.');
         }
         
-        // Valid Options
-        $validOptions = array('limit', 'default', 'null', 'precision', 'scale');
-        foreach ($options as $option => $value) {
-            if (!in_array($option, $validOptions)) {
-                throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');
-            }
-        }
-        
-        // Set Defaults
-        $defaults = array(
-            'limit'   => null, // no limit
-            'null'    => false
-        );
-        
-        // Merge Options
-        $options = array_merge($defaults, $options);
-
-        // Define Column
-        $column = array(
-            'name'    => $columnName,
-            'type'    => $type,
-            'options' => $options
-        );
         $this->columns[] = $column;
-        
         return $this;
     }
     
@@ -346,7 +345,7 @@ class Table
             }
         } else {
             // create table
-            $this->getAdapter()->createTable($this->getName(), $this->getColumns(), $this->getIndexes(), $this->getOptions());
+            $this->getAdapter()->createTable($this);
         }
     }
 }

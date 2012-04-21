@@ -116,27 +116,23 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createTable($tableName, $columns, $indexes = array(), $options = null)
+    public function createTable($table)
     {
         // This method is based on the MySQL docs here: http://dev.mysql.com/doc/refman/5.1/en/create-index.html
-        
-        if (null === $options) {
-            $options = array(
-                'engine' => 'InnoDB'
-            );
-        }
+        $defaultOptions = array(
+            'engine' => 'InnoDB'
+        );
+        $options = array_merge($defaultOptions, $table->getOptions());
         
         // Add the default primary key
+        $columns = $table->getColumns();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
-            array_unshift($columns, array(
-                'name'    => 'id',
-                'type'    => 'integer',
-                'options' => array(
-                    'null'           => false,
-                    'auto_increment' => true
-                )
-            ));
+            $column = new \Phinx\Db\Table\Column();
+            $column->setName('id')
+                   ->setType('integer')
+                   ->setIdentity(true);
             
+            array_unshift($columns, $column);                        
             $options['primary_key'] = 'id';
         }
         
@@ -146,15 +142,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $optionsStr = 'ENGINE = InnoDB';
         
         $sql = 'CREATE TABLE ';
-        $sql .= $this->quoteTableName($tableName) . ' (';
+        $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
-            $sqlType = $this->getSqlType($column['type']);
-            $sql .= $this->quoteColumnName($column['name']) . ' ' . strtoupper($sqlType['name']);
-            $sql .= (isset($column['options']['limit']) || isset($sqlType['limit']))
-                  ? '(' . (isset($column['options']['limit']) ? $column['options']['limit'] : $sqlType['limit']) . ')' : '';
-            $sql .= ($column['options']['null'] == false) ? ' NOT NULL' : ' NULL';
-            $sql .= (isset($column['options']['auto_increment'])) ? ' AUTO_INCREMENT' : '';
-            $sql .= (isset($column['options']['default'])) ? ' DEFAULT \'' . $column['options']['default'] . '\'' : '';
+            $sqlType = $this->getSqlType($column->getType());
+            $sql .= $this->quoteColumnName($column->getName()) . ' ' . strtoupper($sqlType['name']);
+            $sql .= ($column->getLimit() || isset($sqlType['limit']))
+                  ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
+            $sql .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
+            $sql .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
+            $sql .= ($column->getDefault()) ? ' DEFAULT \'' . $column->getDefault() . '\'' : '';
             $sql .= ', ';
             // TODO - add precision & scale for decimals
         }
@@ -178,6 +174,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         // set the indexes
         // TODO - I don't think the following index code below supports multiple indexes.
         // i.e. more than two seperate unique indexes
+        $indexes = $table->getIndexes();
         if (!empty($indexes)) {
             $sql .= ', ';
             $nIndexes = array();

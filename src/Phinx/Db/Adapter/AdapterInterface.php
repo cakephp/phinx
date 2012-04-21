@@ -148,13 +148,10 @@ interface AdapterInterface
     /**
      * Creates the specified database table.
      *
-     * @param string $tableName Table Name
-     * @param array  $columns   Columns
-     * @param array  $indexes   Indexes
-     * @param string $options   Options
+     * @param \Phinx\Db\Table $table Table
      * @return void
      */
-    public function createTable($tableName, $columns, $indexes, $options);
+    public function createTable($table);
     
     /**
      * Renames the specified database table.
@@ -265,14 +262,14 @@ interface AdapterInterface
      * @return void
      */
     public function createDatabase($name, $options);
-	
-	/**
-	 * Checks to see if a database exists.
-	 *
-	 * @param string $name Database Name
-	 * @return boolean
-	 */
-	public function hasDatabase($name);
+    
+    /**
+     * Checks to see if a database exists.
+     *
+     * @param string $name Database Name
+     * @return boolean
+     */
+    public function hasDatabase($name);
     
     /**
      * Drops the specified database.
