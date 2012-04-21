@@ -2,12 +2,12 @@ before_script:
     - "git submodule update --init"
     - mysql -e 'create database phinx_testing;'
     - "cp -v tests/TestConfiguration.php.dist tests/TestConfiguration.php"
-    - "sed -e 's/@@db_adapter_mysql_enabled@@/true/' tests/TestConfiguration.php >> tests/TestConfiguration.php"
-    - "sed -e 's/@@db_adapter_mysql_host@@/127.0.0.1/' tests/TestConfiguration.php >> tests/TestConfiguration.php"
-    - "sed -e 's/@@db_adapter_mysql_username@@/root/' tests/TestConfiguration.php >> tests/TestConfiguration.php"
-    - "sed -e 's/@@db_adapter_mysql_password@@//' tests/TestConfiguration.php >> tests/TestConfiguration.php"
-    - "sed -e 's/@@db_adapter_mysql_database@@/phinx_testing/' tests/TestConfiguration.php >> tests/TestConfiguration.php"
-    - "sed -e 's/@@db_adapter_mysql_port@@/3306/' tests/TestConfiguration.php >> tests/TestConfiguration.php"
+    - "sed -e 's/@@db_adapter_mysql_enabled@@/true/g tests/TestConfiguration.php >> tests/TestConfiguration.php"
+    - "sed -e 's/@@db_adapter_mysql_host@@/127.0.0.1/g' tests/TestConfiguration.php >> tests/TestConfiguration.php"
+    - "sed -e 's/@@db_adapter_mysql_username@@/root/g' tests/TestConfiguration.php >> tests/TestConfiguration.php"
+    - "sed -e 's/@@db_adapter_mysql_password@@//g' tests/TestConfiguration.php >> tests/TestConfiguration.php"
+    - "sed -e 's/@@db_adapter_mysql_database@@/phinx_testing/g' tests/TestConfiguration.php >> tests/TestConfiguration.php"
+    - "sed -e 's/@@db_adapter_mysql_port@@/3306/g' tests/TestConfiguration.php >> tests/TestConfiguration.php"
     - "cat tests/TestConfiguration.php"
 language: php
 php:
