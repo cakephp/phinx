@@ -127,7 +127,7 @@ class Table
      * Sets the database adapter.
      *
      * @param AdapterInterface $adapter Database Adapter
-     * @return Environment
+     * @return Table
      */
     public function setAdapter(AdapterInterface $adapter)
     {
@@ -166,6 +166,18 @@ class Table
     }
     
     /**
+     * Sets an array of columns waiting to be committed.
+     *
+     * @param array $columns Columns
+     * @return Table
+     */
+    public function setColumns($columns)
+    {
+        $this->columns = $columns;
+        return $this;
+    }
+    
+    /**
      * Gets an array of columns waiting to be committed.
      *
      * @return array
@@ -199,6 +211,7 @@ class Table
      */
     public function addColumn($columnName, $type, $options = array())
     {
+        // TODO - should also accept a Phinx\Db\Table\Column object
         // check column type
         if (is_null($type) || !in_array($type, $this->getAdapter()->getColumnTypes())) {
             throw new \RuntimeException('An invalid column type was specified.');
