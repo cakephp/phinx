@@ -111,7 +111,18 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         //$this->adapter->createTable('ntable', )
     }
     
-    public function testCreateTableWithMultiplePKs()
+    public function testCreateTableWithNoPrimaryKey()
+    {
+        $options = array(
+            'id' => false
+        );
+        $table = new \Phinx\Db\Table('atable', $options, $this->adapter);
+        $table->addColumn('user_id', 'integer')
+              ->save();
+        $this->assertFalse($this->adapter->hasColumn('atable', 'id'));
+    }
+    
+    public function testCreateTableWithMultiplePrimaryKeys()
     {
         $options = array(
             'id'            => false,
@@ -138,7 +149,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     
     public function testCreateTableWithMultiplePKsAndUniqueIndexes()
     {
-        
+        $this->markTestIncomplete();
     }
     
     public function testRenameTable()
