@@ -132,7 +132,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                    ->setType('integer')
                    ->setIdentity(true);
             
-            array_unshift($columns, $column);                        
+            array_unshift($columns, $column);
             $options['primary_key'] = 'id';
         }
         
