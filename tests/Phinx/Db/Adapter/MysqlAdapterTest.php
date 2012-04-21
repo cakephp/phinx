@@ -105,6 +105,12 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
     
+    public function testCreateTableWithNoOptions()
+    {
+        $this->markTestIncomplete();
+        //$this->adapter->createTable('ntable', )
+    }
+    
     public function testCreateTableWithMultiplePKs()
     {
         $options = array(
