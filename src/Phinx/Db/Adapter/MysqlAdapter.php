@@ -303,7 +303,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasIndex($tableName, $columns)
     {
-        $options = $this->getOptions();
         $indexes = array();
         $columns = array_map('strtolower', $columns);
         
