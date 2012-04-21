@@ -395,7 +395,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 'CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`', $name, $charset, $options['collation']
             ));
         } else {
-            $this->execute('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s`', $name, $charset);
+            $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s`', $name, $charset));
         }
     }
     
