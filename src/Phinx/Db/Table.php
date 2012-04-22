@@ -292,19 +292,25 @@ class Table
      * 
      * In $options you can specific unique = true/false or name (index name).
      *
-     * @param mixed $columns Table Column(s)
+     * @param string|array|Index $columns Table Column(s)
      * @param array $options Index Options
      * @return Table
      */
     public function addIndex($columns, $options = array())
     {
-        // Define Index
-        $index = array(
-            'columns' => $columns,
-            'options' => $options
-        );
-        $this->indexes[] = $index;
-        
+        // create a new index object if strings or an array of strings were supplied
+        if (!$columns instanceof Index) {
+            $index = new Index();
+            if (is_string($columns)) {
+                $columns = array($columns); // str to array
+            }
+            $index->setColumns($columns);
+            $index->setOptions($options);
+        } else {
+            $index = $columns;
+        }
+
+        $this->indexes[] = $index;        
         return $this;
     }
     

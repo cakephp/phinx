@@ -28,6 +28,9 @@
  */
 namespace Phinx\Db\Adapter;
 
+use Phinx\Db\Table\Column,
+    Phinx\Db\Table\Index;
+
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
     const CREATE_STATEMENT = 'CREATE TABLE `%s` ( version BIGINT(14) UNSIGNED NOT NULL, start_time timestamp NOT NULL, end_time timestamp NOT NULL );';
@@ -180,19 +183,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $nIndexes = array();
             $uIndexes = array();
             foreach ($indexes as $index) {
-                // FIXME - Reduce Code C.R.A.P (duplication)
-                if (is_string($index['columns'])) {
-                    if (isset($index['options']['unique']) && $index['options']['unique'] === true) { // unique index
-                        $uIndexes[] = $this->quoteColumnName($index['columns']);
-                    } else {
-                        $nIndexes[] = $this->quoteColumnName($index['columns']);
-                    }
-                } else if (is_array($index['columns'])) {
-                    if (isset($index['options']['unique']) && $index['options']['unique'] === true) { // unique index
-                        $uIndexes[] = implode(',', array_map(function($v) { return '`' . $v . '`'; }, $index['columns']));
-                    } else {
-                        $nIndexes[] = $this->quoteColumnName($index['columns']);
-                    }
+                if ($index->getType() == Index::UNIQUE) {
+                    $uIndexes[] = implode(',', array_map(function($v) { return '`' . $v . '`'; }, $index->getColumns()));
+                } else {
+                    $nIndexes[] = implode(',', array_map(function($v) { return '`' . $v . '`'; }, $index->getColumns()));
                 }
             }
 
