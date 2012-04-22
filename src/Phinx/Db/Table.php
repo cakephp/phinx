@@ -51,7 +51,7 @@ class Table
     /**
      * @var AdapterInterface
      */
-    protected $adaper;
+    protected $adapter;
     
     /**
      * @var array
@@ -223,8 +223,13 @@ class Table
      * @param array $options Column Options
      * @return Table
      */
-    public function addColumn($columnName, $type, $options = array())
+    public function addColumn($columnName, $type = null, $options = array())
     {
+        // we need an adapter set to add a column
+        if (null === $this->getAdapter()) {
+            throw new \RuntimeException('An adapter must be specified to add a column.');
+        }
+        
         // create a new column object if only strings were supplied
         if (!$columnName instanceof Column) {
             $column = new Column();
@@ -237,7 +242,7 @@ class Table
         
         // check column type
         if (!in_array($column->getType(), $this->getAdapter()->getColumnTypes())) {
-            throw new \RuntimeException('An invalid column type was specified.');
+            throw new \InvalidArgumentException('An invalid column type was specified.');
         }
         
         $this->columns[] = $column;
