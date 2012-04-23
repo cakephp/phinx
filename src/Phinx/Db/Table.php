@@ -288,6 +288,18 @@ class Table
     }
     
     /**
+     * Checks to see if a column exists.
+     *
+     * @param string $columnName Column Name
+     * @param array $options Options
+     * @return boolean
+     */
+    public function hasColumn($columnName, $options = array())
+    {
+        return $this->getAdapter()->hasColumn($this->getName(), $columnName, $options);
+    }
+    
+    /**
      * Add an index to a database table.
      * 
      * In $options you can specific unique = true/false or name (index name).
@@ -348,7 +360,7 @@ class Table
         if ($this->exists()) {
             // update table
             foreach ($this->getColumns() as $column) {
-                $this->getAdapter()->addColumn($this->getName(), $column['name'], $column['type'], $column['options']);
+                $this->getAdapter()->addColumn($this, $column);
             }
             
             foreach ($this->getIndexes() as $index) {

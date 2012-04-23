@@ -186,10 +186,11 @@ interface AdapterInterface
     /**
      * Adds the specified column to a database table.
      * 
+     * @param Table  $table  Table
      * @param Column $column Column
      * @return void
      */
-    public function addColumn(Column $column);
+    public function addColumn(Table $table, Column $column);
     
     /**
      * Renames the specified column.
@@ -214,7 +215,7 @@ interface AdapterInterface
      * Checks to see if an index exists.
      *
      * @param string $tableName Table Name
-     * @param mixed $columns Column(s)
+     * @param mixed  $columns   Column(s)
      * @return boolean
      */
     public function hasIndex($tableName, $columns);
@@ -222,10 +223,11 @@ interface AdapterInterface
     /**
      * Adds the specified index to a database table.
      * 
+     * @param Table $table Table
      * @param Index $index Index
      * @return void
      */
-    public function addIndex(Index $index);
+    public function addIndex(Table $table, Index $index);
     
     /**
      * Drops the specified index from a database table.

@@ -242,9 +242,25 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function addColumn(Column $column)
+    public function addColumn(Table $table, Column $column)
     {
-        // TODO - implement
+        $sqlType = $this->getSqlType($column->getType());
+        $sqlDef = '';
+        $sqlDef .= strtoupper($sqlType['name']);
+        $sqlDef .= ($column->getLimit() || isset($sqlType['limit']))
+                     ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
+        $sqlDef .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
+        $sqlDef .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
+        $sqlDef .= ($column->getDefault()) ? ' DEFAULT \'' . $column->getDefault() . '\'' : '';
+        // TODO - add precision & scale for decimals
+
+        return $this->execute(
+            sprintf('ALTER TABLE %s ADD %s %s',
+                $this->quoteTableName($table->getName()),
+                $this->quoteColumnName($column->getName()),
+                $sqlDef
+            )
+        );
     }
     
     /**
@@ -319,7 +335,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function addIndex(Index $index)
+    public function addIndex(Table $table, Index $index)
     {
         // TODO - implement
     }

@@ -163,6 +163,16 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasTable('table2'));
     }
     
+    public function testAddColumn()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('email'));
+        $table->addColumn('email', 'string')
+              ->save();
+        $this->assertTrue($table->hasColumn('email'));
+    }
+    
     public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
