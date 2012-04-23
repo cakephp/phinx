@@ -28,7 +28,8 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table\Column,
+use Phinx\Db\Table,
+    Phinx\Db\Table\Column,
     Phinx\Db\Table\Index;
 
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
@@ -119,7 +120,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createTable($table)
+    public function createTable(Table $table)
     {
         // This method is based on the MySQL docs here: http://dev.mysql.com/doc/refman/5.1/en/create-index.html
         $defaultOptions = array(
@@ -241,7 +242,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function addColumn($tableName, $columnName, $type, $options)
+    public function addColumn(Column $column)
     {
         // TODO - implement
     }
@@ -318,7 +319,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function addIndex($tableName, $columns, $options)
+    public function addIndex(Index $index)
     {
         // TODO - implement
     }

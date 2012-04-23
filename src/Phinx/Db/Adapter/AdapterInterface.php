@@ -28,7 +28,10 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Migration\MigrationInterface;
+use Phinx\Db\Table,
+    Phinx\Db\Table\Column,
+    Phinx\Db\Table\Index,
+    Phinx\Migration\MigrationInterface;
 
 /**
  * Adapter interface
@@ -148,10 +151,10 @@ interface AdapterInterface
     /**
      * Creates the specified database table.
      *
-     * @param \Phinx\Db\Table $table Table
+     * @param Table $table Table
      * @return void
      */
-    public function createTable($table);
+    public function createTable(Table $table);
     
     /**
      * Renames the specified database table.
@@ -183,13 +186,10 @@ interface AdapterInterface
     /**
      * Adds the specified column to a database table.
      * 
-     * @param string $tableName   Table Name
-     * @param string $columnName  Column Name
-     * @param string $type Column Type
-     * @param array  $options     Options
+     * @param Column $column Column
      * @return void
      */
-    public function addColumn($tableName, $columnName, $type, $options);
+    public function addColumn(Column $column);
     
     /**
      * Renames the specified column.
@@ -222,12 +222,10 @@ interface AdapterInterface
     /**
      * Adds the specified index to a database table.
      * 
-     * @param string $tableName Table Name
-     * @param mixed $columns Column(s)
-     * @param array $options Options
+     * @param Index $index Index
      * @return void
      */
-    public function addIndex($tableName, $columns, $options);
+    public function addIndex(Index $index);
     
     /**
      * Drops the specified index from a database table.
