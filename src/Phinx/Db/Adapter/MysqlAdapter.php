@@ -148,15 +148,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
-            $sqlType = $this->getSqlType($column->getType());
-            $sql .= $this->quoteColumnName($column->getName()) . ' ' . strtoupper($sqlType['name']);
-            $sql .= ($column->getLimit() || isset($sqlType['limit']))
-                  ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
-            $sql .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
-            $sql .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
-            $sql .= ($column->getDefault()) ? ' DEFAULT \'' . $column->getDefault() . '\'' : '';
-            $sql .= ', ';
-            // TODO - add precision & scale for decimals
+            $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
         }
         
         // set the primary key(s)
@@ -244,21 +236,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function addColumn(Table $table, Column $column)
     {
-        $sqlType = $this->getSqlType($column->getType());
-        $sqlDef = '';
-        $sqlDef .= strtoupper($sqlType['name']);
-        $sqlDef .= ($column->getLimit() || isset($sqlType['limit']))
-                     ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
-        $sqlDef .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
-        $sqlDef .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
-        $sqlDef .= ($column->getDefault()) ? ' DEFAULT \'' . $column->getDefault() . '\'' : '';
-        // TODO - add precision & scale for decimals
-
         return $this->execute(
             sprintf('ALTER TABLE %s ADD %s %s',
                 $this->quoteTableName($table->getName()),
                 $this->quoteColumnName($column->getName()),
-                $sqlDef
+                $this->getColumnSqlDefinition($column)
             )
         );
     }
@@ -437,5 +419,26 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function dropDatabase($name)
     {
         $this->execute(sprintf('DROP DATABASE IF EXISTS `%s`', $name));
+    }
+    
+    /**
+     * Gets the MySQL Column Definition for a Column object.
+     *
+     * @param Column $column Column
+     * @return string
+     */
+    protected function getColumnSqlDefinition(Column $column)
+    {
+        $sqlType = $this->getSqlType($column->getType());
+        $def = '';
+        $def = '';
+        $def .= strtoupper($sqlType['name']);
+        $def .= ($column->getLimit() || isset($sqlType['limit']))
+                     ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
+        $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
+        $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
+        $def .= ($column->getDefault()) ? ' DEFAULT \'' . $column->getDefault() . '\'' : '';
+        // TODO - add precision & scale for decimals
+        return $def;
     }
 }
