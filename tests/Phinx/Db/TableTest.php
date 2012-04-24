@@ -46,4 +46,17 @@ class TableTest extends \PHPUnit_Framework_TestCase
             $this->assertRegExp('/An invalid column type was specified./', $e->getMessage());
         }
     }
+    
+    public function testAddIndexWithIndexObject()
+    {
+        $adapter = new MysqlAdapter(array());
+        $index = new \Phinx\Db\Table\Index();
+        $index->setType(\Phinx\Db\Table\Index::INDEX)
+              ->setColumns(array('email'));
+        $table = new \Phinx\Db\Table('ntable', array(), $adapter);
+        $table->addIndex($index);
+        $indexes = $table->getIndexes();
+        $this->assertEquals(\Phinx\Db\Table\Index::INDEX, $indexes[0]->getType());
+        $this->assertContains('email', $indexes[0]->getColumns());
+    }
 }
