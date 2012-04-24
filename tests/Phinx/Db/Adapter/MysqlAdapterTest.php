@@ -211,6 +211,17 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
     }
     
+    public function testAddIndex()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->save();
+        $this->assertFalse($table->hasIndex('email'));
+        $table->addIndex('email')
+              ->save();
+        $this->assertTrue($table->hasIndex('email'));
+    }
+    
     public function testHasDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));

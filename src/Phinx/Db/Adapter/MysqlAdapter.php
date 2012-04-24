@@ -168,26 +168,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
         
         // set the indexes
-        // TODO - I don't think the following index code below supports multiple indexes.
-        // i.e. more than two seperate unique indexes
         $indexes = $table->getIndexes();
         if (!empty($indexes)) {
             $sql .= ', ';
-            $nIndexes = array();
-            $uIndexes = array();
             foreach ($indexes as $index) {
-                if ($index->getType() == Index::UNIQUE) {
-                    $uIndexes[] = implode(',', array_map(function($v) { return '`' . $v . '`'; }, $index->getColumns()));
-                } else {
-                    $nIndexes[] = implode(',', array_map(function($v) { return '`' . $v . '`'; }, $index->getColumns()));
-                }
-            }
-
-            if (!empty($nIndexes)) {
-                $sql .= ' INDEX (' . implode(',', $nIndexes) . ')';
-            }
-            if (!empty($uIndexes)) {
-                $sql .= ' UNIQUE (' . implode(',', $uIndexes) . ')';
+                $sql .= ' ' . $this->getIndexSqlDefinition($index);
             }
         }
         
@@ -293,6 +278,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasIndex($tableName, $columns)
     {
+        if (is_string($columns)) {
+            $columns = array($columns); // str to array
+        }
+        
         $indexes = array();
         $columns = array_map('strtolower', $columns);
         
@@ -319,7 +308,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function addIndex(Table $table, Index $index)
     {
-        // TODO - implement
+        return $this->execute(
+            sprintf('ALTER TABLE %s ADD %s',
+                $this->quoteTableName($table->getName()),
+                $this->getIndexSqlDefinition($index)
+            )
+        );
     }
     
     /**
@@ -439,6 +433,23 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
         $def .= ($column->getDefault()) ? ' DEFAULT \'' . $column->getDefault() . '\'' : '';
         // TODO - add precision & scale for decimals
+        return $def;
+    }
+    
+    /**
+     * Gets the MySQL Index Definition for an Index object.
+     *
+     * @param Index $index Index
+     * @return string
+     */
+    protected function getIndexSqlDefinition(Index $index)
+    {
+        $def = '';
+        if ($index->getType() == Index::UNIQUE) {
+            $def .= ' UNIQUE KEY (' . implode(',', $index->getColumns()) . ')';
+        } else {
+            $def .= ' KEY (' . implode(',', $index->getColumns()) . ')';
+        }
         return $def;
     }
 }

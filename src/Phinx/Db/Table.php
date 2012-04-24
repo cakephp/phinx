@@ -212,6 +212,17 @@ class Table
     }
     
     /**
+     * Resets all of the pending table changes.
+     *
+     * @return void
+     */
+    public function reset()
+    {
+        $this->setColumns(array());
+        $this->setIndexes(array());
+    }
+    
+    /**
      * Add a table column.
      *
      * Type can be: primary_key, string, text, integer, float, decimal, datetime, timestamp, time, date, binary, boolean.
@@ -341,13 +352,13 @@ class Table
     /**
      * Checks to see if an index exists.
      *
-     * @param string $columnName Column Name
-     * @param array $options Options
+     * @param string|array $columns Columns
+     * @param array        $options Options
      * @return boolean
      */
-    public function hasIndex($columnName, $options = array())
+    public function hasIndex($columns, $options = array())
     {
-        return $this->getAdapter()->hasIndex($this->getName(), $columnName, $options);
+        return $this->getAdapter()->hasIndex($this->getName(), $columns, $options);
     }
     
     /**
@@ -364,11 +375,13 @@ class Table
             }
             
             foreach ($this->getIndexes() as $index) {
-                $this->getAdapter()->addIndex($this->getName(), $index['columns'], $index['options']);
+                $this->getAdapter()->addIndex($this, $index);
             }
         } else {
             // create table
             $this->getAdapter()->createTable($this);
         }
+        
+        $this->reset(); // reset pending changes
     }
 }
