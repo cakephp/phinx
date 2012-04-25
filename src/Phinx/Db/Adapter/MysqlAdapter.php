@@ -289,6 +289,25 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     }
     
     /**
+     * Get an array of indexes from a particular table.
+     *
+     * @param string $tableName Table Name
+     * @return array
+     */
+    protected function getIndexes($tableName)
+    {
+        $indexes = array();
+        $rows = $this->fetchAll(sprintf('SHOW INDEXES FROM %s', $this->quoteTableName($tableName)));
+        foreach ($rows as $row) {
+            if (!isset($indexes[$row['Key_name']])) {
+                $indexes[$row['Key_name']] = array('columns' => array());
+            }
+            $indexes[$row['Key_name']]['columns'][] = strtolower($row['Column_name']);
+        }
+        return $indexes;
+    }
+    
+    /**
      * {@inheritdoc}
      */
     public function hasIndex($tableName, $columns)
@@ -297,16 +316,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $columns = array($columns); // str to array
         }
         
-        $indexes = array();
         $columns = array_map('strtolower', $columns);
-        
-        $rows = $this->fetchAll(sprintf('SHOW INDEXES FROM %s', $this->quoteTableName($tableName)));
-        foreach ($rows as $row) {
-            if (!isset($indexes[$row['Key_name']])) {
-                $indexes[$row['Key_name']] = array('columns' => array());
-            }
-            $indexes[$row['Key_name']]['columns'][] = strtolower($row['Column_name']);
-        }
+        $indexes = $this->getIndexes($tableName);
         
         foreach ($indexes as $index) {
             $a = array_diff($columns, $index['columns']);
@@ -334,9 +345,26 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function dropIndex($tableName, $columns, $options)
+    public function dropIndex($tableName, $columns, $options = array())
     {
-        // TODO - implement
+        if (is_string($columns)) {
+            $columns = array($columns); // str to array
+        }
+        
+        $indexes = $this->getIndexes($tableName);
+        $columns = array_map('strtolower', $columns);
+        
+        foreach ($indexes as $indexName => $index) {
+            $a = array_diff($columns, $index['columns']);
+            if (empty($a)) {
+                return $this->execute(
+                    sprintf('ALTER TABLE %s DROP INDEX %s',
+                        $this->quoteTableName($tableName),
+                        $this->quoteColumnName($indexName)
+                    )
+                );   
+            }
+        }
     }
     
     /**

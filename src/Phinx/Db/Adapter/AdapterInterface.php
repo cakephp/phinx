@@ -243,11 +243,11 @@ interface AdapterInterface
      * Drops the specified index from a database table.
      * 
      * @param string $tableName
-     * @param mixed $columns Column(s)
-     * @param array $options
+     * @param mixed  $columns Column(s)
+     * @param array  $options
      * @return void
      */
-    public function dropIndex($tableName, $columns, $options);
+    public function dropIndex($tableName, $columns, $options = array());
     
     /**
      * Returns an array of the supported Phinx column types.
@@ -271,7 +271,7 @@ interface AdapterInterface
      * @param array $options Options
      * @return void
      */
-    public function createDatabase($name, $options);
+    public function createDatabase($name, $options = array());
     
     /**
      * Checks to see if a database exists.
