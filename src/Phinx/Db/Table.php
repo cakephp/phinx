@@ -281,7 +281,7 @@ class Table
      */
     public function renameColumn($oldName, $newName)
     {
-        // TODO - Implement
+        $this->getAdapter()->renameColumn($this->getName(), $oldName, $newName);
         return $this;
     }
     
