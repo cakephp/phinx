@@ -47,6 +47,16 @@ class TableTest extends \PHPUnit_Framework_TestCase
         }
     }
     
+    public function testRemoveColumn()
+    {
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())
+                    ->method('dropColumn');
+        $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $table->removeColumn('test');
+    }
+    
     public function testAddIndexWithIndexObject()
     {
         $adapter = new MysqlAdapter(array());

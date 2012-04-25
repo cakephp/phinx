@@ -268,7 +268,7 @@ class Table
      */
     public function removeColumn($columnName)
     {
-        // TODO - Implement
+        $this->getAdapter()->dropColumn($this->getName(), $columnName);
         return $this;
     }
     
