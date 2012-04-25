@@ -67,6 +67,17 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table->renameColumn('test1', 'test2');
     }
     
+    public function testChangeColumn()
+    {
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())
+                    ->method('changeColumn');
+        $newColumn = new \Phinx\Db\Table\Column();
+        $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $table->changeColumn('test1', $newColumn);
+    }
+    
     public function testAddIndexWithIndexObject()
     {
         $adapter = new MysqlAdapter(array());

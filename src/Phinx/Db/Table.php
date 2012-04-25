@@ -289,12 +289,17 @@ class Table
      * Change a table column type.
      *
      * @param string $columnName Column Name
-     * @param string $newColumnType New Column Type
+     * @param Column $newColumn  New Column
      * @return Table
      */
-    public function changeColumn($columnName, $newColumnType)
+    public function changeColumn($columnName, Column $newColumn)
     {
-        // TODO - Implement
+        // if the name was omitted use the existing column name
+        if (null === $newColumn->getName() || strlen($newColumn->getName()) == 0) {
+            $newColumn->setName($columnName);
+        }
+        
+        $this->getAdapter()->changeColumn($this->getName(), $columnName, $newColumn);
         return $this;
     }
     
