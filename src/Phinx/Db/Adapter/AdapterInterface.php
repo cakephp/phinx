@@ -203,6 +203,16 @@ interface AdapterInterface
     public function renameColumn($tableName, $columnName, $newColumnName);
     
     /**
+     * Change a table column type.
+     *
+     * @param string $tableName  Table Name
+     * @param string $columnName Column Name
+     * @param Column $newColumn  New Column
+     * @return Table
+     */
+    public function changeColumn($tableName, $columnName, Column $newColumn);
+    
+    /**
      * Drops the specified column.
      *
      * @param string $tableName Table Name

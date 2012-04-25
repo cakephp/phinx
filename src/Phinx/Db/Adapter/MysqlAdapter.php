@@ -262,6 +262,21 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function changeColumn($tableName, $columnName, Column $newColumn)
+    {
+        return $this->execute(
+            sprintf('ALTER TABLE %s CHANGE %s %s %s',
+                $this->quoteTableName($tableName),
+                $this->quoteColumnName($columnName),
+                $this->quoteColumnName($newColumn->getName()),
+                $this->getColumnSqlDefinition($newColumn)
+            )
+        );
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
     public function dropColumn($tableName, $columnName)
     {
         $this->execute(

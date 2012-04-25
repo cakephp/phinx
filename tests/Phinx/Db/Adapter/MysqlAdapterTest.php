@@ -201,6 +201,24 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
     
+    public function testChangeColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->save();
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1->setType('string');
+        $table->changeColumn('column1', $newColumn1);
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+        $newColumn2 = new \Phinx\Db\Table\Column();
+        $newColumn2->setName('column2')
+                   ->setType('string');
+        $table->changeColumn('column1', $newColumn2);
+        $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
+    }
+    
     public function testDropColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
