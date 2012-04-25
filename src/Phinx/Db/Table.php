@@ -340,12 +340,13 @@ class Table
     /**
      * Removes the given index from a table.
      *
+     * @param array $columns Columns
      * @param array $options Options
      * @return Table
      */
-    public function removeIndex($options = array())
+    public function removeIndex($columns, $options = array())
     {
-        $this->getAdapter()->removeIndex($this->getName(), $options);
+        $this->getAdapter()->dropIndex($this->getName(), $columns, $options);
         return $this;
     }
     

@@ -79,4 +79,14 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(\Phinx\Db\Table\Index::INDEX, $indexes[0]->getType());
         $this->assertContains('email', $indexes[0]->getColumns());
     }
+    
+    public function testRemoveIndex()
+    {
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())
+                    ->method('dropIndex');
+        $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $table->removeIndex(array('email'));
+    }
 }
