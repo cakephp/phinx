@@ -225,10 +225,16 @@ class Column
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('limit', 'default', 'null', 'precision', 'scale');
+        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');
+            }
+            
+            // proxy length -> limit
+            if (strtolower($option) == 'length') {
+                $this->setLimit($value);
+                continue;
             }
             
             $method = 'set' . ucfirst($option);
