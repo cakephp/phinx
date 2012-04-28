@@ -301,12 +301,21 @@ class Table
     /**
      * Change a table column type.
      *
-     * @param string $columnName Column Name
-     * @param Column $newColumn  New Column
+     * @param string        $columnName    Column Name
+     * @param string|Column $newColumnType New Column Type
+     * @param array         $options       Options
      * @return Table
      */
-    public function changeColumn($columnName, Column $newColumn)
+    public function changeColumn($columnName, $newColumnType, $options = array())
     {
+        // create a column object if one wasn't supplied
+        if (!$newColumnType instanceof Column) {
+            $newColumn = new Column();
+            $newColumn->setOptions($options);
+        } else {
+            $newColumn = $newColumnType;
+        }
+        
         // if the name was omitted use the existing column name
         if (null === $newColumn->getName() || strlen($newColumn->getName()) == 0) {
             $newColumn->setName($columnName);
