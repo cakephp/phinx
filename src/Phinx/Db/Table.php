@@ -168,6 +168,19 @@ class Table
     }
     
     /**
+     * Renames the database table.
+     *
+     * @param string $newTableName New Table Name
+     * @return Table
+     */
+    public function rename($newTableName)
+    {
+        $this->getAdapter()->renameTable($this->getName(), $newTableName);
+        $this->setName($newTableName);
+        return $this;
+    }
+    
+    /**
      * Sets an array of columns waiting to be committed.
      *
      * @param array $columns Columns
