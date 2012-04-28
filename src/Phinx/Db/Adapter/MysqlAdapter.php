@@ -221,13 +221,17 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function addColumn(Table $table, Column $column)
     {
-        return $this->execute(
-            sprintf('ALTER TABLE %s ADD %s %s',
-                $this->quoteTableName($table->getName()),
-                $this->quoteColumnName($column->getName()),
-                $this->getColumnSqlDefinition($column)
-            )
+        $sql = sprintf('ALTER TABLE %s ADD %s %s',
+            $this->quoteTableName($table->getName()),
+            $this->quoteColumnName($column->getName()),
+            $this->getColumnSqlDefinition($column)
         );
+        
+        if ($column->getAfter()) {
+            $sql .= ' AFTER ' . $this->quoteColumnName($column->getAfter());
+        }
+        
+        return $this->execute($sql);
     }
     
     /**

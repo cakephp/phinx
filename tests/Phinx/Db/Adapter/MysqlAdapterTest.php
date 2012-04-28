@@ -171,6 +171,10 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('email', 'string')
               ->save();
         $this->assertTrue($table->hasColumn('email'));
+        $table->addColumn('realname', 'string', array('after' => 'id'))
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('realname', $rows[1]['Field']);
     }
     
     public function testRenameColumn()

@@ -65,6 +65,11 @@ class Column
     protected $identity = false;
     
     /**
+     * @var string
+     */
+    protected $after;
+    
+    /**
      * Sets the column name.
      *
      * @param string $name
@@ -217,6 +222,28 @@ class Column
     }
     
     /**
+     * Sets the name of the column to add this column after.
+     *
+     * @param string $after After
+     * @return Column
+     */
+    public function setAfter($after)
+    {
+        $this->after = $after;
+        return $this;
+    }
+    
+    /**
+     * Returns the name of the column to add this column after.
+     *
+     * @return string
+     */
+    public function getAfter()
+    {
+        return $this->after;
+    }
+    
+    /**
      * Utility method that maps an array of column options to this objects methods.
      *
      * @param array $options Options
@@ -225,7 +252,7 @@ class Column
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale');
+        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');
