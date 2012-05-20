@@ -311,6 +311,7 @@ class Table
         // create a column object if one wasn't supplied
         if (!$newColumnType instanceof Column) {
             $newColumn = new Column();
+            $newColumn->setType($newColumnType);
             $newColumn->setOptions($options);
         } else {
             $newColumn = $newColumnType;
