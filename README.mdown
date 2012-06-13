@@ -28,11 +28,11 @@ Phinx makes it ridiculousy easy to manage the database migrations for your PHP a
 Mac OS X / Unix
 
 1. `sudo pear channel-discover pear.phinx.org`
-1. `sudo pear install phinx/phinx`
+1. `sudo pear install channel://pear.phinx.org/phinx-0.1.1`
 1. `cd myapp`
-1. `phinx init`
-1. Edit your configuration file (phinx.yml)
-1. `phinx`
+1. `phinx init` - Edit your configuration file (phinx.yml).
+1. `phinx create MyFirstMigration` - Edit your first migration.
+1. `phinx migrate` - Migrate!
 
 Windows
 
