@@ -58,7 +58,7 @@ class Create extends AbstractCommand
         if (file_exists($filePath)) {
             throw new \InvalidArgumentException(sprintf(
                 'The file "%s" already exists',
-                $path
+                $filePath
             ));
         }
         
