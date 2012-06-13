@@ -31,6 +31,7 @@
    <dir name="/">
     <file name="LICENSE" role="doc" />
     <file name="README.mdown" role="doc" />
+    <file name="phinx.yml" role="data" />
     <file role="php" install-as="Phinx/autoload.php.dist" name="src/Phinx/autoload.php.dist">
         <tasks:replace from="@@PHP_DIR@@" to="php_dir" type="pear-config"/>
     </file>
