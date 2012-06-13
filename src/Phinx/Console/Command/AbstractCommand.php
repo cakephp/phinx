@@ -68,7 +68,7 @@ abstract class AbstractCommand extends Command
         // Locate() throws an exception if the file does not exist
         $configFilePath = $locator->locate($configFile, $cwd, $first = true);
 
-        $output->writeln('<info>using config</info> .' . str_replace(getcwd(), '', $configFilePath));
+        $output->writeln('<info>using config</info> .' . str_replace(getcwd(), '', realpath($configFilePath)));
         
         // parse the config file and load it into the config object
         $this->setConfig(Config::fromYaml($configFilePath));

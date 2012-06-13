@@ -171,7 +171,7 @@ class Config implements \ArrayAccess
     public function getMigrationPath()
     {
         if (isset($this->values['paths']['migrations'])) {
-            return $this->replaceTokens($this->values['paths']['migrations']);
+            return realpath($this->replaceTokens($this->values['paths']['migrations']));
         }
         
         return null;
