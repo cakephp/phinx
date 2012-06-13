@@ -38,7 +38,7 @@ use Symfony\Component\Console\Application,
 /**
  * Phinx console application.
  *
- * @author Rob Morgan <rob@robmorgan.id.au>
+ * @author Rob Morgan <robbym@gmail.com>
  */
 class PhinxApplication extends Application
 {

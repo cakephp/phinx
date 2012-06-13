@@ -14,7 +14,7 @@ use Symfony\Component\Config\FileLocator,
 /**
  * Abstract command, contains bootstrapping info
  *
- * @author Rob Morgan <rob@robmorgan.id.au>
+ * @author Rob Morgan <robbym@gmail.com>
  */
 abstract class AbstractCommand extends Command
 {

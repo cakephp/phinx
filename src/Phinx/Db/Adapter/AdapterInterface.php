@@ -36,7 +36,7 @@ use Phinx\Db\Table,
 /**
  * Adapter interface
  *
- * @author      Rob Morgan <rob@robmorgan.id.au>
+ * @author      Rob Morgan <robbym@gmail.com>
  */
 interface AdapterInterface
 {

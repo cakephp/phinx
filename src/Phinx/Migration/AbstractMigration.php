@@ -40,7 +40,7 @@ use Phinx\Db\Table,
  * This abstract class proxies the various database methods to your specified
  * adapter.
  *
- * @author Rob Morgan <rob@robmorgan.id.au>
+ * @author Rob Morgan <robbym@gmail.com>
  */
 abstract class AbstractMigration implements MigrationInterface
 {

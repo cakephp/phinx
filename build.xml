@@ -84,7 +84,7 @@
                 <element name="version" value="${version}" />
                 <element name="authors">
                     <element name="Rob Morgan">
-                        <element name="e-mail" value="rob@robmorgan.id.au" />
+                        <element name="e-mail" value="robbym@gmail.com" />
                     </element>
                 </element>
             </metadata>
@@ -101,7 +101,7 @@
                 <element name="version" value="${version}" />
                 <element name="authors">
                     <element name="Rob Morgan">
-                        <element name="e-mail" value="rob@robmorgan.id.au" />
+                        <element name="e-mail" value="robbym@gmail.com" />
                     </element>
                 </element>
             </metadata>
@@ -118,7 +118,7 @@
                 <element name="version" value="${version}" />
                 <element name="authors">
                     <element name="Rob Morgan">
-                        <element name="e-mail" value="rob@robmorgan.id.au" />
+                        <element name="e-mail" value="robbym@gmail.com" />
                     </element>
                 </element>
             </metadata>

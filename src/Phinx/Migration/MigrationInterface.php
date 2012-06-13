@@ -33,7 +33,7 @@ use Phinx\Db\Adapter\AdapterInterface;
 /**
  * Migration interface
  *
- * @author Rob Morgan <rob@robmorgan.id.au>
+ * @author Rob Morgan <robbym@gmail.com>
  */
 interface MigrationInterface
 {

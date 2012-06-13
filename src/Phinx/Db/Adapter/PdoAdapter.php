@@ -33,7 +33,7 @@ use Phinx\Migration\MigrationInterface;
 /**
  * Phinx PDO adapter.
  *
- * @author Rob Morgan <rob@robmorgan.id.au>
+ * @author Rob Morgan <robbym@gmail.com>
  */
 abstract class PdoAdapter implements AdapterInterface
 {
