@@ -60,7 +60,7 @@ class Init extends Command
         }
         
         // load the config template
-        if (is_dir(__DIR__ . '/../../../data/Phinx/phinx.yml')) {
+        if (is_dir(__DIR__ . '/../../../data/Phinx')) {
             $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/phinx.yml');
         } else {
             $contents = file_get_contents(__DIR__ . '/../../../../phinx.yml');
