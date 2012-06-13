@@ -42,7 +42,7 @@ use Symfony\Component\Console\Application,
  */
 class PhinxApplication extends Application
 {
-	/**
+    /**
      * Class Constructor.
      *
      * Initialize the Phinx console application.
@@ -61,9 +61,9 @@ class PhinxApplication extends Application
         $this->add(new Command\Status());
     }
      
-	/**
-	 * Runs the current application.
-	 *
+    /**
+     * Runs the current application.
+     *
      * @param InputInterface $input An Input instance
      * @param OutputInterface $output An Output instance
      * @return integer 0 if everything went fine, or an error code
@@ -72,7 +72,7 @@ class PhinxApplication extends Application
     {
         // always show the version information except when the user invokes the help
         // command as that already does it
-        if (false === $input->hasParameterOption(array('--help', '-h'))) {
+        if (false === $input->hasParameterOption(array('--help', '-h')) && null !== $input->getFirstArgument()) {
             $output->writeln($this->getLongVersion());
             $output->writeln('');
         }
