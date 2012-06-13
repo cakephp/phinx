@@ -198,18 +198,22 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function migrated(MigrationInterface $migration, $direction)
+    public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
     {
         if (strtolower($direction) == 'up') {
             // up
             $sql = sprintf(
                 'INSERT INTO %s ('
-                . 'version'
+                . 'version, start_time, end_time'
                 . ') VALUES ('
+                . '"%s",'
+                . '"%s",'
                 . '"%s"'
                 . ');',
                 $this->getSchemaTableName(),
-                $migration->getVersion()
+                $migration->getVersion(),
+                $startTime,
+                $endTime
             );
 
             $this->query($sql);
