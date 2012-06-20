@@ -17,7 +17,7 @@ required to install Phinx using the PEAR installer:
 
 .. code-block:: bash
 
-    pear channel-discover pear.symfony.com
+	pear channel-discover pear.symfony.com
 	pear channel-discover pear.phinx.org
 	pear install channel://pear.phinx.org/phinx-0.1.1
 
