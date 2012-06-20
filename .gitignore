@@ -10,3 +10,4 @@ tests/log
 .settings
 dist
 tests/TestConfiguration.php
+docs/_build
