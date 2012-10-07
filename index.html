@@ -25,25 +25,31 @@
       </header>
       <section>
         <h3>PHP Database Migrations for Everyone</h3>
-		
-		<p>Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx using PEAR and create 
-			your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or dependence on an application
-			framework.</p>
-			
-		<p><strong>Note:</strong> Phinx is currently under heavy development and is therefore <span style="text-decoration: underline">super-alpha</span> software.</p>
+        
+        <p>Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx using PEAR and create 
+            your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or dependence on an application
+            framework.</p>
+            
+        <p><strong>Note:</strong> Phinx is currently under heavy development and is therefore <span style="text-decoration: underline">super-alpha</span> software.</p>
+        
+        <h3>What makes Phinx different?</h3>
+        
+        <p>Most database migration tools are framework dependent, complicated, confusing to install/configure and a pain
+            in the ass to write migrations for. Phinx was designed to be both flexible and simple. It builds on the best 
+            parts from several other projects and creates a powerful, easy-to-use experience.</p>
 
-		<h3>Installing</h3>
-		
-		<p>By far the best way to install Phinx is via PEAR:</p>
+        <h3>Installing</h3>
+        
+        <p>By far the best way to install Phinx is via PEAR:</p>
 
 <pre><code>$ sudo pear channel-discover pear.symfony.com
 $ sudo pear channel-discover pear.phinx.org
 $ sudo pear install channel://pear.phinx.org/phinx-0.1.1
 </code></pre>
 
-		<p>Phinx will now be available under the <code>phinx</code> command.</p>
-		
-		<h3>Writing Your First Migration</h3>
+        <p>Phinx will now be available under the <code>phinx</code> command.</p>
+        
+        <h3>Writing Your First Migration</h3>
 
 <pre><code>$ cd yourapp
 $ phinx init .
@@ -53,19 +59,19 @@ $ phinx create MyFirstMigration
 $ phinx migrate -e development
 </code></pre>
 
-		<p>And that's it. Phinx will connect to your development database and execute your first migration.</p>
+        <p>And that's it. Phinx will connect to your development database and execute your first migration.</p>
 
-		<h3>Documentation</h3>
+        <h3>Documentation</h3>
 
-		<p>Coming Soon!</p>
+        <p>Full documentation is available here: <a href="http://docs.phinx.org/">http://docs.phinx.org/</a></p>
 
-		<h3>Contributing</h3>
+        <h3>Contributing</h3>
 
-		<p>Feel free to <a href="http://github.com/robmorgan/phinx">fork on GitHub</a> and send me pull requests. Please file issues there as well.</p>
+        <p>Feel free to <a href="http://github.com/robmorgan/phinx">fork on GitHub</a> and send me pull requests. Please file issues there as well.</p>
 
-		<h3>Support or Contact</h3>
+        <h3>Support or Contact</h3>
 
-		<p>Having trouble with Phinx? Contact <a href="mailto:robbym at gmail.com">robbym at gmail.com</a>.</p>
+        <p>Having trouble with Phinx? Contact <a href="mailto:robbym at gmail.com">robbym at gmail.com</a>.</p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/robmorgan">robmorgan</a></p>
