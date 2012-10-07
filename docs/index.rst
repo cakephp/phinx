@@ -11,7 +11,7 @@ Contents
 
    intro
    goals
-   installing
+   install
    migrations
    commands
    configuration
