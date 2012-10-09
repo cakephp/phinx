@@ -9,6 +9,18 @@ Phinx is run using a number of commands.
 The Create Command
 ------------------
 
+The Create command is used to create a new migration file. It requires one
+argument and that is the name of the migration. The migration name should be
+specified in CamelCase format.
+
+.. code-block:: bash
+    
+        $ phinx create MyNewMigration
+
+Open the new migration file in your text editor to add your database
+transformations. Phinx creates migration files using the path specified in your
+``phinx.yml`` file. Please see the Configuration_ chapter for more information.
+
 The Init Command
 ----------------
 
