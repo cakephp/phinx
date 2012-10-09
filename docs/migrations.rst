@@ -159,7 +159,7 @@ method.
 Dropping a Table
 ~~~~~~~~~~~~~~~~
 
-Tables can be dropped quite easily using the ``dropTable`` method.
+Tables can be dropped quite easily using the ``dropTable()`` method.
 
 .. code-block:: php
         
@@ -169,7 +169,7 @@ Renaming a Table
 ~~~~~~~~~~~~~~~~
 
 To rename a table access an instance of the Table object, then call the
-``rename`` method.
+``rename()`` method.
 
 .. code-block:: php
         
