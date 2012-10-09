@@ -12,8 +12,34 @@ The Create Command
 The Init Command
 ----------------
 
+The Init command (short for initialize) is used to prepare your project for
+Phinx. This command generates the ``phinx.yml`` file in the root of your
+project directory.
+
+.. code-block:: bash
+    
+        $ cd yourapp
+        $ phinx init .
+
+Open this file in your text editor to setup your project configuration. Please
+see the Configuration_ chapter for more information.
+
 The Migrate Command
 -------------------
+
+The Migrate command runs all of the available migrations, optionally up to a
+specific version.
+
+.. code-block:: bash
+    
+        $ phinx migrate -e development
+
+To migrate to a specific version then use the ``--target`` parameter or ``-t``
+for short.
+
+.. code-block:: bash
+
+        $ phinx migrate -e development 20110103081132
 
 The Rollback Command
 --------------------
