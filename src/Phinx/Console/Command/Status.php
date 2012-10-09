@@ -13,21 +13,20 @@ class Status extends AbstractCommand
     /**
      * {@inheritdoc}
      */
-     protected function configure()
-     {
-         parent::configure();
+    protected function configure()
+    {
+        parent::configure();
          
-         $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
+        $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
          
-         $this->setName('status')
-              ->setDescription('Show migration status')
-              ->setHelp(<<<EOT
+        $this->setName('status')
+             ->setDescription('Show migration status')
+             ->setHelp(<<<EOT
 The <info>status</info> command prints a list of all migrations, along with their current status
 
 <info>phinx status -e development</info>
 EOT
-        );
-              
+        );         
     }
 
     /**
