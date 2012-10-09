@@ -16,7 +16,7 @@ Let's start by creating a new Phinx migration. Run Phinx using the
 
 .. code-block:: bash
     
-        phinx create MyNewMigration
+        $ phinx create MyNewMigration
         
 This will create a new migration in the format
 ``YYYYMMDDHHMMSS_my_new_migration.php`` where the first 14 characters are
@@ -61,7 +61,7 @@ you to easily manipulate database tables using PHP code. You can retrieve an
 instance of the Table object by calling the ``table()`` method from within
 your database migration.
 
-.. code-block:: bash
+.. code-block:: php
     
         $table = $this->table('tableName');
 
