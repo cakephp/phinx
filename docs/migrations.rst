@@ -22,13 +22,40 @@ This will create a new migration in the format
 ``YYYYMMDDHHMMSS_my_new_migration.php`` where the first 14 characters are
 replaced with the current timestamp down to the second.
 
+Phinx automatically creates a skeleton migration file with two empty methods.
+
+.. code-block:: php
+        
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+            
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
 The AbstractMigration Class
 ---------------------------
 
 All Phinx migrations extend from the ``AbstractMigration`` class. This class
 provides the necessary support to create your database migrations. Database
-migrations can transform your database in ways such as creating new tables,
-inserting rows, adding indexes and modifying columns.
+migrations can transform your database in many ways such as creating new
+tables, inserting rows, adding indexes and modifying columns.
 
 The Up Method
 ~~~~~~~~~~~~~
@@ -49,6 +76,18 @@ Executing Queries
 
 Fetching Rows
 -------------
+
+There are two methods available to fetch rows. The ``fetchRow()`` method will
+fetch a single row, whilst the ``fetchAll()`` method will return multiple rows.
+Both methods accept raw SQL as their only parameter.
+
+.. code-block:: php
+        
+        // fetch a user
+        $row = $this->fetchRow('SELECT * FROM users');
+
+        // fetch an array of messages
+        $rows = $this->fetchAll('SELECT * FROM messages');
 
 Working With Tables
 -------------------
@@ -87,7 +126,7 @@ store a collection of users.
               ->addColumn('updated', 'datetime', array('default' => null))
               ->addIndex(array('username', 'email'), array('unique' => true))
               ->save();
-			  
+        
 Columns are added using the ``addColumn()`` method. We create a unique index for
 both the username and email columns using the ``addIndex()`` method. Finally
 calling ``save()`` commits the changes to the database.
@@ -95,18 +134,35 @@ calling ``save()`` commits the changes to the database.
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+You can determine whether or not a table exists by using the ``hasTable()``
+method.
+
+.. code-block:: php
+
+        $exists = $this->hasTable('users');
+        if ($exists) {
+          // do something
+        }
+
 Dropping a Table
 ~~~~~~~~~~~~~~~~
 
-Tables can be dropped quite easily using the ``dropTable`` method of the
-``AbstractMigration`` class.
+Tables can be dropped quite easily using the ``dropTable`` method.
 
 .. code-block:: php
         
-        $this->dropTable('tablename');
+        $this->dropTable('tableName');
         
 Renaming a Table
 ~~~~~~~~~~~~~~~~
+
+To rename a table access an instance of the Table object, then call the
+``rename`` method.
+
+.. code-block:: php
+        
+        $table = $this->table('users');
+        $table->rename('legacy_users');
 
 Working With Columns
 ~~~~~~~~~~~~~~~~~~~~
@@ -114,7 +170,7 @@ Working With Columns
 The Save Method
 ~~~~~~~~~~~~~~~
 
-When working with the ``table`` object Phinx stores certain operations in a
+When working with the Table object Phinx stores certain operations in a
 pending changes cache.
 
 When in doubt it is recommended you call this method. It will commit any
