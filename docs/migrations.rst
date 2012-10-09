@@ -74,6 +74,18 @@ the down method to reverse/undo the transformations described in the up method.
 Executing Queries
 -----------------
 
+Queries can be executed with the ``execute()`` and ``query()`` methods. The
+``execute()`` method returns the number of affected rows whereas the
+``query()`` method returns the result as an array.
+
+.. code-block:: php
+        
+        // execute()
+        $count = $this->execute('DELETE FROM users'); // returns the number of affected rows
+
+        // query()
+        $rows = $this->query('SELECT * FROM users');
+
 Fetching Rows
 -------------
 
