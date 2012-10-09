@@ -81,3 +81,10 @@ Specifying 0 as the target version will revert all migrations.
 
 The Status Command
 ------------------
+
+The Status command prints a list of all migrations, along with their current
+status. You can use this command to determine which migrations have been run.
+
+.. code-block:: bash
+    
+        $ phinx status -e development
