@@ -242,7 +242,7 @@ class Manager
         
         // Revert the migration(s)
         krsort($migrations);
-        foreach($migrations as $migration) {
+        foreach ($migrations as $migration) {
             if ($migration->getVersion() <= $version) {
                 break;
             }

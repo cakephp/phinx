@@ -13,23 +13,23 @@ class Rollback extends AbstractCommand
     /**
      * {@inheritdoc}
      */
-     protected function configure()
-     {
-         parent::configure();
+    protected function configure()
+    {
+        parent::configure();
          
-         $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
+        $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
                   
-         $this->setName('rollback')
-              ->setDescription('Rollback the last or to a specific migration')
-              ->addOption('--target', '-t', InputArgument::OPTIONAL, 'The version number to rollback to')
-              ->setHelp(<<<EOT
+        $this->setName('rollback')
+             ->setDescription('Rollback the last or to a specific migration')
+             ->addOption('--target', '-t', InputArgument::OPTIONAL, 'The version number to rollback to')
+             ->setHelp(<<<EOT
 The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
 
 <info>phinx rollback -e development</info>
 <info>phinx rollback -e development -t 20111018185412</info>
 
 EOT
-              );
+        );
     }
 
     /**
