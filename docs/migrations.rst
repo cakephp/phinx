@@ -80,6 +80,8 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
 
 .. code-block:: php
         
+        <?php
+        
         // execute()
         $count = $this->execute('DELETE FROM users'); // returns the number of affected rows
 
@@ -94,6 +96,8 @@ fetch a single row, whilst the ``fetchAll()`` method will return multiple rows.
 Both methods accept raw SQL as their only parameter.
 
 .. code-block:: php
+        
+        <?php
         
         // fetch a user
         $row = $this->fetchRow('SELECT * FROM users');
@@ -114,6 +118,8 @@ your database migration.
 
 .. code-block:: php
     
+        <?php
+        
         $table = $this->table('tableName');
 
 You can then manipulate this table using the methods provided by the Table
@@ -127,6 +133,8 @@ store a collection of users.
 
 .. code-block:: php
 
+        <?php
+        
         $users = $this->table('users');
         $users->addColumn('username', 'string', array('limit' => 20))
               ->addColumn('password', 'string', array('limit' => 40))
@@ -151,6 +159,8 @@ method.
 
 .. code-block:: php
 
+        <?php
+        
         $exists = $this->hasTable('users');
         if ($exists) {
           // do something
@@ -163,6 +173,8 @@ Tables can be dropped quite easily using the ``dropTable()`` method.
 
 .. code-block:: php
         
+        <?php
+        
         $this->dropTable('tableName');
         
 Renaming a Table
@@ -172,6 +184,8 @@ To rename a table access an instance of the Table object, then call the
 ``rename()`` method.
 
 .. code-block:: php
+        
+        <?php
         
         $table = $this->table('users');
         $table->rename('legacy_users');
