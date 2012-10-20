@@ -65,8 +65,8 @@ Start by forking Phinx on GitHub: https://github.com/robmorgan/phinx
 
 Next setup your environment for development:
  
- * curl -s https://getcomposer.org/installer | php
- * php composer.phar install --dev
+ * `curl -s https://getcomposer.org/installer | php`
+ * `php composer.phar install --dev`
   
 ## News & Updates
 
