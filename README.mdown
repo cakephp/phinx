@@ -1,5 +1,7 @@
 ### Phinx: Simple PHP Database Migrations
 
+<a href="http://travis-ci.org/robmorgan/phinx"><img src="https://secure.travis-ci.org/robmorgan/phinx.png"/></a>
+
 Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or framework.
 
 ### Phinx lets you
@@ -49,8 +51,6 @@ Next setup your environment for development:
  
  * curl -s https://getcomposer.org/installer | php
  * php composer.phar install --dev
- 
-Build Status: <a href="http://travis-ci.org/robmorgan/phinx"><img src="https://secure.travis-ci.org/robmorgan/phinx.png"/></a>
   
 ## News & Updates
 
