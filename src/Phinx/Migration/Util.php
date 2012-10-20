@@ -45,4 +45,20 @@ class Util
         $fileName = date('YmdHis') . '_' . strtolower(implode($arr, '_')) . '.php';
         return $fileName;
     }
+    
+    /**
+     * Check if a migration class name is valid.
+     *
+     * Migration class names must be in CamelCase format.
+     * e.g: CreateUserTable or AddIndexToPostsTable.
+     *
+     * Single words are not allowed on their own.
+     *
+     * @param string $className Class Name
+     * @return boolean
+     */
+    public static function isValidMigrationClassName($className)
+    {
+        return (bool) preg_match('/\b[A-Z][a-zA-Z]*(?:[a-z][a-zA-Z]*[A-Z]|[A-Z][a-zA-Z]*[a-z])[a-zA-Z]*\b/', $className);
+    }
 }

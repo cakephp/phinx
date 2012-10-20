@@ -48,11 +48,17 @@ class Create extends AbstractCommand
         }
         
         $path = realpath($path);
-        
         $className = $input->getArgument('name');
-        $fileName = Util::mapClassNameToFileName($className);
+        
+        if (!Util::isValidMigrationClassName($className)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The migration class name "%s" is invalid. Please use CamelCase format.',
+                $className
+            ));
+        }
         
         // Compute the file path
+        $fileName = Util::mapClassNameToFileName($className);
         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
         
         if (file_exists($filePath)) {

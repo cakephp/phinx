@@ -17,4 +17,17 @@ class UtilTest extends \PHPUnit_Framework_TestCase
             $this->assertRegExp($expectedResult, Util::mapClassNameToFileName($input));
         }
     }
+    
+    public function testIsValidMigrationClassName()
+    {
+        $expectedResults = array(
+            'CreateUserTable'   => true,
+            'test'              => false,
+            'Test'              => false
+        );
+        
+        foreach ($expectedResults as $input => $expectedResult) {
+            $this->assertEquals($expectedResult, Util::isValidMigrationClassName($input));
+        }
+    }
 }
