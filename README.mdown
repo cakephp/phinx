@@ -21,9 +21,9 @@ Phinx makes it ridiculousy easy to manage the database migrations for your PHP a
 * **Rely on a framework.** Phinx is independent. Use it with any app.
 * **Support anything other than MySQL.** Feel free to fork and contribute if you desire.
 
-### Install & Run
+## Install & Run
 
-#### Mac OS X / Unix
+### Mac OS X / Unix
 
 1. `sudo pear channel-discover pear.symfony.com`
 1. `sudo pear channel-discover pear.phinx.org`
@@ -33,13 +33,13 @@ Phinx makes it ridiculousy easy to manage the database migrations for your PHP a
 1. `phinx create MyFirstMigration`
 1. `phinx migrate`
 
-#### Windows
+### Windows
 
 Support is coming soon.
 
 ## Documentation
 
-Checkout http://docs.phinx.org for the comprehensive documentation.
+Check out http://docs.phinx.org for the comprehensive documentation.
 
 ## Developing
  
