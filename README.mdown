@@ -2,8 +2,6 @@
 
 Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx using PEAR and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system.
 
-**NOTE:** Phinx is alpha software, so proceed at your own risk!
-
 ### Phinx lets you
 
 * Migrate up and down.
@@ -25,7 +23,7 @@ Phinx makes it ridiculousy easy to manage the database migrations for your PHP a
 
 ### Install & Run
 
-Mac OS X / Unix
+#### Mac OS X / Unix
 
 1. `sudo pear channel-discover pear.symfony.com`
 1. `sudo pear channel-discover pear.phinx.org`
@@ -35,61 +33,27 @@ Mac OS X / Unix
 1. `phinx create MyFirstMigration`
 1. `phinx migrate`
 
-Windows
+#### Windows
 
-TODO
+Support is coming soon.
 
-Goals
-=====
+## Documentation
 
- * Force developers to write migrations using PHP code rather than SQL code thereby making it database agnostic
- * Timestamps for migration files to prevent branching conflicts
- * Framework independent (don't rely on Zend_Db, Symfony etc)
- * Support migrating both up & down
- * Database Changelog table (allows databases to be copied and allows files to be changed on the file-system)
- * Installable via PEAR
- * Few dependencies
- * Support multiple databases
- * Integrate with PHPUnit (Easily create a Test database and empty it between each test)
- * Comprehensive documentation (coming soon)
- * Simple command-line operation (phinx )
-     - phinx create CreateUserTable (writes the class CreateUserTable in the file XXXX_XX_XX_XXXXXX_create_user_table.php)
-    - or just 'phinx' or 'phinx migrate' to automatically migrate the database
-    - `phinx rollback` - Rollback the most recent migration
-    - `phinx rollback -t 20110101` - date
-    - 'phinx status' - prints the current db version
-    - 'phinx version' - prints the version of phinx you are using
-    - 'phinx help' - displays a list of commands
- * PHP 5.3 and above requirement
- * Low Barrier to Entry - Install via PEAR, Configure Your App and Migrate in Less Than 5 Minutes!
- * Integrates with build tools such as Phing
- * Full PHP docs (docblox)
+Checkout http://docs.phinx.org for the comprehensive documentation.
 
-Features
-========
-
- * Migrate up & down
- * Integrate with PHPUnit (Create a Test Database)
- * Auto-migrations (Switch to branch 'x' and run migrations, but meanwhile branch 'y' has been modified)
-     - This tool will automatically migrate down to the first available shared patch
-    - then migrate up to the latest available patch
- * Text strings after timestamps in migration file names. e.g. '2012_01_03_151238_add_user_table.php'
- * Simple YAML-based configuration (uses Symfony YAML)
-     - DB adapter type, host, port, db name, db user, db pass, supports both testing & production
-    - Migration directory
-    - Schema Database Name
-    - set default DB
- * Only MySQL is supported for now
- * Produces a Schema Script (useful for unit tests)
- * Supports multiple databases for your application (prod, dev, test)
+## Developing
+ 
+ * curl -s https://getcomposer.org/installer | php
+ * Clone the git repo
+ * install composer
+ * php composer.phar install --dev 
   
-News & Updates
-==============
+## News & Updates
 
 Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
-References
-==========
+## References
+
   * https://bitbucket.org/drarok/ladder
   * https://github.com/ruckus/ruckusing-migrations
   * https://github.com/davedevelopment/phpmig
