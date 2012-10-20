@@ -276,13 +276,17 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function createSchemaTable()
     {
-        $class = get_class($this);
-        
-        $sql = sprintf($class::CREATE_STATEMENT, $this->getSchemaTableName());
-
         try {
-            $this->query($sql);
-        } catch(\PDOException $exception) {
+            $options = array(
+                'id' => false
+            );
+            
+            $table = new \Phinx\Db\Table($this->getSchemaTableName(), $options, $this);
+            $table->addColumn('version', 'biginteger', array('limit' => 14))
+                  ->addColumn('start_time', 'timestamp')
+                  ->addColumn('end_time', 'timestamp')
+                  ->save();
+        } catch(\Exception $exception) {
             throw new \InvalidArgumentException('There was a problem creating the schema table');
         }
     }
@@ -306,6 +310,7 @@ abstract class PdoAdapter implements AdapterInterface
             'string',
             'text',
             'integer',
+            'biginteger',
             'float',
             'decimal',
             'datetime',

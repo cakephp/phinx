@@ -34,8 +34,6 @@ use Phinx\Db\Table,
 
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
-    const CREATE_STATEMENT = 'CREATE TABLE `%s` ( version BIGINT(14) UNSIGNED NOT NULL, start_time timestamp NOT NULL, end_time timestamp NOT NULL );';
-    
     /**
      * {@inheritdoc}
      */
@@ -387,6 +385,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 break;
             case 'integer':
                 return array('name' => 'int', 'limit' => 11);
+                break;
+            case 'biginteger':
+                return array('name' => 'bigint', 'limit' => 11);
                 break;
             case 'float':
                 return array('name' => 'float');
