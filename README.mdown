@@ -85,6 +85,10 @@ Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.1.4** (Sunday, 21st October 2012)
+
+* Documentation Improvements
+
 **0.1.3** (Saturday, 20th October 2012)
 
 * Fixed broken composer support
