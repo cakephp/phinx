@@ -19,7 +19,8 @@ specified in CamelCase format.
 
 Open the new migration file in your text editor to add your database
 transformations. Phinx creates migration files using the path specified in your
-``phinx.yml`` file. Please see the Configuration_ chapter for more information.
+``phinx.yml`` file. Please see the :doc:`Configuration <configuration>`chapter 
+for more information.
 
 The Init Command
 ----------------

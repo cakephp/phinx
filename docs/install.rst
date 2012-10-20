@@ -5,7 +5,7 @@ Installation
 ============
 
 Phinx should be installed using Composer. Composer is a tool for dependency
-management in PHP. Please visit the `Composer<http://getcomposer.org/>`_ 
+management in PHP. Please visit the `Composer <http://getcomposer.org/>`_ 
 website for more information.
 
 .. note::
