@@ -4,23 +4,33 @@
 Installation
 ============
 
-Phinx should be installed using the PEAR installer. PEAR provides a
-distribution system for PHP packages. Please visit the PEAR website for more
-information.
+Phinx should be installed using Composer. Composer is a tool for dependency
+management in PHP. Please visit the `Composer<http://getcomposer.org/>`_ 
+website for more information.
 
 .. note::
 
     Phinx requires at least PHP 5.2.1 (or later).
 
-The following commands (which you may have to run as root) are all thats
-required to install Phinx using the PEAR installer:
+To install Phinx simply add it as a dependency to your project's 
+``composer.json`` file:
+
+.. code-block:: javascript
+
+    {
+        "require": {
+            "robmorgan/phinx": "*"
+        }
+    }
+
+Then run Composer to update your packages:
 
 .. code-block:: bash
 
-	pear channel-discover pear.symfony.com
-	pear channel-discover pear.phinx.org
-	pear install channel://pear.phinx.org/phinx-0.1.1
+    php composer.phar update
 
-After the installation you can find the Phinx source files inside your local
-PEAR directory; the path is usually /usr/lib/php/Phinx. Phinx will be
-available under the ``phinx`` command.
+Phinx can now be executed from within your project:
+
+.. code-block:: bash
+
+    php vendor/bin/phinx
