@@ -35,7 +35,7 @@ Simply add Phinx as a dependency to your `composer.json` file:
         }
     }
 
-Then phinx can be executed using:
+Then Phinx can be executed using:
 
     php vendor/bin/phinx
 
@@ -45,7 +45,7 @@ Check out http://docs.phinx.org for the comprehensive documentation.
 
 ## Contributing
 
-Start by forking Phinx on GitHub: https://github.com/robmorgan/phinx.git
+Start by forking Phinx on GitHub: https://github.com/robmorgan/phinx
 
 Next setup your environment for development:
  
