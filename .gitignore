@@ -1,7 +1,6 @@
 build
 *.tgz
 *.phar
-composer.lock
 composer.phar
 tests/log
 .DS_Store
@@ -11,3 +10,4 @@ tests/log
 dist
 tests/TestConfiguration.php
 docs/_build
+vendor
