@@ -11,3 +11,4 @@ dist
 tests/TestConfiguration.php
 docs/_build
 vendor
+migrations
