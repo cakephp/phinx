@@ -27,15 +27,24 @@ Phinx makes it ridiculousy easy to manage the database migrations for your PHP a
 
 The fastest way to install Phinx in your project is using Composer (http://getcomposer.org/).
 
-1. Install composer: `curl -s https://getcomposer.org/installer | php`
-1. Add Phinx as a dependency to your `composer.json` file:
+1. Install composer:
+    
+    curl -s https://getcomposer.org/installer | php
+    
+2. Add Phinx as a dependency to your `composer.json` file:
+
     {
         "require": {
             "robmorgan/phinx": "*"
         }
     }
-1. Install Phinx: `php composer.phar install`
-1. Execute Phinx:
+    
+3. Install Phinx:
+    
+    php composer.phar install
+    
+4. Execute Phinx:
+    
     php vendor/bin/phinx
 
 ## Documentation
