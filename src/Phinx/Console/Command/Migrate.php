@@ -53,6 +53,7 @@ EOT
         
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
+        $output->writeln('<info>using database</info> ' . $envOptions['name']);
 
         // run the migrations
         $start = microtime(true);
