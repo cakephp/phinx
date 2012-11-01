@@ -168,9 +168,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         // set the indexes
         $indexes = $table->getIndexes();
         if (!empty($indexes)) {
-            $sql .= ', ';
             foreach ($indexes as $index) {
-                $sql .= ' ' . $this->getIndexSqlDefinition($index);
+                $sql .= ', ' . $this->getIndexSqlDefinition($index);
             }
         }
         
