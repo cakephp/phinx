@@ -182,22 +182,44 @@ class Table
     
     /**
      * Sets an array of columns waiting to be committed.
-     *
+     * Use setPendingColumns
+     * @deprecated
      * @param array $columns Columns
      * @return Table
      */
     public function setColumns($columns)
     {
-        $this->columns = $columns;
-        return $this;
+        $this->setPendingColumns($columns);
     }
     
     /**
      * Gets an array of columns waiting to be committed.
      *
-     * @return array
+     * @return Column[]
      */
     public function getColumns()
+    {
+        return $this->getAdapter()->getColumns($this->getName());
+    }
+
+    /**
+     * Sets an array of columns waiting to be committed.
+     *
+     * @param array $columns Columns
+     * @return Table
+     */
+    public function setPendingColumns($columns)
+    {
+        $this->columns = $columns;
+        return $this;
+    }
+
+    /**
+     * Gets an array of columns waiting to be committed.
+     *
+     * @return array
+     */
+    public function getPendingColumns()
     {
         return $this->columns;
     }
@@ -231,7 +253,7 @@ class Table
      */
     public function reset()
     {
-        $this->setColumns(array());
+        $this->setPendingColumns(array());
         $this->setIndexes(array());
     }
     
@@ -399,7 +421,7 @@ class Table
     {
         if ($this->exists()) {
             // update table
-            foreach ($this->getColumns() as $column) {
+            foreach ($this->getPendingColumns() as $column) {
                 $this->getAdapter()->addColumn($this, $column);
             }
             

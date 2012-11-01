@@ -174,6 +174,14 @@ interface AdapterInterface
      * @return void
      */
     public function dropTable($tableName);
+
+    /**
+     * Returns table columns
+     *
+     * @param string $tableName Table Name
+     * @return Column[]
+     */
+    public function getColumns($tableName);
     
     /**
      * Checks to see if a column exists.
