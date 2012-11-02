@@ -127,7 +127,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $options = array_merge($defaultOptions, $table->getOptions());
         
         // Add the default primary key
-        $columns = $table->getColumns();
+        $columns = $table->getPendingColumns();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
             $column = new \Phinx\Db\Table\Column();
             $column->setName('id')
@@ -194,6 +194,34 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function dropTable($tableName)
     {
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getColumns($tableName)
+    {
+        $columns = array();
+        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $tableName));
+        foreach ($rows as $columnInfo) {
+            $column = new \Phinx\Db\Table\Column();
+            $column->setName($columnInfo['Field'])
+                ->setType($columnInfo['Type'])
+                ->setNull($columnInfo['Null'] != 'NO')
+                ->setDefault($columnInfo['Default']);
+
+            $phinxType = $this->getPhinxType($columnInfo['Type']);
+            $column->setType($phinxType['name'])
+                ->setLimit($phinxType['limit']);
+
+            if($columnInfo['Extra'] == 'auto_increment') {
+                $column->setIdentity(true);
+            }
+
+            $columns[] = $column;
+        }
+
+        return $columns;
     }
     
     /**
@@ -416,7 +444,67 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
         }
     }
-    
+
+    /**
+     * Returns Phinx type by SQL type
+     *
+     * @param string $sqlType SQL type
+     * @returns string Phinx type
+     */
+    public function getPhinxType($sqlTypeDef)
+    {
+        if (preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*$/', $sqlTypeDef, $matches) === false) {
+            throw new \RuntimeException('Column type ' . $sqlTypeDef . ' is not supported');
+        } else {
+            $limit = null;
+            $precision = null;
+            $type = $matches[1];
+            if(count($matches) > 2) {
+                $limit = $matches[3] ? $matches[3] : null;
+            }
+            if(count($matches) > 4) {
+                $precision = $matches[5];
+            }
+            switch ($matches[1]) {
+                case 'varchar':
+                    $type = 'string';
+                    if($limit == 255) {
+                        $limit = null;
+                    }
+                    break;
+                case 'int':
+                    $type = 'integer';
+                    if($limit == 11) {
+                        $limit = null;
+                    }
+                    break;
+                case 'bigint':
+                    if($limit == 11) {
+                        $limit = null;
+                    }
+                    $type = 'biginteger';
+                    break;
+                case 'blob':
+                    $type = 'binary';
+                    break;
+            }
+            if($type == 'tinyint') {
+                if($matches[3] == 1) {
+                    $type = 'boolean';
+                    $limit = null;
+                }
+            }
+
+            $this->getSqlType($type);
+
+            return array(
+                'name' => $type,
+                'limit' => $limit,
+                'precision' => $precision
+            );
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
