@@ -51,36 +51,10 @@ abstract class AbstractCommand extends Command
         /**
          * Bootstrap
          */
-        $configFile = $input->getOption('configuration');
-        
-        if (null === $configFile) {
-            $configFile = 'phinx.yml';
-        }
-        
-        $cwd = getcwd();
-        
-        // locate the phinx config file (default: phinx.yml)
-        // TODO - In future walk the tree in reverse (max 10 levels)
-        $locator = new FileLocator(array(
-            $cwd . DIRECTORY_SEPARATOR
-        ));
-        
-        // Locate() throws an exception if the file does not exist
-        $configFilePath = $locator->locate($configFile, $cwd, $first = true);
-
-        $output->writeln('<info>using config</info> .' . str_replace(getcwd(), '', realpath($configFilePath)));
-        
-        // parse the config file and load it into the config object
-        $this->setConfig(Config::fromYaml($configFilePath));
-
+        $this->loadConfig($input, $output);
+        $this->loadManager($output);
         // report the migrations path
         $output->writeln('<info>using migration path</info> ' . $this->getConfig()->getMigrationPath());
-    
-        if (null === $this->getManager()) {
-            // load the migrations manager and inject the config
-            $manager = new Manager($this->getConfig(), $output);
-            $this->setManager($manager);
-        }
     }
 
     /**
@@ -147,5 +121,59 @@ abstract class AbstractCommand extends Command
     public function getManager()
     {
         return $this->manager;
+    }
+
+    /**
+     * Returns config file path
+     *
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @return string
+     */
+    protected function locateConfigFile(InputInterface $input)
+    {
+        $configFile = $input->getOption('configuration');
+
+        if (null === $configFile) {
+            $configFile = 'phinx.yml';
+        }
+
+        $cwd = getcwd();
+
+        // locate the phinx config file (default: phinx.yml)
+        // TODO - In future walk the tree in reverse (max 10 levels)
+        $locator = new FileLocator(array(
+            $cwd . DIRECTORY_SEPARATOR
+        ));
+
+        // Locate() throws an exception if the file does not exist
+        return $locator->locate($configFile, $cwd, $first = true);
+    }
+
+    /**
+     * Parse the config file and load it into the config object
+     *
+     * @param \Symfony\Component\Console\Input\InputInterface   $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     */
+    protected function loadConfig(InputInterface $input, OutputInterface $output)
+    {
+        $configFilePath = $this->locateConfigFile($input);
+
+        $output->writeln('<info>using config</info> .' . str_replace(getcwd(), '', realpath($configFilePath)));
+
+        $this->setConfig(Config::fromYaml($configFilePath));
+    }
+
+    /**
+     * Load the migrations manager and inject the config
+     *
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     */
+    protected function loadManager(OutputInterface $output)
+    {
+        if (null === $this->getManager()) {
+            $manager = new Manager($this->getConfig(), $output);
+            $this->setManager($manager);
+        }
     }
 }
