@@ -85,6 +85,13 @@ Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.1.5** (Sunday, 4th November 2012)
+
+* Added a test command
+* Added transactions for adapters that support it
+* Changing the Table API to use pending column methods
+* Fixed a bug when defining multiple indexes on a table
+
 **0.1.4** (Sunday, 21st October 2012)
 
 * Documentation Improvements
