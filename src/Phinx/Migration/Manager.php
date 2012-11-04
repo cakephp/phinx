@@ -77,34 +77,41 @@ class Manager
     public function printStatus($environment)
     {
         $output = $this->getOutput();
-        $output->writeln('');
-        $output->writeln(' Status  Migration ID    Migration Name ');
-        $output->writeln('-----------------------------------------');
         
-        $env = $this->getEnvironment($environment);
-        $versions = $env->getVersions();
+        if (count($this->getMigrations())) {
+            $output->writeln('');
+            $output->writeln(' Status  Migration ID    Migration Name ');
+            $output->writeln('-----------------------------------------');
         
-        foreach ($this->getMigrations() as $migration) {
-            if (in_array($migration->getVersion(), $versions)) {
-                $status = '     <info>up</info> ';
-                unset($versions[array_search($migration->getVersion(), $versions)]);
-            } else {
-                $status = '   <error>down</error> ';
-            }
+            $env = $this->getEnvironment($environment);
+            $versions = $env->getVersions();
+        
+            foreach ($this->getMigrations() as $migration) {
+                if (in_array($migration->getVersion(), $versions)) {
+                    $status = '     <info>up</info> ';
+                    unset($versions[array_search($migration->getVersion(), $versions)]);
+                } else {
+                    $status = '   <error>down</error> ';
+                }
             
-            $output->writeln(
-                $status
-                . sprintf(' %14.0f ', $migration->getVersion())
-                . ' <comment>' . $migration->getName() . '</comment>'
-            );
-        }
+                $output->writeln(
+                    $status
+                    . sprintf(' %14.0f ', $migration->getVersion())
+                    . ' <comment>' . $migration->getName() . '</comment>'
+                );
+            }
         
-        foreach ($versions as $missing) {
-            $output->writeln(
-                '     <error>up</error> '
-                . sprintf(' %14.0f ', $missing)
-                . ' <error>** MISSING **</error>'
-            );
+            foreach ($versions as $missing) {
+                $output->writeln(
+                    '     <error>up</error> '
+                    . sprintf(' %14.0f ', $missing)
+                    . ' <error>** MISSING **</error>'
+                );
+            }
+        } else {
+            // there are no migrations
+            $output->writeln('');
+            $output->writeln('There are no available migrations. Try creating one using the <info>create</info> command.');
         }
         
         // write an empty line
