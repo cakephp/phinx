@@ -21,13 +21,11 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             'port' => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT
         );
         $this->adapter = new MysqlAdapter($options);
-        
+
         // ensure the database is empty for each test
-        $tables = $this->adapter->fetchAll('SHOW TABLES');
-        foreach ($tables as $table) {
-            $this->adapter->dropTable($table[0]);
-        }
-        
+        $this->adapter->dropDatabase($options['name']);
+        $this->adapter->createDatabase($options['name']);
+
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
     }
@@ -304,6 +302,41 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
         $this->adapter->dropIndex($table2->getName(), array('fname', 'lname'));
         $this->assertFalse($table2->hasIndex(array('fname', 'lname')));
+    }
+
+    public function testAddForeignKey()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+            ->setColumns(array('ref_table_id'))
+            ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+    }
+
+    public function dropForeignKey()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+            ->setColumns(array('ref_table_id'))
+            ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->adapter->dropForeignKey($table->getName(), array('ref_table_id'));
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
     }
     
     public function testHasDatabase()
