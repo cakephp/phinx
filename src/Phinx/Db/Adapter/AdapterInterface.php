@@ -95,6 +95,34 @@ interface AdapterInterface
     public function disconnect();
     
     /**
+     * Does the adapter support transactions?
+     *
+     * @return boolean
+     */
+    public function hasTransactions();
+    
+    /**
+     * Begin a transaction.
+     *
+     * @return void
+     */
+    public function beginTransaction();
+    
+    /**
+     * Commit a transaction.
+     *
+     * @return void
+     */
+    public function commitTransaction();
+    
+    /**
+     * Rollback a transaction.
+     *
+     * @return void
+     */
+    public function rollbackTransaction();
+    
+    /**
      * Executes a SQL statement and returns the number of affected rows.
      * 
      * @param string $sql SQL

@@ -86,6 +86,38 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function hasTransactions()
+    {
+        return true;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function beginTransaction()
+    {
+        $this->execute('START TRANSACTION');
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function commitTransaction()
+    {
+        $this->execute('COMMIT');
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function rollbackTransaction()
+    {
+        $this->execute('ROLLBACK');
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
     public function quoteTableName($tableName)
     {
         return str_replace('.', '`.`', $this->quoteColumnName($tableName));
