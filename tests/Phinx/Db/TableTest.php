@@ -93,7 +93,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
         // stub adapter
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
         $adapterStub->expects($this->once())
-            ->method('getColumns');
+                    ->method('getColumns');
 
         $table = new \Phinx\Db\Table('table1', array(), $adapterStub);
         $table->getColumns();

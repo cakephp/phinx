@@ -48,9 +48,6 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
     {
-        /**
-         * Bootstrap
-         */
         $this->loadConfig($input, $output);
         $this->loadManager($output);
         // report the migrations path
@@ -154,13 +151,12 @@ abstract class AbstractCommand extends Command
      *
      * @param \Symfony\Component\Console\Input\InputInterface   $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @return void
      */
     protected function loadConfig(InputInterface $input, OutputInterface $output)
     {
         $configFilePath = $this->locateConfigFile($input);
-
         $output->writeln('<info>using config</info> .' . str_replace(getcwd(), '', realpath($configFilePath)));
-
         $this->setConfig(Config::fromYaml($configFilePath));
     }
 
@@ -168,6 +164,7 @@ abstract class AbstractCommand extends Command
      * Load the migrations manager and inject the config
      *
      * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @return void
      */
     protected function loadManager(OutputInterface $output)
     {
