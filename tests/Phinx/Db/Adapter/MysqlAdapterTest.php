@@ -246,6 +246,32 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->dropColumn('t', 'column1');
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
     }
+
+    public function testGetColumns()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'biginteger')
+            ->addColumn('column4', 'text')
+            ->addColumn('column5', 'float')
+            ->addColumn('column6', 'decimal')
+            ->addColumn('column7', 'datetime')
+            ->addColumn('column8', 'time')
+            ->addColumn('column9', 'timestamp')
+            ->addColumn('column10','date')
+            ->addColumn('column11', 'binary')
+            ->addColumn('column12', 'boolean')
+            ->addColumn('column13', 'string', array('limit' => 10))
+            ->addColumn('column15', 'integer', array('limit' => 10));
+        $pendingColumns = $table->getPendingColumns();
+        $table->save();
+        $columns = $this->adapter->getColumns('t');
+        $this->assertCount(count($pendingColumns) + 1, $columns);
+        for($i = 0; $i++; $i < count($pendingColumns)) {
+            $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
+        }
+    }
     
     public function testAddIndex()
     {

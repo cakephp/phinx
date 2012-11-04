@@ -27,7 +27,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
                ->setType('integer');
         $table = new \Phinx\Db\Table('ntable', array(), $adapter);
         $table->addColumn($column);
-        $columns = $table->getColumns();
+        $columns = $table->getPendingColumns();
         $this->assertEquals('email', $columns[0]->getName());
         $this->assertEquals('integer', $columns[0]->getType());
     }
@@ -77,7 +77,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
         $table->changeColumn('test1', $newColumn);
     }
-    
+
     public function testChangeColumnWithoutAColumnObject()
     {
         // stub adapter
@@ -86,6 +86,17 @@ class TableTest extends \PHPUnit_Framework_TestCase
                     ->method('changeColumn');
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
         $table->changeColumn('test1', 'text', array('null' => false));
+    }
+
+    public function testGetColumns()
+    {
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())
+            ->method('getColumns');
+
+        $table = new \Phinx\Db\Table('table1', array(), $adapterStub);
+        $table->getColumns();
     }
     
     public function testAddIndexWithIndexObject()
