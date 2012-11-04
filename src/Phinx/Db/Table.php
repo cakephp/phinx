@@ -451,9 +451,9 @@ class Table
      * @param string|array $referencedColumns Referenced columns
      * @param array $options Options
      *
-     * @return void;
+     * @return Table;
      */
-    public function addForeignKey($columns, $referencedTable, $referencedColumns, $options = array())
+    public function addForeignKey($columns, $referencedTable, $referencedColumns = array('id'), $options = array())
     {
         if (is_string($referencedColumns)) {
             $referencedColumns = array($referencedColumns); // str to array
@@ -468,6 +468,8 @@ class Table
             ->setReferencedColumns($referencedColumns)
             ->setOptions($options);
         $this->foreignKeys[] = $fk;
+
+        return $this;
     }
 
     /**
