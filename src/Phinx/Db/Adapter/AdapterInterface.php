@@ -31,6 +31,7 @@ namespace Phinx\Db\Adapter;
 use Phinx\Db\Table,
     Phinx\Db\Table\Column,
     Phinx\Db\Table\Index,
+    Phinx\Db\Table\ForeignKey,
     Phinx\Migration\MigrationInterface;
 
 /**
@@ -286,7 +287,39 @@ interface AdapterInterface
      * @return void
      */
     public function dropIndex($tableName, $columns, $options = array());
-    
+
+    /**
+     * Checks to see if an foreign key exists.
+     *
+     * @param string $tableName
+     * @param string[] $constraint Column(s)
+     * @param string $constraint Constraint name
+     *
+     * @return boolean
+     */
+    public function hasForeignKey($tableName, $columns, $constraint = null);
+
+    /**
+     * Adds the specified foreign key to database table
+     *
+     * @param Table            $table
+     * @param ForeignKey $foreignKey
+     *
+     * @return void
+     */
+    public function addForeignKey(Table $table, ForeignKey $foreignKey);
+
+    /**
+     * Drops the specified foreign key from a database table.
+     *
+     * @param string $tableName
+     * @param string[] $constraint Column(s)
+     * @param string $constraint Constraint name
+     *
+     * @return void
+     */
+    public function dropForeignKey($tableName, $columns, $constraint = null);
+
     /**
      * Returns an array of the supported Phinx column types.
      * 
