@@ -30,7 +30,8 @@ namespace Phinx\Db\Adapter;
 
 use Phinx\Db\Table,
     Phinx\Db\Table\Column,
-    Phinx\Db\Table\Index;
+    Phinx\Db\Table\Index,
+    Phinx\Db\Table\ForeignKey;
 
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
@@ -204,7 +205,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $sql .= ', ' . $this->getIndexSqlDefinition($index);
             }
         }
-        
+
+        // set the foreign keys
+        $foreignKeys = $table->getForeignKeys();
+        if (!empty($foreignKeys)) {
+            foreach ($foreignKeys as $foreignKey) {
+                $sql .= ', ' . $this->getForeignKeySqlDefinition($foreignKey);
+            }
+        }
+
         $sql .= ') ' . $optionsStr;
         $sql = rtrim($sql) . ';';
 
@@ -246,7 +255,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $column->setType($phinxType['name'])
                 ->setLimit($phinxType['limit']);
 
-            if($columnInfo['Extra'] == 'auto_increment') {
+            if ($columnInfo['Extra'] == 'auto_increment') {
                 $column->setIdentity(true);
             }
 
@@ -427,6 +436,114 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             }
         }
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasForeignKey($tableName, $columns, $constraint = null)
+    {
+        if (is_string($columns)) {
+            $columns = array($columns); // str to array
+        }
+        $foreignKeys = $this->getForeignKeys($tableName);
+        if ($constraint) {
+            if (isset($foreignKeys[$constraint])) {
+                return !empty($foreignKeys[$constraint]);
+            }
+            return false;
+        } else {
+            foreach ($foreignKeys as $key) {
+                $a = array_diff($columns, $key['columns']);
+                if (empty($a)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Get an array of foreign keys from a particular table.
+     *
+     * @param string $tableName Table Name
+     * @return array
+     */
+    protected function getForeignKeys($tableName)
+    {
+        $foreignKeys = array();
+        $rows = $this->fetchAll(sprintf(
+            "SELECT
+              CONSTRAINT_NAME,
+              TABLE_NAME,
+              COLUMN_NAME,
+              REFERENCED_TABLE_NAME,
+              REFERENCED_COLUMN_NAME
+            FROM information_schema.KEY_COLUMN_USAGE
+            WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
+              AND REFERENCED_TABLE_NAME IS NOT NULL
+              AND TABLE_NAME = '%s'
+            ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
+            $tableName
+        ));
+        foreach ($rows as $row) {
+            $foreignKeys[$row['CONSTRAINT_NAME']]['table'] = $row['TABLE_NAME'];
+            $foreignKeys[$row['CONSTRAINT_NAME']]['columns'][] = $row['COLUMN_NAME'];
+            $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_table'] = $row['REFERENCED_TABLE_NAME'];
+            $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_columns'][] = $row['REFERENCED_COLUMN_NAME'];
+
+        }
+        return $foreignKeys;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addForeignKey(Table $table, ForeignKey $foreignKey)
+    {
+        return $this->execute(
+            sprintf('ALTER TABLE %s ADD %s',
+                $this->quoteTableName($table->getName()),
+                $this->getForeignKeySqlDefinition($foreignKey)
+            )
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropForeignKey($tableName, $columns, $constraint = null)
+    {
+        if (is_string($columns)) {
+            $columns = array($columns); // str to array
+        }
+        if ($constraint) {
+            return $this->execute(
+                sprintf('ALTER TABLE %s DROP FOREIGN KEY %s',
+                    $this->quoteTableName($tableName),
+                    $constraint
+                )
+            );
+        } else {
+            foreach ($columns as $column) {
+                $rows = $this->fetchAll(sprintf(
+                        "SELECT
+                            CONSTRAINT_NAME
+                          FROM information_schema.KEY_COLUMN_USAGE
+                          WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
+                            AND REFERENCED_TABLE_NAME IS NOT NULL
+                            AND TABLE_NAME = '%s'
+                            AND COLUMN_NAME = '%s'
+                          ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
+                        $column,
+                        $tableName
+
+                ));
+                foreach ($rows as $row) {
+                    $this->dropForeignKey($tableName, $columns, $row['CONSTRAINT_NAME']);
+                }
+            }
+        }
+    }
     
     /**
      * {@inheritdoc}
@@ -491,27 +608,27 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $limit = null;
             $precision = null;
             $type = $matches[1];
-            if(count($matches) > 2) {
+            if (count($matches) > 2) {
                 $limit = $matches[3] ? $matches[3] : null;
             }
-            if(count($matches) > 4) {
+            if (count($matches) > 4) {
                 $precision = $matches[5];
             }
             switch ($matches[1]) {
                 case 'varchar':
                     $type = 'string';
-                    if($limit == 255) {
+                    if ($limit == 255) {
                         $limit = null;
                     }
                     break;
                 case 'int':
                     $type = 'integer';
-                    if($limit == 11) {
+                    if ($limit == 11) {
                         $limit = null;
                     }
                     break;
                 case 'bigint':
-                    if($limit == 11) {
+                    if ($limit == 11) {
                         $limit = null;
                     }
                     $type = 'biginteger';
@@ -520,8 +637,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     $type = 'binary';
                     break;
             }
-            if($type == 'tinyint') {
-                if($matches[3] == 1) {
+            if ($type == 'tinyint') {
+                if ($matches[3] == 1) {
                     $type = 'boolean';
                     $limit = null;
                 }
@@ -616,6 +733,38 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= ' UNIQUE KEY (' . implode(',', $index->getColumns()) . ')';
         } else {
             $def .= ' KEY (' . implode(',', $index->getColumns()) . ')';
+        }
+        return $def;
+    }
+
+    /**
+     * Gets the MySQL Foreign Key Definition for an ForeignKey object.
+     *
+     * @param ForeignKey $foreignKey
+     * @return string
+     */
+    protected function getForeignKeySqlDefinition(ForeignKey $foreignKey)
+    {
+        $def = '';
+        if ($foreignKey->getConstraint()) {
+            $def .= ' CONSTRAINT ' . $this->quoteColumnName($foreignKey->getConstraint());
+        } else {
+            $columnNames = array();
+            foreach ($foreignKey->getColumns() as $column) {
+                $columnNames[] = $this->quoteColumnName($column);
+            }
+            $def .= ' FOREIGN KEY (' . implode(',', $columnNames) . ')';
+            $refColumnNames = array();
+            foreach ($foreignKey->getReferencedColumns() as $column) {
+                $refColumnNames[] = $this->quoteColumnName($column);
+            }
+            $def .= ' REFERENCES ' . $this->quoteTableName($foreignKey->getReferencedTable()->getName()) . ' (' . implode(',', $refColumnNames) . ')';
+            if ($foreignKey->getOnDelete()) {
+                $def .= ' ON DELETE ' . $foreignKey->getOnDelete();
+            }
+            if ($foreignKey->getOnUpdate()) {
+                $def .= ' ON UPDATE ' . $foreignKey->getOnUpdate();
+            }
         }
         return $def;
     }
