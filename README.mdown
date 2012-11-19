@@ -1,4 +1,4 @@
-# [Phinx](http://phxin.org): Simple PHP Database Migrations
+# [Phinx](http://phinx.org): Simple PHP Database Migrations
 
 <a href="http://travis-ci.org/robmorgan/phinx"><img src="https://secure.travis-ci.org/robmorgan/phinx.png"/></a>
 
