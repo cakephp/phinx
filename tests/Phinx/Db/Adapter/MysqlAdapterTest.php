@@ -249,24 +249,24 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
-            ->addColumn('column3', 'biginteger')
-            ->addColumn('column4', 'text')
-            ->addColumn('column5', 'float')
-            ->addColumn('column6', 'decimal')
-            ->addColumn('column7', 'datetime')
-            ->addColumn('column8', 'time')
-            ->addColumn('column9', 'timestamp')
-            ->addColumn('column10','date')
-            ->addColumn('column11', 'binary')
-            ->addColumn('column12', 'boolean')
-            ->addColumn('column13', 'string', array('limit' => 10))
-            ->addColumn('column15', 'integer', array('limit' => 10));
+              ->addColumn('column2', 'integer')
+              ->addColumn('column3', 'biginteger')
+              ->addColumn('column4', 'text')
+              ->addColumn('column5', 'float')
+              ->addColumn('column6', 'decimal')
+              ->addColumn('column7', 'datetime')
+              ->addColumn('column8', 'time')
+              ->addColumn('column9', 'timestamp')
+              ->addColumn('column10','date')
+              ->addColumn('column11', 'binary')
+              ->addColumn('column12', 'boolean')
+              ->addColumn('column13', 'string', array('limit' => 10))
+              ->addColumn('column15', 'integer', array('limit' => 10));
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
         $this->assertCount(count($pendingColumns) + 1, $columns);
-        for($i = 0; $i++; $i < count($pendingColumns)) {
+        for ($i = 0; $i++; $i < count($pendingColumns)) {
             $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
         }
     }
@@ -296,7 +296,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         // multiple column index
         $table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
         $table2->addColumn('fname', 'string')
-                  ->addColumn('lname', 'string')
+               ->addColumn('lname', 'string')
                ->addIndex(array('fname', 'lname'))
                ->save();
         $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
@@ -314,8 +314,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
-            ->setColumns(array('ref_table_id'))
-            ->setReferencedColumns(array('id'));
+           ->setColumns(array('ref_table_id'))
+           ->setReferencedColumns(array('id'));
 
         $this->adapter->addForeignKey($table, $fk);
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
@@ -331,8 +331,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
-            ->setColumns(array('ref_table_id'))
-            ->setReferencedColumns(array('id'));
+           ->setColumns(array('ref_table_id'))
+           ->setReferencedColumns(array('id'));
 
         $this->adapter->addForeignKey($table, $fk);
         $this->adapter->dropForeignKey($table->getName(), array('ref_table_id'));
