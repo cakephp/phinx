@@ -97,7 +97,6 @@ class ForeignKey
      * Sets the foreign key referenced table.
      *
      * @param Table $table
-     *
      * @return ForeignKey
      */
     public function setReferencedTable(Table $table)
@@ -120,7 +119,6 @@ class ForeignKey
      * Sets the foreign key referenced columns.
      *
      * @param array $referencedColumns
-     *
      * @return ForeignKey
      */
     public function setReferencedColumns(array $referencedColumns)
@@ -175,6 +173,7 @@ class ForeignKey
      * Sets ON UPDATE action for the foreign key.
      *
      * @param string $onUpdate
+     * @return ForeignKey
      */
     public function setOnUpdate($onUpdate)
     {

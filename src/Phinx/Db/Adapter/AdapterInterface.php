@@ -289,22 +289,20 @@ interface AdapterInterface
     public function dropIndex($tableName, $columns, $options = array());
 
     /**
-     * Checks to see if an foreign key exists.
+     * Checks to see if a foreign key exists.
      *
-     * @param string $tableName
-     * @param string[] $constraint Column(s)
-     * @param string $constraint Constraint name
-     *
+     * @param string   $tableName
+     * @param string[] $columns    Column(s)
+     * @param string   $constraint Constraint name
      * @return boolean
      */
     public function hasForeignKey($tableName, $columns, $constraint = null);
 
     /**
-     * Adds the specified foreign key to database table
+     * Adds the specified foreign key to a database table.
      *
-     * @param Table            $table
+     * @param Table      $table
      * @param ForeignKey $foreignKey
-     *
      * @return void
      */
     public function addForeignKey(Table $table, ForeignKey $foreignKey);
@@ -312,10 +310,9 @@ interface AdapterInterface
     /**
      * Drops the specified foreign key from a database table.
      *
-     * @param string $tableName
-     * @param string[] $constraint Column(s)
-     * @param string $constraint Constraint name
-     *
+     * @param string   $tableName
+     * @param string[] $columns    Column(s)
+     * @param string   $constraint Constraint name
      * @return void
      */
     public function dropForeignKey($tableName, $columns, $constraint = null);

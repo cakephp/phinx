@@ -30,7 +30,7 @@ namespace Phinx\Db;
 
 use Phinx\Db\Table\Column,
     Phinx\Db\Table\Index,
-    \Phinx\Db\Table\ForeignKey,
+    Phinx\Db\Table\ForeignKey,
     Phinx\Db\Adapter\AdapterInterface;
 
 /**
@@ -254,10 +254,9 @@ class Table
     }
 
     /**
-     * Gets and array of foreign keys waiting ti be commited.
+     * Gets an array of foreign keys waiting to be commited.
      *
      * @param ForeignKey[] $foreignKeys foreign keys
-     *
      * @return Table
      */
     public function setForeignKeys($foreignKeys)
@@ -267,7 +266,7 @@ class Table
     }
 
     /**
-     * Gets and array of foreign keys waiting to be commited.
+     * Gets an array of foreign keys waiting to be commited.
      *
      * @return array|ForeignKey[]
      */
@@ -444,15 +443,15 @@ class Table
     }
 
     /**
-     * Add foreign key to database table
+     * Add a foreign key to a database table.
      *
-     * In $options you can specify on_delete|on_delete = cascade|no_action .., on_update, constraint = constraint name.
+     * In $options you can specify on_delete|on_delete = cascade|no_action ..,
+     * on_update, constraint = constraint name.
      *
      * @param string|array $columns Columns
-     * @param string|Table $referencedTable Referenced table
-     * @param string|array $referencedColumns Referenced columns
+     * @param string|Table $referencedTable   Referenced Table
+     * @param string|array $referencedColumns Referenced Columns
      * @param array $options Options
-     *
      * @return Table;
      */
     public function addForeignKey($columns, $referencedTable, $referencedColumns = array('id'), $options = array())
@@ -467,18 +466,19 @@ class Table
             $fk->setReferencedTable(new Table($referencedTable, array(), $this->adapter));
         }
         $fk->setColumns($columns)
-            ->setReferencedColumns($referencedColumns)
-            ->setOptions($options);
+           ->setReferencedColumns($referencedColumns)
+           ->setOptions($options);
         $this->foreignKeys[] = $fk;
 
         return $this;
     }
 
     /**
-     * Removes the given index from the table
+     * Removes the given foreign key from the table.
      *
-     * @param string|array $columns Column(s)
-     * @param null|string $constraint Constraint names
+     * @param string|array $columns    Column(s)
+     * @param null|string  $constraint Constraint names
+     * @return void
      */
     public function dropForeignKey($columns, $constraint = null) {
         if (is_string($columns)) {
@@ -492,12 +492,11 @@ class Table
     }
 
     /**
-     * Checks to see if an foreign key exists.
+     * Checks to see if a foreign key exists.
      *
-     * @param string|array $columns Column(s)
-     * @param null|string $constraint Constraint names
-     *
-     * @return bool
+     * @param  string|array $columns    Column(s)
+     * @param  null|string  $constraint Constraint names
+     * @return boolean
      */
     public function hasForeignKey($columns, $constraint = null) {
         return $this->getAdapter()->hasForeignKey($this->getName(), $columns, $constraint);
