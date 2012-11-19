@@ -189,6 +189,7 @@ class Table
     /**
      * Sets an array of columns waiting to be committed.
      * Use setPendingColumns
+     *
      * @deprecated
      * @param array $columns Columns
      * @return Table
@@ -199,7 +200,7 @@ class Table
     }
     
     /**
-     * Gets an array of columns waiting to be committed.
+     * Gets an array of the table columns.
      *
      * @return Column[]
      */
@@ -289,7 +290,8 @@ class Table
     /**
      * Add a table column.
      *
-     * Type can be: primary_key, string, text, integer, float, decimal, datetime, timestamp, time, date, binary, boolean.
+     * Type can be: primary_key, string, text, integer, float, decimal,
+     * datetime, timestamp, time, date, binary, boolean.
      * 
      * Valid options can be: limit, default, null, precision or scale.
      *
