@@ -121,4 +121,26 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
         $table->removeIndex(array('email'));
     }
+
+    public function testAddForeignKey()
+    {
+        $adapter = new MysqlAdapter(array());
+        $table = new \Phinx\Db\Table('ntable', array(), $adapter);
+        $table->addForeignKey('test', 'testTable', 'testRef');
+        $fks = $table->getForeignKeys();
+        $this->assertCount(1, $fks);
+        $this->assertContains('test', $fks[0]->getColumns());
+        $this->assertContains('testRef', $fks[0]->getReferencedColumns());
+        $this->assertEquals('testTable', $fks[0]->getReferencedTable()->getName());
+    }
+
+    public function testDropForeignKey()
+    {
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())
+            ->method('dropForeignKey');
+        $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $table->dropForeignKey('test');
+    }
 }
