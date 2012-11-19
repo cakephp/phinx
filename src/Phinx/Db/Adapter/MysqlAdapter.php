@@ -162,7 +162,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         // Add the default primary key
         $columns = $table->getPendingColumns();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
-            $column = new \Phinx\Db\Table\Column();
+            $column = new Column();
             $column->setName('id')
                    ->setType('integer')
                    ->setIdentity(true);
@@ -245,15 +245,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $columns = array();
         $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $tableName));
         foreach ($rows as $columnInfo) {
-            $column = new \Phinx\Db\Table\Column();
+            $column = new Column();
             $column->setName($columnInfo['Field'])
-                ->setType($columnInfo['Type'])
-                ->setNull($columnInfo['Null'] != 'NO')
-                ->setDefault($columnInfo['Default']);
+                   ->setType($columnInfo['Type'])
+                   ->setNull($columnInfo['Null'] != 'NO')
+                   ->setDefault($columnInfo['Default']);
 
             $phinxType = $this->getPhinxType($columnInfo['Type']);
             $column->setType($phinxType['name'])
-                ->setLimit($phinxType['limit']);
+                   ->setLimit($phinxType['limit']);
 
             if ($columnInfo['Extra'] == 'auto_increment') {
                 $column->setIdentity(true);
@@ -490,7 +490,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $foreignKeys[$row['CONSTRAINT_NAME']]['columns'][] = $row['COLUMN_NAME'];
             $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_table'] = $row['REFERENCED_TABLE_NAME'];
             $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_columns'][] = $row['REFERENCED_COLUMN_NAME'];
-
         }
         return $foreignKeys;
     }
