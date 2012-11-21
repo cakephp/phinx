@@ -147,7 +147,7 @@ class Manager
         // are we migrating up or down?
         $direction = $version > $current ? MigrationInterface::UP : MigrationInterface::DOWN;
 
-        if ($direction == 'down') {
+        if ($direction == MigrationInterface::DOWN) {
             // run downs first
             krsort($migrations);
             foreach ($migrations as $migration) {
@@ -255,7 +255,7 @@ class Manager
             }
 
             if (in_array($migration->getVersion(), $versions)) {
-                $this->executeMigration($environment, $migration, 'down');
+                $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
             }
         }
     }
