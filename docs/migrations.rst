@@ -147,9 +147,27 @@ store a collection of users.
               ->addIndex(array('username', 'email'), array('unique' => true))
               ->save();
         
-Columns are added using the ``addColumn()`` method. We create a unique index for
-both the username and email columns using the ``addIndex()`` method. Finally
-calling ``save()`` commits the changes to the database.
+Columns are added using the ``addColumn()`` method. We create a unique index
+for both the username and email columns using the ``addIndex()`` method.
+Finally calling ``save()`` commits the changes to the database.
+
+.. note::
+
+    Phinx automatically creates a primary key for every table called ``id``.
+
+To specify an alternate primary key you can specify the ``primary_key`` option
+when accessing the Table object. Let's disable the automatic ``id`` column and
+create a primary key using two columns instead:
+
+.. code-block:: php
+
+        <?php
+        
+        $table = $this->table('followers', array('id' => false, 'primary_key' => array('user_id', 'follower_id')));
+        $table->addColumn('user_id', 'integer')
+              ->addColumn('follower_id', 'integer')
+              ->addColumn('created', 'datetime')
+              ->save();
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
