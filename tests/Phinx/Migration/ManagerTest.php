@@ -69,6 +69,25 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/up  20120116183504  TestMigration2/', $outputStr);
     }
     
+    public function testPrintStatusMethodWithNoMigrations()
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        
+        // override the migrations directory to an empty one
+        $configArray = $this->getConfigArray();
+        $configArray['paths']['migrations'] = __DIR__ . '/_files/nomigrations';
+        $config = new Config($configArray);
+        
+        $this->manager->setConfig($config);
+        $this->manager->setEnvironments(array('mockenv' => $envStub));                
+        $this->manager->printStatus('mockenv');   
+        
+        rewind($this->manager->getOutput()->getStream());
+        $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
+        $this->assertRegExp('/There are no available migrations. Try creating one using the create command./', $outputStr);
+    }
+    
     public function testPrintStatusMethodWithMissingMigrations()
     {
         // stub environment
