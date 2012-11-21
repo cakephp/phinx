@@ -6,13 +6,11 @@ Phinx makes it ridiculousy easy to manage the database migrations for your PHP a
 
 ### Phinx lets you
 
+* Write database migrations using database agnostic PHP code.
 * Migrate up and down.
-* Integrate with PHPUnit.
 * Migrate on deployment.
 * Get going in less than 5 minutes.
 * Stop worrying about the state of your database.
-* Write database agnostic PHP code.
-* Run `phinx` and magically migrate(TM) to the latest schema.
 * Take advantage of SCM features such as branching.
 
 ### Compared with other tools, Phinx _does not…_
