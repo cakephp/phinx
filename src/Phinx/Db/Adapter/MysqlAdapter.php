@@ -724,7 +724,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                      ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
-        $def .= ($column->getDefault()) ? ' DEFAULT \'' . $column->getDefault() . '\'' : '';
+        $default = $column->getDefault();
+        if (is_numeric($default)) {
+            $def .= ' DEFAULT ' . $column->getDefault();
+        } else {
+            $def .= is_null($column->getDefault()) ? '' : ' DEFAULT \'' . $column->getDefault() . '\'';
+        }
         // TODO - add precision & scale for decimals
         return $def;
     }
