@@ -102,7 +102,20 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
-    
+
+    public function testCreateTableCustomIdColumn()
+    {
+        $table = new \Phinx\Db\Table('ntable', array('id' => 'custom_id'), $this->adapter);
+        $table->addColumn('realname', 'string')
+              ->addColumn('email', 'integer')
+              ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'custom_id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+    }
+
     public function testCreateTableWithNoOptions()
     {
         $this->markTestIncomplete();

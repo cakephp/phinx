@@ -169,6 +169,20 @@ create a primary key using two columns instead:
               ->addColumn('created', 'datetime')
               ->save();
 
+Setting a single ``primary_key`` doesn't enable the ``AUTO_INCREMENT`` option.
+To do this, we need to override the default ``id`` field name:
+
+.. code-block:: php
+
+        <?php
+
+        $table = $this->table('followers', array('id' => 'user_id'));
+        $table->addColumn('user_id', 'integer')
+              ->addColumn('follower_id', 'integer')
+              ->addColumn('created', 'datetime')
+              ->save();
+
+
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
