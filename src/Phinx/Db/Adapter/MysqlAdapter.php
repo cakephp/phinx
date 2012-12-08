@@ -169,6 +169,16 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             
             array_unshift($columns, $column);
             $options['primary_key'] = 'id';
+
+        } elseif (isset($options['id']) && is_string($options['id'])) {
+            // Handle id => "field_name" to support AUTO_INCREMENT
+            $column = new Column();
+            $column->setName($options['id'])
+                   ->setType('integer')
+                   ->setIdentity(true);
+
+            array_unshift($columns, $column);
+            $options['primary_key'] = $options['id'];
         }
         
         // TODO - process table options like collation etc
