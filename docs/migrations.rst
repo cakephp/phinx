@@ -183,7 +183,6 @@ To do this, we need to override the default ``id`` field name:
               ->addColumn('created', 'datetime')
               ->save();
 
-
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
