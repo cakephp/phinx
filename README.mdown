@@ -27,31 +27,31 @@ The fastest way to install Phinx in your project is using Composer (http://getco
 
 1. Install composer:
 
-	```    
-	curl -s https://getcomposer.org/installer | php
-	```
+    ```    
+    curl -s https://getcomposer.org/installer | php
+    ```
     
 1. Add Phinx as a dependency to your `composer.json` file:
 
-	```js
-	{
-	    "require": {
-	        "robmorgan/phinx": "*"
-	    }
-	}
-	```
+    ```js
+    {
+        "require": {
+            "robmorgan/phinx": "*"
+        }
+    }
+    ```
     
 1. Install Phinx:
     
-	```
-	php composer.phar install
-	```
+    ```
+    php composer.phar install
+    ```
     
 1. Execute Phinx:
     
-	```
-	php vendor/bin/phinx
-	```
+    ```
+    php vendor/bin/phinx
+    ```
 
 ## Documentation
 
@@ -73,6 +73,14 @@ Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
 ## Misc
 
 ### Version History
+
+**0.1.6** (Sunday, 9th December 2012)
+
+* Added foreign key support
+* Removed PEAR support
+* Support for auto_increment on custom id columns
+* Bugfix for column default value 0
+* Documentation improvements
 
 **0.1.5** (Sunday, 4th November 2012)
 
