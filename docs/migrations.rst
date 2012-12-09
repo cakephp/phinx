@@ -153,7 +153,8 @@ Finally calling ``save()`` commits the changes to the database.
 
 .. note::
 
-    Phinx automatically creates a primary key for every table called ``id``.
+    Phinx automatically creates an auto-incrementing primary key for every
+    table called ``id``.
 
 To specify an alternate primary key you can specify the ``primary_key`` option
 when accessing the Table object. Let's disable the automatic ``id`` column and
@@ -195,7 +196,7 @@ method.
         
         $exists = $this->hasTable('users');
         if ($exists) {
-          // do something
+            // do something
         }
 
 Dropping a Table
@@ -212,7 +213,7 @@ Tables can be dropped quite easily using the ``dropTable()`` method.
 Renaming a Table
 ~~~~~~~~~~~~~~~~
 
-To rename a table access an instance of the Table object, then call the
+To rename a table access an instance of the Table object then call the
 ``rename()`` method.
 
 .. code-block:: php
@@ -224,6 +225,47 @@ To rename a table access an instance of the Table object, then call the
 
 Working With Columns
 ~~~~~~~~~~~~~~~~~~~~
+
+Working With Foreign Keys
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Phinx has support for creating foreign key constraints on your database tables.
+Let's add a foreign key to an example table:
+
+.. code-block:: php
+
+        <?php
+        
+        $table = $this->table('tags');
+        $table->addColumn('tag_name', 'string')
+              ->save();
+        
+        $refTable = $this->table('tag_relationships');
+        $refTable->addColumn('tag_id', 'integer')
+                 ->save();
+                
+        $refTable->addForeignKey('tag_id', 'tags', 'id');
+
+We can also easily check if a foreign key exists:
+
+.. code-block:: php
+
+        <?php
+        
+        $table = $this->table('tag_relationships');
+        $exists = $table->hasForeignKey('tag_id');
+        if ($exists) {
+            // do something
+        }
+
+Finally to delete a foreign key use the ``dropForeignKey`` method.
+
+.. code-block:: php
+
+        <?php
+        
+        $table = $this->table('tag_relationships');
+        $table->dropForeignKey('tag_id');
 
 The Save Method
 ~~~~~~~~~~~~~~~
