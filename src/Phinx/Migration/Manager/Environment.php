@@ -31,6 +31,7 @@ namespace Phinx\Migration\Manager;
 use Phinx\Db\Adapter\AdapterInterface,
     Phinx\Db\Adapter\PdoAdapter,
     Phinx\Db\Adapter\MysqlAdapter,
+    Phinx\Db\Adapter\ProxyAdapter,
     Phinx\Migration\MigrationInterface;
 
 class Environment
@@ -80,10 +81,10 @@ class Environment
      * @param string $direction Direction
      * @return void
      */
-    public function executeMigration(MigrationInterface $migration, $direction = 'up')
+    public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP)
     {
         $startTime = time();
-        $direction = ($direction == 'up') ? 'up' : 'down';
+        $direction = ($direction == MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
         $migration->setAdapter($this->getAdapter());
         
         // begin the transaction if the adapter supports it
@@ -92,7 +93,20 @@ class Environment
         }
         
         // Run the migration
-        $migration->{$direction}();
+        if (method_exists($migration, 'change')) {
+            if ($direction == MigrationInterface::DOWN) {
+                // Create an instance of the ProxyAdapter so we can record all
+                // of the migration commands for reverse playback
+                $proxyAdapter = new ProxyAdapter($this->getAdapter());
+                $migration->setAdapter($proxyAdapter);
+                $migration->change();
+                $proxyAdapter->executeInvertedCommands();
+            } else {
+                $migration->change();
+            }
+        } else {
+            $migration->{$direction}();
+        }
         
         // commit the transaction if the adapter supports it
         if ($this->getAdapter()->hasTransactions()) {
