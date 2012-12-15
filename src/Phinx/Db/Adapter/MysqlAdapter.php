@@ -33,6 +33,11 @@ use Phinx\Db\Table,
     Phinx\Db\Table\Index,
     Phinx\Db\Table\ForeignKey;
 
+/**
+ * Phinx MySQL Adapter.
+ *
+ * @author Rob Morgan <robbym@gmail.com>
+ */
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
     /**
