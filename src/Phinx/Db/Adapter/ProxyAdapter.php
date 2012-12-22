@@ -57,12 +57,14 @@ class ProxyAdapter implements AdapterInterface
     /**
      * Class Constructor.
      *
-     * @param array $options Options
+     * @param AdapterInterface $adapter The adapter to proxy commands to
      * @return void
      */
-    public function __construct(AdapterInterface $adapter)
+    public function __construct(AdapterInterface $adapter = null)
     {
-        $this->setAdapter($adapter);
+        if (null !== $adapter) {
+            $this->setAdapter($adapter);    
+        }
     }
     
     /**
@@ -492,7 +494,7 @@ class ProxyAdapter implements AdapterInterface
     
     public function invertRenameTable($args)
     {
-        
+        return array('name' => 'renameTable', 'arguments' => array($args[1], $args[0]));
     }
     
     public function invertAddColumn($args)
