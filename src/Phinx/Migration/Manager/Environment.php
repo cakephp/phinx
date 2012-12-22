@@ -101,6 +101,7 @@ class Environment
                 $migration->setAdapter($proxyAdapter);
                 $migration->change();
                 $proxyAdapter->executeInvertedCommands();
+                $migration->setAdapter($this->getAdapter());
             } else {
                 $migration->change();
             }
