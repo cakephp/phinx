@@ -38,6 +38,8 @@ use Phinx\Db\Table,
 /**
  * Phinx Proxy Adapter.
  *
+ * Used for recording migration commands to automatically reverse them.
+ *
  * @author Rob Morgan <robbym@gmail.com>
  */
 class ProxyAdapter implements AdapterInterface
@@ -447,19 +449,12 @@ class ProxyAdapter implements AdapterInterface
     
     public function getInvertedCommands()
     {
-        // main problems right now, we don't know whether its a createTable call or if Phinx
-        // is just adding columns/indexes to an already existing table.
-        //
-        // A work around could be for the ProxyAdapter to wrap a real adapter and proxy the
-        // the hasTable commands to the real adapter that way we could figure out how to reverse
-        // a command.
         $invCommands = array();
         $supportedCommands = array('createTable', 'renameTable', 'addColumn', 'renameColumn', 'changeColumn', 'addIndex', 'addForeignKey');
-        var_dump(array_reverse($this->getCommands()));exit;
         foreach (array_reverse($this->getCommands()) as $command) {
             if (!in_array($command['name'], $supportedCommands)) {
                 throw new IrreversibleMigrationException(sprintf(
-                    'Cannot reverse a %s command',
+                    'Cannot reverse a "%s" command',
                     $command['name']
                 ));
             }
@@ -481,9 +476,8 @@ class ProxyAdapter implements AdapterInterface
     public function executeInvertedCommands()
     {
         $commands = $this->getInvertedCommands();
-        var_dump($commands);exit;
         foreach ($commands as $command) {
-            call_user_func_array(array($this, $command['name']), $command['arguments']);
+            call_user_func_array(array($this->getAdapter(), $command['name']), $command['arguments']);
         }
     }
     
@@ -499,8 +493,7 @@ class ProxyAdapter implements AdapterInterface
     
     public function invertAddColumn($args)
     {
-        var_dump($args);exit;
-        return array('name' => 'dropColumn', 'arguments' => array($args[0]));
+        return array('name' => 'dropColumn', 'arguments' => array($args[0]->getName(), $args[1]->getName()));
     }
     
     public function invertRenameColumn($args)
