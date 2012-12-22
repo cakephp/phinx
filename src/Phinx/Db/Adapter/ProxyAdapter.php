@@ -449,6 +449,10 @@ class ProxyAdapter implements AdapterInterface
     
     public function getInvertedCommands()
     {
+        if (null === $this->getCommands()) {
+            return array();
+        }
+        
         $invCommands = array();
         $supportedCommands = array('createTable', 'renameTable', 'addColumn', 'renameColumn', 'changeColumn', 'addIndex', 'addForeignKey');
         foreach (array_reverse($this->getCommands()) as $command) {
