@@ -139,7 +139,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
         // stub adapter
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
         $adapterStub->expects($this->once())
-            ->method('dropForeignKey');
+                    ->method('dropForeignKey');
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
         $table->dropForeignKey('test');
     }
