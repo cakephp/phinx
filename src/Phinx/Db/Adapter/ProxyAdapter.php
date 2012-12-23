@@ -299,7 +299,7 @@ class ProxyAdapter implements AdapterInterface
      */
     public function dropTable($tableName)
     {
-        $this->recordCommand('dropTable', array($tableName));
+        return $this->getAdapter()->dropTable($tableName);
     }
 
     /**
