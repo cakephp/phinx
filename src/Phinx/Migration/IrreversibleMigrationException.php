@@ -34,6 +34,6 @@ namespace Phinx\Migration;
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-class IrreversibleMigrationException extends Exception
+class IrreversibleMigrationException extends \Exception
 {
 }

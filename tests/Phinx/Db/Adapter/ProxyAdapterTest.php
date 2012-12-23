@@ -6,7 +6,8 @@ use Phinx\Db\Adapter\PdoAdapter,
     Phinx\Db\Adapter\ProxyAdapter,
     Phinx\Db\Table,
     Phinx\Db\Table\Index,
-    Phinx\Db\Table\ForeignKey;
+    Phinx\Db\Table\ForeignKey,
+    Phinx\Migration\IrreversibleMigrationException;
 
 class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -103,5 +104,15 @@ class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('dropForeignKey' , $commands[0]['name']);
         $this->assertEquals('atable', $commands[0]['arguments'][0]);
         $this->assertContains('ref_table_id', $commands[0]['arguments'][1]);
+    }
+    
+    /**
+     * @expectedException \Phinx\Migration\IrreversibleMigrationException
+     * @expectedExceptionMessage Cannot reverse a "createDatabase" command
+     */
+    public function testGetInvertedCommandsThrowsExceptionForIrreversibleCommand()
+    {
+        $this->adapter->recordCommand('createDatabase', array('testdb'));
+        $this->adapter->getInvertedCommands();
     }
 }
