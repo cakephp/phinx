@@ -339,7 +339,7 @@ class ProxyAdapter implements AdapterInterface
      */
     public function changeColumn($tableName, $columnName, Column $newColumn)
     {
-        $this->recordCommand('changeColumn', array($tableName, $columnName, $newColumn));
+        return $this->getAdapter()->changeColumn($tableName, $columnName, $newColumn);
     }
     
     /**
@@ -456,7 +456,7 @@ class ProxyAdapter implements AdapterInterface
         }
         
         $invCommands = array();
-        $supportedCommands = array('createTable', 'renameTable', 'addColumn', 'renameColumn', 'changeColumn', 'addIndex', 'addForeignKey');
+        $supportedCommands = array('createTable', 'renameTable', 'addColumn', 'renameColumn', 'addIndex', 'addForeignKey');
         foreach (array_reverse($this->getCommands()) as $command) {
             if (!in_array($command['name'], $supportedCommands)) {
                 throw new IrreversibleMigrationException(sprintf(
@@ -504,21 +504,16 @@ class ProxyAdapter implements AdapterInterface
     
     public function invertRenameColumn($args)
     {
-        
-    }
-    
-    public function invertChangeColumn($args)
-    {
-        
+        return array('name' => 'renameColumn', 'arguments' => array($args[0], $args[2], $args[1]));
     }
     
     public function invertAddIndex($args)
     {
-        
+        return array('name' => 'dropIndex', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
     }
     
     public function invertAddForeignKey($args)
     {
-        
+        return array('name' => 'dropForeignKey', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
     }
 }
