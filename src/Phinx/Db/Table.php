@@ -284,6 +284,7 @@ class Table
     {
         $this->setPendingColumns(array());
         $this->setIndexes(array());
+        $this->setForeignKeys(array());
     }
     
     /**
@@ -510,6 +511,7 @@ class Table
     public function create()
     {
         $this->getAdapter()->createTable($this);
+        $this->reset(); // reset pending changes
     }
     
     /**
@@ -535,6 +537,8 @@ class Table
         foreach ($this->getForeignKeys() as $foreignKey) {
             $this->getAdapter()->addForeignKey($this, $foreignKey);
         }
+        
+        $this->reset(); // reset pending changes
     }
     
     /**
