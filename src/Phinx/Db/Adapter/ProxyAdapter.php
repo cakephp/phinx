@@ -430,6 +430,13 @@ class ProxyAdapter implements AdapterInterface
         return $this->getAdapter()->dropDatabase($name);
     }
     
+    /**
+     * Record a command for execution later.
+     *
+     * @param string $name Command Name
+     * @param array $arguments Command Arguments
+     * @return void
+     */
     public function recordCommand($name, $arguments)
     {
         $this->commands[] = array(
@@ -438,17 +445,34 @@ class ProxyAdapter implements AdapterInterface
         );
     }
     
-    public function getCommands()
-    {
-        return $this->commands;
-    }
-    
+    /**
+     * Sets an array of recorded commands.
+     *
+     * @param array $commands Commands
+     * @return ProxyAdapter
+     */
     public function setCommands($commands)
     {
         $this->commands = $commands;
         return $this;
     }
     
+    /**
+     * Gets an array of the recorded commands.
+     *
+     * @return array
+     */
+    public function getCommands()
+    {
+        return $this->commands;
+    }
+    
+    /**
+     * Gets an array of the recorded commands in reverse.
+     *
+     * @throws IrreversibleMigrationException if a command cannot be reversed.
+     * @return array
+     */
     public function getInvertedCommands()
     {
         if (null === $this->getCommands()) {
@@ -471,14 +495,28 @@ class ProxyAdapter implements AdapterInterface
                 'arguments' => $invertedCommand['arguments']
             );
         }
+        
         return $invCommands;
     }
     
+    /**
+     * Execute the recorded commands.
+     *
+     * @return void
+     */
     public function executeCommands()
     {
         $commands = $this->getCommands();
+        foreach ($commands as $command) {
+            call_user_func_array(array($this->getAdapter(), $command['name']), $command['arguments']);
+        }
     }
     
+    /**
+     * Execute the recorded commands in reverse.
+     *
+     * @return void
+     */
     public function executeInvertedCommands()
     {
         $commands = $this->getInvertedCommands();
@@ -487,31 +525,67 @@ class ProxyAdapter implements AdapterInterface
         }
     }
     
+    /**
+     * Returns the reverse of a createTable command.
+     *
+     * @param array $args Method Arguments
+     * @return array
+     */
     public function invertCreateTable($args)
     {
         return array('name' => 'dropTable', 'arguments' => array($args[0]));
     }
     
+    /**
+     * Returns the reverse of a renameTable command.
+     *
+     * @param array $args Method Arguments
+     * @return array
+     */
     public function invertRenameTable($args)
     {
         return array('name' => 'renameTable', 'arguments' => array($args[1], $args[0]));
     }
     
+    /**
+     * Returns the reverse of a addColumn command.
+     *
+     * @param array $args Method Arguments
+     * @return array
+     */
     public function invertAddColumn($args)
     {
         return array('name' => 'dropColumn', 'arguments' => array($args[0]->getName(), $args[1]->getName()));
     }
     
+    /**
+     * Returns the reverse of a renameColumn command.
+     *
+     * @param array $args Method Arguments
+     * @return array
+     */
     public function invertRenameColumn($args)
     {
         return array('name' => 'renameColumn', 'arguments' => array($args[0], $args[2], $args[1]));
     }
     
+    /**
+     * Returns the reverse of a addIndex command.
+     *
+     * @param array $args Method Arguments
+     * @return array
+     */
     public function invertAddIndex($args)
     {
         return array('name' => 'dropIndex', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
     }
     
+    /**
+     * Returns the reverse of a addForeignKey command.
+     *
+     * @param array $args Method Arguments
+     * @return array
+     */
     public function invertAddForeignKey($args)
     {
         return array('name' => 'dropForeignKey', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
