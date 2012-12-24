@@ -4,6 +4,7 @@ namespace Test\Phinx\Migration;
 
 use Symfony\Component\Console\Output\StreamOutput,
     Phinx\Config\Config,
+    Phinx\Db\Adapter\MysqlAdapter,
     Phinx\Migration\Manager,
     Phinx\Migration\Manager\Environment;
 
@@ -41,7 +42,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 'default_migration_table' => 'phinxlog',
                 'default_database' => 'production',
                 'production' => array(
-                    'adapter' => 'mysql'
+                    'adapter'   => 'mysql',
+                    'host'      => TESTS_PHINX_DB_ADAPTER_MYSQL_HOST,
+                    'name'      => TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
+                    'user'      => TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME,
+                    'pass'      => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
+                    'port'      => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT
                 )
             )
         );
@@ -165,5 +171,42 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testGettingAnInvalidEnvironment()
     {
         $this->manager->getEnvironment('invalidenv');
+    }
+    
+    public function testReversibleMigrationsWorkAsExpected()
+    {
+        $configArray = $this->getConfigArray();
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+        
+        // override the migrations directory to use the reversible migrations
+        $configArray['paths']['migrations'] = __DIR__ . '/_files/reversiblemigrations';
+        $config = new Config($configArray);
+
+        // ensure the database is empty
+        $adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->disconnect();
+
+        // migrate to the latest version
+        $this->manager->setConfig($config);
+        $this->manager->migrate('production');
+        
+        // ensure up migrations worked
+        $this->assertFalse($adapter->hasTable('info'));
+        $this->assertTrue($adapter->hasTable('statuses'));
+        $this->assertTrue($adapter->hasTable('users'));
+        $this->assertTrue($adapter->hasTable('user_logins'));
+        $this->assertTrue($adapter->hasColumn('users', 'biography'));
+        $this->assertTrue($adapter->hasForeignKey('user_logins', array('user_id')));
+
+        // revert all changes to the first
+        $this->manager->rollback('production', 20121213232502);
+        
+        // ensure reversed migrations worked
+        $this->assertTrue($adapter->hasTable('info'));
+        $this->assertFalse($adapter->hasTable('statuses'));
+        $this->assertFalse($adapter->hasTable('user_logins'));
+        $this->assertTrue($adapter->hasColumn('users', 'bio'));
+        $this->assertFalse($adapter->hasForeignKey('user_logins', array('user_id')));
     }
 }
