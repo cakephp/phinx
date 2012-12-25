@@ -299,7 +299,7 @@ class ProxyAdapter implements AdapterInterface
      */
     public function dropTable($tableName)
     {
-        return $this->getAdapter()->dropTable($tableName);
+        $this->recordCommand('dropTable', array($tableName));
     }
 
     /**
@@ -339,7 +339,7 @@ class ProxyAdapter implements AdapterInterface
      */
     public function changeColumn($tableName, $columnName, Column $newColumn)
     {
-        return $this->getAdapter()->changeColumn($tableName, $columnName, $newColumn);
+        $this->recordCommand('changeColumn', array($tableName, $columnName, $newColumn));
     }
     
     /**
