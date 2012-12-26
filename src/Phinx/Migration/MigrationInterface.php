@@ -40,6 +40,11 @@ interface MigrationInterface
     /**
      * @var string
      */
+    const CHANGE = 'change';
+    
+    /**
+     * @var string
+     */
     const UP = 'up';
     
     /**
