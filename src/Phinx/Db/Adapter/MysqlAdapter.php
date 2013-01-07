@@ -425,7 +425,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function dropIndex($tableName, $columns, $options = array())
+    public function dropIndex($tableName, $columns)
     {
         if (is_string($columns)) {
             $columns = array($columns); // str to array

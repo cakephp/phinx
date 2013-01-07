@@ -283,10 +283,9 @@ interface AdapterInterface
      * 
      * @param string $tableName
      * @param mixed  $columns Column(s)
-     * @param array  $options
      * @return void
      */
-    public function dropIndex($tableName, $columns, $options = array());
+    public function dropIndex($tableName, $columns);
 
     /**
      * Checks to see if a foreign key exists.
