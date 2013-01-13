@@ -74,6 +74,12 @@ Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.2.0** (Sunday, 13th January 2013)
+
+* First Birthday Release
+* Added Reversible Migrations
+* Removed options parameter from AdapterInterface::hasColumn()
+
 **0.1.7** (Tuesday, 8th January 2013)
 
 * Improved documentation on the YAML configuration file
