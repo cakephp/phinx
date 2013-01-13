@@ -35,9 +35,9 @@ use Phinx\Db\Table,
     Phinx\Migration\MigrationInterface;
 
 /**
- * Adapter interface
+ * Adapter Interface.
  *
- * @author      Rob Morgan <robbym@gmail.com>
+ * @author Rob Morgan <robbym@gmail.com>
  */
 interface AdapterInterface
 {
@@ -62,6 +62,7 @@ interface AdapterInterface
     /**
      * Does the schema table exist?
      *
+     * @deprecated use hasTable instead.
      * @return boolean
      */
     public function hasSchemaTable();
