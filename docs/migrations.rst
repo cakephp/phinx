@@ -71,6 +71,74 @@ The down method is automatically run by Phinx when you are migrating down and
 it detects the given migration has been executed in the past. You should use
 the down method to reverse/undo the transformations described in the up method.
 
+The Change Method
+~~~~~~~~~~~~~~~~~
+
+Phinx 0.2.0 introduced a new feature called reversible migrations. With
+reversible migrations you only need to define the ``up`` logic and Phinx can
+figure out how to migrate down automatically for you. To define a reversible
+migration you must declare a ``change`` method in your migration file. For
+example:
+
+.. code-block:: php
+        
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class CreateUserLoginsTable extends AbstractMigration
+        {
+            /**
+             * Change.
+             */
+            public function change()
+            {
+                // create the table
+                $table = $this->table('user_logins');
+                $table->addColumn('user_id', 'integer')
+                      ->addColumn('created', 'datetime')
+                      ->create();
+            }
+    
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+    
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
+When executing this migration Phinx will create the ``user_logins`` table on
+the way up and automatically figure out how to drop the table on the way down.
+
+.. note::
+
+    When creating or updating tables inside a ``change()`` method you must use
+    the Table ``create()`` and ``update()`` methods. Phinx cannot automatically
+    determine whether a ``save()`` call is creating a new table or modifying an
+    existing one.
+
+Phinx can only reverse the following commands:
+
+-  createTable
+-  renameTable
+-  addColumn
+-  renameColumn
+-  addIndex
+-  addForeignKey
+
+If a command cannot be reversed then Phinx will throw a 
+``IrreversibleMigrationException`` exception when it's migrating down.
+
 Executing Queries
 -----------------
 
@@ -86,7 +154,7 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
         $count = $this->execute('DELETE FROM users'); // returns the number of affected rows
 
         // query()
-        $rows = $this->query('SELECT * FROM users');
+        $rows = $this->query('SELECT * FROM users'); // returns the result as an array
 
 Fetching Rows
 -------------

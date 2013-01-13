@@ -28,10 +28,11 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Migration\MigrationInterface;
+use Phinx\Db\Table,
+    Phinx\Migration\MigrationInterface;
 
 /**
- * Phinx PDO adapter.
+ * Phinx PDO Adapter.
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
@@ -234,6 +235,7 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * Describes a database table.
      *
+     * @todo MySQL Specific so move to MysqlAdapter.
      * @return array
      */
     public function describeTable($tableName)
@@ -258,17 +260,7 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function hasSchemaTable()
     {
-        try {
-            $schema = $this->describeTable($this->getSchemaTableName());
-        } catch (\PDOException $exception) {
-            return false;
-        }
-
-        if (is_array($schema) && !empty($schema)) {
-            return true;
-        }
-
-        return false;
+        return $this->hasTable($this->getSchemaTableName());
     }
     
     /**
