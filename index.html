@@ -1,107 +1,120 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Phinx: PHP Database Migrations for Everyone</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <h1>Phinx</h1>
-        <p>PHP Database Migrations for Everyone</p>
-        <p class="view"><a href="https://github.com/robmorgan/phinx">View the Project on GitHub <small>robmorgan/phinx</small></a></p>
-        <ul>
-          <li><a href="https://github.com/robmorgan/phinx/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/robmorgan/phinx/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/robmorgan/phinx">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h3>PHP Database Migrations for Everyone</h3>
+        <meta charset="utf-8">
+        <title>Phinx</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="keywords" content="migrations, php, database migrations, php database migrations">
+        <meta name="description" content="Phinx makes it ridiculousy easy to manage the database migrations for your PHP app.">
+        <meta name="author" content="Rob Morgan">
+
+        <!-- Le styles -->
+        <link href="./css/bootstrap.min.css" rel="stylesheet">
+        <link href="./css/font-awesome.min.css" rel="stylesheet">
+        <link href="./css/site.css" rel="stylesheet">
+
+        <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+          <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <div class="container">
+            <div class="hero-unit">
+                <div class="row">
+                    <div class="span5">
+                        <h1>Phinx</h1>
+                        <p>PHP Database Migrations for Everyone</p>
+                        <p>
+                            <a class="btn btn-primary btn-large" href="https://github.com/robmorgan/phinx#install--run">
+                                <i class="icon-download icon-2x pull-left"></i>
+                                Install Now<br>
+                                <small>v0.2.0</small>
+                            </a>
+                            <a class="btn btn-large btn-github" href="https://github.com/robmorgan/phinx">
+                                <i class="icon-github icon-2x pull-left"></i>
+                                View Project<br>on GitHub
+                            </a>
+                        </p>
+                        
+                    </div>
+                    <div class="span5">
+                        <ul class="unstyled features">
+                            <li><i class="icon-cloud icon-2x"></i> Manage Multiple Environments</li>
+                            <li><i class="icon-edit icon-2x"></i> Write Migrations in PHP or SQL</li>
+                            <li><i class="icon-download icon-2x"></i> Easy to Install - Write your first migration in 5 minutes</li>
+                            <li><i class="icon-cog icon-2x"></i> Integates With Your Deploy Tool</li>
+                        </ul>
+                    </div>
+              </div>
+            </div>
+            
+            <div class="row">
+                <div class="span12">
+                    <h4>Phinx</h4>
+                    <p>
+                        Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx and 
+                        create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or dependence on
+                        an application framework.
+                    </p>
+                
+                    <h4>What makes Phinx different?</h4>
+                    <p>
+                        Most database migration tools are framework dependent, complicated, confusing to install/configure and a pain in the ass to write 
+                        migrations for. Phinx was designed to be both flexible and simple. It builds on the best parts from several other projects and 
+                        creates a powerful, easy-to-use experience.
+                    </p>
+                
+                    <h4>Documentation</h4>
+                    <p>Full documentation is available at <a href="http://docs.phinx.org/">http://docs.phinx.org/</a> or check out
+                   		the <a href="http://robmorgan.id.au/post/33558666279/getting-started-with-phinx">Getting Started guide</a>.
+                   	</p>
+                </div>
+            </div>
+            
+            <hr>
+            
+            <div class="row">
+                <div class="span3">
+                    <h4>Articles</h4>
+                    <ul>
+                        <li><a href="http://robmorgan.id.au/post/33558666279/getting-started-with-phinx">Getting Started with Phinx</a></li>
+                    </ul>
+                </div>
+                <div class="span3">
+                    <h4>Docs</h4>
+                    <p>Checkout the <a href="http://docs.phinx.org">Official Phinx Documentation</a>.</p>
+                </div>
+                <div class="span3">
+                    <h4>Support</h4>
+                    <p>Email: <a href="mailto:robbym@gmail.com">robbym@gmail.com</a> or @reply me on <a href="http://twitter.com/_rjm_">Twitter</a>.</p>
+                </div>
+                <div class="span3">
+                    <h4>Contribute</h4>
+                    <p>Feel free to <a href="http://github.com/robmorgan/phinx">fork on GitHub</a> and send me pull requests. 
+                    Please file issues and feature requests there as well.</p>
+                </div>
+            </div>
+            
+            <div class="row footer">
+                <div class="span12">
+                    Copyright &copy; 2013 <a href="http://robmorgan.id.au">Rob Morgan</a>.
+                    <a href="https://twitter.com/_rjm_" class="twitter-follow-button" data-show-count="false">Follow @_rjm_</a>
+                </div>
+            </div>
+        </div>
         
-        <p>Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you can 
-		install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database 
-		ORM system or dependence on an application framework.</p>
-                 
-        <h3>What makes Phinx different?</h3>
-        
-        <p>Most database migration tools are framework dependent, complicated, confusing to install/configure and a pain
-            in the ass to write migrations for. Phinx was designed to be both flexible and simple. It builds on the best 
-            parts from several other projects and creates a powerful, easy-to-use experience.</p>
+        <script>
+    	  var _gaq = _gaq || [];
+    	  _gaq.push(['_setAccount', 'UA-35733044-1']);
+    	  _gaq.push(['_trackPageview']);
 
-        <h3>Installing</h3>
-        
-        <p>By far the best way to install Phinx is via Composer (<a href="http://getcomposer.org">http://getcomposer.org</a>).</p>
-
-		<p>Simply add Phinx as a dependency to your <code>composer.json</code> file:</p>
-
-<pre><code>
-{
-    "require": {
-        "robmorgan/phinx": "*"
-    }
-}
-</code></pre>
-
-        <p>Then Phinx can be executed using:</p>
-		
-		<pre><code>php vendor/bin/phinx</code></pre>
-        
-        <h3>Writing Your First Migration</h3>
-
-<pre><code>$ cd yourapp
-$ php vendor/bin/phinx init .
-$ vim phinx.yml
-$ mkdir migrations
-$ php vendor/bin/phinx create MyFirstMigration
-$ php vendor/bin/phinx migrate -e development
-</code></pre>
-
-        <p>And that's it. Phinx will connect to your development database and execute your first migration.</p>
-
-        <h3>Documentation</h3>
-
-        <p>Full documentation is available here: <a href="http://docs.phinx.org/">http://docs.phinx.org/</a> or check out
-			the <a href="http://robmorgan.id.au/post/33558666279/getting-started-with-phinx">Getting Started guide</a>.
-		</p>
-
-        <h3>Contributing</h3>
-
-        <p>Feel free to <a href="http://github.com/robmorgan/phinx">fork on GitHub</a> and send me pull requests. Please file issues there as well.</p>
-
-        <h3>Support or Contact</h3>
-
-        <p>Having trouble with Phinx? Contact <a href="mailto:robbym at gmail.com">robbym at gmail.com</a>.</p>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/robmorgan">robmorgan</a></p>
-		<p><a href="https://twitter.com/_rjm_" class="twitter-follow-button" data-show-count="false">Follow @_rjm_</a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script><p>
-        <p><small><a href="http://robmorgan.id.au">http://robmorgan.id.au</a></small></p>
-      </footer>
-    </div>
-    <script src="javascripts/scale.fix.js"></script>
-	
-	<script type="text/javascript">
-
-	  var _gaq = _gaq || [];
-	  _gaq.push(['_setAccount', 'UA-35733044-1']);
-	  _gaq.push(['_trackPageview']);
-
-	  (function() {
-	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  })();
-
-	</script>
-    
-  </body>
+    	  (function() {
+    	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    	  })();
+    	</script>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    </body>
 </html>
