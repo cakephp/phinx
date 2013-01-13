@@ -313,9 +313,9 @@ class ProxyAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasColumn($tableName, $columnName, $options = array())
+    public function hasColumn($tableName, $columnName)
     {
-        return $this->getAdapter()->hasColumn($tableName, $columnName, $options);
+        return $this->getAdapter()->hasColumn($tableName, $columnName);
     }
     
     /**

@@ -283,7 +283,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasColumn($tableName, $columnName, $options = array())
+    public function hasColumn($tableName, $columnName)
     {
         // TODO - do we need $options? I think we borrowed the signature from
         // Rails and it's meant to test indexes or something??
