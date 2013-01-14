@@ -293,6 +293,19 @@ To rename a table access an instance of the Table object then call the
 Working With Columns
 ~~~~~~~~~~~~~~~~~~~~
 
+Renaming a Column
+~~~~~~~~~~~~~~~~~
+
+To rename a column access an instance of the Table object then call the
+``renameColumn()`` method.
+
+.. code-block:: php
+        
+        <?php
+
+        $table = $this->table('users');
+        $table->renameColumn('bio', 'biography');
+
 Working With Foreign Keys
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
