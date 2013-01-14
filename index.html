@@ -17,6 +17,8 @@
         <!--[if lt IE 9]>
           <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+        <script src="./js/bootstrap.min.js"></script>
     </head>
     <body>
         <div class="container">
@@ -26,7 +28,8 @@
                         <h1>Phinx</h1>
                         <p>PHP Database Migrations for Everyone</p>
                         <p>
-                            <a class="btn btn-primary btn-large" href="https://github.com/robmorgan/phinx#install--run">
+                            <a href="#installModal" class="btn btn-primary btn-large" role="button" data-toggle="modal"
+                                onclick="_gaq.push(['_trackEvent', 'Hero Unit actions', 'Install', 'Install v0.2.0']);">
                                 <i class="icon-download icon-2x pull-left"></i>
                                 Install Now<br>
                                 <small>v0.2.0</small>
@@ -53,16 +56,16 @@
                 <div class="span12">
                     <h4>Phinx</h4>
                     <p>
-                        Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx and 
-                        create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or dependence on
-                        an application framework.
+                        Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you 
+                        can install Phinx and create your first database migration. Phinx is just about migrations without all the 
+                        bloat of a database ORM system or dependence on an application framework.
                     </p>
                 
                     <h4>What makes Phinx different?</h4>
                     <p>
-                        Most database migration tools are framework dependent, complicated, confusing to install/configure and a pain in the ass to write 
-                        migrations for. Phinx was designed to be both flexible and simple. It builds on the best parts from several other projects and 
-                        creates a powerful, easy-to-use experience.
+                        Most database migration tools are framework dependent, complicated, confusing to install/configure and a pain 
+                        in the ass to write migrations for. Phinx was designed to be both flexible and simple. It builds on the best 
+                        parts from several other projects and creates a powerful, easy-to-use experience.
                     </p>
                 
                     <h4>Documentation</h4>
@@ -87,12 +90,15 @@
                 </div>
                 <div class="span3">
                     <h4>Support</h4>
-                    <p>Email: <a href="mailto:robbym@gmail.com">robbym@gmail.com</a> or @reply me on <a href="http://twitter.com/_rjm_">Twitter</a>.</p>
+                    <p>Email: <a href="mailto:robbym@gmail.com">robbym@gmail.com</a> or @reply 
+                    me on <a href="http://twitter.com/_rjm_">Twitter</a>.
+                    </p>
                 </div>
                 <div class="span3">
                     <h4>Contribute</h4>
                     <p>Feel free to <a href="http://github.com/robmorgan/phinx">fork on GitHub</a> and send me pull requests. 
-                    Please file issues and feature requests there as well.</p>
+                    Please file issues and feature requests there as well.
+                    </p>
                 </div>
             </div>
             
@@ -101,6 +107,47 @@
                     Copyright &copy; 2013 <a href="http://robmorgan.id.au">Rob Morgan</a>.
                     <a href="https://twitter.com/_rjm_" class="twitter-follow-button" data-show-count="false">Follow @_rjm_</a>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Install Modal -->
+        <div id="installModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="installModallLabel">Install &amp; Run</h3>
+            </div>
+            <div class="modal-body">
+                <p>By far the best way to install Phinx is via Composer 
+                   (<a href="http://getcomposer.org" target="_blank">http://getcomposer.org</a>).
+                </p>
+                
+                <p>Simply add Phinx as a dependency to your <code>composer.json</code> file:</p>
+                
+<pre><code>{
+    "require": {
+        "robmorgan/phinx": "*"
+    }
+}
+</code></pre>
+
+                <p>Then Phinx can be executed using:</p>
+		
+                <pre><code>php vendor/bin/phinx</code></pre>
+                
+                <p>Now write your first migration:</p>
+
+<pre><code>$ php vendor/bin/phinx init .
+$ vim phinx.yml
+$ mkdir migrations
+$ php vendor/bin/phinx create MyFirstMigration
+$ php vendor/bin/phinx migrate -e development
+</code></pre>
+
+                <p>And that's it! Phinx will connect to your development database and execute your first migration.</p>
+        
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
             </div>
         </div>
         
@@ -115,6 +162,6 @@
     	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     	  })();
     	</script>
-        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="http://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
     </body>
 </html>
