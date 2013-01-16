@@ -63,6 +63,11 @@ class Column
      * @var boolean
      */
     protected $identity = false;
+
+    /**
+     * @var boolean
+     */
+    protected $unsigned;
     
     /**
      * @var string
@@ -223,6 +228,38 @@ class Column
     {
         return $this->getIdentity();
     }
+
+    /**
+     * Sets whether or not the column is an unsgined.
+     *
+     * @param boolean $unsigned
+     * @return Column
+     */
+    public function setUnsigned($unsigned)
+    {
+        $this->unsigned = $unsigned;
+        return $this;
+    }
+
+    /**
+     * Gets whether or not the column is an unsigned column.
+     *
+     * @return boolean
+     */
+    public function getUnsigned()
+    {
+        return $this->unsigned;
+    }
+
+    /**
+     * Is the column an unsigned column?
+     *
+     * @return boolean
+     */
+    public function isUnsigned()
+    {
+        return $this->getUnsigned();
+    }
     
     /**
      * Sets the name of the column to add this column after.
@@ -255,7 +292,7 @@ class Column
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after');
+        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'unsigned', 'after');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');
