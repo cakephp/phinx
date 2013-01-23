@@ -186,7 +186,7 @@ class Manager
         $this->getOutput()->writeln('');
         $this->getOutput()->writeln(
             ' =='
-            . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . '</info>'
+            . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
             . ' <comment>' . ($direction == 'up' ? 'migrating' : 'reverting') . '</comment>'
         );
 
@@ -197,7 +197,7 @@ class Manager
         
         $this->getOutput()->writeln(
             ' =='
-            . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . '</info>'
+            . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
             . ' <comment>' . ($direction == 'up' ? 'migrated' : 'reverted')
             . ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
         );
