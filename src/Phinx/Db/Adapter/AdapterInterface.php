@@ -47,6 +47,21 @@ interface AdapterInterface
      * @return array
      */
     public function getVersions();
+
+    /**
+     * Sets the console output.
+     *
+     * @param OutputInterface $output Output
+     * @return AdapterInterface
+     */
+    public function setOutput(OutputInterface $output);
+    
+    /**
+     * Gets the console output.
+     *
+     * @return OutputInterface
+     */
+    public function getOutput();
     
     /**
      * Records a migration being run.

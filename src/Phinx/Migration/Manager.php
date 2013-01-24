@@ -45,6 +45,11 @@ class Manager
      * @var OutputInterface
      */
     protected $output;
+
+    /**
+     * @var boolean
+     */
+    protected $verbose;
     
     /**
      * @var array
@@ -295,6 +300,15 @@ class Manager
         // create an environment instance and cache it
         $environment = new Environment($name, $this->getConfig()->getEnvironment($name));
         $this->environments[$name] = $environment;
+
+        // if the verbosity flag is set pass it to the environment
+        if ($this->getVerbose()) {
+            $environment->setVerbose(true);
+        }
+
+        // pass in the OutputInterface
+        $environment->setOutput($this->getOutput());
+
         return $environment;
     }
     
@@ -318,6 +332,28 @@ class Manager
     public function getOutput()
     {
         return $this->output;
+    }
+
+    /**
+     * Sets the verbosity flag.
+     *
+     * @param boolean $verbose
+     * @return Manager
+     */
+    public function setVerbose($verbose)
+    {
+        $this->verbose = $verbose;
+        return $this;
+    }
+    
+    /**
+     * Gets the verbosity flag.
+     *
+     * @return boolean
+     */
+    public function getVerbose()
+    {
+        return $this->verbose;
     }
     
     /**
