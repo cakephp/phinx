@@ -207,7 +207,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->save();
         $table->addColumn('default_zero', 'string', array('default' => 'test'))
-            ->save();
+              ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals("test", $rows[1]['Default']);
     }
@@ -217,7 +217,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->save();
         $table->addColumn('default_zero', 'integer', array('default' => 0))
-            ->save();
+              ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertNotNull($rows[1]['Default']);
         $this->assertEquals("0", $rows[1]['Default']);
@@ -228,7 +228,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->save();
         $table->addColumn('default_zero', 'integer', array('default' => null))
-            ->save();
+              ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertNull($rows[1]['Default']);
     }
@@ -283,10 +283,10 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string', array('default' => 'test'))
-            ->save();
+              ->save();
         $newColumn1 = new \Phinx\Db\Table\Column();
         $newColumn1->setDefault('test1')
-            ->setType('string');
+                   ->setType('string');
         $table->changeColumn('column1', $newColumn1);
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM t');
         $this->assertNotNull($rows[1]['Default']);
@@ -298,10 +298,10 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'integer')
-            ->save();
+              ->save();
         $newColumn1 = new \Phinx\Db\Table\Column();
         $newColumn1->setDefault(0)
-            ->setType('integer');
+                   ->setType('integer');
         $table->changeColumn('column1', $newColumn1);
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM t');
         $this->assertNotNull($rows[1]['Default']);
@@ -312,10 +312,10 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string', array('default' => 'test'))
-            ->save();
+              ->save();
         $newColumn1 = new \Phinx\Db\Table\Column();
         $newColumn1->setDefault(null)
-            ->setType('string');
+                   ->setType('string');
         $table->changeColumn('column1', $newColumn1);
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM t');
         $this->assertNull($rows[1]['Default']);

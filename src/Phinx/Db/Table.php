@@ -284,6 +284,7 @@ class Table
     {
         $this->setPendingColumns(array());
         $this->setIndexes(array());
+        $this->setForeignKeys(array());
     }
     
     /**
@@ -503,28 +504,56 @@ class Table
     }
     
     /**
+     * Creates a table from the object instance.
+     *
+     * @return void
+     */
+    public function create()
+    {
+        $this->getAdapter()->createTable($this);
+        $this->reset(); // reset pending changes
+    }
+    
+    /**
+     * Updates a table from the object instance.
+     *
+     * @return void
+     */
+    public function update()
+    {
+        if (!$this->exists()) {
+            throw new \RuntimeException('Cannot update a table that doesn\'t exist!');
+        }
+        
+        // update table
+        foreach ($this->getPendingColumns() as $column) {
+            $this->getAdapter()->addColumn($this, $column);
+        }
+            
+        foreach ($this->getIndexes() as $index) {
+            $this->getAdapter()->addIndex($this, $index);
+        }
+
+        foreach ($this->getForeignKeys() as $foreignKey) {
+            $this->getAdapter()->addForeignKey($this, $foreignKey);
+        }
+        
+        $this->reset(); // reset pending changes
+    }
+    
+    /**
      * Commits the table changes.
+     *
+     * If the table doesn't exist it is created otherwise it is updated.
      * 
      * @return void
      */
     public function save()
     {
         if ($this->exists()) {
-            // update table
-            foreach ($this->getPendingColumns() as $column) {
-                $this->getAdapter()->addColumn($this, $column);
-            }
-            
-            foreach ($this->getIndexes() as $index) {
-                $this->getAdapter()->addIndex($this, $index);
-            }
-
-            foreach ($this->getForeignKeys() as $foreignKey) {
-                $this->getAdapter()->addForeignKey($this, $foreignKey);
-            }
+            $this->update(); // update the table
         } else {
-            // create table
-            $this->getAdapter()->createTable($this);
+            $this->create(); // create the table
         }
         
         $this->reset(); // reset pending changes

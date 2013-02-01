@@ -74,6 +74,17 @@ Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.2.0** (Sunday, 13th January 2013)
+
+* First Birthday Release
+* Added Reversible Migrations
+* Removed options parameter from AdapterInterface::hasColumn()
+
+**0.1.7** (Tuesday, 8th January 2013)
+
+* Improved documentation on the YAML configuration file
+* Removed options parameter from AdapterInterface::dropIndex()
+
 **0.1.6** (Sunday, 9th December 2012)
 
 * Added foreign key support
@@ -116,7 +127,7 @@ Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 (The MIT license)
 
-Copyright (c) 2012 Rob Morgan
+Copyright (c) 2013 Rob Morgan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

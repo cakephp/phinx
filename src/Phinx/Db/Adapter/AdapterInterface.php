@@ -35,9 +35,9 @@ use Phinx\Db\Table,
     Phinx\Migration\MigrationInterface;
 
 /**
- * Adapter interface
+ * Adapter Interface.
  *
- * @author      Rob Morgan <robbym@gmail.com>
+ * @author Rob Morgan <robbym@gmail.com>
  */
 interface AdapterInterface
 {
@@ -62,6 +62,7 @@ interface AdapterInterface
     /**
      * Does the schema table exist?
      *
+     * @deprecated use hasTable instead.
      * @return boolean
      */
     public function hasSchemaTable();
@@ -217,10 +218,9 @@ interface AdapterInterface
      *
      * @param string $tableName  Table Name
      * @param string $columnName Column Name
-     * @param array  $options    Options
      * @return boolean
      */
-    public function hasColumn($tableName, $columnName, $options = array());
+    public function hasColumn($tableName, $columnName);
     
     /**
      * Adds the specified column to a database table.
@@ -283,10 +283,9 @@ interface AdapterInterface
      * 
      * @param string $tableName
      * @param mixed  $columns Column(s)
-     * @param array  $options
      * @return void
      */
-    public function dropIndex($tableName, $columns, $options = array());
+    public function dropIndex($tableName, $columns);
 
     /**
      * Checks to see if a foreign key exists.

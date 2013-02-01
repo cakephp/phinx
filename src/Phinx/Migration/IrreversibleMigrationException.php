@@ -1,6 +1,6 @@
-#!/usr/bin/env php
 <?php
-/* Phinx
+/**
+ * Phinx
  *
  * (The MIT license)
  * Copyright (c) 2012 Rob Morgan
@@ -22,33 +22,18 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
+ * 
+ * @package    Phinx
+ * @subpackage Phinx\Migration
  */
+namespace Phinx\Migration;
 
-if (!defined('PHINX_VERSION')) {
-    define('PHINX_VERSION', (0 === strpos('@PHINX_VERSION@', '@PHINX_VERSION')) ? '0.2.0' : '@PHINX_VERSION@');
+/**
+ * Exception class thrown when migrations cannot be reversed using the 'change'
+ * feature.
+ *
+ * @author Rob Morgan <robbym@gmail.com>
+ */
+class IrreversibleMigrationException extends \Exception
+{
 }
-
-$files = array(
-  __DIR__ . '/../../../autoload.php',
-  __DIR__ . '/../src/Phinx/autoload.php.dist'
-);
-
-$found = false;
-foreach ($files as $file) {
-    if (file_exists($file)) {
-        require $file;
-        $found = true;
-        break;
-    }
-}
-
-if (!$found) {
-    die(
-      'You need to set up the project dependencies using the following commands:' . PHP_EOL .
-      'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
-      'php composer.phar install' . PHP_EOL
-    );
-}
-
-$app = new Phinx\Console\PhinxApplication(PHINX_VERSION);
-$app->run();
