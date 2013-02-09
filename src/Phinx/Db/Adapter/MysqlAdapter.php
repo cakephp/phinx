@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Db\Adapter
  */
@@ -40,6 +40,27 @@ use Phinx\Db\Table,
  */
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
+    protected $tableOptionsMap = array(
+        'engine' => "ENGINE = %s",
+        'auto_increment' => "AUTO_INCREMENT = %s",
+        'avg_row_length' => "AVG_ROW_LENGTH = %s",
+        'character_set' => "CHARACTER SET = %s",
+        'checksum' => array('format' => "CHEKCSUM = %d", 'values' => array('0', '1')),
+        'collate' => "COLLATE = %s",
+        'comment' => "COMMENT = '%s'",
+        'connection' => "CONNECTION = '%s'",
+        'data_directory' => "DATA DIRECTORY = '%s'",
+        'delay_key_write' => array('format' => "DELAY_KEY_WRITE = %d", 'values' => array('0', '1')),
+        'index_directory' => "INDEX DIRECTORY = '%s'",
+        'insert_method' => array('format' => "INSERT_METHOD = %s", 'values' => array('NO', 'FIRST', 'LAST')),
+        'key_block_size' => "KEY_BLOCK_SIZE = %d",
+        'max_rows' => "MAX_ROWS = %d",
+        'min_rows' => "MIN_ROWS = %d",
+        'pack_keys' => array('format' => "PACK_KEYS = %s", 'values' => array('0', '1', 'DEFAULT')),
+        'min_rows' => "PASSWORD '%s'",
+        'row_format' => array('format' => "ROW_FORMAT = %s", 'values' => array('DEFAULT', 'DYNAMIC', 'FIXED', 'COMPRESSED', 'REDUNDANT', 'COMPACT'))
+    );
+
     /**
      * {@inheritdoc}
      */
@@ -51,11 +72,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 throw new \RuntimeException('You need to enable the PDO_Mysql extension for Phinx to run properly.');
                 // @codeCoverageIgnoreEnd
             }
-            
+
             $dsn = '';
             $db = null;
             $options = $this->getOptions();
-            
+
             // if port is specified use it, otherwise use the MySQL default
             if (isset($options['port'])) {
                 $dsn = 'mysql:host=' . $options['host'] . ';port=' . $options['port'] . ';dbname=' . $options['name'];
@@ -73,14 +94,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             }
 
             $this->setConnection($db);
-            
+
             // Create the schema table if it doesn't already exist
             if (!$this->hasSchemaTable()) {
                 $this->createSchemaTable();
             }
         }
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -88,7 +109,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->connection = null;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -96,7 +117,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         return true;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -104,7 +125,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->execute('START TRANSACTION');
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -112,7 +133,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->execute('COMMIT');
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -120,7 +141,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->execute('ROLLBACK');
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -128,7 +149,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         return str_replace('.', '`.`', $this->quoteColumnName($tableName));
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -136,23 +157,23 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         return '`' . str_replace('`', '``', $columnName) . '`';
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function hasTable($tableName)
     {
         $options = $this->getOptions();
-        
+
         $tables = array();
         $rows = $this->fetchAll(sprintf('SHOW TABLES IN `%s`', $options['name']));
         foreach ($rows as $row) {
             $tables[] = strtolower($row[0]);
         }
-        
+
         return in_array(strtolower($tableName), $tables);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -163,7 +184,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             'engine' => 'InnoDB'
         );
         $options = array_merge($defaultOptions, $table->getOptions());
-        
+
         // Add the default primary key
         $columns = $table->getPendingColumns();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
@@ -171,7 +192,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $column->setName('id')
                    ->setType('integer')
                    ->setIdentity(true);
-            
+
             array_unshift($columns, $column);
             $options['primary_key'] = 'id';
 
@@ -185,18 +206,32 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             array_unshift($columns, $column);
             $options['primary_key'] = $options['id'];
         }
-        
-        // TODO - process table options like collation etc
-        
-        // convert options array to sql
-        $optionsStr = 'ENGINE = InnoDB';
-        
+
+        // convert table options array to sql
+        $tableOptions = array();
+        foreach ($options as $option => $value) {
+            if (isset($this->tableOptionsMap[$option])) {
+                $format = $this->tableOptionsMap[$option];
+                // if the option map contains an array, it checks if $value is among the possible values
+                if (is_array($this->tableOptionsMap[$option])) {
+                    $format = $this->tableOptionsMap[$option]['format'];
+                    $value = strtoupper((string)$value);
+                    if (!in_array($value, $this->tableOptionsMap[$option]['values'])) {
+                        throw new \UnexpectedValueException(sprintf("Invalid value for option '%s'. Possible values are: %s",
+                            $option, json_encode($this->tableOptionsMap[$option]['values'])));
+                    }
+                }
+                $tableOptions[] = sprintf($format, $value);
+            }
+        }var_dump($tableOptions);
+        $optionsStr = implode(' ', $tableOptions);
+
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
             $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
         }
-        
+
         // set the primary key(s)
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
@@ -212,7 +247,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } else {
             $sql = substr(rtrim($sql), 0, -1);              // no primary keys
         }
-        
+
         // set the indexes
         $indexes = $table->getIndexes();
         if (!empty($indexes)) {
@@ -235,7 +270,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         // execute the sql
         $this->execute($sql);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -243,7 +278,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->execute(sprintf('RENAME TABLE %s TO %s', $this->quoteTableName($tableName), $this->quoteTableName($newTableName)));
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -279,7 +314,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         return $columns;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -293,10 +328,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -307,14 +342,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $this->quoteColumnName($column->getName()),
             $this->getColumnSqlDefinition($column)
         );
-        
+
         if ($column->getAfter()) {
             $sql .= ' AFTER ' . $this->quoteColumnName($column->getAfter());
         }
-        
+
         return $this->execute($sql);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -326,7 +361,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $null = ($row['Null'] == 'NO') ? 'NOT NULL' : 'NULL';
                 $extra = ' ' . strtoupper($row['Extra']);
                 $definition = $row['Type'] . ' ' . $null . $extra;
-        
+
                 return $this->execute(
                     sprintf('ALTER TABLE %s CHANGE COLUMN %s %s %s',
                             $this->quoteTableName($tableName),
@@ -337,13 +372,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 );
             }
         }
-        
+
         throw new \InvalidArgumentException(sprintf(
             'The specified column doesn\'t exist: '
             . $columnName
         ));
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -358,7 +393,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             )
         );
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -372,7 +407,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             )
         );
     }
-    
+
     /**
      * Get an array of indexes from a particular table.
      *
@@ -391,7 +426,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
         return $indexes;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -400,20 +435,20 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
-        
+
         $columns = array_map('strtolower', $columns);
         $indexes = $this->getIndexes($tableName);
-        
+
         foreach ($indexes as $index) {
             $a = array_diff($columns, $index['columns']);
             if (empty($a)) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -426,7 +461,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             )
         );
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -435,10 +470,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
-        
+
         $indexes = $this->getIndexes($tableName);
         $columns = array_map('strtolower', $columns);
-        
+
         foreach ($indexes as $indexName => $index) {
             $a = array_diff($columns, $index['columns']);
             if (empty($a)) {
@@ -447,7 +482,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteTableName($tableName),
                         $this->quoteColumnName($indexName)
                     )
-                );   
+                );
             }
         }
     }
@@ -557,7 +592,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             }
         }
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -673,7 +708,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function createDatabase($name, $options = array())
     {
         $charset = isset($options['charset']) ? $options['charset'] : 'utf8';
-        
+
         if (isset($options['collation'])) {
             $this->execute(sprintf(
                 'CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`', $name, $charset, $options['collation']
@@ -682,7 +717,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s`', $name, $charset));
         }
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -694,16 +729,16 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $name
             )
         );
-        
+
         foreach ($rows as $row) {
             if (!empty($row)) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -711,7 +746,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->execute(sprintf('DROP DATABASE IF EXISTS `%s`', $name));
     }
-    
+
     /**
      * Gets the MySQL Column Definition for a Column object.
      *
@@ -737,7 +772,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         // TODO - add precision & scale for decimals
         return $def;
     }
-    
+
     /**
      * Gets the MySQL Index Definition for an Index object.
      *
