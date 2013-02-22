@@ -106,9 +106,15 @@ class Config implements \ArrayAccess
     public function getEnvironment($name)
     {
         $environments = $this->getEnvironments();
-        
-        if (isset($environments[$name]))
+
+        if (isset($environments[$name])) {
+            if (isset($this->values['environments']['default_migration_table'])) {
+                $environments[$name]['default_migration_table'] =
+                    $this->values['environments']['default_migration_table'];
+            }
+
             return $environments[$name];
+        }
         
         return null;
     }
