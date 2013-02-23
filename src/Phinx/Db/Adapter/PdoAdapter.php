@@ -73,6 +73,10 @@ abstract class PdoAdapter implements AdapterInterface
     public function setOptions(array $options)
     {
         $this->options = $options;
+
+        if (isset($options['default_migration_table']))
+            $this->setSchemaTableName($options['default_migration_table']);
+
         return $this;
     }
     
