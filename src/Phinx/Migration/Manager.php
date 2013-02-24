@@ -132,6 +132,10 @@ class Manager
         $versions = $env->getVersions();
         $current = $env->getCurrentVersion();
         
+        if (empty($versions) && empty($migrations)) {
+            return;
+        }
+
         if (null === $version) {
             $version = max(array_merge($versions, array_keys($migrations)));
         } else {
