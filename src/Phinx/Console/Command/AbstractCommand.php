@@ -39,6 +39,7 @@ abstract class AbstractCommand extends Command
     protected function configure()
     {
         $this->addOption('--configuration', '-c', InputArgument::OPTIONAL, 'The configuration file to load');
+        $this->addOption('--parser', '-p', InputArgument::OPTIONAL, 'Parser used to read teh config file.  Defaults to YAML');
     }
     
     /**
@@ -156,8 +157,38 @@ abstract class AbstractCommand extends Command
     protected function loadConfig(InputInterface $input, OutputInterface $output)
     {
         $configFilePath = $this->locateConfigFile($input);
-        $output->writeln('<info>using config</info> .' . str_replace(getcwd(), '', realpath($configFilePath)));
-        $this->setConfig(Config::fromYaml($configFilePath));
+        $output->writeln('<info>using config file</info> .' . str_replace(getcwd(), '', realpath($configFilePath)));
+
+        $parser = $input->getOption('parser');
+
+        // If no parser is specified try to determine the correct one from the file extension.  Defaults to YAML
+        if (null === $parser) {
+            $extension = pathinfo($configFilePath, PATHINFO_EXTENSION);
+
+            switch (strtolower($extension)) {
+                case 'php':
+                    $parser = "php";
+                    break;
+                case 'yml':
+                default:
+                    $parser = 'yaml';
+                    break;
+            }
+        }
+
+        switch (strtolower($parser)) {
+            case 'php':
+                $config = Config::fromPHP($configFilePath);
+                break;
+            case 'yaml':
+                $config = Config::fromYaml($configFilePath);
+                break;
+            default:
+                throw new \InvalidArgumentException(sprintf('Parser \'%s\' is not a valid option.', $parser));
+        }
+
+        $output->writeln('<info>using config parser</info> ' . $parser);
+        $this->setConfig($config);
     }
 
     /**
