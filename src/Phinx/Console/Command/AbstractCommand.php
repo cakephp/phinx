@@ -39,7 +39,7 @@ abstract class AbstractCommand extends Command
     protected function configure()
     {
         $this->addOption('--configuration', '-c', InputArgument::OPTIONAL, 'The configuration file to load');
-        $this->addOption('--parser', '-p', InputArgument::OPTIONAL, 'Parser used to read teh config file.  Defaults to YAML');
+        $this->addOption('--parser', '-p', InputArgument::OPTIONAL, 'Parser used to read the config file.  Defaults to YAML');
     }
     
     /**
@@ -167,7 +167,7 @@ abstract class AbstractCommand extends Command
 
             switch (strtolower($extension)) {
                 case 'php':
-                    $parser = "php";
+                    $parser = 'php';
                     break;
                 case 'yml':
                 default:
@@ -184,7 +184,7 @@ abstract class AbstractCommand extends Command
                 $config = Config::fromYaml($configFilePath);
                 break;
             default:
-                throw new \InvalidArgumentException(sprintf('Parser \'%s\' is not a valid option.', $parser));
+                throw new \InvalidArgumentException(sprintf('\'%s\' is not a valid parser.', $parser));
         }
 
         $output->writeln('<info>using config parser</info> ' . $parser);
