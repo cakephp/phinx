@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2012 Rob Morgan
+ * Copyright (c) 2013 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -25,7 +25,7 @@
  *
  * @package    Phinx
  * @subpackage Phinx\Db
- * @author Leonid Kuzmin <lndkuzmin@gmail.com>
+ * @author     Leonid Kuzmin <lndkuzmin@gmail.com>
  */
 namespace Phinx\Db\Table;
 
