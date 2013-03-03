@@ -9,22 +9,43 @@ use Symfony\Component\Console\Tester\CommandTester,
 
 class MigrateTest extends \PHPUnit_Framework_TestCase
 {
+
+    protected $config = array();
+
+    protected function setUp() {
+        $this->config = new Config(array(
+            'paths' => array(),
+            'environments' => array(
+                'default_migration_table' => 'phinxlog',
+                'default_database' => 'development',
+                'development' => array(
+                    'adapter' => 'mysql',
+                    'host' => 'fakehost',
+                    'name' => 'development',
+                    'user' => '',
+                    'pass' => '',
+                    'port' => 3006,
+                )
+            )
+        ));
+    }
+
     public function testExecute()
     {
         $application = new \Phinx\Console\PhinxApplication('testing');
         $application->add(new Migrate());
         
         // setup dependencies
-        $config = new Config(array('foo' => 'bar'));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         
         $command = $application->find('migrate');
         
         // mock the manager class
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($config, $output));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
         $managerStub->expects($this->once())
                     ->method('migrate');
         
+        $command->setConfig($this->config);
         $command->setManager($managerStub);
         
         $commandTester = new CommandTester($command);
@@ -39,16 +60,16 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $application->add(new Migrate());
         
         // setup dependencies
-        $config = new Config(array('foo' => 'bar'));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         
         $command = $application->find('migrate');
         
         // mock the manager class
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($config, $output));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
         $managerStub->expects($this->once())
                     ->method('migrate');
         
+        $command->setConfig($this->config);
         $command->setManager($managerStub);
         
         $commandTester = new CommandTester($command);
@@ -62,16 +83,16 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $application->add(new Migrate());
         
         // setup dependencies
-        $config = new Config(array('foo' => 'bar', 'environments' => array('default_database' => 'development')));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         
         $command = $application->find('migrate');
         
         // mock the manager class
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($config, $output));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
         $managerStub->expects($this->once())
                     ->method('migrate');
         
+        $command->setConfig($this->config);
         $command->setManager($managerStub);
         
         $commandTester = new CommandTester($command);

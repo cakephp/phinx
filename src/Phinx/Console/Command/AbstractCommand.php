@@ -48,7 +48,9 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
     {
-        $this->loadConfig($input, $output);
+        if (! $this->getConfig()) 
+            $this->loadConfig($input, $output);
+
         $this->loadManager($output);
         // report the migrations path
         $output->writeln('<info>using migration path</info> ' . $this->getConfig()->getMigrationPath());
