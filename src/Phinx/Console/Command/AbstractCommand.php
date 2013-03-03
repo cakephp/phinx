@@ -48,7 +48,7 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
     {
-        if (! $this->getConfig()) 
+        if (!$this->getConfig()) 
             $this->loadConfig($input, $output);
 
         $this->loadManager($output);
