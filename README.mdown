@@ -74,6 +74,13 @@ Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.2.1** (Sunday, 3rd March 2013)
+
+* Unit tests no longer rely on the default phinx.yml file
+* Running migrate for the first time does not give php warnings
+* `default_migration_table` is now actually supported
+* Updated docblocks to 2013.
+
 **0.2.0** (Sunday, 13th January 2013)
 
 * First Birthday Release

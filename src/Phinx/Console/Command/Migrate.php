@@ -1,5 +1,31 @@
 <?php
-
+/**
+ * Phinx
+ *
+ * (The MIT license)
+ * Copyright (c) 2013 Rob Morgan
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated * documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ * 
+ * @package    Phinx
+ * @subpackage Phinx\Console
+ */
 namespace Phinx\Console\Command;
 
 use Symfony\Component\Console\Command\Command,
@@ -18,6 +44,7 @@ class Migrate extends AbstractCommand
          parent::configure();
          
          $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
+         $this->addOption('--verbose', '-v', InputOption::VALUE_NONE, 'Show more output');
          
          $this->setName('migrate')
               ->setDescription('Migrate the database')
@@ -27,6 +54,7 @@ The <info>migrate</info> command runs all available migrations, optionally up to
 
 <info>phinx migrate -e development</info>
 <info>phinx migrate -e development -t 20110103081132</info>
+<info>phinx migrate -e development -v</info>
 
 EOT
               );
@@ -43,6 +71,7 @@ EOT
         
         $version = $input->getOption('target');
         $environment = $input->getOption('environment');
+        $isVerbose = (bool) $input->getOption('verbose');
         
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -54,6 +83,11 @@ EOT
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         $output->writeln('<info>using database</info> ' . $envOptions['name']);
+
+        // set verbosity if supplied
+        if ($isVerbose) {
+            $this->getManager()->setVerbose(true);
+        }
 
         // run the migrations
         $start = microtime(true);

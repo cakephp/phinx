@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2012 Rob Morgan
+ * Copyright (c) 2013 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -106,9 +106,15 @@ class Config implements \ArrayAccess
     public function getEnvironment($name)
     {
         $environments = $this->getEnvironments();
-        
-        if (isset($environments[$name]))
+
+        if (isset($environments[$name])) {
+            if (isset($this->values['environments']['default_migration_table'])) {
+                $environments[$name]['default_migration_table'] =
+                    $this->values['environments']['default_migration_table'];
+            }
+
             return $environments[$name];
+        }
         
         return null;
     }

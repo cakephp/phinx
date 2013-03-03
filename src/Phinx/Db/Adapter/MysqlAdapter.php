@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2012 Rob Morgan
+ * Copyright (c) 2013 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -158,6 +158,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createTable(Table $table)
     {
+        $this->startCommandTimer();
+
         // This method is based on the MySQL docs here: http://dev.mysql.com/doc/refman/5.1/en/create-index.html
         $defaultOptions = array(
             'engine' => 'InnoDB'
@@ -231,6 +233,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         $sql .= ') ' . $optionsStr;
         $sql = rtrim($sql) . ';';
+
+        // display the output
+        $this->writeCommand('createTable(\'' . $table->getName() . '\'');
 
         // execute the sql
         $this->execute($sql);

@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2012 Rob Morgan
+ * Copyright (c) 2013 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -45,6 +45,11 @@ class Manager
      * @var OutputInterface
      */
     protected $output;
+
+    /**
+     * @var boolean
+     */
+    protected $verbose;
     
     /**
      * @var array
@@ -132,6 +137,10 @@ class Manager
         $versions = $env->getVersions();
         $current = $env->getCurrentVersion();
         
+        if (empty($versions) && empty($migrations)) {
+            return;
+        }
+
         if (null === $version) {
             $version = max(array_merge($versions, array_keys($migrations)));
         } else {
@@ -186,7 +195,7 @@ class Manager
         $this->getOutput()->writeln('');
         $this->getOutput()->writeln(
             ' =='
-            . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . '</info>'
+            . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
             . ' <comment>' . ($direction == 'up' ? 'migrating' : 'reverting') . '</comment>'
         );
 
@@ -197,7 +206,7 @@ class Manager
         
         $this->getOutput()->writeln(
             ' =='
-            . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . '</info>'
+            . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
             . ' <comment>' . ($direction == 'up' ? 'migrated' : 'reverted')
             . ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
         );
@@ -295,6 +304,15 @@ class Manager
         // create an environment instance and cache it
         $environment = new Environment($name, $this->getConfig()->getEnvironment($name));
         $this->environments[$name] = $environment;
+
+        // if the verbosity flag is set pass it to the environment
+        if ($this->getVerbose()) {
+            $environment->setVerbose(true);
+        }
+
+        // pass in the OutputInterface
+        $environment->setOutput($this->getOutput());
+
         return $environment;
     }
     
@@ -318,6 +336,28 @@ class Manager
     public function getOutput()
     {
         return $this->output;
+    }
+
+    /**
+     * Sets the verbosity flag.
+     *
+     * @param boolean $verbose
+     * @return Manager
+     */
+    public function setVerbose($verbose)
+    {
+        $this->verbose = $verbose;
+        return $this;
+    }
+    
+    /**
+     * Gets the verbosity flag.
+     *
+     * @return boolean
+     */
+    public function getVerbose()
+    {
+        return $this->verbose;
     }
     
     /**

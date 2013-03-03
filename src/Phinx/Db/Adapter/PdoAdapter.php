@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2012 Rob Morgan
+ * Copyright (c) 2013 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -54,6 +54,11 @@ abstract class PdoAdapter implements AdapterInterface
     protected $connection;
 
     /**
+     * @var float
+     */
+    protected $commandStartTime;
+
+    /**
      * Class Constructor.
      *
      * @param array $options Options
@@ -73,6 +78,10 @@ abstract class PdoAdapter implements AdapterInterface
     public function setOptions(array $options)
     {
         $this->options = $options;
+
+        if (isset($options['default_migration_table']))
+            $this->setSchemaTableName($options['default_migration_table']);
+
         return $this;
     }
     
@@ -84,6 +93,23 @@ abstract class PdoAdapter implements AdapterInterface
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setOutput(OutputInterface $output)
+    {
+        $this->output = $output;
+        return $this;
+    }
+    
+   /**
+     * {@inheritdoc}
+     */
+    public function getOutput()
+    {
+        return $this->output;
     }
     
     /**
@@ -131,6 +157,33 @@ abstract class PdoAdapter implements AdapterInterface
             $this->connect();
         }
         return $this->connection;
+    }
+
+    public function setCommandStartTime($time)
+    {
+        $this->commandStartTime = $time;
+        return $this;
+    }
+
+    public function getCommandStartTime()
+    {
+        return $this->commandStartTime;
+    }
+
+    public function startCommandTimer()
+    {
+        $this->setCommandStartTime(microtime(true));
+    }
+
+    public function endCommandTimer()
+    {
+        $end = microtime(true);
+        $this->writeOutput('    -> ' . sprintf('%.4fs', $end - $this->getCommandStartTime()));
+    }
+
+    public function writeCommand($command)
+    {
+        $this->getOutput()->writeln(' -- ' . $command);
     }
      
     /**

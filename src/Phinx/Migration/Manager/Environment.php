@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2012 Rob Morgan
+ * Copyright (c) 2013 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -28,7 +28,8 @@
  */
 namespace Phinx\Migration\Manager;
 
-use Phinx\Db\Adapter\AdapterInterface,
+use Symfony\Component\Console\Output\OutputInterface,
+    Phinx\Db\Adapter\AdapterInterface,
     Phinx\Db\Adapter\PdoAdapter,
     Phinx\Db\Adapter\MysqlAdapter,
     Phinx\Db\Adapter\ProxyAdapter,
@@ -45,6 +46,16 @@ class Environment
      * @var array
      */
     protected $options;
+
+    /**
+     * @var boolean
+     */
+    protected $verbose;
+
+    /**
+     * @var OutputInterface
+     */
+    protected $output;
     
     /**
      * @var int
@@ -161,7 +172,51 @@ class Environment
     {
         return $this->options;
     }
+
+    /**
+     * Sets the verbosity flag.
+     *
+     * @param boolean $verbose
+     * @return Environment
+     */
+    public function setVerbose($verbose)
+    {
+        $this->verbose = $verbose;
+        return $this;
+    }
     
+    /**
+     * Gets the verbosity flag.
+     *
+     * @return boolean
+     */
+    public function getVerbose()
+    {
+        return $this->verbose;
+    }
+
+    /**
+     * Sets the console output.
+     *
+     * @param OutputInterface $output Output
+     * @return Environment
+     */
+    public function setOutput(OutputInterface $output)
+    {
+        $this->output = $output;
+        return $this;
+    }
+    
+    /**
+     * Gets the console output.
+     *
+     * @return OutputInterface
+     */
+    public function getOutput()
+    {
+        return $this->output;
+    }
+
     /**
      * Gets all migrated version numbers.
      *

@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2012 Rob Morgan
+ * Copyright (c) 2013 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -47,6 +47,21 @@ interface AdapterInterface
      * @return array
      */
     public function getVersions();
+
+    /**
+     * Sets the console output.
+     *
+     * @param OutputInterface $output Output
+     * @return AdapterInterface
+     */
+    public function setOutput(OutputInterface $output);
+    
+    /**
+     * Gets the console output.
+     *
+     * @return OutputInterface
+     */
+    public function getOutput();
     
     /**
      * Records a migration being run.
