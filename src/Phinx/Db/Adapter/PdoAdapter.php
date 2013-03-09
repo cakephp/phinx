@@ -28,7 +28,9 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table,
+use Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\Console\Output\NullOutput,
+    Phinx\Db\Table,
     Phinx\Migration\MigrationInterface;
 
 /**
@@ -42,6 +44,11 @@ abstract class PdoAdapter implements AdapterInterface
      * @var array
      */
     protected $options;
+    
+    /**
+     * @var OutputInterface
+     */
+    protected $output;
     
     /**
      * @var string
@@ -61,12 +68,16 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * Class Constructor.
      *
-     * @param array $options Options
+     * @param array           $options Options
+     * @param OutputInterface $output  Output Interface
      * @return void
      */
-    public function __construct(array $options)
+    public function __construct(array $options, OutputInterface $output = null)
     {
         $this->setOptions($options);
+        if (null !== $output) {
+            $this->setOutput($output);
+        }
     }
     
     /**
@@ -109,6 +120,10 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function getOutput()
     {
+        if (null == $this->output) {
+            $output = new NullOutput();
+            $this->setOutput($output);
+        }
         return $this->output;
     }
     
@@ -159,30 +174,74 @@ abstract class PdoAdapter implements AdapterInterface
         return $this->connection;
     }
 
+    /**
+     * Sets the command start time
+     *
+     * @param int $time
+     * @return AdapterInterface
+     */
     public function setCommandStartTime($time)
     {
         $this->commandStartTime = $time;
         return $this;
     }
 
+    /**
+     * Gets the command start time
+     *
+     * @return int
+     */
     public function getCommandStartTime()
     {
         return $this->commandStartTime;
     }
 
+    /**
+     * Start timing a command.
+     *
+     * @return void
+     */
     public function startCommandTimer()
     {
         $this->setCommandStartTime(microtime(true));
     }
 
+    /**
+     * Stop timing the current command and write the elapsed time to the
+     * output.
+     *
+     * @return void
+     */
     public function endCommandTimer()
     {
         $end = microtime(true);
-        $this->writeOutput('    -> ' . sprintf('%.4fs', $end - $this->getCommandStartTime()));
+        $this->getOutput()->writeln('    -> ' . sprintf('%.4fs', $end - $this->getCommandStartTime()));
     }
 
-    public function writeCommand($command)
+    /**
+     * Write a Phinx command to the output.
+     *
+     * @param string $command Command Name
+     * @param array  $args    Command Args
+     * @return void
+     */
+    public function writeCommand($command, $args = array())
     {
+        if (count($args)) {
+            $outArr = array();
+            foreach ($args as $arg) {
+                if (is_array($arg)) {
+                    $arg = array_map(function($value) {
+                        return '\'' . $value . '\'';
+                    }, $arg);
+                    $outArr[] = '[' . implode(', ', $arg)  . ']';
+                    continue;
+                }
+                
+                $outArr[] = '\'' . $arg . '\'';
+            }
+            return $this->getOutput()->writeln(' -- ' . $command . '(' . implode(', ', $outArr) . ')');
+        }
         $this->getOutput()->writeln(' -- ' . $command);
     }
      

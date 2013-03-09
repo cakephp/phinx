@@ -28,7 +28,8 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table,
+use Symfony\Component\Console\Output\OutputInterface,
+    Phinx\Db\Table,
     Phinx\Db\Table\Column,
     Phinx\Db\Table\Index,
     Phinx\Db\Table\ForeignKey,

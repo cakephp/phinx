@@ -28,7 +28,8 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table,
+use Symfony\Component\Console\Output\OutputInterface,
+    Phinx\Db\Table,
     Phinx\Db\Table\Column,
     Phinx\Db\Table\Index,
     Phinx\Db\Table\ForeignKey,
@@ -48,6 +49,11 @@ class ProxyAdapter implements AdapterInterface
      * @var AdapterInterface
      */
     protected $adapter;
+    
+    /**
+     * @var OutputInterface
+     */
+    protected $output;
         
     /**
      * @var array
@@ -58,12 +64,16 @@ class ProxyAdapter implements AdapterInterface
      * Class Constructor.
      *
      * @param AdapterInterface $adapter The adapter to proxy commands to
+     * @param OutputInterface  $output  Output Interface
      * @return void
      */
-    public function __construct(AdapterInterface $adapter = null)
+    public function __construct(AdapterInterface $adapter = null, OutputInterface $output = null)
     {
         if (null !== $adapter) {
             $this->setAdapter($adapter);    
+        }
+        if (null !== $output) {
+            $this->setOutput($output);
         }
     }
     
@@ -109,6 +119,23 @@ class ProxyAdapter implements AdapterInterface
     public function getOptions()
     {
         return $this->options;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function setOutput(OutputInterface $output)
+    {
+        $this->output = $output;
+        return $this;
+    }
+    
+   /**
+     * {@inheritdoc}
+     */
+    public function getOutput()
+    {
+        return $this->output;
     }
     
     /**

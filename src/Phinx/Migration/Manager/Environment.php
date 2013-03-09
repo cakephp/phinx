@@ -108,7 +108,7 @@ class Environment
             if ($direction == MigrationInterface::DOWN) {
                 // Create an instance of the ProxyAdapter so we can record all
                 // of the migration commands for reverse playback
-                $proxyAdapter = new ProxyAdapter($this->getAdapter());
+                $proxyAdapter = new ProxyAdapter($this->getAdapter(), $this->getOutput());
                 $migration->setAdapter($proxyAdapter);
                 $migration->change();
                 $proxyAdapter->executeInvertedCommands();
@@ -284,7 +284,7 @@ class Environment
                 // Adapter Factory
                 switch (strtolower($this->options['adapter'])) {
                     case 'mysql':
-                        $this->setAdapter(new MysqlAdapter($this->options));
+                        $this->setAdapter(new MysqlAdapter($this->options, $this->getOutput()));
                         break;
                     default:
                         throw new \RuntimeException('Invalid adapter specified: ' . $this->options['adapter']);

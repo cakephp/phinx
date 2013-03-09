@@ -2,7 +2,8 @@
 
 namespace Test\Phinx\Db\Adapter;
 
-use Phinx\Db\Adapter\MysqlAdapter;
+use Symfony\Component\Console\Output\NullOutput,
+    Phinx\Db\Adapter\MysqlAdapter;
 
 class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -20,7 +21,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             'pass' => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
             'port' => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT
         );
-        $this->adapter = new MysqlAdapter($options);
+        $this->adapter = new MysqlAdapter($options, new NullOutput());
 
         // ensure the database is empty for each test
         $this->adapter->dropDatabase($options['name']);
@@ -59,7 +60,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         );
         
         try {
-            $adapter = new MysqlAdapter($options);
+            $adapter = new MysqlAdapter($options, new NullOutput());
             $adapter->connect();
             $this->fail('Expected the adapter to throw an exception');
         } catch (\InvalidArgumentException $e) {

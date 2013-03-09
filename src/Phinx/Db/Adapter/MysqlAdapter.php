@@ -234,11 +234,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $sql .= ') ' . $optionsStr;
         $sql = rtrim($sql) . ';';
 
-        // display the output
-        $this->writeCommand('createTable(\'' . $table->getName() . '\'');
-
         // execute the sql
+        $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
+        $this->endCommandTimer();
     }
     
     /**
@@ -246,7 +245,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameTable($tableName, $newTableName)
     {
+        $this->startCommandTimer();
+        $this->writeCommand('renameTable', array($tableName, $newTableName));
         $this->execute(sprintf('RENAME TABLE %s TO %s', $this->quoteTableName($tableName), $this->quoteTableName($newTableName)));
+        $this->endCommandTimer();
     }
     
     /**
@@ -254,7 +256,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropTable($tableName)
     {
+        $this->startCommandTimer();
+        $this->writeCommand('dropTable', array($tableName));
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
+        $this->endCommandTimer();
     }
 
     /**
@@ -290,8 +295,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasColumn($tableName, $columnName)
     {
-        // TODO - do we need $options? I think we borrowed the signature from
-        // Rails and it's meant to test indexes or something??
         $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $tableName));
         foreach ($rows as $column) {
             if (strtolower($column['Field']) == strtolower($columnName)) {
@@ -307,6 +310,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function addColumn(Table $table, Column $column)
     {
+        $this->startCommandTimer();
         $sql = sprintf('ALTER TABLE %s ADD %s %s',
             $this->quoteTableName($table->getName()),
             $this->quoteColumnName($column->getName()),
@@ -317,7 +321,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $sql .= ' AFTER ' . $this->quoteColumnName($column->getAfter());
         }
         
-        return $this->execute($sql);
+        $this->writeCommand('addColumn', array($table->getName(), $column->getName(), $column->getType()));
+        $this->execute($sql);
+        $this->endCommandTimer();
     }
     
     /**
@@ -325,6 +331,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameColumn($tableName, $columnName, $newColumnName)
     {
+        $this->startCommandTimer();
         $rows = $this->fetchAll(sprintf('DESCRIBE %s', $this->quoteTableName($tableName)));
         foreach ($rows as $row) {
             if (strtolower($row['Field']) == strtolower($columnName)) {
@@ -332,7 +339,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $extra = ' ' . strtoupper($row['Extra']);
                 $definition = $row['Type'] . ' ' . $null . $extra;
         
-                return $this->execute(
+                $this->writeCommand('renameColumn', array($tableName, $columnName, $newColumnName));
+                $this->execute(
                     sprintf('ALTER TABLE %s CHANGE COLUMN %s %s %s',
                             $this->quoteTableName($tableName),
                             $this->quoteColumnName($columnName),
@@ -340,6 +348,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                             $definition
                     )
                 );
+                return $this->endCommandTimer();
             }
         }
         
@@ -354,7 +363,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function changeColumn($tableName, $columnName, Column $newColumn)
     {
-        return $this->execute(
+        $this->startCommandTimer();
+        $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
+        $this->execute(
             sprintf('ALTER TABLE %s CHANGE %s %s %s',
                 $this->quoteTableName($tableName),
                 $this->quoteColumnName($columnName),
@@ -362,6 +373,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $this->getColumnSqlDefinition($newColumn)
             )
         );
+        return $this->endCommandTimer();
     }
     
     /**
@@ -369,6 +381,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropColumn($tableName, $columnName)
     {
+        $this->startCommandTimer();
+        $this->writeCommand('dropColumn', array($tableName, $columnName));
         $this->execute(
             sprintf(
                 'ALTER TABLE %s DROP COLUMN %s',
@@ -376,6 +390,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $this->quoteColumnName($columnName)
             )
         );
+        return $this->endCommandTimer();
     }
     
     /**
@@ -424,12 +439,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function addIndex(Table $table, Index $index)
     {
-        return $this->execute(
+        $this->startCommandTimer();
+        $this->writeCommand('addIndex', array($table->getName(), $index->getColumns()));
+        $this->execute(
             sprintf('ALTER TABLE %s ADD %s',
                 $this->quoteTableName($table->getName()),
                 $this->getIndexSqlDefinition($index)
             )
         );
+        return $this->endCommandTimer();
     }
     
     /**
@@ -437,22 +455,25 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropIndex($tableName, $columns)
     {
+        $this->startCommandTimer();
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
         
+        $this->writeCommand('dropIndex', array($tableName, $columns));
         $indexes = $this->getIndexes($tableName);
         $columns = array_map('strtolower', $columns);
         
         foreach ($indexes as $indexName => $index) {
             $a = array_diff($columns, $index['columns']);
             if (empty($a)) {
-                return $this->execute(
+                $this->execute(
                     sprintf('ALTER TABLE %s DROP INDEX %s',
                         $this->quoteTableName($tableName),
                         $this->quoteColumnName($indexName)
                     )
-                );   
+                );
+                return $this->endCommandTimer();
             }
         }
     }
@@ -519,12 +540,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function addForeignKey(Table $table, ForeignKey $foreignKey)
     {
-        return $this->execute(
+        $this->startCommandTimer();
+        $this->writeCommand('addForeignKey', array($table->getName(), $foreignKey->getColumns()));
+        $this->execute(
             sprintf('ALTER TABLE %s ADD %s',
                 $this->quoteTableName($table->getName()),
                 $this->getForeignKeySqlDefinition($foreignKey)
             )
         );
+        return $this->endCommandTimer();
     }
 
     /**
@@ -532,16 +556,21 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropForeignKey($tableName, $columns, $constraint = null)
     {
+        $this->startCommandTimer();
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
+        
+        $this->writeCommand('dropForeignKey', array($tableName, $columns));
+        
         if ($constraint) {
-            return $this->execute(
+            $this->execute(
                 sprintf('ALTER TABLE %s DROP FOREIGN KEY %s',
                     $this->quoteTableName($tableName),
                     $constraint
                 )
             );
+            return $this->endCommandTimer();
         } else {
             foreach ($columns as $column) {
                 $rows = $this->fetchAll(sprintf(
@@ -561,6 +590,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
         }
+        return $this->endCommandTimer();
     }
     
     /**
@@ -677,6 +707,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createDatabase($name, $options = array())
     {
+        $this->startCommandTimer();
+        $this->writeCommand('createDatabase', array($name));
         $charset = isset($options['charset']) ? $options['charset'] : 'utf8';
         
         if (isset($options['collation'])) {
@@ -686,6 +718,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } else {
             $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s`', $name, $charset));
         }
+        return $this->endCommandTimer();
     }
     
     /**
@@ -714,7 +747,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropDatabase($name)
     {
+        $this->startCommandTimer();
+        $this->writeCommand('dropDatabase', array($name));
         $this->execute(sprintf('DROP DATABASE IF EXISTS `%s`', $name));
+        return $this->endCommandTimer();
     }
     
     /**
