@@ -30,6 +30,7 @@ namespace Phinx\Migration;
 
 use Symfony\Component\Config\FileLocator,
     Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\Console\Output\NullOutput,
     Phinx\Db\Adapter\AdapterInterface,
     Phinx\Config\Config,
     Phinx\Migration\Manager\Environment;
@@ -305,13 +306,13 @@ class Manager
         $environment = new Environment($name, $this->getConfig()->getEnvironment($name));
         $this->environments[$name] = $environment;
 
-        // if the verbosity flag is set pass it to the environment
+        // if the verbosity flag is set pass in the console output else use a
+        // dummy class
         if ($this->getVerbose()) {
-            $environment->setVerbose(true);
+            $environment->setOutput($this->getOutput());
+        } else {
+            $environment->setOutput(new NullOutput());
         }
-
-        // pass in the OutputInterface
-        $environment->setOutput($this->getOutput());
 
         return $environment;
     }

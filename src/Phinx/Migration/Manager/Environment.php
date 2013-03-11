@@ -48,11 +48,6 @@ class Environment
     protected $options;
 
     /**
-     * @var boolean
-     */
-    protected $verbose;
-
-    /**
      * @var OutputInterface
      */
     protected $output;
@@ -171,28 +166,6 @@ class Environment
     public function getOptions()
     {
         return $this->options;
-    }
-
-    /**
-     * Sets the verbosity flag.
-     *
-     * @param boolean $verbose
-     * @return Environment
-     */
-    public function setVerbose($verbose)
-    {
-        $this->verbose = $verbose;
-        return $this;
-    }
-    
-    /**
-     * Gets the verbosity flag.
-     *
-     * @return boolean
-     */
-    public function getVerbose()
-    {
-        return $this->verbose;
     }
 
     /**
