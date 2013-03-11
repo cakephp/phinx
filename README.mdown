@@ -74,8 +74,14 @@ Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.2.2** (Sunday, 3rd March 2013)
+
+* Added a new verbosity parameter to see more output when migrating
+* Support for PHP config files
+
 **0.2.1** (Sunday, 3rd March 2013)
 
+* Broken Release. Do not use!
 * Unit tests no longer rely on the default phinx.yml file
 * Running migrate for the first time does not give php warnings
 * `default_migration_table` is now actually supported
