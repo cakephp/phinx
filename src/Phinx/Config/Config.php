@@ -74,6 +74,31 @@ class Config implements \ArrayAccess
     }
     
     /**
+     * Create a new instance of the config class using a PHP file path.
+     *
+     * @param string $configFilePath Path to the PHP File
+     * @return Config
+     */
+    public static function fromPHP($configFilePath)
+    {
+        ob_start();
+        $configArray = include($configFilePath);
+        
+        // Hide console output
+        $content = ob_get_clean();
+
+        if( ! is_array($configArray))
+        {
+            throw new \RuntimeException(sprintf(
+                'PHP file \'%s\' must return an array',
+                $configFilePath
+            ));
+        }
+
+        return new self($configArray, $configFilePath);
+    }
+
+    /**
      * Returns the configuration for each environment.
      * 
      * This method returns <code>null</code> if no environments exist.
