@@ -47,55 +47,59 @@ class Config implements \ArrayAccess
      * @var string
      */
     protected $configFilePath;
+
+    /**
+     * @var array
+     */
+    protected static $registeredParsers = array(
+        'php' => 'Phinx\Config\Parser\PhpParser',
+        'yml' => 'Phinx\Config\Parser\YamlParser',
+    );
     
     /**
      * Class Constructor
      *
-     * @param array $configArray Config Array
-     * @param string $configFilePath Optional File Path
-     * @return void
+     * @param   array   $configArray Config Array
+     * @param   string  $configFilePath Optional File Path
      */
     public function __construct($configArray, $configFilePath = null)
     {
         $this->values = $configArray;
         $this->configFilePath = $configFilePath;
     }
-    
+
     /**
      * Create a new instance of the config class using a Yaml file path.
      *
-     * @param string $configFilePath Path to the Yaml File
-     * @return Config
+     * @param   string $configFile
+     * @throws \InvalidArgumentException
+     * @return  Config
      */
-    public static function fromYaml($configFilePath)
+    public static function fromFile($configFile)
     {
-        $configArray = Yaml::parse($configFilePath);
-        return new self($configArray, $configFilePath);
-    }
-    
-    /**
-     * Create a new instance of the config class using a PHP file path.
-     *
-     * @param string $configFilePath Path to the PHP File
-     * @return Config
-     */
-    public static function fromPHP($configFilePath)
-    {
-        ob_start();
-        $configArray = include($configFilePath);
-        
-        // Hide console output
-        $content = ob_get_clean();
-
-        if( ! is_array($configArray))
-        {
-            throw new \RuntimeException(sprintf(
-                'PHP file \'%s\' must return an array',
-                $configFilePath
-            ));
+        $extension = pathinfo($configFile, PATHINFO_EXTENSION);
+        if ( ! array_key_exists($extension, self::$registeredParsers)) {
+            throw new \InvalidArgumentException(sprintf('No parser registered for extension \'%s\'', $extension));
         }
 
-        return new self($configArray, $configFilePath);
+        $parserClass = self::$registeredParsers[$extension];
+        if ( ! class_exists($parserClass)) {
+            throw new \InvalidArgumentException(sprintf('Parser class \'%s\' not found', $parserClass));
+        }
+
+        $configArray = $parserClass::parse($configFile);
+        return new self($configArray, $configFile);
+    }
+
+    /**
+     * Register a parser class for the given file extension
+     *
+     * @param   string    $fileExtension
+     * @param   string    $parserClass
+     */
+    public static function registerParser($fileExtension, $parserClass)
+    {
+        self::$registeredParsers[$fileExtension] = $parserClass;
     }
 
     /**
@@ -148,11 +152,11 @@ class Config implements \ArrayAccess
      * Does the specified environment exist in the configuration file?
      *
      * @param string $name Environment Name
-     * @return void
+     * @return bool
      */
     public function hasEnvironment($name)
     {
-        return (!(null === $this->getEnvironment($name)));
+        return ! is_null($this->getEnvironment($name));
     }
     
     /**
