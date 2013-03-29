@@ -623,7 +623,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'datetime');
                 break;
             case 'timestamp':
-                return array('name' => 'datetime');
+                return array('name' => 'timestamp');
                 break;
             case 'time':
                 return array('name' => 'time');
@@ -770,11 +770,16 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
         $default = $column->getDefault();
-        if (is_numeric($default)) {
+        if (is_numeric($default) || $default == "CURRENT_TIMESTAMP") {
             $def .= ' DEFAULT ' . $column->getDefault();
         } else {
             $def .= is_null($column->getDefault()) ? '' : ' DEFAULT \'' . $column->getDefault() . '\'';
         }
+
+        if ($column->getUpdate()) {
+            $def .= " ON UPDATE {$column->getUpdate()} ";
+        }
+
         // TODO - add precision & scale for decimals
         return $def;
     }

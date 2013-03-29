@@ -68,7 +68,12 @@ class Column
      * @var string
      */
     protected $after;
-    
+
+    /**
+     * @var string
+     */
+    protected $update;
+
     /**
      * Sets the column name.
      *
@@ -245,7 +250,29 @@ class Column
     {
         return $this->after;
     }
-    
+
+    /**
+     * Sets the 'ON UPDATE' mysql column function
+     *
+     * @param  string $update On Update function
+     * @return Column
+     */
+    public function setUpdate($update)
+    {
+        $this->update = $update;
+        return $this;
+    }
+
+    /**
+     * Returns the value of the ON UPDATE column function
+     *
+     * @return string
+     */
+    public function getUpdate()
+    {
+        return $this->update;
+    }
+
     /**
      * Utility method that maps an array of column options to this objects methods.
      *
@@ -255,7 +282,7 @@ class Column
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after');
+        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');
