@@ -252,7 +252,7 @@ class Column
     }
 
     /**
-     * Sets the 'ON UPDATE' mysql column function
+     * Sets the 'ON UPDATE' mysql column function.
      *
      * @param  string $update On Update function
      * @return Column
@@ -264,7 +264,7 @@ class Column
     }
 
     /**
-     * Returns the value of the ON UPDATE column function
+     * Returns the value of the ON UPDATE column function.
      *
      * @return string
      */
