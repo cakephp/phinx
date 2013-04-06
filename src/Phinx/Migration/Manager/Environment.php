@@ -98,6 +98,10 @@ class Environment
             $this->getAdapter()->beginTransaction();
         }
         
+        // force UTF-8 encoding for MySQL
+        // TODO - this code will need to be abstracted when we support other db vendors
+        $this->getAdapter()->execute('SET NAMES UTF8');
+        
         // Run the migration
         if (method_exists($migration, MigrationInterface::CHANGE)) {
             if ($direction == MigrationInterface::DOWN) {
