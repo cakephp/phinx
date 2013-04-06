@@ -10,7 +10,7 @@ website for more information.
 
 .. note::
 
-    Phinx requires at least PHP 5.2.1 (or later).
+    Phinx requires at least PHP 5.3.2 (or later).
 
 To install Phinx simply add it as a dependency to your project's 
 ``composer.json`` file:
