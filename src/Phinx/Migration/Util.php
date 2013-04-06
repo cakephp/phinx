@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Migration
  */
@@ -45,7 +45,7 @@ class Util
         $fileName = date('YmdHis') . '_' . strtolower(implode($arr, '_')) . '.php';
         return $fileName;
     }
-    
+
     /**
      * Check if a migration class name is valid.
      *
@@ -59,6 +59,6 @@ class Util
      */
     public static function isValidMigrationClassName($className)
     {
-        return (bool) preg_match('/\b[A-Z][a-zA-Z]*(?:[a-z][a-zA-Z]*[A-Z]|[A-Z][a-zA-Z]*[a-z])[a-zA-Z]*\b/', $className);
+        return (bool) preg_match('/^([A-Z][a-z0-9]+)+$/', $className);
     }
 }
