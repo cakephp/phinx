@@ -190,8 +190,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         
         // TODO - process table options like collation etc
         
-        // convert options array to sql
+        // process table engine (default to InnoDB)
         $optionsStr = 'ENGINE = InnoDB';
+        if (isset($options['engine'])) {
+            $optionsStr = sprintf('ENGINE = %s', $options['engine']);
+        }
         
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';

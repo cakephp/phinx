@@ -178,6 +178,16 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->markTestIncomplete();
     }
     
+    public function testCreateTableWithMyISAMEngine()
+    {
+        $table = new \Phinx\Db\Table('ntable', array('engine' => 'MyISAM'), $this->adapter);
+        $table->addColumn('realname', 'string')
+              ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $row = $this->adapter->fetchRow(sprintf('SHOW TABLE STATUS WHERE Name = "%s"', 'ntable'));
+        $this->assertEquals('MyISAM', $row['Engine']);
+    }
+    
     public function testRenameTable()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
