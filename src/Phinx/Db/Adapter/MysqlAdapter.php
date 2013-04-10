@@ -66,7 +66,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
 
             if (isset($options['ssl_ca_file'])) {
-                $driverOptions = array_merge($driverOptions, array(\PDO::MYSQL_ATTR_SSL_CA => $options['ssl_ca_file']));
+                $driverOptions = $driverOptions + array(\PDO::MYSQL_ATTR_SSL_CA => $options['ssl_ca_file']);
             }
 
             try {
