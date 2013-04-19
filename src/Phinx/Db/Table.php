@@ -453,7 +453,7 @@ class Table
      * @param string|Table $referencedTable   Referenced Table
      * @param string|array $referencedColumns Referenced Columns
      * @param array $options Options
-     * @return Table;
+     * @return Table
      */
     public function addForeignKey($columns, $referencedTable, $referencedColumns = array('id'), $options = array())
     {
@@ -479,7 +479,7 @@ class Table
      *
      * @param string|array $columns    Column(s)
      * @param null|string  $constraint Constraint names
-     * @return void
+     * @return Table
      */
     public function dropForeignKey($columns, $constraint = null) {
         if (is_string($columns)) {
@@ -490,6 +490,8 @@ class Table
         } else {
             $this->getAdapter()->dropForeignKey($this->getName(), $columns);
         }
+        
+        return $this;
     }
 
     /**
