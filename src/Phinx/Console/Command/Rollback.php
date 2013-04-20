@@ -79,6 +79,10 @@ EOT
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
+        
+        $envOptions = $this->getConfig()->getEnvironment($environment);
+        $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
+        $output->writeln('<info>using database</info> ' . $envOptions['name']);
                 
         // set verbosity if supplied
         if ($isVerbose) {
