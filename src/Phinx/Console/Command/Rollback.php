@@ -44,6 +44,7 @@ class Rollback extends AbstractCommand
         parent::configure();
          
         $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
+        $this->addOption('--verbose', '-v', InputOption::VALUE_NONE, 'Show more output');
                   
         $this->setName('rollback')
              ->setDescription('Rollback the last or to a specific migration')
@@ -53,6 +54,7 @@ The <info>rollback</info> command reverts the last migration, or optionally up t
 
 <info>phinx rollback -e development</info>
 <info>phinx rollback -e development -t 20111018185412</info>
+<info>phinx rollback -e development -v</info>
 
 EOT
         );
@@ -69,6 +71,7 @@ EOT
         
         $environment = $input->getOption('environment');
         $version = $input->getOption('target');
+        $isVerbose = (bool) $input->getOption('verbose');
         
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -76,8 +79,18 @@ EOT
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
+                
+        // set verbosity if supplied
+        if ($isVerbose) {
+            $this->getManager()->setVerbose(true);
+        }
         
         // rollback the specified environment
+        $start = microtime(true);
         $this->getManager()->rollback($environment, $version);
+        $end = microtime(true);
+        
+        $output->writeln('');
+        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
     }
 }
