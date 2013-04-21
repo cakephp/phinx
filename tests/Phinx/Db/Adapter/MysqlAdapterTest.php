@@ -190,7 +190,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateTableWithLatin1Collate()
     {
-        $table = new \Phinx\Db\Table('latin1_table', array('collation' => 'latin1_general_ci'));
+        $table = new \Phinx\Db\Table('latin1_table', array('collation' => 'latin1_general_ci'), $this->adapter);
         $table->addColumn('name', 'string')
               ->save();
         $this->assertTrue($this->adapter->hasTable('latin1_table'));
