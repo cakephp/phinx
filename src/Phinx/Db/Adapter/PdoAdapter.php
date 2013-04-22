@@ -391,7 +391,7 @@ abstract class PdoAdapter implements AdapterInterface
                   ->addColumn('end_time', 'timestamp')
                   ->save();
         } catch(\Exception $exception) {
-            throw new \InvalidArgumentException('There was a problem creating the schema table');
+            throw new \InvalidArgumentException('There was a problem creating the schema table: ' . $exception->getMessage());
         }
     }
 
