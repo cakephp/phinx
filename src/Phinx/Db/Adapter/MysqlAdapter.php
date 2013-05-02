@@ -66,7 +66,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
 
             // support arbitrary \PDO::MYSQL_ATTR_* driver options and pass them to PDO
-            foreach($driverOptions as $key => $option) {
+            foreach($options as $key => $option) {
                 if (strpos($key, 'mysql_attr_') === 0) {
                     $driverOptions = $driverOptions + array( constant('\PDO::' . strtoupper($key)) => $option);
                 }
