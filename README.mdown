@@ -74,6 +74,12 @@ Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.2.4** (Saturday, 20th April 2013)
+
+* The Rollback command supports the verbosity parameter
+* The Rollback command has more detailed output
+* Table::dropForeignKey now returns the table instance
+
 **0.2.3** (Saturday, 6th April 2013)
 
 * Fixed a reporting bug when Phinx couldn't connect to a database

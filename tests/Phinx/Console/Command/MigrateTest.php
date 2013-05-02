@@ -9,7 +9,6 @@ use Symfony\Component\Console\Tester\CommandTester,
 
 class MigrateTest extends \PHPUnit_Framework_TestCase
 {
-
     protected $config = array();
 
     protected function setUp() {
