@@ -585,8 +585,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                             AND TABLE_NAME = "%s"
                             AND COLUMN_NAME = "%s"
                           ORDER BY POSITION_IN_UNIQUE_CONSTRAINT',
-                        $column,
-                        $tableName
+                        $tableName,
+                        $column
                 ));
                 foreach ($rows as $row) {
                     $this->dropForeignKey($tableName, $columns, $row['CONSTRAINT_NAME']);
