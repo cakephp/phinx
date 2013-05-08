@@ -2,7 +2,8 @@ before_script:
     - composer self-update
     - composer install
     - mysql -e 'create database phinx_testing;'
-    - sed -e 's/@db_adapter_mysql_enabled@/true/g' -e 's/@db_adapter_mysql_host@/127.0.0.1/g' -e 's/@db_adapter_mysql_username@/root/g' -e 's/@db_adapter_mysql_password@//g' -e 's/@db_adapter_mysql_database@/phinx_testing/g' -e 's/@db_adapter_mysql_port@/3306/g' tests/TestConfiguration.php.dist > tests/TestConfiguration.php
+    - psql -c 'create database myapp_test;' -U postgres
+    - sed -e 's/@db_adapter_mysql_enabled@/true/g' -e 's/@db_adapter_mysql_host@/127.0.0.1/g' -e 's/@db_adapter_mysql_username@/root/g' -e 's/@db_adapter_mysql_password@//g' -e 's/@db_adapter_mysql_database@/phinx_testing/g' -e 's/@db_adapter_mysql_port@/3306/g' -e 's/@db_adapter_postgres_enabled@/true/g' -e 's/@db_adapter_postgres_host@/127.0.0.1/g' -e 's/@db_adapter_postgres_username@/postgres/g' -e 's/@db_adapter_postgres_password@//g' -e 's/@db_adapter_postgres_database@/phinx_testing/g' -e 's/@db_adapter_postgres_port@/5432/g' tests/TestConfiguration.php.dist > tests/TestConfiguration.php
     - cat tests/TestConfiguration.php
 language: php
 php:

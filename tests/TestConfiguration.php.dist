@@ -37,3 +37,13 @@ defined('TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME') || define('TESTS_PHINX_DB_ADAPT
 defined('TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD') || define('TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD', '@db_adapter_mysql_password@');
 defined('TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE') || define('TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE', '@db_adapter_mysql_database@');
 defined('TESTS_PHINX_DB_ADAPTER_MYSQL_PORT') || define('TESTS_PHINX_DB_ADAPTER_MYSQL_PORT', @db_adapter_mysql_port@);
+
+/**
+ * Phinx_Db_Adapter_PostgresAdapter
+ */
+defined('TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED') || define('TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED', @db_adapter_postgres_enabled@);
+defined('TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST') || define('TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST', '@db_adapter_mysql_host@');
+defined('TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME') || define('TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME', '@db_adapter_mysql_username@');
+defined('TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD') || define('TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD', '@db_adapter_mysql_password@');
+defined('TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE') || define('TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE', '@db_adapter_mysql_database@');
+defined('TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT') || define('TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT', @db_adapter_mysql_port@);
