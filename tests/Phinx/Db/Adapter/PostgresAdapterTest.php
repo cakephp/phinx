@@ -18,13 +18,9 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
             'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
             'user' => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
-            'pass' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD
+            'pass' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
+            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT
         );
-        
-        if (defined(TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT) && TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT) {
-            $options['port'] = TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT;
-        }
-        
         $this->adapter = new PostgresAdapter($options, new NullOutput());
 
         // ensure the database is empty for each test
