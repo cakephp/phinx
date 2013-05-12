@@ -396,11 +396,12 @@ class Table
      * 
      * In $options you can specific unique = true/false or name (index name).
      *
+     * @param string $name Index name
      * @param string|array|Index $columns Table Column(s)
      * @param array $options Index Options
      * @return Table
      */
-    public function addIndex($columns, $options = array())
+    public function addIndex($name, $columns, $options = array())
     {
         // create a new index object if strings or an array of strings were supplied
         if (!$columns instanceof Index) {
@@ -408,6 +409,7 @@ class Table
             if (is_string($columns)) {
                 $columns = array($columns); // str to array
             }
+            $index->setName($name);
             $index->setColumns($columns);
             $index->setOptions($options);
         } else {
