@@ -68,6 +68,13 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         // (it should default to the first one).
         $config = \Phinx\Config\Config::fromYaml($path . '/no_default_database_key.yml');
         $this->assertEquals('production', $config->getDefaultEnvironment());
+
+        // test using environment variable PHINX_ENVIRONMENT
+        // (it should return the configuration specified in the environment)
+        putenv('PHINX_ENVIRONMENT=externally-specified-environment');
+        $config = \Phinx\Config\Config::fromYaml($path . '/no_default_database_key.yml');
+        $this->assertEquals('externally-specified-environment', $config->getDefaultEnvironment());
+        putenv('PHINX_ENVIRONMENT=');
     }
     
     /**

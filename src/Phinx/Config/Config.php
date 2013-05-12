@@ -174,7 +174,21 @@ class Config implements \ArrayAccess
                 $this->values['environments']['default_database']
             ));
         }
+     
+        // else attempt to read the environment
         
+        $env = getenv('PHINX_ENVIRONMENT');
+        if (! empty($env)) {
+            if ($this->hasEnvironment($env)) {
+                return $env;
+            }
+            
+            throw new \RuntimeException(sprintf(
+                'The environment configuration for \'%s\' is missing',
+                $env
+            ));            
+        }    
+
         // else default to the first available one
         if (is_array($this->getEnvironments()) && count($this->getEnvironments()) > 0) {
             $names = array_keys($this->getEnvironments());

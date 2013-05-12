@@ -53,6 +53,8 @@ The fastest way to install Phinx in your project is using Composer (http://getco
     php vendor/bin/phinx
     ```
 
+1. Export environment variable PHINX_ENVIRONMENT to override the default environment of the config file.
+
 ## Documentation
 
 Check out http://docs.phinx.org for the comprehensive documentation.
@@ -61,10 +63,17 @@ Check out http://docs.phinx.org for the comprehensive documentation.
 
 Start by forking Phinx on GitHub: https://github.com/robmorgan/phinx
 
-Next setup your environment for development:
+Clone your repository to a local directory on your development box
+
+If you do not have composer set up already, install it:
  
  * `curl -s https://getcomposer.org/installer | php`
+
+Change to your phinx clone directory and pull dependencies:
+
  * `php composer.phar install --dev`
+
+Copy the configuration template in tests/ and replace @tags@ at the bottom of the file
   
 ## News & Updates
 
