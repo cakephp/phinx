@@ -347,7 +347,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * Get an array of indexes from a particular table.
      *
      * @param string $tableName Table Name
-     * @return arrayddd
+     * @return array
      */
     protected function getIndexes($tableName)
     {
