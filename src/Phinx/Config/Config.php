@@ -171,11 +171,10 @@ class Config implements \ArrayAccess
             }
             
             throw new \RuntimeException(sprintf(
-                'The environment configuration for \'%s\' is missing',
+                'The environment configuration (read from $PHINX_ENVIRONMENT) for \'%s\' is missing',
                 $env
             ));            
         }    
-
 
         // if the user has configured a default database then use it,
         // providing it actually exists!
