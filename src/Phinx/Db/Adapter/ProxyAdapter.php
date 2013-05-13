@@ -245,7 +245,9 @@ class ProxyAdapter implements AdapterInterface
             'timestamp',
             'time',
             'date',
+            'blob',
             'binary',
+            'varbinary',
             'boolean'
         );
     }

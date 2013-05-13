@@ -637,8 +637,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case 'date':
                 return array('name' => 'date');
                 break;
-            case 'binary':
+            case 'blob':
                 return array('name' => 'blob');
+                break;
+            case 'binary':
+                return array('name' => 'binary');
+                break;
+            case 'varbinary':
+                return array('name' => 'varbinary');
                 break;
             case 'boolean':
                 return array('name' => 'tinyint', 'limit' => 1);
@@ -694,7 +700,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     $type = 'biginteger';
                     break;
                 case 'blob':
+                    $type = 'blob';
+                    break;
+                case 'binary':
                     $type = 'binary';
+                    break;
+                case 'varbinary':
+                    $type = 'varbinary';
                     break;
             }
             if ($type == 'tinyint') {
