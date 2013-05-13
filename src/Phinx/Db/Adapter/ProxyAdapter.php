@@ -235,6 +235,7 @@ class ProxyAdapter implements AdapterInterface
         return array(
             'primary_key',
             'string',
+            'char',
             'text',
             'integer',
             'biginteger',
