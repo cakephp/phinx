@@ -41,11 +41,6 @@ class Index
     const INDEX = 'index';
     
     /**
-     * @var string
-     */
-    protected $name;
-
-    /**
      * @var array
      */
     protected $columns;
@@ -54,28 +49,6 @@ class Index
      * @var string
      */
     protected $type;
-    
-    /**
-     * Sets the index name.
-     *
-     * @param string $name
-     * @return Index
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-        return $this;
-    }
-    
-    /**
-     * Gets the index name.
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
     
     /**
      * Sets the index columns.

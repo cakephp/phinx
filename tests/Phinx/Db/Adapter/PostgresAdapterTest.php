@@ -213,21 +213,31 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('email', 'string')
               ->save();
         $this->assertFalse($table->hasIndex('email'));
-        $table->addIndex('my_index', 'email')
+        $table->addIndex('email')
               ->save();
         $this->assertTrue($table->hasIndex('email'));
     }
     
     public function testDropIndex()
     {
-        // single column index
+         // single column index
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('email', 'string')
-              ->addIndex('my_index', 'email')
+              ->addIndex('email')
               ->save();
         $this->assertTrue($table->hasIndex('email'));
-        $this->adapter->dropIndex($table->getName(), 'my_index');
+        $this->adapter->dropIndex($table->getName(), 'email');
         $this->assertFalse($table->hasIndex('email'));
+        
+        // multiple column index
+        $table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
+        $table2->addColumn('fname', 'string')
+               ->addColumn('lname', 'string')
+               ->addIndex(array('fname', 'lname'))
+               ->save();
+        $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
+        $this->adapter->dropIndex($table2->getName(), array('fname', 'lname'));     
+        $this->assertFalse($table2->hasIndex(array('fname', 'lname')));       
     }
 
     public function testAddForeignKey()
