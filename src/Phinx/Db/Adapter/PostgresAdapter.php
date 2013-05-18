@@ -196,13 +196,21 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $sql .= $column->getName() . ' ' . $this->getColumnSqlDefinition($column) . ', ';
         }
         
-        // set the primary key(s)
+         // set the primary key(s)
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
-            $sql .= sprintf(" CONSTRAINT %s_pkey PRIMARY KEY (%s)", $table->getName(), $options['primary_key']);
+            $sql .= sprintf(' CONSTRAINT %s_pkey PRIMARY KEY (', $table->getName());
+            if (is_string($options['primary_key'])) {       // handle primary_key => 'id'
+                $sql .= $this->quoteColumnName($options['primary_key']);
+            } else if (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
+                // PHP 5.4 will allow access of $this, so we can call quoteColumnName() directly in the anonymous function,
+                // but for now just hard-code the adapter quotes
+                $sql .= implode(',', array_map(function($v) { return '"' . $v . '"'; }, $options['primary_key']));
+            }
+            $sql .= ')';
         } else {
             $sql = substr(rtrim($sql), 0, -1);              // no primary keys
-        }                
+        }                      
 
         // set the foreign keys
         $foreignKeys = $table->getForeignKeys();
@@ -305,13 +313,15 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameColumn($tableName, $columnName, $newColumnName)
     { 
-        $sql = sprintf("SELECT * FROM information_schema.columns 
-            WHERE table_name ='%s' AND column_name = '%s'", $tableName, $columnName);        
-        $columnNameExists = $this->execute($sql);
-        if(!$columnNameExists) {
+        $sql = sprintf("SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS column_exists 
+            FROM information_schema.columns 
+            WHERE table_name ='%s' AND column_name = '%s'", $tableName, $columnName);                 
+        $result = $this->fetchRow($sql);                
+        if(!(bool)$result['column_exists']) {
             throw new \InvalidArgumentException(sprintf('The specified column doesn\'t exist: '. $columnName));
         }
-        return $this->execute(sprintf('ALTER TABLE %s RENAME COLUMN %s TO %s', $tableName, $columnName, $newColumnName));         
+        return $this->execute(sprintf('ALTER TABLE %s RENAME COLUMN %s TO %s', 
+            $tableName, $columnName, $newColumnName));         
     }
     
     /**
@@ -366,8 +376,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             AND a.attrelid = t.oid
             AND a.attnum = ANY(ix.indkey)
             AND t.relkind = 'r'
-            AND t.relname = '$tableName'
-            AND i.relname !~ '.*_pkey'
+            AND t.relname = '$tableName'            
         ORDER BY
             t.relname,
             i.relname;";
@@ -385,11 +394,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * {@inheritdoc}
      */
     public function hasIndex($tableName, $columns)
-    {    
-        $indexes = $this->getIndexes($tableName);    
-        $indexName = $this->getIndexName($tableName, $columns);    
-        foreach (array_keys($indexes) as $index) {
-            if($indexName == $index) {
+    {   
+        if (is_string($columns)) {
+            $columns = array($columns);
+        }
+        $columns = array_map('strtolower', $columns);        
+        $indexes = $this->getIndexes($tableName);                                        
+        foreach ($indexes as $index) {
+            if(array_diff($index['columns'], $columns) === array_diff($columns, $index['columns'])) {
                 return true;
             }
         }        
@@ -686,7 +698,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
     {                
-        $def = sprintf("CREATE %s INDEX %s ON %s (%s)" // TODO change this code
+        $def = sprintf("CREATE %s INDEX %s ON %s (%s);"
             ,($index->getType() == Index::UNIQUE ? 'UNIQUE' : '')            
             ,$this->getIndexName($tableName, $index->getColumns())
             ,$tableName

@@ -104,6 +104,69 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
           
+     public function testCreateTableCustomIdColumn()
+    {
+        $table = new \Phinx\Db\Table('ntable', array('id' => 'custom_id'), $this->adapter);
+        $table->addColumn('realname', 'string')
+              ->addColumn('email', 'integer')
+              ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'custom_id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+    }   
+    
+    public function testCreateTableWithNoPrimaryKey()
+    {
+        $options = array(
+            'id' => false
+        );
+        $table = new \Phinx\Db\Table('atable', $options, $this->adapter);
+        $table->addColumn('user_id', 'integer')
+              ->save();
+        $this->assertFalse($this->adapter->hasColumn('atable', 'id'));
+    }
+    
+    public function testCreateTableWithMultiplePrimaryKeys()
+    {
+        $options = array(
+            'id'            => false,
+            'primary_key'   => array('user_id', 'tag_id')
+        );
+        $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
+        $table->addColumn('user_id', 'integer')
+              ->addColumn('tag_id', 'integer')
+              ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', array('user_id', 'tag_id')));
+        $this->assertTrue($this->adapter->hasIndex('table1', array('tag_id', 'USER_ID')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('tag_id', 'user_email')));
+    }
+
+    public function testCreateTableWithMultipleIndexes()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addColumn('name', 'string')
+              ->addIndex('email')
+              ->addIndex('name')
+              ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
+        $this->assertTrue($this->adapter->hasIndex('table1', array('name')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_name')));
+    }
+    
+    public function testCreateTableWithUniqueIndexes()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addIndex('email', array('unique' => true))
+              ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
+    }    
+      
     public function testRenameTable()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
