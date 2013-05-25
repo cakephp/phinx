@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -33,7 +33,7 @@ use Symfony\Component\Console\Command\Command,
     Symfony\Component\Console\Input\InputArgument,
     Symfony\Component\Console\Input\InputOption,
     Symfony\Component\Console\Output\OutputInterface;
-    
+
 class Rollback extends AbstractCommand
 {
     /**
@@ -42,10 +42,9 @@ class Rollback extends AbstractCommand
     protected function configure()
     {
         parent::configure();
-         
+
         $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
-        $this->addOption('--verbose', '-v', InputOption::VALUE_NONE, 'Show more output');
-                  
+
         $this->setName('rollback')
              ->setDescription('Rollback the last or to a specific migration')
              ->addOption('--target', '-t', InputArgument::OPTIONAL, 'The version number to rollback to')
@@ -62,38 +61,38 @@ EOT
 
     /**
      * Rollback the migration.
-     * 
+     *
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
-        
+
         $environment = $input->getOption('environment');
         $version = $input->getOption('target');
         $isVerbose = (bool) $input->getOption('verbose');
-        
+
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
-        
+
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         $output->writeln('<info>using database</info> ' . $envOptions['name']);
-                
+
         // set verbosity if supplied
         if ($isVerbose) {
             $this->getManager()->setVerbose(true);
         }
-        
+
         // rollback the specified environment
         $start = microtime(true);
         $this->getManager()->rollback($environment, $version);
         $end = microtime(true);
-        
+
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
     }
