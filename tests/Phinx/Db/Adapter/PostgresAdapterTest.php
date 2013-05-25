@@ -81,14 +81,22 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
     }
     
+    public function testQuoteSchemaName()
+    {
+        $this->assertEquals('"schema"', $this->adapter->quoteSchemaName('schema'));
+        $this->assertEquals('"schema.schema"', $this->adapter->quoteSchemaName('schema.schema'));
+    }
+
     public function testQuoteTableName()
     {
-        $this->assertEquals('"test_table"', $this->adapter->quoteTableName('test_table'));
+        $this->assertEquals('"table"', $this->adapter->quoteTableName('table'));        
+        $this->assertEquals('"table.table"', $this->adapter->quoteTableName('table.table'));        
     }
     
     public function testQuoteColumnName()
     {
-        $this->assertEquals('"test_column"', $this->adapter->quoteColumnName('test_column'));
+        $this->assertEquals('"string"', $this->adapter->quoteColumnName('string'));
+        $this->assertEquals('"string.string"', $this->adapter->quoteColumnName('string.string'));
     }
     
     public function testCreateTable()

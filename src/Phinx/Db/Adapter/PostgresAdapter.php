@@ -124,11 +124,22 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     }
     
     /**
+     * Quotes a schema name for use in a query.
+     * 
+     * @param string $schemaName Schema Name
+     * @return string
+     */
+    public function quoteSchemaName($schemaName)
+    {        
+        return $this->quoteColumnName($schemaName);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function quoteTableName($tableName)
     {        
-        return str_replace('.', '`.`', $this->quoteColumnName($tableName));
+        return $this->quoteColumnName($tableName);
     }
     
     /**
@@ -136,7 +147,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function quoteColumnName($columnName)
     {
-        return '"' . str_replace('`', '``', $columnName) . '"';
+        return '"'. $columnName . '"';
     }
     
     /**
@@ -189,7 +200,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
-            $sql .= $column->getName() . ' ' . $this->getColumnSqlDefinition($column) . ', ';
+            $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
         }
         
          // set the primary key(s)
@@ -228,7 +239,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
 
         // execute the sql        
-        $this->writeCommand('createTable', array($table->getName()));
+        $this->writeCommand('createTable', array($table->getName()));        
         $this->execute($sql);
         $this->endCommandTimer();
     }
@@ -241,7 +252,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $this->startCommandTimer();
         $this->writeCommand('renameTable', array($tableName, $newTableName));
         $sql = sprintf('ALTER TABLE %s RENAME TO %s',
-            $this->quoteTableName($tableName), $this->quoteTableName($newTableName));
+            $this->quoteTableName($tableName), $this->quoteTableName($newTableName));        
         $this->execute($sql);
         $this->endCommandTimer();
     }
@@ -291,7 +302,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {        
         $sql = sprintf("SELECT count(*) 
             FROM information_schema.columns
-            WHERE table_schema = 'public' AND table_name = '%s' AND column_name = '%s'", $tableName, $columnName);        
+            WHERE table_schema = 'public' AND table_name = '%s' AND column_name = '%s'", $tableName, $columnName);                
         $result = $this->fetchRow($sql);
         return  $result['count'] > 0;
     }
@@ -304,8 +315,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $this->startCommandTimer();
         $this->writeCommand('addColumn', array($table->getName(), $column->getName(), $column->getType()));
         $sql = sprintf('ALTER TABLE %s ADD %s %s',
-            $table->getName(),
-            $column->getName(),
+            $this->quoteTableName($table->getName()),
+            $this->quoteColumnName($column->getName()),
             $this->getColumnSqlDefinition($column)
         );
         
@@ -324,14 +335,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $this->startCommandTimer();
         $sql = sprintf("SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS column_exists 
             FROM information_schema.columns 
-            WHERE table_name ='%s' AND column_name = '%s'", $tableName, $columnName);                 
+            WHERE table_name ='%s' AND column_name = '%s'", $tableName,$columnName);                 
         $result = $this->fetchRow($sql);                
         if(!(bool)$result['column_exists']) {
             throw new \InvalidArgumentException(sprintf('The specified column doesn\'t exist: '. $columnName));
         }
         $this->writeCommand('renameColumn', array($tableName, $columnName, $newColumnName));
         $this->execute(sprintf('ALTER TABLE %s RENAME COLUMN %s TO %s', 
-            $tableName, $columnName, $newColumnName));         
+            $this->quoteTableName($tableName), $this->quoteColumnName($columnName), $newColumnName));         
         $this->endCommandTimer();        
     }
     
@@ -548,7 +559,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                             AND COLUMN_NAME = '%s'
                           ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
                         $column,
-                        $tableName
+                        $this->quoteTableName($tableName)
 
                 ));
                 foreach ($rows as $row) {
@@ -735,7 +746,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $def = sprintf("CREATE %s INDEX %s ON %s (%s);"
             ,($index->getType() == Index::UNIQUE ? 'UNIQUE' : '')            
             ,$this->getIndexName($tableName, $index->getColumns())
-            ,$tableName
+            ,$this->quoteTableName($tableName)
             ,implode(',', $index->getColumns()));         
         return $def;
     }
@@ -829,7 +840,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('addSchema', array($name));
-        $sql = sprintf("CREATE SCHEMA %s;", $name); // from postgres 9.3 we can use "CREATE SCHEMA IF NOT EXISTS schema_name"
+        $sql = sprintf('CREATE SCHEMA "%s";', $name); // from postgres 9.3 we can use "CREATE SCHEMA IF NOT EXISTS schema_name"
         $this->execute($sql);
         return $this->endCommandTimer(); 
     }
@@ -844,11 +855,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('dropSchema', array($name));
-        $sql = sprintf("DROP SCHEMA IF EXISTS %s CASCADE;", $name);
+        $sql = sprintf("DROP SCHEMA IF EXISTS %s CASCADE;", $this->quoteSchemaName($name));
         $this->execute($sql);
         $this->endCommandTimer();     
     }    
-    
+
     /**
      * Delete all schemas.
      *
