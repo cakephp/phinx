@@ -162,21 +162,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $options = $table->getOptions();
         
-        // Add the default primary key
+         // Add the default primary key
         $columns = $table->getPendingColumns();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
-            $column = new Column();            
-            
-            // TODO add strategy for primary key (table name plus suffix _id, only id or something else)
-            $primaryKeyName = $table->getName().'_id'; //TODO change this code
-
-            $column->setName($primaryKeyName)
-                   ->setType('primary_key')
+            $column = new Column();
+            $column->setName('id')
+                   ->setType('integer')
                    ->setIdentity(true);
             
             array_unshift($columns, $column);
-            
-            $options['primary_key'] = $primaryKeyName;
+            $options['primary_key'] = 'id';
 
         } elseif (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT

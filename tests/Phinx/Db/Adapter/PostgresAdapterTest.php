@@ -98,7 +98,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('email', 'integer')
               ->save();
         $this->assertTrue($this->adapter->hasTable('ntable'));
-        $this->assertTrue($this->adapter->hasColumn('ntable', 'ntable_id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
@@ -314,7 +314,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
            ->setColumns(array('ref_table_id'))
-           ->setReferencedColumns(array('ref_table_id'));
+           ->setReferencedColumns(array('id'));
 
         $this->adapter->addForeignKey($table, $fk);
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
