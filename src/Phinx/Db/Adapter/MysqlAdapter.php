@@ -196,6 +196,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $optionsStr = sprintf('ENGINE = %s', $options['engine']);
         }
         
+        // process table collation
+        if (isset($options['collation'])) {
+            $charset = explode('_', $options['collation']);
+            $optionsStr .= sprintf(' CHARACTER SET %s', $charset[0]);
+            $optionsStr .= sprintf(' COLLATE %s', $options['collation']);
+        }
+        
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
