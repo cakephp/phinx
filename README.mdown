@@ -23,9 +23,11 @@ Phinx makes it ridiculousy easy to manage the database migrations for your PHP a
 
 ## Install & Run
 
+### Composer
+
 The fastest way to install Phinx in your project is using Composer (http://getcomposer.org/).
 
-1. Install composer:
+1. Install Composer:
 
     ```    
     curl -s https://getcomposer.org/installer | php
@@ -51,6 +53,40 @@ The fastest way to install Phinx in your project is using Composer (http://getco
     
     ```
     php vendor/bin/phinx
+    ```
+
+### As a Phar
+
+You can also use the Box application to build Phinx as a Phar archive (http://box-project.org/).
+
+1. Clone Phinx from GitHub
+
+    ```
+    git clone git://github.com/robmorgan/phinx.git
+    ```
+
+1. Install Composer
+
+    ```    
+    curl -s https://getcomposer.org/installer | php
+    ```
+
+1. Install the Phinx dependencies
+
+    ```
+    php composer.phar install
+    ```
+
+1. Install Box:
+
+    ```
+    curl -s http://box-project.org/installer.php | php
+    ```
+    
+1. Create a Phar archive
+
+    ```
+    php box.phar build
     ```
 
 ## Documentation
