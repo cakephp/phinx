@@ -95,6 +95,23 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $config->getDefaultEnvironment();
     }
     
+    public function testFromPHPMethod()
+    {
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromPHP($path . '/valid_config.php');
+        $this->assertEquals('dev', $config->getDefaultEnvironment());
+    }
+    
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testFromPHPMethodWithoutArray()
+    {
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromPHP($path . '/config_without_array.php');
+        $this->assertEquals('dev', $config->getDefaultEnvironment());
+    }
+    
     public function testGetMigrationPathReturnsNullForNoPath()
     {
         $config = new \Phinx\Config\Config(array());
