@@ -149,13 +149,32 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
 .. code-block:: php
         
         <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                // execute()
+                $count = $this->execute('DELETE FROM users'); // returns the number of affected rows
+
+                // query()
+                $rows = $this->query('SELECT * FROM users'); // returns the result as an array
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
         
-        // execute()
-        $count = $this->execute('DELETE FROM users'); // returns the number of affected rows
-
-        // query()
-        $rows = $this->query('SELECT * FROM users'); // returns the result as an array
-
 Fetching Rows
 -------------
 
@@ -166,12 +185,31 @@ Both methods accept raw SQL as their only parameter.
 .. code-block:: php
         
         <?php
-        
-        // fetch a user
-        $row = $this->fetchRow('SELECT * FROM users');
 
-        // fetch an array of messages
-        $rows = $this->fetchAll('SELECT * FROM messages');
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                // fetch a user
+                $row = $this->fetchRow('SELECT * FROM users');
+
+                // fetch an array of messages
+                $rows = $this->fetchAll('SELECT * FROM messages');
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
 
 Working With Tables
 -------------------
@@ -185,11 +223,30 @@ instance of the Table object by calling the ``table()`` method from within
 your database migration.
 
 .. code-block:: php
-    
-        <?php
         
-        $table = $this->table('tableName');
+        <?php
 
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('tableName');
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+        
 You can then manipulate this table using the methods provided by the Table
 object.
 
@@ -200,20 +257,39 @@ Creating a table is really easy using the Table object. Let's create a table to
 store a collection of users.
 
 .. code-block:: php
-
-        <?php
         
-        $users = $this->table('users');
-        $users->addColumn('username', 'string', array('limit' => 20))
-              ->addColumn('password', 'string', array('limit' => 40))
-              ->addColumn('password_salt', 'string', array('limit' => 40))
-              ->addColumn('email', 'string', array('limit' => 100))
-              ->addColumn('first_name', 'string', array('limit' => 30))
-              ->addColumn('last_name', 'string', array('limit' => 30))
-              ->addColumn('created', 'datetime')
-              ->addColumn('updated', 'datetime', array('default' => null))
-              ->addIndex(array('username', 'email'), array('unique' => true))
-              ->save();
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $users = $this->table('users');
+                $users->addColumn('username', 'string', array('limit' => 20))
+                      ->addColumn('password', 'string', array('limit' => 40))
+                      ->addColumn('password_salt', 'string', array('limit' => 40))
+                      ->addColumn('email', 'string', array('limit' => 100))
+                      ->addColumn('first_name', 'string', array('limit' => 30))
+                      ->addColumn('last_name', 'string', array('limit' => 30))
+                      ->addColumn('created', 'datetime')
+                      ->addColumn('updated', 'datetime', array('default' => null))
+                      ->addIndex(array('username', 'email'), array('unique' => true))
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
         
 Columns are added using the ``addColumn()`` method. We create a unique index
 for both the username and email columns using the ``addIndex()`` method.
@@ -229,27 +305,65 @@ when accessing the Table object. Let's disable the automatic ``id`` column and
 create a primary key using two columns instead:
 
 .. code-block:: php
-
-        <?php
         
-        $table = $this->table('followers', array('id' => false, 'primary_key' => array('user_id', 'follower_id')));
-        $table->addColumn('user_id', 'integer')
-              ->addColumn('follower_id', 'integer')
-              ->addColumn('created', 'datetime')
-              ->save();
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('followers', array('id' => false, 'primary_key' => array('user_id', 'follower_id')));
+                $table->addColumn('user_id', 'integer')
+                      ->addColumn('follower_id', 'integer')
+                      ->addColumn('created', 'datetime')
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
 
 Setting a single ``primary_key`` doesn't enable the ``AUTO_INCREMENT`` option.
 To do this, we need to override the default ``id`` field name:
 
 .. code-block:: php
-
+        
         <?php
 
-        $table = $this->table('followers', array('id' => 'user_id'));
-        $table->addColumn('user_id', 'integer')
-              ->addColumn('follower_id', 'integer')
-              ->addColumn('created', 'datetime')
-              ->save();
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('followers', array('id' => 'user_id'));
+                $table->addColumn('user_id', 'integer')
+                      ->addColumn('follower_id', 'integer')
+                      ->addColumn('created', 'datetime')
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -258,24 +372,73 @@ You can determine whether or not a table exists by using the ``hasTable()``
 method.
 
 .. code-block:: php
-
-        <?php
         
-        $exists = $this->hasTable('users');
-        if ($exists) {
-            // do something
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $exists = $this->hasTable('users');
+                if ($exists) {
+                    // do something
+                }
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
         }
 
 Dropping a Table
 ~~~~~~~~~~~~~~~~
 
-Tables can be dropped quite easily using the ``dropTable()`` method.
+Tables can be dropped quite easily using the ``dropTable()`` method. It is a
+good idea to recreate the table again in the ``down()`` method.
 
 .. code-block:: php
         
         <?php
-        
-        $this->dropTable('tableName');
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $this->dropTable('users');
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+                $users = $this->table('users');
+                $users->addColumn('username', 'string', array('limit' => 20))
+                      ->addColumn('password', 'string', array('limit' => 40))
+                      ->addColumn('password_salt', 'string', array('limit' => 40))
+                      ->addColumn('email', 'string', array('limit' => 100))
+                      ->addColumn('first_name', 'string', array('limit' => 30))
+                      ->addColumn('last_name', 'string', array('limit' => 30))
+                      ->addColumn('created', 'datetime')
+                      ->addColumn('updated', 'datetime', array('default' => null))
+                      ->addIndex(array('username', 'email'), array('unique' => true))
+                      ->save();
+            }
+        }
         
 Renaming a Table
 ~~~~~~~~~~~~~~~~
@@ -286,9 +449,29 @@ To rename a table access an instance of the Table object then call the
 .. code-block:: php
         
         <?php
-        
-        $table = $this->table('users');
-        $table->rename('legacy_users');
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('users');
+                $table->rename('legacy_users');
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+                $table = $this->table('legacy_users');
+                $table->rename('users');
+            }
+        }
 
 Working With Columns
 ~~~~~~~~~~~~~~~~~~~~
@@ -303,8 +486,28 @@ To rename a column access an instance of the Table object then call the
         
         <?php
 
-        $table = $this->table('users');
-        $table->renameColumn('bio', 'biography');
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('users');
+                $table->renameColumn('bio', 'biography');
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+                $table = $this->table('users');
+                $table->renameColumn('biography', 'bio');
+            }
+        }
 
 Working With Foreign Keys
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -313,39 +516,96 @@ Phinx has support for creating foreign key constraints on your database tables.
 Let's add a foreign key to an example table:
 
 .. code-block:: php
-
+        
         <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('tags');
+                $table->addColumn('tag_name', 'string')
+                      ->save();
         
-        $table = $this->table('tags');
-        $table->addColumn('tag_name', 'string')
-              ->save();
-        
-        $refTable = $this->table('tag_relationships');
-        $refTable->addColumn('tag_id', 'integer')
-                 ->save();
+                $refTable = $this->table('tag_relationships');
+                $refTable->addColumn('tag_id', 'integer')
+                         ->save();
                 
-        $refTable->addForeignKey('tag_id', 'tags', 'id');
+                $refTable->addForeignKey('tag_id', 'tags', 'id');
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
 
 We can also easily check if a foreign key exists:
 
 .. code-block:: php
-
-        <?php
         
-        $table = $this->table('tag_relationships');
-        $exists = $table->hasForeignKey('tag_id');
-        if ($exists) {
-            // do something
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('tag_relationships');
+                $exists = $table->hasForeignKey('tag_id');
+                if ($exists) {
+                    // do something
+                }
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
         }
 
 Finally to delete a foreign key use the ``dropForeignKey`` method.
 
 .. code-block:: php
-
-        <?php
         
-        $table = $this->table('tag_relationships');
-        $table->dropForeignKey('tag_id');
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('tag_relationships');
+                $table->dropForeignKey('tag_id');
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
 
 The Save Method
 ~~~~~~~~~~~~~~~
