@@ -70,12 +70,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
             $this->setConnection($db);
             
-           try {  // TODO remove this code
-                $this->createSchema('public'); 
-            } catch(\PDOException $exception) {
-                // nop
-            }
-
+            // Create the public schema  if it doesn't already exist
+            if(!$this->hasSchema('public')) {
+                $this->createSchema('public');
+            } 
+            
             // Create the schema table if it doesn't already exist
             if (!$this->hasSchemaTable()) {
                 $this->createSchemaTable();
@@ -831,37 +830,53 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Create new schema.
+     * Creates the specified database table.
      *
-     * @param string $name Schema name.
+     * @param  string $schemaName Schema Name
      * @return void
      */
-    public function createSchema($name = 'public')
+    public function createSchema($schemaName = 'public')
     {
         $this->startCommandTimer();
-        $this->writeCommand('addSchema', array($name));
-        $sql = sprintf('CREATE SCHEMA "%s";', $name); // from postgres 9.3 we can use "CREATE SCHEMA IF NOT EXISTS schema_name"
+        $this->writeCommand('addSchema', array($schemaName));
+        $sql = sprintf('CREATE SCHEMA %s;', $this->quoteSchemaName($schemaName)); // from postgres 9.3 we can use "CREATE SCHEMA IF NOT EXISTS schema_name"
         $this->execute($sql);
         return $this->endCommandTimer(); 
     }
 
     /**
-     * Delete schema.
+     * Checks to see if a schema exists.
      *
-     * @param string $name Schema name.
+     * @param string $schemaName  Schema Name     
+     * @return boolean
+     */
+    public function hasSchema($schemaName)
+    {        
+        $sql = sprintf("SELECT count(*) 
+            FROM information_schema.schemata 
+            WHERE schema_name = '%s'",
+            $schemaName);
+        $result = $this->fetchRow($sql);
+        return  $result['count'] > 0;
+    }
+
+    /**
+     * Drops the specified schema table.
+     * 
+     * @param string $tableName Table Name
      * @return void
      */
-    public function dropSchema($name = 'public')
+    public function dropSchema($schemaName)
     {
         $this->startCommandTimer();
-        $this->writeCommand('dropSchema', array($name));
-        $sql = sprintf("DROP SCHEMA IF EXISTS %s CASCADE;", $this->quoteSchemaName($name));
+        $this->writeCommand('dropSchema', array($schemaName));
+        $sql = sprintf("DROP SCHEMA IF EXISTS %s CASCADE;", $this->quoteSchemaName($schemaName));
         $this->execute($sql);
         $this->endCommandTimer();     
     }    
 
     /**
-     * Delete all schemas.
+     * Drops all schemas.
      *
      * @return void     
      */
@@ -876,7 +891,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Get all schemas.
+     * Returns schemas.
      *
      * @return array
      */
@@ -886,14 +901,15 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 FROM information_schema.schemata
                 WHERE schema_name <> 'information_schema' AND schema_name !~ '^pg_'";
         $items = $this->fetchAll($sql);
+        $schemaNames = array();
         foreach ($items as $item) {
-            $schemas[] = $item['schema_name'];
+            $schemaNames[] = $item['schema_name'];
         }        
-        return $schemas;
+        return $schemaNames;
     }
 
     /**
-     * Get index name.
+     * Returns index name.
      *
      * @param string $tableName   Table name.
      * @param string $columnNames Column names.

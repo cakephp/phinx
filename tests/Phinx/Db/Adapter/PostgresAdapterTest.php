@@ -351,4 +351,30 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));        
         $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE));        
     }
+
+    public function testCreateSchema()
+    {
+        $this->adapter->createSchema('foo');
+        $this->assertTrue($this->adapter->hasSchema('foo'));        
+    }
+
+    public function testDropSchema()
+    {
+        $this->adapter->createSchema('foo');
+        $this->assertTrue($this->adapter->hasSchema('foo')); 
+        $this->adapter->dropSchema('foo');
+        $this->assertFalse($this->adapter->hasSchema('foo'));        
+    }    
+
+    public function testDropAllSchemas()
+    {
+        $this->adapter->createSchema('foo');
+        $this->adapter->createSchema('bar');
+
+        $this->assertTrue($this->adapter->hasSchema('foo')); 
+        $this->assertTrue($this->adapter->hasSchema('bar')); 
+        $this->adapter->dropAllSchemas();
+        $this->assertFalse($this->adapter->hasSchema('foo'));        
+        $this->assertFalse($this->adapter->hasSchema('bar'));        
+    }  
 }
