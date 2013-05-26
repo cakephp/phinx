@@ -63,8 +63,17 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $dsn = 'mysql:host=' . $options['host'] . ';dbname=' . $options['name'];
             }
 
+            $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
+
+            // support arbitrary \PDO::MYSQL_ATTR_* driver options and pass them to PDO
+            foreach($options as $key => $option) {
+                if (strpos($key, 'mysql_attr_') === 0) {
+                    $driverOptions = $driverOptions + array( constant('\PDO::' . strtoupper($key)) => $option);
+                }
+            }
+
             try {
-                $db = new \PDO($dsn, $options['user'], $options['pass'], array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
+                $db = new \PDO($dsn, $options['user'], $options['pass'], $driverOptions);
             } catch(\PDOException $exception) {
                 throw new \InvalidArgumentException(sprintf(
                     'There was a problem connecting to the database: %s',
