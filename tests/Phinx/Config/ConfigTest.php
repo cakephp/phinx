@@ -66,7 +66,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         
         // test using a Yaml file without the 'default_database' key.
         // (it should default to the first one).
-        $config = \Phinx\Config\Config::fromYaml($path . '/no_default_database_key.yml');
+        $config = \Phinx\Config\Config::fromFile($path . '/no_default_database_key.yml');
         $this->assertEquals('production', $config->getDefaultEnvironment());
     }
     
@@ -78,7 +78,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         // test using a Yaml file with no key or entries
         $path = __DIR__ . '/_files';
-        $config = \Phinx\Config\Config::fromYaml($path . '/empty.yml');
+        $config = \Phinx\Config\Config::fromFile($path . '/empty.yml');
         $config->getDefaultEnvironment();
     }
     
@@ -91,7 +91,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         // test using a Yaml file with a 'default_database' key, but without a
         // corresponding entry
         $path = __DIR__ . '/_files';
-        $config = \Phinx\Config\Config::fromYaml($path . '/missing_environment_entry.yml');
+        $config = \Phinx\Config\Config::fromFile($path . '/missing_environment_entry.yml');
         $config->getDefaultEnvironment();
     }
     

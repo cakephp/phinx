@@ -35,7 +35,7 @@ use Symfony\Component\Config\FileLocator,
     Symfony\Component\Console\Output\OutputInterface,
     Phinx\Config\Config,
     Phinx\Migration\Manager,
-    Phinx\Adapter\AdapterInterface;
+    Phinx\Db\Adapter\AdapterInterface;
 
 /**
  * Abstract command, contains bootstrapping info
@@ -45,12 +45,12 @@ use Symfony\Component\Config\FileLocator,
 abstract class AbstractCommand extends Command
 {
     /**
-     * @var ArrayAccess
+     * @var \ArrayAccess
      */
     protected $config;
     
     /**
-     * @var \Phinx\Adapter\AdapterInterface
+     * @var AdapterInterface
      */
     protected $adapter;
     
@@ -64,8 +64,9 @@ abstract class AbstractCommand extends Command
      */
     protected function configure()
     {
+        $this->addOption('--bootstrap', '-b', InputArgument::OPTIONAL, 'The bootstrap file to use');
         $this->addOption('--configuration', '-c', InputArgument::OPTIONAL, 'The configuration file to load');
-        $this->addOption('--parser', '-p', InputArgument::OPTIONAL, 'Parser used to read the config file.  Defaults to YAML');
+        $this->addOption('--parser', '-p', InputArgument::OPTIONAL, 'Parser class used to read the config file');
     }
     
     /**
@@ -75,7 +76,17 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
     {
-        if (!$this->getConfig()) 
+        $configFile = $input->getOption('bootstrap');
+        if ($configFile) {
+            $output->writeln('<info>using bootstrap file</info> .' . $configFile);
+            if ( ! file_exists($configFile)) {
+                throw new \InvalidArgumentException('Bootstrap file not found');
+            }
+
+            require $configFile;
+        }
+
+        if ( ! $this->getConfig())
             $this->loadConfig($input, $output);
 
         $this->loadManager($output);
@@ -142,7 +153,7 @@ abstract class AbstractCommand extends Command
     /**
      * Gets the migration manager.
      *
-     * @return \Manager
+     * @return Manager
      */
     public function getManager()
     {
@@ -188,34 +199,13 @@ abstract class AbstractCommand extends Command
         $output->writeln('<info>using config file</info> .' . str_replace(getcwd(), '', realpath($configFilePath)));
 
         $parser = $input->getOption('parser');
-
-        // If no parser is specified try to determine the correct one from the file extension.  Defaults to YAML
-        if (null === $parser) {
+        if ($parser) {
             $extension = pathinfo($configFilePath, PATHINFO_EXTENSION);
-
-            switch (strtolower($extension)) {
-                case 'php':
-                    $parser = 'php';
-                    break;
-                case 'yml':
-                default:
-                    $parser = 'yaml';
-                    break;
-            }
+            $output->writeln('<info>registering config parser class</info> ' . $parser . '(.' . $extension . ')');
+            Config::registerParser($extension, $parser);
         }
 
-        switch (strtolower($parser)) {
-            case 'php':
-                $config = Config::fromPHP($configFilePath);
-                break;
-            case 'yaml':
-                $config = Config::fromYaml($configFilePath);
-                break;
-            default:
-                throw new \InvalidArgumentException(sprintf('\'%s\' is not a valid parser.', $parser));
-        }
-
-        $output->writeln('<info>using config parser</info> ' . $parser);
+        $config = Config::fromFile($configFilePath);
         $this->setConfig($config);
     }
 
