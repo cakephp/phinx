@@ -63,6 +63,7 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
 
     ```
     git clone git://github.com/robmorgan/phinx.git
+    cd phinx
     ```
 
 1. Install Composer
