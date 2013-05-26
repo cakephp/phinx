@@ -111,6 +111,16 @@ Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.2.5** (Sunday, 26th May 2013)
+
+* Added support for Box Phar Archive Packaging
+* Added support for MYSQL_ATTR driver options
+* Fixed a bug where foreign keys cannot be removed
+* Added support for MySQL table collation
+* Updated Composer dependencies
+* Removed verbosity options, now relies on Symfony instead
+* Improved unit tests
+
 **0.2.4** (Saturday, 20th April 2013)
 
 * The Rollback command supports the verbosity parameter
