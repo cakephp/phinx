@@ -32,6 +32,7 @@ use Symfony\Component\Console\Output\OutputInterface,
     Phinx\Db\Adapter\AdapterInterface,
     Phinx\Db\Adapter\PdoAdapter,
     Phinx\Db\Adapter\MysqlAdapter,
+    Phinx\Db\Adapter\PostgresAdapter,
     Phinx\Db\Adapter\ProxyAdapter,
     Phinx\Migration\MigrationInterface;
 
@@ -100,7 +101,7 @@ class Environment
         
         // force UTF-8 encoding for MySQL
         // TODO - this code will need to be abstracted when we support other db vendors
-        $this->getAdapter()->execute('SET NAMES UTF8');
+        //$this->getAdapter()->execute('SET NAMES UTF8');
         
         // Run the migration
         if (method_exists($migration, MigrationInterface::CHANGE)) {
@@ -262,6 +263,9 @@ class Environment
                 switch (strtolower($this->options['adapter'])) {
                     case 'mysql':
                         $this->setAdapter(new MysqlAdapter($this->options, $this->getOutput()));
+                        break;
+                    case 'pgsql':                                                           
+                        $this->setAdapter(new PostgresAdapter($this->options, $this->getOutput()));                        
                         break;
                     default:
                         throw new \RuntimeException('Invalid adapter specified: ' . $this->options['adapter']);
