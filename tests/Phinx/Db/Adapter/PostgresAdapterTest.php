@@ -266,7 +266,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column6', 'decimal')              
               ->addColumn('column7', 'time')
               ->addColumn('column8', 'timestamp')
-              ->addColumn('column9','date')
+              ->addColumn('column9', 'date')
               ->addColumn('column10', 'boolean')
               ->addColumn('column11', 'string', array('limit' => 10));              
         $pendingColumns = $table->getPendingColumns();
@@ -377,4 +377,39 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasSchema('foo'));        
         $this->assertFalse($this->adapter->hasSchema('bar'));        
     }  
+
+    public function testGetPhinxType()
+    {
+        $this->assertEquals('integer', $this->adapter->getPhinxType('int'));
+        $this->assertEquals('integer', $this->adapter->getPhinxType('int4'));
+        $this->assertEquals('integer', $this->adapter->getPhinxType('integer'));
+
+        $this->assertEquals('biginteger', $this->adapter->getPhinxType('bigint'));
+        $this->assertEquals('biginteger', $this->adapter->getPhinxType('int8'));        
+
+        $this->assertEquals('decimal', $this->adapter->getPhinxType('decimal'));        
+        $this->assertEquals('decimal', $this->adapter->getPhinxType('numeric'));
+
+        $this->assertEquals('float', $this->adapter->getPhinxType('real'));        
+        $this->assertEquals('float', $this->adapter->getPhinxType('float4'));        
+
+        $this->assertEquals('boolean', $this->adapter->getPhinxType('bool'));
+        $this->assertEquals('boolean', $this->adapter->getPhinxType('boolean'));        
+        
+        $this->assertEquals('string', $this->adapter->getPhinxType('character varying'));
+        $this->assertEquals('string', $this->adapter->getPhinxType('varchar'));
+
+        $this->assertEquals('text', $this->adapter->getPhinxType('text'));
+
+        $this->assertEquals('time', $this->adapter->getPhinxType('time'));        
+        $this->assertEquals('time', $this->adapter->getPhinxType('timetz'));        
+        $this->assertEquals('time', $this->adapter->getPhinxType('time with time zone'));        
+        $this->assertEquals('time', $this->adapter->getPhinxType('time without time zone'));        
+
+        $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp'));        
+        $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamptz'));        
+        $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp with time zone'));        
+        $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp without time zone'));        
+
+    }
 }

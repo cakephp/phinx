@@ -273,21 +273,22 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function getColumns($tableName)
     {
         $columns = array();
-        $columnsInfo = $this->fetchAll(sprintf("SELECT * FROM information_schema.columns WHERE table_name ='%s'", $tableName));         
+        $sql = sprintf("SELECT column_name, data_type, is_identity, is_nullable,
+                column_default, character_maximum_length, numeric_precision, numeric_scale 
+            FROM information_schema.columns 
+            WHERE table_name ='%s'", $tableName);          
+        $columnsInfo = $this->fetchAll($sql);
+        
         foreach ($columnsInfo as $columnInfo) {            
             $column = new Column();
             $column->setName($columnInfo['column_name'])
-                   ->setType($columnInfo['data_type'])
-                   ->setNull($columnInfo['is_nullable'] != 'NO')
-                   ->setDefault($columnInfo['column_default']);
-
-            $phinxType = $this->getPhinxType($columnInfo['data_type']);
-
-            $column->setType($phinxType['name'])
-                   ->setLimit($phinxType['limit']);
-
-            if ($columnInfo['is_identity'] != 'NO') {
-                $column->setIdentity(true);
+                   ->setType($this->getPhinxType($columnInfo['data_type']))
+                   ->setNull($columnInfo['is_nullable'] == 'YES')
+                   ->setDefault($columnInfo['column_default'])
+                   ->setIdentity($columnInfo['is_identity'] == 'YES');                   
+            
+            if (isset($columnInfo['character_maximum_length'])) {
+                $column->setLimit($columnInfo['character_maximum_length']);
             }
             $columns[] = $column;
         }
@@ -574,11 +575,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getSqlType($type)
     {
-        switch ($type) {
-            case 'primary_key':       
-                return array('name' => 'serial');                                 
+        switch ($type) {            
             case 'string':
-                return array('name' => 'varchar', 'limit' => 255);
+                return array('name' => 'character varying', 'limit' => 255);
                 break;
             case 'text':
                 return array('name' => 'text');
@@ -590,11 +589,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'bigint');
                 break;
             case 'float':
-                return array('name' => 'float');
+                return array('name' => 'real');
                 break;
             case 'decimal':
                 return array('name' => 'decimal');
                 break;           
+             case 'datetime':
+                return array('name' => 'timestamp');
+                break;
             case 'timestamp':
                 return array('name' => 'timestamp');
                 break;
@@ -605,7 +607,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'date');
                 break;
             case 'binary':
-                return array('name' => 'blob');
+                return array('name' => 'bytea');
                 break;
             case 'boolean':
                 return array('name' => 'boolean');
@@ -621,55 +623,48 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * @param string $sqlType SQL type
      * @returns string Phinx type
      */
-    public function getPhinxType($sqlTypeDef)
-    {   
-        $type = $sqlTypeDef;             
-        $limit = null;
-        $precision = null;
-        
-        switch ($sqlTypeDef) {
+    public function getPhinxType($sqlType)
+    {           
+        switch ($sqlType) {
             case 'character varying':
-                $type = 'string';
-                if ($limit == 255) {
-                    $limit = null;
-                }
-                break;
+            case 'varchar':
+                return 'string';                
+            case 'text':
+                return 'text';
+            case 'int':
+            case 'int4':
             case 'integer':
-                $type = 'integer';
-                $limit = null;
-                break;
+                return 'integer';                
+            case 'decimal':
             case 'numeric':
-                $type = 'decimal';
-                $limit = null;
-                break;
+                return 'decimal';                
             case 'bigint':
-                $limit = null;                    
-                $type = 'biginteger';
+            case 'int8':                
+                return 'biginteger';        
+            case 'real':
+            case 'float4':
+                return 'float';
+            case 'bytea':
+                return 'binary';
                 break;
-            case 'double precision':
-                $limit = null;                    
-                $type = 'float';
-                break;
-            case 'blob':
-                $type = 'binary';
-                break;
+            case 'time':
+            case 'timetz':
+            case 'time with time zone':
             case 'time without time zone':
-                $limit = null;                    
-                $type = 'time';
-                break;
+                return 'time';
+            case 'date':
+                return 'date';                
+            case 'timestamp':
+            case 'timestamptz':
+            case 'timestamp with time zone':
             case 'timestamp without time zone':
-                $limit = null;                    
-                $type = 'timestamp';
-                break;
-        }            
-
-        $this->getSqlType($type);
-
-        return array(
-            'name' => $type,
-            'limit' => $limit,
-            'precision' => $precision
-        );
+                return 'datetime';           
+            case 'bool':
+            case 'boolean':
+                return 'boolean';
+            default:
+                throw new \RuntimeException('The PostgreSQL type: "' . $sqlType . '" is not supported.');
+        }                   
     }
 
     /**
