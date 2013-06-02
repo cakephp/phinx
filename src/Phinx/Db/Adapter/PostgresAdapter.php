@@ -320,9 +320,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $this->getColumnSqlDefinition($column)
         );
         
-        if ($column->getAfter()) {
-            $sql .= ' AFTER ' . $this->quoteColumnName($column->getAfter());
-        }
         $this->execute($sql);
         $this->endCommandTimer();        
     }
