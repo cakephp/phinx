@@ -708,9 +708,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     protected function getColumnSqlDefinition(Column $column)
     {
         $sqlType = $this->getSqlType($column->getType());        
-        $def = '';
-        $def = '';
-        $def .= strtoupper($sqlType['name']);
+        
+        $def = strtoupper($sqlType['name']);
         $def .= ($column->getLimit() || isset($sqlType['limit']))
                      ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
@@ -787,8 +786,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                   ->addColumn('start_time', 'timestamp')
                   ->addColumn('end_time', 'timestamp')
                   ->save();
-        } catch(\Exception $exception) {
-            echo $exception->getMessage();
+        } catch(\Exception $exception) {            
             throw new \InvalidArgumentException('There was a problem creating the schema table');
         }
     }
