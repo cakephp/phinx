@@ -87,8 +87,7 @@ class Config implements \ArrayAccess
         // Hide console output
         $content = ob_get_clean();
 
-        if( ! is_array($configArray))
-        {
+        if (! is_array($configArray)) {
             throw new \RuntimeException(sprintf(
                 'PHP file \'%s\' must return an array',
                 $configFilePath

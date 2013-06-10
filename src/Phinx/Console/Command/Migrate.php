@@ -44,7 +44,6 @@ class Migrate extends AbstractCommand
          parent::configure();
          
          $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
-         $this->addOption('--verbose', '-v', InputOption::VALUE_NONE, 'Show more output');
          
          $this->setName('migrate')
               ->setDescription('Migrate the database')
@@ -71,7 +70,6 @@ EOT
         
         $version = $input->getOption('target');
         $environment = $input->getOption('environment');
-        $isVerbose = (bool) $input->getOption('verbose');
         
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -83,11 +81,6 @@ EOT
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         $output->writeln('<info>using database</info> ' . $envOptions['name']);
-
-        // set verbosity if supplied
-        if ($isVerbose) {
-            $this->getManager()->setVerbose(true);
-        }
 
         // run the migrations
         $start = microtime(true);

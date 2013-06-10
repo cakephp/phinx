@@ -44,8 +44,7 @@ class Rollback extends AbstractCommand
         parent::configure();
          
         $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
-        $this->addOption('--verbose', '-v', InputOption::VALUE_NONE, 'Show more output');
-                  
+        
         $this->setName('rollback')
              ->setDescription('Rollback the last or to a specific migration')
              ->addOption('--target', '-t', InputArgument::OPTIONAL, 'The version number to rollback to')
@@ -71,7 +70,6 @@ EOT
         
         $environment = $input->getOption('environment');
         $version = $input->getOption('target');
-        $isVerbose = (bool) $input->getOption('verbose');
         
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -83,11 +81,6 @@ EOT
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         $output->writeln('<info>using database</info> ' . $envOptions['name']);
-                
-        // set verbosity if supplied
-        if ($isVerbose) {
-            $this->getManager()->setVerbose(true);
-        }
         
         // rollback the specified environment
         $start = microtime(true);

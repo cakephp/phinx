@@ -215,7 +215,9 @@ abstract class PdoAdapter implements AdapterInterface
     public function endCommandTimer()
     {
         $end = microtime(true);
-        $this->getOutput()->writeln('    -> ' . sprintf('%.4fs', $end - $this->getCommandStartTime()));
+        if (OutputInterface::VERBOSITY_VERBOSE === $this->getOutput()->getVerbosity()) {
+            $this->getOutput()->writeln('    -> ' . sprintf('%.4fs', $end - $this->getCommandStartTime()));
+        }
     }
 
     /**
@@ -227,22 +229,24 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function writeCommand($command, $args = array())
     {
-        if (count($args)) {
-            $outArr = array();
-            foreach ($args as $arg) {
-                if (is_array($arg)) {
-                    $arg = array_map(function($value) {
-                        return '\'' . $value . '\'';
-                    }, $arg);
-                    $outArr[] = '[' . implode(', ', $arg)  . ']';
-                    continue;
-                }
+        if (OutputInterface::VERBOSITY_VERBOSE === $this->getOutput()->getVerbosity()) {
+            if (count($args)) {
+                $outArr = array();
+                foreach ($args as $arg) {
+                    if (is_array($arg)) {
+                        $arg = array_map(function($value) {
+                            return '\'' . $value . '\'';
+                        }, $arg);
+                        $outArr[] = '[' . implode(', ', $arg)  . ']';
+                        continue;
+                    }
                 
-                $outArr[] = '\'' . $arg . '\'';
+                    $outArr[] = '\'' . $arg . '\'';
+                }
+                return $this->getOutput()->writeln(' -- ' . $command . '(' . implode(', ', $outArr) . ')');
             }
-            return $this->getOutput()->writeln(' -- ' . $command . '(' . implode(', ', $outArr) . ')');
+            $this->getOutput()->writeln(' -- ' . $command);
         }
-        $this->getOutput()->writeln(' -- ' . $command);
     }
      
     /**
