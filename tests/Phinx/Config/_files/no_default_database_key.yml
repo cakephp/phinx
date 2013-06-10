@@ -27,3 +27,11 @@ environments:
         pass: ''
         port: 3306
                  
+    externally-specified-environment:
+        adapter: mysql
+        host: localhost
+        name: testing_db
+        user: root
+        pass: ''
+        port: 3306
+                 
