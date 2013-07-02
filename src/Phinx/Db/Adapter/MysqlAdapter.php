@@ -815,9 +815,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $def = '';
         if ($index->getType() == Index::UNIQUE) {
-            $def .= ' UNIQUE KEY (' . implode(',', $index->getColumns()) . ')';
+            $def .= ' UNIQUE KEY (`' . implode('`,`', $index->getColumns()) . '`)';
         } else {
-            $def .= ' KEY (' . implode(',', $index->getColumns()) . ')';
+            $def .= ' KEY (`' . implode('`,`', $index->getColumns()) . '`)';
         }
         return $def;
     }
