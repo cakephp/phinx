@@ -8,7 +8,6 @@ tests/log
 .project
 .settings
 dist
-tests/TestConfiguration.php
 docs/_build
 vendor
 migrations
