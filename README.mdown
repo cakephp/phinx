@@ -6,6 +6,8 @@
 
 Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or framework.
 
+**Check out http://docs.phinx.org for the comprehensive documentation.**
+
 ### Phinx lets you
 
 * Write database migrations using database agnostic PHP code.
@@ -91,10 +93,6 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
     ```
     php box.phar build
     ```
-
-## Documentation
-
-Check out http://docs.phinx.org for the comprehensive documentation.
 
 ## Contributing
 
