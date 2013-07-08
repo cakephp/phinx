@@ -786,6 +786,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $def = '';
         $def = '';
         $def .= strtoupper($sqlType['name']);
+        if ($column->getPrecision() && $column->getScale()) {
+            $def .= '('.$column->getPrecision().','.$column->getScale().')';
+        }
         $def .= ($column->getLimit() || isset($sqlType['limit']))
                      ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
@@ -801,7 +804,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= ' ON UPDATE ' . $column->getUpdate();
         }
 
-        // TODO - add precision & scale for decimals
         return $def;
     }
     
