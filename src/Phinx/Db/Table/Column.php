@@ -131,7 +131,7 @@ class Column
     /**
      * Sets the column limit.
      *
-     * @param string $limit
+     * @param integer $limit
      * @return Column
      */
     public function setLimit($limit)
@@ -143,7 +143,7 @@ class Column
     /**
      * Gets the column limit.
      *
-     * @return string
+     * @return integer
      */
     public function getLimit()
     {
@@ -286,7 +286,7 @@ class Column
     /**
      * Sets the column precision for decimal.
      *
-     * @param string $precision
+     * @param integer $precision
      * @return Column
      */
     public function setPrecision($precision)
@@ -298,7 +298,7 @@ class Column
     /**
      * Gets the column precision for decimal.
      *
-     * @return string
+     * @return integer
      */
     public function getPrecision()
     {
@@ -308,7 +308,7 @@ class Column
     /**
      * Sets the column scale for decimal.
      *
-     * @param string $scale
+     * @param integer $scale
      * @return Column
      */
     public function setScale($scale)
@@ -320,7 +320,7 @@ class Column
     /**
      * Gets the column scale for decimal.
      *
-     * @return string
+     * @return integer
      */
     public function getScale()
     {
