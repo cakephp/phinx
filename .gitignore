@@ -21,6 +21,7 @@ tests/log
 migrations
 
 # sphinx generates HTML files for the documentation here
+
 docs/_build
 
 # composer installed dependencies
@@ -28,4 +29,3 @@ vendor
 
 # this is user specific settings for running phpunit to override the defaults in phpunit.xml.dist
 phpunit.xml
-tests/TestConfiguration.php
