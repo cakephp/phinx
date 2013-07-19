@@ -44,6 +44,10 @@ use Symfony\Component\Config\FileLocator,
  */
 abstract class AbstractCommand extends Command
 {
+    // config types
+    const TYPE_DEFAULT = 'default';
+    const TYPE_LOCAL = 'local';
+    
     /**
      * @var ArrayAccess
      */
@@ -65,6 +69,8 @@ abstract class AbstractCommand extends Command
     protected function configure()
     {
         $this->addOption('--configuration', '-c', InputArgument::OPTIONAL, 'The configuration file to load');
+        $this->addOption('--local-configuration', '-lc', InputArgument::OPTIONAL, 
+            'The local configuration file to load. if found, merges with default configuration file');
         $this->addOption('--parser', '-p', InputArgument::OPTIONAL, 'Parser used to read the config file.  Defaults to YAML');
     }
     
@@ -75,9 +81,9 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
     {
-        if (!$this->getConfig()) 
+        if (!$this->getConfig()) { 
             $this->loadConfig($input, $output);
-
+        }
         $this->loadManager($output);
         // report the migrations path
         $output->writeln('<info>using migration path</info> ' . $this->getConfig()->getMigrationPath());
@@ -153,19 +159,30 @@ abstract class AbstractCommand extends Command
      * Returns config file path
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param string type of config file to locate
      * @return string
      */
-    protected function locateConfigFile(InputInterface $input)
+    protected function locateConfigFile(InputInterface $input, $configType = self::TYPE_DEFAULT)
     {
-        $configFile = $input->getOption('configuration');
-
-        if (null === $configFile) {
-            $configFile = 'phinx.yml';
+        switch ($configType)
+        {
+            case self::TYPE_DEFAULT:
+                $configFile = $input->getOption('configuration');
+                if(null === $configFile) {
+                    $configFile = 'phinx.yml';
+                }
+                break;
+            case self::TYPE_LOCAL:
+                $configFile = $input->getOption('local-configuration');
+                if(null === $configFile) {
+                    $configFile = 'phinx-local.yml';
+                }
+                break;
         }
-
+        
         $cwd = getcwd();
 
-        // locate the phinx config file (default: phinx.yml)
+        // locate the phinx config file (default: phinx.yml or phinx-local.yml for local config file)
         // TODO - In future walk the tree in reverse (max 10 levels)
         $locator = new FileLocator(array(
             $cwd . DIRECTORY_SEPARATOR
@@ -183,10 +200,21 @@ abstract class AbstractCommand extends Command
      * @return void
      */
     protected function loadConfig(InputInterface $input, OutputInterface $output)
-    {
+    {        
         $configFilePath = $this->locateConfigFile($input);
         $output->writeln('<info>using config file</info> .' . str_replace(getcwd(), '', realpath($configFilePath)));
-
+        
+        try
+        {
+            $localConfigFilePath = $this->locateConfigFile($input, self::TYPE_LOCAL);
+            $output->writeln('<info>using local config file</info> .' . str_replace(getcwd(), '', realpath($localConfigFilePath)));
+        }
+        // suppress file not found exception for local config file
+        catch(\InvalidArgumentException $e)
+        {
+            $localConfigFilePath = false;
+        }
+        
         $parser = $input->getOption('parser');
 
         // If no parser is specified try to determine the correct one from the file extension.  Defaults to YAML
@@ -204,6 +232,30 @@ abstract class AbstractCommand extends Command
             }
         }
 
+        // parse default config
+        $config = $this->parseConfig($parser, $configFilePath);
+        $output->writeln('<info>using config parser</info> ' . $parser);
+            
+        // merge with local config if exists
+        if($localConfigFilePath) {
+            $config->mergeConfigEnvironments($this->parseConfig($parser, $localConfigFilePath));
+            $output->writeln('<info>merged with local config</info> ');
+        }
+        
+        $this->setConfig($config);
+    }
+    
+    /**
+     * parse config file
+     * 
+     * @param string $parser parser to use
+     * @param string $configFilePath path to config file
+     * @return Config
+     * 
+     * @throws \InvalidArgumentException if parser is not of expected type
+     */
+    protected function parseConfig($parser, $configFilePath)
+    {
         switch (strtolower($parser)) {
             case 'php':
                 $config = Config::fromPHP($configFilePath);
@@ -214,11 +266,10 @@ abstract class AbstractCommand extends Command
             default:
                 throw new \InvalidArgumentException(sprintf('\'%s\' is not a valid parser.', $parser));
         }
-
-        $output->writeln('<info>using config parser</info> ' . $parser);
-        $this->setConfig($config);
+        
+        return $config;
     }
-
+    
     /**
      * Load the migrations manager and inject the config
      *
