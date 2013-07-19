@@ -137,4 +137,29 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $config = new \Phinx\Config\Config(array());
         $config['foo'];
     }
+    
+    public function testMergeConfigEnvironments()
+    {
+        $path = __DIR__ . '/_files';
+        
+        // valid default config environment
+        $config = \Phinx\Config\Config::fromPHP($path . '/valid_config.php');
+        $env = $config->getEnvironment($config->getDefaultEnvironment());
+        
+        // valid local config environment
+        $localConfig = \Phinx\Config\Config::fromPHP($path . '/valid_local_config.php');
+        $localEnv = $localConfig->getEnvironment($config->getDefaultEnvironment());
+        
+        // merge
+        $config->mergeConfigEnvironments($localConfig);
+        $mergedConfigEnv = $config->getEnvironment($config->getDefaultEnvironment());
+
+        // host is from original config
+        $this->assertEquals($env['host'], $mergedConfigEnv['host']);
+
+        // user pass and name are from local config
+        $this->assertEquals($localEnv['user'], $mergedConfigEnv['user']);
+        $this->assertEquals($localEnv['pass'], $mergedConfigEnv['pass']);
+        $this->assertEquals($localEnv['name'], $mergedConfigEnv['name']);
+    }
 }
