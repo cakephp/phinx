@@ -159,7 +159,7 @@ abstract class AbstractCommand extends Command
      * Returns config file path
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param string type of config file to locate
+     * @param string $configType type of config file to locate
      * @return string
      */
     protected function locateConfigFile(InputInterface $input, $configType = self::TYPE_DEFAULT)
@@ -176,6 +176,12 @@ abstract class AbstractCommand extends Command
                 $configFile = $input->getOption('local-configuration');
                 if(null === $configFile) {
                     $configFile = 'phinx-local.yml';
+                    $configuration = $input->getOption('configuration');
+                    
+                    // configuration has been set, look for file in same folder as default config
+                    if($configuration) {
+                       $configFile = dirname($configuration) . '/' . $configFile;
+                    }
                 }
                 break;
         }

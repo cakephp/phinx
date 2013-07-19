@@ -76,9 +76,6 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
     }
     
-    /**
-     * @group testExecuteWithEnvironmentOptionAndValidLocalConfig
-     */
     public function testExecuteWithEnvironmentOptionAndValidLocalConfig()
     {
         $application = new \Phinx\Console\PhinxApplication('testing');
@@ -105,9 +102,32 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('local-root', $config['environments']['testing']['user']);
     }
     
-    /**
-     * @group testExecuteWithEnvironmentOptionAndInvalidLocalConfig
-     */
+    public function testExecuteWithEnvironmentOptionAndValidCustomLocationLocalConfig()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Migrate());
+        
+        // setup dependencies
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+        
+        $command = $application->find('migrate');
+        
+        // mock the manager class
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub->expects($this->once())
+                    ->method('migrate');
+        
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName(), '--environment' => 'testing', '--configuration' => realpath(__DIR__ . '/../../../../phinx.yml')));
+        
+        $config = $command->getConfig();
+        $this->assertRegExp('/using environment testing/', $commandTester->getDisplay());
+        // user loaded from local conf
+        $this->assertEquals('local-root', $config['environments']['testing']['user']);
+    }
+    
     public function testExecuteWithEnvironmentOptionAndInvalidLocalConfig()
     {
         $application = new \Phinx\Console\PhinxApplication('testing');
