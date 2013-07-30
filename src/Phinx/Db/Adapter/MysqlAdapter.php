@@ -786,6 +786,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $def = '';
         $def = '';
         $def .= strtoupper($sqlType['name']);
+        if ($column->getPrecision() && $column->getScale()) {
+            $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
+        }
         $def .= ($column->getLimit() || isset($sqlType['limit']))
                      ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
@@ -801,7 +804,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= ' ON UPDATE ' . $column->getUpdate();
         }
 
-        // TODO - add precision & scale for decimals
         return $def;
     }
     
@@ -815,9 +817,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $def = '';
         if ($index->getType() == Index::UNIQUE) {
-            $def .= ' UNIQUE KEY (' . implode(',', $index->getColumns()) . ')';
+            $def .= ' UNIQUE KEY (`' . implode('`,`', $index->getColumns()) . '`)';
         } else {
-            $def .= ' KEY (' . implode(',', $index->getColumns()) . ')';
+            $def .= ' KEY (`' . implode('`,`', $index->getColumns()) . '`)';
         }
         return $def;
     }

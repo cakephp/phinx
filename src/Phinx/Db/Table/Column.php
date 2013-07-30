@@ -63,6 +63,16 @@ class Column
      * @var boolean
      */
     protected $identity = false;
+
+    /**
+     * @var integer
+     */
+    protected $precision;
+
+    /**
+     * @var integer
+     */
+    protected $scale;
     
     /**
      * @var string
@@ -121,7 +131,7 @@ class Column
     /**
      * Sets the column limit.
      *
-     * @param string $limit
+     * @param integer $limit
      * @return Column
      */
     public function setLimit($limit)
@@ -133,7 +143,7 @@ class Column
     /**
      * Gets the column limit.
      *
-     * @return string
+     * @return integer
      */
     public function getLimit()
     {
@@ -271,6 +281,50 @@ class Column
     public function getUpdate()
     {
         return $this->update;
+    }
+
+    /**
+     * Sets the column precision for decimal.
+     *
+     * @param integer $precision
+     * @return Column
+     */
+    public function setPrecision($precision)
+    {
+        $this->precision = $precision;
+        return $this;
+    }
+    
+    /**
+     * Gets the column precision for decimal.
+     *
+     * @return integer
+     */
+    public function getPrecision()
+    {
+        return $this->precision;
+    }
+
+    /**
+     * Sets the column scale for decimal.
+     *
+     * @param integer $scale
+     * @return Column
+     */
+    public function setScale($scale)
+    {
+        $this->scale = $scale;
+        return $this;
+    }
+    
+    /**
+     * Gets the column scale for decimal.
+     *
+     * @return integer
+     */
+    public function getScale()
+    {
+        return $this->scale;
     }
 
     /**

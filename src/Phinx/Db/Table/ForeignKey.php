@@ -218,7 +218,7 @@ class ForeignKey
                 throw new \RuntimeException('\'' . $option . '\' is not a valid foreign key option.');
             }
 
-            // handle $options['delete'] asn $options['update']
+            // handle $options['delete'] as $options['update']
             if (strtolower($option) == 'delete' || strtolower($option) == 'update') {
                 if (defined('self::' . strtoupper($value))) {
                     $this->{'setOn' . ucfirst(strtolower($option))}(strtoupper($value));
