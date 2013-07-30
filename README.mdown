@@ -1,8 +1,12 @@
 # [Phinx](http://phinx.org): Simple PHP Database Migrations
 
-<a href="http://travis-ci.org/robmorgan/phinx"><img src="https://secure.travis-ci.org/robmorgan/phinx.png"/></a>
+[![Build Status](https://travis-ci.org/robmorgan/phinx.png?branch=0.2.x-dev)](https://travis-ci.org/robmorgan/phinx)
+[![Latest Stable Version](https://poser.pugx.org/robmorgan/phinx/version.png)](https://packagist.org/packages/robmorgan/phinx)
+[![Total Downloads](https://poser.pugx.org/robmorgan/phinx/d/total.png)](https://packagist.org/packages/robmorgan/phinx)
 
-Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or framework.
+Phinx makes it ridiculously easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or framework.
+
+**Check out http://docs.phinx.org for the comprehensive documentation.**
 
 ### Phinx lets you
 
@@ -89,10 +93,6 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
     ```
     php box.phar build
     ```
-
-## Documentation
-
-Check out http://docs.phinx.org for the comprehensive documentation.
 
 ## Contributing
 

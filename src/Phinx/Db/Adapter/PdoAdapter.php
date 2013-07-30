@@ -317,7 +317,7 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
     {
-        if (strtolower($direction) == 'up') {
+        if (strtolower($direction) == MigrationInterface::UP) {
             // up
             $sql = sprintf(
                 'INSERT INTO %s ('
