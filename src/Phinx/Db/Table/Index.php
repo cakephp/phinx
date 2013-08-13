@@ -51,6 +51,11 @@ class Index
     protected $type;
     
     /**
+     * @var string 
+     */
+    protected $name = null;
+    
+    /**
      * Sets the index columns.
      *
      * @param array $columns
@@ -95,6 +100,29 @@ class Index
     }
     
     /**
+     * Gets the Index Name
+     * 
+     * @return string
+     */
+    public function getName()
+    {
+        if (null === $this->name) {
+            $this->name = implode('_', $this->columns);
+        }
+        return $this->name;
+    }
+    
+    /**
+     * Sets the Index Name
+     * 
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+    
+    /**
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
@@ -103,7 +131,7 @@ class Index
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('type', 'unique');
+        $validOptions = array('type', 'unique', 'name');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid index option.');
