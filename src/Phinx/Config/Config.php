@@ -184,6 +184,19 @@ class Config implements \ArrayAccess
     }
     
     /**
+     * merges other config environment
+     * 
+     * @param Config $configToMerge config object to be merged with current object
+     * @return Config
+     */
+    public function mergeConfigEnvironments(Config $configToMerge)
+    {
+        $this->values['environments'] = array_replace_recursive((array) $this['environments'], 
+            (array) $configToMerge['environments']);
+        return $this;
+    }
+    
+    /**
      * Gets the config file path.
      *
      * @return string
