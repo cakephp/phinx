@@ -1,5 +1,6 @@
-paths:
-    migrations: %%PHINX_CONFIG_DIR%%/migrations
+version_manager:
+    paths:
+        migrations: %%PHINX_CONFIG_DIR%%/migrations
         
 environments:
     default_migration_table: phinxlog

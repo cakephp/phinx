@@ -1,7 +1,9 @@
 <?php
 return array(
-    'paths' => array(
-        'migrations' => 'application/migrations'
+    'version_manager' => array(
+        'paths' => array(
+            'migrations' => 'application/migrations'
+        ),
     ),
     'environments' => array(
         'default_migration_table' => 'phinxlog',

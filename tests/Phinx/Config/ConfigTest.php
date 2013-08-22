@@ -13,9 +13,11 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             'default' => array(
-                'paths' => array(
-                    'migrations' => '%%PHINX_CONFIG_PATH%%/testmigrations2',
-                    'schema' => '%%PHINX_CONFIG_PATH%%/testmigrations2/schema.sql',
+                'version_manager' => array(
+                    'paths' => array(
+                        'migrations' => '%%PHINX_CONFIG_PATH%%/testmigrations2',
+                        'schema' => '%%PHINX_CONFIG_PATH%%/testmigrations2/schema.sql',
+                    )
                 )
             ),
             'environments' => array(
