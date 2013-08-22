@@ -28,6 +28,7 @@
  */
 namespace Phinx\Config;
 
+use Phinx\Migration\Manager\VersionInterface;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -47,7 +48,12 @@ class Config implements \ArrayAccess
      * @var string
      */
     protected $configFilePath;
-    
+
+    /**
+     * @var VersionInterface
+     */
+    protected $versionManager;
+
     /**
      * Class Constructor
      *
@@ -200,8 +206,8 @@ class Config implements \ArrayAccess
      */
     public function getMigrationPath()
     {
-        if (isset($this->values['paths']['migrations'])) {
-            return realpath($this->replaceTokens($this->values['paths']['migrations']));
+        if (isset($this->values['version_manager']['paths']['migrations'])) {
+            return realpath($this->replaceTokens($this->values['version_manager']['paths']['migrations']));
         }
         
         return null;
@@ -281,5 +287,27 @@ class Config implements \ArrayAccess
     function offsetUnset($id)
     {
         unset($this->values[$id]);
+    }
+
+    /**
+     * Get a version manager from current configuration.
+     * You can define your own version manager class and set in configuration as:
+     * version_manager:
+     *     class: MyCompany/MyVersionManager
+     *
+     * @return VersionInterface
+     */
+    public function getVersionManager()
+    {
+        if(is_null($this->versionManager)) {
+            $class = 'Phinx\Migration\Manager\Version';
+            if (isset($this->values['version_manager']['class'])) {
+                $class = $this->values['version_manager']['class'];
+            }
+
+            $this->versionManager = new $class($this);
+        }
+
+        return $this->versionManager;
     }
 }

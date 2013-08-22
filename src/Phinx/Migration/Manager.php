@@ -347,68 +347,7 @@ class Manager
     public function getMigrations()
     {
         if (null === $this->migrations) {
-            $migrations = array();
-            
-            $config = $this->getConfig();
-            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php');
-            
-            // filter the files to only get the ones that match our naming scheme
-            $fileNames = array();
-            $versions = array();
-            
-            foreach ($phpFiles as $filePath) {
-                if (preg_match('/([0-9]+)_([_a-z0-9]*).php/', basename($filePath))) {
-                    $matches = array();
-                    preg_match('/^[0-9]+/', basename($filePath), $matches); // get the version from the start of the filename
-                    $version = $matches[0];
-                    
-                    if (isset($versions[$version])) {
-                        throw new \InvalidArgumentException(sprintf('Duplicate migration - "%s" has the same version as "%s"', $filePath, $versions[$version]->getVersion()));
-                    }
-                    
-                    // convert the filename to a class name
-                    $class = preg_replace('/^[0-9]+_/', '', basename($filePath));
-                    $class = str_replace('_', ' ', $class);
-                    $class = ucwords($class);
-                    $class = str_replace(' ', '', $class);
-                    if (false !== strpos($class, '.')) {
-                        $class = substr($class, 0, strpos($class, '.'));
-                    }
-                    
-                    if (isset($fileNames[$class])) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'Migration "%s" has the same name as "%s"',
-                            basename($filePath),
-                            $fileNames[$class]
-                        ));
-                    }
-
-                    $fileNames[$class] = basename($filePath);
-                    
-                    // load the migration file
-                    require_once $filePath;
-                    if (!class_exists($class)) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'Could not find class "%s" in file "%s"',
-                            $class,
-                            $filePath
-                        ));
-                    }
-
-                    // instantiate it
-                    $migration = new $class($version);
-                    
-                    if (!($migration instanceof AbstractMigration)) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'The class "%s" in file "%s" must extend \Phinx\Migration\AbstractMigration',
-                            $class,
-                            $filePath
-                        ));
-                    }
-                    
-                    $versions[$version] = $migration;
-                }
-            }
+            $versions = $this->getConfig()->getVersionManager()->getMigrations();
             
             ksort($versions);
             $this->setMigrations($versions);

@@ -13,7 +13,9 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp() {
         $this->config = new Config(array(
-            'paths' => array(),
+            'version_manager' => array(
+                'paths' => array(),
+            ),
             'environments' => array(
                 'default_migration_table' => 'phinxlog',
                 'default_database' => 'development',
