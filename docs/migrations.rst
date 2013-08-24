@@ -511,6 +511,106 @@ To rename a column access an instance of the Table object then call the
                 $table->renameColumn('biography', 'bio');
             }
         }
+        
+Working with Indexes
+~~~~~~~~~~~~~~~~~~~~
+
+To add an index to a table you can simply call the ``addIndex()`` method on the
+table object.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('users');
+                $table->addColumn('city', 'string')
+                      ->addIndex(array('city'))
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
+By default Phinx instructs the database adapter to create a normal index. We
+can pass an additional parameter to the ``addIndex()`` method to specify a
+unique index.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('users');
+                $table->addColumn('email', 'string')
+                      ->addIndex(array('email'), array('unique' => true))
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+        
+Removing indexes is as easy as calling the ``removeIndex()`` method. You must
+call this method for each index.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('users');
+                $table->removeIndex(array('email'));
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
+.. note::
+
+    There is no need to call the ``save()`` method when using 
+    ``removeIndex()``. The index will be removed immediately.
 
 Working With Foreign Keys
 ~~~~~~~~~~~~~~~~~~~~~~~~~

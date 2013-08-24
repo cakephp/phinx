@@ -57,8 +57,8 @@ class Config implements \ArrayAccess
      */
     public function __construct($configArray, $configFilePath = null)
     {
-        $this->values = $this->replaceTokens($configArray);
         $this->configFilePath = $configFilePath;
+        $this->values = $this->replaceTokens($configArray);
     }
     
     /**

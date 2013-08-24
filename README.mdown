@@ -122,6 +122,12 @@ Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.2.7** (Saturday, 24th August 2013)
+
+* Critical fix for a token parsing bug.
+* Removed legacy build system.
+* Improving docs.
+
 **0.2.6** (Saturday, 24th August 2013)
 
 * Added support for environment vars in config files
