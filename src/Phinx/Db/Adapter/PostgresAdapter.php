@@ -458,7 +458,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('addIndex', array($table->getName(), $index->getColumns()));
-        $sql = $this->getIndexSqlDefinition($index, $table->getName());            
+        $sql = $this->getIndexSqlDefinition($index, $table->getName());
         $this->execute($sql);
         $this->endCommandTimer();
     }
@@ -756,11 +756,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
     {                
-        $def = sprintf("CREATE %s INDEX %s ON %s (%s);"
-            ,($index->getType() == Index::UNIQUE ? 'UNIQUE' : '')            
-            ,$this->getIndexName($tableName, $index->getColumns())
-            ,$this->quoteTableName($tableName)
-            ,implode(',', $index->getColumns()));         
+        $def = sprintf("CREATE %s INDEX %s ON %s (%s);",
+            ($index->getType() == Index::UNIQUE ? 'UNIQUE' : ''),
+            $this->getIndexName($tableName, $index->getColumns()),
+            $this->quoteTableName($tableName),
+            implode(',', $index->getColumns()));
         return $def;
     }
 
@@ -924,8 +924,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Returns index name.
      *
-     * @param string $tableName   Table name.
-     * @param string $columnNames Column names.
+     * @param string       $tableName   Table name.
+     * @param string|array $columnNames Column names.
      *
      * @return string
      */
