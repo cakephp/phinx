@@ -212,9 +212,9 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $table->save();
         $table->addColumn('default_zero', 'integer', array('default' => 0))
               ->save();
-        $rows = $this->adapter->fetchAll("SELECT column_default FROM information_schema.columns WHERE table_name ='table1'");        
-        $this->assertNotNull($rows[0]['column_default']);
-        $this->assertEquals("0", $rows[0]['column_default']);
+        $rows = $this->adapter->fetchAll("SELECT column_default FROM information_schema.columns WHERE table_name ='table1'");
+        $this->assertNotNull($rows[1]['column_default']);
+        $this->assertEquals("0", $rows[1]['column_default']);
     }
     
     public function testRenameColumn()
