@@ -99,6 +99,16 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table->getColumns();
     }
     
+    public function testAddIndex()
+    {
+        $adapter = new MysqlAdapter(array());
+        $table = new \Phinx\Db\Table('ntable', array(), $adapter);
+        $table->addIndex(array('email'), array('unique' => true));
+        $indexes = $table->getIndexes();
+        $this->assertEquals(\Phinx\Db\Table\Index::UNIQUE, $indexes[0]->getType());
+        $this->assertContains('email', $indexes[0]->getColumns());
+    }
+    
     public function testAddIndexWithIndexObject()
     {
         $adapter = new MysqlAdapter(array());
