@@ -119,6 +119,9 @@ example:
 
 When executing this migration Phinx will create the ``user_logins`` table on
 the way up and automatically figure out how to drop the table on the way down.
+Please be aware that when a ``change`` method exists Phinx will automatically
+ignore the ``up`` and ``down`` methods. If you need to use these methods it is
+recommended to create a separate migration file.
 
 .. note::
 
