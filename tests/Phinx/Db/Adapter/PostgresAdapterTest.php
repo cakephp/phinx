@@ -203,7 +203,11 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('default_zero', 'string', array('default' => 'test'))
               ->save();
         $columns = $this->adapter->getColumns('table1');
-        $this->assertEquals("'test'::character varying", $columns[1]->getDefault());
+        foreach ($columns as $column) {
+            if ($column->getName() == 'default_zero') {
+                $this->assertEquals("'test'::character varying", $column->getDefault());        
+            }
+        }
     }
 
     public function testAddColumnWithDefaultZero()
