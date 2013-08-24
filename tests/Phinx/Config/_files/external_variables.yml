@@ -1,0 +1,13 @@
+paths:
+    migrations: %%PHINX_CONFIG_DIR%%/migrations
+        
+environments:
+    default_migration_table: phinxlog
+    default_database: production
+    production:
+        adapter: mysql
+        host: %%PHINX_DBHOST%%
+        name: %%PHINX_DBNAME%%
+        user: %%PHINX_DBUSER%%
+        pass: %%PHINX_DBPASS%%
+        port: %%PHINX_DBPORT%%

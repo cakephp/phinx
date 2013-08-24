@@ -144,4 +144,21 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $config = new \Phinx\Config\Config(array());
         $config['foo'];
     }
+    
+    public function testConfigReplacesTokensWithEnvVariables()
+    {
+        $_SERVER['PHINX_DBHOST'] = 'localhost';
+        $_SERVER['PHINX_DBNAME'] = 'productionapp';
+        $_SERVER['PHINX_DBUSER'] = 'root';
+        $_SERVER['PHINX_DBPASS'] = 'ds6xhj1';
+        $_SERVER['PHINX_DBPORT'] = '1234';
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromYaml($path . '/external_variables.yml');
+        $env = $config->getEnvironment($config->getDefaultEnvironment());
+        $this->assertEquals('localhost', $env['host']);
+        $this->assertEquals('productionapp', $env['name']);
+        $this->assertEquals('root', $env['user']);
+        $this->assertEquals('ds6xhj1', $env['pass']);
+        $this->assertEquals('1234', $env['port']);
+    }
 }
