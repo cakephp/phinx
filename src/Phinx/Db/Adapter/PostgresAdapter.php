@@ -348,13 +348,34 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function changeColumn($tableName, $columnName, Column $newColumn)
     {
+        // TODO - is it possible to merge these 3 queries into less?
         $this->startCommandTimer();
         $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
-        $this->execute(sprintf('ALTER TABLE %s CHANGE %s %s %s',
+        // change data type
+        $sql = sprintf('ALTER TABLE %s ALTER COLUMN %s TYPE %s',
             $this->quoteTableName($tableName),
             $this->quoteColumnName($columnName),
-            $this->quoteColumnName($newColumn->getName()),
-            $this->getColumnSqlDefinition($newColumn)));
+            $this->getColumnSqlDefinition($newColumn));
+        $sql = preg_replace('/ NOT NULL$/', '', $sql);
+        $sql = preg_replace('/ NULL$/', '', $sql);
+        $this->execute($sql);
+        // process null
+        $sql = sprintf('ALTER TABLE %s ALTER COLUMN %s',
+            $this->quoteTableName($tableName),
+            $this->quoteColumnName($columnName));
+        if ($newColumn->isNull()) {
+            $sql .= ' SET NOT NULL';
+        } else {
+            $sql .= ' DROP NOT NULL';
+        }
+        $this->execute($sql);
+        // rename column
+        if ($columnName !== $newColumn->getName()) {
+        $this->execute(sprintf('ALTER TABLE %s RENAME COLUMN %s TO %s',
+            $this->quoteTableName($tableName),
+            $this->quoteColumnName($columnName),
+            $this->quoteColumnName($newColumn->getName())));
+        }
         $this->endCommandTimer();
     }
     

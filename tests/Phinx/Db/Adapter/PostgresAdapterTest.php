@@ -245,6 +245,24 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
     
+    public function testChangeColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->save();
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1->setType('string');
+        $table->changeColumn('column1', $newColumn1);
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+        $newColumn2 = new \Phinx\Db\Table\Column();
+        $newColumn2->setName('column2')
+                   ->setType('string');
+        $table->changeColumn('column1', $newColumn2);
+        $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
+    }
+    
     public function testDropColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
@@ -350,6 +368,14 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     {                
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));        
         $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE));        
+    }
+    
+    public function testDropDatabase()
+    {
+        $this->assertFalse($this->adapter->hasDatabase('temp_phinx_database'));
+        $this->adapter->createDatabase('temp_phinx_database');
+        $this->assertTrue($this->adapter->hasDatabase('temp_phinx_database'));
+        $this->adapter->dropDatabase('temp_phinx_database');
     }
 
     public function testCreateSchema()
