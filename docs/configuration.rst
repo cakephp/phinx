@@ -47,3 +47,21 @@ specified under the ``environments`` nested collection. For example:
             port: 3306
 
 would define a new environment called ``production``.
+
+In a situation when multiple developers work on the same project and each has
+a different environment (e.g. a convention such as <environment
+type>-<developer name>-<machine name>), or when you need to have separate
+environments for separate purposes (branches, testing, etc) use environment
+variable `PHINX_ENVIRONMENT` to override the default environment in the yaml
+file:
+
+.. code-block:: bash
+
+    export PHINX_ENVIRONMENT=dev-`whoami`-`hostname`
+
+.. warning:: It is usually not a good idea to commit files that contain passwords, such
+             as Phinx configuration files, into your version control. If you insist on doing so,
+             make sure the configuration file is outside of the reach of your webserver. In any case,
+             never save your *production* settings in version control. The best practice is to keep a
+             template (`.dist`) in the repository and have every installation keep its own configuration
+             file that is ignored by your version control system.

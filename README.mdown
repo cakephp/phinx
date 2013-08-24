@@ -94,14 +94,25 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
     php box.phar build
     ```
 
+## Documentation
+
+Check out http://docs.phinx.org for the comprehensive documentation.
+
 ## Contributing
 
 Start by forking Phinx on GitHub: https://github.com/robmorgan/phinx
 
-Next setup your environment for development:
+Clone your repository to a local directory on your development box.
+
+If you do not have Composer set up already, install it:
  
  * `curl -s https://getcomposer.org/installer | php`
+
+Change to your Phinx clone directory and pull the necessary dependencies:
+
  * `php composer.phar install --dev`
+
+Copy the configuration template in tests/ and replace @tags@ at the bottom of the file
   
 ## News & Updates
 

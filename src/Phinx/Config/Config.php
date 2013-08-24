@@ -161,6 +161,20 @@ class Config implements \ArrayAccess
      */
     public function getDefaultEnvironment()
     {
+        // The $PHINX_ENVIRONMENT variable overrides all other default settings
+        
+        $env = getenv('PHINX_ENVIRONMENT');
+        if (! empty($env)) {
+            if ($this->hasEnvironment($env)) {
+                return $env;
+            }
+            
+            throw new \RuntimeException(sprintf(
+                'The environment configuration (read from $PHINX_ENVIRONMENT) for \'%s\' is missing',
+                $env
+            ));            
+        }    
+
         // if the user has configured a default database then use it,
         // providing it actually exists!
         if (isset($this->values['environments']['default_database'])) {
@@ -173,7 +187,7 @@ class Config implements \ArrayAccess
                 $this->values['environments']['default_database']
             ));
         }
-        
+     
         // else default to the first available one
         if (is_array($this->getEnvironments()) && count($this->getEnvironments()) > 0) {
             $names = array_keys($this->getEnvironments());
