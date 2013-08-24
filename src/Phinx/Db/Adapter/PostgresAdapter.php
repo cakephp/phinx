@@ -601,7 +601,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'text');
                 break;
             case 'integer':
-                return array('name' => 'int');
+                return array('name' => 'integer');
                 break;
             case 'biginteger':
                 return array('name' => 'bigint');
@@ -728,11 +728,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getColumnSqlDefinition(Column $column)
     {
-        $sqlType = $this->getSqlType($column->getType());        
-        
+        $sqlType = $this->getSqlType($column->getType());
         $def = strtoupper($sqlType['name']);
-        $def .= ($column->getLimit() || isset($sqlType['limit']))
-                     ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
+        // integers cant have limits in postgres
+        if ('integer' !== $sqlType['name']) {
+            $def .= ($column->getLimit() || isset($sqlType['limit']))
+                 ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
+        }
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? '' : '';
         $default = $column->getDefault();
