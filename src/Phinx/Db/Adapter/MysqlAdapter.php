@@ -63,8 +63,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $dsn = 'mysql:host=' . $options['host'] . ';dbname=' . $options['name'];
             }
 
+            $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
+
+            // support arbitrary \PDO::MYSQL_ATTR_* driver options and pass them to PDO
+            // http://php.net/manual/en/ref.pdo-mysql.php#pdo-mysql.constants
+            foreach ($options as $key => $option) {
+                if (strpos($key, 'mysql_attr_') === 0) {
+                    $driverOptions[] = array(constant('\PDO::' . strtoupper($key)) => $option);
+                }
+            }
+
             try {
-                $db = new \PDO($dsn, $options['user'], $options['pass'], array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
+                $db = new \PDO($dsn, $options['user'], $options['pass'], $driverOptions);
             } catch(\PDOException $exception) {
                 throw new \InvalidArgumentException(sprintf(
                     'There was a problem connecting to the database: %s',
@@ -162,7 +172,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         // This method is based on the MySQL docs here: http://dev.mysql.com/doc/refman/5.1/en/create-index.html
         $defaultOptions = array(
-            'engine' => 'InnoDB'
+            'engine' => 'InnoDB',
+            'collation' => 'utf8_general_ci'
         );
         $options = array_merge($defaultOptions, $table->getOptions());
         
@@ -194,6 +205,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $optionsStr = 'ENGINE = InnoDB';
         if (isset($options['engine'])) {
             $optionsStr = sprintf('ENGINE = %s', $options['engine']);
+        }
+        
+        // process table collation
+        if (isset($options['collation'])) {
+            $charset = explode('_', $options['collation']);
+            $optionsStr .= sprintf(' CHARACTER SET %s', $charset[0]);
+            $optionsStr .= sprintf(' COLLATE %s', $options['collation']);
         }
         
         $sql = 'CREATE TABLE ';
@@ -585,8 +603,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                             AND TABLE_NAME = "%s"
                             AND COLUMN_NAME = "%s"
                           ORDER BY POSITION_IN_UNIQUE_CONSTRAINT',
-                        $column,
-                        $tableName
+                        $tableName,
+                        $column
                 ));
                 foreach ($rows as $row) {
                     $this->dropForeignKey($tableName, $columns, $row['CONSTRAINT_NAME']);
@@ -768,6 +786,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $def = '';
         $def = '';
         $def .= strtoupper($sqlType['name']);
+        if ($column->getPrecision() && $column->getScale()) {
+            $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
+        }
         $def .= ($column->getLimit() || isset($sqlType['limit']))
                      ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
@@ -783,7 +804,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= ' ON UPDATE ' . $column->getUpdate();
         }
 
-        // TODO - add precision & scale for decimals
         return $def;
     }
     
@@ -797,9 +817,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $def = '';
         if ($index->getType() == Index::UNIQUE) {
-            $def .= ' UNIQUE KEY (' . implode(',', $index->getColumns()) . ')';
+            $def .= ' UNIQUE KEY (`' . implode('`,`', $index->getColumns()) . '`)';
         } else {
-            $def .= ' KEY (' . implode(',', $index->getColumns()) . ')';
+            $def .= ' KEY (`' . implode('`,`', $index->getColumns()) . '`)';
         }
         return $def;
     }

@@ -52,7 +52,7 @@ for short.
 
 .. code-block:: bash
 
-        $ phinx migrate -e development 20110103081132
+        $ phinx migrate -e development -t 20110103081132
 
 The Rollback Command
 --------------------

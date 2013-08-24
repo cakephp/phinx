@@ -1,8 +1,12 @@
 # [Phinx](http://phinx.org): Simple PHP Database Migrations
 
-<a href="http://travis-ci.org/robmorgan/phinx"><img src="https://secure.travis-ci.org/robmorgan/phinx.png"/></a>
+[![Build Status](https://travis-ci.org/robmorgan/phinx.png?branch=0.2.x-dev)](https://travis-ci.org/robmorgan/phinx)
+[![Latest Stable Version](https://poser.pugx.org/robmorgan/phinx/version.png)](https://packagist.org/packages/robmorgan/phinx)
+[![Total Downloads](https://poser.pugx.org/robmorgan/phinx/d/total.png)](https://packagist.org/packages/robmorgan/phinx)
 
-Phinx makes it ridiculousy easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or framework.
+Phinx makes it ridiculously easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or framework.
+
+**Check out http://docs.phinx.org for the comprehensive documentation.**
 
 ### Phinx lets you
 
@@ -23,9 +27,11 @@ Phinx makes it ridiculousy easy to manage the database migrations for your PHP a
 
 ## Install & Run
 
+### Composer
+
 The fastest way to install Phinx in your project is using Composer (http://getcomposer.org/).
 
-1. Install composer:
+1. Install Composer:
 
     ```    
     curl -s https://getcomposer.org/installer | php
@@ -53,6 +59,41 @@ The fastest way to install Phinx in your project is using Composer (http://getco
     php vendor/bin/phinx
     ```
 
+### As a Phar
+
+You can also use the Box application to build Phinx as a Phar archive (http://box-project.org/).
+
+1. Clone Phinx from GitHub
+
+    ```
+    git clone git://github.com/robmorgan/phinx.git
+    cd phinx
+    ```
+
+1. Install Composer
+
+    ```    
+    curl -s https://getcomposer.org/installer | php
+    ```
+
+1. Install the Phinx dependencies
+
+    ```
+    php composer.phar install
+    ```
+
+1. Install Box:
+
+    ```
+    curl -s http://box-project.org/installer.php | php
+    ```
+    
+1. Create a Phar archive
+
+    ```
+    php box.phar build
+    ```
+
 ## Documentation
 
 Check out http://docs.phinx.org for the comprehensive documentation.
@@ -61,10 +102,17 @@ Check out http://docs.phinx.org for the comprehensive documentation.
 
 Start by forking Phinx on GitHub: https://github.com/robmorgan/phinx
 
-Next setup your environment for development:
+Clone your repository to a local directory on your development box.
+
+If you do not have Composer set up already, install it:
  
  * `curl -s https://getcomposer.org/installer | php`
+
+Change to your Phinx clone directory and pull the necessary dependencies:
+
  * `php composer.phar install --dev`
+
+Copy the configuration template in tests/ and replace @tags@ at the bottom of the file
   
 ## News & Updates
 
@@ -73,6 +121,30 @@ Follow Rob (@_rjm_) on Twitter to stay to date (http://twitter.com/_rjm_)
 ## Misc
 
 ### Version History
+
+**0.2.7** (Saturday, 24th August 2013)
+
+* Critical fix for a token parsing bug.
+* Removed legacy build system.
+* Improving docs.
+
+**0.2.6** (Saturday, 24th August 2013)
+
+* Added support for environment vars in config files
+* Added support for environment vars to set the Phinx Env
+* Improving docs
+* Fixed a bug with column names in indexes
+* Changes for developers in regards to the unit tests
+
+**0.2.5** (Sunday, 26th May 2013)
+
+* Added support for Box Phar Archive Packaging
+* Added support for MYSQL_ATTR driver options
+* Fixed a bug where foreign keys cannot be removed
+* Added support for MySQL table collation
+* Updated Composer dependencies
+* Removed verbosity options, now relies on Symfony instead
+* Improved unit tests
 
 **0.2.4** (Saturday, 20th April 2013)
 

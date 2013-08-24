@@ -48,7 +48,7 @@ class Index
     /**
      * @var string
      */
-    protected $type;
+    protected $type = self::INDEX;
     
     /**
      * Sets the index columns.

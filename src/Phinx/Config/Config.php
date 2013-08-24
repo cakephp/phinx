@@ -57,8 +57,8 @@ class Config implements \ArrayAccess
      */
     public function __construct($configArray, $configFilePath = null)
     {
-        $this->values = $configArray;
         $this->configFilePath = $configFilePath;
+        $this->values = $this->replaceTokens($configArray);
     }
     
     /**
@@ -87,8 +87,7 @@ class Config implements \ArrayAccess
         // Hide console output
         $content = ob_get_clean();
 
-        if( ! is_array($configArray))
-        {
+        if (!is_array($configArray)) {
             throw new \RuntimeException(sprintf(
                 'PHP file \'%s\' must return an array',
                 $configFilePath
@@ -162,6 +161,19 @@ class Config implements \ArrayAccess
      */
     public function getDefaultEnvironment()
     {
+        // The $PHINX_ENVIRONMENT variable overrides all other default settings
+        $env = getenv('PHINX_ENVIRONMENT');
+        if (!empty($env)) {
+            if ($this->hasEnvironment($env)) {
+                return $env;
+            }
+            
+            throw new \RuntimeException(sprintf(
+                'The environment configuration (read from $PHINX_ENVIRONMENT) for \'%s\' is missing',
+                $env
+            ));            
+        }    
+
         // if the user has configured a default database then use it,
         // providing it actually exists!
         if (isset($this->values['environments']['default_database'])) {
@@ -174,7 +186,7 @@ class Config implements \ArrayAccess
                 $this->values['environments']['default_database']
             ));
         }
-        
+     
         // else default to the first available one
         if (is_array($this->getEnvironments()) && count($this->getEnvironments()) > 0) {
             $names = array_keys($this->getEnvironments());
@@ -202,30 +214,66 @@ class Config implements \ArrayAccess
     public function getMigrationPath()
     {
         if (isset($this->values['paths']['migrations'])) {
-            return realpath($this->replaceTokens($this->values['paths']['migrations']));
+            return realpath($this->values['paths']['migrations']);
         }
         
         return null;
     }
     
     /**
-     * Replace tokens in the specified string.
+     * Replace tokens in the specified array.
      *
-     * @param string $str String to replace
-     * @return string
+     * @param array $arr Array to replace
+     * @return array
      */
-    public function replaceTokens($str)
+    public function replaceTokens($arr)
     {
-        $tokens = array(
-            '%%PHINX_CONFIG_PATH%%' => $this->getConfigFilePath(),
-            '%%PHINX_CONFIG_DIR%%'  => dirname($this->getConfigFilePath()),
-        );
-        
-        foreach ($tokens as $token => $value) {
-            $str = str_replace($token, $value, $str);
+        // Get environment variables
+        // $_ENV is empty because variables_order does not include it normally
+        $tokens = array();
+        foreach ($_SERVER as $varname => $varvalue) {
+            if (0 === strpos($varname, 'PHINX_')) {
+                $tokens['%%' . $varname . '%%'] = $varvalue;
+            }
         }
         
-        return $str;
+        // Phinx defined tokens (override env tokens)
+        $tokens['%%PHINX_CONFIG_PATH%%'] = $this->getConfigFilePath();
+        $tokens['%%PHINX_CONFIG_DIR%%'] = dirname($this->getConfigFilePath());
+        
+        // Recurse the array and replace tokens
+        if (is_array($arr)) {
+            return $this->recurseArrayForTokens($arr, $tokens);
+        }
+        
+        return $arr;
+    }
+    
+    /**
+     * Recurse an array for the specified tokens and replace them.
+     *
+     * @param array $arr Array to recurse
+     * @param array $tokens Array of tokens to search for
+     * @return array
+     */
+    public function recurseArrayForTokens($arr, $tokens)
+    {
+        $out = array();
+        foreach ($arr as $name => $value) {
+            if (is_array($value)) {
+                $out[$name] = $this->recurseArrayForTokens($value, $tokens);
+                continue;
+            }
+            if (is_string($value)) {
+                foreach ($tokens as $token => $tval) {
+                    $value = str_replace($token, $tval, $value);
+                }
+                $out[$name] = $value;
+                continue;
+            }
+            $out[$name] = $value;
+        }
+        return $out;
     }
     
     /**

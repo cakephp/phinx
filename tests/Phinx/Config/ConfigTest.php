@@ -68,6 +68,13 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         // (it should default to the first one).
         $config = \Phinx\Config\Config::fromYaml($path . '/no_default_database_key.yml');
         $this->assertEquals('production', $config->getDefaultEnvironment());
+
+        // test using environment variable PHINX_ENVIRONMENT
+        // (it should return the configuration specified in the environment)
+        putenv('PHINX_ENVIRONMENT=externally-specified-environment');
+        $config = \Phinx\Config\Config::fromYaml($path . '/no_default_database_key.yml');
+        $this->assertEquals('externally-specified-environment', $config->getDefaultEnvironment());
+        putenv('PHINX_ENVIRONMENT=');
     }
     
     /**
@@ -95,6 +102,23 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $config->getDefaultEnvironment();
     }
     
+    public function testFromPHPMethod()
+    {
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromPHP($path . '/valid_config.php');
+        $this->assertEquals('dev', $config->getDefaultEnvironment());
+    }
+    
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testFromPHPMethodWithoutArray()
+    {
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromPHP($path . '/config_without_array.php');
+        $this->assertEquals('dev', $config->getDefaultEnvironment());
+    }
+    
     public function testGetMigrationPathReturnsNullForNoPath()
     {
         $config = new \Phinx\Config\Config(array());
@@ -119,5 +143,22 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         $config = new \Phinx\Config\Config(array());
         $config['foo'];
+    }
+    
+    public function testConfigReplacesTokensWithEnvVariables()
+    {
+        $_SERVER['PHINX_DBHOST'] = 'localhost';
+        $_SERVER['PHINX_DBNAME'] = 'productionapp';
+        $_SERVER['PHINX_DBUSER'] = 'root';
+        $_SERVER['PHINX_DBPASS'] = 'ds6xhj1';
+        $_SERVER['PHINX_DBPORT'] = '1234';
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromYaml($path . '/external_variables.yml');
+        $env = $config->getEnvironment($config->getDefaultEnvironment());
+        $this->assertEquals('localhost', $env['host']);
+        $this->assertEquals('productionapp', $env['name']);
+        $this->assertEquals('root', $env['user']);
+        $this->assertEquals('ds6xhj1', $env['pass']);
+        $this->assertEquals('1234', $env['port']);
     }
 }
