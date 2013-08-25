@@ -301,7 +301,9 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column8', 'timestamp')
               ->addColumn('column9', 'date')
               ->addColumn('column10', 'boolean')
-              ->addColumn('column11', 'string', array('limit' => 10));              
+              ->addColumn('column11', 'datetime')
+              ->addColumn('column12', 'binary')
+              ->addColumn('column13', 'string', array('limit' => 10));
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -372,9 +374,10 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
            ->setColumns(array('ref_table_id'))
-           ->setReferencedColumns(array('ref_table_id'));
+           ->setReferencedColumns(array('id'));
 
         $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
         $this->adapter->dropForeignKey($table->getName(), array('ref_table_id'));
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
     }
@@ -417,7 +420,16 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->dropAllSchemas();
         $this->assertFalse($this->adapter->hasSchema('foo'));        
         $this->assertFalse($this->adapter->hasSchema('bar'));        
-    }  
+    }
+    
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage The type: "idontexist" is not supported
+     */
+    public function testInvalidSqlType()
+    {
+        $this->adapter->getSqlType('idontexist');
+    }
 
     public function testGetPhinxType()
     {

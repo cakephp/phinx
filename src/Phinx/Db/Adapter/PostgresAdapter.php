@@ -631,7 +631,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'boolean');
                 break;
             default:
-                throw new \RuntimeException('The type: "' . $type . '" is not supported.');
+                throw new \RuntimeException('The type: "' . $type . '" is not supported');
         }
     }
 
@@ -681,7 +681,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'boolean':
                 return 'boolean';
             default:
-                throw new \RuntimeException('The PostgreSQL type: "' . $sqlType . '" is not supported.');
+                throw new \RuntimeException('The PostgreSQL type: "' . $sqlType . '" is not supported');
         }                   
     }
 
