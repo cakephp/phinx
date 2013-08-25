@@ -82,3 +82,11 @@ demonstrated by the following example:
             user: %%PHINX_DBUSER%%
             pass: %%PHINX_DBPASS%%
             port: 3306
+
+Supported Adapters
+------------------
+
+Phinx currently supports the following database adapters:
+
+* `MySQL <http://www.mysql.com/>`_: specify the ``mysql`` adapter.
+* `PostgreSQL <http://www.postgresql.org/>`_: specify the ``pgsql`` adapter.
