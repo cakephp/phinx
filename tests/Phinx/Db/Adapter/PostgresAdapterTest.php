@@ -265,10 +265,17 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
         $newColumn2 = new \Phinx\Db\Table\Column();
         $newColumn2->setName('column2')
-                   ->setType('string');
+                   ->setType('string')
+                   ->setNull(true);
         $table->changeColumn('column1', $newColumn2);
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
+        $columns = $this->adapter->getColumns('t');
+        foreach ($columns as $column) {
+            if ($column->getName() == 'column2') {
+                $this->assertTrue($column->isNull());
+            }
+        }
     }
     
     public function testDropColumn()

@@ -364,9 +364,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $this->quoteTableName($tableName),
             $this->quoteColumnName($columnName));
         if ($newColumn->isNull()) {
-            $sql .= ' SET NOT NULL';
-        } else {
             $sql .= ' DROP NOT NULL';
+        } else {
+            $sql .= ' SET NOT NULL';
         }
         $this->execute($sql);
         // rename column
