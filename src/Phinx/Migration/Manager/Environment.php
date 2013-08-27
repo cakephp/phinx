@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Migration\Manager
  */
@@ -34,7 +34,8 @@ use Symfony\Component\Console\Output\OutputInterface,
     Phinx\Db\Adapter\MysqlAdapter,
     Phinx\Db\Adapter\PostgresAdapter,
     Phinx\Db\Adapter\ProxyAdapter,
-    Phinx\Migration\MigrationInterface;
+    Phinx\Migration\MigrationInterface,
+    Phinx\Migration\MigrationManualInterface;
 
 class Environment
 {
@@ -42,7 +43,7 @@ class Environment
      * @var string
      */
     protected $name;
-    
+
     /**
      * @var array
      */
@@ -52,22 +53,22 @@ class Environment
      * @var OutputInterface
      */
     protected $output;
-    
+
     /**
      * @var int
      */
     protected $currentVersion;
-    
+
     /**
      * @var string
      */
     protected $schemaTableName = 'phinxlog';
-    
+
     /**
      * @var AdapterInterface
      */
     protected $adapter;
-    
+
     /**
      * Class Constructor.
      *
@@ -80,7 +81,7 @@ class Environment
         $this->name = $name;
         $this->options = $options;
     }
-    
+
     /**
      * Executes the specified migration on this environment.
      *
@@ -93,42 +94,48 @@ class Environment
         $startTime = time();
         $direction = ($direction == MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
         $migration->setAdapter($this->getAdapter());
-        
-        // begin the transaction if the adapter supports it
-        if ($this->getAdapter()->hasTransactions()) {
-            $this->getAdapter()->beginTransaction();
-        }
-        
-        // force UTF-8 encoding for MySQL
-        // TODO - this code will need to be abstracted when we support other db vendors
-        //$this->getAdapter()->execute('SET NAMES UTF8');
-        
-        // Run the migration
-        if (method_exists($migration, MigrationInterface::CHANGE)) {
-            if ($direction == MigrationInterface::DOWN) {
-                // Create an instance of the ProxyAdapter so we can record all
-                // of the migration commands for reverse playback
-                $proxyAdapter = new ProxyAdapter($this->getAdapter(), $this->getOutput());
-                $migration->setAdapter($proxyAdapter);
-                $migration->change();
-                $proxyAdapter->executeInvertedCommands();
-                $migration->setAdapter($this->getAdapter());
-            } else {
-                $migration->change();
+
+        if ($migration instanceof MigrationManualInterface) {
+            if (!$migration->isExecuted()) {
+                throw new \RuntimeException('You have to run '. $migration->getName() .' manually.');
             }
         } else {
-            $migration->{$direction}();
-        }
-        
-        // commit the transaction if the adapter supports it
-        if ($this->getAdapter()->hasTransactions()) {
-            $this->getAdapter()->commitTransaction();
+            // begin the transaction if the adapter supports it
+            if ($this->getAdapter()->hasTransactions()) {
+                $this->getAdapter()->beginTransaction();
+            }
+
+            // force UTF-8 encoding for MySQL
+            // TODO - this code will need to be abstracted when we support other db vendors
+            //$this->getAdapter()->execute('SET NAMES UTF8');
+
+            // Run the migration
+            if (method_exists($migration, MigrationInterface::CHANGE)) {
+                if ($direction == MigrationInterface::DOWN) {
+                    // Create an instance of the ProxyAdapter so we can record all
+                    // of the migration commands for reverse playback
+                    $proxyAdapter = new ProxyAdapter($this->getAdapter(), $this->getOutput());
+                    $migration->setAdapter($proxyAdapter);
+                    $migration->change();
+                    $proxyAdapter->executeInvertedCommands();
+                    $migration->setAdapter($this->getAdapter());
+                } else {
+                    $migration->change();
+                }
+            } else {
+                $migration->{$direction}();
+            }
+
+            // commit the transaction if the adapter supports it
+            if ($this->getAdapter()->hasTransactions()) {
+                $this->getAdapter()->commitTransaction();
+            }
         }
 
         // Record it in the database
         $this->getAdapter()->migrated($migration, $direction, date('Y-m-d H:i:s', $startTime), date('Y-m-d H:i:s', time()));
     }
-    
+
     /**
      * Sets the environment's name.
      *
@@ -140,7 +147,7 @@ class Environment
         $this->name = $name;
         return $this;
     }
-    
+
     /**
      * Gets the environment name.
      *
@@ -150,7 +157,7 @@ class Environment
     {
         return $this->name;
     }
-    
+
     /**
      * Sets the environment's options.
      *
@@ -162,7 +169,7 @@ class Environment
         $this->options = $options;
         return $this;
     }
-    
+
     /**
      * Gets the environment's options.
      *
@@ -184,7 +191,7 @@ class Environment
         $this->output = $output;
         return $this;
     }
-    
+
     /**
      * Gets the console output.
      *
@@ -204,7 +211,7 @@ class Environment
     {
         return $this->getAdapter()->getVersions();
     }
-    
+
     /**
      * Sets the current version of the environment.
      *
@@ -216,7 +223,7 @@ class Environment
         $this->currentVersion = $version;
         return $this;
     }
-    
+
     /**
      * Gets the current version of the environment.
      *
@@ -229,15 +236,15 @@ class Environment
         // maybe we should cache and call a reset() method everytime a migration is run
         $versions = $this->getVersions();
         $version = 0;
-            
+
         if (!empty($versions)) {
             $version = end($versions);
         }
-            
+
         $this->setCurrentVersion($version);
         return $this->currentVersion;
     }
-    
+
     /**
      * Sets the database adapter.
      *
@@ -249,7 +256,7 @@ class Environment
         $this->adapter = $adapter;
         return $this;
     }
-    
+
     /**
      * Gets the database adapter.
      *
@@ -264,8 +271,8 @@ class Environment
                     case 'mysql':
                         $this->setAdapter(new MysqlAdapter($this->options, $this->getOutput()));
                         break;
-                    case 'pgsql':                                                           
-                        $this->setAdapter(new PostgresAdapter($this->options, $this->getOutput()));                        
+                    case 'pgsql':
+                        $this->setAdapter(new PostgresAdapter($this->options, $this->getOutput()));
                         break;
                     default:
                         throw new \RuntimeException('Invalid adapter specified: ' . $this->options['adapter']);
@@ -274,10 +281,10 @@ class Environment
                 throw new \RuntimeException('No adapter was specified for environment: ' . $this->getName());
             }
         }
-        
+
         return $this->adapter;
     }
-    
+
     /**
      * Sets the schema table name.
      *
@@ -289,7 +296,7 @@ class Environment
         $this->schemaTableName = $schemaTableName;
         return $this;
     }
-    
+
     /**
      * Gets the schema table name.
      *
