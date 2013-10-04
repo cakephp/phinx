@@ -866,8 +866,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function hasSchema($schemaName)
     {        
         $sql = sprintf("SELECT count(*) 
-            FROM information_schema.schemata 
-            WHERE schema_name = '%s'",
+            FROM pg_namespace
+            WHERE nspname = '%s'",
             $schemaName);
         $result = $this->fetchRow($sql);
         return  $result['count'] > 0;
