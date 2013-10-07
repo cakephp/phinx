@@ -85,6 +85,11 @@ class Column
     protected $update;
 
     /**
+     * @var string
+     */
+    protected $comment;
+
+    /**
      * Sets the column name.
      *
      * @param string $name
@@ -328,6 +333,28 @@ class Column
     }
 
     /**
+     * Sets the column comment.
+     *
+     * @param string $comment
+     * @return Column
+     */
+    public function setComment($comment)
+    {
+        $this->comment = $comment;
+        return $this;
+    }
+
+    /**
+     * Gets the column comment.
+     *
+     * @return string
+     */
+    public function getComment()
+    {
+        return $this->comment;
+    }
+
+    /**
      * Utility method that maps an array of column options to this objects methods.
      *
      * @param array $options Options
@@ -336,7 +363,7 @@ class Column
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update');
+        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');

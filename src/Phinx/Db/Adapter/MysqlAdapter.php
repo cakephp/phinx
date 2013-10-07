@@ -784,7 +784,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $sqlType = $this->getSqlType($column->getType());
         $def = '';
-        $def = '';
         $def .= strtoupper($sqlType['name']);
         if ($column->getPrecision() && $column->getScale()) {
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
@@ -798,6 +797,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= ' DEFAULT ' . $column->getDefault();
         } else {
             $def .= is_null($column->getDefault()) ? '' : ' DEFAULT \'' . $column->getDefault() . '\'';
+        }
+
+        if ($column->getComment()) {
+            $def .= ' COMMENT ' . $this->getConnection()->quote($column->getComment());
         }
 
         if ($column->getUpdate()) {
