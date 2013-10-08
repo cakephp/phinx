@@ -62,6 +62,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             } else {
                 $dsn = 'mysql:host=' . $options['host'] . ';dbname=' . $options['name'];
             }
+            
+            // charset support
+            if (isset($options['charset'])) {
+                $dsn .= ';charset=' . $options['charset'];
+            }
 
             $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
 
