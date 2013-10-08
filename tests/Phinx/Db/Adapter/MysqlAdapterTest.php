@@ -459,4 +459,16 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasDatabase('temp_phinx_database'));
         $this->adapter->dropDatabase('temp_phinx_database');
     }
+
+    public function testAddColumnWithComment()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string', array('comment' => $comment = 'Comments from "column1"'))
+              ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT column_name, column_comment FROM information_schema.columns WHERE table_name = "table1"');
+        $columnWithComment = $rows[1];
+
+        $this->assertEquals($comment, $columnWithComment['column_comment'], 'Dont set column comment correctly');
+    }
 }
