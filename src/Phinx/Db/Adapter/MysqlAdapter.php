@@ -69,7 +69,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             // http://php.net/manual/en/ref.pdo-mysql.php#pdo-mysql.constants
             foreach ($options as $key => $option) {
                 if (strpos($key, 'mysql_attr_') === 0) {
-                    $driverOptions[] = array(constant('\PDO::' . strtoupper($key)) => $option);
+                    $driverOptions[constant('\PDO::' . strtoupper($key))] = $option;
                 }
             }
 
