@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Db
  */
@@ -38,27 +38,27 @@ class Column
      * @var string
      */
     protected $name;
-    
+
     /**
      * @var string
      */
     protected $type;
-    
+
     /**
      * @var integer
      */
     protected $limit = null;
-    
+
     /**
      * @var boolean
      */
     protected $null = false;
-    
+
     /**
      * @var mixed
      */
     protected $default = null;
-    
+
     /**
      * @var boolean
      */
@@ -73,7 +73,7 @@ class Column
      * @var integer
      */
     protected $scale;
-    
+
     /**
      * @var string
      */
@@ -100,7 +100,7 @@ class Column
         $this->name = $name;
         return $this;
     }
-    
+
     /**
      * Gets the column name.
      *
@@ -110,7 +110,7 @@ class Column
     {
         return $this->name;
     }
-    
+
     /**
      * Sets the column type.
      *
@@ -122,7 +122,7 @@ class Column
         $this->type = $type;
         return $this;
     }
-    
+
     /**
      * Gets the column type.
      *
@@ -132,7 +132,7 @@ class Column
     {
         return $this->type;
     }
-    
+
     /**
      * Sets the column limit.
      *
@@ -141,10 +141,15 @@ class Column
      */
     public function setLimit($limit)
     {
-        $this->limit = $limit;
+        if (!is_array($limit)) {
+            $this->limit = $limit;
+        } else {
+            $this->limit = $this->arrayToSql($limit);
+        }
+
         return $this;
     }
-    
+
     /**
      * Gets the column limit.
      *
@@ -154,7 +159,7 @@ class Column
     {
         return $this->limit;
     }
-    
+
     /**
      * Sets whether the column allows nulls.
      *
@@ -166,7 +171,7 @@ class Column
         $this->null = (bool) $null;
         return $this;
     }
-    
+
     /**
      * Gets whether the column allows nulls.
      *
@@ -176,7 +181,7 @@ class Column
     {
         return $this->null;
     }
-    
+
     /**
      * Does the column allow nulls?
      *
@@ -186,7 +191,7 @@ class Column
     {
         return $this->getNull();
     }
-    
+
     /**
      * Sets the default column value.
      *
@@ -201,7 +206,7 @@ class Column
         $this->default = $default;
         return $this;
     }
-    
+
     /**
      * Gets the default column value.
      *
@@ -211,7 +216,7 @@ class Column
     {
         return $this->default;
     }
-    
+
     /**
      * Sets whether or not the column is an identity column.
      *
@@ -223,7 +228,7 @@ class Column
         $this->identity = $identity;
         return $this;
     }
-    
+
     /**
      * Gets whether or not the column is an identity column.
      *
@@ -233,7 +238,7 @@ class Column
     {
         return $this->identity;
     }
-    
+
     /**
      * Is the column an identity column?
      *
@@ -243,7 +248,7 @@ class Column
     {
         return $this->getIdentity();
     }
-    
+
     /**
      * Sets the name of the column to add this column after.
      *
@@ -255,7 +260,7 @@ class Column
         $this->after = $after;
         return $this;
     }
-    
+
     /**
      * Returns the name of the column to add this column after.
      *
@@ -299,7 +304,7 @@ class Column
         $this->precision = $precision;
         return $this;
     }
-    
+
     /**
      * Gets the column precision for decimal.
      *
@@ -321,7 +326,7 @@ class Column
         $this->scale = $scale;
         return $this;
     }
-    
+
     /**
      * Gets the column scale for decimal.
      *
@@ -368,15 +373,26 @@ class Column
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');
             }
-            
+
             // proxy length -> limit
             if (strtolower($option) == 'length') {
                 $this->setLimit($value);
                 continue;
             }
-            
+
             $method = 'set' . ucfirst($option);
             $this->$method($value);
         }
+    }
+
+    protected function arrayToSql($array) {
+
+        if (is_array($array)) {
+            $arraySql = "'" . implode("','", $array) . "'";
+        } elseif (is_null($array)) {
+            $arraySql = "''";
+        }
+
+        return $arraySql;
     }
 }
