@@ -659,7 +659,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'tinyint', 'limit' => 1);
                 break;
             case 'enum':
-                return array('name' => 'enum', 'limit' => "''");
+                return array('name' => 'enum');
                 break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');

@@ -385,11 +385,11 @@ class Column
         }
     }
 
-    protected function arrayToSql($array) {
+    protected function arrayToSql(Array $array) {
 
-        if (is_array($array)) {
+        if (!empty($array)) {
             $arraySql = "'" . implode("','", $array) . "'";
-        } elseif (is_null($array)) {
+        } else {
             $arraySql = "''";
         }
 
