@@ -115,7 +115,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             'InvalidArgumentException',
-            'Duplicate migration - "' . __DIR__ . '/_files/duplicateversions/20120111235330_duplicate_migration_2.php" has the same version as "20120111235330"'
+            'Duplicate migration - "' . implode(DIRECTORY_SEPARATOR, array(__DIR__, '_files', 'duplicateversions', '20120111235330_duplicate_migration_2.php')) . '" has the same version as "20120111235330"'
         );
         $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files/duplicateversions')));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -139,7 +139,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             'InvalidArgumentException',
-            'Could not find class "InvalidClass" in file "' . __DIR__ . '/_files/invalidclassname/20120111235330_invalid_class.php"'
+            'Could not find class "InvalidClass" in file "' . implode(DIRECTORY_SEPARATOR, array(__DIR__, '_files', 'invalidclassname', '20120111235330_invalid_class.php')) . '"'
         );
         $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files/invalidclassname')));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -151,7 +151,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             'InvalidArgumentException',
-            'The class "InvalidSuperClass" in file "' . __DIR__ . '/_files/invalidsuperclass/20120111235330_invalid_super_class.php" must extend \Phinx\Migration\AbstractMigration'
+            'The class "InvalidSuperClass" in file "' . implode(DIRECTORY_SEPARATOR, array(__DIR__, '_files', 'invalidsuperclass', '20120111235330_invalid_super_class.php')) . '" must extend \Phinx\Migration\AbstractMigration'
         );
         $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files/invalidsuperclass')));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
