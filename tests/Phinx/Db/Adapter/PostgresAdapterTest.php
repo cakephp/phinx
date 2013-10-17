@@ -14,6 +14,10 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     
     public function setUp()
     {
+        if (!TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED) {
+            $this->markTestSkipped('Postgres tests disabled.  See TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED constant.');
+        }
+
         $options = array(
             'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
             'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE, 
@@ -32,8 +36,10 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     
     public function tearDown()
     {
-        $this->adapter->dropAllSchemas();
-        unset($this->adapter);
+        if ($this->adapter) {
+            $this->adapter->dropAllSchemas();
+            unset($this->adapter);
+        }
     }
     
     public function testConnection()
