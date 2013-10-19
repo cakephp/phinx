@@ -1,5 +1,5 @@
 {
-    "name": "robmorgan/phinx",
+    "name": "arnaud-f/phinx",
     "type": "library",
     "description": "Phinx makes it ridiculously easy to manage the database migrations for your PHP app.",
     "keywords": ["phinx", "migrations", "database", "db", "database migrations"],
@@ -8,7 +8,7 @@
     "authors": [{
         "name": "Rob Morgan",
         "email": "robbym@gmail.com",
-        "homepage": "http://robmorgan.id.au"    
+        "homepage": "http://robmorgan.id.au"
     }],
     "require": {
         "php": ">=5.3.2",
