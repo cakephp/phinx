@@ -34,7 +34,7 @@ use Phinx\Db\Table,
     Phinx\Db\Table\ForeignKey;
 
 /**
- * Phinx MySQL Adapter.
+ * Phinx SQLite Adapter.
  *
  * @author Rob Morgan <robbym@gmail.com>
  * @author Richard McIntyre <richard.mackstars@gmail.com>
@@ -174,6 +174,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         // Add the default primary key
         $columns = $table->getPendingColumns();
+        $options = $table->getOptions();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
             $column = new Column();
             $column->setName('id')
@@ -236,7 +237,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $sql .= ') ';
 
         $sql = rtrim($sql) . ';';
-
         // execute the sql
         $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
@@ -406,8 +406,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         $indexes = array();
         $rows = $this->fetchAll(sprintf('PRAGMA INDEX_LIST(%s);', $this->quoteTableName($tableName)));
-        var_dump($tableName, $rows);
-        exit;
+
         foreach ($rows as $row) {
             if (!isset($indexes[$row['Key_name']])) {
                 $indexes[$row['Key_name']] = array('columns' => array());
@@ -754,7 +753,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('dropDatabase', array($name));
-        $this->execute(sprintf('DROP DATABASE IF EXISTS `%s`', $name));
+        unlink($name . '.sqlite3');
         return $this->endCommandTimer();
     }
     
@@ -792,7 +791,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
     
     /**
-     * Gets the MySQL Index Definition for an Index object.
+     * Gets the SQLite Index Definition for an Index object.
      *
      * @param Index $index Index
      * @return string
@@ -809,7 +808,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Gets the MySQL Foreign Key Definition for an ForeignKey object.
+     * Gets the SQLite Foreign Key Definition for an ForeignKey object.
      *
      * @param ForeignKey $foreignKey
      * @return string

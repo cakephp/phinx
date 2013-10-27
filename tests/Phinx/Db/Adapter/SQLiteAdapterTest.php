@@ -81,44 +81,45 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('realname', 'string')
               ->addColumn('email', 'integer')
               ->save();
+
         $this->assertTrue($this->adapter->hasTable('ntable'));
-        //$this->assertTrue($this->adapter->hasColumn('ntable', 'custom_id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'custom_id'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
 
-    // public function testCreateTableWithNoOptions()
-    // {
-    //     $this->markTestIncomplete();
-    //     //$this->adapter->createTable('ntable', )
-    // }
+    public function testCreateTableWithNoOptions()
+    {
+        $this->markTestIncomplete();
+        //$this->adapter->createTable('ntable', )
+    }
     
-    // public function testCreateTableWithNoPrimaryKey()
-    // {
-    //     $options = array(
-    //         'id' => false
-    //     );
-    //     $table = new \Phinx\Db\Table('atable', $options, $this->adapter);
-    //     $table->addColumn('user_id', 'integer')
-    //           ->save();
-    //     $this->assertFalse($this->adapter->hasColumn('atable', 'id'));
-    // }
+    public function testCreateTableWithNoPrimaryKey()
+    {
+        $options = array(
+            'id' => false
+        );
+        $table = new \Phinx\Db\Table('atable', $options, $this->adapter);
+        $table->addColumn('user_id', 'integer')
+              ->save();
+        $this->assertFalse($this->adapter->hasColumn('atable', 'id'));
+    }
     
-    // public function testCreateTableWithMultiplePrimaryKeys()
-    // {
-    //     $options = array(
-    //         'id'            => false,
-    //         'primary_key'   => array('user_id', 'tag_id')
-    //     );
-    //     $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
-    //     $table->addColumn('user_id', 'integer')
-    //           ->addColumn('tag_id', 'integer')
-    //           ->save();
-    //     $this->assertTrue($this->adapter->hasIndex('table1', array('user_id', 'tag_id')));
-    //     $this->assertTrue($this->adapter->hasIndex('table1', array('tag_id', 'USER_ID')));
-    //     $this->assertFalse($this->adapter->hasIndex('table1', array('tag_id', 'user_email')));
-    // }
+    public function testCreateTableWithMultiplePrimaryKeys()
+    {
+        $options = array(
+            'id'            => false,
+            'primary_key'   => array('user_id', 'tag_id')
+        );
+        $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
+        $table->addColumn('user_id', 'integer')
+              ->addColumn('tag_id', 'integer')
+              ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', array('user_id', 'tag_id')));
+        $this->assertTrue($this->adapter->hasIndex('table1', array('tag_id', 'USER_ID')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('tag_id', 'user_email')));
+    }
 
     // public function testCreateTableWithMultipleIndexes()
     // {
