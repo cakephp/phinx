@@ -69,12 +69,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
 
             $this->setConnection($db);
-            
             // Create the public schema  if it doesn't already exist
-            if(!$this->hasSchema('public')) {
-                $this->createSchema('public');
+            if($this->hasSchema($this->getSchemaName()) == false) {
+               $this->createSchema($this->getSchemaName());
             } 
             
+            $this->fetchAll(sprintf('SET search_path TO %s',$this->getSchemaName()));
+
             // Create the schema table if it doesn't already exist
             if (!$this->hasSchemaTable()) {
                 $this->createSchemaTable();
@@ -157,11 +158,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $options = $this->getOptions();
         
         $tables = array();
-        $rows = $this->fetchAll(sprintf('SELECT table_name FROM information_schema.tables WHERE table_schema = \'public\';'));
+        $rows = $this->fetchAll(sprintf('SELECT table_name FROM information_schema.tables WHERE table_schema = \'%s\';',$this->getSchemaName()));
         foreach ($rows as $row) {
             $tables[] = strtolower($row[0]);
         }
-        
         return in_array(strtolower($tableName), $tables);
     }
     
@@ -302,7 +302,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {        
         $sql = sprintf("SELECT count(*) 
             FROM information_schema.columns
-            WHERE table_schema = 'public' AND table_name = '%s' AND column_name = '%s'", $tableName, $columnName);                
+            WHERE table_schema = '%s' AND table_name = '%s' AND column_name = '%s'", $this->getSchemaName(),$tableName, $columnName);                
         $result = $this->fetchRow($sql);
         return  $result['count'] > 0;
     }
@@ -803,13 +803,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $options = array(
                 'id' => false
             );
-            
             $table = new \Phinx\Db\Table($this->getSchemaTableName(), $options, $this);
             $table->addColumn('version', 'biginteger')
                   ->addColumn('start_time', 'timestamp')
                   ->addColumn('end_time', 'timestamp')
                   ->save();
-        } catch(\Exception $exception) {            
+        } catch(\Exception $exception) { 
+            
             throw new \InvalidArgumentException('There was a problem creating the schema table');
         }
     }
@@ -870,7 +870,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             WHERE nspname = '%s'",
             $schemaName);
         $result = $this->fetchRow($sql);
-        return  $result['count'] > 0;
+        return $result['count'] > 0;
     }
 
     /**
@@ -936,5 +936,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
         $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         return $indexName;
+    }
+
+    private function getSchemaName()
+    {
+        $options = $this->getOptions();
+        return (isset($options['schema'])) ? $options['schema'] : 'public';
     }
 }
