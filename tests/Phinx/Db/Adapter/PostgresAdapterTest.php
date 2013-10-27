@@ -19,13 +19,14 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE, 
             'user' => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
             'pass' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
-            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT
+            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
+            'schema' => 'publi'
         );
         $this->adapter = new PostgresAdapter($options, new NullOutput());        
 
         $this->adapter->dropAllSchemas();
-        $this->adapter->createSchema('public');
-
+        $this->adapter->createSchema($options['schema']);
+        
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();        
     }
@@ -101,6 +102,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     
     public function testCreateTable()
     {
+        
         $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
         $table->addColumn('realname', 'string')
               ->addColumn('email', 'integer')
