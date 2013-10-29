@@ -32,6 +32,7 @@ use Phinx\Db\Table,
     Phinx\Db\Table\Column,
     Phinx\Db\Table\Index,
     Phinx\Db\Table\ForeignKey;
+use Phinx\Db\View;
 
 /**
  * Phinx MySQL Adapter.
@@ -161,6 +162,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
         
         return in_array(strtolower($tableName), $tables);
+    }
+
+    public function hasView($viewName) {
+        return $this->hasTable($viewName);
     }
     
     /**
@@ -857,5 +862,73 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             }
         }
         return $def;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createView(View $view)
+    {
+        $this->startCommandTimer();
+
+        // This method is based on the MySQL docs here: http://dev.mysql.com/doc/refman/5.1/en/create-index.html
+        $defaultOptions = array(
+            'engine' => 'InnoDB',
+            'collation' => 'utf8_general_ci'
+        );
+        $options = array_merge($defaultOptions, $view->getOptions());
+
+
+
+
+
+        $sql = 'CREATE VIEW ';
+        $sql .= $this->quoteTableName($view->getName()) . ' AS SELECT ';
+        if(count($view->getColumns()) == 0) {
+            $sql .= ' *';
+        } else {
+            foreach ($view->getColumns() as $column) {
+                $sql .= $this->quoteTableName($column->getTable()->getName()) . '.';
+                $sql .= $this->quoteColumnName($column->getName());
+                if(!is_null($column->getAlias())) {
+                    $sql .= " AS " . $column->getAlias();
+                }
+                $sql .= ',';
+
+            }
+            //Drop the trailing comma
+            $sql = substr(rtrim($sql), 0, -1);
+        }
+
+        $sql .= ' FROM ';
+        $sql .= $this->quoteTableName($view->getTableName());
+
+
+        foreach($view->getJoins() as $join) {
+            $sql .= ' ' . strtoupper($join->getType()) . ' JOIN ';
+            $sql .= $this->quoteTableName($join->getTable()->getName());
+            $on = $join->getCriteria();
+            if(!is_null($on)) {
+                $sql .= ' ON ' . $on->getConditionSQL($this);
+            }
+        }
+
+        $where = $view->getCondition();
+
+        if(!is_null($where)) {
+            $sql .= " WHERE ";
+            $sql .= $where->getConditionSQL($this);
+        }
+
+
+
+
+
+        $sql = rtrim($sql) . ';';
+
+        // execute the sql
+        $this->writeCommand('createView', array($view->getName()));
+        $this->execute($sql);
+        $this->endCommandTimer();
     }
 }

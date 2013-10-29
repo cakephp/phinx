@@ -37,7 +37,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         if ($this->adapter) {
-            $this->adapter->dropAllSchemas();
+            //$this->adapter->dropAllSchemas();
             unset($this->adapter);
         }
     }
@@ -470,5 +470,95 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp with time zone'));        
         $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp without time zone'));        
 
+    }
+
+    public function testCreateView() {
+
+        //Create a table to build a view on top of
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn("col1", "integer")
+            ->addColumn("col2", "integer")
+            ->addColumn("col3", "integer")
+            ->addColumn("col4", "integer")
+            ->create();
+
+        $view = new \Phinx\Db\View("nview", array(), $this->adapter);
+
+
+        $view->setTableName("table1")
+            ->
+            setCondition( (new \Phinx\Db\View\Condition())
+                ->aand()
+                    ->comparison("=")
+                        ->column("col1", "table1")
+                        ->column("col2", "table1")
+                    ->comparison("<")
+                        ->column("col3", "table1")
+                        ->column("col4"));
+
+        $view->create();
+
+        $this->assertTrue($this->adapter->hasView('nview'));
+        $this->assertTrue($this->adapter->hasColumn('nview', 'col1'));
+        $this->assertTrue($this->adapter->hasColumn('nview', 'col2'));
+        $this->assertTrue($this->adapter->hasColumn('nview', 'col3'));
+        $this->assertTrue($this->adapter->hasColumn('nview', 'col4'));
+    }
+
+    public function testCreateViewWithJoins() {
+
+        //Create a table to build a view on top of
+        $table1 = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table1->addColumn("col1", "integer")
+            ->addColumn("col2", "integer")
+            ->create();
+
+        $table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
+        $table2->addColumn("col3", "integer")
+            ->addColumn("col4", "integer")
+            ->create();
+
+        $view = new \Phinx\Db\View("myName", array(), $this->adapter);
+        $view ->addColumn("col1", "table1")
+            ->addColumn("col3", "table2");
+
+        $view->setTableName("table1")
+            ->
+            addInnerJoin("table2", (new \Phinx\Db\View\Condition())
+                ->comparison("=")
+                ->column("col1", "table1")
+                ->column("col3", "table2"));
+
+        $view->create();
+    }
+    public function testCreateViewWithComplexCondition() {
+
+        //Create a table to build a view on top of
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn("col1", "integer")
+            ->addColumn("col2", "integer")
+            ->addColumn("col3", "integer")
+            ->addColumn("col4", "integer")
+            ->create();
+
+        $view = new \Phinx\Db\View("myName", array(), $this->adapter);
+
+
+        $view->setTableName("table1")
+            ->
+            setCondition( (new \Phinx\Db\View\Condition())
+                ->oor()
+                    ->comparison("=")
+                        ->column("col2")
+                        ->column("col2")
+                    ->aand()
+                        ->comparison("=")
+                            ->column("col1", "table1")
+                            ->column("col2", "table1")
+                        ->comparison("<")
+                            ->column("col3", "table1")
+                            ->column("col4"));
+
+        $view->create();
     }
 }
