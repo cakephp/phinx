@@ -175,6 +175,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     
     public function testReversibleMigrationsWorkAsExpected()
     {
+        if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
+            $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED constant.');
+        }
         $configArray = $this->getConfigArray();
         $adapter = $this->manager->getEnvironment('production')->getAdapter();
         
