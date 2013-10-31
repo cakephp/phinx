@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Daniel
- * Date: 10/29/13
- * Time: 12:53 PM
- */
 
 namespace Test\Phinx\Db;
 

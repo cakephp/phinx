@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Daniel
- * Date: 10/22/13
- * Time: 8:55 PM
- */
 namespace Phinx\Db\View\Conditions;
 
 use Phinx\Db\Adapter\AdapterInterface;

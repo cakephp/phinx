@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Daniel
- * Date: 10/23/13
- * Time: 5:17 PM
- */
 
 namespace Phinx\Db\View;
 

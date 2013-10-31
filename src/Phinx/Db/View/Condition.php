@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Daniel
- * Date: 10/21/13
- * Time: 5:45 PM
- */
 
 namespace Phinx\Db\View;
 
@@ -176,7 +170,7 @@ class ConditionParser {
     }
 }
 
-abstract class BinaryExpression
+abstract class BinaryExpression implements ConditionNode
 {
 
     private $type;
@@ -257,7 +251,7 @@ abstract class BinaryExpression
     }
 }
 
-abstract class PrefixUnaryExpression
+abstract class PrefixUnaryExpression implements ConditionNode
 {
 
     /**
@@ -328,10 +322,11 @@ abstract class PostfixUnaryExpression extends PrefixUnaryExpression {
 
 
 
-abstract class NullaryExpression {
+abstract class NullaryExpression implements ConditionNode {
     /**
      * Adds an operand to this condition
      * @param \Phinx\Db\View\Conditions\ConditionNode $operand The operand to add
+     * @throws \Exception when called
      */
     public function addOperand(Conditions\ConditionNode $operand)
     {
