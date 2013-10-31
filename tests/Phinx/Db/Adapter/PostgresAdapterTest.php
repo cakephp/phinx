@@ -482,7 +482,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             ->addColumn("col4", "integer")
             ->create();
 
-        $view = new \Phinx\Db\View("nview", array(), $this->adapter);
+        $view = new \Phinx\Db\View("nview", $this->adapter);
 
 
         $view->setTableName("table1")
@@ -518,7 +518,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             ->addColumn("col4", "integer")
             ->create();
 
-        $view = new \Phinx\Db\View("myName", array(), $this->adapter);
+        $view = new \Phinx\Db\View("myName", $this->adapter);
         $view ->addColumn("col1", "table1")
             ->addColumn("col3", "table2");
 
@@ -541,7 +541,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             ->addColumn("col4", "integer")
             ->create();
 
-        $view = new \Phinx\Db\View("myName", array(), $this->adapter);
+        $view = new \Phinx\Db\View("myName", $this->adapter);
 
 
         $view->setTableName("table1")

@@ -871,18 +871,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
 
-        // This method is based on the MySQL docs here: http://dev.mysql.com/doc/refman/5.1/en/create-index.html
-        $defaultOptions = array(
-            'engine' => 'InnoDB',
-            'collation' => 'utf8_general_ci'
-        );
-        $options = array_merge($defaultOptions, $view->getOptions());
 
 
-
-
-
-        $sql = 'CREATE VIEW ';
+        $sql = 'CREATE OR REPLACE VIEW ';
         $sql .= $this->quoteTableName($view->getName()) . ' AS SELECT ';
         if(count($view->getColumns()) == 0) {
             $sql .= ' *';

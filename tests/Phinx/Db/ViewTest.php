@@ -10,7 +10,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase {
     function testBasicCondition() {
         $adapter =  new MysqlAdapter(array());
 
-        $view = new \Phinx\Db\View("myName", array(), $adapter);
+        $view = new \Phinx\Db\View("myName", $adapter);
 
 
         $view->

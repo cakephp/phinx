@@ -28,7 +28,10 @@
  */
 namespace Phinx\Migration;
 
-use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Adapter\AdapterInterface,
+    Phinx\Db\View\Condition,
+    Phinx\Db\Table,
+    Phinx\Db\View;
 
 /**
  * Migration interface
@@ -167,7 +170,31 @@ interface MigrationInterface
      *
      * @param string $tableName Table Name
      * @param array $options Options
-     * @return \Table
+     * @return Table
      */
     public function table($tableName, $options);
+
+    /**
+     * Checks to see if a view exists.
+     *
+     * @param string $viewName View Name
+     * @return boolean
+     */
+    public function hasView($viewName);
+
+    /**
+     * Returns an instance of the <code>\View</code> class.
+     *
+     * You can use this class to create and manipulate views.
+     *
+     * @param string $viewName View Name
+     * @return View
+     */
+    public function view($viewName);
+
+    /**
+     * Creates a new condition for use with a view
+     * @return Condition
+     */
+    public function condition();
 }

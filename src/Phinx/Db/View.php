@@ -9,53 +9,6 @@ use Phinx\Db\View\Join;
 
 class View {
 
-    /**
-     * @param string $groupBy
-     */
-    public function setGroupBy($groupBy)
-    {
-        $this->groupBy = $groupBy;
-    }
-
-    /**
-     * @return string
-     */
-    public function getGroupBy()
-    {
-        return $this->groupBy;
-    }
-
-    /**
-     * @param string $having
-     */
-    public function setHaving($having)
-    {
-        $this->having = $having;
-    }
-
-    /**
-     * @return string
-     */
-    public function getHaving()
-    {
-        return $this->having;
-    }
-
-    /**
-     * @param string $orderBy
-     */
-    public function setOrderBy($orderBy)
-    {
-        $this->orderBy = $orderBy;
-    }
-
-    /**
-     * @return string
-     */
-    public function getOrderBy()
-    {
-        return $this->orderBy;
-    }
 
     /**
      * @var string
@@ -72,30 +25,6 @@ class View {
      */
     protected $joins;
 
-    /**
-     * @var array
-     */
-    protected $conditions;
-
-    /**
-     * @var string
-     */
-    protected $groupBy;
-
-    /**
-     * @var string
-     */
-    protected $having;
-
-    /**
-     * @var string
-     */
-    protected $orderBy;
-
-    /**
-     * @var array
-     */
-    protected $options;
 
     /**
      * @var Condition|null
@@ -108,6 +37,11 @@ class View {
     protected $columns = array();
 
     /**
+     * @var AdapterInterface
+     */
+    protected $adapter;
+
+    /**
      * @return null|\Phinx\Db\View\Condition
      */
     public function getCondition()
@@ -118,12 +52,10 @@ class View {
     /**
      * Class constructor
      * @param string $name View name
-     * @param array $options The options to use for creating the view
      * @param AdapterInterface $adapter The database adapter to use
      */
-    public function __construct($name, $options = array(),  AdapterInterface $adapter = null) {
+    public function __construct($name, AdapterInterface $adapter = null) {
         $this->setName($name);
-        $this->setOptions($options);
 
         if (null !== $adapter) {
             $this->setAdapter($adapter);
@@ -147,25 +79,6 @@ class View {
         return $this;
     }
 
-    /**
-     * Sets the conditions for this view
-     * @param array $conditions
-     * @return View
-     */
-    public function setConditions($conditions)
-    {
-        $this->conditions = $conditions;
-        return $this;
-    }
-
-    /**
-     * Gets the conditions for this view
-     * @return array
-     */
-    public function getConditions()
-    {
-        return $this->conditions;
-    }
 
     /**
      * Sets the joins that are used in constructing the view
@@ -217,27 +130,7 @@ class View {
         return $this->name;
     }
 
-    /**
-     * Sets the table options.
-     *
-     * @param array $options
-     * @return Table
-     */
-    public function setOptions($options)
-    {
-        $this->options = $options;
-        return $this;
-    }
 
-    /**
-     * Gets the table options.
-     *
-     * @return array
-     */
-    public function getOptions()
-    {
-        return $this->options;
-    }
 
     /**
      * Sets the database adapter.
