@@ -573,4 +573,36 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasColumn('nview', 'col3'));
         $this->assertTrue($this->adapter->hasColumn('nview', 'col4'));
     }
+
+    public function testDropView() {
+        //Create a table to build a view on top of
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn("col1", "integer")
+            ->addColumn("col2", "integer")
+            ->addColumn("col3", "integer")
+            ->addColumn("col4", "integer")
+            ->create();
+
+        $view = new \Phinx\Db\View("nview", $this->adapter);
+        $condition = new \Phinx\Db\View\Condition();
+
+        $view->setTableName("table1")
+            ->setCondition( $condition
+                ->aand()
+                ->comparison("=")
+                ->column("col1", "table1")
+                ->column("col2", "table1")
+                ->comparison("<")
+                ->column("col3", "table1")
+                ->column("col4"));
+
+        $view->create();
+
+        $this->assertTrue($this->adapter->hasView('nview'));
+
+        $view->drop();
+
+        $this->assertTrue(!$this->adapter->hasView('nview'));
+
+    }
 }

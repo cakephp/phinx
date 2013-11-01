@@ -239,6 +239,14 @@ interface AdapterInterface
     public function dropTable($tableName);
 
     /**
+     * Drops the specified database view.
+     *
+     * @param string $viewName View Name
+     * @return void
+     */
+    public function dropView($viewName);
+
+    /**
      * Returns table columns
      *
      * @param string $tableName Table Name

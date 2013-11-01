@@ -639,4 +639,15 @@ class ProxyAdapter implements AdapterInterface
     {
         return $this->adapter->hasView($viewName);
     }
+
+    /**
+     * Drops the specified database view.
+     *
+     * @param string $viewName View Name
+     * @return void
+     */
+    public function dropView($viewName)
+    {
+        $this->recordCommand('dropView', array($viewName));
+    }
 }

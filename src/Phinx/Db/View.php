@@ -67,6 +67,11 @@ class View {
         $this->getAdapter()->createView($this);
     }
 
+    public function drop()
+    {
+        $this->getAdapter()->dropView($this->getName());
+    }
+
     /**
      * Sets the view name.
      *

@@ -922,4 +922,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $this->execute($sql);
         $this->endCommandTimer();
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropView($viewName)
+    {
+        $this->startCommandTimer();
+        $this->writeCommand('dropView', array($viewName));
+        $this->execute(sprintf('DROP VIEW %s', $this->quoteTableName($viewName)));
+        $this->endCommandTimer();
+    }
 }
