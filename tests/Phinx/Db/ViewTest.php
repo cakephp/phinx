@@ -15,13 +15,13 @@ class ViewTest extends \PHPUnit_Framework_TestCase {
 
         $view->
             setCondition( (new Condition())
-            ->aand()
-                ->comparison("=")
-                    ->column("col1", "table1")
-                    ->column("col2", "table2")
-                ->comparison("<")
-                    ->column("col3", "table1")
-                    ->column("col4"));
+        ->aand()
+            ->comparison("=")
+                ->column("col1", "table1")
+                ->column("col2", "table2")
+            ->comparison("<")
+                ->column("col3", "table1")
+                ->column("col4"));
 
         $this->assertEquals("`table1`.`col1` = `table2`.`col2` AND `table1`.`col3` < `col4`",
             $view->getCondition()->getConditionSQL($adapter));
