@@ -30,7 +30,7 @@ namespace Phinx\Migration;
 
 use Phinx\Db\Table,
     Phinx\Db\Adapter\AdapterInterface,
-    Phinx\Migration\MigrationInterface;
+    Phinx\Db\View;
 
 /**
  * Abstract Migration Class. 
@@ -204,5 +204,27 @@ abstract class AbstractMigration implements MigrationInterface
     public function dropTable($tableName)
     {
         $this->table($tableName)->drop();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasView($viewName)
+    {
+        return $this->getAdapter()->hasView($viewName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function view($viewName) {
+        return new View($viewName, $this->getAdapter());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function condition() {
+        return new View\Condition();
     }
 }

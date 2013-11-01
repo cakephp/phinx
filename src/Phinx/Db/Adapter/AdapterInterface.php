@@ -28,6 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
+use Phinx\Db\View;
 use Symfony\Component\Console\Output\OutputInterface,
     Phinx\Db\Table,
     Phinx\Db\Table\Column,
@@ -195,6 +196,14 @@ interface AdapterInterface
      * @return boolean
      */
     public function hasTable($tableName);
+
+    /**
+     * Checks to see if a view exists.
+     *
+     * @param string $viewName View Name
+     * @return boolean
+     */
+    public function hasView($viewName);
     
     /**
      * Creates the specified database table.
@@ -203,6 +212,14 @@ interface AdapterInterface
      * @return void
      */
     public function createTable(Table $table);
+
+
+    /**
+     * Creates the specified database view
+     * @param View $view View
+     * @return void
+     */
+    public function createView(View $view);
     
     /**
      * Renames the specified database table.
@@ -220,6 +237,14 @@ interface AdapterInterface
      * @return void
      */
     public function dropTable($tableName);
+
+    /**
+     * Drops the specified database view.
+     *
+     * @param string $viewName View Name
+     * @return void
+     */
+    public function dropView($viewName);
 
     /**
      * Returns table columns

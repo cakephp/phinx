@@ -28,6 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
+use Phinx\Db\View;
 use Symfony\Component\Console\Output\OutputInterface,
     Phinx\Db\Table,
     Phinx\Db\Table\Column,
@@ -616,5 +617,37 @@ class ProxyAdapter implements AdapterInterface
     public function invertAddForeignKey($args)
     {
         return array('name' => 'dropForeignKey', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
+    }
+
+    /**
+     * Creates the specified database view
+     * @param View $view View
+     * @return void
+     */
+    public function createView(View $view)
+    {
+        $this->recordCommand('createView', array($view));
+    }
+
+    /**
+     * Checks to see if a view exists.
+     *
+     * @param string $viewName View Name
+     * @return boolean
+     */
+    public function hasView($viewName)
+    {
+        return $this->adapter->hasView($viewName);
+    }
+
+    /**
+     * Drops the specified database view.
+     *
+     * @param string $viewName View Name
+     * @return void
+     */
+    public function dropView($viewName)
+    {
+        $this->recordCommand('dropView', array($viewName));
     }
 }
