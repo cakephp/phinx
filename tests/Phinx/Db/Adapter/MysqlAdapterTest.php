@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\View\Condition;
 use Symfony\Component\Console\Output\NullOutput,
     Phinx\Db\Adapter\MysqlAdapter;
 
@@ -487,18 +488,17 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             ->create();
 
         $view = new \Phinx\Db\View("nview", $this->adapter);
-
+        $condition = new \Phinx\Db\View\Condition();
 
         $view->setTableName("table1")
-            ->
-            setCondition( (new \Phinx\Db\View\Condition())
+            ->setCondition( $condition
                 ->aand()
-                ->comparison("=")
-                ->column("col1", "table1")
-                ->column("col2", "table1")
-                ->comparison("<")
-                ->column("col3", "table1")
-                ->column("col4"));
+                    ->comparison("=")
+                        ->column("col1", "table1")
+                        ->column("col2", "table1")
+                    ->comparison("<")
+                        ->column("col3", "table1")
+                        ->column("col4"));
 
         $view->create();
 
@@ -522,19 +522,24 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             ->addColumn("col4", "integer")
             ->create();
 
-        $view = new \Phinx\Db\View("myName", $this->adapter);
+        $view = new \Phinx\Db\View("nview", $this->adapter);
         $view
                 ->addColumn("col1", "table1")
                 ->addColumn("col3", "table2");
 
+        $condition = new \Phinx\Db\View\Condition();
+
         $view->setTableName("table1")
             ->
-            addInnerJoin("table2", (new \Phinx\Db\View\Condition())
+            addInnerJoin("table2", $condition
                 ->comparison("=")
                     ->column("col1", "table1")
                     ->column("col3", "table2"));
 
         $view->create();
+        $this->assertTrue($this->adapter->hasView('nview'));
+        $this->assertTrue($this->adapter->hasColumn('nview', 'col1'));
+        $this->assertTrue($this->adapter->hasColumn('nview', 'col3'));
     }
     public function testCreateViewWithComplexCondition() {
 
@@ -546,25 +551,32 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             ->addColumn("col4", "integer")
             ->create();
 
-        $view = new \Phinx\Db\View("myName", $this->adapter);
+        $view = new \Phinx\Db\View("nview", $this->adapter);
 
+        $condition = new \Phinx\Db\View\Condition();
 
         $view->setTableName("table1")
             ->
-            setCondition( (new \Phinx\Db\View\Condition())
+            setCondition( $condition
                 ->oor()
-                ->comparison("=")
-                ->column("col2")
-                ->column("col2")
-                ->aand()
-                ->comparison("=")
-                ->column("col1", "table1")
-                ->column("col2", "table1")
-                ->comparison("<")
-                ->column("col3", "table1")
-                ->column("col4"));
+                    ->comparison("=")
+                        ->column("col2")
+                        ->column("col2")
+                    ->aand()
+                        ->comparison("=")
+                            ->column("col1", "table1")
+                            ->column("col2", "table1")
+                        ->comparison("<")
+                            ->column("col3", "table1")
+                            ->column("col4"));
 
         $view->create();
+
+        $this->assertTrue($this->adapter->hasView('nview'));
+        $this->assertTrue($this->adapter->hasColumn('nview', 'col1'));
+        $this->assertTrue($this->adapter->hasColumn('nview', 'col2'));
+        $this->assertTrue($this->adapter->hasColumn('nview', 'col3'));
+        $this->assertTrue($this->adapter->hasColumn('nview', 'col4'));
     }
 }
 
