@@ -121,138 +121,118 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasIndex('table1', array('tag_id', 'user_email')));
     }
 
-    // public function testCreateTableWithMultipleIndexes()
-    // {
-    //     $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
-    //     $table->addColumn('email', 'string')
-    //           ->addColumn('name', 'string')
-    //           ->addIndex('email')
-    //           ->addIndex('name')
-    //           ->save();
-    //     $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
-    //     $this->assertTrue($this->adapter->hasIndex('table1', array('name')));
-    //     $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
-    //     $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_name')));
-    // }
+    public function testCreateTableWithMultipleIndexes()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addColumn('name', 'string')
+              ->addIndex('email')
+              ->addIndex('name')
+              ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
+        $this->assertTrue($this->adapter->hasIndex('table1', array('name')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_name')));
+    }
     
-    // public function testCreateTableWithUniqueIndexes()
-    // {
-    //     $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
-    //     $table->addColumn('email', 'string')
-    //           ->addIndex('email', array('unique' => true))
-    //           ->save();
-    //     $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
-    //     $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
-    // }
+    public function testCreateTableWithUniqueIndexes()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addIndex('email', array('unique' => true))
+              ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
+    }
     
-    // public function testCreateTableWithMultiplePKsAndUniqueIndexes()
-    // {
-    //     $this->markTestIncomplete();
-    // }
+    public function testCreateTableWithMultiplePKsAndUniqueIndexes()
+    {
+        $this->markTestIncomplete();
+    }
     
-    // // public function testCreateTableWithMyISAMEngine()
-    // // {
-    // //     $table = new \Phinx\Db\Table('ntable', array('engine' => 'MyISAM'), $this->adapter);
-    // //     $table->addColumn('realname', 'string')
-    // //           ->save();
-    // //     $this->assertTrue($this->adapter->hasTable('ntable'));
-    // //     $row = $this->adapter->fetchRow(sprintf('SHOW TABLE STATUS WHERE Name = "%s"', 'ntable'));
-    // //     $this->assertEquals('MyISAM', $row['Engine']);
-    // // }
+    public function testRenameTable()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertTrue($this->adapter->hasTable('table1'));
+        $this->assertFalse($this->adapter->hasTable('table2'));
+        $this->adapter->renameTable('table1', 'table2');
+        $this->assertFalse($this->adapter->hasTable('table1'));
+        $this->assertTrue($this->adapter->hasTable('table2'));
+    }
     
-    // // public function testCreateTableWithLatin1Collate()
-    // // {
-    // //     $table = new \Phinx\Db\Table('latin1_table', array('collation' => 'latin1_general_ci'), $this->adapter);
-    // //     $table->addColumn('name', 'string')
-    // //           ->save();
-    // //     $this->assertTrue($this->adapter->hasTable('latin1_table'));
-    // //     $row = $this->adapter->fetchRow(sprintf('SHOW TABLE STATUS WHERE Name = "%s"', 'latin1_table'));
-    // //     $this->assertEquals('latin1_general_ci', $row['Collation']);
-    // // }
-    
-    // public function testRenameTable()
-    // {
-    //     $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
-    //     $table->save();
-    //     $this->assertTrue($this->adapter->hasTable('table1'));
-    //     $this->assertFalse($this->adapter->hasTable('table2'));
-    //     $this->adapter->renameTable('table1', 'table2');
-    //     $this->assertFalse($this->adapter->hasTable('table1'));
-    //     $this->assertTrue($this->adapter->hasTable('table2'));
-    // }
-    
-    // public function testAddColumn()
-    // {
-    //     $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
-    //     $table->save();
-    //     $this->assertFalse($table->hasColumn('email'));
-    //     $table->addColumn('email', 'string')
-    //           ->save();
-    //     $this->assertTrue($table->hasColumn('email'));
-    //     $table->addColumn('realname', 'string', array('after' => 'id'))
-    //           ->save();
-    //     $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-    //     $this->assertEquals('realname', $rows[1]['Field']);
-    // }
+    public function testAddColumn()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
 
-    // public function testAddColumnWithDefaultValue()
-    // {
-    //     $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
-    //     $table->save();
-    //     $table->addColumn('default_zero', 'string', array('default' => 'test'))
-    //           ->save();
-    //     $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-    //     $this->assertEquals("test", $rows[1]['Default']);
-    // }
+        $table->addColumn('email', 'string')
+              ->save();
+        $this->assertTrue($table->hasColumn('email'));
 
-    // public function testAddColumnWithDefaultZero()
-    // {
-    //     $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
-    //     $table->save();
-    //     $table->addColumn('default_zero', 'integer', array('default' => 0))
-    //           ->save();
-    //     $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-    //     $this->assertNotNull($rows[1]['Default']);
-    //     $this->assertEquals("0", $rows[1]['Default']);
-    // }
+        // In SQLite it is not possible to dictate order of added columns.
+        // $table->addColumn('realname', 'string', array('after' => 'id'))
+        //       ->save();
+        // $this->assertEquals('realname', $rows[1]['Field']);
+    }
 
-    // public function testAddColumnWithDefaultEmptyString()
-    // {
-    //     $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
-    //     $table->save();
-    //     $table->addColumn('default_zero', 'integer', array('default' => null))
-    //           ->save();
-    //     $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-    //     $this->assertNull($rows[1]['Default']);
-    // }
+    public function testAddColumnWithDefaultValue()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $table->addColumn('default_zero', 'string', array('default' => 'test'))
+              ->save();
+        $rows = $this->adapter->fetchAll(sprintf('pragma table_info(%s)', 'table1'));
+        $this->assertEquals("test", $rows[1]['dflt_value']);
+    }
+
+    public function testAddColumnWithDefaultZero()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $table->addColumn('default_zero', 'integer', array('default' => 0))
+              ->save();
+        $rows = $this->adapter->fetchAll(sprintf('pragma table_info(%s)', 'table1'));
+        $this->assertNotNull($rows[1]['dflt_value']);
+        $this->assertEquals("0", $rows[1]['dflt_value']);
+    }
+
+    public function testAddColumnWithDefaultEmptyString()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $table->addColumn('default_zero', 'integer', array('default' => null))
+              ->save();
+        $rows = $this->adapter->fetchAll(sprintf('pragma table_info(%s)', 'table1'));
+        $this->assertNull($rows[1]['dflt_value']);
+    }
     
-    // public function testRenameColumn()
-    // {
-    //     $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-    //     $table->addColumn('column1', 'string')
-    //           ->save();
-    //     $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
-    //     $this->assertFalse($this->adapter->hasColumn('t', 'column2'));
-    //     $this->adapter->renameColumn('t', 'column1', 'column2');
-    //     $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
-    //     $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
-    // }
+    public function testRenameColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->save();
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+        $this->adapter->renameColumn('t', 'column1', 'column2');
+        $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
+    }
     
-    // public function testRenamingANonExistentColumn()
-    // {
-    //     $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-    //     $table->addColumn('column1', 'string')
-    //           ->save();
+    public function testRenamingANonExistentColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->save();
         
-    //     try {
-    //         $this->adapter->renameColumn('t', 'column2', 'column1');
-    //         $this->fail('Expected the adapter to throw an exception');
-    //     } catch (\InvalidArgumentException $e) {
-    //         $this->assertInstanceOf('InvalidArgumentException', $e,
-    //             'Expected exception of type InvalidArgumentException, got ' . get_class($e));
-    //         $this->assertEquals('The specified column doesn\'t exist: column2', $e->getMessage());
-    //     }
-    // }
+        try {
+            $this->adapter->renameColumn('t', 'column2', 'column1');
+            $this->fail('Expected the adapter to throw an exception');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertInstanceOf('InvalidArgumentException', $e,
+                'Expected exception of type InvalidArgumentException, got ' . get_class($e));
+            $this->assertEquals('The specified column doesn\'t exist: column2', $e->getMessage());
+        }
+    }
     
     // public function testChangeColumn()
     // {
@@ -324,42 +304,42 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     //     $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
     // }
 
-    // public function testGetColumns()
-    // {
-    //     $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-    //     $table->addColumn('column1', 'string')
-    //           ->addColumn('column2', 'integer')
-    //           ->addColumn('column3', 'biginteger')
-    //           ->addColumn('column4', 'text')
-    //           ->addColumn('column5', 'float')
-    //           ->addColumn('column6', 'decimal')
-    //           ->addColumn('column7', 'datetime')
-    //           ->addColumn('column8', 'time')
-    //           ->addColumn('column9', 'timestamp')
-    //           ->addColumn('column10','date')
-    //           ->addColumn('column11', 'binary')
-    //           ->addColumn('column12', 'boolean')
-    //           ->addColumn('column13', 'string', array('limit' => 10))
-    //           ->addColumn('column15', 'integer', array('limit' => 10));
-    //     $pendingColumns = $table->getPendingColumns();
-    //     $table->save();
-    //     $columns = $this->adapter->getColumns('t');
-    //     $this->assertCount(count($pendingColumns) + 1, $columns);
-    //     for ($i = 0; $i++; $i < count($pendingColumns)) {
-    //         $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
-    //     }
-    // }
+    public function testGetColumns()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->addColumn('column2', 'integer')
+              ->addColumn('column3', 'biginteger')
+              ->addColumn('column4', 'text')
+              ->addColumn('column5', 'float')
+              ->addColumn('column6', 'decimal')
+              ->addColumn('column7', 'datetime')
+              ->addColumn('column8', 'time')
+              ->addColumn('column9', 'timestamp')
+              ->addColumn('column10','date')
+              ->addColumn('column11', 'binary')
+              ->addColumn('column12', 'boolean')
+              ->addColumn('column13', 'string', array('limit' => 10))
+              ->addColumn('column15', 'integer', array('limit' => 10));
+        $pendingColumns = $table->getPendingColumns();
+        $table->save();
+        $columns = $this->adapter->getColumns('t');
+        $this->assertCount(count($pendingColumns) + 1, $columns);
+        for ($i = 0; $i++; $i < count($pendingColumns)) {
+            $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
+        }
+    }
     
-    // public function testAddIndex()
-    // {
-    //     $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
-    //     $table->addColumn('email', 'string')
-    //           ->save();
-    //     $this->assertFalse($table->hasIndex('email'));
-    //     $table->addIndex('email')
-    //           ->save();
-    //     $this->assertTrue($table->hasIndex('email'));
-    // }
+    public function testAddIndex()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->save();
+        $this->assertFalse($table->hasIndex('email'));
+        $table->addIndex('email')
+              ->save();
+        $this->assertTrue($table->hasIndex('email'));
+    }
     
     // public function testDropIndex()
     // {
