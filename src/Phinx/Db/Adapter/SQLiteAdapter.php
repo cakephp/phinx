@@ -382,16 +382,58 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function changeColumn($tableName, $columnName, Column $newColumn)
     {
+        
+        // TODO: DRY this up....
+
         $this->startCommandTimer();
         $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
-        $this->execute(
-            sprintf('ALTER TABLE %s CHANGE %s %s %s',
-                $this->quoteTableName($tableName),
-                $this->quoteColumnName($columnName),
-                $this->quoteColumnName($newColumn->getName()),
-                $this->getColumnSqlDefinition($newColumn)
-            )
+     
+        $tmpTableName = 'tmp_' . $tableName;
+
+        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
+
+        foreach($rows as $table) {
+            if ($table['tbl_name'] == $tableName) {
+                $sql = $table['sql'];
+            }
+        }
+
+        $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $tableName));
+        $selectColumns = array();
+        $writeColumns = array();
+        foreach ($columns as $column) {
+            $selectName = $column['name'];
+            $writeName = ($selectName == $columnName)? $newColumn->getName() : $selectName;
+            $selectColumns[] = $this->quoteColumnName($selectName);
+            $writeColumns[] = $this->quoteColumnName($writeName);
+        }
+
+        if (!in_array($this->quoteColumnName($columnName), $selectColumns)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The specified column doesn\'t exist: ' . $columnName
+            ));
+        }
+
+        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));        
+
+        $sql = preg_replace(
+            sprintf("/%s[^,]*/", $this->quoteColumnName($columnName)),
+            sprintf("%s %s", $this->quoteColumnName($newColumn->getName()), $this->getColumnSqlDefinition($newColumn)),
+            $sql
         );
+
+        $this->execute($sql);
+
+        $sql = sprintf(
+            'INSERT INTO %s(%s) SELECT %s FROM %s',
+            $tableName,
+            implode(', ', $writeColumns),
+            implode(', ', $selectColumns),
+            $tmpTableName
+        );
+
+        $this->execute($sql);
+        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
         return $this->endCommandTimer();
     }
     

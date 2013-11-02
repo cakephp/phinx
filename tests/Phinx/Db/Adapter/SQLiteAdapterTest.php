@@ -234,65 +234,64 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
     
-    // public function testChangeColumn()
-    // {
-    //     $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-    //     $table->addColumn('column1', 'string')
-    //           ->save();
-    //     $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
-    //     $newColumn1 = new \Phinx\Db\Table\Column();
-    //     $newColumn1->setType('string');
-    //     $table->changeColumn('column1', $newColumn1);
-    //     $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
-    //     $newColumn2 = new \Phinx\Db\Table\Column();
-    //     $newColumn2->setName('column2')
-    //                ->setType('string');
-    //     $table->changeColumn('column1', $newColumn2);
-    //     $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
-    //     $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
-    // }
+    public function testChangeColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->save();
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1->setType('string');
+        $table->changeColumn('column1', $newColumn1);
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+        $newColumn2 = new \Phinx\Db\Table\Column();
+        $newColumn2->setName('column2')
+                   ->setType('string');
+        $table->changeColumn('column1', $newColumn2);
+        $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
+    }
 
-    // public function testChangeColumnDefaultValue()
-    // {
-    //     $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-    //     $table->addColumn('column1', 'string', array('default' => 'test'))
-    //           ->save();
-    //     $newColumn1 = new \Phinx\Db\Table\Column();
-    //     $newColumn1->setDefault('test1')
-    //                ->setType('string');
-    //     $table->changeColumn('column1', $newColumn1);
-    //     $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM t');
-    //     $this->assertNotNull($rows[1]['Default']);
-    //     $this->assertEquals("test1", $rows[1]['Default']);
-    // }
+    public function testChangeColumnDefaultValue()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string', array('default' => 'test'))
+              ->save();
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1->setDefault('test1')
+                   ->setType('string');
+        $table->changeColumn('column1', $newColumn1);
+        $rows = $this->adapter->fetchAll('pragma table_info(t)');
+
+        $this->assertEquals("test1", $rows[1]['dflt_value']);
+    }
 
 
-    // public function testChangeColumnDefaultToZero()
-    // {
-    //     $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-    //     $table->addColumn('column1', 'integer')
-    //           ->save();
-    //     $newColumn1 = new \Phinx\Db\Table\Column();
-    //     $newColumn1->setDefault(0)
-    //                ->setType('integer');
-    //     $table->changeColumn('column1', $newColumn1);
-    //     $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM t');
-    //     $this->assertNotNull($rows[1]['Default']);
-    //     $this->assertEquals("0", $rows[1]['Default']);
-    // }
+    public function testChangeColumnDefaultToZero()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'integer')
+              ->save();
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1->setDefault(0)
+                   ->setType('integer');
+        $table->changeColumn('column1', $newColumn1);
+        $rows = $this->adapter->fetchAll('pragma table_info(t)');
+        $this->assertEquals("0", $rows[1]['dflt_value']);
+    }
 
-    // public function testChangeColumnDefaultToNull()
-    // {
-    //     $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-    //     $table->addColumn('column1', 'string', array('default' => 'test'))
-    //           ->save();
-    //     $newColumn1 = new \Phinx\Db\Table\Column();
-    //     $newColumn1->setDefault(null)
-    //                ->setType('string');
-    //     $table->changeColumn('column1', $newColumn1);
-    //     $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM t');
-    //     $this->assertNull($rows[1]['Default']);
-    // }
+    public function testChangeColumnDefaultToNull()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string', array('default' => 'test'))
+              ->save();
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1->setDefault(null)
+                   ->setType('string');
+        $table->changeColumn('column1', $newColumn1);
+        $rows = $this->adapter->fetchAll('pragma table_info(t)');
+        $this->assertNull($rows[1]['dflt_value']);
+    }
     
     // public function testDropColumn()
     // {
