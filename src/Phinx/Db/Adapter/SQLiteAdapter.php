@@ -267,7 +267,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     public function getColumns($tableName)
     {
         $columns = array();
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $tableName));
+        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
 
         foreach ($rows as $columnInfo) {
             $column = new Column();
@@ -295,7 +295,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasColumn($tableName, $columnName)
     {
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $tableName));
+        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
         foreach ($rows as $column) {
             if (strtolower($column['name']) == strtolower($columnName)) {
                 return true;
@@ -338,7 +338,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $tableName));
+        $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
         $selectColumns = array();
         $writeColumns = array();
         foreach ($columns as $column) {
@@ -397,7 +397,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $tableName));
+        $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
         $selectColumns = array();
         $writeColumns = array();
         foreach ($columns as $column) {
@@ -456,7 +456,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $tableName));
+        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
         $columns = array();
         foreach ($rows as $row) {
             if ($row['name'] != $columnName) {
@@ -702,40 +702,58 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropForeignKey($tableName, $columns, $constraint = null)
     {
+        // TODO: DRY this up....
+
         $this->startCommandTimer();
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
         
         $this->writeCommand('dropForeignKey', array($tableName, $columns));
-        
-        if ($constraint) {
-            $this->execute(
-                sprintf('ALTER TABLE %s DROP FOREIGN KEY %s',
-                    $this->quoteTableName($tableName),
-                    $constraint
-                )
-            );
-            return $this->endCommandTimer();
-        } else {
-            foreach ($columns as $column) {
-                $rows = $this->fetchAll(sprintf(
-                        'SELECT
-                            CONSTRAINT_NAME
-                          FROM information_schema.KEY_COLUMN_USAGE
-                          WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
-                            AND REFERENCED_TABLE_NAME IS NOT NULL
-                            AND TABLE_NAME = "%s"
-                            AND COLUMN_NAME = "%s"
-                          ORDER BY POSITION_IN_UNIQUE_CONSTRAINT',
-                        $tableName,
-                        $column
-                ));
-                foreach ($rows as $row) {
-                    $this->dropForeignKey($tableName, $columns, $row['CONSTRAINT_NAME']);
-                }
+     
+        $tmpTableName = 'tmp_' . $tableName;
+
+        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
+
+        foreach($rows as $table) {
+            if ($table['tbl_name'] == $tableName) {
+                $sql = $table['sql'];
             }
         }
+
+        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
+        $replaceColumns = array();
+        foreach ($rows as $row) {
+            if (!in_array($row['name'], $columns)) {
+                $replaceColumns[] = $row['name'];
+            } else {
+                $found = true;
+            }
+        }
+
+        if (!isset($found)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The specified column doesn\'t exist: ' . $columnName
+            ));
+        }
+
+        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($tableName), $tmpTableName));
+
+        foreach($columns as $columnName) {
+            $sql = preg_replace(sprintf("/%s[^,]*[,]?[\ ]?/", $this->quoteColumnName($columnName)),'',$sql, 1);
+            $sql = preg_replace(sprintf("/,[^,]*\(%s\) REFERENCES[^,]*\([^\)]*\)/", $this->quoteColumnName($columnName)),'',$sql, 1);      
+        }
+
+        $sql = sprintf(
+            'INSERT INTO %s(%s) SELECT %s FROM %s',
+            $tableName,
+            implode(', ', $columns),
+            implode(', ', $columns),
+            $tmpTableName
+        );
+
+        $this->execute($sql);
+        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
         return $this->endCommandTimer();
     }
     
