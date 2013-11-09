@@ -340,44 +340,45 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table->hasIndex('email'));
     }
     
-    // public function testDropIndex()
-    // {
-    //     // single column index
-    //     $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
-    //     $table->addColumn('email', 'string')
-    //           ->addIndex('email')
-    //           ->save();
-    //     $this->assertTrue($table->hasIndex('email'));
-    //     $this->adapter->dropIndex($table->getName(), 'email');
-    //     $this->assertFalse($table->hasIndex('email'));
+    public function testDropIndex()
+    {
+        // single column index
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addIndex('email')
+              ->save();
+        $this->assertTrue($table->hasIndex('email'));
+        $this->adapter->dropIndex($table->getName(), 'email');
+        $this->assertFalse($table->hasIndex('email'));
         
-    //     // multiple column index
-    //     $table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
-    //     $table2->addColumn('fname', 'string')
-    //            ->addColumn('lname', 'string')
-    //            ->addIndex(array('fname', 'lname'))
-    //            ->save();
-    //     $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
-    //     $this->adapter->dropIndex($table2->getName(), array('fname', 'lname'));
-    //     $this->assertFalse($table2->hasIndex(array('fname', 'lname')));
-    // }
+        // multiple column index
+        $table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
+        $table2->addColumn('fname', 'string')
+               ->addColumn('lname', 'string')
+               ->addIndex(array('fname', 'lname'))
+               ->save();
+        $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
+        $this->adapter->dropIndex($table2->getName(), array('fname', 'lname'));
+        $this->assertFalse($table2->hasIndex(array('fname', 'lname')));
+    }
 
-    // public function testAddForeignKey()
-    // {
-    //     $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
-    //     $refTable->addColumn('field1', 'string')->save();
+    public function testAddForeignKey()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
 
-    //     $table = new \Phinx\Db\Table('table', array(), $this->adapter);
-    //     $table->addColumn('ref_table_id', 'integer')->save();
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer')->save();
 
-    //     $fk = new \Phinx\Db\Table\ForeignKey();
-    //     $fk->setReferencedTable($refTable)
-    //        ->setColumns(array('ref_table_id'))
-    //        ->setReferencedColumns(array('id'));
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+           ->setColumns(array('ref_table_id'))
+           ->setReferencedColumns(array('id'));
 
-    //     $this->adapter->addForeignKey($table, $fk);
-    //     $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
-    // }
+        $this->adapter->addForeignKey($table, $fk);
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+    }
 
     // public function dropForeignKey()
     // {
@@ -397,19 +398,19 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     //     $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
     // }
     
-    // public function testHasDatabase()
-    // {
-    //     $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
-    //     $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE));
-    // }
+    public function testHasDatabase()
+    {
+        $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
+        $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE));
+    }
     
-    // public function testDropDatabase()
-    // {
-    //     $this->assertFalse($this->adapter->hasDatabase('temp_phinx_database'));
-    //     $this->adapter->createDatabase('temp_phinx_database');
-    //     $this->assertTrue($this->adapter->hasDatabase('temp_phinx_database'));
-    //     $this->adapter->dropDatabase('temp_phinx_database');
-    // }
+    public function testDropDatabase()
+    {
+        $this->assertFalse($this->adapter->hasDatabase('temp_phinx_database'));
+        $this->adapter->createDatabase('temp_phinx_database');
+        $this->assertTrue($this->adapter->hasDatabase('temp_phinx_database'));
+        $this->adapter->dropDatabase('temp_phinx_database');
+    }
 
     // public function testAddColumnWithComment()
     // {
