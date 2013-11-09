@@ -892,7 +892,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('dropDatabase', array($name));
-        unlink($name . '.sqlite3');
+        if (file_exists($name . '.sqlite3')) {
+           unlink($name . '.sqlite3'); 
+        }
         return $this->endCommandTimer();
     }
     
