@@ -293,15 +293,15 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($rows[1]['dflt_value']);
     }
     
-    // public function testDropColumn()
-    // {
-    //     $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-    //     $table->addColumn('column1', 'string')
-    //           ->save();
-    //     $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
-    //     $this->adapter->dropColumn('t', 'column1');
-    //     $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
-    // }
+    public function testDropColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->save();
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+        $this->adapter->dropColumn('t', 'column1');
+        $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
+    }
 
     public function testGetColumns()
     {

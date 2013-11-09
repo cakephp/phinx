@@ -441,15 +441,57 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropColumn($tableName, $columnName)
     {
+        // TODO: DRY this up....
+
         $this->startCommandTimer();
         $this->writeCommand('dropColumn', array($tableName, $columnName));
-        $this->execute(
-            sprintf(
-                'ALTER TABLE %s DROP COLUMN %s',
-                $this->quoteTableName($tableName),
-                $this->quoteColumnName($columnName)
-            )
+     
+        $tmpTableName = 'tmp_' . $tableName;
+
+        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
+
+        foreach($rows as $table) {
+            if ($table['tbl_name'] == $tableName) {
+                $sql = $table['sql'];
+            }
+        }
+
+        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $tableName));
+        $columns = array();
+        foreach ($rows as $row) {
+            if ($row['name'] != $columnName) {
+                $columns[] = $row['name'];
+            } else {
+                $found = true;
+            }
+        }
+
+        if (!isset($found)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The specified column doesn\'t exist: ' . $columnName
+            ));
+        }
+
+        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));        
+
+        $sql = preg_replace(
+            sprintf("/%s[^,]*/", $this->quoteColumnName($columnName)),
+            '',
+            $sql
         );
+
+        $this->execute($sql);
+
+        $sql = sprintf(
+            'INSERT INTO %s(%s) SELECT %s FROM %s',
+            $tableName,
+            implode(', ', $columns),
+            implode(', ', $columns),
+            $tmpTableName
+        );
+
+        $this->execute($sql);
+        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
         return $this->endCommandTimer();
     }
     
