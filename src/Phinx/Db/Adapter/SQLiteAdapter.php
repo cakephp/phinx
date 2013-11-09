@@ -931,7 +931,22 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $def .= ' ON UPDATE ' . $column->getUpdate();
         }
 
+        $def .= $this->getCommentDefinition($column);
+
         return $def;
+    }
+
+    /**
+     * Gets the comment Definition for a Column object.
+     *
+     * @param Column $column Column
+     * @return string
+     */
+    protected function getCommentDefinition(Column $column)
+    {
+        if ($column->getComment()) {
+            return ' /* ' . $column->getComment() . ' */ ';
+        }
     }
     
     /**
