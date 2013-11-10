@@ -64,6 +64,12 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->environment->setOptions(array('adapter' => 'mysql'));
         $this->assertTrue($this->environment->getAdapter() instanceof \Phinx\Db\Adapter\MysqlAdapter);
     }
+
+    public function testAdapterFactoryCreatesSqliteAdapter()
+    {
+        $this->environment->setOptions(array('adapter' => 'sqlite'));
+        $this->assertTrue($this->environment->getAdapter() instanceof \Phinx\Db\Adapter\SQLiteAdapter);
+    }
     
     public function testCurrentVersion()
     {
