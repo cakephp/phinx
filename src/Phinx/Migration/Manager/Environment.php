@@ -33,6 +33,7 @@ use Symfony\Component\Console\Output\OutputInterface,
     Phinx\Db\Adapter\PdoAdapter,
     Phinx\Db\Adapter\MysqlAdapter,
     Phinx\Db\Adapter\PostgresAdapter,
+    Phinx\Db\Adapter\SQLiteAdapter,
     Phinx\Db\Adapter\ProxyAdapter,
     Phinx\Migration\MigrationInterface;
 
@@ -266,6 +267,9 @@ class Environment
                         break;
                     case 'pgsql':                                                           
                         $this->setAdapter(new PostgresAdapter($this->options, $this->getOutput()));                        
+                        break;
+                    case 'sqlite':                                                           
+                        $this->setAdapter(new SQLiteAdapter($this->options, $this->getOutput()));                        
                         break;
                     default:
                         throw new \RuntimeException('Invalid adapter specified: ' . $this->options['adapter']);
