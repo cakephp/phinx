@@ -111,7 +111,7 @@ Change to your Phinx clone directory and pull the necessary dependencies:
 
  * `php composer.phar install --dev`
 
-Copy the configuration template in tests/ and replace @tags@ at the bottom of the file
+Copy the `phpunit.xml.dist` template to `phpunit.xml` and change the configuration to suit your environment.
   
 ## News & Updates
 
