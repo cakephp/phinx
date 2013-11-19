@@ -14,6 +14,8 @@ creates a file called ``phinx.yml`` in the root of your project directory.
     directory on your webserver. This file contains your database credentials
     and may be accidentally served as plain text.
 
+If you do not wish to use the default configuration file, you may specify a configuration file (or a file that generates a PHP array) on the command line. See the :doc:`Commands <commands>` chapter for more information.
+
 Migration Path
 --------------
 
