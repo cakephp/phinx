@@ -68,19 +68,8 @@ EOT
     {
         $this->bootstrap($input, $output);
         
-        $environment = $input->getOption('environment');
+        $environment = $this->getEnvironment($input, $output);
         $version = $input->getOption('target');
-        
-        if (null === $environment) {
-            $environment = $this->getConfig()->getDefaultEnvironment();
-            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
-        } else {
-            $output->writeln('<info>using environment</info> ' . $environment);
-        }
-        
-        $envOptions = $this->getConfig()->getEnvironment($environment);
-        $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
-        $output->writeln('<info>using database</info> ' . $envOptions['name']);
         
         // rollback the specified environment
         $start = microtime(true);
