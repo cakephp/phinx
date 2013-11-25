@@ -263,7 +263,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->save();
         $this->assertFalse($table->hasColumn('user_id'));
-        $table->addColumn('user_id', 'biginteger', ['unsigned' => TRUE])
+        $table->addColumn('user_id', 'biginteger', array('unsigned' => TRUE))
             ->save();
         $this->assertTrue($table->hasColumn('user_id'));
     }
