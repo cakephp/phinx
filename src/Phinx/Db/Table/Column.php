@@ -402,7 +402,7 @@ class Column
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment');
+        $validOptions = array('unsigned', 'limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');
