@@ -257,7 +257,17 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertNull($rows[1]['Default']);
     }
-    
+
+    public function testAddColumnWithOptionUnsigned()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('user_id', 'biginteger', ['unsigned' => TRUE])
+            ->save();
+        $this->assertTrue($table->hasColumn('user_id'));
+    }
+
     public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);

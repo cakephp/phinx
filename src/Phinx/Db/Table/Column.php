@@ -48,7 +48,12 @@ class Column
      * @var integer
      */
     protected $limit = null;
-    
+
+    /**
+     * @var boolean
+     */
+    protected $unsigned = FALSE;
+
     /**
      * @var boolean
      */
@@ -154,7 +159,41 @@ class Column
     {
         return $this->limit;
     }
-    
+
+    /**
+     * Sets whether the column is unsigned.
+     *
+     * @param boolean $value
+     *
+     * @return Column
+     */
+    public function setUnsigned($value)
+    {
+        $this->unsigned = $value !== FALSE ? TRUE : FALSE;
+
+        return $this;
+    }
+
+    /**
+     * Gets whether the column is unsigned.
+     *
+     * @return boolean
+     */
+    public function getUnsigned()
+    {
+        return $this->unsigned;
+    }
+
+    /**
+     * Does the column is unsigned?
+     *
+     * @return boolean
+     */
+    public function isUnsigned()
+    {
+        return $this->getUnsigned();
+    }
+
     /**
      * Sets whether the column allows nulls.
      *
@@ -363,7 +402,7 @@ class Column
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment');
+        $validOptions = array('unsigned', 'limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');
