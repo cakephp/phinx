@@ -264,7 +264,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->save();
         $this->assertFalse($table->hasColumn('user_id'));
         $table->addColumn('user_id', 'integer')
-            ->save();
+              ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals($rows[1]['Type'], 'int(11)');
     }
@@ -275,7 +275,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->save();
         $this->assertFalse($table->hasColumn('user_id'));
         $table->addColumn('user_id', 'integer', array('signed' => false))
-            ->save();
+              ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals($rows[1]['Type'], 'int(11) unsigned');
     }
@@ -285,8 +285,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->save();
         $this->assertFalse($table->hasColumn('user_id'));
-        $table->addColumn('user_id', 'integer', array('signed' => false))
-            ->save();
+        $table->addColumn('user_id', 'string', array('signed' => false))
+              ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals($rows[1]['Type'], 'text(255)');
     }
