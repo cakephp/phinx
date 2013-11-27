@@ -266,7 +266,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('user_id', 'integer')
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertEquals($rows[1]['Type'], 'int(11)');
+        $this->assertEquals('int(11)', $rows[1]['Type']);
     }
 
     public function testAddIntegerColumnWithSignedEqualsFalse()
@@ -277,7 +277,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('user_id', 'integer', array('signed' => false))
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertEquals($rows[1]['Type'], 'int(11) unsigned');
+        $this->assertEquals('int(11) unsigned', $rows[1]['Type']);
     }
 
     public function testAddStringColumnWithSignedEqualsFalse()
@@ -288,7 +288,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('user_id', 'string', array('signed' => false))
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertEquals($rows[1]['Type'], 'text(255)');
+        $this->assertEquals('varchar(255)', $rows[1]['Type']);
     }
 
     public function testRenameColumn()
