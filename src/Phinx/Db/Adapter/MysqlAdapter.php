@@ -40,6 +40,9 @@ use Phinx\Db\Table,
  */
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
+
+    protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
+
     /**
      * {@inheritdoc}
      */
@@ -781,7 +784,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      * @return string
      */
     protected function getColumnSqlDefinition(Column $column)
-    {
+    {;
         $sqlType = $this->getSqlType($column->getType());
         $def = '';
         $def .= strtoupper($sqlType['name']);
@@ -790,6 +793,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
         $def .= ($column->getLimit() || isset($sqlType['limit']))
                      ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
+        $def .= (! $column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
         $default = $column->getDefault();
