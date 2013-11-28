@@ -266,7 +266,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->addIndex('user_id')
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertNull($rows[0]['Extra']);
+        $this->assertEquals('', $rows[0]['Extra']);
         $this->assertEquals('auto_increment', $rows[1]['Extra']);
     }
     
