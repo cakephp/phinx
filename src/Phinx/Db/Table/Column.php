@@ -90,6 +90,11 @@ class Column
     protected $comment;
 
     /**
+     * @var boolean
+     */
+    protected $autoIncrement = false;
+
+    /**
      * Sets the column name.
      *
      * @param string $name
@@ -355,6 +360,38 @@ class Column
     }
 
     /**
+     * Set auto-increment
+     *
+     * @param string $autoIncrement
+     * @return Column
+     */
+    public function setAutoIncrement($autoIncrement)
+    {
+        $this->autoIncrement = (bool) $autoIncrement;
+        return $this;
+    }
+
+    /**
+     * Gets whether the column should auto-increment
+     *
+     * @return boolean
+     */
+    public function getAutoIncrement()
+    {
+        return $this->autoIncrement;
+    }
+
+    /**
+     * Should the column auto-increment?
+     *
+     * @return boolean
+     */
+    public function isAutoIncrement()
+    {
+        return $this->getAutoIncrement();
+    }
+
+    /**
      * Utility method that maps an array of column options to this objects methods.
      *
      * @param array $options Options
@@ -363,7 +400,7 @@ class Column
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment');
+        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment', 'autoIncrement');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');

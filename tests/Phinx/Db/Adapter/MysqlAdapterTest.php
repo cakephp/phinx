@@ -257,6 +257,19 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertNull($rows[1]['Default']);
     }
+
+    public function testCreateAutoIncrementedField()
+    {
+        $table = new \Phinx\Db\Table('table1', array('id' => false), $this->adapter);
+        $table->save();
+        $table->addColumn('id', 'integer')
+              ->addColumn('user_id', 'integer', array('autoIncrement' => true))
+              ->addIndex('user_id')
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('', $rows[2]['Extra']);
+        $this->assertEquals('auto_increment', $rows[2]['Extra']);
+    }
     
     public function testRenameColumn()
     {
