@@ -260,7 +260,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateAutoIncrementedField()
     {
-        $table = new \Phinx\Db\Table('table1', array('id' => false), $this->adapter);
+        $table = new \Phinx\Db\Table('table1', array('id' => false, 'primary_key' => 'id'), $this->adapter);
         $table->addColumn('id', 'integer')
               ->addColumn('user_id', 'integer', array('autoIncrement' => true))
               ->addIndex('user_id')
