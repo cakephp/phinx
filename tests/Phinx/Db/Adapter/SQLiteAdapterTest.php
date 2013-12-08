@@ -319,7 +319,10 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column11', 'binary')
               ->addColumn('column12', 'boolean')
               ->addColumn('column13', 'string', array('limit' => 10))
-              ->addColumn('column15', 'integer', array('limit' => 10));
+              ->addColumn('column15', 'integer', array('limit' => 10))
+              ->addColumn('column16', 'tinyinteger')
+              ->addColumn('column17', 'smallinteger');
+
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');

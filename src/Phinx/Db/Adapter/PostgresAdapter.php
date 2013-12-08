@@ -593,12 +593,15 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getSqlType($type)
     {
-        switch ($type) {            
+        switch ($type) {
             case 'string':
                 return array('name' => 'character varying', 'limit' => 255);
                 break;
             case 'text':
                 return array('name' => 'text');
+                break;
+            case 'smallinteger':
+                return array('name' => 'smallint');
                 break;
             case 'integer':
                 return array('name' => 'integer');
@@ -611,7 +614,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 break;
             case 'decimal':
                 return array('name' => 'decimal');
-                break;           
+                break;
              case 'datetime':
                 return array('name' => 'timestamp');
                 break;
