@@ -302,14 +302,16 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column3', 'biginteger')
               ->addColumn('column4', 'text')
               ->addColumn('column5', 'float')
-              ->addColumn('column6', 'decimal')              
+              ->addColumn('column6', 'decimal')
               ->addColumn('column7', 'time')
               ->addColumn('column8', 'timestamp')
               ->addColumn('column9', 'date')
               ->addColumn('column10', 'boolean')
               ->addColumn('column11', 'datetime')
               ->addColumn('column12', 'binary')
-              ->addColumn('column13', 'string', array('limit' => 10));
+              ->addColumn('column13', 'string', array('limit' => 10))
+              ->addColumn('column17', 'smallinteger');
+
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -427,7 +429,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasSchema('foo'));        
         $this->assertFalse($this->adapter->hasSchema('bar'));        
     }
-    
+
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage The type: "idontexist" is not supported
@@ -443,18 +445,21 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('integer', $this->adapter->getPhinxType('int4'));
         $this->assertEquals('integer', $this->adapter->getPhinxType('integer'));
 
-        $this->assertEquals('biginteger', $this->adapter->getPhinxType('bigint'));
-        $this->assertEquals('biginteger', $this->adapter->getPhinxType('int8'));        
+        $this->assertEquals('smallinteger', $this->adapter->getPhinxType('smallint'));
+        $this->assertEquals('smallinteger', $this->adapter->getPhinxType('int2'));
 
-        $this->assertEquals('decimal', $this->adapter->getPhinxType('decimal'));        
+        $this->assertEquals('biginteger', $this->adapter->getPhinxType('bigint'));
+        $this->assertEquals('biginteger', $this->adapter->getPhinxType('int8'));
+
+        $this->assertEquals('decimal', $this->adapter->getPhinxType('decimal'));
         $this->assertEquals('decimal', $this->adapter->getPhinxType('numeric'));
 
-        $this->assertEquals('float', $this->adapter->getPhinxType('real'));        
-        $this->assertEquals('float', $this->adapter->getPhinxType('float4'));        
+        $this->assertEquals('float', $this->adapter->getPhinxType('real'));
+        $this->assertEquals('float', $this->adapter->getPhinxType('float4'));
 
         $this->assertEquals('boolean', $this->adapter->getPhinxType('bool'));
-        $this->assertEquals('boolean', $this->adapter->getPhinxType('boolean'));        
-        
+        $this->assertEquals('boolean', $this->adapter->getPhinxType('boolean'));
+
         $this->assertEquals('string', $this->adapter->getPhinxType('character varying'));
         $this->assertEquals('string', $this->adapter->getPhinxType('varchar'));
 

@@ -226,7 +226,7 @@ class ProxyAdapter implements AdapterInterface
     {
         return 'ProxyAdapter';
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -237,6 +237,8 @@ class ProxyAdapter implements AdapterInterface
             'string',
             'text',
             'integer',
+            'tinyinteger',
+            'smallinteger',
             'biginteger',
             'float',
             'decimal',
@@ -248,7 +250,7 @@ class ProxyAdapter implements AdapterInterface
             'boolean'
         );
     }
-    
+
     /**
      * {@inheritdoc}
      */

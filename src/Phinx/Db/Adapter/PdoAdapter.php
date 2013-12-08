@@ -417,6 +417,8 @@ abstract class PdoAdapter implements AdapterInterface
             'primary_key',
             'string',
             'text',
+            'tinyinteger',
+            'smallinteger',
             'integer',
             'biginteger',
             'float',
