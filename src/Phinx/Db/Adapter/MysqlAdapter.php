@@ -858,4 +858,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
         return $def;
     }
+
+    /**
+     * @return Table[]
+     */
+    public function getTables()
+    {
+
+    }
+
 }
