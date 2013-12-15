@@ -34,9 +34,20 @@ class SchemaDumper
     public function dump()
     {
         $tables = $this->getAdapter()->getTables();
+        if (!$tables) {
+
+            return "";
+        }
+
         ob_start();
-        require_once dirname(__FILE__) . '/Schema.template.php';
-        $dump = ob_get_contents();
+        try {
+            require_once dirname(__FILE__) . '/Schema.template.php';
+            $dump = ob_get_contents();
+        } catch (\Exception $e) {
+            ob_end_clean();
+
+            throw $e;
+        }
         ob_end_clean();
 
         return $dump;
@@ -93,7 +104,7 @@ class SchemaDumper
     protected function buildAddColumnArgumentsString(Column $column)
     {
         $args = array(
-            "'{$column->getName()}'",
+            "'`{$column->getName()}`'",
             "'{$column->getType()}'"
         );
         $options = $this->buildColumnOptionsString($column);

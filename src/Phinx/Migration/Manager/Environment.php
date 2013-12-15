@@ -28,6 +28,7 @@
  */
 namespace Phinx\Migration\Manager;
 
+use Phinx\Migration\SchemaDumper;
 use Symfony\Component\Console\Output\OutputInterface,
     Phinx\Db\Adapter\AdapterInterface,
     Phinx\Db\Adapter\PdoAdapter,
@@ -302,5 +303,16 @@ class Environment
     public function getSchemaTableName()
     {
         return $this->schemaTableName;
+    }
+
+    /**
+     * @return string
+     */
+    public function schemaDump()
+    {
+        $dumper = new SchemaDumper();
+        $dumper->setAdapter($this->getAdapter());
+
+        return $dumper->dump();
     }
 }

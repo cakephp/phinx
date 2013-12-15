@@ -289,7 +289,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function getColumns($tableName)
     {
         $columns = array();
-        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $tableName));
+        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM `%s`', $tableName));
         foreach ($rows as $columnInfo) {
             $column = new Column();
             $column->setName($columnInfo['Field'])
@@ -690,9 +690,19 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $limit = null;
                     }
                     break;
+                case 'mediumtext':
+                    $type = 'text';
+                    break;
                 case 'int':
                     $type = 'integer';
                     if ($limit == 11) {
+                        $limit = null;
+                    }
+                    break;
+                case 'smallint':
+                case 'year':
+                    $type = 'integer';
+                    if ($limit == 6) {
                         $limit = null;
                     }
                     break;
@@ -702,6 +712,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     }
                     $type = 'biginteger';
                     break;
+                case 'double':
+                    $type = 'decimal';
+                    break;
                 case 'blob':
                     $type = 'binary';
                     break;
@@ -710,6 +723,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 if ($matches[3] == 1) {
                     $type = 'boolean';
                     $limit = null;
+                } else {
+                    $type = 'integer';
                 }
             }
 
@@ -864,7 +879,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getTables()
     {
+        $options = $this->getOptions();
 
+        $tables = array();
+        $rows = $this->fetchAll(sprintf('SHOW TABLES IN `%s`', $options['name']));
+        foreach ($rows as $row) {
+            $tables[] = new Table($row[0], array(), $this);
+        }
+
+        return $tables;
     }
 
 }

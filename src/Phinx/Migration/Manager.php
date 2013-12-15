@@ -438,4 +438,15 @@ class Manager
     {
         return $this->config;
     }
+
+    /**
+     * @param string $environment
+     *
+     * @return string
+     */
+    public function schemaDump($environment)
+    {
+        return $this->getEnvironment($environment)->schemaDump();
+    }
 }
+
