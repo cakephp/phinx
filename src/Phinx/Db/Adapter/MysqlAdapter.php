@@ -632,7 +632,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'int', 'limit' => 11);
                 break;
             case 'biginteger':
-                return array('name' => 'bigint', 'limit' => 11);
+                return array('name' => 'bigint', 'limit' => 20);
                 break;
             case 'float':
                 return array('name' => 'float');
@@ -697,7 +697,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     }
                     break;
                 case 'bigint':
-                    if ($limit == 11) {
+                    if ($limit == 20) {
                         $limit = null;
                     }
                     $type = 'biginteger';
