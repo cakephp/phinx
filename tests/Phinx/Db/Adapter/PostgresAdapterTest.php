@@ -492,56 +492,56 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($comment, $row['column_comment'], 'Dont set column comment correctly');
     }
 
-	/**
-	 * @depends testCanAddColumnComment
-	 */
-	public function testCanChangeColumnComment()
-	{
+    /**
+     * @depends testCanAddColumnComment
+     */
+    public function testCanChangeColumnComment()
+    {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('field1', 'string', array('comment' => 'Comments from column "field1"'))
               ->save();
-			  
-		$table->changeColumn('field1', 'string', array('comment' => $comment = 'New Comments from column "field1"'))
-			  ->save();
-			  
+
+        $table->changeColumn('field1', 'string', array('comment' => $comment = 'New Comments from column "field1"'))
+              ->save();
+
         $row = $this->adapter->fetchRow('
-			SELECT
-				(select pg_catalog.col_description(oid,cols.ordinal_position::int)
-				 from pg_catalog.pg_class c 
-				 where c.relname=cols.table_name ) as column_comment
-			FROM information_schema.columns cols 
-			WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
-			AND cols.table_name=\'table1\'
-			AND cols.column_name = \'field1\'
+            SELECT
+                (select pg_catalog.col_description(oid,cols.ordinal_position::int)
+            from pg_catalog.pg_class c 
+            where c.relname=cols.table_name ) as column_comment
+            FROM information_schema.columns cols 
+            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            AND cols.table_name=\'table1\'
+            AND cols.column_name = \'field1\'
         ');
-		
+
         $this->assertEquals($comment, $row['column_comment'], 'Dont change column comment correctly');
-	}
-	
-	/**
-	 * @depends testCanAddColumnComment
-	 */
-	public function testCanRemoveColumnComment()
-	{
+    }
+
+    /**
+     * @depends testCanAddColumnComment
+     */
+    public function testCanRemoveColumnComment()
+    {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('field1', 'string', array('comment' => 'Comments from column "field1"'))
               ->save();
-			  
-		$table->changeColumn('field1', 'string', array('comment' => 'null'))
-			  ->save();
-        
+
+        $table->changeColumn('field1', 'string', array('comment' => 'null'))
+              ->save();
+
         $row = $this->adapter->fetchRow('
-			SELECT
-				(select pg_catalog.col_description(oid,cols.ordinal_position::int)
-				 from pg_catalog.pg_class c 
-				 where c.relname=cols.table_name ) as column_comment
-			FROM information_schema.columns cols 
-			WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
-			AND cols.table_name=\'table1\'
-			AND cols.column_name = \'field1\'
+            SELECT
+                (select pg_catalog.col_description(oid,cols.ordinal_position::int)
+            from pg_catalog.pg_class c 
+            where c.relname=cols.table_name ) as column_comment
+            FROM information_schema.columns cols 
+            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            AND cols.table_name=\'table1\'
+            AND cols.column_name = \'field1\'
         ');
-		
+
         $this->assertEmpty($row['column_comment'], 'Dont remove column comment correctly');
-	}
+    }
 
 }
