@@ -37,6 +37,13 @@ use Phinx\Db\Table,
 class PostgresAdapter extends PdoAdapter implements AdapterInterface
 {
     /**
+     * Columns with comments
+     *
+     * @var array
+     */
+    protected $columnsWithComments = array();
+
+    /**
      * {@inheritdoc}
      */
     public function connect()
@@ -200,6 +207,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
             $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
+
+            // set column comments, if needed
+            if ($column->getComment()) {
+                $this->columnsWithComments[] = $column;
+            }
         }
         
          // set the primary key(s)
@@ -228,6 +240,15 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         $sql .= ') ';
         $sql = rtrim($sql) . ';';
+
+
+        // process column comments
+        if (!empty($this->columnsWithComments)) {
+            foreach ($this->columnsWithComments as $column) {
+                $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
+            }
+        }
+
 
         // set the indexes
         $indexes = $table->getIndexes();
@@ -376,6 +397,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $this->quoteColumnName($columnName),
             $this->quoteColumnName($newColumn->getName())));
         }
+
+        // change column comment if needed
+        if ($newColumn->getComment()) {
+            $sql = $this->getColumnCommentSqlDefinition($newColumn, $tableName);
+            $this->execute($sql);
+        }
+
         $this->endCommandTimer();
     }
     
@@ -746,6 +774,28 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         // TODO - add precision & scale for decimals
         return $def;
     }
+
+    /**
+     * Gets the PostgreSQL Column Comment Defininition for a column object.
+     * 
+     * @param Column $column Column
+     * @param string $tableName Table name
+     * @return string
+     */
+    protected function getColumnCommentSqlDefinition(Column $column, $tableName)
+    {
+        // passing 'null' is to remove column comment
+        $comment = (strtoupper($column->getComment()) != 'NULL')
+                 ? $this->getConnection()->quote($column->getComment())
+                 : 'NULL';
+
+        return sprintf('COMMENT ON COLUMN %s.%s IS %s',
+            $tableName,
+            $column->getName(),
+            $comment
+        );
+    }
+
     
     /**
      * Gets the PostgreSQL Index Definition for an Index object.
