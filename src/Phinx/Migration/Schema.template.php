@@ -8,7 +8,7 @@ class Schema extends AbstractMigration
     public function up()
     {
 <?php foreach ($tables as $table) : ?>
-        $this->table('`<?php echo $table->getName();?>`', <?php echo $this->buildTableOptionsString($table);?>)
+        $this->table('<?php echo $table->getName();?>', <?php echo $this->buildTableOptionsString($table);?>)
 <?php $columns = $table->getColumns(); ?>
 <?php foreach ($columns as $column) : ?>
 <?php if ($column->getName() != 'id') : ?>
@@ -23,7 +23,7 @@ class Schema extends AbstractMigration
     public function down()
     {
 <?php foreach ($tables as $table) : ?>
-        $this->dropTable('`<?php echo $table->getName();?>`');
+        $this->dropTable('<?php echo $table->getName();?>');
 <?php endforeach; ?>
     }
 }

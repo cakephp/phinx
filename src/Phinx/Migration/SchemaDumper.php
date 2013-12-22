@@ -107,7 +107,7 @@ class SchemaDumper
     protected function buildAddColumnArgumentsString(Column $column)
     {
         $args = array(
-            "'`{$column->getName()}`'",
+            "'{$column->getName()}'",
             "'{$column->getType()}'"
         );
         $options = $this->buildColumnOptionsString($column);

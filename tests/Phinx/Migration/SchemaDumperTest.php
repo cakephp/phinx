@@ -37,7 +37,7 @@ class SchemaDumperTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValueMap($map));
 
         $tableOne = new Table('one', array(), $adapterStub);
-        $tableTwo = new Table('two', array('id'=>'`two_id`'), $adapterStub);
+        $tableTwo = new Table('two', array('id'=>'two_id'), $adapterStub);
         $tableThree = new Table(
             'three',
             array('id'=>false, 'primary_key'=>array('dummy_int', 'dummy_int_null')),
