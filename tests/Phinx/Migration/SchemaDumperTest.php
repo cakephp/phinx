@@ -37,8 +37,12 @@ class SchemaDumperTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValueMap($map));
 
         $tableOne = new Table('one', array(), $adapterStub);
-        $tableTwo = new Table('two', array(), $adapterStub);
-        $tableThree = new Table('three', array(), $adapterStub);
+        $tableTwo = new Table('two', array('id'=>'`two_id`'), $adapterStub);
+        $tableThree = new Table(
+            'three',
+            array('id'=>false, 'primary_key'=>array('dummy_int', 'dummy_int_null')),
+            $adapterStub
+        );
 
         $adapterStub->expects($this->once())
             ->method('getTables')
@@ -73,6 +77,10 @@ class SchemaDumperTest extends \PHPUnit_Framework_TestCase
     {
         $tableName = 'two';
 
+        $columnPk = new Column();
+        $columnPk->setName('two_id')
+            ->setType('integer');
+
         $columnA = new Column();
         $columnA->setName('name')
             ->setType('string')
@@ -85,7 +93,7 @@ class SchemaDumperTest extends \PHPUnit_Framework_TestCase
             ->setType('integer')
             ->setNull(true);
 
-        return array($tableName, array($columnA, $columnB, $columnC));
+        return array($tableName, array($columnPk, $columnA, $columnB, $columnC));
     }
 
     protected function setupTableThreeStub()

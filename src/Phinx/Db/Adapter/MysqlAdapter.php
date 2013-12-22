@@ -884,10 +884,40 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $tables = array();
         $rows = $this->fetchAll(sprintf('SHOW TABLES IN `%s`', $options['name']));
         foreach ($rows as $row) {
-            $tables[] = new Table($row[0], array(), $this);
+            $tableOptions = $this->getTableOptions($row[0]);
+            $tables[] = new Table($row[0], $tableOptions, $this);
         }
 
         return $tables;
+    }
+
+    /**
+     * @param $tableName
+     *
+     * @return array
+     */
+    protected function getTableOptions($tableName)
+    {
+        $rows = $this->fetchAll(sprintf('SHOW COLUMNS IN `%s`', $tableName));
+        $pkFieldName = array();
+        $options = array();
+        foreach ($rows as $row) {
+            if ($row['Key'] == 'PRI') {
+                $pkFieldName[] = $row['Field'];
+            }
+        }
+
+        // new Table('user', array('id'=>'user_id'));
+        if (count($pkFieldName) == 1 && $pkFieldName[0] != 'id') {
+            $options = array('id'=>$pkFieldName[0]);
+        }
+
+        // new Table('user_followers', array('id'=>false, 'primary_key'=>array('user_id', 'follower_id')));
+        if (count($pkFieldName) > 1) {
+            $options = array('id'=>false, 'primary_key'=>$pkFieldName);
+        }
+
+        return $options;
     }
 
 }

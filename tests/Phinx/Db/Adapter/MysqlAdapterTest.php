@@ -475,4 +475,36 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($comment, $columnWithComment['column_comment'], 'Dont set column comment correctly');
     }
+
+    public function testGetTables()
+    {
+        $tableOne = new \Phinx\Db\Table('table_one', array(), $this->adapter);
+        $tableOne->addColumn('field1', 'string')->save();
+
+        $tableTwoOptions = array('id'=>'user_id');
+        $tableTwo = new \Phinx\Db\Table('table_two', $tableTwoOptions, $this->adapter);
+        $tableTwo->addColumn('name', 'string')
+            ->save();
+
+        $tableThreeOptions = array('id'=>false, 'primary_key'=>array('user_id', 'follower_id'));
+        $tableThree = new \Phinx\Db\Table('table_three', $tableThreeOptions, $this->adapter);
+        $tableThree->addColumn('user_id', 'integer')
+            ->addColumn('follower_id', 'integer')
+            ->addColumn('created', 'datetime')
+            ->save();
+
+        $tables = $this->adapter->getTables();
+
+        // 3 tables + phinxlog = 4
+        $this->assertCount(4, $tables);
+        foreach ($tables as $table) {
+            $this->assertInstanceOf('Phinx\Db\Table', $table);
+            if ($table->getName() == 'table_two') {
+                $this->assertEquals($tableTwoOptions, $table->getOptions());
+            }
+            if ($table->getName() == 'table_three') {
+                $this->assertEquals($tableThreeOptions, $table->getOptions());
+            }
+        }
+    }
 }

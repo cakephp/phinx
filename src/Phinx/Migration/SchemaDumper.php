@@ -3,7 +3,9 @@
 namespace Phinx\Migration;
 
 use Phinx\Db\Adapter\AdapterInterface,
-    Phinx\Db\Table\Column;
+    Phinx\Db\Table\Column,
+    Phinx\Db\Table;
+
 
 class SchemaDumper
 {
@@ -81,6 +83,7 @@ class SchemaDumper
                 continue;
             }
 
+            // TODO: see buildTableOptionsString()
             if (is_numeric($value)) {
                 $string = "'{$option}'=>$value";
             } elseif (is_bool($value)) {
@@ -113,5 +116,38 @@ class SchemaDumper
         }
 
         return implode(', ', $args);
+    }
+
+    /**
+     * @param Table $table
+     *
+     * @return string
+     */
+    protected function buildTableOptionsString(Table $table)
+    {
+        $stringParts = array();
+        $options = $table->getOptions();
+        foreach ($options as $option => $value) {
+
+            //TODO: move common code or probably replace with something cooler
+            // like var_export() but with friendly output
+            if (is_numeric($value)) {
+                $string = "'{$option}'=>$value";
+            } elseif (is_bool($value)) {
+                $string = $value ? "'{$option}'=>true" : "'{$option}'=>false";
+            } elseif (is_array($value)) {
+                $array = array();
+                foreach ($value as $element) {
+                    $array[] = "'{$element}'";
+                }
+                $string = "'{$option}'=>array(".implode(", ", $array).")";
+            } else {
+                $string = "'{$option}'=>'$value'";
+            }
+
+            $stringParts[] = $string;
+        }
+
+        return "array(".implode(", ", $stringParts).")";
     }
 } 
