@@ -13,7 +13,6 @@ class Schema extends AbstractMigration
             ->save();
 
         $this->table('two', array('id'=>'two_id'))
-            ->addColumn('two_id', 'integer')
             ->addColumn('name', 'string', array('length'=>50))
             ->addColumn('dummy_int', 'integer')
             ->addColumn('dummy_int_null', 'integer', array('null'=>true))
