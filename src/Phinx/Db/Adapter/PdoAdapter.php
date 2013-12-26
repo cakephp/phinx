@@ -28,10 +28,10 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Console\Output\NullOutput,
-    Phinx\Db\Table,
-    Phinx\Migration\MigrationInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\NullOutput;
+use Phinx\Db\Table;
+use Phinx\Migration\MigrationInterface;
 
 /**
  * Phinx PDO Adapter.
@@ -90,8 +90,9 @@ abstract class PdoAdapter implements AdapterInterface
     {
         $this->options = $options;
 
-        if (isset($options['default_migration_table']))
+        if (isset($options['default_migration_table'])) {
             $this->setSchemaTableName($options['default_migration_table']);
+        }
 
         return $this;
     }
@@ -115,7 +116,7 @@ abstract class PdoAdapter implements AdapterInterface
         return $this;
     }
     
-   /**
+    /**
      * {@inheritdoc}
      */
     public function getOutput()
@@ -234,7 +235,7 @@ abstract class PdoAdapter implements AdapterInterface
                 $outArr = array();
                 foreach ($args as $arg) {
                     if (is_array($arg)) {
-                        $arg = array_map(function($value) {
+                        $arg = array_map(function ($value) {
                             return '\'' . $value . '\'';
                         }, $arg);
                         $outArr[] = '[' . implode(', ', $arg)  . ']';
@@ -309,7 +310,12 @@ abstract class PdoAdapter implements AdapterInterface
         $versions = array();
         
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY version ASC', $this->getSchemaTableName()));
-        return array_map(function($v) {return $v['version'];}, $rows);
+        return array_map(
+            function ($v) {
+                return $v['version'];
+            },
+            $rows
+        );
     }
     
     /**
@@ -394,7 +400,7 @@ abstract class PdoAdapter implements AdapterInterface
                   ->addColumn('start_time', 'timestamp')
                   ->addColumn('end_time', 'timestamp')
                   ->save();
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             throw new \InvalidArgumentException('There was a problem creating the schema table: ' . $exception->getMessage());
         }
     }

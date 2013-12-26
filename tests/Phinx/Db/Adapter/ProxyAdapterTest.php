@@ -2,12 +2,12 @@
 
 namespace Test\Phinx\Db\Adapter;
 
-use Phinx\Db\Adapter\PdoAdapter,
-    Phinx\Db\Adapter\ProxyAdapter,
-    Phinx\Db\Table,
-    Phinx\Db\Table\Index,
-    Phinx\Db\Table\ForeignKey,
-    Phinx\Migration\IrreversibleMigrationException;
+use Phinx\Db\Adapter\PdoAdapter;
+use Phinx\Db\Adapter\ProxyAdapter;
+use Phinx\Db\Table;
+use Phinx\Db\Table\Index;
+use Phinx\Db\Table\ForeignKey;
+use Phinx\Migration\IrreversibleMigrationException;
 
 class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -44,7 +44,7 @@ class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->renameTable('oldname', 'newname');
         
         $commands = $this->adapter->getInvertedCommands();
-        $this->assertEquals('renameTable' , $commands[0]['name']);
+        $this->assertEquals('renameTable', $commands[0]['name']);
         $this->assertEquals('newname', $commands[0]['arguments'][0]);
         $this->assertEquals('oldname', $commands[0]['arguments'][1]);
     }
@@ -58,7 +58,7 @@ class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->addColumn($table, $column);
 
         $commands = $this->adapter->getInvertedCommands();
-        $this->assertEquals('dropColumn' , $commands[0]['name']);
+        $this->assertEquals('dropColumn', $commands[0]['name']);
         $this->assertEquals('atable', $commands[0]['arguments'][0]);
         $this->assertContains('acolumn', $commands[0]['arguments'][1]);
     }
@@ -68,7 +68,7 @@ class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->renameColumn('atable', 'oldname', 'newname');
         
         $commands = $this->adapter->getInvertedCommands();
-        $this->assertEquals('renameColumn' , $commands[0]['name']);
+        $this->assertEquals('renameColumn', $commands[0]['name']);
         $this->assertEquals('atable', $commands[0]['arguments'][0]);
         $this->assertEquals('newname', $commands[0]['arguments'][1]);
         $this->assertEquals('oldname', $commands[0]['arguments'][2]);
@@ -84,7 +84,7 @@ class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->addIndex($table, $index);
 
         $commands = $this->adapter->getInvertedCommands();
-        $this->assertEquals('dropIndex' , $commands[0]['name']);
+        $this->assertEquals('dropIndex', $commands[0]['name']);
         $this->assertEquals('atable', $commands[0]['arguments'][0]);
         $this->assertContains('email', $commands[0]['arguments'][1]);
     }
@@ -101,7 +101,7 @@ class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->addForeignKey($table, $fk);
 
         $commands = $this->adapter->getInvertedCommands();
-        $this->assertEquals('dropForeignKey' , $commands[0]['name']);
+        $this->assertEquals('dropForeignKey', $commands[0]['name']);
         $this->assertEquals('atable', $commands[0]['arguments'][0]);
         $this->assertContains('ref_table_id', $commands[0]['arguments'][1]);
     }

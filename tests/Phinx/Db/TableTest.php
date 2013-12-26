@@ -13,8 +13,11 @@ class TableTest extends \PHPUnit_Framework_TestCase
             $table->addColumn('realname', 'string');
             $this->fail('Expected the table object to throw an exception');
         } catch (\RuntimeException $e) {
-            $this->assertInstanceOf('RuntimeException', $e,
-                'Expected exception of type RuntimeException, got ' . get_class($e));
+            $this->assertInstanceOf(
+                'RuntimeException',
+                $e,
+                'Expected exception of type RuntimeException, got ' . get_class($e)
+            );
             $this->assertRegExp('/An adapter must be specified to add a column./', $e->getMessage());
         }
     }
@@ -41,8 +44,11 @@ class TableTest extends \PHPUnit_Framework_TestCase
             $table = new \Phinx\Db\Table('ntable', array(), $adapter);
             $table->addColumn($column);
         } catch (\InvalidArgumentException $e) {
-            $this->assertInstanceOf('InvalidArgumentException', $e,
-                'Expected exception of type InvalidArgumentException, got ' . get_class($e));
+            $this->assertInstanceOf(
+                'InvalidArgumentException',
+                $e,
+                'Expected exception of type InvalidArgumentException, got ' . get_class($e)
+            );
             $this->assertRegExp('/An invalid column type was specified./', $e->getMessage());
         }
     }
@@ -180,5 +186,4 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($columns[1]->isNull());
         $this->assertNull($columns[1]->getDefault());
     }
-
 }
