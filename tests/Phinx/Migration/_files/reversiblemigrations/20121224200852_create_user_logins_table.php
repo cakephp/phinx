@@ -1,5 +1,7 @@
 <?php
 
+namespace Phinx\Migration;
+
 use Phinx\Migration\AbstractMigration;
 
 class CreateUserLoginsTable extends AbstractMigration
