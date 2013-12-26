@@ -11,7 +11,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
      * @var \Phinx\Db\Adapter\MysqlAdapter
      */
     private $adapter;
-    
+
     public function setUp()
     {
         if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
@@ -34,17 +34,17 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
     }
-    
+
     public function tearDown()
     {
         unset($this->adapter);
     }
-    
+
     public function testConnection()
     {
         $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
     }
-    
+
     public function testConnectionWithoutPort()
     {
         $options = $this->adapter->getOptions();
@@ -52,7 +52,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->setOptions($options);
         $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
     }
-    
+
     public function testConnectionWithInvalidCredentials()
     {
         $options = array(
@@ -62,7 +62,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             'user' => 'invaliduser',
             'pass' => 'invalidpass'
         );
-        
+
         try {
             $adapter = new MysqlAdapter($options, new NullOutput());
             $adapter->connect();
@@ -73,7 +73,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
         }
     }
-    
+
     public function testCreatingTheSchemaTableOnConnect()
     {
         $this->adapter->connect();
@@ -84,17 +84,17 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->connect();
         $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
     }
-    
+
     public function testQuoteTableName()
     {
         $this->assertEquals('`test_table`', $this->adapter->quoteTableName('test_table'));
     }
-    
+
     public function testQuoteColumnName()
     {
         $this->assertEquals('`test_column`', $this->adapter->quoteColumnName('test_column'));
     }
-    
+
     public function testCreateTable()
     {
         $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
@@ -126,7 +126,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->markTestIncomplete();
         //$this->adapter->createTable('ntable', )
     }
-    
+
     public function testCreateTableWithNoPrimaryKey()
     {
         $options = array(
@@ -137,7 +137,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->save();
         $this->assertFalse($this->adapter->hasColumn('atable', 'id'));
     }
-    
+
     public function testCreateTableWithMultiplePrimaryKeys()
     {
         $options = array(
@@ -166,7 +166,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
         $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_name')));
     }
-    
+
     public function testCreateTableWithUniqueIndexes()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
@@ -176,12 +176,12 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
         $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
     }
-    
+
     public function testCreateTableWithMultiplePKsAndUniqueIndexes()
     {
         $this->markTestIncomplete();
     }
-    
+
     public function testCreateTableWithMyISAMEngine()
     {
         $table = new \Phinx\Db\Table('ntable', array('engine' => 'MyISAM'), $this->adapter);
@@ -191,7 +191,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $row = $this->adapter->fetchRow(sprintf('SHOW TABLE STATUS WHERE Name = "%s"', 'ntable'));
         $this->assertEquals('MyISAM', $row['Engine']);
     }
-    
+
     public function testCreateTableWithLatin1Collate()
     {
         $table = new \Phinx\Db\Table('latin1_table', array('collation' => 'latin1_general_ci'), $this->adapter);
@@ -201,7 +201,56 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $row = $this->adapter->fetchRow(sprintf('SHOW TABLE STATUS WHERE Name = "%s"', 'latin1_table'));
         $this->assertEquals('latin1_general_ci', $row['Collation']);
     }
-    
+
+    public function testCreateTableWithMultipleValueEnum()
+    {
+        $table = new \Phinx\Db\Table('dogs', array(), $this->adapter);
+        $table->addColumn('breed', 'enum', array( 'limit' => array('Australian Shepherd', 'Pembroke Welsh Corgi', 'Collie')))
+              ->save();
+
+        $this->assertTrue($this->adapter->hasTable('dogs'));
+        $this->assertTrue($this->adapter->hasColumn('dogs', 'breed'));
+
+        $row = $this->adapter->fetchRow("SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'dogs' AND COLUMN_NAME = 'breed'");
+        $this->assertEquals("enum('Australian Shepherd','Pembroke Welsh Corgi','Collie')", $row['COLUMN_TYPE']);
+    }
+
+    public function testCreateTableWithSingleValueEnum()
+    {
+        $table = new \Phinx\Db\Table('dogs', array(), $this->adapter);
+        $table->addColumn('breed', 'enum', array( 'limit' => array('German Shepherd')))
+              ->save();
+
+        $this->assertTrue($this->adapter->hasTable('dogs'));
+        $this->assertTrue($this->adapter->hasColumn('dogs', 'breed'));
+
+        $row = $this->adapter->fetchRow("SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'dogs' AND COLUMN_NAME = 'breed'");
+        $this->assertEquals("enum('German Shepherd')", $row['COLUMN_TYPE']);
+    }
+
+    public function testCreateTableWithBlankArrayEnum()
+    {
+        $table = new \Phinx\Db\Table('dogs', array(), $this->adapter);
+        $table->addColumn('breed', 'enum', array('limit' => array()))
+              ->save();
+
+        $this->assertTrue($this->adapter->hasTable('dogs'));
+        $this->assertTrue($this->adapter->hasColumn('dogs', 'breed'));
+
+        $row = $this->adapter->fetchRow("SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'dogs' AND COLUMN_NAME = 'breed'");
+        $this->assertEquals("enum('')", $row['COLUMN_TYPE']);
+    }
+
+
+    public function testCreateTableWithBlankEnum()
+    {
+        $this->setExpectedException('PDOException');
+
+        $table = new \Phinx\Db\Table('dogs', array(), $this->adapter);
+        $table->addColumn('breed', 'enum')
+              ->save();
+    }
+
     public function testRenameTable()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
@@ -212,7 +261,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasTable('table1'));
         $this->assertTrue($this->adapter->hasTable('table2'));
     }
-    
+
     public function testAddColumn()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
@@ -257,7 +306,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertNull($rows[1]['Default']);
     }
-    
+
     public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
@@ -269,13 +318,13 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
     }
-    
+
     public function testRenamingANonExistentColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string')
               ->save();
-        
+
         try {
             $this->adapter->renameColumn('t', 'column2', 'column1');
             $this->fail('Expected the adapter to throw an exception');
@@ -285,7 +334,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals('The specified column doesn\'t exist: column2', $e->getMessage());
         }
     }
-    
+
     public function testChangeColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
@@ -345,7 +394,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM t');
         $this->assertNull($rows[1]['Default']);
     }
-    
+
     public function testDropColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
@@ -381,7 +430,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
         }
     }
-    
+
     public function testAddIndex()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
@@ -392,7 +441,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->save();
         $this->assertTrue($table->hasIndex('email'));
     }
-    
+
     public function testDropIndex()
     {
         // single column index
@@ -403,7 +452,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table->hasIndex('email'));
         $this->adapter->dropIndex($table->getName(), 'email');
         $this->assertFalse($table->hasIndex('email'));
-        
+
         // multiple column index
         $table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
         $table2->addColumn('fname', 'string')
@@ -449,13 +498,13 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->dropForeignKey($table->getName(), array('ref_table_id'));
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
     }
-    
+
     public function testHasDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
         $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE));
     }
-    
+
     public function testDropDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('temp_phinx_database'));

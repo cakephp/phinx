@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Db\Adapter
  */
@@ -44,12 +44,12 @@ abstract class PdoAdapter implements AdapterInterface
      * @var array
      */
     protected $options;
-    
+
     /**
      * @var OutputInterface
      */
     protected $output;
-    
+
     /**
      * @var string
      */
@@ -79,7 +79,7 @@ abstract class PdoAdapter implements AdapterInterface
             $this->setOutput($output);
         }
     }
-    
+
     /**
      * Sets the adapter options.
      *
@@ -95,7 +95,7 @@ abstract class PdoAdapter implements AdapterInterface
 
         return $this;
     }
-    
+
     /**
      * Gets the adapter options.
      *
@@ -114,7 +114,7 @@ abstract class PdoAdapter implements AdapterInterface
         $this->output = $output;
         return $this;
     }
-    
+
    /**
      * {@inheritdoc}
      */
@@ -126,7 +126,7 @@ abstract class PdoAdapter implements AdapterInterface
         }
         return $this->output;
     }
-    
+
     /**
      * Sets the schema table name.
      *
@@ -138,7 +138,7 @@ abstract class PdoAdapter implements AdapterInterface
         $this->schemaTableName = $schemaTableName;
         return $this;
     }
-    
+
     /**
      * Gets the schema table name.
      *
@@ -148,7 +148,7 @@ abstract class PdoAdapter implements AdapterInterface
     {
         return $this->schemaTableName;
     }
-    
+
     /**
      * Sets the database connection.
      *
@@ -160,7 +160,7 @@ abstract class PdoAdapter implements AdapterInterface
         $this->connection = $connection;
         return $this;
     }
-    
+
     /**
      * Gets the database connection
      *
@@ -240,7 +240,7 @@ abstract class PdoAdapter implements AdapterInterface
                         $outArr[] = '[' . implode(', ', $arg)  . ']';
                         continue;
                     }
-                
+
                     $outArr[] = '\'' . $arg . '\'';
                 }
                 return $this->getOutput()->writeln(' -- ' . $command . '(' . implode(', ', $outArr) . ')');
@@ -248,21 +248,21 @@ abstract class PdoAdapter implements AdapterInterface
             $this->getOutput()->writeln(' -- ' . $command);
         }
     }
-     
+
     /**
      * {@inheritdoc}
      */
     public function connect()
     {
     }
-     
+
     /**
      * {@inheritdoc}
      */
     public function disconnect()
     {
     }
-     
+
     /**
      * {@inheritdoc}
      */
@@ -270,7 +270,7 @@ abstract class PdoAdapter implements AdapterInterface
     {
         return $this->getConnection()->exec($sql);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -278,7 +278,7 @@ abstract class PdoAdapter implements AdapterInterface
     {
         return $this->getConnection()->query($sql);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -287,7 +287,7 @@ abstract class PdoAdapter implements AdapterInterface
         $result = $this->query($sql);
         return $result->fetch();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -300,18 +300,18 @@ abstract class PdoAdapter implements AdapterInterface
         }
         return $rows;
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function getVersions()
     {
         $versions = array();
-        
+
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY version ASC', $this->getSchemaTableName()));
         return array_map(function($v) {return $v['version'];}, $rows);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -341,13 +341,13 @@ abstract class PdoAdapter implements AdapterInterface
                 $this->getSchemaTableName(),
                 $migration->getVersion()
             );
-            
+
             $this->query($sql);
         }
 
         return $this;
     }
-    
+
     /**
      * Describes a database table.
      *
@@ -357,7 +357,7 @@ abstract class PdoAdapter implements AdapterInterface
     public function describeTable($tableName)
     {
         $options = $this->getOptions();
-        
+
         // mysql specific
         $sql = sprintf(
             'SELECT *'
@@ -367,10 +367,10 @@ abstract class PdoAdapter implements AdapterInterface
             $options['name'],
             $tableName
         );
-        
+
         return $this->fetchRow($sql);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -378,7 +378,7 @@ abstract class PdoAdapter implements AdapterInterface
     {
         return $this->hasTable($this->getSchemaTableName());
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -388,7 +388,7 @@ abstract class PdoAdapter implements AdapterInterface
             $options = array(
                 'id' => false
             );
-            
+
             $table = new \Phinx\Db\Table($this->getSchemaTableName(), $options, $this);
             $table->addColumn('version', 'biginteger', array('limit' => 14))
                   ->addColumn('start_time', 'timestamp')
@@ -407,7 +407,7 @@ abstract class PdoAdapter implements AdapterInterface
         $options = $this->getOptions();
         return $options['adapter'];
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -426,7 +426,8 @@ abstract class PdoAdapter implements AdapterInterface
             'time',
             'date',
             'binary',
-            'boolean'
+            'boolean',
+            'enum'
         );
     }
 }
