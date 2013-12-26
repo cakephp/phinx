@@ -163,4 +163,22 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
         $table->dropForeignKey('test');
     }
+
+    public function testAddTimestamps()
+    {
+        $adapter = new MysqlAdapter(array());
+        $table = new \Phinx\Db\Table('ntable', array(), $adapter);
+        $table->addTimestamps();
+
+        $columns = $table->getPendingColumns();
+
+        $this->assertEquals('created_at', $columns[0]->getName());
+        $this->assertEquals('timestamp', $columns[0]->getType());
+
+        $this->assertEquals('updated_at', $columns[1]->getName());
+        $this->assertEquals('timestamp', $columns[1]->getType());
+        $this->assertTrue($columns[1]->isNull());
+        $this->assertNull($columns[1]->getDefault());
+    }
+
 }

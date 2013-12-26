@@ -504,6 +504,22 @@ class Table
     public function hasForeignKey($columns, $constraint = null) {
         return $this->getAdapter()->hasForeignKey($this->getName(), $columns, $constraint);
     }
+
+    /**
+     * Add timestamp columns created_at and updated_at to the table.
+     *
+     * @return Table
+     */
+    public function addTimestamps()
+    {
+        $this->addColumn('created_at', 'timestamp')
+             ->addColumn('updated_at', 'timestamp', array(
+                 'null'    => true,
+                 'default' => null
+             ));
+
+        return $this;
+    }
     
     /**
      * Creates a table from the object instance.
