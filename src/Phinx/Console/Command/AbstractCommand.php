@@ -128,6 +128,28 @@ abstract class AbstractCommand extends Command
     }
     
     /**
+     *  Gets the environment
+     *
+     * @return string Environment
+     */
+    protected function getEnvironment(InputInterface $input, OutputInterface $output)
+    {
+        $environment = $input->getOption('environment');
+        if (null === $environment) {
+            $environment = $this->getConfig()->getDefaultEnvironment();
+            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
+        } else {
+            $output->writeln('<info>using environment</info> ' . $environment);
+        }
+        
+        $envOptions = $this->getConfig()->getEnvironment($environment);
+        $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
+        $output->writeln('<info>using database</info> ' . $envOptions['name']);
+        
+        return $environment;
+    }
+
+    /**
      * Sets the migration manager.
      *
      * @param Manager $manager

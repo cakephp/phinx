@@ -458,10 +458,10 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     
     public function testDropDatabase()
     {
-        $this->assertFalse($this->adapter->hasDatabase('temp_phinx_database'));
-        $this->adapter->createDatabase('temp_phinx_database');
-        $this->assertTrue($this->adapter->hasDatabase('temp_phinx_database'));
-        $this->adapter->dropDatabase('temp_phinx_database');
+        $this->assertFalse($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_TEMP_DATABASE));
+        $this->adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_TEMP_DATABASE);
+        $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_TEMP_DATABASE));
+        $this->adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_TEMP_DATABASE);
     }
 
     public function testAddColumnWithComment()
