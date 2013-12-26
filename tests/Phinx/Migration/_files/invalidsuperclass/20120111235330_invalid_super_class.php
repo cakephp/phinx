@@ -1,7 +1,5 @@
 <?php
 
-namespace Phinx\Migration;
-
 class InvalidSuperClass
 {
     /**

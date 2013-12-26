@@ -1,7 +1,5 @@
 <?php
 
-namespace Phinx\Migration;
-
 use Phinx\Migration\AbstractMigration;
 
 class DuplicateMigrationName extends AbstractMigration
