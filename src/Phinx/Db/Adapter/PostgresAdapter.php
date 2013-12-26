@@ -227,7 +227,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     ',',
                     array_map(
                         function ($v) {
-                            return '`' . $v . '`';
+                            return '"' . $v . '"';
                         },
                         $options['primary_key']
                     )
