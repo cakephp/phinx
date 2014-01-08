@@ -806,11 +806,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
-        if (is_numeric($column->getDefault())) {
+        $default = $column->getDefault();
+        if (is_numeric($default) || 'CURRENT_TIMESTAMP' === $default) {
             $buffer[] = 'DEFAULT';
-            $buffer[] = $column->getDefault();
-        } elseif (!is_null($column->getDefault())) {
-            $buffer[] =  "DEFAULT '{$column->getDefault()}'";
+            $buffer[] = $default;
+        } elseif ($default) {
+            $buffer[] =  "DEFAULT '{$default}'";
         }
         // TODO - add precision & scale for decimals
         return implode(' ', $buffer);
