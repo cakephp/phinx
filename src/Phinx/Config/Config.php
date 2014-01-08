@@ -109,8 +109,9 @@ class Config implements \ArrayAccess
         if (isset($this->values) && isset($this->values['environments'])) {
             $environments = array();
             foreach ($this->values['environments'] as $key => $value) {
-                if (is_array($value))
+                if (is_array($value)) {
                     $environments[$key] = $value;
+                }
             }
 
             return $environments;
@@ -171,14 +172,14 @@ class Config implements \ArrayAccess
             throw new \RuntimeException(sprintf(
                 'The environment configuration (read from $PHINX_ENVIRONMENT) for \'%s\' is missing',
                 $env
-            ));            
-        }    
+            ));
+        }
 
         // if the user has configured a default database then use it,
         // providing it actually exists!
         if (isset($this->values['environments']['default_database'])) {
             if ($this->getEnvironment($this->values['environments']['default_database'])) {
-                return $this->values['environments']['default_database'];    
+                return $this->values['environments']['default_database'];
             }
             
             throw new \RuntimeException(sprintf(
@@ -301,7 +302,7 @@ class Config implements \ArrayAccess
      * @throws InvalidArgumentException if the identifier is not defined
      * @return mixed  The value of the parameter or an object
      */
-    function offsetGet($id)
+    public function offsetGet($id)
     {
         if (!array_key_exists($id, $this->values)) {
             throw new \InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $id));
@@ -316,7 +317,7 @@ class Config implements \ArrayAccess
      * @param  string $id The unique identifier for the parameter or object
      * @return boolean
      */
-    function offsetExists($id)
+    public function offsetExists($id)
     {
         return isset($this->values[$id]);
     }
@@ -327,7 +328,7 @@ class Config implements \ArrayAccess
      * @param  string $id The unique identifier for the parameter or object
      * @return void
      */
-    function offsetUnset($id)
+    public function offsetUnset($id)
     {
         unset($this->values[$id]);
     }

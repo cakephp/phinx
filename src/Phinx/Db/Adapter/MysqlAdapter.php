@@ -28,10 +28,10 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table,
-    Phinx\Db\Table\Column,
-    Phinx\Db\Table\Index,
-    Phinx\Db\Table\ForeignKey;
+use Phinx\Db\Table;
+use Phinx\Db\Table\Column;
+use Phinx\Db\Table\Index;
+use Phinx\Db\Table\ForeignKey;
 
 /**
  * Phinx MySQL Adapter.
@@ -69,13 +69,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             // http://php.net/manual/en/ref.pdo-mysql.php#pdo-mysql.constants
             foreach ($options as $key => $option) {
                 if (strpos($key, 'mysql_attr_') === 0) {
-                    $driverOptions[constant('\PDO::' . strtoupper($key))] =  $option;
+                    $driverOptions[constant('\PDO::' . strtoupper($key))] = $option;
                 }
             }
 
             try {
                 $db = new \PDO($dsn, $options['user'], $options['pass'], $driverOptions);
-            } catch(\PDOException $exception) {
+            } catch (\PDOException $exception) {
                 throw new \InvalidArgumentException(sprintf(
                     'There was a problem connecting to the database: %s',
                     $exception->getMessage()
@@ -226,10 +226,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $sql .= ' PRIMARY KEY (';
             if (is_string($options['primary_key'])) {       // handle primary_key => 'id'
                 $sql .= $this->quoteColumnName($options['primary_key']);
-            } else if (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
-                // PHP 5.4 will allow access of $this, so we can call quoteColumnName() directly in the anonymous function,
-                // but for now just hard-code the adapter quotes
-                $sql .= implode(',', array_map(function($v) { return '`' . $v . '`'; }, $options['primary_key']));
+            } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
+                // PHP 5.4 will allow access of $this, so we can call quoteColumnName() directly in the
+                // anonymous function, but for now just hard-code the adapter quotes
+                $sql .= implode(
+                    ',',
+                    array_map(
+                        function ($v) {
+                            return '`' . $v . '`';
+                        },
+                        $options['primary_key']
+                    )
+                );
             }
             $sql .= ')';
         } else {
@@ -332,7 +340,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function addColumn(Table $table, Column $column)
     {
         $this->startCommandTimer();
-        $sql = sprintf('ALTER TABLE %s ADD %s %s',
+        $sql = sprintf(
+            'ALTER TABLE %s ADD %s %s',
             $this->quoteTableName($table->getName()),
             $this->quoteColumnName($column->getName()),
             $this->getColumnSqlDefinition($column)
@@ -362,11 +371,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         
                 $this->writeCommand('renameColumn', array($tableName, $columnName, $newColumnName));
                 $this->execute(
-                    sprintf('ALTER TABLE %s CHANGE COLUMN %s %s %s',
-                            $this->quoteTableName($tableName),
-                            $this->quoteColumnName($columnName),
-                            $this->quoteColumnName($newColumnName),
-                            $definition
+                    sprintf(
+                        'ALTER TABLE %s CHANGE COLUMN %s %s %s',
+                        $this->quoteTableName($tableName),
+                        $this->quoteColumnName($columnName),
+                        $this->quoteColumnName($newColumnName),
+                        $definition
                     )
                 );
                 return $this->endCommandTimer();
@@ -387,7 +397,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $this->startCommandTimer();
         $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
         $this->execute(
-            sprintf('ALTER TABLE %s CHANGE %s %s %s',
+            sprintf(
+                'ALTER TABLE %s CHANGE %s %s %s',
                 $this->quoteTableName($tableName),
                 $this->quoteColumnName($columnName),
                 $this->quoteColumnName($newColumn->getName()),
@@ -463,7 +474,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $this->startCommandTimer();
         $this->writeCommand('addIndex', array($table->getName(), $index->getColumns()));
         $this->execute(
-            sprintf('ALTER TABLE %s ADD %s',
+            sprintf(
+                'ALTER TABLE %s ADD %s',
                 $this->quoteTableName($table->getName()),
                 $this->getIndexSqlDefinition($index)
             )
@@ -489,7 +501,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $a = array_diff($columns, $index['columns']);
             if (empty($a)) {
                 $this->execute(
-                    sprintf('ALTER TABLE %s DROP INDEX %s',
+                    sprintf(
+                        'ALTER TABLE %s DROP INDEX %s',
                         $this->quoteTableName($tableName),
                         $this->quoteColumnName($indexName)
                     )
@@ -564,7 +577,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $this->startCommandTimer();
         $this->writeCommand('addForeignKey', array($table->getName(), $foreignKey->getColumns()));
         $this->execute(
-            sprintf('ALTER TABLE %s ADD %s',
+            sprintf(
+                'ALTER TABLE %s ADD %s',
                 $this->quoteTableName($table->getName()),
                 $this->getForeignKeySqlDefinition($foreignKey)
             )
@@ -586,7 +600,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         
         if ($constraint) {
             $this->execute(
-                sprintf('ALTER TABLE %s DROP FOREIGN KEY %s',
+                sprintf(
+                    'ALTER TABLE %s DROP FOREIGN KEY %s',
                     $this->quoteTableName($tableName),
                     $constraint
                 )
@@ -595,16 +610,16 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } else {
             foreach ($columns as $column) {
                 $rows = $this->fetchAll(sprintf(
-                        'SELECT
-                            CONSTRAINT_NAME
-                          FROM information_schema.KEY_COLUMN_USAGE
-                          WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
-                            AND REFERENCED_TABLE_NAME IS NOT NULL
-                            AND TABLE_NAME = "%s"
-                            AND COLUMN_NAME = "%s"
-                          ORDER BY POSITION_IN_UNIQUE_CONSTRAINT',
-                        $tableName,
-                        $column
+                    'SELECT
+                        CONSTRAINT_NAME
+                      FROM information_schema.KEY_COLUMN_USAGE
+                      WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
+                        AND REFERENCED_TABLE_NAME IS NOT NULL
+                        AND TABLE_NAME = "%s"
+                        AND COLUMN_NAME = "%s"
+                      ORDER BY POSITION_IN_UNIQUE_CONSTRAINT',
+                    $tableName,
+                    $column
                 ));
                 foreach ($rows as $row) {
                     $this->dropForeignKey($tableName, $columns, $row['CONSTRAINT_NAME']);
@@ -632,7 +647,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'int', 'limit' => 11);
                 break;
             case 'biginteger':
-                return array('name' => 'bigint', 'limit' => 11);
+                return array('name' => 'bigint', 'limit' => 20);
                 break;
             case 'float':
                 return array('name' => 'float');
@@ -707,7 +722,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     }
                     break;
                 case 'bigint':
-                    if ($limit == 11) {
+                    if ($limit == 20) {
                         $limit = null;
                     }
                     $type = 'biginteger';
@@ -748,9 +763,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $charset = isset($options['charset']) ? $options['charset'] : 'utf8';
         
         if (isset($options['collation'])) {
-            $this->execute(sprintf(
-                'CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`', $name, $charset, $options['collation']
-            ));
+            $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`', $name, $charset, $options['collation']));
         } else {
             $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s`', $name, $charset));
         }

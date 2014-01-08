@@ -13,8 +13,8 @@ class InvalidSuperClass
     /**
      * Migrate Down.
      */
-     public function down()
-     {
-         // do nothing
-     }
+    public function down()
+    {
+        // do nothing
+    }
 }

@@ -28,10 +28,10 @@
  */
 namespace Phinx\Db;
 
-use Phinx\Db\Table\Column,
-    Phinx\Db\Table\Index,
-    Phinx\Db\Table\ForeignKey,
-    Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Table\Column;
+use Phinx\Db\Table\Index;
+use Phinx\Db\Table\ForeignKey;
+use Phinx\Db\Adapter\AdapterInterface;
 
 /**
  *
@@ -414,7 +414,7 @@ class Table
             $index = $columns;
         }
 
-        $this->indexes[] = $index;        
+        $this->indexes[] = $index;
         return $this;
     }
     
@@ -481,7 +481,8 @@ class Table
      * @param null|string  $constraint Constraint names
      * @return Table
      */
-    public function dropForeignKey($columns, $constraint = null) {
+    public function dropForeignKey($columns, $constraint = null)
+    {
         if (is_string($columns)) {
             $columns = array($columns);
         }
@@ -501,8 +502,25 @@ class Table
      * @param  null|string  $constraint Constraint names
      * @return boolean
      */
-    public function hasForeignKey($columns, $constraint = null) {
+    public function hasForeignKey($columns, $constraint = null)
+    {
         return $this->getAdapter()->hasForeignKey($this->getName(), $columns, $constraint);
+    }
+
+    /**
+     * Add timestamp columns created_at and updated_at to the table.
+     *
+     * @return Table
+     */
+    public function addTimestamps()
+    {
+        $this->addColumn('created_at', 'timestamp')
+             ->addColumn('updated_at', 'timestamp', array(
+                 'null'    => true,
+                 'default' => null
+             ));
+
+        return $this;
     }
     
     /**

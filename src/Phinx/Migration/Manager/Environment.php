@@ -28,15 +28,16 @@
  */
 namespace Phinx\Migration\Manager;
 
+
 use Phinx\Migration\SchemaDumper;
-use Symfony\Component\Console\Output\OutputInterface,
-    Phinx\Db\Adapter\AdapterInterface,
-    Phinx\Db\Adapter\PdoAdapter,
-    Phinx\Db\Adapter\MysqlAdapter,
-    Phinx\Db\Adapter\PostgresAdapter,
-    Phinx\Db\Adapter\SQLiteAdapter,
-    Phinx\Db\Adapter\ProxyAdapter,
-    Phinx\Migration\MigrationInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Adapter\PdoAdapter;
+use Phinx\Db\Adapter\MysqlAdapter;
+use Phinx\Db\Adapter\PostgresAdapter;
+use Phinx\Db\Adapter\SQLiteAdapter;
+use Phinx\Db\Adapter\ProxyAdapter;
+use Phinx\Migration\MigrationInterface;
 
 class Environment
 {
@@ -266,11 +267,11 @@ class Environment
                     case 'mysql':
                         $this->setAdapter(new MysqlAdapter($this->options, $this->getOutput()));
                         break;
-                    case 'pgsql':                                                           
-                        $this->setAdapter(new PostgresAdapter($this->options, $this->getOutput()));                        
+                    case 'pgsql':
+                        $this->setAdapter(new PostgresAdapter($this->options, $this->getOutput()));
                         break;
-                    case 'sqlite':                                                           
-                        $this->setAdapter(new SQLiteAdapter($this->options, $this->getOutput()));                        
+                    case 'sqlite':
+                        $this->setAdapter(new SQLiteAdapter($this->options, $this->getOutput()));
                         break;
                     default:
                         throw new \RuntimeException('Invalid adapter specified: ' . $this->options['adapter']);

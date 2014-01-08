@@ -2,8 +2,8 @@
 
 namespace Test\Phinx\Console;
  
-use Symfony\Component\Console\Tester\ApplicationTester,
-    Phinx\Console\PhinxApplication;
+use Symfony\Component\Console\Tester\ApplicationTester;
+use Phinx\Console\PhinxApplication;
 
 class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
 {

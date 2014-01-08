@@ -2,8 +2,8 @@
 
 namespace Test\Phinx\Db\Adapter;
 
-use Symfony\Component\Console\Output\NullOutput,
-    Phinx\Db\Adapter\SQLiteAdapter;
+use Symfony\Component\Console\Output\NullOutput;
+use Phinx\Db\Adapter\SQLiteAdapter;
 
 class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -228,8 +228,11 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
             $this->adapter->renameColumn('t', 'column2', 'column1');
             $this->fail('Expected the adapter to throw an exception');
         } catch (\InvalidArgumentException $e) {
-            $this->assertInstanceOf('InvalidArgumentException', $e,
-                'Expected exception of type InvalidArgumentException, got ' . get_class($e));
+            $this->assertInstanceOf(
+                'InvalidArgumentException',
+                $e,
+                'Expected exception of type InvalidArgumentException, got ' . get_class($e)
+            );
             $this->assertEquals('The specified column doesn\'t exist: column2', $e->getMessage());
         }
     }
@@ -315,7 +318,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column7', 'datetime')
               ->addColumn('column8', 'time')
               ->addColumn('column9', 'timestamp')
-              ->addColumn('column10','date')
+              ->addColumn('column10', 'date')
               ->addColumn('column11', 'binary')
               ->addColumn('column12', 'boolean')
               ->addColumn('column13', 'string', array('limit' => 10))
@@ -420,7 +423,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 
         $rows = $this->adapter->fetchAll('select * from sqlite_master where `type` = \'table\'');
 
-        foreach($rows as $row) {
+        foreach ($rows as $row) {
             if ($row['tbl_name'] == 'table1') {
                 $sql = $row['sql'];
             }

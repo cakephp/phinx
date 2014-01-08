@@ -28,13 +28,13 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Symfony\Component\Console\Output\OutputInterface,
-    Phinx\Db\Table,
-    Phinx\Db\Table\Column,
-    Phinx\Db\Table\Index,
-    Phinx\Db\Table\ForeignKey,
-    Phinx\Migration\MigrationInterface,
-    Phinx\Migration\IrreversibleMigrationException;
+use Symfony\Component\Console\Output\OutputInterface;
+use Phinx\Db\Table;
+use Phinx\Db\Table\Column;
+use Phinx\Db\Table\Index;
+use Phinx\Db\Table\ForeignKey;
+use Phinx\Migration\MigrationInterface;
+use Phinx\Migration\IrreversibleMigrationException;
 
 /**
  * Phinx Proxy Adapter.
@@ -70,7 +70,7 @@ class ProxyAdapter implements AdapterInterface
     public function __construct(AdapterInterface $adapter = null, OutputInterface $output = null)
     {
         if (null !== $adapter) {
-            $this->setAdapter($adapter);    
+            $this->setAdapter($adapter);
         }
         if (null !== $output) {
             $this->setOutput($output);
@@ -130,7 +130,7 @@ class ProxyAdapter implements AdapterInterface
         return $this;
     }
     
-   /**
+    /**
      * {@inheritdoc}
      */
     public function getOutput()
@@ -507,7 +507,10 @@ class ProxyAdapter implements AdapterInterface
         }
         
         $invCommands = array();
-        $supportedCommands = array('createTable', 'renameTable', 'addColumn', 'renameColumn', 'addIndex', 'addForeignKey');
+        $supportedCommands = array(
+            'createTable', 'renameTable', 'addColumn',
+            'renameColumn', 'addIndex', 'addForeignKey'
+        );
         foreach (array_reverse($this->getCommands()) as $command) {
             if (!in_array($command['name'], $supportedCommands)) {
                 throw new IrreversibleMigrationException(sprintf(

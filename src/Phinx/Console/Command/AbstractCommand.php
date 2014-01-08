@@ -28,14 +28,14 @@
  */
 namespace Phinx\Console\Command;
 
-use Symfony\Component\Config\FileLocator,
-    Symfony\Component\Console\Command\Command,
-    Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Output\OutputInterface,
-    Phinx\Config\Config,
-    Phinx\Migration\Manager,
-    Phinx\Adapter\AdapterInterface;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Output\OutputInterface;
+use Phinx\Config\Config;
+use Phinx\Migration\Manager;
+use Phinx\Adapter\AdapterInterface;
 
 /**
  * Abstract command, contains bootstrapping info
@@ -75,8 +75,9 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
     {
-        if (!$this->getConfig()) 
+        if (!$this->getConfig()) {
             $this->loadConfig($input, $output);
+        }
 
         $this->loadManager($output);
         // report the migrations path
