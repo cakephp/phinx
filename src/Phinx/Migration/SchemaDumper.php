@@ -3,7 +3,6 @@
 namespace Phinx\Migration;
 
 use Phinx\Db\Adapter\AdapterInterface,
-    Phinx\Db\Table\Column,
     Phinx\Db\Table;
 
 

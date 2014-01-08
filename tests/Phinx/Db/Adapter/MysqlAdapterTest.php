@@ -507,4 +507,28 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             }
         }
     }
+
+    public function testGetPhinxTypeAttribute()
+    {
+        $this->assertEquals(
+            array('name'=>'integer', 'limit'=>'3', 'precision'=> null),
+            $this->adapter->getPhinxType('int(3) unsigned')
+        );
+    }
+
+    public function testGetPhinxTypeWithoutLimit()
+    {
+        $this->assertEquals(
+            array('name'=>'timestamp', 'limit'=>null, 'precision'=> null),
+            $this->adapter->getPhinxType('timestamp')
+        );
+    }
+
+    public function testGetPhinxTypeWithPrecision()
+    {
+        $this->assertEquals(
+            array('name'=>'float', 'limit'=>'5', 'precision'=> '2'),
+            $this->adapter->getPhinxType('float(5,2)')
+        );
+    }
 }
