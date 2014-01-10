@@ -55,12 +55,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $dsn = '';
             $db = null;
             $options = $this->getOptions();
+
+            // if charset is configured, set it in connection string
+            $dsnCharset = '';
+            if (isset($options['charset'])) {
+                $dsnCharset = ';charset=' . $options['charset'];
+            }
             
             // if port is specified use it, otherwise use the MySQL default
             if (isset($options['port'])) {
-                $dsn = 'mysql:host=' . $options['host'] . ';port=' . $options['port'] . ';dbname=' . $options['name'];
+                $dsn = 'mysql:host=' . $options['host'] . ';port=' . $options['port'] . ';dbname=' . $options['name'] . $dsnCharset;
             } else {
-                $dsn = 'mysql:host=' . $options['host'] . ';dbname=' . $options['name'];
+                $dsn = 'mysql:host=' . $options['host'] . ';dbname=' . $options['name'] . $dsnCharset;
             }
 
             $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
