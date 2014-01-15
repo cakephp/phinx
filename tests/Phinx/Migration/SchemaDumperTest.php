@@ -22,7 +22,7 @@ class SchemaDumperTest extends \PHPUnit_Framework_TestCase
     {
         $adapterStub = $this->getMock(
             '\Phinx\Db\Adapter\MysqlAdapter',
-            array('getTables', 'getColumns'),
+            array('getTables', 'getColumns', 'getForeignKeys'),
             array(array())
         );
 
@@ -47,6 +47,18 @@ class SchemaDumperTest extends \PHPUnit_Framework_TestCase
         $adapterStub->expects($this->once())
             ->method('getTables')
             ->will($this->returnValue(array($tableOne, $tableTwo, $tableThree)));
+
+        $fk = new Table\ForeignKey();
+        $fk->setColumns('dummy_int');
+        $fk->setReferencedTable($tableTwo);
+        $fk->setReferencedColumns(array('dummy_int_null'));
+
+        $fkMap = array(
+            array('three', array($fk))
+        );
+        $adapterStub->expects($this->any())
+            ->method('getForeignKeys')
+            ->will($this->returnValueMap($fkMap));
 
         $this->schemaDumper->setAdapter($adapterStub);
         $dump = $this->schemaDumper->dump();

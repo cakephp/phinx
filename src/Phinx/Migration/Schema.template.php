@@ -1,4 +1,4 @@
-<?php use Phinx\Migration\Helper\CodeGeneratorHelper; ?>
+<?php use Phinx\Migration\Helper\CodeGenerator; ?>
 <?php echo "<?php"; ?>
 
 
@@ -9,13 +9,21 @@ class Schema extends AbstractMigration
     public function up()
     {
 <?php foreach ($tables as $table) : ?>
-        $this->table('<?php echo $table->getName();?>', <?php echo CodeGeneratorHelper::buildTableOptionsString($table); ?>)
+        $this->table('<?php echo $table->getName();?>', <?php echo CodeGenerator::buildTableOptionsString($table); ?>)
 <?php $columns = $table->getColumns(); ?>
 <?php foreach ($columns as $column) : ?>
-<?php if (!CodeGeneratorHelper::isColumnSinglePrimaryKey($table, $column)) : ?>
-            ->addColumn(<?php echo CodeGeneratorHelper::buildAddColumnArgumentsString($column);?>)
+<?php if (!CodeGenerator::isColumnSinglePrimaryKey($table, $column)) : ?>
+            ->addColumn(<?php echo CodeGenerator::buildAddColumnArgumentsString($column);?>)
 <?php endif; ?>
 <?php endforeach; ?>
+<?php
+    $foreignKeys = $table->getAdapter()->getForeignKeys($table->getName());
+    if (count($foreignKeys) > 0) : ?>
+<?php foreach ($foreignKeys as $foreignKey) : ?>
+            <?php echo CodeGenerator::buildFkString($foreignKey); ?>
+
+<?php endforeach; ?>
+<?php endif; ?>
             ->save();
 
 <?php endforeach; ?>

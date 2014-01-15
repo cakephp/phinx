@@ -22,6 +22,7 @@ class Schema extends AbstractMigration
             ->addColumn('name', 'string', array('length'=>50))
             ->addColumn('dummy_int', 'integer')
             ->addColumn('dummy_int_null', 'integer', array('null'=>true))
+            ->addForeignKey('dummy_int', 'two', 'dummy_int_null')
             ->save();
 
     }

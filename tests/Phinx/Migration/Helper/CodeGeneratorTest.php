@@ -3,16 +3,16 @@
 namespace Test\Phinx\Migration\Helper;
 
 use Phinx\Db\Table;
-use Phinx\Migration\Helper\CodeGeneratorHelper;
+use Phinx\Migration\Helper\CodeGenerator;
 
-class CodeGeneratorHelperTest extends \PHPUnit_Framework_TestCase
+class CodeGeneratorTest extends \PHPUnit_Framework_TestCase
 {
     public function testIsColumnSinglePrimaryKey()
     {
         $column = new Table\Column();
         $column->setName('name');
 
-        $this->assertFalse(CodeGeneratorHelper::isColumnSinglePrimaryKey(new Table('dummy'), $column));
+        $this->assertFalse(CodeGenerator::isColumnSinglePrimaryKey(new Table('dummy'), $column));
     }
 
     public function testIsColumnSinglePrimaryKeyId()
@@ -20,7 +20,7 @@ class CodeGeneratorHelperTest extends \PHPUnit_Framework_TestCase
         $column = new Table\Column();
         $column->setName('id');
 
-        $this->assertTrue(CodeGeneratorHelper::isColumnSinglePrimaryKey(new Table('dummy'), $column));
+        $this->assertTrue(CodeGenerator::isColumnSinglePrimaryKey(new Table('dummy'), $column));
     }
 
     public function testIsColumnSinglePrimaryKeyPk()
@@ -28,7 +28,7 @@ class CodeGeneratorHelperTest extends \PHPUnit_Framework_TestCase
         $column = new Table\Column();
         $column->setName('user_id');
 
-        $this->assertTrue(CodeGeneratorHelper::isColumnSinglePrimaryKey(new Table('dummy', array('id'=>'user_id')), $column));
+        $this->assertTrue(CodeGenerator::isColumnSinglePrimaryKey(new Table('dummy', array('id'=>'user_id')), $column));
     }
 
     public function testBuildTableOptionsString()
@@ -36,7 +36,7 @@ class CodeGeneratorHelperTest extends \PHPUnit_Framework_TestCase
         $table = new Table('table', array('id'=>false, 'foreign_key'=>array('user_id', 'post_id')));
         $expected = "array('id'=>false, 'foreign_key'=>array('user_id', 'post_id'))";
 
-        $this->assertEquals($expected, CodeGeneratorHelper::buildTableOptionsString($table));
+        $this->assertEquals($expected, CodeGenerator::buildTableOptionsString($table));
     }
 
     public function testBuildColumnOptionsString()
@@ -48,7 +48,7 @@ class CodeGeneratorHelperTest extends \PHPUnit_Framework_TestCase
         $column->setLimit(4);
 
         $expected = "array('length'=>4,'null'=>true)";
-        $this->assertEquals($expected, CodeGeneratorHelper::buildColumnOptionsString($column));
+        $this->assertEquals($expected, CodeGenerator::buildColumnOptionsString($column));
     }
 
     public function testBuildAddColumnArgumentsString()
@@ -60,6 +60,6 @@ class CodeGeneratorHelperTest extends \PHPUnit_Framework_TestCase
         $column->setLimit(4);
 
         $expected = "'user_id', 'integer', array('length'=>4,'null'=>true)";
-        $this->assertEquals($expected, CodeGeneratorHelper::buildAddColumnArgumentsString($column));
+        $this->assertEquals($expected, CodeGenerator::buildAddColumnArgumentsString($column));
     }
 } 

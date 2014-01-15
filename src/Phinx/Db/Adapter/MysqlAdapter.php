@@ -528,7 +528,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             return false;
         } else {
             foreach ($foreignKeys as $key) {
-                $a = array_diff($columns, $key['columns']);
+                $a = array_diff($columns, $key->getColumns());
                 if (empty($a)) {
                     return true;
                 }
@@ -543,9 +543,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      * @param string $tableName Table Name
      * @return array
      */
-    protected function getForeignKeys($tableName)
+    public function getForeignKeys($tableName)
     {
-        $foreignKeys = array();
+        $foreignKeysArray = array();
         $rows = $this->fetchAll(sprintf(
             'SELECT
               CONSTRAINT_NAME,
@@ -561,11 +561,22 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $tableName
         ));
         foreach ($rows as $row) {
-            $foreignKeys[$row['CONSTRAINT_NAME']]['table'] = $row['TABLE_NAME'];
-            $foreignKeys[$row['CONSTRAINT_NAME']]['columns'][] = $row['COLUMN_NAME'];
-            $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_table'] = $row['REFERENCED_TABLE_NAME'];
-            $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_columns'][] = $row['REFERENCED_COLUMN_NAME'];
+            $foreignKeysArray[$row['CONSTRAINT_NAME']]['table'] = $row['TABLE_NAME'];
+            $foreignKeysArray[$row['CONSTRAINT_NAME']]['columns'][] = $row['COLUMN_NAME'];
+            $foreignKeysArray[$row['CONSTRAINT_NAME']]['referenced_table'] = $row['REFERENCED_TABLE_NAME'];
+            $foreignKeysArray[$row['CONSTRAINT_NAME']]['referenced_columns'][] = $row['REFERENCED_COLUMN_NAME'];
         }
+
+        $foreignKeys = array();
+        foreach ($foreignKeysArray as $constraint => $foreignKeyArray) {
+            $foreignKey = new ForeignKey();
+            $foreignKey->setColumns($foreignKeyArray['columns']);
+            $foreignKey->setReferencedTable(new Table($foreignKeyArray['referenced_table']));
+            $foreignKey->setReferencedColumns($foreignKeyArray['referenced_columns']);
+            $foreignKeys[$constraint] = $foreignKey;
+        }
+
+
         return $foreignKeys;
     }
 
@@ -905,7 +916,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * @param $tableName
+     * @param string $tableName
      *
      * @return array
      */

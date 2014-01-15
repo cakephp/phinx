@@ -6,7 +6,7 @@ use Phinx\Db\Table\Column,
     Phinx\Db\Table;
 
 
-class CodeGeneratorHelper
+class CodeGenerator
 {
     /**
      * Checks is column equals 'id' in table options
@@ -126,5 +126,23 @@ class CodeGeneratorHelper
         }
 
         return implode(', ', $args);
+    }
+
+    public static function buildFkString(Table\ForeignKey $fk)
+    {
+        $columns = $fk->getColumns();
+        if (count($columns) > 1) {
+            $columnsDef = 'array('.implode(',', $columns).')';
+        } else {
+            $columnsDef = "'{$columns[0]}'";
+        }
+        $refColumns = $fk->getReferencedColumns();
+        if (count($refColumns) > 1) {
+            $refColumnsDef = 'array('.implode(',', $refColumns).')';
+        } else {
+            $refColumnsDef = "'{$refColumns[0]}'";
+        }
+
+        return "->addForeignKey({$columnsDef}, '{$fk->getReferencedTable()->getName()}', {$refColumnsDef})";
     }
 } 
