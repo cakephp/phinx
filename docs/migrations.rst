@@ -180,7 +180,7 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
 
 .. note::
 
-    These commands run using The PHP Data Objects (PDO) extension defines a lightweight, consistent interface for accessing databases in PHP. Always make sure your queries abide with PDOs before using the ``execute()`` command; this is especially important when using DELIMITERs during insertion of stored procedures or triggers.
+    These commands run using the ``PHP Data Objects (PDO) extension which  defines a lightweight, consistent interface for accessing databases in PHP``. Always make sure your queries abide with PDOs before using the ``execute()`` command; this is especially important when using DELIMITERs during insertion of stored procedures or triggers which don't support DELIMITERs.
         
 Fetching Rows
 -------------
