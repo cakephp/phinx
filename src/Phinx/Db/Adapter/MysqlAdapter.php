@@ -444,7 +444,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         $columns = array_map('strtolower', $columns);
         $indexes = $this->getIndexes($tableName);
-
+        var_dump($indexes);
+        die;
         foreach ($indexes as $index) {
             $a = array_diff($columns, $index['columns']);
             if (empty($a)) {
@@ -474,7 +475,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function dropIndex($tableName, $columns)
+    public function dropIndex($tableName, $columns, $indexName = null)
     {
         $this->startCommandTimer();
         if (is_string($columns)) {
@@ -485,16 +486,33 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $indexes = $this->getIndexes($tableName);
         $columns = array_map('strtolower', $columns);
 
-        foreach ($indexes as $indexName => $index) {
-            $a = array_diff($columns, $index['columns']);
-            if (empty($a)) {
+        foreach ($indexes as $name => $index) {
+            if ($indexName && $name == $indexName) {
                 $this->execute(
-                    sprintf('ALTER TABLE %s DROP INDEX %s',
+                    sprintf(
+                        'ALTER TABLE %s DROP INDEX %s',
                         $this->quoteTableName($tableName),
                         $this->quoteColumnName($indexName)
                     )
                 );
-                return $this->endCommandTimer();
+                $this->endCommandTimer();
+
+                return;
+            }
+            else {
+                $a = array_diff($columns, $index['columns']);
+                if (empty($a)) {
+                    $this->execute(
+                        sprintf(
+                            'ALTER TABLE %s DROP INDEX %s',
+                            $this->quoteTableName($tableName),
+                            $this->quoteColumnName($name)
+                        )
+                    );
+                    $this->endCommandTimer();
+
+                    return;
+                }
             }
         }
     }
