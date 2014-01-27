@@ -18,12 +18,18 @@ class CodeGenerator
      */
     public static function isColumnSinglePrimaryKey(Table $table, Column $column)
     {
+        $options = $table->getOptions();
+        if (isset($options['primary_key']) && in_array('id', $options['primary_key'])) {
+            // $this->table('table', array('id'=>false, 'primary_key'=>array('id', 'value'))) case
+
+            return false;
+        }
+
         if ($column->getName() == 'id') {
 
             return true;
         }
 
-        $options = $table->getOptions();
         if (isset($options['id']) && $options['id'] == $column->getName()) {
 
             return true;

@@ -40,6 +40,12 @@ use Phinx\Db\Table\ForeignKey;
  */
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
+
+    /**
+     * @var bool
+     */
+    protected $foreignKeyCheck = true;
+
     /**
      * {@inheritdoc}
      */
@@ -900,6 +906,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
     /**
      * @return Table[]
+     *
+     * TODO: add to the interface
      */
     public function getTables()
     {
@@ -913,6 +921,22 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
 
         return $tables;
+    }
+
+    /**
+     * Disable or enable foreign key checks.
+     *
+     * TODO: add to the interface
+     */
+    public function toggleForeignKeyChecks()
+    {
+        $this->foreignKeyCheck = $this->foreignKeyCheck ? false : true;
+
+        if ($this->foreignKeyCheck) {
+            $this->execute('SET FOREIGN_KEY_CHECKS=1');
+        } else {
+            $this->execute('SET FOREIGN_KEY_CHECKS=0');
+        }
     }
 
     /**

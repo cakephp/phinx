@@ -2,13 +2,11 @@
 
 namespace Phinx\Console\Command;
 
-use Phinx\Migration\Schema\Schema;
 use Symfony\Component\Console\Input\InputArgument,
     Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Filesystem\Filesystem;
+    Symfony\Component\Console\Output\OutputInterface;
 
-class SchemaDump extends AbstractSchemaCommand
+class SchemaLoad extends AbstractSchemaCommand
 {
     /**
      * {@inheritdoc}
@@ -19,8 +17,8 @@ class SchemaDump extends AbstractSchemaCommand
 
         $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
 
-        $this->setName('schema:dump')
-            ->setDescription('Dump existing database to initial migration');
+        $this->setName('schema:load')
+            ->setDescription('Load schema to the database.');
     }
 
     /**
@@ -48,22 +46,27 @@ class SchemaDump extends AbstractSchemaCommand
 
         $path = $this->getConfig()->getMigrationPath();
         $filePath = $this->loadSchemaFilePath($path);
-
-        $start = microtime(true);
-        $dump = $this->getManager()->schemaDump($environment);
-        $end = microtime(true);
-
-        if (!$dump) {
-            $output->writeln('<comment>Database is empty. Nothing to dump!</comment>');
+        if (!file_exists($filePath)) {
+            $output->writeln('<comment>Schema file missing. Nothing to load.</comment>');
 
             return;
         }
 
-        if (false === file_put_contents($filePath, $dump)) {
-            throw new \RuntimeException(
-                sprintf('The file "%s" could not be written to', $path)
-            );
+        $dialog = $this->getHelperSet()->get('dialog');
+
+        if (!$dialog->askConfirmation(
+            $output,
+            '<question>Hey! You must be pretty damn sure that you want to destroy \''.$envOptions['name'].'\'. Are you sure? (y/n)</question>',
+            false
+            )) {
+            $output->writeln('Aborting.');
+
+            return;
         }
+
+        $start = microtime(true);
+        $this->getManager()->schemaLoad($environment, $filePath);
+        $end = microtime(true);
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');

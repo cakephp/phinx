@@ -1,12 +1,10 @@
 <?php
 
-namespace Phinx\Migration;
+namespace Phinx\Migration\Schema;
 
-use Phinx\Db\Adapter\AdapterInterface,
-    Phinx\Db\Table;
+use Phinx\Db\Adapter\AdapterInterface;
 
-
-class SchemaDumper
+class Dumper
 {
     /**
      * @var AdapterInterface
@@ -31,6 +29,8 @@ class SchemaDumper
 
     /**
      * @return string with php code
+     *
+     * @throws \Exception
      */
     public function dump()
     {

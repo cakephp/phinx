@@ -61,6 +61,7 @@ class PhinxApplication extends Application
         $this->add(new Command\Status());
         $this->add(new Command\Test());
         $this->add(new Command\SchemaDump());
+        $this->add(new Command\SchemaLoad());
     }
      
     /**

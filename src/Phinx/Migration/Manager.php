@@ -385,26 +385,7 @@ class Manager
 
                     $fileNames[$class] = basename($filePath);
                     
-                    // load the migration file
-                    require_once $filePath;
-                    if (!class_exists($class)) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'Could not find class "%s" in file "%s"',
-                            $class,
-                            $filePath
-                        ));
-                    }
-
-                    // instantiate it
-                    $migration = new $class($version);
-                    
-                    if (!($migration instanceof AbstractMigration)) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'The class "%s" in file "%s" must extend \Phinx\Migration\AbstractMigration',
-                            $class,
-                            $filePath
-                        ));
-                    }
+                    $migration = $this->instantiateMigration($filePath, $class, $version);
                     
                     $versions[$version] = $migration;
                 }
@@ -440,6 +421,41 @@ class Manager
     }
 
     /**
+     * @param $filePath
+     * @param $class
+     * @param $version
+     *
+     * @return AbstractMigration
+     * @throws \InvalidArgumentException
+     */
+    protected function instantiateMigration($filePath, $class, $version)
+    {
+        // load the migration file
+        require_once $filePath;
+
+        if (!class_exists($class)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Could not find class "%s" in file "%s"',
+                $class,
+                $filePath
+            ));
+        }
+
+        // instantiate it
+        $migration = new $class($version);
+
+        if (!($migration instanceof AbstractMigration)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The class "%s" in file "%s" must extend \Phinx\Migration\AbstractMigration',
+                $class,
+                $filePath
+            ));
+        }
+
+        return $migration;
+    }
+
+    /**
      * @param string $environment
      *
      * @return string
@@ -447,6 +463,35 @@ class Manager
     public function schemaDump($environment)
     {
         return $this->getEnvironment($environment)->schemaDump();
+    }
+
+    /**
+     * @param string $environment
+     * @param string $filePath
+     */
+    public function schemaLoad($environment, $filePath)
+    {
+        $this->getEnvironment($environment)->getAdapter()->toggleForeignKeyChecks();
+
+        $this->resetDatabase($environment);
+        $migration = $this->instantiateMigration($filePath, 'Schema', 0);
+        $this->executeMigration($environment, $migration, MigrationInterface::UP);
+
+        $this->getEnvironment($environment)->getAdapter()->toggleForeignKeyChecks();
+    }
+
+    /**
+     * @param string $environment
+     */
+    public function resetDatabase($environment) {
+        $this->getOutput()->writeln(" == <comment>Resetting database</comment>");
+        $tables = $this->getEnvironment($environment)->getAdapter()->getTables();
+        if (count($tables) > 0) {
+            foreach ($tables as $table) {
+                $this->getEnvironment($environment)->getAdapter()->dropTable($table->getName());
+            }
+        }
+        $this->getOutput()->writeln(" == <comment>Done</comment>");
     }
 }
 

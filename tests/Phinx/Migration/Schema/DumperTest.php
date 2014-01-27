@@ -1,21 +1,21 @@
 <?php
 
-namespace Test\Phinx\Migration;
+namespace Test\Phinx\Migration\Schema;
 
 use Phinx\Db\Table;
-use Phinx\Migration\SchemaDumper;
+use Phinx\Migration\Schema\Dumper;
 use Phinx\Db\Table\Column;
 
-class SchemaDumperTest extends \PHPUnit_Framework_TestCase
+class DumperTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var SchemaDumper
+     * @var Dumper
      */
     protected $schemaDumper;
 
     public function setUp()
     {
-        $this->schemaDumper = new SchemaDumper();
+        $this->schemaDumper = new Dumper();
     }
 
     public function testDump()
@@ -63,7 +63,7 @@ class SchemaDumperTest extends \PHPUnit_Framework_TestCase
         $this->schemaDumper->setAdapter($adapterStub);
         $dump = $this->schemaDumper->dump();
 
-        $this->assertStringEqualsFile(__DIR__ . '/_files/schemadumper/schema.php', $dump);
+        $this->assertStringEqualsFile(__DIR__ . '/../_files/schemadumper/schema.php', $dump);
     }
 
     protected function setupTableOneStub()

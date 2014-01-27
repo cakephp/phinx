@@ -29,7 +29,7 @@
 namespace Phinx\Migration\Manager;
 
 
-use Phinx\Migration\SchemaDumper;
+use Phinx\Migration\Schema\Dumper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\PdoAdapter;
@@ -311,7 +311,7 @@ class Environment
      */
     public function schemaDump()
     {
-        $dumper = new SchemaDumper();
+        $dumper = new Dumper();
         $dumper->setAdapter($this->getAdapter());
 
         return $dumper->dump();
