@@ -31,7 +31,7 @@
           <div class="collapse navbar-collapse navbar-right" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
               <li><a href="http://docs.phinx.org/">DOCS</a></li>
-              <li><a href="#">INSTALL</a></li>
+              <li><a href="#installModal" role="button" data-toggle="modal">INSTALL</a></li>
               <li><a href="#screencast">SCREENCAST</a></li>
               <li><a href="#support">SUPPORT</a></li>
             </ul>
@@ -104,8 +104,7 @@
   <div class="col-sm-2 col-md-2 text-center"><img src="img/icon5.png" class="img-rounded" alt=""></div>
   <div class="col-sm-10 col-md-8">
    <h2>Completely Free</h2>
-   <p>Phinx is and will always remain completely free, open-source software. Developers are encouraged to fork, hack and modify Phinx. If you use Phinx commercially then
-       you are encouraged to make a donation.</p>
+   <p>Phinx is and will always remain completely free, open-source software. Developers are encouraged to fork, hack and modify Phinx. If you use Phinx commercially then please consider making a donation.</p>
   </div>
  </div>
 </div>
@@ -201,35 +200,37 @@
 </footer>
 
 <!-- Install Modal -->
-<div id="installModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="installModallLabel">Install &amp; Run</h3>
-    </div>
-    <div class="modal-body">
-        <p>By far the best way to install Phinx is via Composer 
-           (<a href="http://getcomposer.org" target="_blank">http://getcomposer.org</a>).
-        </p>
+<div id="installModal" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Install &amp; Run</h4>
+      </div>
+      <div class="modal-body">
+          <p>By far the best way to install Phinx is via Composer 
+             (<a href="http://getcomposer.org" target="_blank">http://getcomposer.org</a>).
+          </p>
         
-        <p>Simply add Phinx as a dependency to your <code>composer.json</code> file:</p>
+          <p>Simply add Phinx as a dependency to your <code>composer.json</code> file:</p>
         
 <pre><code>{
-"require": {
-"robmorgan/phinx": "*"
-}
+    "require": {
+        "robmorgan/phinx": "*"
+    }
 }
 </code></pre>
-<p>and install it:</p>
+  <p>and install it:</p>
 
-<pre><code>curl -s https://getcomposer.org/installer | php
-php composer.phar install
-</code></pre>
+  <pre><code>curl -s https://getcomposer.org/installer | php
+  php composer.phar install
+  </code></pre>
 
-        <p>Then Phinx can be executed using:</p>
+          <p>Then Phinx can be executed using:</p>
 
-        <pre><code>php vendor/bin/phinx</code></pre>
+          <pre><code>php vendor/bin/phinx</code></pre>
         
-        <p>Now write your first migration:</p>
+          <p>Now write your first migration:</p>
 
 <pre><code>$ php vendor/bin/phinx init .
 $ vim phinx.yml
@@ -238,13 +239,14 @@ $ php vendor/bin/phinx create MyFirstMigration
 $ php vendor/bin/phinx migrate -e development
 </code></pre>
 
-        <p>And that's it! Phinx will connect to your development database and execute your first migration.</p>
-
-    </div>
-    <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-    </div>
-</div>
+          <p>And that's it! Phinx will connect to your development database and execute your first migration.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 <script>
   var _gaq = _gaq || [];
