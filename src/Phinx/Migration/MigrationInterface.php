@@ -157,7 +157,7 @@ interface MigrationInterface
      *
      * @param string $tableName Table Name
      * @return boolean
-     */    
+     */
     public function hasTable($tableName);
     
     /**

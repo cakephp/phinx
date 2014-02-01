@@ -2,16 +2,17 @@
 
 namespace Test\Phinx\Console\Command;
 
-use Symfony\Component\Console\Tester\CommandTester,
-    Symfony\Component\Console\Output\StreamOutput,
-    Phinx\Config\Config,
-    Phinx\Console\Command\Rollback;
+use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Output\StreamOutput;
+use Phinx\Config\Config;
+use Phinx\Console\Command\Rollback;
 
 class RollbackTest extends \PHPUnit_Framework_TestCase
 {
     protected $config = array();
 
-    protected function setUp() {
+    protected function setUp()
+    {
         $this->config = new Config(array(
             'paths' => array(),
             'environments' => array(

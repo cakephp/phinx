@@ -28,12 +28,12 @@
  */
 namespace Phinx\Console\Command;
 
-use Symfony\Component\Console\Command\Command,
-    Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputOption,
-    Symfony\Component\Console\Output\OutputInterface;
-    
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+
 class Status extends AbstractCommand
 {
     /**
@@ -47,12 +47,13 @@ class Status extends AbstractCommand
          
         $this->setName('status')
              ->setDescription('Show migration status')
-             ->setHelp(<<<EOT
+             ->setHelp(
+<<<EOT
 The <info>status</info> command prints a list of all migrations, along with their current status
 
 <info>phinx status -e development</info>
 EOT
-        );         
+             );
     }
 
     /**

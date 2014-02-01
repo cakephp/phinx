@@ -22,33 +22,34 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
 namespace Phinx\Console\Command;
 
-use Symfony\Component\Console\Command\Command,
-    Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputOption,
-    Symfony\Component\Console\Output\OutputInterface;
-    
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+
 class Migrate extends AbstractCommand
 {
     /**
      * {@inheritdoc}
      */
-     protected function configure()
-     {
-         parent::configure();
-         
-         $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
-         
-         $this->setName('migrate')
-              ->setDescription('Migrate the database')
-              ->addOption('--target', '-t', InputArgument::OPTIONAL, 'The version number to migrate to')
-              ->setHelp(<<<EOT
+    protected function configure()
+    {
+        parent::configure();
+
+        $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
+
+        $this->setName('migrate')
+             ->setDescription('Migrate the database')
+             ->addOption('--target', '-t', InputArgument::OPTIONAL, 'The version number to migrate to')
+             ->setHelp(
+<<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
 
 <info>phinx migrate -e development</info>
@@ -56,12 +57,12 @@ The <info>migrate</info> command runs all available migrations, optionally up to
 <info>phinx migrate -e development -v</info>
 
 EOT
-              );
+             );
     }
 
     /**
      * Migrate the database.
-     * 
+     *
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)

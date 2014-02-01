@@ -28,9 +28,9 @@
  */
 namespace Phinx\Migration;
 
-use Phinx\Db\Table,
-    Phinx\Db\Adapter\AdapterInterface,
-    Phinx\Migration\MigrationInterface;
+use Phinx\Db\Table;
+use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Migration\MigrationInterface;
 
 /**
  * Abstract Migration Class. 

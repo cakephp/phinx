@@ -2,8 +2,8 @@
 
 namespace Test\Phinx\Migration;
 
-use Phinx\Db\Table,
-    Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Table;
+use Phinx\Db\Adapter\AdapterInterface;
 
 class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
 {

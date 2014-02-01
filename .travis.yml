@@ -7,4 +7,8 @@ language: php
 php:
   - 5.3
   - 5.4
-script: "phpunit --coverage-text"
+  - 5.5
+script:
+    - phpunit --coverage-text --coverage-clover=coverage.clover
+    - wget https://scrutinizer-ci.com/ocular.phar
+    - php ocular.phar code-coverage:upload --format=php-clover coverage.clover

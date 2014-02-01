@@ -15,8 +15,8 @@ class DuplicateMigration extends AbstractMigration
     /**
      * Migrate Down.
      */
-     public function down()
-     {
-         // do nothing
-     }
+    public function down()
+    {
+        // do nothing
+    }
 }

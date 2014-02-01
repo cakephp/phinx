@@ -2,11 +2,11 @@
 
 namespace Test\Phinx\Migration;
 
-use Symfony\Component\Console\Output\StreamOutput,
-    Phinx\Config\Config,
-    Phinx\Db\Adapter\MysqlAdapter,
-    Phinx\Migration\Manager,
-    Phinx\Migration\Manager\Environment;
+use Symfony\Component\Console\Output\StreamOutput;
+use Phinx\Config\Config;
+use Phinx\Db\Adapter\MysqlAdapter;
+use Phinx\Migration\Manager;
+use Phinx\Migration\Manager\Environment;
 
 class ManagerTest extends \PHPUnit_Framework_TestCase
 {
@@ -66,8 +66,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->method('getVersions')
                 ->will($this->returnValue(array('20120111235330', '20120116183504')));
         
-        $this->manager->setEnvironments(array('mockenv' => $envStub));                
-        $this->manager->printStatus('mockenv');   
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->printStatus('mockenv');
         
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -86,8 +86,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $config = new Config($configArray);
         
         $this->manager->setConfig($config);
-        $this->manager->setEnvironments(array('mockenv' => $envStub));                
-        $this->manager->printStatus('mockenv');   
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->printStatus('mockenv');
         
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -102,8 +102,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->method('getVersions')
                 ->will($this->returnValue(array('20120103083300', '20120815145812')));
         
-        $this->manager->setEnvironments(array('mockenv' => $envStub));                
-        $this->manager->printStatus('mockenv');   
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->printStatus('mockenv');
         
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
