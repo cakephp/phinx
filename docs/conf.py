@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Phinx'
-copyright = u'2013, Rob Morgan'
+copyright = u'2014, Rob Morgan'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
