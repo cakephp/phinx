@@ -122,6 +122,14 @@ Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.3.0** (Sunday, 2nd February 2014)
+
+* PSR-2 support
+* Method to add timestamps easily to tables
+* Support for column comments in the Postgres adapter
+* Fixes for MySQL driver options
+* Fixes for MySQL biginteger type
+
 **0.2.9** (Saturday, 16th November 2013)
 
 * Added SQLite Support
