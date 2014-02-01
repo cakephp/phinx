@@ -1,0 +1,401 @@
+*{border:0px;}
+@font-face {
+    font-family: 'myriad_pro_lightregular';
+    src: url('../fonts/myriadpro-light-webfont.eot');
+    src: url('../fonts/myriadpro-light-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/myriadpro-light-webfont.woff') format('woff'),
+         url('../fonts/myriadpro-light-webfont.ttf') format('truetype'),
+         url('../fonts/myriadpro-light-webfont.svg#myriad_pro_lightregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+@font-face {
+    font-family: 'MyriadProRegular';
+    src: url('../fonts/pro-regular-webfont.eot');
+    src: url('../fonts/pro-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/pro-regular-webfont.woff') format('woff'),
+         url('../fonts/pro-regular-webfont.ttf') format('truetype'),
+         url('../fonts/pro-regular-webfont.svg#MyriadProRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+@font-face {
+    font-family: 'MyriadProSemibold';
+    src: url('../fonts/myriadpro-semibold-webfont.eot');
+    src: url('../fonts/myriadpro-semibold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/myriadpro-semibold-webfont.woff') format('woff'),
+         url('../fonts/myriadpro-semibold-webfont.ttf') format('truetype'),
+         url('../fonts/myriadpro-semibold-webfont.svg#MyriadProSemibold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+@font-face {
+    font-family: 'MyriadProBold';
+    src: url('../fonts/pro-bold-webfont.eot');
+    src: url('../fonts/pro-bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/pro-bold-webfont.woff') format('woff'),
+         url('../fonts/pro-bold-webfont.ttf') format('truetype'),
+         url('../fonts/pro-bold-webfont.svg#MyriadProBold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+@font-face {
+font-family: TCM;
+src: url("../fonts/TCM.eot") /* EOT file for IE */
+}
+@font-face {
+font-family: TCM;
+src: url("../fonts/TCM.TTF") /* TTF file for CSS3 browsers */
+}
+@font-face {
+font-family: TCB;
+src: url("../fonts/TCB.eot") /* EOT file for IE */
+}
+@font-face {
+font-family: TCB;
+src: url("../fonts/TCB.TTF") /* TTF file for CSS3 browsers */
+}
+/*reset*/
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, ul, li {
+	margin: 0px;
+	padding: 0px;
+	border: 0;
+	list-style-type: none;
+	font-weight: normal;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+a {
+	text-decoration: none;
+	-moz-transition: all 0.3s ease-in-out;
+	-webkit-transition: all 0.3s ease-in-out;
+}
+a:focus {
+  outline: none;
+}
+a:hover {
+	-webkit-transition: all 0.3s ease-in-out 0.1s;
+	-moz-transition: all 0.3s ease-in-out 0.1s;
+	-ms-transition: all 0.3s ease-in-out 0.1s;
+	-o-transition: all 0.3s ease-in-out 0.1s;
+	transition: all 0.3s ease-in-out 0.1s;
+	text-decoration: none;
+}
+textarea {
+	resize:none;
+}
+input:focus { 
+    outline: none; 
+}
+img {
+	max-width:100%;
+}
+
+
+
+/*css*/
+body {
+	background-color: #f6f7f8;
+}
+h1 {
+	font-size: 52px;
+	color: #283c38;
+	padding-bottom: 30px;
+	font-family: MyriadProRegular;
+}
+h2 {
+	font-size: 22px;
+	color: #283c38;
+	padding-bottom: 15px;
+	font-family: MyriadProRegular;
+	padding-top: 20px;
+}
+h3 {
+	font-size: 20px;
+	color: #768c87;
+	padding-bottom: 15px;
+	font-family: "myriad_pro_lightregular";
+}
+p {
+	font-size: 15px;
+	color: #768c87;
+	padding-bottom: 22px;
+	font-family: MyriadProRegular;
+	line-height: 21px;
+	text-align: justify;
+}
+.row {
+	margin-bottom: 0px;
+	padding-bottom: 20px;
+}
+.help-block {
+  padding: 50px 80px;
+	margin-bottom: 0px;
+}
+header {
+	background-color: #44d7b7;
+	padding-top: 26px;
+	padding-bottom: 26px;
+}
+header .row{
+	padding-bottom: 0px;
+}
+header .label-info{
+	background-color: #44D7B7;
+	padding-top: 140px;
+	padding-bottom: 150px;
+}
+header .label-info h1{
+	font-size: 142px;
+	line-height: 80px;
+	color: #FFF;
+	font-family: MyriadProRegular;
+	text-shadow: 1px 1px 1px #12b982;
+}
+header .label-info h2{
+	padding-bottom: 30px;
+	font-size: 25px;
+	color: #FFF;
+	font-family: "myriad_pro_lightregular";
+	line-height: 22px;
+	text-shadow: 1px 1px 1px #22c393;
+}
+header .label-info .btn-primary{
+	background-color: #5fe9ca;
+	border-bottom-color: #20b091;
+	text-transform: none;
+	text-shadow: 1px 1px 1px #32ddad;
+}
+header .label-info .btn-primary:hover{
+	background-color: #4df6d4;
+}
+header .label-info .btn-success{
+	background-color: #20b091;
+	border-bottom-style: solid;
+	border-bottom-color: #5fe9ca;
+	text-transform: none;
+	color: #FFF;
+	font-size: 22px;
+	padding-top: 13px;
+	padding-right: 25px;
+	padding-bottom: 13px;
+	padding-left: 25px;
+	border-top-style: none;
+	border-right-style: none;
+	border-left-style: none;
+	text-shadow: 1px 1px 1px #11a77c;
+	border-radius: 0px;
+	font-family: TCB;
+	border-bottom-width: 3px;
+}
+header .label-info .btn-success:hover{
+	background-color: #189379;
+}
+.navbar {
+	border: none;
+	border-radius: 0px;
+    min-height: none;
+	padding:0px;
+	margin:0px;
+	min-height:5px;
+	background-color:transparent;
+}
+
+.navbar-default .navbar-nav > li > a {
+	color: #FFF;
+	font-family: TCB;
+	font-size: 16px;
+	text-transform: uppercase;
+	line-height: 35px;
+	padding-right: 0px;
+	padding-left: 25px;
+	text-shadow:1px 1px 1px #12b982;
+}
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus  {
+	color: #00866a;
+	text-shadow:1px 1px 1px #6dfad8;
+}
+
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+	color: #00866a;
+	background-color: transparent;
+	text-shadow:1px 1px 1px #6dfad8;
+}
+.navbar-brand{
+	padding:0px; text-shadow:none;}
+
+.navbar-nav > li > a {
+    padding:0px;
+	line-height: auto;
+}
+
+.nav > li > a {
+    padding:0px;
+}
+.navbar-default .navbar-toggle {
+	border-top-color: #FFFFFF;
+	border-right-color: #FFFFFF;
+	border-bottom-color: #FFFFFF;
+	border-left-color: #FFFFFF;
+}
+.navbar-default .navbar-toggle .icon-bar {
+    background-color: #FFFFFF;
+}
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+  background-color: #00b092;
+}
+.img-rounded {
+	margin-bottom: 15px;
+}
+.btn-primary{
+	background-color:#f1ad1d;
+	border-radius:0px;
+	border:none;
+	font-family:TCB;
+	font-size:22px;
+	text-transform:uppercase;
+	text-shadow:1px 1px 1px #ef8e0e;
+	padding:13px 25px;
+	
+	border-bottom:3px solid #f2c054;}
+.btn-primary:hover{
+	background-color:#00ac8e;
+	text-shadow:1px 1px 1px #005941;
+	border-bottom:3px solid #38ceae;}
+.label-primary{
+	background-color: #44d7b7;
+	margin-bottom: 0px;
+	padding-bottom: 0px;
+}
+.label-primary h1{
+	color: #FFF;
+	text-shadow:1px 1px #12b982;
+}
+.label-primary p{
+	color: #FFF;
+	
+}
+address {
+	font-size: 30px;
+	color: #FFF;
+	font-family: MyriadProSemibold;
+	margin-top: 20px;
+}
+address img{
+	margin-right:20px;
+}
+
+address a{
+	color: #FFF;
+	text-shadow:1px 1px #12b982;
+}
+address a:hover, address a:focus{
+	color: #00ac8e;
+	text-shadow: 1px 1px #69f6d5;
+	text-decoration: none;
+}
+.well-sm {
+	border-radius: 0px;
+	background-image: url(../img/mac-bg.jpg);
+	background-repeat: no-repeat;
+	background-position: center top;
+	padding-top: 40px;
+	padding-right: 0px;
+	padding-bottom: 0px;
+	padding-left: 0px;
+}
+.well-sm h1 {
+	color: #FFF;
+}
+footer {
+	padding-bottom: 20px;
+}
+footer p{
+	font-size: 15px;
+	color: #637874;
+	font-family: "myriad_pro_lightregular";
+	text-align: center;
+}
+
+.label-warning {
+	background-color: transparent;
+	float: right;
+}
+.lead {
+	margin-bottom: 0px;
+	font-size: 22px;
+	font-weight: normal;
+	text-align: right;
+}
+
+#support p a {
+  color: white;
+  text-decoration: underline;
+}
+
+@media (max-width: 1200px) {
+	
+}
+
+
+
+
+@media (max-width: 992px) {
+	
+}
+
+
+
+
+@media (max-width: 768px) {
+
+	header {
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
+	header .label-info h1{
+	font-size: 100px;
+	margin-top:20px;
+}
+	h1 {
+	font-size: 32px;
+	padding-bottom: 15px;
+}
+	header .label-info .btn-primary{
+	width:100%;
+	margin-bottom:10px;
+}
+header .label-info .btn-success{
+	width:100%;
+	margin-bottom:10px;
+}
+header .label-info{
+	padding-top: 40px;
+	padding-bottom: 30px;
+}
+.btn-primary{
+	width:100%;
+	}
+	address {
+	font-size: 22px;
+}
+.help-block {
+	padding-top: 25px;
+	padding-bottom: 25px;
+}
+.label-warning {
+	float: none;
+}
+.lead {
+	text-align: left;
+}
+.navbar-brand{
+	margin-top:10px;}
+}
