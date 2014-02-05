@@ -45,6 +45,7 @@ specified under the ``environments`` nested collection. For example:
             user: root
             pass: ''
             port: 3306
+            charset: utf8
 
 would define a new environment called ``production``.
 
@@ -82,6 +83,7 @@ demonstrated by the following example:
             user: %%PHINX_DBUSER%%
             pass: %%PHINX_DBPASS%%
             port: 3306
+            charset: utf8
 
 Supported Adapters
 ------------------
