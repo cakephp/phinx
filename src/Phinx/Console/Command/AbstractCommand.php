@@ -160,8 +160,11 @@ abstract class AbstractCommand extends Command
     {
         $configFile = $input->getOption('configuration');
 
+        $useDefault = false;
+
         if (null === $configFile) {
             $configFile = 'phinx.yml';
+            $useDefault = true;
         }
 
         $cwd = getcwd();
@@ -172,8 +175,21 @@ abstract class AbstractCommand extends Command
             $cwd . DIRECTORY_SEPARATOR
         ));
 
-        // Locate() throws an exception if the file does not exist
-        return $locator->locate($configFile, $cwd, $first = true);
+        try{
+            // Locate() throws an exception if the file does not exist
+            return $locator->locate($configFile, $cwd, $first = true);
+        }catch (\InvalidArgumentException $exception){
+            if($useDefault){
+                $configFile = 'phinx.php';
+                try{
+                    return $locator->locate($configFile, $cwd, $first = true);
+                }catch (\InvalidArgumentException $exceptionAgain){
+                    throw $exception;
+                }
+            }else{
+                throw $exception;
+            }
+        }
     }
 
     /**
