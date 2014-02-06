@@ -29,6 +29,8 @@
 namespace Phinx\Migration;
 
 use Phinx\Db\Adapter\AdapterInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
 
 /**
  * Migration interface
@@ -73,13 +75,21 @@ interface MigrationInterface
      * @return MigrationInterface
      */
     public function setAdapter(AdapterInterface $adapter);
-    
+
     /**
      * Gets the database adapter.
      *
      * @return AdapterInterface
      */
     public function getAdapter();
+
+    /**
+     * Sets the output object to be used in migration object
+     *
+     * @param OutputInterface $output
+     */
+    public function setOutput(OutputInterface $output);
+
     
     /**
      * Gets the name.

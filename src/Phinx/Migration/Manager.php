@@ -405,7 +405,8 @@ class Manager
                             $filePath
                         ));
                     }
-                    
+
+                    $migration->setOutput($this->output);
                     $versions[$version] = $migration;
                 }
             }
