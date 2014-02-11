@@ -57,10 +57,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $options = $this->getOptions();
             
             // if port is specified use it, otherwise use the MySQL default
-            if (isset($options['port'])) {
-                $dsn = 'mysql:host=' . $options['host'] . ';port=' . $options['port'] . ';dbname=' . $options['name'];
-            } else {
+            if (empty($options['port'])) {
                 $dsn = 'mysql:host=' . $options['host'] . ';dbname=' . $options['name'];
+            } else {
+                $dsn = 'mysql:host=' . $options['host'] . ';port=' . $options['port'] . ';dbname=' . $options['name'];
             }
 
             $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
