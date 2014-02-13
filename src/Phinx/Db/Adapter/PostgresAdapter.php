@@ -69,7 +69,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             try {
                 $db = new \PDO($dsn, $options['user'], $options['pass'], array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
             } catch (\PDOException $exception) {
-                throw new \InvalidArgumentException("There was a problem connecting to the database: {$exception->getMessage()}", null, $exception);
+                throw new \RuntimeException("There was a problem connecting to the database: {$exception->getMessage()}", null, $exception);
             }
 
             $this->setConnection($db);
@@ -376,7 +376,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         );
         $result = $this->fetchRow($sql);
         if (!(bool) $result['column_exists']) {
-            throw new \InvalidArgumentException(sprintf('The specified column doesn\'t exist: '. $columnName));
+            throw new \InvalidArgumentException("The specified column does not exist: $columnName");
         }
         $this->writeCommand('renameColumn', array($tableName, $columnName, $newColumnName));
         $this->execute(
@@ -659,44 +659,33 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function getSqlType($type)
     {
         switch ($type) {
+            case 'integer':
+            case 'text':
+            case 'decimal':
+            case 'time':
+            case 'date':
+            case 'boolean':
+            case 'json':
+                return array('name' => $type);
+
             case 'string':
                 return array('name' => 'character varying', 'limit' => 255);
-                break;
-            case 'text':
-                return array('name' => 'text');
-                break;
-            case 'integer':
-                return array('name' => 'integer');
-                break;
+
             case 'biginteger':
                 return array('name' => 'bigint');
-                break;
+
             case 'float':
                 return array('name' => 'real');
-                break;
-            case 'decimal':
-                return array('name' => 'decimal');
-                break;
+
             case 'datetime':
-                return array('name' => 'timestamp');
-                break;
             case 'timestamp':
                 return array('name' => 'timestamp');
-                break;
-            case 'time':
-                return array('name' => 'time');
-                break;
-            case 'date':
-                return array('name' => 'date');
-                break;
+
             case 'binary':
                 return array('name' => 'bytea');
-                break;
-            case 'boolean':
-                return array('name' => 'boolean');
-                break;
+
             default:
-                throw new \RuntimeException('The type: "' . $type . '" is not supported');
+                throw new \RuntimeException("Type not supported: $type");
         }
     }
 
@@ -713,6 +702,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'varchar':
                 return 'string';
             case 'text':
+            case 'json':
                 return 'text';
             case 'int':
             case 'int4':
@@ -746,7 +736,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'boolean':
                 return 'boolean';
             default:
-                throw new \RuntimeException('The PostgreSQL type: "' . $sqlType . '" is not supported');
+                throw new \RuntimeException("The PostgreSQL type not supported: $sqlType");
         }
     }
 
@@ -896,7 +886,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                   ->addColumn('end_time', 'timestamp')
                   ->save();
         } catch (\Exception $exception) {
-            throw new \InvalidArgumentException('There was a problem creating the schema table', null, $exception);
+            throw new \RuntimeException('There was a problem creating the schema table', null, $exception);
         }
     }
 
@@ -1026,4 +1016,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         return $indexName;
     }
+
+    /**
+     * @{@inheritdoc}
+     */
+    public function getColumnTypes() {
+        return array_merge(parent::getColumnTypes(), array('json'));
+    }
 }
+
