@@ -99,7 +99,7 @@ Declaring an SQLite database uses a simplified structure:
 .. code-block:: yaml
 
     environments:
-        devlopment:
+        development:
             adapter: sqlite
             name: ./data/derby
         testing:
