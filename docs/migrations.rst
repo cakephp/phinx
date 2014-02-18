@@ -367,6 +367,24 @@ To do this, we need to override the default ``id`` field name:
 
             }
         }
+        
+Valid Column Types
+~~~~~~~~~~~~~~~~~~
+
+Column types are specified as strings and can be one of: 
+
+-  primary_key
+-  string
+-  text
+-  integer
+-  float
+-  decimal
+-  datetime
+-  timestamp
+-  time
+-  date
+-  binary
+-  boolean
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -511,7 +529,7 @@ To rename a column access an instance of the Table object then call the
                 $table->renameColumn('biography', 'bio');
             }
         }
-        
+
 Working with Indexes
 ~~~~~~~~~~~~~~~~~~~~
 
