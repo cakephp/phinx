@@ -530,7 +530,6 @@ To rename a column access an instance of the Table object then call the
             }
         }
 
-        
 Working with Indexes
 ~~~~~~~~~~~~~~~~~~~~
 
