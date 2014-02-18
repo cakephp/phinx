@@ -14,6 +14,8 @@ creates a file called ``phinx.yml`` in the root of your project directory.
     directory on your webserver. This file contains your database credentials
     and may be accidentally served as plain text.
 
+If you do not wish to use the default configuration file, you may specify a configuration file (or a file that generates a PHP array) on the command line. See the :doc:`Commands <commands>` chapter for more information.
+
 Migration Path
 --------------
 
@@ -90,3 +92,16 @@ Phinx currently supports the following database adapters:
 
 * `MySQL <http://www.mysql.com/>`_: specify the ``mysql`` adapter.
 * `PostgreSQL <http://www.postgresql.org/>`_: specify the ``pgsql`` adapter.
+* `SQLite <http://www.sqlite.org/>`_: specify the ``sqlite`` adapter.
+
+Declaring an SQLite database uses a simplified structure:
+
+.. code-block:: yaml
+
+    environments:
+        devlopment:
+            adapter: sqlite
+            name: ./data/derby
+        testing:
+            adapter: sqlite
+            memory: true     # Setting memory to *any* value overrides name
