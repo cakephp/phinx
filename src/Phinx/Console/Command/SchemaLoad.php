@@ -6,7 +6,7 @@ use Symfony\Component\Console\Input\InputArgument,
     Symfony\Component\Console\Input\InputInterface,
     Symfony\Component\Console\Output\OutputInterface;
 
-class SchemaLoad extends AbstractSchemaCommand
+class SchemaLoad extends AbstractCommand
 {
     /**
      * {@inheritdoc}
@@ -44,8 +44,7 @@ class SchemaLoad extends AbstractSchemaCommand
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         $output->writeln('<info>using database</info> ' . $envOptions['name']);
 
-        $path = $this->getConfig()->getMigrationPath();
-        $filePath = $this->loadSchemaFilePath($path);
+        $filePath = $this->getManager()->loadSchemaFilePath();
         if (!file_exists($filePath)) {
             $output->writeln('<comment>Schema file missing. Nothing to load.</comment>');
 

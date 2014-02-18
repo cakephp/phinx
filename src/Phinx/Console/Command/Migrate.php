@@ -86,6 +86,7 @@ EOT
         // run the migrations
         $start = microtime(true);
         $this->getManager()->migrate($environment, $version);
+        $this->getManager()->schemaDump($environment);
         $end = microtime(true);
         
         $output->writeln('');

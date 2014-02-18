@@ -86,6 +86,7 @@ EOT
         // rollback the specified environment
         $start = microtime(true);
         $this->getManager()->rollback($environment, $version);
+        $this->getManager()->schemaDump($environment);
         $end = microtime(true);
         
         $output->writeln('');

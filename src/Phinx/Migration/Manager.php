@@ -31,6 +31,7 @@ namespace Phinx\Migration;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Filesystem\Filesystem;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Config\Config;
 use Phinx\Migration\Manager\Environment;
@@ -456,13 +457,29 @@ class Manager
     }
 
     /**
-     * @param string $environment
+     * @param $environment
      *
      * @return string
+     *
+     * @throws \RuntimeException
      */
     public function schemaDump($environment)
     {
-        return $this->getEnvironment($environment)->schemaDump();
+        $filePath = $this->loadSchemaFilePath();
+        $dump = $this->getEnvironment($environment)->schemaDump();
+        if (!$dump) {
+            $this->getOutput()->writeln('<comment>Database is empty. Nothing to dump!</comment>');
+
+            return;
+        }
+
+        if (false === file_put_contents($filePath, $dump)) {
+            throw new \RuntimeException(
+                sprintf('The file "%s" could not be written to', $filePath)
+            );
+        }
+
+        return $dump;
     }
 
     /**
@@ -492,6 +509,37 @@ class Manager
             }
         }
         $this->getOutput()->writeln(" == <comment>Done</comment>");
+    }
+
+    /**
+     * @return string
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function loadSchemaFilePath()
+    {
+        $migrationPath = $this->getConfig()->getMigrationPath();
+        $schemaPath = $migrationPath.DIRECTORY_SEPARATOR.'schema';
+
+        $fs = new Filesystem();
+        if (!$fs->exists($schemaPath)) {
+            if (!is_writeable($migrationPath)) {
+                throw new \InvalidArgumentException(
+                    sprintf('The directory "%s" is not writeable', $migrationPath)
+                );
+            }
+            $fs->mkdir($schemaPath);
+        }
+
+        if (!is_writeable($schemaPath)) {
+            throw new \InvalidArgumentException(
+                sprintf('The directory "%s" is not writeable', $schemaPath)
+            );
+        }
+        $schemaPath = realpath($schemaPath);
+        $fileName = 'schema.php';
+
+        return $schemaPath . DIRECTORY_SEPARATOR . $fileName;
     }
 }
 

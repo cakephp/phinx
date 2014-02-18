@@ -8,7 +8,7 @@ use Symfony\Component\Console\Input\InputArgument,
     Symfony\Component\Console\Output\OutputInterface,
     Symfony\Component\Filesystem\Filesystem;
 
-class SchemaDump extends AbstractSchemaCommand
+class SchemaDump extends AbstractCommand
 {
     /**
      * {@inheritdoc}
@@ -46,24 +46,9 @@ class SchemaDump extends AbstractSchemaCommand
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         $output->writeln('<info>using database</info> ' . $envOptions['name']);
 
-        $path = $this->getConfig()->getMigrationPath();
-        $filePath = $this->loadSchemaFilePath($path);
-
         $start = microtime(true);
-        $dump = $this->getManager()->schemaDump($environment);
+        $this->getManager()->schemaDump($environment);
         $end = microtime(true);
-
-        if (!$dump) {
-            $output->writeln('<comment>Database is empty. Nothing to dump!</comment>');
-
-            return;
-        }
-
-        if (false === file_put_contents($filePath, $dump)) {
-            throw new \RuntimeException(
-                sprintf('The file "%s" could not be written to', $path)
-            );
-        }
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
