@@ -275,7 +275,11 @@ class Environment
                         throw new \RuntimeException('Invalid adapter specified: ' . $this->options['adapter']);
                 }
             } else {
-                throw new \RuntimeException('No adapter was specified for environment: ' . $this->getName());
+                if (class_exists($this->options['adapter'])) {
+                    $this->setAdapter(new $this->options['adapter']($this->options, $this->getOutput()));
+                } else {
+                    throw new \RuntimeException('Invalid adapter specified: ' . $this->options['adapter']);
+                }
             }
         }
         
