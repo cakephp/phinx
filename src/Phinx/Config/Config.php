@@ -84,7 +84,7 @@ class Config implements \ArrayAccess
         $configArray = json_decode(file_get_contents($configFilePath), true);
         if (!is_array($configArray)) {
             throw new \RuntimeException(sprintf(
-                'File \'%s\' must valid JSON',
+                'File \'%s\' must be valid JSON',
                 $configFilePath
             ));
         }
