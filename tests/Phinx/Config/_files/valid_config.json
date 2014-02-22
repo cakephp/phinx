@@ -1,0 +1,17 @@
+{
+	"paths": {
+		"migrations": "application/migrations"
+	},
+	"environments": {
+		"default_migration_table": "phinxlog",
+		"default_database": "dev",
+		"dev": {
+			"adapter": "mysql",
+			"host": "localhost",
+			"name": "testing",
+			"user": "root",
+			"pass": "",
+			"port": 3306
+		}
+	}
+}
