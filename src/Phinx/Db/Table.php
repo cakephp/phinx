@@ -319,7 +319,7 @@ class Table
         
         // check column type
         if (!in_array($column->getType(), $this->getAdapter()->getColumnTypes())) {
-            throw new \InvalidArgumentException('An invalid column type was specified.');
+            throw new \InvalidArgumentException("An invalid column type was specified: {$column->getName()}");
         }
         
         $this->columns[] = $column;
