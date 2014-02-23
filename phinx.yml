@@ -11,6 +11,7 @@ environments:
         user: root
         pass: ''
         port: 3306
+        charset: utf8
                 
     development:
         adapter: mysql
@@ -19,6 +20,7 @@ environments:
         user: root
         pass: ''
         port: 3306
+        charset: utf8
                     
     testing:
         adapter: mysql
@@ -27,4 +29,5 @@ environments:
         user: root
         pass: ''
         port: 3306
+        charset: utf8
                  
