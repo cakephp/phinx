@@ -122,6 +122,10 @@ Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.3.2** (Monday, 24th February 2014)
+
+* Adding better Postgres type support
+
 **0.3.1** (Sunday, 23rd February 2014)
 
 * Adding MySQL charset support to the YAML config
