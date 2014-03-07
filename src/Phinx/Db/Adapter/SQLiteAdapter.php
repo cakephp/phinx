@@ -777,7 +777,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'text');
                 break;
             case 'integer':
-                return array('name' => 'int');
+                return array('name' => 'integer');
                 break;
             case 'biginteger':
                 return array('name' => 'bigint');
