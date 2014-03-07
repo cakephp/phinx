@@ -8,7 +8,8 @@
     "authors": [{
         "name": "Rob Morgan",
         "email": "robbym@gmail.com",
-        "homepage": "http://robmorgan.id.au"
+        "homepage": "http://robmorgan.id.au",
+        "role": "Lead Developer"
     }],
     "require": {
         "php": ">=5.3.2",
