@@ -109,9 +109,10 @@ class TableTest extends \PHPUnit_Framework_TestCase
     {
         $adapter = new MysqlAdapter(array());
         $table = new \Phinx\Db\Table('ntable', array(), $adapter);
-        $table->addIndex(array('email'), array('unique' => true));
+        $table->addIndex(array('email'), array('unique' => true, 'name' => 'myemailindex'));
         $indexes = $table->getIndexes();
         $this->assertEquals(\Phinx\Db\Table\Index::UNIQUE, $indexes[0]->getType());
+        $this->assertEquals('myemailindex', $indexes[0]->getName());
         $this->assertContains('email', $indexes[0]->getColumns());
     }
     
