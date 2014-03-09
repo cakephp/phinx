@@ -837,11 +837,19 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     protected function getIndexSqlDefinition(Index $index)
     {
         $def = '';
+        
         if ($index->getType() == Index::UNIQUE) {
-            $def .= ' UNIQUE KEY (`' . implode('`,`', $index->getColumns()) . '`)';
-        } else {
-            $def .= ' KEY (`' . implode('`,`', $index->getColumns()) . '`)';
+            $def .= ' UNIQUE';
         }
+        
+        $def .= ' KEY';
+        
+        if (is_string($index->getName())) {
+            $def .= ' `' . $index->getName() . '`';
+        }
+        
+        $def .= ' (`' . implode('`,`', $index->getColumns()) . '`)';
+        
         return $def;
     }
 
