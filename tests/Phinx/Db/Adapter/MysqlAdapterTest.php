@@ -431,7 +431,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($table2->hasIndex(array('fname', 'lname')));
     }
     
-        public function testDropIndexByName()
+    public function testDropIndexByName()
     {
         // single column index
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
