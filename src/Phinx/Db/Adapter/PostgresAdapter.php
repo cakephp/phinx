@@ -542,6 +542,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $this->execute($sql);
         $this->endCommandTimer();
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function dropIndexByName($tableName, $indexName)
+    {
+        // TODO: Implement this method.
+    }
 
     /**
      * {@inheritdoc}

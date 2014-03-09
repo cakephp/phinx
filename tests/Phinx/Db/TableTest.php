@@ -148,6 +148,16 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
         $table->removeIndex(array('email'));
     }
+    
+    public function testRemoveIndexByName()
+    {
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())
+                    ->method('dropIndexByName');
+        $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $table->removeIndexByName('emailindex');
+    }
 
     public function testAddForeignKey()
     {

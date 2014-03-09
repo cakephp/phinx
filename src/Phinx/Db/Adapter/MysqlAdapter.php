@@ -516,6 +516,31 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             }
         }
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function dropIndexByName($tableName, $indexName)
+    {
+        $this->startCommandTimer();
+        
+        $this->writeCommand('dropIndexByName', array($tableName, $indexName));
+        $indexes = $this->getIndexes($tableName);
+        
+        foreach ($indexes as $name => $index) {
+            //$a = array_diff($columns, $index['columns']);
+            if ($name === $indexName) {
+                $this->execute(
+                    sprintf(
+                        'ALTER TABLE %s DROP INDEX %s',
+                        $this->quoteTableName($tableName),
+                        $this->quoteColumnName($indexName)
+                    )
+                );
+                return $this->endCommandTimer();
+            }
+        }
+    }
 
     /**
      * {@inheritdoc}

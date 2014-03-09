@@ -432,6 +432,18 @@ class Table
     }
     
     /**
+     * Removes the given index identified by its name from a table.
+     *
+     * @param string $name Index name
+     * @return Table
+     */
+    public function removeIndexByName($name)
+    {
+        $this->getAdapter()->dropIndexByName($this->getName(), $name);
+        return $this;
+    }
+    
+    /**
      * Checks to see if an index exists.
      *
      * @param string|array $columns Columns
