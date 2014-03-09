@@ -367,7 +367,24 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     
     public function testDropIndexByName()
     {
-        $this->markTestIncomplete();
+        // single column index
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addIndex('email', array('name' => 'myemailindex'))
+              ->save();
+        $this->assertTrue($table->hasIndex('email'));
+        $this->adapter->dropIndexByName($table->getName(), 'myemailindex');
+        $this->assertFalse($table->hasIndex('email'));
+        
+        // multiple column index
+        $table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
+        $table2->addColumn('fname', 'string')
+               ->addColumn('lname', 'string')
+               ->addIndex(array('fname', 'lname'), array('name' => 'twocolumnindex'))
+               ->save();
+        $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
+        $this->adapter->dropIndexByName($table2->getName(), 'twocolumnindex');
+        $this->assertFalse($table2->hasIndex(array('fname', 'lname')));
     }
 
     public function testAddForeignKey()
