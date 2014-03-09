@@ -548,7 +548,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropIndexByName($tableName, $indexName)
     {
-        // TODO: Implement this method.
+        $this->startCommandTimer();
+        $this->writeCommand('dropIndexByName', array($tableName, $indexName));
+        $sql = sprintf(
+            'DROP INDEX IF EXISTS %s',
+            $indexName
+        );
+        $this->execute($sql);
+        $this->endCommandTimer();
     }
 
     /**
@@ -842,10 +849,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
     {
+        $indexName = '';
+        if (is_string($index->getName())) {
+            $indexName = $index->getName();
+        } else {
+            $indexName = $this->getIndexName($tableName, $index->getColumns());
+        }
         $def = sprintf(
             "CREATE %s INDEX %s ON %s (%s);",
             ($index->getType() == Index::UNIQUE ? 'UNIQUE' : ''),
-            $this->getIndexName($tableName, $index->getColumns()),
+            $indexName,
             $this->quoteTableName($tableName),
             implode(',', $index->getColumns())
         );
