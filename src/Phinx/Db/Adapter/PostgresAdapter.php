@@ -534,13 +534,26 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function dropIndex($tableName, $columns)
     {
         $this->startCommandTimer();
+        if (is_string($columns)) {
+            $columns = array($columns); // str to array
+        }
+        
         $this->writeCommand('dropIndex', array($tableName, $columns));
-        $sql = sprintf(
-            'DROP INDEX IF EXISTS %s',
-            $this->getIndexName($tableName, $columns)
-        );
-        $this->execute($sql);
-        $this->endCommandTimer();
+        $indexes = $this->getIndexes($tableName);
+        $columns = array_map('strtolower', $columns);
+        
+        foreach ($indexes as $indexName => $index) {
+            $a = array_diff($columns, $index['columns']);
+            if (empty($a)) {
+                $this->execute(
+                    sprintf(
+                        'DROP INDEX IF EXISTS %s',
+                        $this->quoteColumnName($indexName)
+                    )
+                );
+                return $this->endCommandTimer();
+            }
+        }
     }
     
     /**
@@ -853,7 +866,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if (is_string($index->getName())) {
             $indexName = $index->getName();
         } else {
-            $indexName = $this->getIndexName($tableName, $index->getColumns());
+            $columnNames = $index->getColumns();
+            if (is_string($columnNames)) {
+                $columnNames = array($columnNames);
+            }
+            $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         }
         $def = sprintf(
             "CREATE %s INDEX %s ON %s (%s);",
@@ -1015,23 +1032,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $schemaNames[] = $item['schema_name'];
         }
         return $schemaNames;
-    }
-
-    /**
-     * Returns index name.
-     *
-     * @param string       $tableName   Table name.
-     * @param string|array $columnNames Column names.
-     *
-     * @return string
-     */
-    private function getIndexName($tableName, $columnNames)
-    {
-        if (is_string($columnNames)) {
-            $columnNames = array($columnNames);
-        }
-        $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
-        return $indexName;
     }
 
     /**
