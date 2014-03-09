@@ -302,6 +302,15 @@ interface AdapterInterface
      * @return void
      */
     public function dropIndex($tableName, $columns);
+    
+    /**
+     * Drops the index specified by name from a database table.
+     * 
+     * @param string $tableName
+     * @param string $indexName
+     * @return void
+     */
+    public function dropIndexByName($tableName, $indexName);
 
     /**
      * Checks to see if a foreign key exists.

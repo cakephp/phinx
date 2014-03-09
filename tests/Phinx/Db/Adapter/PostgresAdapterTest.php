@@ -357,6 +357,11 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->dropIndex($table2->getName(), array('fname', 'lname'));
         $this->assertFalse($table2->hasIndex(array('fname', 'lname')));
     }
+    
+    public function testDropIndexByName()
+    {
+        $this->markTestIncomplete();
+    }
 
     public function testAddForeignKey()
     {

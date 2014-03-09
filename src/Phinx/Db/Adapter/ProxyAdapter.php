@@ -400,6 +400,14 @@ class ProxyAdapter implements AdapterInterface
     {
         $this->recordCommand('dropIndex', array($tableName, $columns, $options));
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function dropIndexByName($tableName, $indexName)
+    {
+        $this->recordCommand('dropIndexByName', array($tableName, $indexName));
+    }
 
     /**
      * {@inheritdoc}

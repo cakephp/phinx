@@ -603,6 +603,14 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function dropIndexByName($tableName, $indexName)
+    {
+        // TODO: Implement this method.
+    }
 
     /**
      * {@inheritdoc}
