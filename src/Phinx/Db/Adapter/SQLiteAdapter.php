@@ -807,7 +807,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'boolean');
                 break;
             default:
-                throw new \RuntimeException('The type: "' . $type . '" is not supported.');
+                return array('name' => $type);
         }
     }
 

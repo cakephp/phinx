@@ -682,7 +682,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'binary':
                 return array('name' => 'bytea');
             default:
-                throw new \RuntimeException('The type: "' . $type . '" is not supported');
+                return array('name' => $type);
         }
     }
 

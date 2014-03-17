@@ -433,15 +433,6 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasSchema('foo'));
         $this->assertFalse($this->adapter->hasSchema('bar'));
     }
-    
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage The type: "idontexist" is not supported
-     */
-    public function testInvalidSqlType()
-    {
-        $this->adapter->getSqlType('idontexist');
-    }
 
     public function testGetPhinxType()
     {

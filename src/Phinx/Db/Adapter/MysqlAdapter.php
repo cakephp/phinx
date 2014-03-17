@@ -679,7 +679,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'tinyint', 'limit' => 1);
                 break;
             default:
-                throw new \RuntimeException('The type: "' . $type . '" is not supported.');
+                return array('name' => 'type');
         }
     }
 
