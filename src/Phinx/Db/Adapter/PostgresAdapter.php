@@ -534,10 +534,38 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function dropIndex($tableName, $columns)
     {
         $this->startCommandTimer();
+        if (is_string($columns)) {
+            $columns = array($columns); // str to array
+        }
+        
         $this->writeCommand('dropIndex', array($tableName, $columns));
+        $indexes = $this->getIndexes($tableName);
+        $columns = array_map('strtolower', $columns);
+        
+        foreach ($indexes as $indexName => $index) {
+            $a = array_diff($columns, $index['columns']);
+            if (empty($a)) {
+                $this->execute(
+                    sprintf(
+                        'DROP INDEX IF EXISTS %s',
+                        $this->quoteColumnName($indexName)
+                    )
+                );
+                return $this->endCommandTimer();
+            }
+        }
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function dropIndexByName($tableName, $indexName)
+    {
+        $this->startCommandTimer();
+        $this->writeCommand('dropIndexByName', array($tableName, $indexName));
         $sql = sprintf(
             'DROP INDEX IF EXISTS %s',
-            $this->getIndexName($tableName, $columns)
+            $indexName
         );
         $this->execute($sql);
         $this->endCommandTimer();
@@ -834,10 +862,20 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
     {
+        $indexName = '';
+        if (is_string($index->getName())) {
+            $indexName = $index->getName();
+        } else {
+            $columnNames = $index->getColumns();
+            if (is_string($columnNames)) {
+                $columnNames = array($columnNames);
+            }
+            $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
+        }
         $def = sprintf(
             "CREATE %s INDEX %s ON %s (%s);",
             ($index->getType() == Index::UNIQUE ? 'UNIQUE' : ''),
-            $this->getIndexName($tableName, $index->getColumns()),
+            $indexName,
             $this->quoteTableName($tableName),
             implode(',', $index->getColumns())
         );
@@ -994,23 +1032,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $schemaNames[] = $item['schema_name'];
         }
         return $schemaNames;
-    }
-
-    /**
-     * Returns index name.
-     *
-     * @param string       $tableName   Table name.
-     * @param string|array $columnNames Column names.
-     *
-     * @return string
-     */
-    private function getIndexName($tableName, $columnNames)
-    {
-        if (is_string($columnNames)) {
-            $columnNames = array($columnNames);
-        }
-        $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
-        return $indexName;
     }
 
     /**

@@ -122,6 +122,14 @@ Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.3.3** (Saturday, 22nd March 2014)
+
+* Added support for JSON configuration
+* Named index support for all adapters (thanks @archer308)
+* Updated Composer dependencies
+* Fix for SQLite Integer Type
+* Fix for MySQL port option
+
 **0.3.2** (Monday, 24th February 2014)
 
 * Adding better Postgres type support

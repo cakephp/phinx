@@ -145,6 +145,16 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
     }
     
+    public function testCreateTableWithNamedIndexes()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addIndex('email', array('name' => 'myemailindex'))
+              ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
+    }
+    
     public function testCreateTableWithMultiplePKsAndUniqueIndexes()
     {
         $this->markTestIncomplete();
@@ -362,6 +372,47 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
                ->save();
         $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
         $this->adapter->dropIndex($table2->getName(), array('fname', 'lname'));
+        $this->assertFalse($table2->hasIndex(array('fname', 'lname')));
+        
+        // single column index with name specified
+        $table3 = new \Phinx\Db\Table('table3', array(), $this->adapter);
+        $table3->addColumn('email', 'string')
+               ->addIndex('email', array('name' => 'someindexname'))
+               ->save();
+        $this->assertTrue($table3->hasIndex('email'));
+        $this->adapter->dropIndex($table3->getName(), 'email');
+        $this->assertFalse($table3->hasIndex('email'));
+        
+        // multiple column index with name specified
+        $table4 = new \Phinx\Db\Table('table4', array(), $this->adapter);
+        $table4->addColumn('fname', 'string')
+               ->addColumn('lname', 'string')
+               ->addIndex(array('fname', 'lname'), array('name' => 'multiname'))
+               ->save();
+        $this->assertTrue($table4->hasIndex(array('fname', 'lname')));
+        $this->adapter->dropIndex($table4->getName(), array('fname', 'lname'));
+        $this->assertFalse($table4->hasIndex(array('fname', 'lname')));
+    }
+    
+    public function testDropIndexByName()
+    {
+        // single column index
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addIndex('email', array('name' => 'myemailindex'))
+              ->save();
+        $this->assertTrue($table->hasIndex('email'));
+        $this->adapter->dropIndexByName($table->getName(), 'myemailindex');
+        $this->assertFalse($table->hasIndex('email'));
+        
+        // multiple column index
+        $table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
+        $table2->addColumn('fname', 'string')
+               ->addColumn('lname', 'string')
+               ->addIndex(array('fname', 'lname'), array('name' => 'twocolumnindex'))
+               ->save();
+        $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
+        $this->adapter->dropIndexByName($table2->getName(), 'twocolumnindex');
         $this->assertFalse($table2->hasIndex(array('fname', 'lname')));
     }
 
