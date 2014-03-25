@@ -272,7 +272,12 @@ class Environment
                         $this->setAdapter(new SQLiteAdapter($this->options, $this->getOutput()));
                         break;
                     default:
-                        throw new \RuntimeException('Invalid adapter specified: ' . $this->options['adapter']);
+                        $adapter = $this->options['adapter'];
+                        if (class_exists($adapter)) {
+                            $this->setAdapter(new $adapter($this->options, $this->getOutput()));
+                        } else {
+                            throw new \RuntimeException('Invalid adapter specified: ' . $adapter);
+                        }
                 }
             } else {
                 throw new \RuntimeException('No adapter was specified for environment: ' . $this->getName());
