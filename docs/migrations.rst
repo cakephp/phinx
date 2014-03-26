@@ -147,7 +147,7 @@ Executing Queries
 
 Queries can be executed with the ``execute()`` and ``query()`` methods. The
 ``execute()`` method returns the number of affected rows whereas the
-``query()`` method returns the result as an array.
+``query()`` method returns the result as an array (or PDOStatement).
 
 .. code-block:: php
         
@@ -167,6 +167,11 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
 
                 // query()
                 $rows = $this->query('SELECT * FROM users'); // returns the result as an array
+
+                // Supports prepared statements as well
+                $this->execute('DELETE FROM users WHERE id = :user_id', array(
+                  ':user_id' => 5
+                ));
             }
 
             /**

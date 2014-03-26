@@ -263,23 +263,47 @@ abstract class PdoAdapter implements AdapterInterface
     public function disconnect()
     {
     }
-     
+
     /**
-     * {@inheritdoc}
+     * Executes a SQL statement and returns the number of affected rows.
+     *
+     * If PDO::ATTR_ERRMODE is set to PDO::ERRMODE_SILENT this method would
+     * return boolean false on failure. Otherwise it would throw an exception
+     * or a warning.
+     *
+     * @param string $sql SQL
+     * @param array $params Parameters to bind for prepared statements
+     * @return int|false The number of rows affected or false on failure
+     * @uses PDOStatement::prepare
+     * @uses PDOStatement::execute
      */
-    public function execute($sql)
+    public function execute($sql, array $params = array())
     {
-        return $this->getConnection()->exec($sql);
+        $pdoStatement = $this->getConnection()->prepare($sql);
+
+        if ($pdoStatement and $pdoStatement->execute($params)) {
+            return $pdoStatement->rowCount();
+        }
+
+        return false;
     }
-    
+
     /**
-     * {@inheritdoc}
+     * Executes a SQL statement and returns the result as a PDOStatement
+     *
+     * @param string $sql SQL
+     * @param array $params Parameters to bind for prepared statements
+     * @return PDOStatement
      */
-    public function query($sql)
+    public function query($sql, array $params = array())
     {
-        return $this->getConnection()->query($sql);
+        $pdoStatement = $this->getConnection()->prepare($sql);
+
+        $pdoStatement->execute($params);
+
+        return $pdoStatement;
     }
-    
+
     /**
      * {@inheritdoc}
      */

@@ -155,21 +155,29 @@ class ProxyAdapter implements AdapterInterface
     }
     
     /**
-     * {@inheritdoc}
+     * Executes a SQL statement and returns the number of affected rows.
+     *
+     * @param string $sql SQL
+     * @param array $params Parameters to bind for prepared statements
+     * @return int The number of rows affected
      */
-    public function execute($sql)
+    public function execute($sql, array $params = array())
     {
-        return $this->getAdapter()->execute($sql);
+        return $this->getAdapter()->execute($sql, $params);
     }
-    
+
     /**
-     * {@inheritdoc}
+     * Executes a SQL statement and returns the result as a PDOStatement
+     *
+     * @param string $sql SQL
+     * @param array $params Parameters to bind for prepared statements
+     * @return PDOStatement
      */
-    public function query($sql)
+    public function query($sql, array $params = array())
     {
-        return $this->getAdapter()->query($sql);
+        return $this->getAdapter()->query($sql, $params);
     }
-    
+
     /**
      * {@inheritdoc}
      */
