@@ -19,7 +19,7 @@ To install Phinx simply add it as a dependency to your project's
 
     {
         "require": {
-            "robmorgan/phinx": "*"
+            "robmorgan/phinx": "v0.3.3"
         }
     }
 
