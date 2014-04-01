@@ -42,7 +42,7 @@ The fastest way to install Phinx in your project is using Composer (http://getco
     ```js
     {
         "require": {
-            "robmorgan/phinx": "*"
+            "robmorgan/phinx": "v0.3.3"
         }
     }
     ```
