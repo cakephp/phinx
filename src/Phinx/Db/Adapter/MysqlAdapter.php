@@ -716,7 +716,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getPhinxType($sqlTypeDef)
     {
-        if (preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*$/', $sqlTypeDef, $matches) === false) {
+        if (preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*(.+)*$/', $sqlTypeDef, $matches) === false) {
             throw new \RuntimeException('Column type ' . $sqlTypeDef . ' is not supported');
         } else {
             $limit = null;
