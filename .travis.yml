@@ -8,7 +8,18 @@ php:
   - 5.3
   - 5.4
   - 5.5
+  - hhvm
+env: TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED=true
 script:
     - phpunit --coverage-text --coverage-clover=coverage.clover
     - wget https://scrutinizer-ci.com/ocular.phar
     - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+matrix:
+    exclude:
+        - php: hhvm
+          env: TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED=true
+    include:
+        - php: hhvm
+          env: TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED=false
+    allow_failures:
+        - php: hhvm

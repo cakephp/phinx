@@ -68,7 +68,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             
             // if port is specified use it, otherwise use the MySQL default
             if (isset($options['memory'])) {
-                $dsn = 'sqlite:memory:';
+                $dsn = 'sqlite::memory:';
             } else {
                 $dsn = 'sqlite:' . $options['name'] . '.sqlite3';
             }
