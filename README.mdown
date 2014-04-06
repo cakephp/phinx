@@ -122,6 +122,23 @@ Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.3.3** (Saturday, 22nd March 2014)
+
+* Added support for JSON configuration
+* Named index support for all adapters (thanks @archer308)
+* Updated Composer dependencies
+* Fix for SQLite Integer Type
+* Fix for MySQL port option
+
+**0.3.2** (Monday, 24th February 2014)
+
+* Adding better Postgres type support
+
+**0.3.1** (Sunday, 23rd February 2014)
+
+* Adding MySQL charset support to the YAML config
+* Removing trailing spaces
+
 **0.3.0** (Sunday, 2nd February 2014)
 
 * PSR-2 support
@@ -246,7 +263,7 @@ Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 (The MIT license)
 
-Copyright (c) 2013 Rob Morgan
+Copyright (c) 2014 Rob Morgan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

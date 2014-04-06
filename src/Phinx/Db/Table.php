@@ -319,7 +319,7 @@ class Table
         
         // check column type
         if (!in_array($column->getType(), $this->getAdapter()->getColumnTypes())) {
-            throw new \InvalidArgumentException('An invalid column type was specified.');
+            throw new \InvalidArgumentException("An invalid column type was specified: {$column->getName()}");
         }
         
         $this->columns[] = $column;
@@ -428,6 +428,18 @@ class Table
     public function removeIndex($columns, $options = array())
     {
         $this->getAdapter()->dropIndex($this->getName(), $columns, $options);
+        return $this;
+    }
+    
+    /**
+     * Removes the given index identified by its name from a table.
+     *
+     * @param string $name Index name
+     * @return Table
+     */
+    public function removeIndexByName($name)
+    {
+        $this->getAdapter()->dropIndexByName($this->getName(), $name);
         return $this;
     }
     

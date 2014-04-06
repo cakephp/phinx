@@ -118,7 +118,24 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $config = \Phinx\Config\Config::fromPHP($path . '/config_without_array.php');
         $this->assertEquals('dev', $config->getDefaultEnvironment());
     }
-    
+
+    public function testFromJSONMethod()
+    {
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromJSON($path . '/valid_config.json');
+        $this->assertEquals('dev', $config->getDefaultEnvironment());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testFromJSONMethodWithoutJSON()
+    {
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromPHP($path . '/empty.json');
+        $this->assertEquals('dev', $config->getDefaultEnvironment());
+    }
+
     public function testGetMigrationPathReturnsNullForNoPath()
     {
         $config = new \Phinx\Config\Config(array());

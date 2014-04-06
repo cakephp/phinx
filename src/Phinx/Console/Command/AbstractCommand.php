@@ -211,6 +211,9 @@ abstract class AbstractCommand extends Command
             $extension = pathinfo($configFilePath, PATHINFO_EXTENSION);
 
             switch (strtolower($extension)) {
+                case 'json':
+                    $parser = 'json';
+                    break;
                 case 'php':
                     $parser = 'php';
                     break;
@@ -222,6 +225,9 @@ abstract class AbstractCommand extends Command
         }
 
         switch (strtolower($parser)) {
+            case 'json':
+                $config = Config::fromJSON($configFilePath);
+                break;
             case 'php':
                 $config = Config::fromPHP($configFilePath);
                 break;

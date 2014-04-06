@@ -23,11 +23,11 @@ To install Phinx simply add it as a dependency to your project's
         }
     }
 
-Then run Composer to update your packages:
+Then run Composer:
 
 .. code-block:: bash
 
-    php composer.phar update
+    php composer.phar install --no-dev
 
 Phinx can now be executed from within your project:
 

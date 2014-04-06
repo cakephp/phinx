@@ -379,7 +379,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         );
         $result = $this->fetchRow($sql);
         if (!(bool) $result['column_exists']) {
-            throw new \InvalidArgumentException(sprintf('The specified column doesn\'t exist: '. $columnName));
+            throw new \InvalidArgumentException("The specified column does not exist: $columnName");
         }
         $this->writeCommand('renameColumn', array($tableName, $columnName, $newColumnName));
         $this->execute(
@@ -534,10 +534,38 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function dropIndex($tableName, $columns)
     {
         $this->startCommandTimer();
+        if (is_string($columns)) {
+            $columns = array($columns); // str to array
+        }
+        
         $this->writeCommand('dropIndex', array($tableName, $columns));
+        $indexes = $this->getIndexes($tableName);
+        $columns = array_map('strtolower', $columns);
+        
+        foreach ($indexes as $indexName => $index) {
+            $a = array_diff($columns, $index['columns']);
+            if (empty($a)) {
+                $this->execute(
+                    sprintf(
+                        'DROP INDEX IF EXISTS %s',
+                        $this->quoteColumnName($indexName)
+                    )
+                );
+                return $this->endCommandTimer();
+            }
+        }
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function dropIndexByName($tableName, $indexName)
+    {
+        $this->startCommandTimer();
+        $this->writeCommand('dropIndexByName', array($tableName, $indexName));
         $sql = sprintf(
             'DROP INDEX IF EXISTS %s',
-            $this->getIndexName($tableName, $columns)
+            $indexName
         );
         $this->execute($sql);
         $this->endCommandTimer();
@@ -662,42 +690,25 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function getSqlType($type)
     {
         switch ($type) {
+            case 'integer':
+            case 'text':
+            case 'decimal':
+            case 'time':
+            case 'date':
+            case 'boolean':
+            case 'json':
+                return array('name' => $type);
             case 'string':
                 return array('name' => 'character varying', 'limit' => 255);
-                break;
-            case 'text':
-                return array('name' => 'text');
-                break;
-            case 'integer':
-                return array('name' => 'integer');
-                break;
             case 'biginteger':
                 return array('name' => 'bigint');
-                break;
             case 'float':
                 return array('name' => 'real');
-                break;
-            case 'decimal':
-                return array('name' => 'decimal');
-                break;
             case 'datetime':
-                return array('name' => 'timestamp');
-                break;
             case 'timestamp':
                 return array('name' => 'timestamp');
-                break;
-            case 'time':
-                return array('name' => 'time');
-                break;
-            case 'date':
-                return array('name' => 'date');
-                break;
             case 'binary':
                 return array('name' => 'bytea');
-                break;
-            case 'boolean':
-                return array('name' => 'boolean');
-                break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported');
         }
@@ -716,6 +727,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'varchar':
                 return 'string';
             case 'text':
+            case 'json':
                 return 'text';
             case 'int':
             case 'int4':
@@ -796,23 +808,27 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getColumnSqlDefinition(Column $column)
     {
-        $sqlType = $this->getSqlType($column->getType());
-        $def = strtoupper($sqlType['name']);
-        // integers cant have limits in postgres
-        if ('integer' !== $sqlType['name']) {
-            $def .= ($column->getLimit() || isset($sqlType['limit']))
-                 ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
-        }
-        $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
-        $def .= ($column->isIdentity()) ? '' : '';
-        $default = $column->getDefault();
-        if (is_numeric($default)) {
-            $def .= ' DEFAULT ' . $column->getDefault();
+        $buffer = array();
+        if ($column->isIdentity()) {
+            $buffer[] = 'SERIAL';
         } else {
-            $def .= is_null($column->getDefault()) ? '' : ' DEFAULT \'' . $column->getDefault() . '\'';
+            $sqlType = $this->getSqlType($column->getType());
+            $buffer[] = strtoupper($sqlType['name']);
+            // integers cant have limits in postgres
+            if ('integer' !== $sqlType['name'] && ($column->getLimit() || isset($sqlType['limit']))) {
+                $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
+            }
+        }
+        $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
+        $default = $column->getDefault();
+        if (is_numeric($default) || 'CURRENT_TIMESTAMP' === $default) {
+            $buffer[] = 'DEFAULT';
+            $buffer[] = $default;
+        } elseif ($default) {
+            $buffer[] =  "DEFAULT '{$default}'";
         }
         // TODO - add precision & scale for decimals
-        return $def;
+        return implode(' ', $buffer);
     }
 
     /**
@@ -846,10 +862,20 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
     {
+        $indexName = '';
+        if (is_string($index->getName())) {
+            $indexName = $index->getName();
+        } else {
+            $columnNames = $index->getColumns();
+            if (is_string($columnNames)) {
+                $columnNames = array($columnNames);
+            }
+            $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
+        }
         $def = sprintf(
             "CREATE %s INDEX %s ON %s (%s);",
             ($index->getType() == Index::UNIQUE ? 'UNIQUE' : ''),
-            $this->getIndexName($tableName, $index->getColumns()),
+            $indexName,
             $this->quoteTableName($tableName),
             implode(',', $index->getColumns())
         );
@@ -865,23 +891,15 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
     {
-        $def = ' CONSTRAINT ';
-        $columnNames = array();
-        foreach ($foreignKey->getColumns() as $column) {
-            $columnNames[] = $column;
-        }
-        $def .= $tableName.'_'.implode('_', $columnNames);
-        $def .= ' FOREIGN KEY (' . implode(',', $columnNames) . ')';
-        $refColumnNames = array();
-        foreach ($foreignKey->getReferencedColumns() as $column) {
-            $refColumnNames[] = $column;
-        }
-        $def .= ' REFERENCES ' . $foreignKey->getReferencedTable()->getName() . ' (' . implode(',', $refColumnNames) . ')';
+        $def = ' CONSTRAINT "';
+        $def .= $tableName . '_' . implode('_', $foreignKey->getColumns());
+        $def .= '" FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
+        $def .= " REFERENCES {$foreignKey->getReferencedTable()->getName()} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
         if ($foreignKey->getOnDelete()) {
-            $def .= ' ON DELETE ' . $foreignKey->getOnDelete();
+            $def .= " ON DELETE {$foreignKey->getOnDelete()}";
         }
         if ($foreignKey->getOnUpdate()) {
-            $def .= ' ON UPDATE ' . $foreignKey->getOnUpdate();
+            $def .= " ON UPDATE {$foreignKey->getOnUpdate()}";
         }
         return $def;
     }
@@ -902,13 +920,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                   ->addColumn('end_time', 'timestamp')
                   ->save();
         } catch (\Exception $exception) {
-            throw new \InvalidArgumentException('There was a problem creating the schema table');
+            throw new \RuntimeException('There was a problem creating the schema table');
         }
     }
 
      /**
-     * {@inheritdoc}
-     */
+      * {@inheritdoc}
+      */
     public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
     {
         if (strtolower($direction) == 'up') {
@@ -1017,19 +1035,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Returns index name.
-     *
-     * @param string       $tableName   Table name.
-     * @param string|array $columnNames Column names.
-     *
-     * @return string
+     * {@inheritdoc}
      */
-    private function getIndexName($tableName, $columnNames)
+    public function getColumnTypes()
     {
-        if (is_string($columnNames)) {
-            $columnNames = array($columnNames);
-        }
-        $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
-        return $indexName;
+        return array_merge(parent::getColumnTypes(), array('json'));
     }
 }

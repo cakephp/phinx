@@ -72,6 +72,24 @@ class Config implements \ArrayAccess
         $configArray = Yaml::parse($configFilePath);
         return new self($configArray, $configFilePath);
     }
+
+    /**
+     * Create a new instance of the config class using a Yaml file path.
+     *
+     * @param string $configFilePath Path to the Yaml File
+     * @return Config
+     */
+    public static function fromJSON($configFilePath)
+    {
+        $configArray = json_decode(file_get_contents($configFilePath), true);
+        if (!is_array($configArray)) {
+            throw new \RuntimeException(sprintf(
+                'File \'%s\' must be valid JSON',
+                $configFilePath
+            ));
+        }
+        return new self($configArray, $configFilePath);
+    }
     
     /**
      * Create a new instance of the config class using a PHP file path.

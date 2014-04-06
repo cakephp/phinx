@@ -367,6 +367,24 @@ To do this, we need to override the default ``id`` field name:
 
             }
         }
+        
+Valid Column Types
+~~~~~~~~~~~~~~~~~~
+
+Column types are specified as strings and can be one of: 
+
+-  primary_key
+-  string
+-  text
+-  integer
+-  float
+-  decimal
+-  datetime
+-  timestamp
+-  time
+-  date
+-  binary
+-  boolean
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -511,7 +529,55 @@ To rename a column access an instance of the Table object then call the
                 $table->renameColumn('biography', 'bio');
             }
         }
-        
+
+Adding a Column After Another Column
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When adding a column you can dictate it's position using the ``after`` option.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Change Method.
+             */
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->addColumn('city', 'string', array('after' => 'email'))
+                      ->update();
+            }
+        }
+
+Specifying a Column Limit
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can limit the maximum length of a column by using the ``limit`` option.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Change Method.
+             */
+            public function change()
+            {
+                $table = $this->table('tags');
+                $table->addColumn('short_name', 'string', array('limit' => 30))
+                      ->update();
+            }
+        }
+
 Working with Indexes
 ~~~~~~~~~~~~~~~~~~~~
 

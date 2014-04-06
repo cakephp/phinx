@@ -68,7 +68,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             
             // if port is specified use it, otherwise use the MySQL default
             if (isset($options['memory'])) {
-                $dsn = 'sqlite:memory:';
+                $dsn = 'sqlite::memory:';
             } else {
                 $dsn = 'sqlite:' . $options['name'] . '.sqlite3';
             }
@@ -556,19 +556,15 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('addIndex', array($table->getName(), $index->getColumns()));
-        $indexName = '';
         $indexColumnArray = array();
         foreach ($index->getColumns() as $column) {
-            $indexName .= $column . '_';
             $indexColumnArray []= sprintf('`%s` ASC', $column);
         }
-        $indexName .= 'index';
         $indexColumns = implode(',', $indexColumnArray);
         $result = $this->execute(
             sprintf(
-                'CREATE %s `%s` ON %s (%s)',
+                'CREATE %s ON %s (%s)',
                 $this->getIndexSqlDefinition($index),
-                $indexName,
                 $this->quoteTableName($table->getName()),
                 $indexColumns
             )
@@ -597,6 +593,29 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                     sprintf(
                         'DROP INDEX %s',
                         $this->quoteColumnName($index['index'])
+                    )
+                );
+                return $this->endCommandTimer();
+            }
+        }
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function dropIndexByName($tableName, $indexName)
+    {
+        $this->startCommandTimer();
+        
+        $this->writeCommand('dropIndexByName', array($tableName, $indexName));
+        $indexes = $this->getIndexes($tableName);
+        
+        foreach ($indexes as $tableName => $index) {
+            if ($indexName == $index['index']) {
+                $this->execute(
+                    sprintf(
+                        'DROP INDEX %s',
+                        $this->quoteColumnName($indexName)
                     )
                 );
                 return $this->endCommandTimer();
@@ -777,7 +796,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'text');
                 break;
             case 'integer':
-                return array('name' => 'int');
+                return array('name' => 'integer');
                 break;
             case 'biginteger':
                 return array('name' => 'bigint');
@@ -962,10 +981,23 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getIndexSqlDefinition(Index $index)
     {
+        $def = '';
         if ($index->getType() == Index::UNIQUE) {
-            return 'UNIQUE INDEX';
+            $def = 'UNIQUE INDEX';
+        } else {
+            $def = 'INDEX';
         }
-        return 'INDEX';
+        if (is_string($index->getName())) {
+            $indexName = $index->getName();
+        } else {
+            $indexName = '';
+            foreach ($index->getColumns() as $column) {
+                $indexName .= $column . '_';
+            }
+            $indexName .= 'index';
+        }
+        $def .= ' `' . $indexName . '`';
+        return $def;
     }
 
     /**
