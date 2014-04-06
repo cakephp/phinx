@@ -175,20 +175,20 @@ abstract class AbstractCommand extends Command
             $cwd . DIRECTORY_SEPARATOR
         ));
 
-        try{
+        if (!$useDefault) {
             // Locate() throws an exception if the file does not exist
             return $locator->locate($configFile, $cwd, $first = true);
-        }catch (\InvalidArgumentException $exception){
-            if($useDefault){
-                $configFile = 'phinx.php';
-                try{
+        } else {
+            $possibleConfigFiles = array('phinx.yml', 'phinx.php', 'phinx.json');
+            $exceptionArray = array();
+            foreach ($possibleConfigFiles as $configFile) {
+                try {
                     return $locator->locate($configFile, $cwd, $first = true);
-                }catch (\InvalidArgumentException $exceptionAgain){
-                    throw $exception;
+                } catch (\InvalidArgumentException $exception) {
+                    $exceptionArray[] = $exception;
                 }
-            }else{
-                throw $exception;
             }
+            throw $exceptionArray[0];
         }
     }
 
