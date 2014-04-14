@@ -75,6 +75,9 @@ EOT
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
+        if (null != $format) {
+            $output->writeln('<info>using format</info> ' . $format);
+        }
         
         // print the status
         $this->getManager()->printStatus($environment, $format);
