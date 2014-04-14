@@ -75,7 +75,7 @@ class Manager
      *
      * @return void
      */
-    public function printStatus($environment, $format)
+    public function printStatus($environment, $format = null)
     {
         $output = $this->getOutput();
         $migrations = array();
