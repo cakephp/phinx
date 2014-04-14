@@ -75,7 +75,7 @@ class Manager
      *
      * @return void
      */
-    public function printStatus($environment, $json = false)
+    public function printStatus($environment, $format)
     {
         $output = $this->getOutput();
         $migrations = array();
@@ -118,9 +118,17 @@ class Manager
         
         // write an empty line
         $output->writeln('');
-        if ($json == true) {
-            $output->writeln(json_encode($migrations));
+        if ($format != null) {
+            switch ($format) {
+                case 'json':
+                    $output->writeln(json_encode($migrations));
+                    break;
+                default:
+                    $output->writeln('<info>Unsupported format: '.$format.'</info>');            
+                    break;
+            }
         }
+        
     }
     
     /**
