@@ -44,6 +44,7 @@ class Migrate extends AbstractCommand
         parent::configure();
 
         $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
+        $this->addOption('--colors', null, InputArgument::OPTIONAL, 'Enforce coloring');
 
         $this->setName('migrate')
              ->setDescription('Migrate the database')
@@ -83,6 +84,10 @@ EOT
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         $output->writeln('<info>using database</info> ' . $envOptions['name']);
 
+        $enforceColors = $input->getOption('colors');
+        if(filter_var($enforceColors,FILTER_VALIDATE_BOOLEAN)){
+          $output->setDecorated(true);
+        }
         // run the migrations
         $start = microtime(true);
         $this->getManager()->migrate($environment, $version);
