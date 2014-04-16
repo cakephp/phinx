@@ -81,7 +81,6 @@ EOT
         }
         $enforceColors = $input->getOption('colors');
         if(filter_var($enforceColors,FILTER_VALIDATE_BOOLEAN)){
-          $output->writeln('<info>enforce colors</info>');
           $output->setDecorated(true);
         }
         

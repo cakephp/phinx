@@ -120,7 +120,6 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 
       $commandTester = new CommandTester($command);
       $commandTester->execute(array('command' => $command->getName(), '--colors' => 'true'));
-      $this->assertRegExp('/enforce colors/', $commandTester->getDisplay());
       $this->assertTrue($commandTester->getOutput()->isDecorated());
     }
 }
