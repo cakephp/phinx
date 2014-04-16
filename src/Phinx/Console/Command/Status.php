@@ -44,6 +44,7 @@ class Status extends AbstractCommand
         parent::configure();
          
         $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
+        $this->addOption('--colors', null, InputArgument::OPTIONAL, 'Enforce coloring');
          
         $this->setName('status')
              ->setDescription('Show migration status')
@@ -65,7 +66,7 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
-        
+
         $environment = $input->getOption('environment');
         $format = $input->getOption('format');
         
@@ -77,6 +78,11 @@ EOT
         }
         if (null != $format) {
             $output->writeln('<info>using format</info> ' . $format);
+        }
+        $enforceColors = $input->getOption('colors');
+        if(filter_var($enforceColors,FILTER_VALIDATE_BOOLEAN)){
+          $output->writeln('<info>enforce colors</info>');
+          $output->setDecorated(true);
         }
         
         // print the status
