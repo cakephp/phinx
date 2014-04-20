@@ -70,7 +70,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             if (isset($options['memory'])) {
                 $dsn = 'sqlite::memory:';
             } else {
-                $dsn = 'sqlite:' . $options['name'] . '.sqlite3';
+                $dsn = 'sqlite:' . $options['name'];
             }
 
             $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
@@ -897,7 +897,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('createDatabase', array($name));
-        touch($name . '.sqlite3');
+        touch($name);
         return $this->endCommandTimer();
     }
     
@@ -906,7 +906,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasDatabase($name)
     {
-        return is_file($name . '.sqlite3');
+        return is_file($name);
     }
     
     /**
@@ -916,8 +916,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('dropDatabase', array($name));
-        if (file_exists($name . '.sqlite3')) {
-            unlink($name . '.sqlite3');
+        if (file_exists($name)) {
+            unlink($name);
         }
         return $this->endCommandTimer();
     }
