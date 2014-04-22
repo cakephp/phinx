@@ -377,6 +377,7 @@ Column types are specified as strings and can be one of:
 -  string
 -  text
 -  integer
+-  biginteger
 -  float
 -  decimal
 -  datetime
@@ -385,6 +386,9 @@ Column types are specified as strings and can be one of:
 -  date
 -  binary
 -  boolean
+
+In addition, the Postgres adapter supports a ``json`` column type
+(PostgreSQL 9.3 and above).
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
