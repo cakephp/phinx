@@ -780,6 +780,24 @@ Finally to delete a foreign key use the ``dropForeignKey`` method.
             }
         }
 
+Valid Column Options
+~~~~~~~~~~~~~~~~~~~~
+
+The following are valid column options:
+
+-  limit
+-  length
+-  default
+-  null
+-  precision
+-  scale
+-  after
+-  update
+-  comment
+
+You can pass one or more of these options to any column with the optional
+third argument array.
+
 The Save Method
 ~~~~~~~~~~~~~~~
 
