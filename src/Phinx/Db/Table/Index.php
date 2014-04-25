@@ -126,8 +126,8 @@ class Index
             }
             
             // handle $options['unique']
-            if (strtolower($option) == self::UNIQUE) {
-                $this->setType(self::UNIQUE);
+            if (strtolower($option) == static::UNIQUE) {
+                $this->setType(static::UNIQUE);
                 continue;
             }
 

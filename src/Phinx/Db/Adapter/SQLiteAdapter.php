@@ -788,7 +788,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         switch ($type) {
             case 'primary_key':
-                return self::DEFAULT_PRIMARY_KEY;
+                return static::DEFAULT_PRIMARY_KEY;
             case 'string':
                 return array('name' => 'varchar', 'limit' => 255);
                 break;
