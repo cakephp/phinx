@@ -99,4 +99,27 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute(array('command' => $command->getName(), '--format' => 'json'));
         $this->assertRegExp('/using format json/', $commandTester->getDisplay());
     }
+
+    public function testColorsSpecified()
+    {
+      $application = new \Phinx\Console\PhinxApplication('testing');
+      $application->add(new Status());
+
+      // setup dependencies
+      $output = new StreamOutput(fopen('php://memory', 'a', false));
+
+      $command = $application->find('status');
+
+      // mock the manager class
+      $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+      $managerStub->expects($this->once())
+        ->method('printStatus');
+
+      $command->setConfig($this->config);
+      $command->setManager($managerStub);
+
+      $commandTester = new CommandTester($command);
+      $commandTester->execute(array('command' => $command->getName(), '--colors' => 'true'));
+      $this->assertTrue($commandTester->getOutput()->isDecorated());
+    }
 }
