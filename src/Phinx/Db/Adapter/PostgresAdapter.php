@@ -668,8 +668,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $rows = $this->fetchAll(sprintf(
                     "SELECT CONSTRAINT_NAME
                       FROM information_schema.KEY_COLUMN_USAGE
-                      WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
-                        AND REFERENCED_TABLE_NAME IS NOT NULL
+                      WHERE TABLE_SCHEMA = CURRENT_DATABASE()
+                        AND TABLE_NAME IS NOT NULL
                         AND TABLE_NAME = '%s'
                         AND COLUMN_NAME = '%s'
                       ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
