@@ -46,7 +46,6 @@ class PhinxApplication extends Application
      * Initialize the Phinx console application.
      *
      * @param string $version The Application Version
-     * @return void
      */
     public function __construct($version)
     {

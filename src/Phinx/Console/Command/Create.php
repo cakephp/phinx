@@ -54,7 +54,11 @@ class Create extends AbstractCommand
 
     /**
      * Migrate the database.
-     * 
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
