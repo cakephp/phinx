@@ -45,7 +45,7 @@ use Phinx\Adapter\AdapterInterface;
 abstract class AbstractCommand extends Command
 {
     /**
-     * @var ArrayAccess
+     * @var Config
      */
     protected $config;
     
@@ -87,10 +87,10 @@ abstract class AbstractCommand extends Command
     /**
      * Sets the config.
      *
-     * @param \ArrayAccess $config
+     * @param Config $config
      * @return AbstractCommand
      */
-    public function setConfig(\ArrayAccess $config)
+    public function setConfig(Config $config)
     {
         $this->config = $config;
         return $this;
@@ -99,7 +99,7 @@ abstract class AbstractCommand extends Command
     /**
      * Gets the config.
      *
-     * @return \ArrayAccess
+     * @return Config
      */
     public function getConfig()
     {
