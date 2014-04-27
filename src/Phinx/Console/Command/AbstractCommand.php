@@ -65,7 +65,7 @@ abstract class AbstractCommand extends Command
     protected function configure()
     {
         $this->addOption('--configuration', '-c', InputArgument::OPTIONAL, 'The configuration file to load');
-        $this->addOption('--parser', '-p', InputArgument::OPTIONAL, 'Parser used to read the config file.  Defaults to YAML');
+        $this->addOption('--parser', '-p', InputArgument::OPTIONAL, 'Parser used to read the config file. Defaults to YAML');
     }
     
     /**

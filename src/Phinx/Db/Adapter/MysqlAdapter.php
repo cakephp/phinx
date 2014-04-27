@@ -40,6 +40,9 @@ use Phinx\Db\Table\ForeignKey;
  */
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
+
+    protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
+
     /**
      * {@inheritdoc}
      */
@@ -665,42 +668,42 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function getSqlType($type)
     {
         switch ($type) {
-            case 'primary_key':
+            case static::PHINX_TYPE_PRIMARY_KEY:
                 return self::DEFAULT_PRIMARY_KEY;
-            case 'string':
+            case static::PHINX_TYPE_STRING:
                 return array('name' => 'varchar', 'limit' => 255);
                 break;
-            case 'text':
+            case static::PHINX_TYPE_TEXT:
                 return array('name' => 'text');
                 break;
-            case 'integer':
+            case static::PHINX_TYPE_INTEGER:
                 return array('name' => 'int', 'limit' => 11);
                 break;
-            case 'biginteger':
+            case static::PHINX_TYPE_BIG_INTEGER:
                 return array('name' => 'bigint', 'limit' => 20);
                 break;
-            case 'float':
+            case static::PHINX_TYPE_FLOAT:
                 return array('name' => 'float');
                 break;
-            case 'decimal':
+            case static::PHINX_TYPE_DECIMAL:
                 return array('name' => 'decimal');
                 break;
-            case 'datetime':
+            case static::PHINX_TYPE_DATETIME:
                 return array('name' => 'datetime');
                 break;
-            case 'timestamp':
+            case static::PHINX_TYPE_TIMESTAMP:
                 return array('name' => 'timestamp');
                 break;
-            case 'time':
+            case static::PHINX_TYPE_TIME:
                 return array('name' => 'time');
                 break;
-            case 'date':
+            case static::PHINX_TYPE_DATE:
                 return array('name' => 'date');
                 break;
-            case 'binary':
+            case static::PHINX_TYPE_BINARY:
                 return array('name' => 'blob');
                 break;
-            case 'boolean':
+            case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'tinyint', 'limit' => 1);
                 break;
             default:
@@ -730,13 +733,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             }
             switch ($matches[1]) {
                 case 'varchar':
-                    $type = 'string';
+                    $type = static::PHINX_TYPE_STRING;
                     if ($limit == 255) {
                         $limit = null;
                     }
                     break;
                 case 'int':
-                    $type = 'integer';
+                    $type = static::PHINX_TYPE_INTEGER;
                     if ($limit == 11) {
                         $limit = null;
                     }
@@ -745,15 +748,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     if ($limit == 20) {
                         $limit = null;
                     }
-                    $type = 'biginteger';
+                    $type = static::PHINX_TYPE_BIG_INTEGER;
                     break;
                 case 'blob':
-                    $type = 'binary';
+                    $type = static::PHINX_TYPE_BINARY;
                     break;
             }
             if ($type == 'tinyint') {
                 if ($matches[3] == 1) {
-                    $type = 'boolean';
+                    $type = static::PHINX_TYPE_BOOLEAN;
                     $limit = null;
                 }
             }
@@ -833,6 +836,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
         $def .= ($column->getLimit() || isset($sqlType['limit']))
                      ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
+        $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
         $default = $column->getDefault();

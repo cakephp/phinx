@@ -9,7 +9,7 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 
 **Check out http://docs.phinx.org for the comprehensive documentation.**
 
-### Phinx lets you
+### Features
 
 * Write database migrations using database agnostic PHP code.
 * Migrate up and down.
@@ -17,13 +17,7 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 * Get going in less than 5 minutes.
 * Stop worrying about the state of your database.
 * Take advantage of SCM features such as branching.
-
-### Compared with other tools, Phinx _does not…_
-
-* **Write log files.** The screen is better.
-* **Try to do too much.** Migrations only.
-* **Have unreadable source code.** We aim to be transparent.
-* **Rely on a framework.** Phinx is independent. Use it with any app.
+* Integrate with any app.
 
 ## Install & Run
 
@@ -121,6 +115,14 @@ Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
 ## Misc
 
 ### Version History
+
+**0.3.4** (Sunday, 27th April 2014)
+
+* Added support MySQL unsigned integer, biginteger, float and decimal types
+* Added JSON output support for the status command
+* Fix a bug where Postgres couldnt rollback foreign keys
+* Moved Phinx type references to interface constants
+* Fixed a bug with SQLite in-memory databases
 
 **0.3.3** (Saturday, 22nd March 2014)
 

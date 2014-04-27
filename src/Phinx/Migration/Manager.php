@@ -75,10 +75,10 @@ class Manager
      *
      * @return void
      */
-    public function printStatus($environment)
+    public function printStatus($environment, $format = null)
     {
         $output = $this->getOutput();
-        
+        $migrations = array();
         if (count($this->getMigrations())) {
             $output->writeln('');
             $output->writeln(' Status  Migration ID    Migration Name ');
@@ -100,6 +100,7 @@ class Manager
                     . sprintf(' %14.0f ', $migration->getVersion())
                     . ' <comment>' . $migration->getName() . '</comment>'
                 );
+                $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
             }
         
             foreach ($versions as $missing) {
@@ -117,6 +118,17 @@ class Manager
         
         // write an empty line
         $output->writeln('');
+        if ($format != null) {
+            switch ($format) {
+                case 'json':
+                    $output->writeln(json_encode($migrations));
+                    break;
+                default:
+                    $output->writeln('<info>Unsupported format: '.$format.'</info>');            
+                    break;
+            }
+        }
+        
     }
     
     /**
