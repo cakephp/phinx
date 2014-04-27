@@ -116,6 +116,14 @@ Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.3.4** (Sunday, 27th April 2014)
+
+* Added support MySQL unsigned integer, biginteger, float and decimal types
+* Added JSON output support for the status command
+* Fix a bug where Postgres couldnt rollback foreign keys
+* Moved Phinx type references to interface constants
+* Fixed a bug with SQLite in-memory databases
+
 **0.3.3** (Saturday, 22nd March 2014)
 
 * Added support for JSON configuration
