@@ -43,15 +43,16 @@ class Status extends AbstractCommand
     {
         parent::configure();
          
-        $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
+        $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment.');
          
         $this->setName('status')
              ->setDescription('Show migration status')
-             ->addOption('--format', '-f', InputArgument::OPTIONAL, 'The output format: json')
+             ->addOption('--format', '-f', InputArgument::OPTIONAL, 'The output format: text or json. Defaults to text.')
              ->setHelp(
 <<<EOT
 The <info>status</info> command prints a list of all migrations, along with their current status
 
+<info>phinx status -e development</info>
 <info>phinx status -e development -f json</info>
 EOT
              );
@@ -75,7 +76,7 @@ EOT
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
-        if (null != $format) {
+        if (null !== $format) {
             $output->writeln('<info>using format</info> ' . $format);
         }
         
