@@ -90,6 +90,11 @@ class Column
     protected $comment;
 
     /**
+     * @var boolean
+     */
+    protected $signed = true;
+
+    /**
      * Sets the column name.
      *
      * @param string $name
@@ -355,6 +360,38 @@ class Column
     }
 
     /**
+     * Sets whether field should be signed.
+     *
+     * @param bool $signed
+     * @return Column
+     */
+    public function setSigned($signed)
+    {
+        $this->signed = (bool)$signed;
+        return $this;
+    }
+
+    /**
+     * Gets whether field should be signed.
+     *
+     * @return string
+     */
+    public function getSigned()
+    {
+        return $this->signed;
+    }
+
+    /**
+     * Should the column be signed?
+     *
+     * @return boolean
+     */
+    public function isSigned()
+    {
+        return $this->getSigned();
+    }
+
+    /**
      * Utility method that maps an array of column options to this objects methods.
      *
      * @param array $options Options
@@ -363,7 +400,7 @@ class Column
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment');
+        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment', 'signed');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');
