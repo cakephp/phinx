@@ -67,13 +67,13 @@ class Environment
      * @var AdapterInterface
      */
     protected $adapter;
-    
+
     /**
      * Class Constructor.
      *
      * @param string $name Environment Name
      * @param array $options Options
-     * @return void
+     * @return Environment
      */
     public function __construct($name, $options)
     {

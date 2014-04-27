@@ -52,13 +52,12 @@ abstract class AbstractMigration implements MigrationInterface
      * @var AdapterInterface
      */
     protected $adapter;
-    
+
     /**
      * Class Constructor.
      *
      * @param int $version Migration Version
-     * @return void
-      */
+     */
     final public function __construct($version)
     {
         $this->version = $version;
