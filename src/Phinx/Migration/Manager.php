@@ -28,10 +28,7 @@
  */
 namespace Phinx\Migration;
 
-use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Output\NullOutput;
-use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Config\Config;
 use Phinx\Migration\Manager\Environment;
 

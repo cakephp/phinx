@@ -30,7 +30,6 @@ namespace Phinx\Migration;
 
 use Phinx\Db\Table;
 use Phinx\Db\Adapter\AdapterInterface;
-use Phinx\Migration\MigrationInterface;
 
 /**
  * Abstract Migration Class. 

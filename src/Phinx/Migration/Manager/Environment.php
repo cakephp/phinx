@@ -30,7 +30,6 @@ namespace Phinx\Migration\Manager;
 
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Db\Adapter\AdapterInterface;
-use Phinx\Db\Adapter\PdoAdapter;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Adapter\PostgresAdapter;
 use Phinx\Db\Adapter\SQLiteAdapter;
