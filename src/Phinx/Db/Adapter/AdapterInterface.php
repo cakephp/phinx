@@ -42,7 +42,6 @@ use Phinx\Migration\MigrationInterface;
  */
 interface AdapterInterface
 {
-    const PHINX_TYPE_PRIMARY_KEY    = 'primary_key';
     const PHINX_TYPE_STRING         = 'string';
     const PHINX_TYPE_TEXT           = 'text';
     const PHINX_TYPE_INTEGER        = 'integer';

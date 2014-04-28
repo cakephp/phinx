@@ -668,8 +668,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function getSqlType($type)
     {
         switch ($type) {
-            case static::PHINX_TYPE_PRIMARY_KEY:
-                return self::DEFAULT_PRIMARY_KEY;
             case static::PHINX_TYPE_STRING:
                 return array('name' => 'varchar', 'limit' => 255);
                 break;
