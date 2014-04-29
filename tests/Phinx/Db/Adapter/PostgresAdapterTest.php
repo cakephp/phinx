@@ -25,6 +25,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             'pass' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
             'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
             'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA
+            
         );
         $this->adapter = new PostgresAdapter($options, new NullOutput());
 
