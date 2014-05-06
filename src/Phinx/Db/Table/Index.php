@@ -109,11 +109,12 @@ class Index
     {
         return $this->name;
     }
-    
+
     /**
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
+     * @throws \RuntimeException
      * @return Index
      */
     public function setOptions($options)

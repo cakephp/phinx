@@ -29,6 +29,7 @@
 namespace Phinx\Migration;
 
 use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Table;
 
 /**
  * Migration interface
@@ -167,7 +168,7 @@ interface MigrationInterface
      *
      * @param string $tableName Table Name
      * @param array $options Options
-     * @return \Table
+     * @return Table
      */
     public function table($tableName, $options);
 }

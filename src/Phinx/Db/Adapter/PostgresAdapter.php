@@ -55,7 +55,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 // @codeCoverageIgnoreEnd
             }
             
-            $dsn = '';
             $db = null;
             $options = $this->getOptions();
             
@@ -161,8 +160,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        $options = $this->getOptions();
-        
+
         $tables = array();
         $rows = $this->fetchAll(sprintf('SELECT table_name FROM information_schema.tables WHERE table_schema = \'public\';'));
         foreach ($rows as $row) {
@@ -551,7 +549,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($indexName)
                     )
                 );
-                return $this->endCommandTimer();
+                $this->endCommandTimer();
+                return;
             }
         }
     }
@@ -862,7 +861,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
     {
-        $indexName = '';
         if (is_string($index->getName())) {
             $indexName = $index->getName();
         } else {
@@ -965,7 +963,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $this->writeCommand('addSchema', array($schemaName));
         $sql = sprintf('CREATE SCHEMA %s;', $this->quoteSchemaName($schemaName)); // from postgres 9.3 we can use "CREATE SCHEMA IF NOT EXISTS schema_name"
         $this->execute($sql);
-        return $this->endCommandTimer();
+        $this->endCommandTimer();
     }
 
     /**

@@ -28,9 +28,9 @@
  */
 namespace Phinx\Console\Command;
 
+use Phinx\Migration\Manager\Environment;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -63,8 +63,10 @@ EOT
     /**
      * Verify configuration file
      *
-     * @param \Symfony\Component\Console\Input\InputInterface   $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -89,7 +91,7 @@ EOT
             }
             
             $output->writeln(sprintf('<info>validating environment</info> %s', $envName));
-            $environment = new \Phinx\Migration\Manager\Environment(
+            $environment = new Environment(
                 $envName,
                 $this->getConfig()->getEnvironment($envName)
             );

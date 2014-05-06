@@ -55,7 +55,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 // @codeCoverageIgnoreEnd
             }
             
-            $dsn = '';
             $db = null;
             $options = $this->getOptions();
             
@@ -387,7 +386,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $definition
                     )
                 );
-                return $this->endCommandTimer();
+                $this->endCommandTimer();
+                return;
             }
         }
         
@@ -413,7 +413,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $this->getColumnSqlDefinition($newColumn)
             )
         );
-        return $this->endCommandTimer();
+        $this->endCommandTimer();
     }
     
     /**
@@ -430,7 +430,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $this->quoteColumnName($columnName)
             )
         );
-        return $this->endCommandTimer();
+        $this->endCommandTimer();
     }
     
     /**
@@ -488,7 +488,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $this->getIndexSqlDefinition($index)
             )
         );
-        return $this->endCommandTimer();
+        $this->endCommandTimer();
     }
     
     /**
@@ -515,7 +515,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($indexName)
                     )
                 );
-                return $this->endCommandTimer();
+                $this->endCommandTimer();
+                return;
             }
         }
     }
@@ -540,7 +541,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($indexName)
                     )
                 );
-                return $this->endCommandTimer();
+                $this->endCommandTimer();
+                return;
             }
         }
     }
@@ -616,7 +618,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $this->getForeignKeySqlDefinition($foreignKey)
             )
         );
-        return $this->endCommandTimer();
+        $this->endCommandTimer();
     }
 
     /**
@@ -639,7 +641,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     $constraint
                 )
             );
-            return $this->endCommandTimer();
+            $this->endCommandTimer();
+            return;
         } else {
             foreach ($columns as $column) {
                 $rows = $this->fetchAll(sprintf(
@@ -659,7 +662,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
         }
-        return $this->endCommandTimer();
+        $this->endCommandTimer();
     }
     
     /**
@@ -712,7 +715,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Returns Phinx type by SQL type
      *
-     * @param string $sqlType SQL type
+     * @param $sqlTypeDef
+     * @throws \RuntimeException
+     * @internal param string $sqlType SQL type
      * @returns string Phinx type
      */
     public function getPhinxType($sqlTypeDef)
@@ -783,7 +788,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } else {
             $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s`', $name, $charset));
         }
-        return $this->endCommandTimer();
+        $this->endCommandTimer();
     }
     
     /**
@@ -815,7 +820,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $this->startCommandTimer();
         $this->writeCommand('dropDatabase', array($name));
         $this->execute(sprintf('DROP DATABASE IF EXISTS `%s`', $name));
-        return $this->endCommandTimer();
+        $this->endCommandTimer();
     }
     
     /**
