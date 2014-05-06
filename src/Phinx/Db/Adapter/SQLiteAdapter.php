@@ -72,8 +72,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 $dsn = 'sqlite:' . $options['name'] . '.sqlite3';
             }
 
-            //$driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
-
             try {
                 $db = new \PDO($dsn);
             } catch (\PDOException $exception) {
@@ -153,8 +151,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        //$options = $this->getOptions();
-        
         $tables = array();
         $rows = $this->fetchAll(sprintf('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'%s\'', $tableName));
         foreach ($rows as $row) {
