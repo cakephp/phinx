@@ -373,7 +373,6 @@ Valid Column Types
 
 Column types are specified as strings and can be one of: 
 
--  primary_key
 -  string
 -  text
 -  integer
