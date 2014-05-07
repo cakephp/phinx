@@ -68,14 +68,13 @@ class Table
      * @var ForeignKey[]
      */
     protected $foreignKeys = array();
-    
+
     /**
      * Class Constuctor.
      *
      * @param string $name Table Name
      * @param array $options Options
      * @param AdapterInterface $adapter Database Adapter
-     * @return void
      */
     public function __construct($name, $options = array(), AdapterInterface $adapter = null)
     {
@@ -224,7 +223,7 @@ class Table
     /**
      * Gets an array of columns waiting to be committed.
      *
-     * @return array
+     * @return Column[]
      */
     public function getPendingColumns()
     {
@@ -286,18 +285,20 @@ class Table
         $this->setIndexes(array());
         $this->setForeignKeys(array());
     }
-    
+
     /**
      * Add a table column.
      *
      * Type can be: primary_key, string, text, integer, float, decimal,
      * datetime, timestamp, time, date, binary, boolean.
-     * 
+     *
      * Valid options can be: limit, default, null, precision or scale.
      *
-     * @param string|Phinx\Db\Table\Column $columnName Column Name
+     * @param string|Column $columnName Column Name
      * @param string $type Column Type
      * @param array $options Column Options
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      * @return Table
      */
     public function addColumn($columnName, $type = null, $options = array())
@@ -545,10 +546,11 @@ class Table
         $this->getAdapter()->createTable($this);
         $this->reset(); // reset pending changes
     }
-    
+
     /**
      * Updates a table from the object instance.
      *
+     * @throws \RuntimeException
      * @return void
      */
     public function update()

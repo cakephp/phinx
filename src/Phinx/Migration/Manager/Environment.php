@@ -30,7 +30,6 @@ namespace Phinx\Migration\Manager;
 
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Db\Adapter\AdapterInterface;
-use Phinx\Db\Adapter\PdoAdapter;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Adapter\PostgresAdapter;
 use Phinx\Db\Adapter\SQLiteAdapter;
@@ -68,13 +67,13 @@ class Environment
      * @var AdapterInterface
      */
     protected $adapter;
-    
+
     /**
      * Class Constructor.
      *
      * @param string $name Environment Name
      * @param array $options Options
-     * @return void
+     * @return Environment
      */
     public function __construct($name, $options)
     {

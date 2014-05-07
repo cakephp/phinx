@@ -207,6 +207,7 @@ class ForeignKey
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
+     * @throws \RuntimeException
      * @return ForeignKey
      */
     public function setOptions($options)

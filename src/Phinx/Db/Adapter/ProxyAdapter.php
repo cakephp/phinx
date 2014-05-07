@@ -103,7 +103,7 @@ class ProxyAdapter implements AdapterInterface
      * Sets the adapter options.
      *
      * @param array $options Options
-     * return AdapterInterface
+     * @return AdapterInterface
      */
     public function setOptions(array $options)
     {
