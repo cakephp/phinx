@@ -93,10 +93,17 @@ EOT
 
         // rollback the specified environment
         $start = microtime(true);
-        foreach ($envDatabases as $database) {
-            $output->writeln('');
-            $output->writeln('<info>database:</info> ' . $database);
-            $this->getManager()->rollback($environment, $database, $version);
+        if (!empty($envDatabases)) {
+            // run the migrations against all database
+            $output->writeln('<info>using database' . (count ( $envDatabases ) > 1 ? 's ' : '') . '</info> ' . implode (', ', $envDatabases));
+            foreach ($envDatabases as $database) {
+                $output->writeln('');
+                $output->writeln('<info>database:</info> ' . $database);
+                $this->getManager()->rollback($environment, $database, $version);
+            }
+        } else {
+            $output->writeln('<error>database was not found</error> ');
+            $this->getManager()->rollback($environment, null, $version);
         }
         $end = microtime(true);
 

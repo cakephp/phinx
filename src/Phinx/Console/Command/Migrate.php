@@ -89,17 +89,24 @@ EOT
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
-        $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
+        $output->writeln('<info>using adapter</info> '. $envOptions ['adapter'] );
 
-        $envDatabases = $this->getDatabases($envOptions, $databases);
-        $output->writeln('<info>using database'.(count($envDatabases) > 1 ? 's ' :'') .'</info> ' . implode(', ', $envDatabases));
+        $envDatabases = array ();
+        $envDatabases = $this->getDatabases ( $envOptions, $databases );
 
-        // run the migrations against all database
+        // rollback the specified environment
         $start = microtime(true);
-        foreach ($envDatabases as $database) {
-            $output->writeln('');
-            $output->writeln('<info>database:</info> ' . $database);
-            $this->getManager()->migrate($environment, $database, $version);
+        if (!empty($envDatabases)) {
+            // run the migrations against all database
+            $output->writeln('<info>using database' . (count ( $envDatabases ) > 1 ? 's ' : '') . '</info> ' . implode (', ', $envDatabases));
+            foreach ($envDatabases as $database) {
+                $output->writeln('');
+                $output->writeln('<info>database:</info> ' . $database);
+                $this->getManager()->migrate($environment, $database, $version);
+            }
+        } else {
+            $output->writeln('<error>database was not found</error> ');
+            $this->getManager()->migrate($environment, null, $version);
         }
         $end = microtime(true);
 

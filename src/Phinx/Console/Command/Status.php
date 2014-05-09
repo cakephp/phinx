@@ -85,11 +85,16 @@ EOT
         $envDatabases = $this->getDatabases($envOptions);
         $output->writeln('<info>using database'.(count($envDatabases) > 1 ? 's ' :'') .'</info> ' . implode(', ', $envDatabases));
 
-        // print the status
-        foreach ($envDatabases as $database) {
-            $output->writeln('');
-            $output->writeln('<info>database:</info> ' . $database);
-            $this->getManager()->printStatus($environment, $database, $format);
+        // print status
+        if (!empty($envDatabases)) {
+            foreach ($envDatabases as $database) {
+                $output->writeln('');
+                $output->writeln('<info>database:</info> ' . $database);
+                $this->getManager()->printStatus($environment, $database, $format);
+            }
+        } else {
+            $output->writeln('<error>database was not found</error> ');
+            $this->getManager()->printStatus($environment, null, $format);
         }
     }
 }

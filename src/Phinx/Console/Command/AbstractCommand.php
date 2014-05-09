@@ -258,17 +258,17 @@ abstract class AbstractCommand extends Command
      * Get database which must be migrated
      *
      * @param array $envOptions
-     * @param array $databases
+     * @param array $databases [=null]
      *
      * @throws \InvalidArgumentException
      *
      * @return array
      */
-    protected function getDatabases(array $envOptions, array $databases = null)
+    protected function getDatabases($envOptions, array $databases = null)
     {
         $envDatabases = array();
 
-        if (empty($envOptions['name'])) {
+        if (empty($envOptions['name']) && !empty($envOptions)) {
             foreach ($envOptions['databases'] as $envDatabase) {
                 if (is_array($envDatabase)) {
                     $temp = array_keys($envDatabase);
@@ -277,7 +277,7 @@ abstract class AbstractCommand extends Command
                     $envDatabases[] = $envDatabase;
                 }
             }
-        } else {
+        } elseif (!empty($envOptions)) {
             $envDatabases = array($envOptions['name']);
         }
 
