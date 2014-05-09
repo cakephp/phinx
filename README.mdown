@@ -24,6 +24,8 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 features not covered in official documentation
 
 * multi-databases in one environment
+* default empty string are now allowed
+* added new data types for mysql adapter (char, tinyint, smallint, enum, set)
 
 ## Install & Run
 
