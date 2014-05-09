@@ -110,7 +110,8 @@ EOT
         // run the migrations against all database
         $start = microtime(true);
         foreach ($envDatabases as $database) {
-            $output->writeln('<info>database</info> ' . $database);
+            $output->writeln('');
+            $output->writeln('<info>database:</info> ' . $database);
             $this->getManager()->migrate($environment, $database, $version);
         }
         $end = microtime(true);

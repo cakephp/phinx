@@ -107,7 +107,8 @@ EOT
         // rollback the specified environment
         $start = microtime(true);
         foreach ($databases as $database) {
-            $output->writeln('<info>database</info> ' . $database);
+            $output->writeln('');
+            $output->writeln('<info>database:</info> ' . $database);
             $this->getManager()->rollback($environment, $database, $version);
         }
         $end = microtime(true);
