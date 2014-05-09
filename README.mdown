@@ -19,6 +19,12 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 * Take advantage of SCM features such as branching.
 * Integrate with any app.
 
+#### Features added in this fork
+
+features not covered in official documentation
+
+* multi-databases in one environment
+
 ## Install & Run
 
 ### Composer
