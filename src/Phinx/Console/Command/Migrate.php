@@ -95,7 +95,6 @@ EOT
             $envDatabases = array($envOptions['name']);
         }
 
-        $databases = explode(' ', preg_replace('/\s+/', ' ', $databases));
         if (count($databases)) {
             foreach ($databases as $key => $database) {
                 if (!in_array($database, $envDatabases)) {

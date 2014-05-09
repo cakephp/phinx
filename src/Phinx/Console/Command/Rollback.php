@@ -85,28 +85,27 @@ EOT
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         if (empty($envOptions['name']))
         {
-        	$envDatabases = $envOptions['databases'];
+            $envDatabases = $envOptions['databases'];
         }
         else
         {
-        	$envDatabases = array($envOptions['name']);
+            $envDatabases = array($envOptions['name']);
         }
 
-        $databases = explode(' ', preg_replace('/\s+/', ' ', $databases));
         if (count($databases)) {
-        	foreach ($databases as $key => $database) {
-        		if (!in_array($database, $envDatabases)) {
-        			throw new \InvalidArgumentException(sprintf('Database "%s" not found in environment "%s".', $database, $environment));
-        		}
-        	}
-        	$envDatabases = $databases;
+            foreach ($databases as $key => $database) {
+                if (!in_array($database, $envDatabases)) {
+                    throw new \InvalidArgumentException(sprintf('Database "%s" not found in environment "%s".', $database, $environment));
+                }
+            }
+            $envDatabases = $databases;
         }
 
         $output->writeln('<info>using database</info> ' . implode(', ', $envDatabases));
 
         // rollback the specified environment
         $start = microtime(true);
-        foreach ($databases as $database) {
+        foreach ($envDatabases as $database) {
             $output->writeln('');
             $output->writeln('<info>database:</info> ' . $database);
             $this->getManager()->rollback($environment, $database, $version);
