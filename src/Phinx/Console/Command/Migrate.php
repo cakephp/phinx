@@ -91,31 +91,8 @@ EOT
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
 
-        $envDatabases = array();
-
-        if (empty($envOptions['name'])) {
-            foreach ($envOptions['databases'] as $envDatabase) {
-                if (is_array($envDatabase)) {
-                    $temp = array_keys($envDatabase);
-                    $envDatabases[] = $temp[0];
-                } else {
-                    $envDatabases[] = $envDatabase;
-                }
-            }
-        } else {
-            $envDatabases = array($envOptions['name']);
-        }
-
-        if (count($databases)) {
-            foreach ($databases as $key => $database) {
-                if (!in_array($database, $envDatabases)) {
-                    throw new \InvalidArgumentException(sprintf('Database "%s" not found in environment "%s".', $database, $environment));
-                }
-            }
-            $envDatabases = $databases;
-        }
-
-        $output->writeln('<info>using database</info> ' . implode(', ', $envDatabases));
+        $envDatabases = $this->getDatabases($envOptions, $databases);
+        $output->writeln('<info>using database'.(count($envDatabases) > 1 ? 's ' :'') .'</info> ' . implode(', ', $envDatabases));
 
         // run the migrations against all database
         $start = microtime(true);

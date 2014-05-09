@@ -253,4 +253,43 @@ abstract class AbstractCommand extends Command
             $this->setManager($manager);
         }
     }
+
+    /**
+     * Get database which must be migrated
+     *
+     * @param array $envOptions
+     * @param array $databases
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return array
+     */
+    protected function getDatabases(array $envOptions, array $databases = null)
+    {
+        $envDatabases = array();
+
+        if (empty($envOptions['name'])) {
+            foreach ($envOptions['databases'] as $envDatabase) {
+                if (is_array($envDatabase)) {
+                    $temp = array_keys($envDatabase);
+                    $envDatabases[] = $temp[0];
+                } else {
+                    $envDatabases[] = $envDatabase;
+                }
+            }
+        } else {
+            $envDatabases = array($envOptions['name']);
+        }
+
+        if (count($databases)) {
+            foreach ($databases as $key => $database) {
+                if (!in_array($database, $envDatabases)) {
+                    throw new \InvalidArgumentException(sprintf('Database "%s" not found in environment "%s".', $database, $environment));
+                }
+            }
+            $envDatabases = $databases;
+        }
+
+        return $envDatabases;
+    }
 }
