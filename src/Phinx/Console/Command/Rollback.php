@@ -88,8 +88,8 @@ EOT
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
 
+        $envDatabases = array ();
         $envDatabases = $this->getDatabases($envOptions, $databases);
-        $output->writeln('<info>using database'.(count($envDatabases) > 1 ? 's ' :'') .'</info> ' . implode(', ', $envDatabases));
 
         // rollback the specified environment
         $start = microtime(true);
