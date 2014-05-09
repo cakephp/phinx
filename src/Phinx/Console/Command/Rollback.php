@@ -46,6 +46,7 @@ class Rollback extends AbstractCommand
         $this->setName('rollback')
              ->setDescription('Rollback the last or to a specific migration')
              ->addOption('--target', '-t', InputArgument::OPTIONAL, 'The version number to rollback to')
+             ->addOption('--databases', '-d', InputArgument::OPTIONAL, 'The name of database(s) which will be used to migrate (separate multiple names with a space)')
              ->setHelp(
 <<<EOT
 The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
@@ -70,6 +71,7 @@ EOT
         $this->bootstrap($input, $output);
 
         $environment = $input->getOption('environment');
+        $databases = $input->getOption('databases');
         $version = $input->getOption('target');
 
         if (null === $environment) {
@@ -83,13 +85,24 @@ EOT
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         if (empty($envOptions['name']))
         {
-        	$databases = $envOptions['databases'];
+        	$envDatabases = $envOptions['databases'];
         }
         else
         {
-        	$databases = array($envOptions['name']);
+        	$envDatabases = array($envOptions['name']);
         }
-        $output->writeln('<info>using database</info> ' . implode(', ', $databases));
+
+        $databases = explode(' ', preg_replace('/\s+/', ' ', $databases));
+        if (count($databases)) {
+        	foreach ($databases as $key => $database) {
+        		if (!in_array($database, $envDatabases)) {
+        			throw new \InvalidArgumentException(sprintf('Database "%s" not found in environment "%s".', $database, $environment));
+        		}
+        	}
+        	$envDatabases = $databases;
+        }
+
+        $output->writeln('<info>using database</info> ' . implode(', ', $envDatabases));
 
         // rollback the specified environment
         $start = microtime(true);

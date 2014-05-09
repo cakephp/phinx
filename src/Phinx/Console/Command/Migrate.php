@@ -31,6 +31,7 @@ namespace Phinx\Console\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputOption;
 
 class Migrate extends AbstractCommand
 {
@@ -46,12 +47,15 @@ class Migrate extends AbstractCommand
         $this->setName('migrate')
              ->setDescription('Migrate the database')
              ->addOption('--target', '-t', InputArgument::OPTIONAL, 'The version number to migrate to')
+             ->addOption('--databases', '-d', InputArgument::OPTIONAL, 'The name of database(s) which will be used to migrate (separate multiple names with a space)')
              ->setHelp(
 <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
 
 <info>phinx migrate -e development</info>
 <info>phinx migrate -e development -t 20110103081132</info>
+<info>phinx migrate -e development -t 20110103081132 -d m*</info>
+<info>phinx migrate -e development -t 20110103081132 -d "m1 m7 m18"</info>
 <info>phinx migrate -e development -v</info>
 
 EOT
@@ -71,6 +75,7 @@ EOT
 
         $version = $input->getOption('target');
         $environment = $input->getOption('environment');
+        $databases = $input->getOption('databases');
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -83,18 +88,29 @@ EOT
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         if (empty($envOptions['name']))
         {
-            $databases = $envOptions['databases'];
+            $envDatabases = $envOptions['databases'];
         }
         else
         {
-            $databases = array($envOptions['name']);
+            $envDatabases = array($envOptions['name']);
         }
-        $output->writeln('<info>using database</info> ' . implode(', ', $databases));
+
+        $databases = explode(' ', preg_replace('/\s+/', ' ', $databases));
+        if (count($databases)) {
+            foreach ($databases as $key => $database) {
+                if (!in_array($database, $envDatabases)) {
+                    throw new \InvalidArgumentException(sprintf('Database "%s" not found in environment "%s".', $database, $environment));
+                }
+            }
+            $envDatabases = $databases;
+        }
+
+        $output->writeln('<info>using database</info> ' . implode(', ', $envDatabases));
 
         // run the migrations against all database
         $start = microtime(true);
-        foreach ($databases as $database) {
-        	$output->writeln('<info>database</info> ' . $database);
+        foreach ($envDatabases as $database) {
+            $output->writeln('<info>database</info> ' . $database);
             $this->getManager()->migrate($environment, $database, $version);
         }
         $end = microtime(true);
