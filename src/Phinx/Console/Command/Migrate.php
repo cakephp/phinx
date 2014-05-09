@@ -76,6 +76,9 @@ EOT
         $version = $input->getOption('target');
         $environment = $input->getOption('environment');
         $databases = $input->getOption('databases');
+        if (!empty(trim($databases))) {
+            $databases = explode(' ', $databases);
+        }
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
