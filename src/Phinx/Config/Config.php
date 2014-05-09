@@ -179,14 +179,33 @@ class Config implements \ArrayAccess
                 $environments[$name]['name'] = $database;
             }
             elseif (!empty($environments[$name]['databases']) && $database !== null ) {
-                if (!in_array($database, $environments[$name]['databases'])) {
+                $found = false;
+                $nestedSetup = array();
+
+                foreach ($environments[$name]['databases'] as $configRecord) {
+                    if (is_array($configRecord) && array_key_exists($database, $configRecord)) {
+                        $found = true;
+                        $nestedSetup = $configRecord[$database];
+                        break;
+                    } elseif ($database === $configRecord) {
+                        $found = true;
+                        $nestedSetup = array();
+                        break;
+                    }
+                }
+
+                if ($found == false) {
                     throw new \InvalidArgumentException(sprintf(
                         'The database "%s" does not exists in environment "%s"',
                         $database,
                         $name
                     ));
                 }
+
                 $environments[$name]['name'] = $database;
+                if (!empty($nestedSetup)) {
+                    $environments[$name] = array_merge($environments[$name], $nestedSetup);
+                }
                 unset($environments[$name]['databases']);
             } else {
 

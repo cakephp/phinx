@@ -90,8 +90,18 @@ EOT
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
+
+        $envDatabases = array();
+
         if (empty($envOptions['name'])) {
-            $envDatabases = $envOptions['databases'];
+            foreach ($envOptions['databases'] as $envDatabase) {
+                if (is_array($envDatabase)) {
+                    $temp = array_keys($envDatabase);
+                    $envDatabases[] = $temp[0];
+                } else {
+                    $envDatabases[] = $envDatabase;
+                }
+            }
         } else {
             $envDatabases = array($envOptions['name']);
         }
