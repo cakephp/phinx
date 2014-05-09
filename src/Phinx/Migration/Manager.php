@@ -180,7 +180,7 @@ class Manager
                 }
 
                 if (in_array($migration->getVersion(), $versions)) {
-                    $this->executeMigration($environment, $database, $migration, MigrationInterface::DOWN);
+                    $this->executeMigration($environment, $migration, MigrationInterface::DOWN, $database);
                 }
             }
         }
@@ -192,7 +192,7 @@ class Manager
             }
 
             if (!in_array($migration->getVersion(), $versions)) {
-                $this->executeMigration($environment, $database, $migration, MigrationInterface::UP);
+                $this->executeMigration($environment, $migration, MigrationInterface::UP, $database);
             }
         }
 
@@ -203,13 +203,13 @@ class Manager
      * Execute a migration against the specified Environment.
      *
      * @param string             $name      Environment Name
-     * @param string             $database  Database In Given Environment
      * @param MigrationInterface $migration Migration
      * @param string             $direction Direction
+     * @param string             $database  [=null] Database In Given Environment
      *
      * @return void
      */
-    public function executeMigration($name, $database = null, MigrationInterface $migration, $direction = MigrationInterface::UP)
+    public function executeMigration($name, MigrationInterface $migration, $direction = MigrationInterface::UP, $database = null)
     {
         $this->getOutput()->writeln('');
         $this->getOutput()->writeln(
@@ -286,7 +286,7 @@ class Manager
             }
 
             if (in_array($migration->getVersion(), $versions)) {
-                $this->executeMigration($environment, $database, $migration, MigrationInterface::DOWN);
+                $this->executeMigration($environment, $migration, MigrationInterface::DOWN, $database);
             }
         }
     }
