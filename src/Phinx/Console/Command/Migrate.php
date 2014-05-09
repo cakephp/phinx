@@ -68,26 +68,37 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
-        
+
         $version = $input->getOption('target');
         $environment = $input->getOption('environment');
-        
+
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
-        
+
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
-        $output->writeln('<info>using database</info> ' . $envOptions['name']);
+        if (empty($envOptions['name']))
+        {
+            $databases = $envOptions['databases'];
+        }
+        else
+        {
+            $databases = array($envOptions['name']);
+        }
+        $output->writeln('<info>using database</info> ' . implode(', ', $databases));
 
-        // run the migrations
+        // run the migrations against all database
         $start = microtime(true);
-        $this->getManager()->migrate($environment, $version);
+        foreach ($databases as $database) {
+        	$output->writeln('<info>database</info> ' . $database);
+            $this->getManager()->migrate($environment, $database, $version);
+        }
         $end = microtime(true);
-        
+
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
     }
