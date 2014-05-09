@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Migration\Manager
  */
@@ -42,7 +42,7 @@ class Environment
      * @var string
      */
     protected $name;
-    
+
     /**
      * @var array
      */
@@ -52,17 +52,17 @@ class Environment
      * @var OutputInterface
      */
     protected $output;
-    
+
     /**
      * @var int
      */
     protected $currentVersion;
-    
+
     /**
      * @var string
      */
     protected $schemaTableName = 'phinxlog';
-    
+
     /**
      * @var AdapterInterface
      */
@@ -71,8 +71,9 @@ class Environment
     /**
      * Class Constructor.
      *
-     * @param string $name Environment Name
-     * @param array $options Options
+     * @param string $name    Environment Name
+     * @param array  $options Options
+     *
      * @return Environment
      */
     public function __construct($name, $options)
@@ -80,12 +81,13 @@ class Environment
         $this->name = $name;
         $this->options = $options;
     }
-    
+
     /**
      * Executes the specified migration on this environment.
      *
      * @param MigrationInterface $migration Migration
-     * @param string $direction Direction
+     * @param string             $direction Direction
+     *
      * @return void
      */
     public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP)
@@ -93,16 +95,16 @@ class Environment
         $startTime = time();
         $direction = ($direction == MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
         $migration->setAdapter($this->getAdapter());
-        
+
         // begin the transaction if the adapter supports it
         if ($this->getAdapter()->hasTransactions()) {
             $this->getAdapter()->beginTransaction();
         }
-        
+
         // force UTF-8 encoding for MySQL
         // TODO - this code will need to be abstracted when we support other db vendors
         //$this->getAdapter()->execute('SET NAMES UTF8');
-        
+
         // Run the migration
         if (method_exists($migration, MigrationInterface::CHANGE)) {
             if ($direction == MigrationInterface::DOWN) {
@@ -119,7 +121,7 @@ class Environment
         } else {
             $migration->{$direction}();
         }
-        
+
         // commit the transaction if the adapter supports it
         if ($this->getAdapter()->hasTransactions()) {
             $this->getAdapter()->commitTransaction();
@@ -128,19 +130,21 @@ class Environment
         // Record it in the database
         $this->getAdapter()->migrated($migration, $direction, date('Y-m-d H:i:s', $startTime), date('Y-m-d H:i:s', time()));
     }
-    
+
     /**
      * Sets the environment's name.
      *
      * @param string $name Environment Name
+     *
      * @return Environment
      */
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
-    
+
     /**
      * Gets the environment name.
      *
@@ -150,19 +154,21 @@ class Environment
     {
         return $this->name;
     }
-    
+
     /**
      * Sets the environment's options.
      *
      * @param array $options Environment Options
+     *
      * @return Environment
      */
     public function setOptions($options)
     {
         $this->options = $options;
+
         return $this;
     }
-    
+
     /**
      * Gets the environment's options.
      *
@@ -177,14 +183,16 @@ class Environment
      * Sets the console output.
      *
      * @param OutputInterface $output Output
+     *
      * @return Environment
      */
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+
         return $this;
     }
-    
+
     /**
      * Gets the console output.
      *
@@ -204,19 +212,21 @@ class Environment
     {
         return $this->getAdapter()->getVersions();
     }
-    
+
     /**
      * Sets the current version of the environment.
      *
      * @param int $version Environment Version
+     *
      * @return Environment
      */
     public function setCurrentVersion($version)
     {
         $this->currentVersion = $version;
+
         return $this;
     }
-    
+
     /**
      * Gets the current version of the environment.
      *
@@ -229,27 +239,30 @@ class Environment
         // maybe we should cache and call a reset() method everytime a migration is run
         $versions = $this->getVersions();
         $version = 0;
-            
+
         if (!empty($versions)) {
             $version = end($versions);
         }
-            
+
         $this->setCurrentVersion($version);
+
         return $this->currentVersion;
     }
-    
+
     /**
      * Sets the database adapter.
      *
      * @param AdapterInterface $adapter Database Adapter
+     *
      * @return Environment
      */
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
+
         return $this;
     }
-    
+
     /**
      * Gets the database adapter.
      *
@@ -277,22 +290,24 @@ class Environment
                 throw new \RuntimeException('No adapter was specified for environment: ' . $this->getName());
             }
         }
-        
+
         return $this->adapter;
     }
-    
+
     /**
      * Sets the schema table name.
      *
      * @param string $schemaTableName Schema Table Name
+     *
      * @return Environment
      */
     public function setSchemaTableName($schemaTableName)
     {
         $this->schemaTableName = $schemaTableName;
+
         return $this;
     }
-    
+
     /**
      * Gets the schema table name.
      *

@@ -65,8 +65,9 @@ EOT
     /**
      * Migrate the database.
      *
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -89,12 +90,9 @@ EOT
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
-        if (empty($envOptions['name']))
-        {
+        if (empty($envOptions['name'])) {
             $envDatabases = $envOptions['databases'];
-        }
-        else
-        {
+        } else {
             $envDatabases = array($envOptions['name']);
         }
 

@@ -36,6 +36,7 @@ class Util
      * '12345678901234_limit_resource_names_to_30_chars.php'.
      *
      * @param string $className Class Name
+     *
      * @return string
      */
     public static function mapClassNameToFileName($className)
@@ -43,6 +44,7 @@ class Util
         $arr = preg_split('/(?=[A-Z])/', $className);
         unset($arr[0]); // remove the first element ('')
         $fileName = date('YmdHis') . '_' . strtolower(implode($arr, '_')) . '.php';
+
         return $fileName;
     }
 
@@ -55,6 +57,7 @@ class Util
      * Single words are not allowed on their own.
      *
      * @param string $className Class Name
+     *
      * @return boolean
      */
     public static function isValidMigrationClassName($className)
