@@ -139,7 +139,7 @@ class Manager
      */
     public function migrate($environment, $database = null, $version = null)
     {
-        $migrations = $this->getMigrations();
+        $migrations = $this->getMigrations($database);
         $env = $this->getEnvironment($environment, $database);
 
         $versions = $env->getVersions();
@@ -188,6 +188,8 @@ class Manager
                 $this->executeMigration($environment, $database, $migration, MigrationInterface::UP);
             }
         }
+
+        $this->clearMigrations();
     }
 
     /**
@@ -231,7 +233,7 @@ class Manager
      */
     public function rollback($environment, $database = null, $version = null)
     {
-        $migrations = $this->getMigrations();
+        $migrations = $this->getMigrations($database);
         $env = $this->getEnvironment($environment, $database);
         $versions = $env->getVersions();
 
@@ -356,12 +358,23 @@ class Manager
     }
 
     /**
+     * Clear the database migrations.
+     *
+     * @return Manager
+     */
+    public function clearMigrations()
+    {
+    	$this->migrations = null;
+    	return $this;
+    }
+
+    /**
      * Gets an array of the database migrations.
      *
      * @throws \InvalidArgumentException
      * @return AbstractMigration[]
      */
-    public function getMigrations()
+    public function getMigrations($database = null)
     {
         if (null === $this->migrations) {
             $config = $this->getConfig();
@@ -422,8 +435,9 @@ class Manager
                             $filePath
                         ));
                     }
-
-                    $versions[$version] = $migration;
+                    if ($migration->databaseAllowed($database)) {
+                        $versions[$version] = $migration;
+                    }
                 }
             }
 
