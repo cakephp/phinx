@@ -158,7 +158,18 @@ class Config implements \ArrayAccess
                 $environments[$name]['default_migration_table'] =
                     $this->values['environments']['default_migration_table'];
             }
-            if ($database !== null) {
+
+            if (!empty($environments[$name]['name']) && $database !== null) {
+                if ($database != $environments[$name]['name']) {
+                    throw new \InvalidArgumentException(sprintf(
+                            'The database "%s" does not exists in environment "%s"',
+                            $database,
+                            $name
+                    ));
+                }
+                $environments[$name]['name'] = $database;
+            }
+            else if (!empty($environments[$name]['databases']) && $database !== null ) {
                 if (!in_array($database, $environments[$name]['databases'])) {
                     throw new \InvalidArgumentException(sprintf(
                         'The database "%s" does not exists in environment "%s"',
@@ -169,6 +180,7 @@ class Config implements \ArrayAccess
                 $environments[$name]['name'] = $database;
                 unset($environments[$name]['databases']);
             }
+            else { }
 
             return $environments[$name];
         }
