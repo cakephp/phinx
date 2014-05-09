@@ -92,7 +92,11 @@ class Manager
                     $status = '     <info>up</info> ';
                     unset($versions[array_search($migration->getVersion(), $versions)]);
                 } else {
-                    $status = '   <error>down</error> ';
+                    if (!$migration->databaseAllowed($database)) {
+                        $status = '   <comment>skip</comment> ';
+                    } else {
+                        $status = '   <error>down</error> ';
+                    }
                 }
 
                 $output->writeln(
