@@ -55,7 +55,7 @@ interface AdapterInterface
     const PHINX_TYPE_BINARY         = 'binary';
     const PHINX_TYPE_BOOLEAN        = 'boolean';
     const PHINX_TYPE_JSON           = 'json';
-	// onlu for mysql so far
+	// only for mysql so far
     const PHINX_TYPE_CHAR           = 'char';
     const PHINX_TYPE_TINYINT        = 'tinyint';
     const PHINX_TYPE_SMALLINT       = 'smallint';
