@@ -397,12 +397,12 @@ class Column
      * @param array $options Options
      * @return Column
      */
-    public function setOptions($options)
+    public function setOptions(Array $options)
     {
         // Valid Options
         $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment', 'signed', 'values');
         foreach ($options as $option => $value) {
-            if (!in_array($option, $validOptions)) {
+            if (empty($option) || !in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');
             }
 
