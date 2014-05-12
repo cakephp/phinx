@@ -62,17 +62,21 @@ EOT
     /**
      * Rollback the migration.
      *
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
 
+        $version = $input->getOption('target');
         $environment = $input->getOption('environment');
         $databases = $input->getOption('databases');
-        $version = $input->getOption('target');
+        if (!empty(trim($databases))) {
+            $databases = explode(' ', $databases);
+        }
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -83,33 +87,23 @@ EOT
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
-        if (empty($envOptions['name']))
-        {
-        	$envDatabases = $envOptions['databases'];
-        }
-        else
-        {
-        	$envDatabases = array($envOptions['name']);
-        }
 
-        $databases = explode(' ', preg_replace('/\s+/', ' ', $databases));
-        if (count($databases)) {
-        	foreach ($databases as $key => $database) {
-        		if (!in_array($database, $envDatabases)) {
-        			throw new \InvalidArgumentException(sprintf('Database "%s" not found in environment "%s".', $database, $environment));
-        		}
-        	}
-        	$envDatabases = $databases;
-        }
-
-        $output->writeln('<info>using database</info> ' . implode(', ', $envDatabases));
+        $envDatabases = array ();
+        $envDatabases = $this->getDatabases($envOptions, $databases);
 
         // rollback the specified environment
         $start = microtime(true);
-        foreach ($databases as $database) {
-            $output->writeln('');
-            $output->writeln('<info>database:</info> ' . $database);
-            $this->getManager()->rollback($environment, $database, $version);
+        if (!empty($envDatabases)) {
+            // run the migrations against all database
+            $output->writeln('<info>using database' . (count ( $envDatabases ) > 1 ? 's ' : '') . '</info> ' . implode (', ', $envDatabases));
+            foreach ($envDatabases as $database) {
+                $output->writeln('');
+                $output->writeln('<info>database:</info> ' . $database);
+                $this->getManager()->rollback($environment, $database, $version);
+            }
+        } else {
+            $output->writeln('<error>database was not found</error> ');
+            $this->getManager()->rollback($environment, null, $version);
         }
         $end = microtime(true);
 

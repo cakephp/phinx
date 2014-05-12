@@ -5,6 +5,21 @@ use Phinx\Migration\AbstractMigration;
 class $className extends AbstractMigration
 {
     /**
+     * Array with names of databases where migration must be apply
+     * 
+     * For example if you run phinx for enviroment which contains three 
+     * databases a1, a2, a3 you can define here:
+     *    $useInDatabase = array( 'a2')
+     *
+     * In that case current migration will run against only a2 database 
+     * and won't be apply to a1 and a3 database
+     *
+     * If empty array then no database was chosen and migration won't be apply at all
+     *
+    protected $useInDatabases = null
+    */
+    
+    /**
      * Change Method.
      *
      * More information on this method is available here:

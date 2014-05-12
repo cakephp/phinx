@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -32,7 +32,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
-    
+
 class Init extends Command
 {
     /**
@@ -53,30 +53,32 @@ class Init extends Command
     /**
      * Initializes the application.
      *
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     *
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // get the migration path from the config
         $path = $input->getArgument('path');
-        
+
         if (null === $path) {
             $path = getcwd();
         }
-        
+
         $path = realpath($path);
-        
+
         if (!is_writeable($path)) {
             throw new \InvalidArgumentException(sprintf(
                 'The directory "%s" is not writeable',
                 $path
             ));
         }
-        
+
         // Compute the file path
         $fileName = 'phinx.yml'; // TODO - maybe in the future we allow custom config names.
         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
@@ -87,14 +89,14 @@ class Init extends Command
                 $filePath
             ));
         }
-        
+
         // load the config template
         if (is_dir(__DIR__ . '/../../../data/Phinx')) {
             $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/phinx.yml');
         } else {
             $contents = file_get_contents(__DIR__ . '/../../../../phinx.yml');
         }
-                
+
         if (false === file_put_contents($filePath, $contents)) {
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',
