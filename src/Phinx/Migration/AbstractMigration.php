@@ -221,8 +221,16 @@ abstract class AbstractMigration implements MigrationInterface
         }
 
         if (isset($this->useInDatabases) && is_array($this->useInDatabases)) {
+            // direct matching
             if (in_array($database, $this->useInDatabases)) {
                 return true;
+            }
+
+            // wildcard handling
+            foreach ($this->useInDatabases as $dbIdentifier) {
+                if (preg_match('/(^[\w|_]+)\*/', $dbIdentifier, $matches) && preg_match('/^'.$matches[1].'/', $database)) {
+                    return true;
+                }
             }
 
             return false;
