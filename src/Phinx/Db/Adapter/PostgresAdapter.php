@@ -139,7 +139,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function quoteTableName($tableName)
     {        
-        return $this->quoteColumnName($tableName);
+         return $this->quoteSchemaName($this->getSchemaName()).'.'.$this->quoteColumnName($tableName);
     }
     
     /**
