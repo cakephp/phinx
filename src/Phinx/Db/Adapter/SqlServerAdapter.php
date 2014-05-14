@@ -34,7 +34,7 @@ use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
 
 /**
- * Phinx MySQL Adapter.
+ * Phinx SqlServer Adapter.
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
@@ -240,7 +240,6 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 	    $sql .= implode(', ', $sqlBuffer);
 	    $sql .= ');';
 
-
 	    // set the indexes
 	    $indexes = $table->getIndexes();
 	    if (!empty($indexes)) {
@@ -248,7 +247,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 			    $sql .= $this->getIndexSqlDefinition($index, $table->getName());
 		    }
 	    }
-var_dump($sql);
+
         // execute the sql
         $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
@@ -710,59 +709,41 @@ ORDER BY T.[name], I.[index_id], IC.[key_ordinal];";
      * @internal param string $sqlType SQL type
      * @returns string Phinx type
      */
-    public function getPhinxType($sqlTypeDef)
-    {
-        if (preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*$/', $sqlTypeDef, $matches) === false) {
-            throw new \RuntimeException('Column type ' . $sqlTypeDef . ' is not supported');
-        } else {
-            $limit = null;
-            $precision = null;
-            $type = $matches[1];
-            if (count($matches) > 2) {
-                $limit = $matches[3] ? $matches[3] : null;
-            }
-            if (count($matches) > 4) {
-                $precision = $matches[5];
-            }
-            switch ($matches[1]) {
-                case 'varchar':
-                    $type = static::PHINX_TYPE_STRING;
-                    if ($limit == 255) {
-                        $limit = null;
-                    }
-                    break;
-                case 'int':
-                    $type = static::PHINX_TYPE_INTEGER;
-                    if ($limit == 11) {
-                        $limit = null;
-                    }
-                    break;
-                case 'bigint':
-                    if ($limit == 20) {
-                        $limit = null;
-                    }
-                    $type = static::PHINX_TYPE_BIG_INTEGER;
-                    break;
-                case 'blob':
-                    $type = static::PHINX_TYPE_BINARY;
-                    break;
-            }
-            if ($type == 'tinyint') {
-                if ($matches[3] == 1) {
-                    $type = static::PHINX_TYPE_BOOLEAN;
-                    $limit = null;
-                }
-            }
-
-            $this->getSqlType($type);
-
-            return array(
-                'name' => $type,
-                'limit' => $limit,
-                'precision' => $precision
-            );
-        }
-    }
+	public function getPhinxType($sqlType) {
+		switch ($sqlType) {
+			case 'nvarchar':
+			case 'varchar':
+			case 'char':
+				return static::PHINX_TYPE_STRING;
+			case 'text':
+			case 'json':
+				return static::PHINX_TYPE_TEXT;
+			case 'int':
+			case 'integer':
+				return static::PHINX_TYPE_INTEGER;
+			case 'decimal':
+			case 'numeric':
+				return static::PHINX_TYPE_DECIMAL;
+			case 'bigint':
+				return static::PHINX_TYPE_BIG_INTEGER;
+			case 'real':
+				return static::PHINX_TYPE_FLOAT;
+			case 'bytea':
+				return static::PHINX_TYPE_BINARY;
+				break;
+			case 'timestamp':
+				return static::PHINX_TYPE_TIME;
+			case 'date':
+				return static::PHINX_TYPE_DATE;
+			case 'datetime':
+				return static::PHINX_TYPE_DATETIME;
+			case 'bool':
+			case 'boolean':
+				return static::PHINX_TYPE_BOOLEAN;
+			default:
+				throw new \RuntimeException('The SqlServer type: "' . $sqlType . '" is not supported');
+		}
+	}
 
     /**
      * {@inheritdoc}
@@ -786,20 +767,14 @@ ORDER BY T.[name], I.[index_id], IC.[key_ordinal];";
      */
     public function hasDatabase($name)
     {
-        $rows = $this->fetchAll(
+	    $result = $this->fetchRow(
             sprintf(
-                'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \'%s\'',
+                'SELECT count(*) as [count] FROM master.dbo.sysdatabases WHERE [name] = \'%s\'',
                 $name
             )
         );
-        
-        foreach ($rows as $row) {
-            if (!empty($row)) {
-                return true;
-            }
-        }
-        
-        return false;
+
+	    return $result['count'] > 0;
     }
     
     /**
@@ -880,7 +855,7 @@ SQL;
 	}
 
     /**
-     * Gets the MySQL Foreign Key Definition for an ForeignKey object.
+     * Gets the SqlServer Foreign Key Definition for an ForeignKey object.
      *
      * @param ForeignKey $foreignKey
      * @return string

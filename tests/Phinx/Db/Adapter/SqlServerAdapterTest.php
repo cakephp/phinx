@@ -8,14 +8,14 @@ use Phinx\Db\Adapter\SqlServerAdapter;
 class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Phinx\Db\Adapter\MysqlAdapter
+     * @var \Phinx\Db\Adapter\SqlServerAdaptor
      */
     private $adapter;
     
     public function setUp()
     {
         if (!TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED) {
-            $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED constant.');
+            $this->markTestSkipped('SqlServer tests disabled. See TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED constant.');
         }
 
         $options = array(
@@ -417,7 +417,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 
 	public function testHasDatabase() {
 		$this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
-		$this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE));
+		$this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE));
 	}
 
 	public function testDropDatabase() {
@@ -425,29 +425,6 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 		$this->adapter->createDatabase('temp_phinx_database');
 		$this->assertTrue($this->adapter->hasDatabase('temp_phinx_database'));
 		$this->adapter->dropDatabase('temp_phinx_database');
-	}
-
-	public function testCreateSchema() {
-		$this->adapter->createSchema('foo');
-		$this->assertTrue($this->adapter->hasSchema('foo'));
-	}
-
-	public function testDropSchema() {
-		$this->adapter->createSchema('foo');
-		$this->assertTrue($this->adapter->hasSchema('foo'));
-		$this->adapter->dropSchema('foo');
-		$this->assertFalse($this->adapter->hasSchema('foo'));
-	}
-
-	public function testDropAllSchemas() {
-		$this->adapter->createSchema('foo');
-		$this->adapter->createSchema('bar');
-
-		$this->assertTrue($this->adapter->hasSchema('foo'));
-		$this->assertTrue($this->adapter->hasSchema('bar'));
-		$this->adapter->dropAllSchemas();
-		$this->assertFalse($this->adapter->hasSchema('foo'));
-		$this->assertFalse($this->adapter->hasSchema('bar'));
 	}
 
 	/**
@@ -460,35 +437,28 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 
 	public function testGetPhinxType() {
 		$this->assertEquals('integer', $this->adapter->getPhinxType('int'));
-		$this->assertEquals('integer', $this->adapter->getPhinxType('int4'));
 		$this->assertEquals('integer', $this->adapter->getPhinxType('integer'));
 
 		$this->assertEquals('biginteger', $this->adapter->getPhinxType('bigint'));
-		$this->assertEquals('biginteger', $this->adapter->getPhinxType('int8'));
 
 		$this->assertEquals('decimal', $this->adapter->getPhinxType('decimal'));
 		$this->assertEquals('decimal', $this->adapter->getPhinxType('numeric'));
 
 		$this->assertEquals('float', $this->adapter->getPhinxType('real'));
-		$this->assertEquals('float', $this->adapter->getPhinxType('float4'));
 
 		$this->assertEquals('boolean', $this->adapter->getPhinxType('bool'));
 		$this->assertEquals('boolean', $this->adapter->getPhinxType('boolean'));
 
-		$this->assertEquals('string', $this->adapter->getPhinxType('character varying'));
-		$this->assertEquals('string', $this->adapter->getPhinxType('varchar'));
+		$this->assertEquals('string', $this->adapter->getPhinxType('nvarchar'));
+		$this->assertEquals('string', $this->adapter->getPhinxType('char'));
 
 		$this->assertEquals('text', $this->adapter->getPhinxType('text'));
 
-		$this->assertEquals('time', $this->adapter->getPhinxType('time'));
-		$this->assertEquals('time', $this->adapter->getPhinxType('timetz'));
-		$this->assertEquals('time', $this->adapter->getPhinxType('time with time zone'));
-		$this->assertEquals('time', $this->adapter->getPhinxType('time without time zone'));
+		$this->assertEquals('time', $this->adapter->getPhinxType('timestamp'));
 
-		$this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp'));
-		$this->assertEquals('datetime', $this->adapter->getPhinxType('timestamptz'));
-		$this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp with time zone'));
-		$this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp without time zone'));
+		$this->assertEquals('date', $this->adapter->getPhinxType('date'));
+
+		$this->assertEquals('datetime', $this->adapter->getPhinxType('datetime'));
 
 	}
 
