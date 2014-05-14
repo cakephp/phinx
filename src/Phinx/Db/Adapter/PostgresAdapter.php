@@ -468,7 +468,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     protected function getIndexes($tableName)
     {
         $indexes = array();
-        $sql = "SELECT    
+        $sql = "SELECT
             i.relname AS index_name,
             a.attname AS column_name
         FROM
@@ -482,7 +482,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             AND a.attrelid = t.oid
             AND a.attnum = ANY(ix.indkey)
             AND t.relkind = 'r'
-            AND t.relname = '$tableName'            
+            AND t.relname = '$tableName'
         ORDER BY
             t.relname,
             i.relname;";

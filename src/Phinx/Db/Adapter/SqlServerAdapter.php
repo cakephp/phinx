@@ -38,7 +38,7 @@ use Phinx\Db\Table\ForeignKey;
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-class MysqlAdapter extends PdoAdapter implements AdapterInterface
+class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 {
 
     protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
@@ -49,20 +49,20 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function connect()
     {
         if (null === $this->connection) {
-            if (!class_exists('PDO') || !in_array('mysql', \PDO::getAvailableDrivers(), true)) {
+            if (!class_exists('PDO') || !in_array('sqlsrv', \PDO::getAvailableDrivers(), true)) {
                 // @codeCoverageIgnoreStart
-                throw new \RuntimeException('You need to enable the PDO_Mysql extension for Phinx to run properly.');
+                throw new \RuntimeException('You need to enable the PDO_SqlSrv extension for Phinx to run properly.');
                 // @codeCoverageIgnoreEnd
             }
             
             $db = null;
             $options = $this->getOptions();
             
-            // if port is specified use it, otherwise use the MySQL default
+            // if port is specified use it, otherwise use the SqlServer default
             if (empty($options['port'])) {
-                $dsn = 'mysql:host=' . $options['host'] . ';dbname=' . $options['name'];
+                $dsn = 'sqlsrv:server=' . $options['host'] . ';database=' . $options['name'];
             } else {
-                $dsn = 'mysql:host=' . $options['host'] . ';port=' . $options['port'] . ';dbname=' . $options['name'];
+                $dsn = 'sqlsrv:server=' . $options['host'] . ',' . $options['port'] . ';database=' . $options['name'];
             }
             
             // charset support
@@ -72,10 +72,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
             $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
 
-            // support arbitrary \PDO::MYSQL_ATTR_* driver options and pass them to PDO
-            // http://php.net/manual/en/ref.pdo-mysql.php#pdo-mysql.constants
+            // support arbitrary \PDO::SQLSRV_ATTR_* driver options and pass them to PDO
+            // http://php.net/manual/en/ref.pdo-sqlsrv.php#pdo-sqlsrv.constants
             foreach ($options as $key => $option) {
-                if (strpos($key, 'mysql_attr_') === 0) {
+                if (strpos($key, 'sqlsrv_attr_') === 0) {
                     $driverOptions[constant('\PDO::' . strtoupper($key))] = $option;
                 }
             }
@@ -119,7 +119,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function beginTransaction()
     {
-        $this->execute('START TRANSACTION');
+        $this->execute('BEGIN TRANSACTION');
     }
     
     /**
@@ -143,7 +143,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function quoteTableName($tableName)
     {
-        return str_replace('.', '`.`', $this->quoteColumnName($tableName));
+        return str_replace('.', '].[', $this->quoteColumnName($tableName));
     }
     
     /**
@@ -151,25 +151,19 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function quoteColumnName($columnName)
     {
-        return '`' . str_replace('`', '``', $columnName) . '`';
+        return '[' . str_replace(']', '\]', $columnName) . ']';
     }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function hasTable($tableName)
-    {
-        $options = $this->getOptions();
-        
-        $tables = array();
-        $rows = $this->fetchAll(sprintf('SHOW TABLES IN `%s`', $options['name']));
-        foreach ($rows as $row) {
-            $tables[] = strtolower($row[0]);
-        }
-        
-        return in_array(strtolower($tableName), $tables);
-    }
-    
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function hasTable($tableName) {
+
+		$result = $this->fetchRow(sprintf('SELECT count(*) as [count] FROM information_schema.tables WHERE table_name = \'%s\';', $tableName));
+
+		return $result['count'] > 0;
+	}
+
     /**
      * {@inheritdoc}
      */
@@ -177,13 +171,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
 
-        // This method is based on the MySQL docs here: http://dev.mysql.com/doc/refman/5.1/en/create-index.html
-        $defaultOptions = array(
-            'engine' => 'InnoDB',
-            'collation' => 'utf8_general_ci'
-        );
-        $options = array_merge($defaultOptions, $table->getOptions());
-        
+        $options = $table->getOptions();
+
         // Add the default primary key
         $columns = $table->getPendingColumns();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
@@ -205,71 +194,61 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             array_unshift($columns, $column);
             $options['primary_key'] = $options['id'];
         }
-        
-        // TODO - process table options like collation etc
-        
-        // process table engine (default to InnoDB)
-        $optionsStr = 'ENGINE = InnoDB';
-        if (isset($options['engine'])) {
-            $optionsStr = sprintf('ENGINE = %s', $options['engine']);
-        }
-        
-        // process table collation
-        if (isset($options['collation'])) {
-            $charset = explode('_', $options['collation']);
-            $optionsStr .= sprintf(' CHARACTER SET %s', $charset[0]);
-            $optionsStr .= sprintf(' COLLATE %s', $options['collation']);
-        }
-        
+
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
+	    $sqlBuffer = array();
         foreach ($columns as $column) {
-            $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
-        }
-        
-        // set the primary key(s)
-        if (isset($options['primary_key'])) {
-            $sql = rtrim($sql);
-            $sql .= ' PRIMARY KEY (';
-            if (is_string($options['primary_key'])) {       // handle primary_key => 'id'
-                $sql .= $this->quoteColumnName($options['primary_key']);
-            } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
-                // PHP 5.4 will allow access of $this, so we can call quoteColumnName() directly in the
-                // anonymous function, but for now just hard-code the adapter quotes
-                $sql .= implode(
-                    ',',
-                    array_map(
-                        function ($v) {
-                            return '`' . $v . '`';
-                        },
-                        $options['primary_key']
-                    )
-                );
-            }
-            $sql .= ')';
-        } else {
-            $sql = substr(rtrim($sql), 0, -1);              // no primary keys
-        }
-        
-        // set the indexes
-        $indexes = $table->getIndexes();
-        if (!empty($indexes)) {
-            foreach ($indexes as $index) {
-                $sql .= ', ' . $this->getIndexSqlDefinition($index);
-            }
+	        $sqlBuffer[] = $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column);
+
+			// set column comments, if needed
+	        if ($column->getComment()) {
+		        $this->columnsWithComments[] = $column;
+	        }
         }
 
-        // set the foreign keys
-        $foreignKeys = $table->getForeignKeys();
-        if (!empty($foreignKeys)) {
-            foreach ($foreignKeys as $foreignKey) {
-                $sql .= ', ' . $this->getForeignKeySqlDefinition($foreignKey);
-            }
-        }
+	    // set the primary key(s)
+	    if (isset($options['primary_key'])) {
+		    $pkSql = sprintf('CONSTRAINT PK_%s PRIMARY KEY (', $table->getName());
+		    if (is_string($options['primary_key'])) { // handle primary_key => 'id'
+			    $pkSql .= $this->quoteColumnName($options['primary_key']);
+		    } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
+			    // PHP 5.4 will allow access of $this, so we can call quoteColumnName() directly in the anonymous function,
+			    // but for now just hard-code the adapter quotes
+			    $pkSql .= implode(
+				    ',',
+				    array_map(
+					    function ($v) {
+						    return '[' . $v . ']';
+					    },
+					    $options['primary_key']
+				    )
+			    );
+		    }
+		    $pkSql .= ')';
+		    $sqlBuffer[] = $pkSql;
+	    }
 
-        $sql .= ') ' . $optionsStr;
-        $sql = rtrim($sql) . ';';
+	    // set the foreign keys
+	    $foreignKeys = $table->getForeignKeys();
+	    if (!empty($foreignKeys)) {
+		    foreach ($foreignKeys as $foreignKey) {
+			    $sqlBuffer[] = $this->getForeignKeySqlDefinition($foreignKey, $table->getName());
+		    }
+	    }
 
+	    $sql .= implode(', ', $sqlBuffer);
+	    $sql .= ');';
+
+
+	    // set the indexes
+	    $indexes = $table->getIndexes();
+	    if (!empty($indexes)) {
+		    foreach ($indexes as $index) {
+			    $sql .= $this->getIndexSqlDefinition($index, $table->getName());
+		    }
+	    }
+var_dump($sql);
         // execute the sql
         $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
@@ -329,17 +308,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasColumn($tableName, $columnName)
-    {
-        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $tableName));
-        foreach ($rows as $column) {
-            if (strtolower($column['Field']) == strtolower($columnName)) {
-                return true;
-            }
-        }
+	public function hasColumn($tableName, $columnName, $options = array()) {
+		$sql = sprintf(
+			"SELECT count(*) as [count]
+			 FROM information_schema.columns
+			 WHERE table_name = '%s' AND column_name = '%s'",
+			$tableName,
+			$columnName
+		);
+		$result = $this->fetchRow($sql);
 
-        return false;
-    }
+		return $result['count'] > 0;
+	}
     
     /**
      * {@inheritdoc}
@@ -439,18 +419,27 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      * @param string $tableName Table Name
      * @return array
      */
-    protected function getIndexes($tableName)
-    {
-        $indexes = array();
-        $rows = $this->fetchAll(sprintf('SHOW INDEXES FROM %s', $this->quoteTableName($tableName)));
-        foreach ($rows as $row) {
-            if (!isset($indexes[$row['Key_name']])) {
-                $indexes[$row['Key_name']] = array('columns' => array());
-            }
-            $indexes[$row['Key_name']]['columns'][] = strtolower($row['Column_name']);
-        }
-        return $indexes;
-    }
+	protected function getIndexes($tableName) {
+		$indexes = array();
+		$sql = "SELECT OBJECT_SCHEMA_NAME(T.[object_id],DB_ID()) AS [Schema],
+  T.[name] AS [table_name], I.[name] AS [index_name], AC.[name] AS [column_name]
+FROM sys.[tables] AS T
+  INNER JOIN sys.[indexes] I ON T.[object_id] = I.[object_id]
+  INNER JOIN sys.[index_columns] IC ON I.[object_id] = IC.[object_id]
+  INNER JOIN sys.[all_columns] AC ON T.[object_id] = AC.[object_id] AND IC.[column_id] = AC.[column_id]
+WHERE T.[is_ms_shipped] = 0 AND I.[type_desc] <> 'HEAP'  AND T.[name] = N'{$tableName}'
+ORDER BY T.[name], I.[index_id], IC.[key_ordinal];";
+
+		$rows = $this->fetchAll($sql);
+		foreach ($rows as $row) {
+			if (!isset($indexes[$row['index_name']])) {
+				$indexes[$row['index_name']] = array('columns' => array());
+			}
+			$indexes[$row['index_name']]['columns'][] = strtolower($row['column_name']);
+		}
+
+		return $indexes;
+	}
     
     /**
      * {@inheritdoc}
@@ -466,6 +455,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         
         foreach ($indexes as $index) {
             $a = array_diff($columns, $index['columns']);
+
             if (empty($a)) {
                 return true;
             }
@@ -672,7 +662,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         switch ($type) {
             case static::PHINX_TYPE_STRING:
-                return array('name' => 'varchar', 'limit' => 255);
+                return array('name' => 'nvarchar', 'limit' => 255);
                 break;
             case static::PHINX_TYPE_TEXT:
                 return array('name' => 'text');
@@ -681,7 +671,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'int', 'limit' => 11);
                 break;
             case static::PHINX_TYPE_BIG_INTEGER:
-                return array('name' => 'bigint', 'limit' => 20);
+                return array('name' => 'bigint');
                 break;
             case static::PHINX_TYPE_FLOAT:
                 return array('name' => 'float');
@@ -693,7 +683,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'datetime');
                 break;
             case static::PHINX_TYPE_TIMESTAMP:
-                return array('name' => 'timestamp');
+                return array('name' => 'datetime');
                 break;
             case static::PHINX_TYPE_TIME:
                 return array('name' => 'time');
@@ -781,13 +771,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('createDatabase', array($name));
-        $charset = isset($options['charset']) ? $options['charset'] : 'utf8';
-        
+
         if (isset($options['collation'])) {
-            $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`', $name, $charset, $options['collation']));
+            $this->execute(sprintf('CREATE DATABASE [%s] COLLATE [%s]', $name, $options['collation']));
         } else {
-            $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s`', $name, $charset));
+            $this->execute(sprintf('CREATE DATABASE [%s]', $name));
         }
+	    $this->execute(sprintf('USE [%s]', $name));
         $this->endCommandTimer();
     }
     
@@ -819,71 +809,75 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('dropDatabase', array($name));
-        $this->execute(sprintf('DROP DATABASE IF EXISTS `%s`', $name));
+	    $sql = <<<SQL
+USE master;
+IF EXISTS(select * from sys.databases where name=N'$name')
+ALTER DATABASE [$name] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+DROP DATABASE [$name];
+SQL;
+        $this->execute($sql);
         $this->endCommandTimer();
     }
     
     /**
-     * Gets the MySQL Column Definition for a Column object.
+     * Gets the SqlServer Column Definition for a Column object.
      *
      * @param Column $column Column
      * @return string
      */
-    protected function getColumnSqlDefinition(Column $column)
-    {
-        $sqlType = $this->getSqlType($column->getType());
-        $def = '';
-        $def .= strtoupper($sqlType['name']);
-        if ($column->getPrecision() && $column->getScale()) {
-            $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
-        }
-        $def .= ($column->getLimit() || isset($sqlType['limit']))
-                     ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
-        $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
-        $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
-        $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
-        $default = $column->getDefault();
-        if (is_numeric($default) || $default == 'CURRENT_TIMESTAMP') {
-            $def .= ' DEFAULT ' . $column->getDefault();
-        } else {
-            $def .= is_null($column->getDefault()) ? '' : ' DEFAULT \'' . $column->getDefault() . '\'';
-        }
+	protected function getColumnSqlDefinition(Column $column) {
+		$buffer = array();
 
-        if ($column->getComment()) {
-            $def .= ' COMMENT ' . $this->getConnection()->quote($column->getComment());
-        }
+		$sqlType = $this->getSqlType($column->getType());
+		$buffer[] = strtoupper($sqlType['name']);
+		// integers cant have limits in SQlServer
+		if ('bigint' !== $sqlType['name'] && 'int' !== $sqlType['name'] && ($column->getLimit() || isset($sqlType['limit']))) {
+			$buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
+		}
 
-        if ($column->getUpdate()) {
-            $def .= ' ON UPDATE ' . $column->getUpdate();
-        }
+		$buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
+		$default = $column->getDefault();
+		if (is_numeric($default) || 'CURRENT_TIMESTAMP' === $default) {
+			$buffer[] = 'DEFAULT';
+			$buffer[] = $default;
+		} elseif ($default) {
+			$buffer[] = "DEFAULT '{$default}'";
+		}
 
-        return $def;
-    }
+		if ($column->isIdentity()) {
+			$buffer[] = 'IDENTITY(1, 1)';
+		}
+
+		// TODO - add precision & scale for decimals
+		return implode(' ', $buffer);
+	}
     
     /**
-     * Gets the MySQL Index Definition for an Index object.
+     * Gets the SqlServer Index Definition for an Index object.
      *
      * @param Index $index Index
      * @return string
      */
-    protected function getIndexSqlDefinition(Index $index)
-    {
-        $def = '';
-        
-        if ($index->getType() == Index::UNIQUE) {
-            $def .= ' UNIQUE';
-        }
-        
-        $def .= ' KEY';
-        
-        if (is_string($index->getName())) {
-            $def .= ' `' . $index->getName() . '`';
-        }
-        
-        $def .= ' (`' . implode('`,`', $index->getColumns()) . '`)';
-        
-        return $def;
-    }
+	protected function getIndexSqlDefinition(Index $index, $tableName) {
+		if (is_string($index->getName())) {
+			$indexName = $index->getName();
+		} else {
+			$columnNames = $index->getColumns();
+			if (is_string($columnNames)) {
+				$columnNames = array($columnNames);
+			}
+			$indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
+		}
+		$def = sprintf(
+			"CREATE %s INDEX %s ON %s (%s);",
+			($index->getType() == Index::UNIQUE ? 'UNIQUE' : ''),
+			$indexName,
+			$this->quoteTableName($tableName),
+			'[' . implode('],[', $index->getColumns()) . ']'
+		);
+
+		return $def;
+	}
 
     /**
      * Gets the MySQL Foreign Key Definition for an ForeignKey object.

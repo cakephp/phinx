@@ -24,9 +24,9 @@
  */
 use Symfony\Component\ClassLoader\UniversalClassLoader;
 
-if (is_dir(__DIR__ . '/../../vendor/symfony')) {
-    $symfonyDir  = __DIR__ . '/../../vendor/symfony/';
-    require __DIR__ . '/../../vendor/autoload.php';
+if (is_dir(__DIR__ . '/../../../../symfony')) {
+    $symfonyDir  = __DIR__ . '/../../../../symfony';
+    require __DIR__ . '/../../../../autoload.php';
 } else {
     $symfonyDir = "@@PHP_DIR@@";
     require_once 'Symfony/Component/ClassLoader/UniversalClassLoader.php';
