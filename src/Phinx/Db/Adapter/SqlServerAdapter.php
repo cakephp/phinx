@@ -697,19 +697,22 @@ ORDER BY T.[name], I.[index_id];";
         } else {
             foreach ($columns as $column) {
                 $rows = $this->fetchAll(sprintf(
-                    'SELECT
-                        CONSTRAINT_NAME
-                      FROM information_schema.KEY_COLUMN_USAGE
-                      WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
-                        AND REFERENCED_TABLE_NAME IS NOT NULL
-                        AND TABLE_NAME = "%s"
-                        AND COLUMN_NAME = "%s"
-                      ORDER BY POSITION_IN_UNIQUE_CONSTRAINT',
+                    "SELECT
+					tc.constraint_name,
+					tc.table_name, kcu.column_name,
+					ccu.table_name AS referenced_table_name,
+					ccu.column_name AS referenced_column_name
+				FROM
+					information_schema.table_constraints AS tc
+					JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
+					JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
+				WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s' and ccu.column_name='%s'
+				ORDER BY kcu.ordinal_position",
                     $tableName,
                     $column
                 ));
                 foreach ($rows as $row) {
-                    $this->dropForeignKey($tableName, $columns, $row['CONSTRAINT_NAME']);
+                    $this->dropForeignKey($tableName, $columns, $row['constraint_name']);
                 }
             }
         }
