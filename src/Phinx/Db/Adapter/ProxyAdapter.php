@@ -232,21 +232,7 @@ class ProxyAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array(
-            'primary_key',
-            'string',
-            'text',
-            'integer',
-            'biginteger',
-            'float',
-            'decimal',
-            'datetime',
-            'timestamp',
-            'time',
-            'date',
-            'binary',
-            'boolean'
-        );
+	    return $this->getAdapter()->getColumnTypes();
     }
     
     /**
