@@ -32,6 +32,7 @@ use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
+use Phinx\Migration\MigrationInterface;
 
 /**
  * Phinx SqlServer Adapter.
@@ -965,5 +966,34 @@ SQL;
 			'boolean',
 			'uuid'
 		);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime) {
+		if (strtolower($direction) == MigrationInterface::UP) {
+			// up
+			$sql = sprintf(
+				"INSERT INTO %s ([version], [start_time], [end_time]) VALUES ('%s', '%s', '%s');",
+				$this->getSchemaTableName(),
+				$migration->getVersion(),
+				$startTime,
+				$endTime
+			);
+
+			$this->query($sql);
+		} else {
+			// down
+			$sql = sprintf(
+				"DELETE FROM %s WHERE [version] = '%s'",
+				$this->getSchemaTableName(),
+				$migration->getVersion()
+			);
+
+			$this->query($sql);
+		}
+
+		return $this;
 	}
 }
