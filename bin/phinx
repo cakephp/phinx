@@ -29,6 +29,7 @@ if (!defined('PHINX_VERSION')) {
 }
 
 $files = array(
+  __DIR__ . '/../autoload.php',
   __DIR__ . '/../../../autoload.php',
   __DIR__ . '/../src/Phinx/autoload.php.dist'
 );
