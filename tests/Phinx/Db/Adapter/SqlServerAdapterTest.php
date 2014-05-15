@@ -204,7 +204,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 		$columns = $this->adapter->getColumns('table1');
 		foreach ($columns as $column) {
 			if ($column->getName() == 'default_zero') {
-				$this->assertEquals("'test'::character varying", $column->getDefault());
+				$this->assertEquals("test", $column->getDefault());
 			}
 		}
 	}
@@ -319,6 +319,25 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 		$this->assertTrue($table->hasIndex('email'));
 	}
 
+	public function testGetIndexes() {
+		// single column index
+		$table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+		$table->addColumn('email', 'string')
+			  ->addColumn('username', 'string')
+		      ->addIndex('email')
+		      ->addIndex(['email', 'username'], ['unique' => true, 'name' => 'email_username'])
+		      ->save();
+
+		$indexes = $this->adapter->getIndexes('table1');
+		$this->assertArrayHasKey('PK_table1', $indexes);
+		$this->assertArrayHasKey('table1_email', $indexes);
+		$this->assertArrayHasKey('email_username', $indexes);
+
+		$this->assertEquals(['id'], $indexes['PK_table1']['columns']);
+		$this->assertEquals(['email'], $indexes['table1_email']['columns']);
+		$this->assertEquals(['email', 'username'], $indexes['email_username']['columns']);
+	}
+
 	public function testDropIndex() {
 		// single column index
 		$table = new \Phinx\Db\Table('table1', array(), $this->adapter);
@@ -328,7 +347,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 		$this->assertTrue($table->hasIndex('email'));
 		$this->adapter->dropIndex($table->getName(), 'email');
 		$this->assertFalse($table->hasIndex('email'));
-
+		return;
 		// multiple column index
 		$table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
 		$table2->addColumn('fname', 'string')
@@ -446,15 +465,14 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertEquals('float', $this->adapter->getPhinxType('real'));
 
-		$this->assertEquals('boolean', $this->adapter->getPhinxType('bool'));
-		$this->assertEquals('boolean', $this->adapter->getPhinxType('boolean'));
+		$this->assertEquals('boolean', $this->adapter->getPhinxType('bit'));
 
 		$this->assertEquals('string', $this->adapter->getPhinxType('nvarchar'));
 		$this->assertEquals('string', $this->adapter->getPhinxType('char'));
 
 		$this->assertEquals('text', $this->adapter->getPhinxType('text'));
 
-		$this->assertEquals('time', $this->adapter->getPhinxType('timestamp'));
+		$this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp'));
 
 		$this->assertEquals('date', $this->adapter->getPhinxType('date'));
 
@@ -462,29 +480,20 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 
 	}
 
-	public function testCanAddColumnComment() {
+	public function testAddColumnComment() {
 		$table = new \Phinx\Db\Table('table1', array(), $this->adapter);
 		$table->addColumn('field1', 'string', array('comment' => $comment = 'Comments from column "field1"'))
 		      ->save();
 
-		$row = $this->adapter->fetchRow(
-		                     'SELECT
-			(select pg_catalog.col_description(oid,cols.ordinal_position::int)
-		from pg_catalog.pg_class c
-		where c.relname=cols.table_name ) as column_comment
-		FROM information_schema.columns cols
-		WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
-            AND cols.table_name=\'table1\'
-            AND cols.column_name = \'field1\''
-		);
+		$resultComment = $this->adapter->getColumnComment('table1', 'field1');
 
-		$this->assertEquals($comment, $row['column_comment'], 'Dont set column comment correctly');
+		$this->assertEquals($comment, $resultComment, 'Dont set column comment correctly');
 	}
 
 	/**
-	 * @depends testCanAddColumnComment
+	 * @dependss testAddColumnComment
 	 */
-	public function testCanChangeColumnComment() {
+	public function testChangeColumnComment() {
 		$table = new \Phinx\Db\Table('table1', array(), $this->adapter);
 		$table->addColumn('field1', 'string', array('comment' => 'Comments from column "field1"'))
 		      ->save();
@@ -492,24 +501,15 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 		$table->changeColumn('field1', 'string', array('comment' => $comment = 'New Comments from column "field1"'))
 		      ->save();
 
-		$row = $this->adapter->fetchRow(
-		                     'SELECT
-			(select pg_catalog.col_description(oid,cols.ordinal_position::int)
-		from pg_catalog.pg_class c
-		where c.relname=cols.table_name ) as column_comment
-		FROM information_schema.columns cols
-		WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
-            AND cols.table_name=\'table1\'
-            AND cols.column_name = \'field1\''
-		);
+		$resultComment = $this->adapter->getColumnComment('table1', 'field1');
 
-		$this->assertEquals($comment, $row['column_comment'], 'Dont change column comment correctly');
+		$this->assertEquals($comment, $resultComment, 'Dont change column comment correctly');
 	}
 
 	/**
-	 * @depends testCanAddColumnComment
+	 * @depends testAddColumnComment
 	 */
-	public function testCanRemoveColumnComment() {
+	public function testRemoveColumnComment() {
 		$table = new \Phinx\Db\Table('table1', array(), $this->adapter);
 		$table->addColumn('field1', 'string', array('comment' => 'Comments from column "field1"'))
 		      ->save();
@@ -517,18 +517,9 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 		$table->changeColumn('field1', 'string', array('comment' => 'null'))
 		      ->save();
 
-		$row = $this->adapter->fetchRow(
-		                     'SELECT
-			(select pg_catalog.col_description(oid,cols.ordinal_position::int)
-		from pg_catalog.pg_class c
-		where c.relname=cols.table_name ) as column_comment
-		FROM information_schema.columns cols
-		WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
-            AND cols.table_name=\'table1\'
-            AND cols.column_name = \'field1\''
-		);
+		$resultComment = $this->adapter->getColumnComment('table1', 'field1');
 
-		$this->assertEmpty($row['column_comment'], 'Dont remove column comment correctly');
+		$this->assertEmpty($resultComment, 'Dont remove column comment correctly');
 	}
 
 	/**
