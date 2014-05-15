@@ -66,6 +66,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             } else {
                 $dsn = 'sqlsrv:server=' . $options['host'] . ',' . $options['port'] . ';database=' . $options['name'];
             }
+	        $dsn .= ';MultipleActiveResultSets=false';
             
             // charset support
             if (isset($options['charset'])) {
@@ -129,7 +130,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     public function commitTransaction()
     {
-        $this->execute('COMMIT');
+        $this->execute('COMMIT TRANSACTION');
     }
     
     /**
@@ -137,7 +138,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     public function rollbackTransaction()
     {
-        $this->execute('ROLLBACK');
+        $this->execute('ROLLBACK TRANSACTION');
     }
     
     /**
