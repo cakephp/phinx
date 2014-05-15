@@ -202,12 +202,13 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
 	    $sqlBuffer = array();
+	    $columnsWithComments = [];
         foreach ($columns as $column) {
 	        $sqlBuffer[] = $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column);
 
 			// set column comments, if needed
 	        if ($column->getComment()) {
-		        $this->columnsWithComments[] = $column;
+		        $columnsWithComments[] = $column;
 	        }
         }
 
@@ -245,8 +246,8 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 	    $sql .= ');';
 
 	    // process column comments
-	    if (!empty($this->columnsWithComments)) {
-		    foreach ($this->columnsWithComments as $column) {
+	    if (!empty($columnsWithComments)) {
+		    foreach ($columnsWithComments as $column) {
 			    $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
 		    }
 	    }
