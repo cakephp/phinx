@@ -614,4 +614,11 @@ class ProxyAdapter implements AdapterInterface
     {
         return array('name' => 'dropForeignKey', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
     }
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getConnection() {
+		return $this->getAdapter()->getConnection();
+	}
 }
