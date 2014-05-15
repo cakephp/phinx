@@ -28,6 +28,7 @@
  */
 namespace Phinx\Migration\Manager;
 
+use Phinx\Db\Adapter\SqlServerAdapter;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
@@ -270,7 +271,10 @@ class Environment
                     case 'sqlite':
                         $this->setAdapter(new SQLiteAdapter($this->options, $this->getOutput()));
                         break;
-                    default:
+	                case 'sqlserver':
+		                $this->setAdapter(new SqlServerAdapter($this->options, $this->getOutput()));
+		                break;
+	                default:
                         throw new \RuntimeException('Invalid adapter specified: ' . $this->options['adapter']);
                 }
             } else {
