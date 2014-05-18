@@ -41,6 +41,8 @@ use Phinx\Migration\MigrationInterface;
  */
 abstract class PdoAdapter implements AdapterInterface
 {
+    const DEFAULT_ID_COLUMN_NAME = 'id';
+
     /**
      * @var array
      */
@@ -446,17 +448,11 @@ abstract class PdoAdapter implements AdapterInterface
     protected static function handleDefaultPrimaryKey(Table &$table){
         $options = $table->getOptions();
         $columns = $table->getPendingColumns();
-        if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
-            $column = new Column();
-            $column->setName('id')
-                ->setType('integer')
-                ->setIdentity(true);
 
-            array_unshift($columns, $column);
-            $options['primary_key'] = 'id';
-
-        } elseif (isset($options['id']) && is_string($options['id'])) {
-            // Handle id => "field_name" to support AUTO_INCREMENT
+        if (!isset($options['id']) || $options['id'] === true) {
+            $options['id'] = static::DEFAULT_ID_COLUMN_NAME;
+        }
+        if (is_string($options['id'])) {
             $column = new Column();
             $column->setName($options['id'])
                 ->setType('integer')
@@ -464,9 +460,10 @@ abstract class PdoAdapter implements AdapterInterface
 
             array_unshift($columns, $column);
             $options['primary_key'] = $options['id'];
+
+            $table->setOptions($options);
+            $table->setPendingColumns($columns);
         }
-        $table->setOptions($options);
-        $table->setPendingColumns($columns);
     }
 
 }
