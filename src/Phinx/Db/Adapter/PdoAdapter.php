@@ -44,6 +44,11 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * @var array
      */
+    protected static $defaultTableOptions = array();
+
+    /**
+     * @var array
+     */
     protected $options;
     
     /**
@@ -440,7 +445,6 @@ abstract class PdoAdapter implements AdapterInterface
      */
     protected static function handleDefaultPrimaryKey(Table &$table){
         $options = $table->getOptions();
-        // Add the default primary key
         $columns = $table->getPendingColumns();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
             $column = new Column();

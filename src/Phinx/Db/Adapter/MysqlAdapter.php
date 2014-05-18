@@ -40,6 +40,10 @@ use Phinx\Db\Table\ForeignKey;
  */
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
+    protected static $defaultTableOptions = array(
+        'engine'    => 'InnoDB',
+        'collation' => 'utf8_general_ci'
+    );
 
     protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
 
@@ -177,53 +181,28 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
 
-        // This method is based on the MySQL docs here: http://dev.mysql.com/doc/refman/5.1/en/create-index.html
-        $defaultOptions = array(
-            'engine' => 'InnoDB',
-            'collation' => 'utf8_general_ci'
-        );
-        $options = array_merge($defaultOptions, $table->getOptions());
-        
-        // Add the default primary key
-        $columns = $table->getPendingColumns();
-        if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
-            $column = new Column();
-            $column->setName('id')
-                   ->setType('integer')
-                   ->setIdentity(true);
-            
-            array_unshift($columns, $column);
-            $options['primary_key'] = 'id';
+        //Apply default options
+        $table->setOptions(array_merge(static::$defaultTableOptions, $table->getOptions()));
 
-        } elseif (isset($options['id']) && is_string($options['id'])) {
-            // Handle id => "field_name" to support AUTO_INCREMENT
-            $column = new Column();
-            $column->setName($options['id'])
-                   ->setType('integer')
-                   ->setIdentity(true);
+        static::handleDefaultPrimaryKey($table);
+        $options = $table->getOptions();
 
-            array_unshift($columns, $column);
-            $options['primary_key'] = $options['id'];
-        }
-        
-        // TODO - process table options like collation etc
-        
+        $optionStrings = array();
         // process table engine (default to InnoDB)
-        $optionsStr = 'ENGINE = InnoDB';
-        if (isset($options['engine'])) {
-            $optionsStr = sprintf('ENGINE = %s', $options['engine']);
-        }
-        
+        $optionStrings[] = isset($options['engine']) ?
+            sprintf('ENGINE = %s', $options['engine'])
+            : 'ENGINE = InnoDB';
+
         // process table collation
         if (isset($options['collation'])) {
             $charset = explode('_', $options['collation']);
-            $optionsStr .= sprintf(' CHARACTER SET %s', $charset[0]);
-            $optionsStr .= sprintf(' COLLATE %s', $options['collation']);
+            $optionStrings[] = sprintf('CHARACTER SET %s', $charset[0]);
+            $optionStrings[] = sprintf('COLLATE %s', $options['collation']);
         }
         
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
-        foreach ($columns as $column) {
+        foreach ($table->getPendingColumns() as $column) {
             $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
         }
         
@@ -267,7 +246,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $sql .= ') ' . $optionsStr;
+        $sql .= ') ' . implode(' ', $optionStrings);
         $sql = rtrim($sql) . ';';
 
         // execute the sql

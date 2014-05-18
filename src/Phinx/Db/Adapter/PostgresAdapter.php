@@ -176,34 +176,17 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function createTable(Table $table)
     {
         $this->startCommandTimer();
+
+        //Apply default options
+        $table->setOptions(array_merge(static::$defaultTableOptions, $table->getOptions()));
+
+        static::handleDefaultPrimaryKey($table);
         $options = $table->getOptions();
-        
-         // Add the default primary key
-        $columns = $table->getPendingColumns();
-        if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
-            $column = new Column();
-            $column->setName('id')
-                   ->setType('integer')
-                   ->setIdentity(true);
-            
-            array_unshift($columns, $column);
-            $options['primary_key'] = 'id';
-
-        } elseif (isset($options['id']) && is_string($options['id'])) {
-            // Handle id => "field_name" to support AUTO_INCREMENT
-            $column = new Column();
-            $column->setName($options['id'])
-                   ->setType('integer')
-                   ->setIdentity(true);
-
-            array_unshift($columns, $column);
-            $options['primary_key'] = $options['id'];
-        }
         
         // TODO - process table options like collation etc
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
-        foreach ($columns as $column) {
+        foreach ($table->getPendingColumns() as $column) {
             $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
 
             // set column comments, if needed
