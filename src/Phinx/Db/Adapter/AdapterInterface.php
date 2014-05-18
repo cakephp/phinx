@@ -42,6 +42,8 @@ use Phinx\Migration\MigrationInterface;
  */
 interface AdapterInterface
 {
+    const DEFAULT_ID_COLUMN_NAME    = 'id';
+
     const PHINX_TYPE_STRING         = 'string';
     const PHINX_TYPE_TEXT           = 'text';
     const PHINX_TYPE_INTEGER        = 'integer';

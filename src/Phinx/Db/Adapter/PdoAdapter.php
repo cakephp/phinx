@@ -41,7 +41,6 @@ use Phinx\Migration\MigrationInterface;
  */
 abstract class PdoAdapter implements AdapterInterface
 {
-    const DEFAULT_ID_COLUMN_NAME = 'id';
 
     /**
      * @var array
