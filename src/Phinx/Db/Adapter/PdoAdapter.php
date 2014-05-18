@@ -28,6 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
+use Phinx\Db\Table\Column;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Table;
@@ -433,4 +434,35 @@ abstract class PdoAdapter implements AdapterInterface
             'boolean'
         );
     }
+
+    /**
+     * @param Table $table
+     */
+    protected static function handleDefaultPrimaryKey(Table &$table){
+        $options = $table->getOptions();
+        // Add the default primary key
+        $columns = $table->getPendingColumns();
+        if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
+            $column = new Column();
+            $column->setName('id')
+                ->setType('integer')
+                ->setIdentity(true);
+
+            array_unshift($columns, $column);
+            $options['primary_key'] = 'id';
+
+        } elseif (isset($options['id']) && is_string($options['id'])) {
+            // Handle id => "field_name" to support AUTO_INCREMENT
+            $column = new Column();
+            $column->setName($options['id'])
+                ->setType('integer')
+                ->setIdentity(true);
+
+            array_unshift($columns, $column);
+            $options['primary_key'] = $options['id'];
+        }
+        $table->setOptions($options);
+        $table->setPendingColumns($columns);
+    }
+
 }
