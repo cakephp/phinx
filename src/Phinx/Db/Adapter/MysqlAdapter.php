@@ -916,4 +916,26 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
         return $def;
     }
+
+    /**
+     * Describes a database table. This is a MySQL adapter specific method.
+     * @return array
+     */
+    public function describeTable($tableName)
+    {
+        $options = $this->getOptions();
+
+        // mysql specific
+        $sql = sprintf(
+            'SELECT *'
+            . ' FROM information_schema.tables'
+            . ' WHERE table_schema = "%s"'
+            . ' AND table_name = "%s"',
+            $options['name'],
+            $tableName
+        );
+
+        return $this->fetchRow($sql);
+    }
+
 }
