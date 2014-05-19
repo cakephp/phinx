@@ -151,7 +151,7 @@ Check out http://docs.phinx.org for the comprehensive documentation.
             pass: ''
             port: 3306
             charset: utf8
-            database: [ production_db1, production_db ]
+            databases: [ production_db1, production_db ]
         development:
             adapter: mysql
             host: localhost
@@ -183,7 +183,7 @@ Check out http://docs.phinx.org for the comprehensive documentation.
             pass: ''
             port: 3306
             charset: utf8
-            database: 
+            databases: 
                 - production_db1
                 - production_db2: 
                       adapter: pgsql
