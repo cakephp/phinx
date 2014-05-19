@@ -426,6 +426,27 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 	    );
 	    $this->endCommandTimer();
     }
+
+	public function changeDefault($tableName, $columnName, Column $newColumn) {
+		$constraintName = "DF_$tableName_$columnName";
+		$this->execute(sprintf(
+			'ALTER TABLE %s DROP CONSTRAINT %s',
+			$this->quoteTableName($tableName),
+			$constraintName
+		));
+		$default = $newColumn->getDefault();
+		if (!is_numeric($default) && $default !== 'CURRENT_TIMESTAMP') {
+			$default = $this->getConnection()->quote($default);
+		}
+
+		$this->execute(sprintf(
+			'ALTER TABLE %s ADD CONSTRAINT %s DEFAULT %s FOR %s',
+			$this->quoteTableName($tableName),
+			$constraintName,
+			$default,
+			$columnName
+		));
+	}
     
     /**
      * {@inheritdoc}
@@ -437,12 +458,17 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 	    if ($columnName != $newColumn->getName()) {
 		    $this->renameColumn($tableName, $columnName, $newColumn->getName());
 	    }
+
+	    if ($newColumn->getDefault()) {
+		    $this->changeDefault($tableName, $columnName, $newColumn);
+	    }
+
         $this->execute(
             sprintf(
                 'ALTER TABLE %s ALTER COLUMN %s %s',
                 $this->quoteTableName($tableName),
                 $this->quoteColumnName($newColumn->getName()),
-                $this->getColumnSqlDefinition($newColumn)
+                $this->getColumnSqlDefinition($newColumn, false)
             )
         );
 	    // change column comment if needed
@@ -870,7 +896,7 @@ SQL;
      * @param Column $column Column
      * @return string
      */
-	protected function getColumnSqlDefinition(Column $column) {
+	protected function getColumnSqlDefinition(Column $column, $create = true) {
 		$buffer = array();
 
 		$sqlType = $this->getSqlType($column->getType());
@@ -887,11 +913,13 @@ SQL;
 
 		$buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
 		$default = $column->getDefault();
-		if (is_numeric($default) || 'CURRENT_TIMESTAMP' === $default) {
-			$buffer[] = 'DEFAULT';
-			$buffer[] = $default;
-		} elseif ($default) {
-			$buffer[] = "DEFAULT '{$default}'";
+		if ($create) {
+			if (is_numeric($default) || 'CURRENT_TIMESTAMP' === $default) {
+				$buffer[] = 'DEFAULT';
+				$buffer[] = $default;
+			} elseif ($default) {
+				$buffer[] = "DEFAULT '{$default}'";
+			}
 		}
 
 		if ($column->isIdentity()) {
