@@ -787,7 +787,9 @@ ORDER BY T.[name], I.[index_id];";
                 break;
 	        case static::PHINX_TYPE_UUID:
 		        return array('name' => 'uniqueidentifier');
-            default:
+	        case static::PHINX_TYPE_FILESTREAM:
+		        return array('name' => 'varbinary', 'limit' => 'max');
+	        default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
         }
     }
@@ -836,6 +838,8 @@ ORDER BY T.[name], I.[index_id];";
 				return static::PHINX_TYPE_BOOLEAN;
 			case 'uniqueidentifier':
 				return static::PHINX_TYPE_UUID;
+			case 'filestream':
+				return static::PHINX_TYPE_FILESTREAM;
 			default:
 				throw new \RuntimeException('The SqlServer type: "' . $sqlType . '" is not supported');
 		}
@@ -910,6 +914,10 @@ SQL;
 		if (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
 			$buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
 		}
+
+		$buffer[] = $column->getType() == 'filestream' ? 'FILESTREAM' : '';
+
+		$buffer[] = isset($column->getProperties()['rowguidcol']) ? 'ROWGUIDCOL' : '';
 
 		$buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
 		$default = $column->getDefault();
@@ -996,7 +1004,8 @@ SQL;
 			'date',
 			'binary',
 			'boolean',
-			'uuid'
+			'uuid',
+			'filestream'
 		);
 	}
 
