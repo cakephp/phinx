@@ -66,7 +66,7 @@ class Environment
     /**
      * @var callable[] AdapterInterface factory closures
      */
-    protected $adapters = array();
+    protected $adapterFactories = array();
 
     /**
      * @var AdapterInterface
@@ -85,19 +85,8 @@ class Environment
         $this->name = $name;
         $this->options = $options;
 
-        $defaultAdapterFactories = array(
-            'mysql'     => function(Environment $env) {
-                                return new MysqlAdapter($env->options, $env->getOutput());
-                            },
-            'pgsql'     => function(Environment $env) {
-                                return new PostgresAdapter($env->options, $env->getOutput());
-                            },
-            'sqlite'    => function(Environment $env) {
-                                return new SQLiteAdapter($env->options, $env->getOutput());
-                            },
-            );
-        foreach($defaultAdapterFactories as $a => $b){
-            $this->registerAdapter($a, $b);
+        foreach(static::defaultAdapterFactories() as $adapterName => $adapterFactoryClosure){
+            $this->registerAdapter($adapterName, $adapterFactoryClosure);
         }
     }
 
@@ -107,7 +96,7 @@ class Environment
      * @param callable  $adapterFactoryClosure A closure which accepts an Environment parameter and returns an AdapterInterface implementation
      */
     public function registerAdapter($adapterName, callable $adapterFactoryClosure){
-        $this->adapters[$adapterName] = $adapterFactoryClosure;
+        $this->adapterFactories[$adapterName] = $adapterFactoryClosure;
     }
 
     /**
@@ -294,12 +283,12 @@ class Environment
         if(!isset($this->options['adapter'])){
             throw new \RuntimeException('No adapter was specified for environment: ' . $this->getName());
         }
-        if(!isset($this->adapters[$this->options['adapter']])){
+        if(!isset($this->adapterFactories[$this->options['adapter']])){
             throw new \RuntimeException('Invalid adapter specified: ' . $this->options['adapter']);
         }
 
         //Get the adapter factory, get the adapter, check the build's type, and return
-        $adapterFactory = $this->adapters[$this->options['adapter']];
+        $adapterFactory = $this->adapterFactories[$this->options['adapter']];
         $adapter = $adapterFactory($this);
         if(!$adapter instanceof AdapterInterface){
             throw new \RuntimeException('Adapter factory closure did not return an instance of \\Phinx\\Db\\Adapter\\AdapterInterface');
@@ -327,5 +316,22 @@ class Environment
     public function getSchemaTableName()
     {
         return $this->schemaTableName;
+    }
+
+    /**
+     * @return callable[] Array of factory closures for Phinx's default adapter implementations.
+     */
+    public static final function defaultAdapterFactories(){
+        return array(
+            'mysql'     => function(Environment $env) {
+                return new MysqlAdapter($env->options, $env->getOutput());
+            },
+            'pgsql'     => function(Environment $env) {
+                return new PostgresAdapter($env->options, $env->getOutput());
+            },
+            'sqlite'    => function(Environment $env) {
+                return new SQLiteAdapter($env->options, $env->getOutput());
+            },
+        );
     }
 }
