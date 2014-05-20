@@ -92,10 +92,11 @@ class Environment
 
     /**
      * You can register new adapter types, by passing a closure which instantiates and returns an implementation of `AdapterInterface`.
+     * //TODO When 5.3 support is dropped, the `callable` type hint should be added to the $adapterFactoryClosure paramter.
      * @param string    $adapterName
      * @param callable  $adapterFactoryClosure A closure which accepts an Environment parameter and returns an AdapterInterface implementation
      */
-    public function registerAdapter($adapterName, callable $adapterFactoryClosure){
+    public function registerAdapter($adapterName, $adapterFactoryClosure){
         $this->adapterFactories[$adapterName] = $adapterFactoryClosure;
     }
 
