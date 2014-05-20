@@ -328,13 +328,13 @@ class Environment
     public static final function defaultAdapterFactories(){
         return array(
             'mysql'     => function(Environment $env) {
-                return new MysqlAdapter($env->options, $env->getOutput());
+                return new MysqlAdapter($env->getOptions(), $env->getOutput());
             },
             'pgsql'     => function(Environment $env) {
-                return new PostgresAdapter($env->options, $env->getOutput());
+                return new PostgresAdapter($env->getOptions(), $env->getOutput());
             },
             'sqlite'    => function(Environment $env) {
-                return new SQLiteAdapter($env->options, $env->getOutput());
+                return new SQLiteAdapter($env->getOptions(), $env->getOutput());
             },
         );
     }
