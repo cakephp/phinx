@@ -95,7 +95,8 @@ class Environment
      * @param string    $adapterName
      * @param callable  $adapterFactoryClosure A closure which accepts an Environment parameter and returns an AdapterInterface implementation
      */
-    public function registerAdapter($adapterName, $adapterFactoryClosure){
+    public function registerAdapter($adapterName, $adapterFactoryClosure)
+    {
         //TODO When 5.3 support is dropped, the `callable` type hint should be added to the $adapterFactoryClosure paramter, and this test can be removed.
         if(!is_callable($adapterFactoryClosure)){
             throw new \RuntimeException('Provided adapter factory must be callable and return an object implementing AdapterInterface.');
@@ -325,7 +326,8 @@ class Environment
     /**
      * @return callable[] Array of factory closures for Phinx's default adapter implementations.
      */
-    public static final function defaultAdapterFactories(){
+    public static final function defaultAdapterFactories()
+    {
         return array(
             'mysql'     => function(Environment $env) {
                 return new MysqlAdapter($env->getOptions(), $env->getOutput());
