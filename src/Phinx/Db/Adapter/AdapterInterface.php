@@ -158,9 +158,9 @@ interface AdapterInterface
      * Executes a SQL statement and returns the number of affected rows.
      * 
      * @param string $sql SQL
-     * @return int
+     * @return bool
      */
-    public function execute($sql);
+    public function execute($sql, array $binds = null);
     
     /**
      * Executes a SQL statement and returns the result as an array. 
@@ -394,4 +394,12 @@ interface AdapterInterface
      * @return void
      */
     public function dropDatabase($name);
+
+    /**
+     * Gets the adapter-specific bind param type from the abstracted MigrationInterface::PHINX_PARAM_* type.
+     *
+     * @param int $phinxBindParamType
+     * @return int The \PDO equivalent of the Phinx param type.
+     */
+    public function getAdapterBindParamType($phinxBindParamType);
 }

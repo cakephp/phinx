@@ -267,9 +267,32 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function execute($sql)
+    public function execute($sql, array $binds = null)
     {
-        return $this->getConnection()->exec($sql);
+        if(!isset($binds)){
+            return $this->getConnection()->exec($sql) !== false;
+        }
+
+        $query = $this->getConnection()->prepare($sql);
+
+        foreach($binds as $parameter => $bind){
+            $value = $bind;
+            $type = \PDO::PARAM_STR;    // This is PDO's default type already.
+            if(is_array($bind)){
+                if(!isset($bind['value'])){
+                    throw new \RuntimeException('Invalid query bind definition: if bind is array, it must contain a \'value\' key.');
+                }
+
+                $value = $bind['value'];
+                if(isset($bind['type'])){
+                    $type = $bind['type'];  // If a valid type doesn't exist, PDO will provide an exception.
+                }
+            }
+
+            $query->bindValue($parameter, $value, $type);
+        }
+
+        return $query->execute();
     }
     
     /**
@@ -432,5 +455,12 @@ abstract class PdoAdapter implements AdapterInterface
             'binary',
             'boolean'
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAdapterBindParamType($phinxBindParamType){
+        return $phinxBindParamType;
     }
 }
