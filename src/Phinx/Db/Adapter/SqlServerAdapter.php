@@ -416,6 +416,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 		    throw new \InvalidArgumentException("The specified column does not exist: $columnName");
 	    }
 	    $this->writeCommand('renameColumn', array($tableName, $columnName, $newColumnName));
+		$this->renameDefault($tableName, $columnName, $newColumnName);
 	    $this->execute(
 	         sprintf(
 		         "EXECUTE sp_rename N'%s.%s', N'%s', 'COLUMN' ",
@@ -426,6 +427,22 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 	    );
 	    $this->endCommandTimer();
     }
+
+	protected function renameDefault($tableName, $columnName, $newColumnName) {
+		$oldConstraintName = "DF_{$tableName}_{$columnName}";
+		$newConstraintName = "DF_{$tableName}_{$newColumnName}";
+		$sql = <<<SQL
+IF (OBJECT_ID('$oldConstraintName', 'D') IS NOT NULL)
+BEGIN
+	 EXECUTE sp_rename N'%s', N'%s', N'OBJECT'
+END
+SQL;
+		$this->execute(sprintf(
+			$sql,
+			$oldConstraintName,
+			$newConstraintName
+		));
+	}
 
 	public function changeDefault($tableName, $columnName, Column $newColumn) {
 		$constraintName = "DF_{$tableName}_{$columnName}";
@@ -1044,3 +1061,4 @@ SQL;
 		return $this;
 	}
 }
+
