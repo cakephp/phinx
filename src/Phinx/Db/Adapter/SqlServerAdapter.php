@@ -428,7 +428,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
 	public function changeDefault($tableName, $columnName, Column $newColumn) {
-		$constraintName = "DF_$tableName_$columnName";
+		$constraintName = "DF_{$tableName}_{$columnName}";
 		$this->execute(sprintf(
 			'ALTER TABLE %s DROP CONSTRAINT %s',
 			$this->quoteTableName($tableName),
