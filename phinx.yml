@@ -1,5 +1,6 @@
 paths:
     migrations: %%PHINX_CONFIG_DIR%%/migrations
+    binlog: "/var/log/mysql"
 
 environments:
     default_migration_table: phinxlog

@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -57,8 +57,9 @@ class PhinxApplication extends Application
         $this->add(new Command\Rollback());
         $this->add(new Command\Status());
         $this->add(new Command\Test());
+        $this->add(new Command\Log());
     }
-     
+
     /**
      * Runs the current application.
      *
@@ -74,7 +75,7 @@ class PhinxApplication extends Application
             $output->writeln($this->getLongVersion());
             $output->writeln('');
         }
-         
+
         return parent::doRun($input, $output);
     }
 }
