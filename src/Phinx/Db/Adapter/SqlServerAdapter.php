@@ -446,17 +446,7 @@ SQL;
 
 	public function changeDefault($tableName, $columnName, Column $newColumn) {
 		$constraintName = "DF_{$tableName}_{$columnName}";
-		$sql = <<<SQL
-IF (OBJECT_ID('$constraintName', 'D') IS NOT NULL)
-BEGIN
-	ALTER TABLE %s DROP CONSTRAINT %s
-END
-SQL;
-		$this->execute(sprintf(
-			$sql,
-			$this->quoteTableName($tableName),
-			$constraintName
-		));
+		$this->dropDefaultConstraint($tableName, $columnName);
 		$default = $newColumn->getDefault();
 		if (!is_numeric($default) && $default !== 'CURRENT_TIMESTAMP') {
 			$default = $this->getConnection()->quote($default);
@@ -509,6 +499,8 @@ SQL;
     {
         $this->startCommandTimer();
         $this->writeCommand('dropColumn', array($tableName, $columnName));
+	    $this->dropDefaultConstraint($tableName, $columnName);
+
         $this->execute(
             sprintf(
                 'ALTER TABLE %s DROP COLUMN %s',
@@ -518,6 +510,43 @@ SQL;
         );
         $this->endCommandTimer();
     }
+
+	protected function dropDefaultConstraint($tableName, $columnName) {
+		$defaultConstraint = $this->getDefaultConstraint($tableName, $columnName);
+
+		if (!$defaultConstraint) {
+			return;
+		}
+
+		$this->dropForeignKey($tableName, $columnName, $defaultConstraint);
+	}
+
+	protected function getDefaultConstraint($tableName, $columnName) {
+		$sql = "SELECT
+    default_constraints.name
+FROM
+    sys.all_columns
+
+        INNER JOIN
+    sys.tables
+        ON all_columns.object_id = tables.object_id
+
+        INNER JOIN
+    sys.schemas
+        ON tables.schema_id = schemas.schema_id
+
+        INNER JOIN
+    sys.default_constraints
+        ON all_columns.default_object_id = default_constraints.object_id
+
+WHERE
+        schemas.name = 'dbo'
+    AND tables.name = '{$tableName}'
+    AND all_columns.name = '{$columnName}'";
+
+		$rows = $this->fetchAll($sql);
+		return empty($rows) ? false : $rows[0]['name'];
+	}
 
 	protected function getIndexColums($tableId, $indexId) {
 		$sql = "SELECT AC.[name] AS [column_name]
