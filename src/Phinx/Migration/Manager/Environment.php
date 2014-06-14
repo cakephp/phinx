@@ -271,10 +271,10 @@ class Environment
                     case 'sqlite':
                         $this->setAdapter(new SQLiteAdapter($this->options, $this->getOutput()));
                         break;
-	                case 'sqlserver':
-		                $this->setAdapter(new SqlServerAdapter($this->options, $this->getOutput()));
-		                break;
-	                default:
+                    case 'sqlsrv':
+                        $this->setAdapter(new SqlServerAdapter($this->options, $this->getOutput()));
+                        break;
+                    default:
                         throw new \RuntimeException('Invalid adapter specified: ' . $this->options['adapter']);
                 }
             } else {

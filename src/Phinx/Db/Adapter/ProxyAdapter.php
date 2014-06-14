@@ -232,7 +232,7 @@ class ProxyAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-	    return $this->getAdapter()->getColumnTypes();
+        return $this->getAdapter()->getColumnTypes();
     }
     
     /**
@@ -615,10 +615,10 @@ class ProxyAdapter implements AdapterInterface
         return array('name' => 'dropForeignKey', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
     }
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getConnection() {
-		return $this->getAdapter()->getConnection();
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getConnection() {
+        return $this->getAdapter()->getConnection();
+    }
 }

@@ -94,10 +94,10 @@ class Column
      */
     protected $signed = true;
 
-	/**
-	 * @var array
-	 */
-	protected $properties = [];
+    /**
+     * @var array
+     */
+    protected $properties = [];
 
     /**
      * Sets the column name.
@@ -396,27 +396,28 @@ class Column
         return $this->getSigned();
     }
 
-	/**
-	 * Sets field properties.
-	 *
-	 * @param array $properties
-	 *
-	 * @return Column
-	 */
-	public function setProperties($properties) {
-		$this->properties = $properties;
+    /**
+     * Sets field properties.
+     *
+     * @param array $properties
+     *
+     * @return Column
+     */
+    public function setProperties($properties)
+    {
+        $this->properties = $properties;
+        return $this;
+    }
 
-		return $this;
-	}
-
-	/**
-	 * Gets field properties
-	 *
-	 * @return array
-	 */
-	public function getProperties() {
-		return $this->properties;
-	}
+    /**
+     * Gets field properties
+     *
+     * @return array
+     */
+    public function getProperties()
+    {
+        return $this->properties;
+    }
 
     /**
      * Utility method that maps an array of column options to this objects methods.
