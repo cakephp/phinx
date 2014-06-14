@@ -7,9 +7,11 @@ services:
   - mssql2012sp1
 init:
   - SET PATH=C:\php\;%PATH%
-environment:
-  - 
 install:
   - cinst php
+  - cd %PHP%
+  - php -r "readfile('https://getcomposer.org/installer');" | php
+  - php composer.phar self-update
+  - php composer install
 test_script:
   - "%PHP%/php.exe --version"
