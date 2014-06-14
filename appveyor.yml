@@ -1,0 +1,18 @@
+build: false
+environment:
+  matrix:
+    - PHP: "C:/PHP"
+    - db: mssql
+        provider: mssql
+        password:
+          secure: DHEU39J6X9VD376==
+services:
+  - mssql2008r2sp2
+  - mssql2012sp1
+init:
+  - "ECHO %PHP%"
+  - "SET PATH=C:\php\;%PATH%"
+install:
+  - cinst php
+test_script:
+  - "%PHP%/Scripts/php.exe --version"
