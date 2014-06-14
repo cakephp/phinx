@@ -1,6 +1,9 @@
 build: false
 environment:
   global:
+    TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED: false
+    TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED: false
+    TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED: false
     TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED: true
     TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST: SQL2012SP1
     TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME: sa
@@ -10,13 +13,13 @@ environment:
   matrix:
     - PHP: "C:/PHP"
 services:
-  - mssql2008r2sp2
   - mssql2012sp1
 init:
   - SET PATH=C:\php\;%PATH%
 install:
   - cinst php
   - copy c:\php\php.ini-production c:\php\php.ini
+  - echo date.timezone="europe/berlin" >> c:\php\php.ini
   - echo extension_dir=ext >> c:\php\php.ini
   - echo extension=php_openssl.dll >> c:\php\php.ini
   - cd C:\projects\phinx
