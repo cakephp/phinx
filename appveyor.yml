@@ -1,33 +1,38 @@
 build: false
 environment:
   global:
-    TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED: false
-    TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED: false
-    TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED: false
     TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED: true
-    TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST: SQL2012SP1
-    TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME: sa
-    TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD: Password12!
-    TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE: master
-    TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT: 1433
+    TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST: .\SQL2008R2SP2
+    TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME: "sa"
+    TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD: "Password12!"
+    TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE: "phinxtesting"
   matrix:
     - PHP: "C:/PHP"
 services:
-  - mssql2012sp1
+  - mssql2008r2sp2
 init:
+  - git config --global core.autocrlf input
   - SET PATH=C:\php\;%PATH%
 install:
-  - cinst php
-  - copy c:\php\php.ini-production c:\php\php.ini
-  - echo date.timezone="europe/berlin" >> c:\php\php.ini
-  - echo extension_dir=ext >> c:\php\php.ini
-  - echo extension=php_openssl.dll >> c:\php\php.ini
+  - cd c:\
+  - ps: Start-FileDownload 'http://robmorgan.s3.amazonaws.com/php55/php-5.5.7-nts-Win32-VC11-x86.zip'
+  - 7z x php-5.5.7-nts-Win32-VC11-x86.zip -oc:\php
+  - cd c:\php
+  - copy php.ini-production php.ini
+  - echo date.timezone="europe/berlin" >> php.ini
+  - echo extension_dir=ext >> php.ini
+  - echo extension=php_openssl.dll >> php.ini
+  - echo extension=php_sqlsrv.dll >> php.ini
+  - echo extension=php_pdo_sqlsrv.dll >> php.ini
   - cd C:\projects\phinx
-  - php -c c:/PHP/php.ini -r "readfile('https://getcomposer.org/installer');" | php
-  - php -c c:/PHP/php.ini composer.phar self-update
-  - php -c c:/PHP/php.ini composer.phar install
+  - php -r "readfile('https://getcomposer.org/installer');" | php
+  - php composer.phar install
 test_script:
-  - echo %TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED%
+  - sqlcmd -S ".\SQL2008R2SP2" -U sa -P Password12! -Q "create database phinxtesting;"
+  - echo %TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED%
+  - echo %TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST%
+  - echo %TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME%
+  - echo %TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD%
   - cd C:\projects\phinx
   - "%PHP%/php.exe --version"
-  - vendor/bin/phpunit.bat tests
+  - vendor\bin\phpunit.bat --no-configuration --bootstrap tests/phpunit-bootstrap.php tests/

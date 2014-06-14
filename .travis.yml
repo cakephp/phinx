@@ -11,7 +11,6 @@ php:
   - hhvm
 env:
   - TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED=true
-  - TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED=false
 script:
     - phpunit --coverage-text --coverage-clover=coverage.clover
     - wget https://scrutinizer-ci.com/ocular.phar
