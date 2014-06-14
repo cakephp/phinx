@@ -343,7 +343,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('email', 'string')
               ->addColumn('username', 'string')
               ->addIndex('email')
-              ->addIndex(['email', 'username'], ['unique' => true, 'name' => 'email_username'])
+              ->addIndex(array('email', 'username'), array('unique' => true, 'name' => 'email_username'))
               ->save();
 
         $indexes = $this->adapter->getIndexes('table1');
@@ -351,9 +351,9 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('table1_email', $indexes);
         $this->assertArrayHasKey('email_username', $indexes);
 
-        $this->assertEquals(['id'], $indexes['PK_table1']['columns']);
-        $this->assertEquals(['email'], $indexes['table1_email']['columns']);
-        $this->assertEquals(['email', 'username'], $indexes['email_username']['columns']);
+        $this->assertEquals(array('id'), $indexes['PK_table1']['columns']);
+        $this->assertEquals(array('email'), $indexes['table1_email']['columns']);
+        $this->assertEquals(array('email'), 'username'], $indexes['email_username']['columns']);
     }
 
     public function testDropIndex()
