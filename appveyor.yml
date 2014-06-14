@@ -7,6 +7,13 @@ services:
   - mssql2012sp1
 init:
   - SET PATH=C:\php\;%PATH%
+environment:
+  TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED: true
+  TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST: SQL2012SP1
+  TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME: sa
+  TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD: Password12!
+  TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE: master
+  TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT: 1433
 install:
   - cinst php
   - cd C:\PHP
@@ -14,9 +21,9 @@ install:
   - echo "extension_dir=ext" >> php.ini
   - echo "extension=php_openssl.dll" >> php.ini
   - cd C:\projects\phinx
-  - php -r "readfile('https://getcomposer.org/installer');" | php
-  - php composer.phar self-update
-  - php composer install
-  - php vendor/bin/phpunit
+  - php -c c:/PHP/php.ini -r "readfile('https://getcomposer.org/installer');" | php
+  - php -c c:/PHP/php.ini composer.phar self-update
+  - php -c c:/PHP/php.ini composer install
+  - php -c c:/PHP/php.ini vendor/bin/phpunit
 test_script:
   - "%PHP%/php.exe --version"
