@@ -19,7 +19,7 @@ init:
 install:
   - cinst php
   - copy c:\php\php.ini-production c:\php\php.ini
-  - echo date.timezone="europe/berlin" >> c:\php\php.ini
+  - echo date.timezone=Europe/Berlin >> c:\php\php.ini
   - echo extension_dir=ext >> c:\php\php.ini
   - echo extension=php_openssl.dll >> c:\php\php.ini
   - cd C:\projects\phinx
