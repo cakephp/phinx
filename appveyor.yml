@@ -9,9 +9,14 @@ init:
   - SET PATH=C:\php\;%PATH%
 install:
   - cinst php
-  - cd %PHP%
+  - cd C:\PHP
+  - copy php.ini-production php.ini
+  - echo "extension_dir=ext" >> php.ini
+  - echo "extension=php_openssl.dll" >> php.ini
+  - cd C:\projects\phinx
   - php -r "readfile('https://getcomposer.org/installer');" | php
   - php composer.phar self-update
   - php composer install
+  - php vendor/bin/phpunit
 test_script:
   - "%PHP%/php.exe --version"
