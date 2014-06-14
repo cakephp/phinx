@@ -22,7 +22,7 @@ install:
   - cd C:\projects\phinx
   - php -c c:/PHP/php.ini -r "readfile('https://getcomposer.org/installer');" | php
   - php -c c:/PHP/php.ini composer.phar self-update
-  - php -c c:/PHP/php.ini composer install
+  - php -c c:/PHP/php.ini composer.phar install
   - php -c c:/PHP/php.ini vendor/bin/phpunit
 test_script:
   - "%PHP%/php.exe --version"
