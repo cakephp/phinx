@@ -10,4 +10,4 @@ init:
 install:
   - cinst php
 test_script:
-  - "%PHP%/Scripts/php.exe --version"
+  - "%PHP%/php.exe --version"
