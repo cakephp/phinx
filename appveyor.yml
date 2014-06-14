@@ -6,7 +6,7 @@ services:
   - mssql2008r2sp2
   - mssql2012sp1
 init:
-  - "SET PATH=C:\php\;%PATH%"
+  - SET PATH=C:\php\;%PATH%
 install:
   - cinst php
 test_script:
