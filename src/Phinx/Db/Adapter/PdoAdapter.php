@@ -351,30 +351,7 @@ abstract class PdoAdapter implements AdapterInterface
 
         return $this;
     }
-    
-    /**
-     * Describes a database table.
-     *
-     * @todo MySQL Specific so move to MysqlAdapter.
-     * @return array
-     */
-    public function describeTable($tableName)
-    {
-        $options = $this->getOptions();
-        
-        // mysql specific
-        $sql = sprintf(
-            'SELECT *'
-            . ' FROM information_schema.tables'
-            . ' WHERE table_schema = "%s"'
-            . ' AND table_name = "%s"',
-            $options['name'],
-            $tableName
-        );
-        
-        return $this->fetchRow($sql);
-    }
-    
+
     /**
      * {@inheritdoc}
      */
