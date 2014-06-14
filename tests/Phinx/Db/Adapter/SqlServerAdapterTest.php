@@ -353,7 +353,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(array('id'), $indexes['PK_table1']['columns']);
         $this->assertEquals(array('email'), $indexes['table1_email']['columns']);
-        $this->assertEquals(array('email'), 'username'], $indexes['email_username']['columns']);
+        $this->assertEquals(array('email', 'username'), $indexes['email_username']['columns']);
     }
 
     public function testDropIndex()
