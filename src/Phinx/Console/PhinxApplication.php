@@ -33,6 +33,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Console\Command;
 
+if (!defined('PHINX_MIGRATION_TEMPLATE_FILE'))
+	define('PHINX_MIGRATION_TEMPLATE_FILE', dirname(__FILE__) . '/../Migration/Migration.template.php.dist');
+
 /**
  * Phinx console application.
  *

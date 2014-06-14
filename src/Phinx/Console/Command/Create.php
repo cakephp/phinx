@@ -95,13 +95,13 @@ class Create extends AbstractCommand
                 $filePath
             ));
         }
-        
+
         // load the migration template
-        $contents = file_get_contents(dirname(__FILE__) . '/../../Migration/Migration.template.php.dist');
-        
+	    $contents = file_get_contents(PHINX_MIGRATION_TEMPLATE_FILE);
+
         // inject the class name
         $contents = str_replace('$className', $className, $contents);
-        
+
         if (false === file_put_contents($filePath, $contents)) {
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',
