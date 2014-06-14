@@ -12,7 +12,7 @@
     -->
     <php>
         <!-- SqlServer -->
-        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED" value="true"/>
+        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED" value="false"/>
         <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST" value="localhost"/>
         <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME" value="vagrant"/>
         <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD" value="vagrant"/>
