@@ -27,6 +27,7 @@ install:
   - php -c c:/PHP/php.ini composer.phar self-update
   - php -c c:/PHP/php.ini composer.phar install
 test_script:
+  - echo %TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED%
   - cd C:\projects\phinx
   - "%PHP%/php.exe --version"
-  - vendor/bin/phpunit.bat
+  - vendor/bin/phpunit.bat tests
