@@ -95,6 +95,7 @@ Phinx currently supports the following database adapters:
 * `MySQL <http://www.mysql.com/>`_: specify the ``mysql`` adapter.
 * `PostgreSQL <http://www.postgresql.org/>`_: specify the ``pgsql`` adapter.
 * `SQLite <http://www.sqlite.org/>`_: specify the ``sqlite`` adapter.
+* `SQL Server <http://www.microsoft.com/sqlserver>`_: specify the ``sqlsrv`` adapter.
 
 Declaring an SQLite database uses a simplified structure:
 
