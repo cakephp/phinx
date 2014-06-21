@@ -97,7 +97,7 @@ class Column
     /**
      * @var array
      */
-    protected $properties = [];
+    protected $properties = array();
 
     /**
      * Sets the column name.
