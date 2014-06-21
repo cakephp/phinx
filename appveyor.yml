@@ -28,11 +28,7 @@ install:
   - php -r "readfile('https://getcomposer.org/installer');" | php
   - php composer.phar install
 test_script:
-  - sqlcmd -S ".\SQL2008R2SP2" -U sa -P Password12! -Q "create database phinxtesting;"
-  - echo %TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED%
-  - echo %TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST%
-  - echo %TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME%
-  - echo %TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD%
+  - sqlcmd -S "%TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST%" -U %TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME% -P %TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD% -Q "create database %TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE%;"
   - cd C:\projects\phinx
   - "%PHP%/php.exe --version"
   - vendor\bin\phpunit.bat --no-configuration --bootstrap tests/phpunit-bootstrap.php tests/
