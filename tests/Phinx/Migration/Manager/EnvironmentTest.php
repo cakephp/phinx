@@ -42,6 +42,12 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->environment->setOptions(array('adapter' => 'fakeadapter'));
         $this->environment->getAdapter();
     }
+
+    public function testCustomAdapterClass()
+    {
+        $this->environment->setOptions(array('adapter' => '\Phinx\Db\Adapter\MysqlAdapter'));
+        $this->assertInstanceOf('\Phinx\Db\Adapter\MysqlAdapter', $this->environment->getAdapter());
+    }
     
     /**
      * @expectedException \RuntimeException
