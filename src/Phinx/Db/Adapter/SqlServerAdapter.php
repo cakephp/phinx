@@ -977,9 +977,9 @@ SQL;
             $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
         }
 
+        $properties = $column->getProperties();
         $buffer[] = $column->getType() == 'filestream' ? 'FILESTREAM' : '';
-
-        $buffer[] = isset($column->getProperties()['rowguidcol']) ? 'ROWGUIDCOL' : '';
+        $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';
 
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
         $default = $column->getDefault();
