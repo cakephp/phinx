@@ -90,7 +90,7 @@ demonstrated by the following example:
 Supported Adapters
 ------------------
 
-Phinx currently supports the following database adapters:
+Phinx currently supports the following database adapters natively:
 
 * `MySQL <http://www.mysql.com/>`_: specify the ``mysql`` adapter.
 * `PostgreSQL <http://www.postgresql.org/>`_: specify the ``pgsql`` adapter.
@@ -108,3 +108,14 @@ Declaring an SQLite database uses a simplified structure:
         testing:
             adapter: sqlite
             memory: true     # Setting memory to *any* value overrides name
+
+You can provide a custom adapter by registering an implementation of the `Phinx\Db\Adapter\AdapterInterface` with the Environment:
+
+.. code-block:: php
+
+    $customAdapterFactory = function(Phinx\Migration\Manager\Environment $env) {
+        // Configure my adapter with the env and return.
+        $adapter = new \My\Adapter(...);
+        return $adapter;
+    }
+    $environment->registerAdapter('my-adapter', $customAdapterFactory);
