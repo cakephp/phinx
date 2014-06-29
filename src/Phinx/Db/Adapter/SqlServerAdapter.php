@@ -1056,7 +1056,6 @@ SQL;
     public function getColumnTypes()
     {
         return array(
-            'primary_key',
             'string',
             'text',
             'integer',
