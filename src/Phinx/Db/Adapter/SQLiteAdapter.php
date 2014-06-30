@@ -167,33 +167,15 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
 
-        // Add the default primary key
-        $columns = $table->getPendingColumns();
+        //Apply default options
+        $table->setOptions(array_merge(static::$defaultTableOptions, $table->getOptions()));
+
+        static::handleDefaultPrimaryKey($table);
         $options = $table->getOptions();
-        if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
-            $column = new Column();
-            $column->setName('id')
-                   ->setType('integer')
-                   ->setIdentity(true);
-            
-            array_unshift($columns, $column);
-            $options['primary_key'] = 'id';
 
-        } elseif (isset($options['id']) && is_string($options['id'])) {
-            // Handle id => "field_name" to support AUTO_INCREMENT
-            $column = new Column();
-            $column->setName($options['id'])
-                   ->setType('integer')
-                   ->setIdentity(true);
-
-            array_unshift($columns, $column);
-            $options['primary_key'] = $options['id'];
-        }
-        
-        
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
-        foreach ($columns as $column) {
+        foreach ($table->getPendingColumns() as $column) {
             $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
         }
         

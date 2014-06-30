@@ -28,6 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
+use Phinx\Db\Table\Column;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Table;
@@ -40,6 +41,12 @@ use Phinx\Migration\MigrationInterface;
  */
 abstract class PdoAdapter implements AdapterInterface
 {
+
+    /**
+     * @var array
+     */
+    protected static $defaultTableOptions = array();
+
     /**
      * @var array
      */
@@ -409,4 +416,29 @@ abstract class PdoAdapter implements AdapterInterface
             'boolean'
         );
     }
+
+    /**
+     * @param Table $table
+     */
+    protected static function handleDefaultPrimaryKey(Table &$table){
+        $options = $table->getOptions();
+        $columns = $table->getPendingColumns();
+
+        if (!isset($options['id']) || $options['id'] === true) {
+            $options['id'] = static::DEFAULT_ID_COLUMN_NAME;
+        }
+        if (is_string($options['id'])) {
+            $column = new Column();
+            $column->setName($options['id'])
+                ->setType('integer')
+                ->setIdentity(true);
+
+            array_unshift($columns, $column);
+            $options['primary_key'] = $options['id'];
+
+            $table->setOptions($options);
+            $table->setPendingColumns($columns);
+        }
+    }
+
 }
