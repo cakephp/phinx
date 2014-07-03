@@ -273,6 +273,37 @@ class Manager
             }
         }
     }
+
+    /**
+     * Fake a migration in chosen environment
+     * (set "up" status without executing)
+     *
+     * @param string $environment
+     * @param string $version
+     */
+    public function fake($environment, $version)
+    {
+        $migrations = $this->getMigrations();
+        $env = $this->getEnvironment($environment);
+        $versions = $env->getVersions();
+
+        // check that version and file exist
+        if (!isset($migrations[$version])) {
+            $this->getOutput()->writeln("<error>Version ($version) can't be found</error>");
+            return;
+        }
+
+        // check that migration doesn't have status "up" in current environment
+        if (in_array($version, $versions)) {
+            $this->getOutput()->writeln("<error>Target version ($version) already up</error>");
+            return;
+        }
+
+        $migration = $migrations[$version];
+
+        $time = date('Y-m-d H:i:s', time());
+        $env->getAdapter()->migrated($migration, MigrationInterface::UP, $time, $time);
+    }
     
     /**
      * Sets the environments.
