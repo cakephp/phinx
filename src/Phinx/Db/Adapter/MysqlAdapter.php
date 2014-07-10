@@ -777,14 +777,26 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createDatabase($name, $options = array())
+    public function createDatabase($name, $dBOptions = array())
     {
         $this->startCommandTimer();
         $this->writeCommand('createDatabase', array($name));
-        $charset = isset($options['charset']) ? $options['charset'] : 'utf8';
-        
-        if (isset($options['collation'])) {
-            $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`', $name, $charset, $options['collation']));
+
+        $options = $this->getOptions();
+        if (empty($dBOptions['charset'])) {
+            $charset = isset($options['charset']) ? $options['charset'] : 'utf8';
+        } else {
+            $charset = $dBOptions['charset'];
+        }
+
+        if (empty($dBOptions['collation'])) {
+            $collation = isset($options['collation']) ? $options['collation'] : null;
+        } else {
+            $collation = $dBOptions['collation'];
+        }
+
+        if (isset($collation)) {
+            $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`', $name, $charset, $collation));
         } else {
             $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s`', $name, $charset));
         }
