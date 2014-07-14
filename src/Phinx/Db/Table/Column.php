@@ -173,7 +173,7 @@ class Column
      */
     public function setNull($null)
     {
-        $this->null = (bool) $null;
+        $this->null = (bool) $null; 
         return $this;
     }
     
@@ -205,9 +205,9 @@ class Column
      */
     public function setDefault($default)
     {
-        if ($default === false || $default === '') {
+        if ($default === false) {
             $default = null;
-        }
+		}
         $this->default = $default;
         return $this;
     }

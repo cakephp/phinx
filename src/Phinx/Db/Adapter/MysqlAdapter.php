@@ -707,6 +707,24 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'tinyint', 'limit' => 1);
                 break;
+            case static::PHINX_TYPE_DOUBLE:
+                return array('name' => 'double');
+                break;
+            case static::PHINX_TYPE_LONGBLOB:
+                return array('name' => 'longblob');
+                break;
+            case static::PHINX_TYPE_MEDIUMTEXT:
+                return array('name' => 'mediumtext');
+                break;
+            case static::PHINX_TYPE_TINYINT:
+                return array('name' => 'tinyint');
+                break;
+            case static::PHINX_TYPE_BIT:
+                return array('name' => 'bit');
+                break;
+            case static::PHINX_TYPE_CHAR:
+                return array('name' => 'char');
+                break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
         }
@@ -756,12 +774,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 case 'blob':
                     $type = static::PHINX_TYPE_BINARY;
                     break;
-            }
-            if ($type == 'tinyint') {
-                if ($matches[3] == 1) {
-                    $type = static::PHINX_TYPE_BOOLEAN;
-                    $limit = null;
-                }
             }
 
             $this->getSqlType($type);
@@ -845,10 +857,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $default = $column->getDefault();
         if (is_numeric($default) || $default == 'CURRENT_TIMESTAMP') {
             $def .= ' DEFAULT ' . $column->getDefault();
-        } else {
+        } else { 
             $def .= is_null($column->getDefault()) ? '' : ' DEFAULT \'' . $column->getDefault() . '\'';
         }
-
         if ($column->getComment()) {
             $def .= ' COMMENT ' . $this->getConnection()->quote($column->getComment());
         }
@@ -896,24 +907,23 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $def = '';
         if ($foreignKey->getConstraint()) {
             $def .= ' CONSTRAINT ' . $this->quoteColumnName($foreignKey->getConstraint());
-        } else {
-            $columnNames = array();
-            foreach ($foreignKey->getColumns() as $column) {
-                $columnNames[] = $this->quoteColumnName($column);
-            }
-            $def .= ' FOREIGN KEY (' . implode(',', $columnNames) . ')';
-            $refColumnNames = array();
-            foreach ($foreignKey->getReferencedColumns() as $column) {
-                $refColumnNames[] = $this->quoteColumnName($column);
-            }
-            $def .= ' REFERENCES ' . $this->quoteTableName($foreignKey->getReferencedTable()->getName()) . ' (' . implode(',', $refColumnNames) . ')';
-            if ($foreignKey->getOnDelete()) {
-                $def .= ' ON DELETE ' . $foreignKey->getOnDelete();
-            }
-            if ($foreignKey->getOnUpdate()) {
-                $def .= ' ON UPDATE ' . $foreignKey->getOnUpdate();
-            }
-        }
+        } 
+		$columnNames = array();
+		foreach ($foreignKey->getColumns() as $column) {
+			$columnNames[] = $this->quoteColumnName($column);
+		}
+		$def .= ' FOREIGN KEY (' . implode(',', $columnNames) . ')';
+		$refColumnNames = array();
+		foreach ($foreignKey->getReferencedColumns() as $column) {
+			$refColumnNames[] = $this->quoteColumnName($column);
+		}
+		$def .= ' REFERENCES ' . $this->quoteTableName($foreignKey->getReferencedTable()->getName()) . ' (' . implode(',', $refColumnNames) . ')';
+		if ($foreignKey->getOnDelete()) {
+			$def .= ' ON DELETE ' . $foreignKey->getOnDelete();
+		}
+		if ($foreignKey->getOnUpdate()) {
+			$def .= ' ON UPDATE ' . $foreignKey->getOnUpdate();
+		}
         return $def;
     }
 
