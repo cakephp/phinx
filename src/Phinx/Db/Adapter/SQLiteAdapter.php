@@ -177,7 +177,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                    ->setIdentity(true);
             
             array_unshift($columns, $column);
-            $options['primary_key'] = 'id';
 
         } elseif (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT
@@ -187,7 +186,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                    ->setIdentity(true);
 
             array_unshift($columns, $column);
-            $options['primary_key'] = $options['id'];
         }
         
         
@@ -283,9 +281,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $column->setType($phinxType['name'])
                    ->setLimit($phinxType['limit']);
 
-            // if ($columnInfo['Extra'] == 'auto_increment') {
-            //     $column->setIdentity(true);
-            // }
+            if ($columnInfo['pk'] == 1) {
+                $column->setIdentity(true);
+            }
 
             $columns[] = $column;
         }
@@ -422,7 +420,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
 
         $sql = preg_replace(
-            sprintf("/%s[^,]*/", $this->quoteColumnName($columnName)),
+            sprintf("/%s[^,]*[^\)]/", $this->quoteColumnName($columnName)),
             sprintf("%s %s", $this->quoteColumnName($newColumn->getName()), $this->getColumnSqlDefinition($newColumn)),
             $sql
         );
@@ -950,6 +948,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 $def .= ' DEFAULT '  . $column->getDefault();
             }
         }
+        $def .= ($column->isIdentity()) ? ' PRIMARY KEY AUTOINCREMENT' : '';
 
         if ($column->getUpdate()) {
             $def .= ' ON UPDATE ' . $column->getUpdate();
