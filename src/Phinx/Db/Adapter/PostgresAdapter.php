@@ -77,9 +77,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $this->setConnection($db);
             
             // Create the public schema  if it doesn't already exist
-            if (!$this->hasSchema('public')) {
-                $this->createSchema('public');
+            if (!$this->hasSchema($this->getSchemaName())) {
+                $this->createSchema($this->getSchemaName());
             }
+
+            $this->fetchAll(sprintf('SET search_path TO %s',$this->getSchemaName()));
             
             // Create the schema table if it doesn't already exist
             if (!$this->hasSchemaTable()) {
@@ -162,7 +164,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
 
         $tables = array();
-        $rows = $this->fetchAll(sprintf('SELECT table_name FROM information_schema.tables WHERE table_schema = \'public\';'));
+        $rows = $this->fetchAll(sprintf('SELECT table_name FROM information_schema.tables WHERE table_schema = \'%s\';', $this->getSchemaName()));
         foreach ($rows as $row) {
             $tables[] = strtolower($row[0]);
         }
@@ -336,7 +338,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $sql = sprintf(
             "SELECT count(*)
              FROM information_schema.columns
-             WHERE table_schema = 'public' AND table_name = '%s' AND column_name = '%s'",
+             WHERE table_schema = '%s' AND table_name = '%s' AND column_name = '%s'",
+            $this->getSchemaName(),
             $tableName,
             $columnName
         );
@@ -1038,5 +1041,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function getColumnTypes()
     {
         return array_merge(parent::getColumnTypes(), array('json'));
+    }
+
+    /**
+     * Returns schema name in phinx.yml.
+     *
+     * @return string
+     */
+    private function getSchemaName()
+    {
+        $options = $this->getOptions();
+        return (isset($options['schema'])) ? $options['schema'] : 'public';
     }
 }
