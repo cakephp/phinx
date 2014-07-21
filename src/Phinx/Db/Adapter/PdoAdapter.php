@@ -406,7 +406,13 @@ abstract class PdoAdapter implements AdapterInterface
             'time',
             'date',
             'binary',
-            'boolean'
+            'boolean',
+			'double',
+			'longblob',
+			'mediumtext',
+			'tinyint',
+			'bit',
+			'char'
         );
     }
 }

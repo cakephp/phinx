@@ -57,6 +57,12 @@ interface AdapterInterface
     const PHINX_TYPE_JSON           = 'json';
     const PHINX_TYPE_UUID           = 'uuid';
     const PHINX_TYPE_FILESTREAM     = 'filestream';
+    const PHINX_TYPE_DOUBLE			= 'double';
+    const PHINX_TYPE_LONGBLOB		= 'longblob';
+    const PHINX_TYPE_MEDIUMTEXT		= 'mediumtext';
+    const PHINX_TYPE_TINYINT		= 'tinyint';
+    const PHINX_TYPE_BIT			= 'bit';
+    const PHINX_TYPE_CHAR			= 'char';
 
     /**
      * Get all migrated version numbers.

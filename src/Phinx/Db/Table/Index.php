@@ -125,10 +125,9 @@ class Index
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid index option.');
             }
-            
             // handle $options['unique']
             if (strtolower($option) == self::UNIQUE) {
-                $this->setType(self::UNIQUE);
+				if( (bool)$value ) $this->setType(self::UNIQUE);
                 continue;
             }
 
