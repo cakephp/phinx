@@ -116,3 +116,24 @@ When running Phinx from the command line, you may specify a configuration file u
     );
 
 Phinx auto-detects which language parser to use for files with ``*.yml`` and ``*.php`` extensions. The appropriate parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than ``"php"`` is treated as YAML.
+
+Running module based migrations
+-------------------------------
+
+You can run module based migrations with one instance of ``\Phinx\Migration\Manager``. 
+
+.. code-block:: php
+
+   public function install()
+   {
+      $config = $this->getPhinxConfig();
+      $environment = ($config->getEnvironment('module_migrate'));
+      $migrationTable = $environment['default_migration_table'];
+      $this->manager->setConfig($config);
+      $this->manager->switchSchemaTableName('module_migrate', $migrationTable);
+   
+      // migrate to the latest version
+      $this->manager->migrate('module_migrate');
+      $this->manager->reset();
+   }
+
