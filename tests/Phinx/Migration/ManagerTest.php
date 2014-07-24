@@ -212,4 +212,68 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($adapter->hasColumn('users', 'bio'));
         $this->assertFalse($adapter->hasForeignKey('user_logins', array('user_id')));
     }
+
+    public function testResetManagerToAllowOneManagerToOperateWithMoreMigrations()
+    {
+        // override the migrations directory to an empty one
+        $configArray = $this->getConfigArray();
+        $configArray['paths']['migrations'] = __DIR__ . '/_files/nomigrations';
+        $config = new Config($configArray);
+        $this->manager->setConfig($config);
+
+        $this->assertEquals(0, count($this->manager->getMigrations()));
+        $this->manager->setMigrations(array('Dummy migration 1', 'Dummy migration 2', 'Dummy migration 3'));
+        $this->assertInternalType('array', $this->manager->getMigrations());
+        $this->assertEquals(3, count($this->manager->getMigrations()));
+
+        // sets migrations property to null, what allows load another migration
+        $this->manager->reset();
+
+        $this->assertEquals(0, count($this->manager->getMigrations()));
+
+        // sets migrations property to null, what allows load another migration
+        $this->manager->reset();
+
+        $configArray['paths']['migrations'] = __DIR__ . '/_files/resetmanagerandswitchscheme';
+        $config = new Config($configArray);
+        $this->manager->setConfig($config);
+
+        $this->assertEquals(2, count($this->manager->getMigrations()));
+    }
+
+    public function testUsingMoreSchemeTables()
+    {
+        if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
+            $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED constant.');
+        }
+
+
+        $environment = 'production';
+        $newSchemeTableName = 'phinxlog_new_another';
+
+
+        $configArray = $this->getConfigArray();
+        $adapter = $this->manager->getEnvironment($environment)->getAdapter();
+
+        // override the migrations directory to use the reversible migrations
+        $configArray['paths']['migrations'] = __DIR__ . '/_files/resetmanagerandswitchscheme';
+        $config = new Config($configArray);
+
+        // ensure the database is empty
+        $adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->disconnect();
+
+        // migrate to the latest version
+        $this->manager->setConfig($config);
+        $this->manager->migrate($environment);
+
+        // ensure up migrations worked
+        $this->assertTrue($adapter->hasTable($configArray['environments']['default_migration_table']));
+
+        $this->manager->switchSchemaTableName($environment, $newSchemeTableName);
+
+        $this->manager->migrate($environment);
+        $this->assertTrue($adapter->hasTable($newSchemeTableName));
+    }
 }
