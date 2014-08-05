@@ -421,7 +421,11 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column11', 'binary')
               ->addColumn('column12', 'boolean')
               ->addColumn('column13', 'string', array('limit' => 10))
-              ->addColumn('column15', 'integer', array('limit' => 10));
+              ->addColumn('column15', 'integer', array('limit' => 10))
+              ->addColumn('column16', 'geometry')
+              ->addColumn('column17', 'point')
+              ->addColumn('column18', 'linestring')
+              ->addColumn('column19', 'polygon');
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -564,5 +568,16 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $columnWithComment = $rows[1];
 
         $this->assertEquals($comment, $columnWithComment['column_comment'], 'Dont set column comment correctly');
+    }
+
+    public function testAddGeoSpatialColumns()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('geo_geom'));
+        $table->addColumn('geo_geom', 'geometry')
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('geometry', $rows[1]['Type']);
     }
 }
