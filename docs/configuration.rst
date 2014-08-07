@@ -27,6 +27,21 @@ The first option specifies the path to your migration directory. Phinx uses
     ``%%PHINX_CONFIG_DIR%%`` is a special token and is automatically replaced
     with the root directory where your ``phinx.yml`` file is stored.
 
+In order to overwrite the default ``%%PHINX_CONFIG_DIR%%/migrations``, you need
+to add the following to the yaml configuration.
+
+.. code-block:: yaml
+
+    paths:
+        migrations: /your/full/path
+
+You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
+
+.. code-block:: yaml
+
+    paths:
+        migrations: %%PHINX_CONFIG_DIR%%/your/relative/path
+
 Environments
 ------------
 
