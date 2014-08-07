@@ -803,6 +803,8 @@ The following are valid column options:
 You can pass one or more of these options to any column with the optional
 third argument array.
 
+The default and update column options can accept 'CURRENT_TIMESTAMP' as a value.
+
 The Save Method
 ~~~~~~~~~~~~~~~
 
