@@ -55,7 +55,7 @@ abstract class AbstractCommand extends Command
     protected $adapter;
     
     /**
-     * @var Manager;
+     * @var Manager
      */
     protected $manager;
     
