@@ -70,10 +70,10 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             
             $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
 
-	        // charset support
-	        if (isset($options['charset'])) {
-		        $driverOptions[\PDO::SQLSRV_ATTR_ENCODING] = $options['charset'];
-	        }
+            // charset support
+            if (isset($options['charset'])) {
+                $driverOptions[\PDO::SQLSRV_ATTR_ENCODING] = $options['charset'];
+            }
 
             // support arbitrary \PDO::SQLSRV_ATTR_* driver options and pass them to PDO
             // http://php.net/manual/en/ref.pdo-sqlsrv.php#pdo-sqlsrv.constants
