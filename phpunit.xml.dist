@@ -31,6 +31,7 @@
         <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME" value="postgres" />
         <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD" value="" />
         <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE" value="phinx_testing" />
+        <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA" value="public" />
         <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT" value="5432" />
         <!-- SQLite -->
         <env name="TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED" value="true" />
