@@ -99,8 +99,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testQuoteTableName()
     {
-        $this->assertEquals('"table"', $this->adapter->quoteTableName('table'));
-        $this->assertEquals('"table.table"', $this->adapter->quoteTableName('table.table'));
+        $this->assertEquals('"public"."table"', $this->adapter->quoteTableName('table'));
+        $this->assertEquals('"public"."table.table"', $this->adapter->quoteTableName('table.table'));
     }
     
     public function testQuoteColumnName()
@@ -111,7 +111,6 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     
     public function testCreateTable()
     {
-        
         $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
         $table->addColumn('realname', 'string')
               ->addColumn('email', 'integer')
