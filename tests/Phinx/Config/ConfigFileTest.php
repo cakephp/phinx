@@ -65,7 +65,7 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
     {
         chdir($this->baseDir . '/' . $dir);
         $definition = new InputDefinition(array(new InputOption('configuration')));
-        $input = new ArgvInput(null, $definition);
+        $input = new ArgvInput(array(), $definition);
         if ($arg) {
             $input->setOption('configuration', $arg);
         }
