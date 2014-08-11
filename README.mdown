@@ -10,6 +10,8 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 
 **Check out http://docs.phinx.org for the comprehensive documentation.**
 
+![demo](https://cloud.githubusercontent.com/assets/178939/3882033/7594b2da-2193-11e4-9a57-a387b1847b1e.gif)
+
 ### Features
 
 * Write database migrations using database agnostic PHP code.
