@@ -464,10 +464,10 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testDropDatabase()
     {
-        $this->assertFalse($this->adapter->hasDatabase('temp_phinx_database'));
-        $this->adapter->createDatabase('temp_phinx_database');
-        $this->assertTrue($this->adapter->hasDatabase('temp_phinx_database'));
-        $this->adapter->dropDatabase('temp_phinx_database');
+        $this->assertFalse($this->adapter->hasDatabase('phinx_temp_database'));
+        $this->adapter->createDatabase('phinx_temp_database');
+        $this->assertTrue($this->adapter->hasDatabase('phinx_temp_database'));
+        $this->adapter->dropDatabase('phinx_temp_database');
     }
 
     /**
