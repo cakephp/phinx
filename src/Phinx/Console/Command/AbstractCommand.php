@@ -162,7 +162,7 @@ abstract class AbstractCommand extends Command
 
         $useDefault = false;
 
-        if (null === $configFile) {
+        if (null === $configFile || false === $configFile) {
             $configFile = 'phinx.yml';
             $useDefault = true;
         }
@@ -179,7 +179,7 @@ abstract class AbstractCommand extends Command
             // Locate() throws an exception if the file does not exist
             return $locator->locate($configFile, $cwd, $first = true);
         }
-        
+
         $possibleConfigFiles = array('phinx.php', 'phinx.json', 'phinx.yml');
         foreach ($possibleConfigFiles as $configFile) {
             try {
