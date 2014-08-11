@@ -163,7 +163,6 @@ abstract class AbstractCommand extends Command
         $useDefault = false;
 
         if (null === $configFile || false === $configFile) {
-            $configFile = 'phinx.yml';
             $useDefault = true;
         }
 
