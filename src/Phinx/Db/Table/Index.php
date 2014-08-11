@@ -128,7 +128,7 @@ class Index
             
             // handle $options['unique']
             if (strtolower($option) == self::UNIQUE) {
-                if( (bool)$value ) {
+                if ((bool) $value) {
                     $this->setType(self::UNIQUE);
                 }
                 continue;
