@@ -37,7 +37,6 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
     public function testWorkingGetConfigFile($input, $dir, $expectedFile)
     {
         $foundPath = $this->runLocateFile($input, $dir);
-        //var_dump($foundPath);die();
         $this->assertEquals($foundPath, $this->baseDir . '/' . $dir . '/' . $expectedFile);
     }
 
@@ -106,7 +105,9 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
     public function notWorkingProvider()
     {
         return array(
+            //no valid file available
             array(null, 'NoValidFile'),
+            //called file not available
             array('phinx.yml', 'NoYaml'),
             array('phinx.json', 'OnlyYaml'),
             array('phinx.php', 'OnlyYaml'),
