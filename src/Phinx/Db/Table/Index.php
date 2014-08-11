@@ -109,11 +109,12 @@ class Index
     {
         return $this->name;
     }
-    
+
     /**
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
+     * @throws \RuntimeException
      * @return Index
      */
     public function setOptions($options)
@@ -127,7 +128,9 @@ class Index
             
             // handle $options['unique']
             if (strtolower($option) == self::UNIQUE) {
-                $this->setType(self::UNIQUE);
+                if( (bool)$value ) {
+                    $this->setType(self::UNIQUE);
+                }
                 continue;
             }
 

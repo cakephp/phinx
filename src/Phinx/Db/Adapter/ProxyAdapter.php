@@ -103,7 +103,7 @@ class ProxyAdapter implements AdapterInterface
      * Sets the adapter options.
      *
      * @param array $options Options
-     * return AdapterInterface
+     * @return AdapterInterface
      */
     public function setOptions(array $options)
     {
@@ -232,21 +232,7 @@ class ProxyAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array(
-            'primary_key',
-            'string',
-            'text',
-            'integer',
-            'biginteger',
-            'float',
-            'decimal',
-            'datetime',
-            'timestamp',
-            'time',
-            'date',
-            'binary',
-            'boolean'
-        );
+        return $this->getAdapter()->getColumnTypes();
     }
     
     /**
@@ -627,5 +613,12 @@ class ProxyAdapter implements AdapterInterface
     public function invertAddForeignKey($args)
     {
         return array('name' => 'dropForeignKey', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getConnection() {
+        return $this->getAdapter()->getConnection();
     }
 }

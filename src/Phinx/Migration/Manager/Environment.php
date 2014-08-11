@@ -28,9 +28,9 @@
  */
 namespace Phinx\Migration\Manager;
 
+use Phinx\Db\Adapter\SqlServerAdapter;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Db\Adapter\AdapterInterface;
-use Phinx\Db\Adapter\PdoAdapter;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Adapter\PostgresAdapter;
 use Phinx\Db\Adapter\SQLiteAdapter;
@@ -63,25 +63,51 @@ class Environment
      * @var string
      */
     protected $schemaTableName = 'phinxlog';
-    
+
+    /**
+     * @var callable[] AdapterInterface factory closures
+     */
+    protected $adapterFactories = array();
+
     /**
      * @var AdapterInterface
      */
     protected $adapter;
-    
+
     /**
      * Class Constructor.
      *
      * @param string $name Environment Name
      * @param array $options Options
-     * @return void
+     * @return Environment
      */
     public function __construct($name, $options)
     {
         $this->name = $name;
         $this->options = $options;
+
+        foreach (static::defaultAdapterFactories() as $adapterName => $adapterFactoryClosure) {
+            $this->registerAdapter($adapterName, $adapterFactoryClosure);
+        }
     }
-    
+
+    /**
+     * You can register new adapter types, by passing a closure which
+     * instantiates and returns an implementation of `AdapterInterface`.
+     *
+     * @param string    $adapterName
+     * @param callable  $adapterFactoryClosure A closure which accepts an Environment parameter and returns an AdapterInterface implementation
+     */
+    public function registerAdapter($adapterName, $adapterFactoryClosure)
+    {
+        // TODO When 5.3 support is dropped, the `callable` type hint should be
+        // added to the $adapterFactoryClosure paramter, and this test can be removed.
+        if (!is_callable($adapterFactoryClosure)) {
+            throw new \RuntimeException('Provided adapter factory must be callable and return an object implementing AdapterInterface.');
+        }
+        $this->adapterFactories[$adapterName] = $adapterFactoryClosure;
+    }
+
     /**
      * Executes the specified migration on this environment.
      *
@@ -111,10 +137,12 @@ class Environment
                 // of the migration commands for reverse playback
                 $proxyAdapter = new ProxyAdapter($this->getAdapter(), $this->getOutput());
                 $migration->setAdapter($proxyAdapter);
+                /** @noinspection PhpUndefinedMethodInspection */
                 $migration->change();
                 $proxyAdapter->executeInvertedCommands();
                 $migration->setAdapter($this->getAdapter());
             } else {
+                /** @noinspection PhpUndefinedMethodInspection */
                 $migration->change();
             }
         } else {
@@ -258,28 +286,23 @@ class Environment
      */
     public function getAdapter()
     {
-        if (null === $this->adapter) {
-            if (isset($this->options['adapter'])) {
-                // Adapter Factory
-                switch (strtolower($this->options['adapter'])) {
-                    case 'mysql':
-                        $this->setAdapter(new MysqlAdapter($this->options, $this->getOutput()));
-                        break;
-                    case 'pgsql':
-                        $this->setAdapter(new PostgresAdapter($this->options, $this->getOutput()));
-                        break;
-                    case 'sqlite':
-                        $this->setAdapter(new SQLiteAdapter($this->options, $this->getOutput()));
-                        break;
-                    default:
-                        throw new \RuntimeException('Invalid adapter specified: ' . $this->options['adapter']);
-                }
-            } else {
-                throw new \RuntimeException('No adapter was specified for environment: ' . $this->getName());
-            }
+        if (isset($this->adapter)) {
+            return $this->adapter;
         }
-        
-        return $this->adapter;
+        if (!isset($this->options['adapter'])) {
+            throw new \RuntimeException('No adapter was specified for environment: ' . $this->getName());
+        }
+        if (!isset($this->adapterFactories[$this->options['adapter']])) {
+            throw new \RuntimeException('Invalid adapter specified: ' . $this->options['adapter']);
+        }
+
+        // Get the adapter factory, get the adapter, check the type, and return
+        $adapterFactory = $this->adapterFactories[$this->options['adapter']];
+        $adapter = $adapterFactory($this);
+        if (!$adapter instanceof AdapterInterface) {
+            throw new \RuntimeException('Adapter factory closure did not return an instance of \\Phinx\\Db\\Adapter\\AdapterInterface');
+        }
+        return $this->adapter = $adapter;
     }
     
     /**
@@ -302,5 +325,26 @@ class Environment
     public function getSchemaTableName()
     {
         return $this->schemaTableName;
+    }
+
+    /**
+     * @return callable[] Array of factory closures for Phinx's default adapter implementations.
+     */
+    public static final function defaultAdapterFactories()
+    {
+        return array(
+            'mysql'     => function(Environment $env) {
+                return new MysqlAdapter($env->getOptions(), $env->getOutput());
+            },
+            'pgsql'     => function(Environment $env) {
+                return new PostgresAdapter($env->getOptions(), $env->getOutput());
+            },
+            'sqlite'    => function(Environment $env) {
+                return new SQLiteAdapter($env->getOptions(), $env->getOutput());
+            },
+            'sqlsrv'    => function(Environment $env) {
+                return new SqlServerAdapter($env->getOptions(), $env->getOutput());
+            },
+        );
     }
 }
