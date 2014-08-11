@@ -48,7 +48,7 @@ class Test extends AbstractCommand
         $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
 
         $this->setName('test')
-             ->setDescription('Verify configuration file')
+             ->setDescription('Verify the configuration file')
              ->setHelp(
 <<<EOT
 The <info>test</info> command verifies the YAML configuration file and optionally an environment
