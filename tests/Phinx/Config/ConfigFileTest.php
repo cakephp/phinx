@@ -37,7 +37,9 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
     public function testWorkingGetConfigFile($input, $dir, $expectedFile)
     {
         $foundPath = $this->runLocateFile($input, $dir);
-        $this->assertEquals($foundPath, $this->baseDir . '/' . $dir . '/' . $expectedFile);
+        $expectedPath = $this->baseDir . DIRECTORY_SEPARATOR . $dir . DIRECTORY_SEPARATOR . $expectedFile;
+
+        $this->assertEquals($foundPath, $expectedPath);
     }
 
     /**
