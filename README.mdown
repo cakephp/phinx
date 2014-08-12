@@ -10,7 +10,7 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 
 **Check out http://docs.phinx.org for the comprehensive documentation.**
 
-![demo](https://cloud.githubusercontent.com/assets/178939/3882033/7594b2da-2193-11e4-9a57-a387b1847b1e.gif)
+![phinxterm](https://cloud.githubusercontent.com/assets/178939/3887559/e6b5e524-21f2-11e4-8256-0ba6040725fc.gif)
 
 ### Features
 
