@@ -119,6 +119,20 @@ Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.3.7** (Tuesday, 12th August 2014)
+
+* Smarter configuration file support
+* Support for Postgres Schemas
+* Fixed charset support for Microsoft SQL Server
+* Fix for Unique indexes in all adapters
+* Improvements for MySQL foreign key migration syntax 
+* Allow MySQL column types with extra info
+* Fixed SQLite autoincrement behaviour
+* PHPDoc improvements
+* Documentation improvements
+* Unit test improvements
+* Removing primary_key as a type
+
 **0.3.6** (Sunday, 29th June 2014)
 
 * Add custom adapter support
