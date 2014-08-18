@@ -17,7 +17,7 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->previousDir = getcwd();
-        $this->baseDir = realpath(__DIR__ . '/_rootDirectories/');
+        $this->baseDir = realpath(__DIR__ . '/_rootDirectories');
     }
 
     public function tearDown()
@@ -115,8 +115,6 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
             array('phinx.php', 'OnlyYaml'),
         );
     }
-
-
 }
 
 /**
@@ -126,10 +124,8 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
  */
 class VoidCommand extends AbstractCommand
 {
-
     public function locateConfigFile(InputInterface $input)
     {
         return parent::locateConfigFile($input);
     }
-
 }
