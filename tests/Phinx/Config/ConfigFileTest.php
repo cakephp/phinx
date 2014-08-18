@@ -110,7 +110,7 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
             //no valid file available
             array(null, 'NoValidFile'),
             //called file not available
-            array('phinx.yml', 'NoYaml'),
+            array('phinx.yml', 'noYaml'),
             array('phinx.json', 'OnlyYaml'),
             array('phinx.php', 'OnlyYaml'),
         );
