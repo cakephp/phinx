@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Config
  */
@@ -34,7 +34,7 @@ use Symfony\Component\Yaml\Yaml;
  * Phinx configuration class.
  *
  * @package Phinx
- * @author Rob Morgan
+ * @author  Rob Morgan <robbym@gmail.com>
  */
 class Config implements \ArrayAccess
 {
@@ -42,7 +42,7 @@ class Config implements \ArrayAccess
      * @var array
      */
     private $values;
-    
+
     /**
      * @var string
      */
@@ -51,7 +51,7 @@ class Config implements \ArrayAccess
     /**
      * Class Constructor
      *
-     * @param array $configArray Config Array
+     * @param array  $configArray    Config Array
      * @param string $configFilePath Optional File Path
      */
     public function __construct($configArray, $configFilePath = null)
@@ -59,16 +59,18 @@ class Config implements \ArrayAccess
         $this->configFilePath = $configFilePath;
         $this->values = $this->replaceTokens($configArray);
     }
-    
+
     /**
      * Create a new instance of the config class using a Yaml file path.
      *
      * @param string $configFilePath Path to the Yaml File
+     *
      * @return Config
      */
     public static function fromYaml($configFilePath)
     {
         $configArray = Yaml::parse($configFilePath);
+
         return new self($configArray, $configFilePath);
     }
 
@@ -76,7 +78,9 @@ class Config implements \ArrayAccess
      * Create a new instance of the config class using a Yaml file path.
      *
      * @param string $configFilePath Path to the Yaml File
+     *
      * @throws \RuntimeException
+     *
      * @return Config
      */
     public static function fromJSON($configFilePath)
@@ -88,6 +92,7 @@ class Config implements \ArrayAccess
                 $configFilePath
             ));
         }
+
         return new self($configArray, $configFilePath);
     }
 
@@ -95,7 +100,9 @@ class Config implements \ArrayAccess
      * Create a new instance of the config class using a PHP file path.
      *
      * @param string $configFilePath Path to the PHP File
+     *
      * @throws \RuntimeException
+     *
      * @return Config
      */
     public static function fromPHP($configFilePath)
@@ -103,7 +110,7 @@ class Config implements \ArrayAccess
         ob_start();
         /** @noinspection PhpIncludeInspection */
         $configArray = include($configFilePath);
-        
+
         // Hide console output
         ob_get_clean();
 
@@ -119,9 +126,9 @@ class Config implements \ArrayAccess
 
     /**
      * Returns the configuration for each environment.
-     * 
+     *
      * This method returns <code>null</code> if no environments exist.
-     * 
+     *
      * @return array|null
      */
     public function getEnvironments()
@@ -136,7 +143,7 @@ class Config implements \ArrayAccess
 
             return $environments;
         }
-            
+
         return null;
     }
 
@@ -146,10 +153,12 @@ class Config implements \ArrayAccess
      * This method returns <code>null</code> if the specified environment
      * doesn't exist.
      *
-     * @param string $name
+     * @param string $name     Environment name
+     * @param string $database Databse Name in Given Environment
+     *
      * @return array|null
      */
-    public function getEnvironment($name)
+    public function getEnvironment($name, $database = null)
     {
         $environments = $this->getEnvironments();
 
@@ -159,23 +168,67 @@ class Config implements \ArrayAccess
                     $this->values['environments']['default_migration_table'];
             }
 
+            if (!empty($environments[$name]['name']) && $database !== null) {
+                if ($database != $environments[$name]['name']) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'The database "%s" does not exists in environment "%s"',
+                        $database,
+                        $name
+                    ));
+                }
+                $environments[$name]['name'] = $database;
+            }
+            elseif (!empty($environments[$name]['databases']) && $database !== null ) {
+                $found = false;
+                $nestedSetup = array();
+
+                foreach ($environments[$name]['databases'] as $configRecord) {
+                    if (is_array($configRecord) && array_key_exists($database, $configRecord)) {
+                        $found = true;
+                        $nestedSetup = $configRecord[$database];
+                        break;
+                    } elseif ($database === $configRecord) {
+                        $found = true;
+                        $nestedSetup = array();
+                        break;
+                    }
+                }
+
+                if ($found == false) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'The database "%s" does not exists in environment "%s"',
+                        $database,
+                        $name
+                    ));
+                }
+
+                $environments[$name]['name'] = $database;
+                if (!empty($nestedSetup)) {
+                    $environments[$name] = array_merge($environments[$name], $nestedSetup);
+                }
+                unset($environments[$name]['databases']);
+            } else {
+
+            }
+
             return $environments[$name];
         }
-        
+
         return null;
     }
-    
+
     /**
      * Does the specified environment exist in the configuration file?
      *
      * @param string $name Environment Name
+     *
      * @return boolean
      */
     public function hasEnvironment($name)
     {
         return (!(null === $this->getEnvironment($name)));
     }
-    
+
     /**
      * Gets the default environment name.
      *
@@ -190,7 +243,7 @@ class Config implements \ArrayAccess
             if ($this->hasEnvironment($env)) {
                 return $env;
             }
-            
+
             throw new \RuntimeException(sprintf(
                 'The environment configuration (read from $PHINX_ENVIRONMENT) for \'%s\' is missing',
                 $env
@@ -203,22 +256,23 @@ class Config implements \ArrayAccess
             if ($this->getEnvironment($this->values['environments']['default_database'])) {
                 return $this->values['environments']['default_database'];
             }
-            
+
             throw new \RuntimeException(sprintf(
                 'The environment configuration for \'%s\' is missing',
                 $this->values['environments']['default_database']
             ));
         }
-     
+
         // else default to the first available one
         if (is_array($this->getEnvironments()) && count($this->getEnvironments()) > 0) {
             $names = array_keys($this->getEnvironments());
+
             return $names[0];
         }
-        
+
         throw new \RuntimeException('Could not find a default environment');
     }
-    
+
     /**
      * Gets the config file path.
      *
@@ -228,7 +282,7 @@ class Config implements \ArrayAccess
     {
         return $this->configFilePath;
     }
-    
+
     /**
      * Gets the path of the migration files.
      *
@@ -239,14 +293,15 @@ class Config implements \ArrayAccess
         if (isset($this->values['paths']['migrations'])) {
             return realpath($this->values['paths']['migrations']);
         }
-        
+
         return null;
     }
-    
+
     /**
      * Replace tokens in the specified array.
      *
      * @param array $arr Array to replace
+     *
      * @return array
      */
     public function replaceTokens($arr)
@@ -259,24 +314,25 @@ class Config implements \ArrayAccess
                 $tokens['%%' . $varname . '%%'] = $varvalue;
             }
         }
-        
+
         // Phinx defined tokens (override env tokens)
         $tokens['%%PHINX_CONFIG_PATH%%'] = $this->getConfigFilePath();
         $tokens['%%PHINX_CONFIG_DIR%%'] = dirname($this->getConfigFilePath());
-        
+
         // Recurse the array and replace tokens
         if (is_array($arr)) {
             return $this->recurseArrayForTokens($arr, $tokens);
         }
-        
+
         return $arr;
     }
-    
+
     /**
      * Recurse an array for the specified tokens and replace them.
      *
-     * @param array $arr Array to recurse
+     * @param array $arr    Array to recurse
      * @param array $tokens Array of tokens to search for
+     *
      * @return array
      */
     public function recurseArrayForTokens($arr, $tokens)
@@ -296,9 +352,10 @@ class Config implements \ArrayAccess
             }
             $out[$name] = $value;
         }
+
         return $out;
     }
-    
+
     /**
      * Sets a parameter or an object.
      *
@@ -310,6 +367,7 @@ class Config implements \ArrayAccess
      *
      * @param string $id    The unique identifier for the parameter or object
      * @param mixed  $value The value of the parameter or a closure to defined an object
+     *
      * @return void
      */
     public function offsetSet($id, $value)
@@ -320,8 +378,10 @@ class Config implements \ArrayAccess
     /**
      * Gets a parameter or an object.
      *
-     * @param  string $id The unique identifier for the parameter or object
+     * @param string $id The unique identifier for the parameter or object
+     *
      * @throws \InvalidArgumentException if the identifier is not defined
+     *
      * @return mixed  The value of the parameter or an object
      */
     public function offsetGet($id)
@@ -336,7 +396,8 @@ class Config implements \ArrayAccess
     /**
      * Checks if a parameter or an object is set.
      *
-     * @param  string $id The unique identifier for the parameter or object
+     * @param string $id The unique identifier for the parameter or object
+     *
      * @return boolean
      */
     public function offsetExists($id)
@@ -347,7 +408,8 @@ class Config implements \ArrayAccess
     /**
      * Unsets a parameter or an object.
      *
-     * @param  string $id The unique identifier for the parameter or object
+     * @param string $id The unique identifier for the parameter or object
+     *
      * @return void
      */
     public function offsetUnset($id)

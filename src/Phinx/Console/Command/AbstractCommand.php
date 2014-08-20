@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -48,17 +48,17 @@ abstract class AbstractCommand extends Command
      * @var Config
      */
     protected $config;
-    
+
     /**
      * @var AdapterInterface
      */
     protected $adapter;
-    
+
     /**
      * @var Manager
      */
     protected $manager;
-    
+
     /**
      * {@inheritdoc}
      */
@@ -71,8 +71,9 @@ abstract class AbstractCommand extends Command
     /**
      * Bootstrap Phinx.
      *
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return void
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
@@ -90,11 +91,13 @@ abstract class AbstractCommand extends Command
      * Sets the config.
      *
      * @param Config $config
+     *
      * @return AbstractCommand
      */
     public function setConfig(Config $config)
     {
         $this->config = $config;
+
         return $this;
     }
 
@@ -107,16 +110,18 @@ abstract class AbstractCommand extends Command
     {
         return $this->config;
     }
-    
+
     /**
      * Sets the database adapter.
      *
      * @param AdapterInterface $adapter
+     *
      * @return AbstractCommand
      */
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
+
         return $this;
     }
 
@@ -129,19 +134,21 @@ abstract class AbstractCommand extends Command
     {
         return $this->adapter;
     }
-    
+
     /**
      * Sets the migration manager.
      *
      * @param Manager $manager
+     *
      * @return AbstractCommand
      */
     public function setManager(Manager $manager)
     {
         $this->manager = $manager;
+
         return $this;
     }
-    
+
     /**
      * Gets the migration manager.
      *
@@ -156,6 +163,7 @@ abstract class AbstractCommand extends Command
      * Returns config file path
      *
      * @param InputInterface $input
+     *
      * @return string
      */
     protected function locateConfigFile(InputInterface $input)
@@ -196,9 +204,11 @@ abstract class AbstractCommand extends Command
     /**
      * Parse the config file and load it into the config object
      *
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @throws \InvalidArgumentException
+     *
      * @return void
      */
     protected function loadConfig(InputInterface $input, OutputInterface $output)
@@ -248,6 +258,7 @@ abstract class AbstractCommand extends Command
      * Load the migrations manager and inject the config
      *
      * @param OutputInterface $output
+     *
      * @return void
      */
     protected function loadManager(OutputInterface $output)
@@ -256,5 +267,44 @@ abstract class AbstractCommand extends Command
             $manager = new Manager($this->getConfig(), $output);
             $this->setManager($manager);
         }
+    }
+
+    /**
+     * Get database which must be migrated
+     *
+     * @param array $envOptions
+     * @param array $databases [=null]
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return array
+     */
+    protected function getDatabases($envOptions, array $databases = null)
+    {
+        $envDatabases = array();
+
+        if (empty($envOptions['name']) && !empty($envOptions)) {
+            foreach ($envOptions['databases'] as $envDatabase) {
+                if (is_array($envDatabase)) {
+                    $temp = array_keys($envDatabase);
+                    $envDatabases[] = $temp[0];
+                } else {
+                    $envDatabases[] = $envDatabase;
+                }
+            }
+        } elseif (!empty($envOptions)) {
+            $envDatabases = array($envOptions['name']);
+        }
+
+        if (count($databases)) {
+            foreach ($databases as $key => $database) {
+                if (!in_array($database, $envDatabases)) {
+                    throw new \InvalidArgumentException(sprintf('Database "%s" not found in environment "%s".', $database, $environment));
+                }
+            }
+            $envDatabases = $databases;
+        }
+
+        return $envDatabases;
     }
 }

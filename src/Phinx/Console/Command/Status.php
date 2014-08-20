@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -40,9 +40,9 @@ class Status extends AbstractCommand
     protected function configure()
     {
         parent::configure();
-         
+
         $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment.');
-         
+
         $this->setName('status')
              ->setDescription('Show migration status')
              ->addOption('--format', '-f', InputArgument::OPTIONAL, 'The output format: text or json. Defaults to text.')
@@ -59,17 +59,18 @@ EOT
     /**
      * Show the migration status.
      *
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
-        
+
         $environment = $input->getOption('environment');
         $format = $input->getOption('format');
-        
+
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
@@ -79,8 +80,21 @@ EOT
         if (null !== $format) {
             $output->writeln('<info>using format</info> ' . $format);
         }
-        
-        // print the status
-        $this->getManager()->printStatus($environment, $format);
+
+        $envOptions = $this->getConfig()->getEnvironment($environment);
+        $envDatabases = $this->getDatabases($envOptions);
+        $output->writeln('<info>using database'.(count($envDatabases) > 1 ? 's ' :'') .'</info> ' . implode(', ', $envDatabases));
+
+        // print status
+        if (!empty($envDatabases)) {
+            foreach ($envDatabases as $database) {
+                $output->writeln('');
+                $output->writeln('<info>database:</info> ' . $database);
+                $this->getManager()->printStatus($environment, $database, $format);
+            }
+        } else {
+            $output->writeln('<error>database was not found</error> ');
+            $this->getManager()->printStatus($environment, null, $format);
+        }
     }
 }

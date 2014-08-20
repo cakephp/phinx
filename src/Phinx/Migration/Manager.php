@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Migration
  */
@@ -38,26 +38,26 @@ class Manager
      * @var \ArrayAccess
      */
     protected $config;
-    
+
     /**
      * @var OutputInterface
      */
     protected $output;
-    
+
     /**
      * @var array
      */
     protected $environments;
-    
+
     /**
      * @var array
      */
     protected $migrations;
-    
+
     /**
      * Class Constructor.
      *
-     * @param Config $config Config
+     * @param Config          $config Config
      * @param OutputInterface $output Console Output
      */
     public function __construct(Config $config, OutputInterface $output)
@@ -69,11 +69,13 @@ class Manager
     /**
      * Prints the specified environment's migration status.
      *
-     * @param string $environment
-     * @param null $format
+     * @param string $environment Environment name
+     * @param string $database    Database name
+     * @param null   $format      File Format
+     *
      * @return void
      */
-    public function printStatus($environment, $format = null)
+    public function printStatus($environment, $database = null, $format = null)
     {
         $output = $this->getOutput();
         $migrations = array();
@@ -81,8 +83,8 @@ class Manager
             $output->writeln('');
             $output->writeln(' Status  Migration ID    Migration Name ');
             $output->writeln('-----------------------------------------');
-        
-            $env = $this->getEnvironment($environment);
+
+            $env = $this->getEnvironment($environment, $database);
             $versions = $env->getVersions();
 
             foreach ($this->getMigrations() as $migration) {
@@ -90,9 +92,13 @@ class Manager
                     $status = '     <info>up</info> ';
                     unset($versions[array_search($migration->getVersion(), $versions)]);
                 } else {
-                    $status = '   <error>down</error> ';
+                    if (!$migration->databaseAllowed($database)) {
+                        $status = '   <comment>skip</comment> ';
+                    } else {
+                        $status = '   <error>down</error> ';
+                    }
                 }
-            
+
                 $output->writeln(
                     $status
                     . sprintf(' %14.0f ', $migration->getVersion())
@@ -100,7 +106,7 @@ class Manager
                 );
                 $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
             }
-        
+
             foreach ($versions as $missing) {
                 $output->writeln(
                     '     <error>up</error> '
@@ -113,7 +119,7 @@ class Manager
             $output->writeln('');
             $output->writeln('There are no available migrations. Try creating one using the <info>create</info> command.');
         }
-        
+
         // write an empty line
         $output->writeln('');
         if ($format != null) {
@@ -122,27 +128,29 @@ class Manager
                     $output->writeln(json_encode($migrations));
                     break;
                 default:
-                    $output->writeln('<info>Unsupported format: '.$format.'</info>');            
+                    $output->writeln('<info>Unsupported format: '.$format.'</info>');
                     break;
             }
         }
-        
     }
-    
+
     /**
      * Migrate an environment to the specified version.
      *
      * @param string $environment Environment
-     * @param int $version
+     * @param string $database    Database In Given Environment
+     * @param int    $version     Number of version
+     *
      * @return void
      */
-    public function migrate($environment, $version = null)
+    public function migrate($environment, $database = null, $version = null)
     {
-        $migrations = $this->getMigrations();
-        $env = $this->getEnvironment($environment);
+        $migrations = $this->getMigrations($database);
+        $env = $this->getEnvironment($environment, $database);
+
         $versions = $env->getVersions();
         $current = $env->getCurrentVersion();
-        
+
         if (empty($versions) && empty($migrations)) {
             return;
         }
@@ -155,10 +163,11 @@ class Manager
                     '<comment>warning</comment> %s is not a valid version',
                     $version
                 ));
+
                 return;
             }
         }
-        
+
         // are we migrating up or down?
         $direction = $version > $current ? MigrationInterface::UP : MigrationInterface::DOWN;
 
@@ -171,7 +180,7 @@ class Manager
                 }
 
                 if (in_array($migration->getVersion(), $versions)) {
-                    $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                    $this->executeMigration($environment, $migration, MigrationInterface::DOWN, $database);
                 }
             }
         }
@@ -183,20 +192,24 @@ class Manager
             }
 
             if (!in_array($migration->getVersion(), $versions)) {
-                $this->executeMigration($environment, $migration, MigrationInterface::UP);
+                $this->executeMigration($environment, $migration, MigrationInterface::UP, $database);
             }
         }
+
+        $this->clearMigrations();
     }
-    
+
     /**
      * Execute a migration against the specified Environment.
      *
-     * @param string $name Environment Name
+     * @param string             $name      Environment Name
      * @param MigrationInterface $migration Migration
-     * @param string $direction Direction
+     * @param string             $direction Direction
+     * @param string             $database  [=null] Database In Given Environment
+     *
      * @return void
      */
-    public function executeMigration($name, MigrationInterface $migration, $direction = MigrationInterface::UP)
+    public function executeMigration($name, MigrationInterface $migration, $direction = MigrationInterface::UP, $database = null)
     {
         $this->getOutput()->writeln('');
         $this->getOutput()->writeln(
@@ -207,9 +220,9 @@ class Manager
 
         // Execute the migration and log the time elapsed.
         $start = microtime(true);
-        $this->getEnvironment($name)->executeMigration($migration, $direction);
+        $this->getEnvironment($name, $database)->executeMigration($migration, $direction);
         $end = microtime(true);
-        
+
         $this->getOutput()->writeln(
             ' =='
             . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
@@ -217,29 +230,32 @@ class Manager
             . ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
         );
     }
-    
+
     /**
      * Rollback an environment to the specified version.
      *
      * @param string $environment Environment
-     * @param int $version
+     * @param string $database    Database Name In Given Environment
+     * @param int    $version     Number of version
+     *
      * @return void
      */
-    public function rollback($environment, $version = null)
+    public function rollback($environment, $database = null, $version = null)
     {
-        $migrations = $this->getMigrations();
-        $env = $this->getEnvironment($environment);
+        $migrations = $this->getMigrations($database);
+        $env = $this->getEnvironment($environment, $database);
         $versions = $env->getVersions();
 
         ksort($migrations);
         sort($versions);
-        
+
         // Check we have at least 1 migration to revert
         if (empty($versions) || $version == end($versions)) {
             $this->getOutput()->writeln('<error>No migrations to rollback</error>');
+
             return;
         }
-        
+
         // If no target version was supplied, revert the last migration
         if (null === $version) {
             // Get the migration before the last run migration
@@ -248,19 +264,20 @@ class Manager
         } else {
             // Get the first migration number
             $first = reset($versions);
-            
+
             // If the target version is before the first migration, revert all migrations
             if ($version < $first) {
                 $version = 0;
             }
         }
-        
+
         // Check the target version exists
         if (0 !== $version && !isset($migrations[$version])) {
             $this->getOutput()->writeln("<error>Target version ($version) not found</error>");
+
             return;
         }
-        
+
         // Revert the migration(s)
         krsort($migrations);
         foreach ($migrations as $migration) {
@@ -269,36 +286,41 @@ class Manager
             }
 
             if (in_array($migration->getVersion(), $versions)) {
-                $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                $this->executeMigration($environment, $migration, MigrationInterface::DOWN, $database);
             }
         }
     }
-    
+
     /**
      * Sets the environments.
      *
      * @param array $environments Environments
+     *
      * @return Manager
      */
     public function setEnvironments($environments = array())
     {
         $this->environments = $environments;
+
         return $this;
     }
 
     /**
      * Gets the manager class for the given environment.
      *
-     * @param string $name Environment Name
+     * @param string $name     Environment Name
+     * @param string $database Database In Given Environment
+     *
      * @throws \InvalidArgumentException
      * @return Environment
      */
-    public function getEnvironment($name)
+    public function getEnvironment($name, $database = null)
     {
-        if (isset($this->environments[$name])) {
-            return $this->environments[$name];
+        $envName = $this->getEnvironmentName($name, $database);
+        if (isset($this->environments[$envName])) {
+            return $this->environments[$envName];
         }
-        
+
         // check the environment exists
         if (!$this->getConfig()->hasEnvironment($name)) {
             throw new \InvalidArgumentException(sprintf(
@@ -306,27 +328,29 @@ class Manager
                 $name
             ));
         }
-        
+
         // create an environment instance and cache it
-        $environment = new Environment($name, $this->getConfig()->getEnvironment($name));
-        $this->environments[$name] = $environment;
+        $environment = new Environment($name, $this->getConfig()->getEnvironment($name, $database));
+        $this->environments[$envName] = $environment;
         $environment->setOutput($this->getOutput());
 
         return $environment;
     }
-    
+
     /**
      * Sets the console output.
      *
      * @param OutputInterface $output Output
+     *
      * @return Manager
      */
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+
         return $this;
     }
-    
+
     /**
      * Gets the console output.
      *
@@ -336,46 +360,63 @@ class Manager
     {
         return $this->output;
     }
-    
+
     /**
      * Sets the database migrations.
      *
      * @param array $migrations Migrations
+     *
      * @return Manager
      */
     public function setMigrations(array $migrations)
     {
         $this->migrations = $migrations;
+
+        return $this;
+    }
+
+    /**
+     * Clear the database migrations.
+     *
+     * @return Manager
+     */
+    public function clearMigrations()
+    {
+        $this->migrations = null;
+
         return $this;
     }
 
     /**
      * Gets an array of the database migrations.
      *
+     * @param string $database Database name
+     *
      * @throws \InvalidArgumentException
+     *
      * @return AbstractMigration[]
      */
-    public function getMigrations()
+    public function getMigrations($database = null)
     {
         if (null === $this->migrations) {
             $config = $this->getConfig();
             $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php');
-            
+
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
             /** @var AbstractMigration[] $versions */
             $versions = array();
-            
+
             foreach ($phpFiles as $filePath) {
                 if (preg_match('/([0-9]+)_([_a-z0-9]*).php/', basename($filePath))) {
                     $matches = array();
                     preg_match('/^[0-9]+/', basename($filePath), $matches); // get the version from the start of the filename
                     $version = $matches[0];
-                    
+
                     if (isset($versions[$version])) {
                         throw new \InvalidArgumentException(sprintf('Duplicate migration - "%s" has the same version as "%s"', $filePath, $versions[$version]->getVersion()));
                     }
-                    
+
                     // convert the filename to a class name
                     $class = preg_replace('/^[0-9]+_/', '', basename($filePath));
                     $class = str_replace('_', ' ', $class);
@@ -384,7 +425,7 @@ class Manager
                     if (false !== strpos($class, '.')) {
                         $class = substr($class, 0, strpos($class, '.'));
                     }
-                    
+
                     if (isset($fileNames[$class])) {
                         throw new \InvalidArgumentException(sprintf(
                             'Migration "%s" has the same name as "%s"',
@@ -394,7 +435,7 @@ class Manager
                     }
 
                     $fileNames[$class] = basename($filePath);
-                    
+
                     // load the migration file
                     /** @noinspection PhpIncludeInspection */
                     require_once $filePath;
@@ -408,7 +449,7 @@ class Manager
 
                     // instantiate it
                     $migration = new $class($version);
-                    
+
                     if (!($migration instanceof AbstractMigration)) {
                         throw new \InvalidArgumentException(sprintf(
                             'The class "%s" in file "%s" must extend \Phinx\Migration\AbstractMigration',
@@ -416,30 +457,33 @@ class Manager
                             $filePath
                         ));
                     }
-                    
-                    $versions[$version] = $migration;
+                    if ($migration->databaseAllowed($database)) {
+                        $versions[$version] = $migration;
+                    }
                 }
             }
-            
+
             ksort($versions);
             $this->setMigrations($versions);
         }
-        
+
         return $this->migrations;
     }
-    
+
     /**
      * Sets the config.
      *
      * @param Config $config Config
+     *
      * @return Manager
      */
     public function setConfig(Config $config)
     {
         $this->config = $config;
+
         return $this;
     }
-    
+
     /**
      * Gets the config.
      *
@@ -448,5 +492,18 @@ class Manager
     public function getConfig()
     {
         return $this->config;
+    }
+
+    /**
+     * Gets the name of environment with using of database name if exists.
+     *
+     * @param string $environment Environment Name
+     * @param string $database    Database Name in Given Environment
+     *
+     * @return string
+     */
+    private function getEnvironmentName($environment, $database)
+    {
+        return $environment . (!empty($database) ? '_'.$database : '');
     }
 }
