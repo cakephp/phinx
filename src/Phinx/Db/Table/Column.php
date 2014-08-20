@@ -95,6 +95,11 @@ class Column
     protected $signed = true;
 
     /**
+     * @var array
+     */
+    protected $properties = array();
+
+    /**
      * Sets the column name.
      *
      * @param string $name
@@ -392,6 +397,29 @@ class Column
     }
 
     /**
+     * Sets field properties.
+     *
+     * @param array $properties
+     *
+     * @return Column
+     */
+    public function setProperties($properties)
+    {
+        $this->properties = $properties;
+        return $this;
+    }
+
+    /**
+     * Gets field properties
+     *
+     * @return array
+     */
+    public function getProperties()
+    {
+        return $this->properties;
+    }
+
+    /**
      * Utility method that maps an array of column options to this objects methods.
      *
      * @param array $options Options
@@ -400,7 +428,7 @@ class Column
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment', 'signed');
+        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment', 'signed', 'properties');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');

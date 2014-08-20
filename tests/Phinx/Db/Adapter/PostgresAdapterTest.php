@@ -23,13 +23,14 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
             'user' => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
             'pass' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
-            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT
+            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
+            'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA
         );
         $this->adapter = new PostgresAdapter($options, new NullOutput());
 
         $this->adapter->dropAllSchemas();
-        $this->adapter->createSchema('public');
-
+        $this->adapter->createSchema($options['schema']);
+        
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
     }
@@ -98,8 +99,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testQuoteTableName()
     {
-        $this->assertEquals('"table"', $this->adapter->quoteTableName('table'));
-        $this->assertEquals('"table.table"', $this->adapter->quoteTableName('table.table'));
+        $this->assertEquals('"public"."table"', $this->adapter->quoteTableName('table'));
+        $this->assertEquals('"public"."table.table"', $this->adapter->quoteTableName('table.table'));
     }
     
     public function testQuoteColumnName()
@@ -454,10 +455,10 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     
     public function testDropDatabase()
     {
-        $this->assertFalse($this->adapter->hasDatabase('temp_phinx_database'));
-        $this->adapter->createDatabase('temp_phinx_database');
-        $this->assertTrue($this->adapter->hasDatabase('temp_phinx_database'));
-        $this->adapter->dropDatabase('temp_phinx_database');
+        $this->assertFalse($this->adapter->hasDatabase('phinx_temp_database'));
+        $this->adapter->createDatabase('phinx_temp_database');
+        $this->assertTrue($this->adapter->hasDatabase('phinx_temp_database'));
+        $this->adapter->dropDatabase('phinx_temp_database');
     }
 
     public function testCreateSchema()

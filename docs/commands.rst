@@ -96,23 +96,24 @@ Configuration File Parameter
 When running Phinx from the command line, you may specify a configuration file using the ``--configuration`` or ``-c`` parameter. In addition to YAML, the configuration file may be the computed output of a PHP file as a PHP array:
 
 .. code-block:: php
-<?php
-    return array(
-        "paths" => array(
-            "migrations" => "application/migrations"
-        ),
-        "environments" => array(
-            "default_migration_table" => "phinxlog",
-            "default_database" => "dev",
-            "dev" => array(
-                "adapter" => "mysql",
-                "host" => $_ENV['DB_HOST'],
-                "name" => $_ENV['DB_NAME'],
-                "user" => $_ENV['DB_USER'],
-                "pass" => $_ENV['DB_PASS'],
-                "port" => $_ENV['DB_PORT']
-            )
-        )
-    );
+
+        <?php
+            return array(
+                "paths" => array(
+                    "migrations" => "application/migrations"
+                ),
+                "environments" => array(
+                    "default_migration_table" => "phinxlog",
+                    "default_database" => "dev",
+                    "dev" => array(
+                        "adapter" => "mysql",
+                        "host" => $_ENV['DB_HOST'],
+                        "name" => $_ENV['DB_NAME'],
+                        "user" => $_ENV['DB_USER'],
+                        "pass" => $_ENV['DB_PASS'],
+                        "port" => $_ENV['DB_PORT']
+                    )
+                )
+            );
 
 Phinx auto-detects which language parser to use for files with ``*.yml`` and ``*.php`` extensions. The appropriate parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than ``"php"`` is treated as YAML.
