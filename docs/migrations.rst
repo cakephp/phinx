@@ -177,6 +177,10 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
 
             }
         }
+
+.. note::
+
+    These commands run using the ``PHP Data Objects (PDO) extension which  defines a lightweight, consistent interface for accessing databases in PHP``. Always make sure your queries abide with PDOs before using the ``execute()`` command; this is especially important when using DELIMITERs during insertion of stored procedures or triggers which don't support DELIMITERs.
         
 Fetching Rows
 -------------
@@ -706,9 +710,9 @@ Let's add a foreign key to an example table:
         
                 $refTable = $this->table('tag_relationships');
                 $refTable->addColumn('tag_id', 'integer')
+                         ->addForeignKey('tag_id', 'tags', 'id', array('delete'=> 'SET_NULL', update=> 'NO_ACTION'))
                          ->save();
                 
-                $refTable->addForeignKey('tag_id', 'tags', 'id');
             }
 
             /**
@@ -719,6 +723,8 @@ Let's add a foreign key to an example table:
 
             }
         }
+
+"On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possibles values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.
 
 We can also easily check if a foreign key exists:
 
@@ -796,6 +802,8 @@ The following are valid column options:
 
 You can pass one or more of these options to any column with the optional
 third argument array.
+
+The default and update column options can accept 'CURRENT_TIMESTAMP' as a value.
 
 The Save Method
 ~~~~~~~~~~~~~~~

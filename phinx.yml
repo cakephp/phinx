@@ -7,7 +7,7 @@ environments:
     production:
         adapter: mysql
         host: localhost
-        name: production_db
+        name: phinx_test
         user: root
         pass: ''
         port: 3306
@@ -16,11 +16,11 @@ environments:
     development:
         adapter: mysql
         host: localhost
-        name: development_db
         user: root
-        pass: ''
+        pass: '46f8463e9903fdb04d5c1c11f96ae278'
         port: 3306
         charset: utf8
+        databases: [ phinx_test, phinx_test_1 ]
 
     testing:
         adapter: mysql

@@ -254,6 +254,33 @@ Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.3.7** (Tuesday, 12th August 2014)
+
+* Smarter configuration file support
+* Support for Postgres Schemas
+* Fixed charset support for Microsoft SQL Server
+* Fix for Unique indexes in all adapters
+* Improvements for MySQL foreign key migration syntax 
+* Allow MySQL column types with extra info
+* Fixed SQLite autoincrement behaviour
+* PHPDoc improvements
+* Documentation improvements
+* Unit test improvements
+* Removing primary_key as a type
+
+**0.3.6** (Sunday, 29th June 2014)
+
+* Add custom adapter support
+* Fix PHP 5.3 compatibility for SQL Server
+
+**0.3.5** (Saturday, 21st June 2014)
+
+* Added Microsoft SQL Server support
+* Removed Primary Key column type
+* Cleaned up and optimized many methods
+* Updated Symfony dependencies to v2.5.0
+* PHPDoc improvements
+
 **0.3.4** (Sunday, 27th April 2014)
 
 * Added support MySQL unsigned integer, biginteger, float and decimal types

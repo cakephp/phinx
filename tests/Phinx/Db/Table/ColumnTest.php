@@ -308,7 +308,7 @@ class ColumnTest extends \PHPUnit_Framework_TestCase
 		$this->assertEmpty(self::$O->setOptions(['comment' => 'test_option_value']));
 		$this->assertSame('test_option_value', self::$O->getComment());
 		// true - valid option - used proxy method
-		$this->assertEmpty(self::$O->setOptions(['values' => 'test_values']));
+		$this->assertEmpty(self::$O->setOptions(['limit' => 'test_values']));
 		$this->assertSame('test_values', self::$O->getLimit());
 	}
 }
