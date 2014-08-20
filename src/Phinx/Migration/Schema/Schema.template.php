@@ -16,28 +16,21 @@ class Schema extends AbstractMigration
             ->addColumn(<?php echo CodeGenerator::buildAddColumnArgumentsString($column);?>)
 <?php endif; ?>
 <?php endforeach; ?>
-<?php endif; ?>
             ->create();
 
 <?php endforeach; ?>
-
 <?php foreach ($tables as $table) : ?>
-        $this->table('<?php echo $table->getName();?>', <?php echo CodeGenerator::buildTableOptionsString($table); ?>)
 <?php
     $foreignKeys = $table->getAdapter()->getForeignKeys($table->getName());
     if (count($foreignKeys) > 0) : ?>
+        $this->table('<?php echo $table->getName();?>', <?php echo CodeGenerator::buildTableOptionsString($table); ?>)
 <?php foreach ($foreignKeys as $foreignKey) : ?>
             <?php echo CodeGenerator::buildFkString($foreignKey); ?>
 
 <?php endforeach; ?>
             ->update();
-<?php endforeach; ?>
-    }
 
-    public function down()
-    {
-<?php foreach ($tables as $table) : ?>
-        $this->dropTable('<?php echo $table->getName();?>');
+<?php endif; ?>
 <?php endforeach; ?>
     }
 }
