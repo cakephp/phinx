@@ -6,7 +6,7 @@ use Phinx\Migration\AbstractMigration;
 
 class Schema extends AbstractMigration
 {
-    public function up()
+    public function change()
     {
 <?php foreach ($tables as $table) : ?>
         $this->table('<?php echo $table->getName();?>', <?php echo CodeGenerator::buildTableOptionsString($table); ?>)
@@ -16,6 +16,13 @@ class Schema extends AbstractMigration
             ->addColumn(<?php echo CodeGenerator::buildAddColumnArgumentsString($column);?>)
 <?php endif; ?>
 <?php endforeach; ?>
+<?php endif; ?>
+            ->create();
+
+<?php endforeach; ?>
+
+<?php foreach ($tables as $table) : ?>
+        $this->table('<?php echo $table->getName();?>', <?php echo CodeGenerator::buildTableOptionsString($table); ?>)
 <?php
     $foreignKeys = $table->getAdapter()->getForeignKeys($table->getName());
     if (count($foreignKeys) > 0) : ?>
@@ -23,9 +30,7 @@ class Schema extends AbstractMigration
             <?php echo CodeGenerator::buildFkString($foreignKey); ?>
 
 <?php endforeach; ?>
-<?php endif; ?>
-            ->save();
-
+            ->update();
 <?php endforeach; ?>
     }
 
