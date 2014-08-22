@@ -28,10 +28,8 @@
  */
 namespace Phinx\Console\Command;
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Status extends AbstractCommand
@@ -43,22 +41,26 @@ class Status extends AbstractCommand
     {
         parent::configure();
          
-        $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
+        $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment.');
          
         $this->setName('status')
              ->setDescription('Show migration status')
+             ->addOption('--format', '-f', InputArgument::OPTIONAL, 'The output format: text or json. Defaults to text.')
              ->setHelp(
 <<<EOT
 The <info>status</info> command prints a list of all migrations, along with their current status
 
 <info>phinx status -e development</info>
+<info>phinx status -e development -f json</info>
 EOT
              );
     }
 
     /**
      * Show the migration status.
-     * 
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -66,6 +68,7 @@ EOT
         $this->bootstrap($input, $output);
         
         $environment = $input->getOption('environment');
+        $format = $input->getOption('format');
         
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -73,8 +76,11 @@ EOT
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
+        if (null !== $format) {
+            $output->writeln('<info>using format</info> ' . $format);
+        }
         
         // print the status
-        $this->getManager()->printStatus($environment);
+        $this->getManager()->printStatus($environment, $format);
     }
 }

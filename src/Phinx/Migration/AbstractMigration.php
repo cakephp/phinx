@@ -30,7 +30,6 @@ namespace Phinx\Migration;
 
 use Phinx\Db\Table;
 use Phinx\Db\Adapter\AdapterInterface;
-use Phinx\Migration\MigrationInterface;
 
 /**
  * Abstract Migration Class. 
@@ -53,13 +52,12 @@ abstract class AbstractMigration implements MigrationInterface
      * @var AdapterInterface
      */
     protected $adapter;
-    
+
     /**
      * Class Constructor.
      *
      * @param int $version Migration Version
-     * @return void
-      */
+     */
     final public function __construct($version)
     {
         $this->version = $version;

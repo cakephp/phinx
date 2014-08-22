@@ -179,6 +179,16 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
         $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
     }
+
+    public function testCreateTableWithNamedIndex()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addIndex('email', array('name' => 'myemailindex'))
+              ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
+    }
     
     public function testCreateTableWithMultiplePKsAndUniqueIndexes()
     {
@@ -260,7 +270,40 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertNull($rows[1]['Default']);
     }
-    
+
+    public function testAddIntegerColumnWithDefaultSigned()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('user_id', 'integer')
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('int(11)', $rows[1]['Type']);
+    }
+
+    public function testAddIntegerColumnWithSignedEqualsFalse()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('user_id', 'integer', array('signed' => false))
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('int(11) unsigned', $rows[1]['Type']);
+    }
+
+    public function testAddStringColumnWithSignedEqualsFalse()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('user_id', 'string', array('signed' => false))
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('varchar(255)', $rows[1]['Type']);
+    }
+
     public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
@@ -419,6 +462,47 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
         $this->adapter->dropIndex($table2->getName(), array('fname', 'lname'));
         $this->assertFalse($table2->hasIndex(array('fname', 'lname')));
+        
+        // index with name specified, but dropping it by column name
+        $table3 = new \Phinx\Db\Table('table3', array(), $this->adapter);
+        $table3->addColumn('email', 'string')
+              ->addIndex('email', array('name' => 'someindexname'))
+              ->save();
+        $this->assertTrue($table3->hasIndex('email'));
+        $this->adapter->dropIndex($table3->getName(), 'email');
+        $this->assertFalse($table3->hasIndex('email'));
+        
+        // multiple column index with name specified
+        $table4 = new \Phinx\Db\Table('table4', array(), $this->adapter);
+        $table4->addColumn('fname', 'string')
+               ->addColumn('lname', 'string')
+               ->addIndex(array('fname', 'lname'), array('name' => 'multiname'))
+               ->save();
+        $this->assertTrue($table4->hasIndex(array('fname', 'lname')));
+        $this->adapter->dropIndex($table4->getName(), array('fname', 'lname'));
+        $this->assertFalse($table4->hasIndex(array('fname', 'lname')));
+    }
+    
+    public function testDropIndexByName()
+    {
+        // single column index
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addIndex('email', array('name' => 'myemailindex'))
+              ->save();
+        $this->assertTrue($table->hasIndex('email'));
+        $this->adapter->dropIndexByName($table->getName(), 'myemailindex');
+        $this->assertFalse($table->hasIndex('email'));
+        
+        // multiple column index
+        $table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
+        $table2->addColumn('fname', 'string')
+               ->addColumn('lname', 'string')
+               ->addIndex(array('fname', 'lname'), array('name' => 'twocolumnindex'))
+               ->save();
+        $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
+        $this->adapter->dropIndexByName($table2->getName(), 'twocolumnindex');
+        $this->assertFalse($table2->hasIndex(array('fname', 'lname')));
     }
 
     public function testAddForeignKey()
@@ -464,10 +548,10 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     
     public function testDropDatabase()
     {
-        $this->assertFalse($this->adapter->hasDatabase('temp_phinx_database'));
-        $this->adapter->createDatabase('temp_phinx_database');
-        $this->assertTrue($this->adapter->hasDatabase('temp_phinx_database'));
-        $this->adapter->dropDatabase('temp_phinx_database');
+        $this->assertFalse($this->adapter->hasDatabase('phinx_temp_database'));
+        $this->adapter->createDatabase('phinx_temp_database');
+        $this->assertTrue($this->adapter->hasDatabase('phinx_temp_database'));
+        $this->adapter->dropDatabase('phinx_temp_database');
     }
 
     public function testAddColumnWithComment()

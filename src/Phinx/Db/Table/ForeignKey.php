@@ -207,6 +207,7 @@ class ForeignKey
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
+     * @throws \RuntimeException
      * @return ForeignKey
      */
     public function setOptions($options)
@@ -220,8 +221,8 @@ class ForeignKey
 
             // handle $options['delete'] as $options['update']
             if (strtolower($option) == 'delete' || strtolower($option) == 'update') {
-                if (defined('self::' . strtoupper($value))) {
-                    $this->{'setOn' . ucfirst(strtolower($option))}(constant('self::' . strtoupper($value)));
+                if (defined('static::' . strtoupper($value))) {
+                    $this->{'setOn' . ucfirst(strtolower($option))}(constant('static::' . strtoupper($value)));
                 }
             } else {
                 $method = 'set' . ucfirst($option);

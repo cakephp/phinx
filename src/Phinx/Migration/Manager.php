@@ -28,11 +28,9 @@
  */
 namespace Phinx\Migration;
 
-use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Filesystem\Filesystem;
-use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Config\Config;
 use Phinx\Migration\Manager\Environment;
 
@@ -63,23 +61,24 @@ class Manager
      *
      * @param Config $config Config
      * @param OutputInterface $output Console Output
-     * @return void
      */
     public function __construct(Config $config, OutputInterface $output)
     {
         $this->setConfig($config);
         $this->setOutput($output);
     }
-    
+
     /**
      * Prints the specified environment's migration status.
      *
+     * @param string $environment
+     * @param null $format
      * @return void
      */
-    public function printStatus($environment)
+    public function printStatus($environment, $format = null)
     {
         $output = $this->getOutput();
-        
+        $migrations = array();
         if (count($this->getMigrations())) {
             $output->writeln('');
             $output->writeln(' Status  Migration ID    Migration Name ');
@@ -87,7 +86,7 @@ class Manager
         
             $env = $this->getEnvironment($environment);
             $versions = $env->getVersions();
-        
+
             foreach ($this->getMigrations() as $migration) {
                 if (in_array($migration->getVersion(), $versions)) {
                     $status = '     <info>up</info> ';
@@ -101,6 +100,7 @@ class Manager
                     . sprintf(' %14.0f ', $migration->getVersion())
                     . ' <comment>' . $migration->getName() . '</comment>'
                 );
+                $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
             }
         
             foreach ($versions as $missing) {
@@ -118,6 +118,17 @@ class Manager
         
         // write an empty line
         $output->writeln('');
+        if ($format != null) {
+            switch ($format) {
+                case 'json':
+                    $output->writeln(json_encode($migrations));
+                    break;
+                default:
+                    $output->writeln('<info>Unsupported format: '.$format.'</info>');            
+                    break;
+            }
+        }
+        
     }
     
     /**
@@ -142,7 +153,7 @@ class Manager
             $version = max(array_merge($versions, array_keys($migrations)));
         } else {
             if (0 != $version && !isset($migrations[$version])) {
-                $output->writeln(sprintf(
+                $this->output->writeln(sprintf(
                     '<comment>warning</comment> %s is not a valid version',
                     $version
                 ));
@@ -221,8 +232,7 @@ class Manager
         $migrations = $this->getMigrations();
         $env = $this->getEnvironment($environment);
         $versions = $env->getVersions();
-        $current = $env->getCurrentVersion();
-        
+
         ksort($migrations);
         sort($versions);
         
@@ -277,12 +287,13 @@ class Manager
         $this->environments = $environments;
         return $this;
     }
-    
+
     /**
      * Gets the manager class for the given environment.
      *
      * @param string $name Environment Name
-     * @return void
+     * @throws \InvalidArgumentException
+     * @return Environment
      */
     public function getEnvironment($name)
     {
@@ -339,22 +350,22 @@ class Manager
         $this->migrations = $migrations;
         return $this;
     }
-    
+
     /**
      * Gets an array of the database migrations.
      *
-     * @return array
+     * @throws \InvalidArgumentException
+     * @return AbstractMigration[]
      */
     public function getMigrations()
     {
         if (null === $this->migrations) {
-            $migrations = array();
-            
             $config = $this->getConfig();
             $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php');
             
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
+            /** @var AbstractMigration[] $versions */
             $versions = array();
             
             foreach ($phpFiles as $filePath) {
@@ -432,6 +443,7 @@ class Manager
     protected function instantiateMigration($filePath, $class, $version)
     {
         // load the migration file
+        /** @noinspection PhpIncludeInspection */
         require_once $filePath;
 
         if (!class_exists($class)) {

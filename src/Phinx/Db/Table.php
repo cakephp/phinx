@@ -68,14 +68,13 @@ class Table
      * @var ForeignKey[]
      */
     protected $foreignKeys = array();
-    
+
     /**
      * Class Constuctor.
      *
      * @param string $name Table Name
      * @param array $options Options
      * @param AdapterInterface $adapter Database Adapter
-     * @return void
      */
     public function __construct($name, $options = array(), AdapterInterface $adapter = null)
     {
@@ -224,7 +223,7 @@ class Table
     /**
      * Gets an array of columns waiting to be committed.
      *
-     * @return array
+     * @return Column[]
      */
     public function getPendingColumns()
     {
@@ -286,18 +285,20 @@ class Table
         $this->setIndexes(array());
         $this->setForeignKeys(array());
     }
-    
+
     /**
      * Add a table column.
      *
-     * Type can be: primary_key, string, text, integer, float, decimal,
-     * datetime, timestamp, time, date, binary, boolean.
-     * 
+     * Type can be: string, text, integer, float, decimal, datetime, timestamp,
+     * time, date, binary, boolean.
+     *
      * Valid options can be: limit, default, null, precision or scale.
      *
-     * @param string|Phinx\Db\Table\Column $columnName Column Name
+     * @param string|Column $columnName Column Name
      * @param string $type Column Type
      * @param array $options Column Options
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      * @return Table
      */
     public function addColumn($columnName, $type = null, $options = array())
@@ -319,7 +320,7 @@ class Table
         
         // check column type
         if (!in_array($column->getType(), $this->getAdapter()->getColumnTypes())) {
-            throw new \InvalidArgumentException('An invalid column type was specified.');
+            throw new \InvalidArgumentException("An invalid column type was specified: {$column->getName()}");
         }
         
         $this->columns[] = $column;
@@ -432,6 +433,18 @@ class Table
     }
     
     /**
+     * Removes the given index identified by its name from a table.
+     *
+     * @param string $name Index name
+     * @return Table
+     */
+    public function removeIndexByName($name)
+    {
+        $this->getAdapter()->dropIndexByName($this->getName(), $name);
+        return $this;
+    }
+    
+    /**
      * Checks to see if an index exists.
      *
      * @param string|array $columns Columns
@@ -533,10 +546,11 @@ class Table
         $this->getAdapter()->createTable($this);
         $this->reset(); // reset pending changes
     }
-    
+
     /**
      * Updates a table from the object instance.
      *
+     * @throws \RuntimeException
      * @return void
      */
     public function update()

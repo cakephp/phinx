@@ -109,9 +109,10 @@ class TableTest extends \PHPUnit_Framework_TestCase
     {
         $adapter = new MysqlAdapter(array());
         $table = new \Phinx\Db\Table('ntable', array(), $adapter);
-        $table->addIndex(array('email'), array('unique' => true));
+        $table->addIndex(array('email'), array('unique' => true, 'name' => 'myemailindex'));
         $indexes = $table->getIndexes();
         $this->assertEquals(\Phinx\Db\Table\Index::UNIQUE, $indexes[0]->getType());
+        $this->assertEquals('myemailindex', $indexes[0]->getName());
         $this->assertContains('email', $indexes[0]->getColumns());
     }
     
@@ -146,6 +147,16 @@ class TableTest extends \PHPUnit_Framework_TestCase
                     ->method('dropIndex');
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
         $table->removeIndex(array('email'));
+    }
+    
+    public function testRemoveIndexByName()
+    {
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())
+                    ->method('dropIndexByName');
+        $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $table->removeIndexByName('emailindex');
     }
 
     public function testAddForeignKey()

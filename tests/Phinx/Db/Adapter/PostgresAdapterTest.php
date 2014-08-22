@@ -23,13 +23,14 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
             'user' => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
             'pass' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
-            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT
+            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
+            'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA
         );
         $this->adapter = new PostgresAdapter($options, new NullOutput());
 
         $this->adapter->dropAllSchemas();
-        $this->adapter->createSchema('public');
-
+        $this->adapter->createSchema($options['schema']);
+        
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
     }
@@ -98,8 +99,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testQuoteTableName()
     {
-        $this->assertEquals('"table"', $this->adapter->quoteTableName('table'));
-        $this->assertEquals('"table.table"', $this->adapter->quoteTableName('table.table'));
+        $this->assertEquals('"public"."table"', $this->adapter->quoteTableName('table'));
+        $this->assertEquals('"public"."table.table"', $this->adapter->quoteTableName('table.table'));
     }
     
     public function testQuoteColumnName()
@@ -183,6 +184,16 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
         $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
     }
+    
+    public function testCreateTableWithNamedIndexes()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addIndex('email', array('name' => 'myemailindex'))
+              ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
+    }
       
     public function testRenameTable()
     {
@@ -261,7 +272,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
                 $e,
                 'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
-            $this->assertEquals('The specified column doesn\'t exist: column2', $e->getMessage());
+            $this->assertEquals('The specified column does not exist: column2', $e->getMessage());
         }
     }
     
@@ -356,6 +367,48 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
         $this->adapter->dropIndex($table2->getName(), array('fname', 'lname'));
         $this->assertFalse($table2->hasIndex(array('fname', 'lname')));
+        
+        // index with name specified, but dropping it by column name
+        $table3 = new \Phinx\Db\Table('table3', array(), $this->adapter);
+        $table3->addColumn('email', 'string')
+              ->addIndex('email', array('name' => 'someindexname'))
+              ->save();
+        $this->assertTrue($table3->hasIndex('email'));
+        $this->adapter->dropIndex($table3->getName(), 'email');
+        $this->assertFalse($table3->hasIndex('email'));
+        
+        // multiple column index with name specified
+        $table4 = new \Phinx\Db\Table('table4', array(), $this->adapter);
+        $table4->addColumn('fname', 'string')
+               ->addColumn('lname', 'string')
+               ->addIndex(array('fname', 'lname'), array('name' => 'multiname'))
+               ->save();
+        $this->assertTrue($table4->hasIndex(array('fname', 'lname')));
+        $this->adapter->dropIndex($table4->getName(), array('fname', 'lname'));
+        $this->assertFalse($table4->hasIndex(array('fname', 'lname')));
+    }
+    
+    public function testDropIndexByName()
+    {
+        // single column index
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addIndex('email', array('name' => 'myemailindex'))
+              ->save();
+        $this->assertTrue($table->hasIndex('email'));
+        $this->adapter->dropIndexByName($table->getName(), 'myemailindex');
+        $this->assertFalse($table->hasIndex('email'));
+        
+        // multiple column index
+        $table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
+        $table2->addColumn('fname', 'string')
+               ->addColumn('lname', 'string')
+               ->addIndex(array('fname', 'lname'),
+                          array('name' => 'twocolumnuniqueindex', 'unique' => true))
+               ->save();
+        $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
+        $this->adapter->dropIndexByName($table2->getName(), 'twocolumnuniqueindex');
+        $this->assertFalse($table2->hasIndex(array('fname', 'lname')));
     }
 
     public function testAddForeignKey()
@@ -402,10 +455,10 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     
     public function testDropDatabase()
     {
-        $this->assertFalse($this->adapter->hasDatabase('temp_phinx_database'));
-        $this->adapter->createDatabase('temp_phinx_database');
-        $this->assertTrue($this->adapter->hasDatabase('temp_phinx_database'));
-        $this->adapter->dropDatabase('temp_phinx_database');
+        $this->assertFalse($this->adapter->hasDatabase('phinx_temp_database'));
+        $this->adapter->createDatabase('phinx_temp_database');
+        $this->assertTrue($this->adapter->hasDatabase('phinx_temp_database'));
+        $this->adapter->dropDatabase('phinx_temp_database');
     }
 
     public function testCreateSchema()
@@ -548,5 +601,24 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertEmpty($row['column_comment'], 'Dont remove column comment correctly');
+    }
+
+    /**
+     * Test that column names are properly escaped when creating Foreign Keys
+     */
+    public function testForignKeysArePropertlyEscaped()
+    {
+        $userId = 'user';
+        $sessionId = 'session';
+
+        $local = new \Phinx\Db\Table('users', array('primary_key' => $userId, 'id' => $userId), $this->adapter);
+        $local->create();
+
+        $foreign = new \Phinx\Db\Table('sessions', array('primary_key' => $sessionId, 'id' => $sessionId), $this->adapter);
+        $foreign->addColumn('user', 'integer')
+                ->addForeignKey('user', 'users', $userId)
+                ->create();
+
+        $this->assertTrue($foreign->hasForeignKey('user'));
     }
 }

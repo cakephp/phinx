@@ -47,13 +47,12 @@ class Config implements \ArrayAccess
      * @var string
      */
     protected $configFilePath;
-    
+
     /**
      * Class Constructor
      *
      * @param array $configArray Config Array
      * @param string $configFilePath Optional File Path
-     * @return void
      */
     public function __construct($configArray, $configFilePath = null)
     {
@@ -72,20 +71,41 @@ class Config implements \ArrayAccess
         $configArray = Yaml::parse($configFilePath);
         return new self($configArray, $configFilePath);
     }
-    
+
+    /**
+     * Create a new instance of the config class using a Yaml file path.
+     *
+     * @param string $configFilePath Path to the Yaml File
+     * @throws \RuntimeException
+     * @return Config
+     */
+    public static function fromJSON($configFilePath)
+    {
+        $configArray = json_decode(file_get_contents($configFilePath), true);
+        if (!is_array($configArray)) {
+            throw new \RuntimeException(sprintf(
+                'File \'%s\' must be valid JSON',
+                $configFilePath
+            ));
+        }
+        return new self($configArray, $configFilePath);
+    }
+
     /**
      * Create a new instance of the config class using a PHP file path.
      *
      * @param string $configFilePath Path to the PHP File
+     * @throws \RuntimeException
      * @return Config
      */
     public static function fromPHP($configFilePath)
     {
         ob_start();
+        /** @noinspection PhpIncludeInspection */
         $configArray = include($configFilePath);
         
         // Hide console output
-        $content = ob_get_clean();
+        ob_get_clean();
 
         if (!is_array($configArray)) {
             throw new \RuntimeException(sprintf(
@@ -119,13 +139,14 @@ class Config implements \ArrayAccess
             
         return null;
     }
-    
+
     /**
      * Returns the configuration for a given environment.
-     * 
+     *
      * This method returns <code>null</code> if the specified environment
      * doesn't exist.
      *
+     * @param string $name
      * @return array|null
      */
     public function getEnvironment($name)
@@ -148,7 +169,7 @@ class Config implements \ArrayAccess
      * Does the specified environment exist in the configuration file?
      *
      * @param string $name Environment Name
-     * @return void
+     * @return boolean
      */
     public function hasEnvironment($name)
     {
@@ -158,6 +179,7 @@ class Config implements \ArrayAccess
     /**
      * Gets the default environment name.
      *
+     * @throws \RuntimeException
      * @return string
      */
     public function getDefaultEnvironment()
@@ -299,7 +321,7 @@ class Config implements \ArrayAccess
      * Gets a parameter or an object.
      *
      * @param  string $id The unique identifier for the parameter or object
-     * @throws InvalidArgumentException if the identifier is not defined
+     * @throws \InvalidArgumentException if the identifier is not defined
      * @return mixed  The value of the parameter or an object
      */
     public function offsetGet($id)

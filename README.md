@@ -1,6 +1,7 @@
 # [Phinx](http://phinx.org): Simple PHP Database Migrations
 
 [![Build Status](https://travis-ci.org/robmorgan/phinx.png?branch=0.2.x-dev)](https://travis-ci.org/robmorgan/phinx)
+[![Build status](https://ci.appveyor.com/api/projects/status/9vag4892hfq6effr)](https://ci.appveyor.com/project/robmorgan/phinx)
 [![Code Coverage](https://scrutinizer-ci.com/g/robmorgan/phinx/badges/coverage.png?s=9776e35b967f5adb0f4958bd72b617e0a9519f7d)](https://scrutinizer-ci.com/g/robmorgan/phinx/)
 [![Latest Stable Version](https://poser.pugx.org/robmorgan/phinx/version.png)](https://packagist.org/packages/robmorgan/phinx)
 [![Total Downloads](https://poser.pugx.org/robmorgan/phinx/d/total.png)](https://packagist.org/packages/robmorgan/phinx)
@@ -9,7 +10,9 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 
 **Check out http://docs.phinx.org for the comprehensive documentation.**
 
-### Phinx lets you
+![phinxterm](https://cloud.githubusercontent.com/assets/178939/3887559/e6b5e524-21f2-11e4-8256-0ba6040725fc.gif)
+
+### Features
 
 * Write database migrations using database agnostic PHP code.
 * Migrate up and down.
@@ -17,13 +20,7 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 * Get going in less than 5 minutes.
 * Stop worrying about the state of your database.
 * Take advantage of SCM features such as branching.
-
-### Compared with other tools, Phinx _does not…_
-
-* **Write log files.** The screen is better.
-* **Try to do too much.** Migrations only.
-* **Have unreadable source code.** We aim to be transparent.
-* **Rely on a framework.** Phinx is independent. Use it with any app.
+* Integrate with any app.
 
 ## Install & Run
 
@@ -116,11 +113,63 @@ Copy the `phpunit.xml.dist` template to `phpunit.xml` and change the configurati
   
 ## News & Updates
 
-Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
+Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
   
 ## Misc
 
 ### Version History
+
+**0.3.7** (Tuesday, 12th August 2014)
+
+* Smarter configuration file support
+* Support for Postgres Schemas
+* Fixed charset support for Microsoft SQL Server
+* Fix for Unique indexes in all adapters
+* Improvements for MySQL foreign key migration syntax 
+* Allow MySQL column types with extra info
+* Fixed SQLite autoincrement behaviour
+* PHPDoc improvements
+* Documentation improvements
+* Unit test improvements
+* Removing primary_key as a type
+
+**0.3.6** (Sunday, 29th June 2014)
+
+* Add custom adapter support
+* Fix PHP 5.3 compatibility for SQL Server
+
+**0.3.5** (Saturday, 21st June 2014)
+
+* Added Microsoft SQL Server support
+* Removed Primary Key column type
+* Cleaned up and optimized many methods
+* Updated Symfony dependencies to v2.5.0
+* PHPDoc improvements
+
+**0.3.4** (Sunday, 27th April 2014)
+
+* Added support MySQL unsigned integer, biginteger, float and decimal types
+* Added JSON output support for the status command
+* Fix a bug where Postgres couldnt rollback foreign keys
+* Moved Phinx type references to interface constants
+* Fixed a bug with SQLite in-memory databases
+
+**0.3.3** (Saturday, 22nd March 2014)
+
+* Added support for JSON configuration
+* Named index support for all adapters (thanks @archer308)
+* Updated Composer dependencies
+* Fix for SQLite Integer Type
+* Fix for MySQL port option
+
+**0.3.2** (Monday, 24th February 2014)
+
+* Adding better Postgres type support
+
+**0.3.1** (Sunday, 23rd February 2014)
+
+* Adding MySQL charset support to the YAML config
+* Removing trailing spaces
 
 **0.3.0** (Sunday, 2nd February 2014)
 
@@ -246,7 +295,7 @@ Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 (The MIT license)
 
-Copyright (c) 2013 Rob Morgan
+Copyright (c) 2014 Rob Morgan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

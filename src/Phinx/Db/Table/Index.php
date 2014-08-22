@@ -49,6 +49,11 @@ class Index
      * @var string
      */
     protected $type = self::INDEX;
+
+    /**
+     * @var string
+     */
+    protected $name = null;
     
     /**
      * Sets the index columns.
@@ -93,17 +98,29 @@ class Index
     {
         return $this->type;
     }
-    
+
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+
     /**
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
+     * @throws \RuntimeException
      * @return Index
      */
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('type', 'unique');
+        $validOptions = array('type', 'unique', 'name');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid index option.');
@@ -111,7 +128,9 @@ class Index
             
             // handle $options['unique']
             if (strtolower($option) == self::UNIQUE) {
-                $this->setType(self::UNIQUE);
+                if ((bool) $value) {
+                    $this->setType(self::UNIQUE);
+                }
                 continue;
             }
 
