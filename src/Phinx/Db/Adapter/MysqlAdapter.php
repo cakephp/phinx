@@ -563,7 +563,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
               AND REFERENCED_TABLE_NAME IS NOT NULL
               AND TABLE_NAME = "%s"
-            ORDER BY POSITION_IN_UNIQUE_CONSTRAINT',
+            ORDER BY COLUMN_NAME',
             $tableName
         ));
         foreach ($rows as $row) {
