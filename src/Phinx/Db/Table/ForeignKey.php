@@ -220,7 +220,7 @@ class ForeignKey
             }
 
             // handle $options['delete'] as $options['update']
-            if (strtolower($option) == 'delete' || strtolower($option) == 'update') {
+            if (strcasecmp($option, 'delete') === 0 || strcasecmp($option, 'update') === 0) {
                 if (defined('static::' . strtoupper($value))) {
                     $this->{'setOn' . ucfirst(strtolower($option))}(constant('static::' . strtoupper($value)));
                 }

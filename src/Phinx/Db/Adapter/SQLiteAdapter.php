@@ -298,7 +298,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
         foreach ($rows as $column) {
-            if (strtolower($column['name']) == strtolower($columnName)) {
+            if (strcasecmp($column['name'], $columnName) === 0) {
                 return true;
             }
         }

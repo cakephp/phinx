@@ -841,7 +841,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     protected function getColumnCommentSqlDefinition(Column $column, $tableName)
     {
         // passing 'null' is to remove column comment
-        $comment = (strtoupper($column->getComment()) != 'NULL')
+        $comment = (strcasecmp($column->getComment(), 'NULL') !== 0)
                  ? $this->getConnection()->quote($column->getComment())
                  : 'NULL';
 
@@ -927,7 +927,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
       */
     public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
     {
-        if (strtolower($direction) == 'up') {
+        if (strcasecmp($direction, 'up') === 0) {
             // up
             $sql = sprintf(
                 "INSERT INTO %s (version, start_time, end_time) VALUES ('%s', '%s', '%s');",
