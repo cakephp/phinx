@@ -24,6 +24,21 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 
 ## Install & Run
 
+### The easy way (*NIX only)
+
+If you want a global binary to use in every project, you can install via curl and bash. It uses the "As a Phar" steps described below.
+
+```
+curl -L https://raw.githubusercontent.com/robmorgan/phinx/master/installer.sh | bash
+```
+
+The installer defaults to install phinx in /usr/bin. If you want to change the install path, it's possible by using the ```prefix``` environmental variable.
+
+```
+prefix=~/bin curl -L https://raw.githubusercontent.com/robmorgan/phinx/master/installer.sh | bash
+```
+
+
 ### Composer
 
 The fastest way to install Phinx in your project is using Composer (http://getcomposer.org/).

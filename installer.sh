@@ -4,6 +4,7 @@
 # Requirements: php, curl, phar
 
 requirements=(git php phar curl)
+prefix=${prefix:=/usr/bin}
 
 command_exists () {
 	type "$1" &> /dev/null ;
@@ -43,13 +44,11 @@ curl -LSs http://box-project.org/installer.php | php
 # Create Phar archive
 if php box.phar build; then
 	# Move to executable path
-	# TODO needs to be changable
-	if mv phinx*.phar /usr/bin/phinx; then
+	if mv phinx*.phar $prefix/phinx; then
 		echo "## Installation complete!"
 	else
 		echo "Trying moving with sudo"
-		# TODO needs to be changable
-		if sudo mv phinx*.phar /usr/bin/phinx; then
+		if sudo mv phinx*.phar $prefix/phinx; then
 			echo "## Installation complete!"
 		else
 			echo "Failed with installing to selected directory..."
