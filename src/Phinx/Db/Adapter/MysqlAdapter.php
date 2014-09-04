@@ -675,6 +675,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_STRING:
                 return array('name' => 'varchar', 'limit' => 255);
                 break;
+            case static::PHINX_TYPE_CHAR:
+                return array('name' => 'char', 'limit' => 255);
+                break;
             case static::PHINX_TYPE_TEXT:
                 return array('name' => 'text');
                 break;
@@ -742,6 +745,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $limit = null;
                     }
                     break;
+                case 'char':
+                    $type = static::PHINX_TYPE_CHAR;
+                    if ($limit == 255) {
+                        $limit = null;
+                    }
                 case 'int':
                     $type = static::PHINX_TYPE_INTEGER;
                     if ($limit == 11) {
