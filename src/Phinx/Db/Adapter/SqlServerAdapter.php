@@ -1063,6 +1063,7 @@ SQL;
         return array(
             'string',
             'text',
+            'char',
             'integer',
             'biginteger',
             'float',
