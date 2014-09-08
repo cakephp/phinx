@@ -396,6 +396,7 @@ abstract class PdoAdapter implements AdapterInterface
     {
         return array(
             'string',
+            'char',
             'text',
             'integer',
             'biginteger',

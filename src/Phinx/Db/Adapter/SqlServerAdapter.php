@@ -814,6 +814,9 @@ ORDER BY T.[name], I.[index_id];";
             case static::PHINX_TYPE_STRING:
                 return array('name' => 'nvarchar', 'limit' => 255);
                 break;
+            case static::PHINX_TYPE_CHAR:
+                return array('name' => 'nchar', 'limit' => 255);
+                break;
             case static::PHINX_TYPE_TEXT:
                 return array('name' => 'ntext');
                 break;
@@ -867,8 +870,10 @@ ORDER BY T.[name], I.[index_id];";
         switch ($sqlType) {
             case 'nvarchar':
             case 'varchar':
-            case 'char':
                 return static::PHINX_TYPE_STRING;
+            case 'char':
+            case 'nchar':
+                return static::PHINX_TYPE_CHAR;
             case 'text':
             case 'ntext':
                 return static::PHINX_TYPE_TEXT;
@@ -1060,6 +1065,7 @@ SQL;
         return array(
             'string',
             'text',
+            'char',
             'integer',
             'biginteger',
             'float',

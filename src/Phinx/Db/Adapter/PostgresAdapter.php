@@ -700,6 +700,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => $type);
             case static::PHINX_TYPE_STRING:
                 return array('name' => 'character varying', 'limit' => 255);
+            case static::PHINX_TYPE_CHAR:
+                return array('name' => 'character', 'limit' => 255);
             case static::PHINX_TYPE_BIG_INTEGER:
                 return array('name' => 'bigint');
             case static::PHINX_TYPE_FLOAT:
@@ -726,6 +728,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'character varying':
             case 'varchar':
                 return static::PHINX_TYPE_STRING;
+            case 'character':
+            case 'char':
+                return static::PHINX_TYPE_CHAR;
             case 'text':
             case 'json':
                 return static::PHINX_TYPE_TEXT;
