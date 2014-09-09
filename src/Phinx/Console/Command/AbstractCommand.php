@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -48,23 +48,30 @@ abstract class AbstractCommand extends Command
      * @var Config
      */
     protected $config;
-    
+
     /**
      * @var AdapterInterface
      */
     protected $adapter;
-    
+
     /**
      * @var Manager
      */
     protected $manager;
-    
+
+
+	/**
+	 * @var bool
+	 */
+	protected $bootstrapLoaded;
+
     /**
      * {@inheritdoc}
      */
     protected function configure()
     {
         $this->addOption('--configuration', '-c', InputArgument::OPTIONAL, 'The configuration file to load');
+        $this->addOption('--bootstrap', '-b', InputArgument::OPTIONAL, 'The bootstrap file to load');
         $this->addOption('--parser', '-p', InputArgument::OPTIONAL, 'Parser used to read the config file. Defaults to YAML');
     }
 
@@ -79,6 +86,10 @@ abstract class AbstractCommand extends Command
     {
         if (!$this->getConfig()) {
             $this->loadConfig($input, $output);
+        }
+
+        if (!$this->bootstrapLoaded) {
+            $this->loadBootstrap($input, $output);
         }
 
         $this->loadManager($output);
@@ -107,7 +118,7 @@ abstract class AbstractCommand extends Command
     {
         return $this->config;
     }
-    
+
     /**
      * Sets the database adapter.
      *
@@ -129,7 +140,7 @@ abstract class AbstractCommand extends Command
     {
         return $this->adapter;
     }
-    
+
     /**
      * Sets the migration manager.
      *
@@ -141,7 +152,7 @@ abstract class AbstractCommand extends Command
         $this->manager = $manager;
         return $this;
     }
-    
+
     /**
      * Gets the migration manager.
      *
@@ -243,6 +254,34 @@ abstract class AbstractCommand extends Command
         $output->writeln('<info>using config parser</info> ' . $parser);
         $this->setConfig($config);
     }
+
+
+	/**
+	 * load and execute bootstrap file
+	 *
+	 * @param InputInterface $input
+	 * @param OutputInterface $output
+	 * @return void
+	 */
+	protected function loadBootstrap(InputInterface $input, OutputInterface $output)
+	{
+		$bootstrapFilePath = $input->getOption('bootstrap');
+
+		if(is_file($bootstrapFilePath)) {
+			ob_start();
+			/** @noinspection PhpIncludeInspection */
+			include($bootstrapFilePath);
+
+			// Hide console output
+			ob_get_clean();
+
+			$output->writeln('<info>using bootstrap file</info> .' . str_replace(getcwd(), '', realpath($bootstrapFilePath)));
+		} else {
+			$output->writeln('<info>bootstrap file not found</info>');
+		}
+
+		$this->bootstrapLoaded = true;
+	}
 
     /**
      * Load the migrations manager and inject the config

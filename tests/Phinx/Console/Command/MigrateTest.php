@@ -34,67 +34,91 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
     {
         $application = new \Phinx\Console\PhinxApplication('testing');
         $application->add(new Migrate());
-        
+
         // setup dependencies
         $output = new StreamOutput(fopen('php://memory', 'a', false));
-        
+
         $command = $application->find('migrate');
-        
+
         // mock the manager class
         $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
         $managerStub->expects($this->once())
                     ->method('migrate');
-        
+
         $command->setConfig($this->config);
         $command->setManager($managerStub);
-        
+
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName()));
-        
+
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
     }
-    
+
     public function testExecuteWithEnvironmentOption()
     {
         $application = new \Phinx\Console\PhinxApplication('testing');
         $application->add(new Migrate());
-        
+
         // setup dependencies
         $output = new StreamOutput(fopen('php://memory', 'a', false));
-        
+
         $command = $application->find('migrate');
-        
+
         // mock the manager class
         $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
         $managerStub->expects($this->once())
                     ->method('migrate');
-        
+
         $command->setConfig($this->config);
         $command->setManager($managerStub);
-        
+
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'));
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
     }
-    
-    public function testDatabaseNameSpecified()
+
+    public function testExecuteWithBootstrapOption()
     {
         $application = new \Phinx\Console\PhinxApplication('testing');
         $application->add(new Migrate());
-        
+
         // setup dependencies
         $output = new StreamOutput(fopen('php://memory', 'a', false));
-        
+
         $command = $application->find('migrate');
-        
+
         // mock the manager class
         $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
         $managerStub->expects($this->once())
                     ->method('migrate');
-        
+
         $command->setConfig($this->config);
         $command->setManager($managerStub);
-        
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName(), '--bootstrap' => __DIR__ . '/../_files/bootstrap.php'));
+        $this->assertRegExp('/using bootstrap file/', $commandTester->getDisplay());
+	    $this->assertEquals(1, \FakeBootstrapClass::$counter);
+    }
+
+    public function testDatabaseNameSpecified()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Migrate());
+
+        // setup dependencies
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+
+        $command = $application->find('migrate');
+
+        // mock the manager class
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub->expects($this->once())
+                    ->method('migrate');
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName()));
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
