@@ -98,7 +98,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName(), '--bootstrap' => __DIR__ . '/../_files/bootstrap.php'));
         $this->assertRegExp('/using bootstrap file/', $commandTester->getDisplay());
-	    $this->assertEquals(1, \FakeBootstrapClass::$counter);
+        $this->assertEquals(1, \FakeBootstrapClass::$counter);
     }
 
     public function testDatabaseNameSpecified()

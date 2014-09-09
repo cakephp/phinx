@@ -2,9 +2,10 @@
 
 // bootstrap file
 
-class FakeBootstrapClass {
+class FakeBootstrapClass
+{
 
-	public static $counter = 0;
+    public static $counter = 0;
 
 }
 

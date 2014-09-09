@@ -60,10 +60,10 @@ abstract class AbstractCommand extends Command
     protected $manager;
 
 
-	/**
-	 * @var bool
-	 */
-	protected $bootstrapLoaded;
+    /**
+     * @var bool
+     */
+    protected $bootstrapLoaded;
 
     /**
      * {@inheritdoc}
@@ -256,32 +256,32 @@ abstract class AbstractCommand extends Command
     }
 
 
-	/**
-	 * load and execute bootstrap file
-	 *
-	 * @param InputInterface $input
-	 * @param OutputInterface $output
-	 * @return void
-	 */
-	protected function loadBootstrap(InputInterface $input, OutputInterface $output)
-	{
-		$bootstrapFilePath = $input->getOption('bootstrap');
+    /**
+     * load and execute bootstrap file
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return void
+     */
+    protected function loadBootstrap(InputInterface $input, OutputInterface $output)
+    {
+        $bootstrapFilePath = $input->getOption('bootstrap');
 
-		if(is_file($bootstrapFilePath)) {
-			ob_start();
-			/** @noinspection PhpIncludeInspection */
-			include($bootstrapFilePath);
+        if (is_file($bootstrapFilePath)) {
+            ob_start();
+            /** @noinspection PhpIncludeInspection */
+            include($bootstrapFilePath);
 
-			// Hide console output
-			ob_get_clean();
+            // Hide console output
+            ob_get_clean();
 
-			$output->writeln('<info>using bootstrap file</info> .' . str_replace(getcwd(), '', realpath($bootstrapFilePath)));
-		} else {
-			$output->writeln('<info>bootstrap file not found</info>');
-		}
+            $output->writeln('<info>using bootstrap file</info> .' . str_replace(getcwd(), '', realpath($bootstrapFilePath)));
+        } else {
+            $output->writeln('<info>bootstrap file not found</info>');
+        }
 
-		$this->bootstrapLoaded = true;
-	}
+        $this->bootstrapLoaded = TRUE;
+    }
 
     /**
      * Load the migrations manager and inject the config
