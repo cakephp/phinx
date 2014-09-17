@@ -124,7 +124,7 @@ Declaring an SQLite database uses a simplified structure:
             adapter: sqlite
             memory: true     # Setting memory to *any* value overrides name
 
-You can provide a custom adapter by registering an implementation of the `Phinx\Db\Adapter\AdapterInterface` with the Environment:
+You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface` with the Environment:
 
 .. code-block:: php
 
