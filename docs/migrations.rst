@@ -304,7 +304,7 @@ Finally calling ``save()`` commits the changes to the database.
 
 .. note::
 
-    Phinx automatically creates an auto-incrementing column and primary key called ``id`` for every
+    Phinx automatically creates an auto-incrementing primary key column called ``id`` for every
     table.
 
 To specify an alternate primary key you can specify the ``primary_key`` option
