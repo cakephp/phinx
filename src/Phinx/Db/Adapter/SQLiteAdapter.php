@@ -465,11 +465,13 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
         $columns = array();
+        $columnType = null;
         foreach ($rows as $row) {
             if ($row['name'] != $columnName) {
                 $columns[] = $row['name'];
             } else {
                 $found = true;
+                $columnType = $row['type'];
             }
         }
 
@@ -482,10 +484,14 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
 
         $sql = preg_replace(
-            sprintf("/%s[^,]*/", $this->quoteColumnName($columnName)),
-            '',
+            sprintf("/%s\s%s[^,)]*(,\s|\))/", preg_quote($this->quoteColumnName($columnName)), preg_quote($columnType)),
+            "",
             $sql
         );
+
+        if (substr($sql, -2) === ', ') {
+            $sql = substr($sql, 0, -2) . ')';
+        }
 
         $this->execute($sql);
 
