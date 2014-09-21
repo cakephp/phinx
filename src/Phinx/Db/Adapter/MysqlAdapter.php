@@ -716,6 +716,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'tinyint', 'limit' => 1);
                 break;
+            // Geospatial database types
+            case static::PHINX_TYPE_GEOMETRY:
+            case static::PHINX_TYPE_POINT:
+            case static::PHINX_TYPE_LINESTRING:
+            case static::PHINX_TYPE_POLYGON:
+                return array('name' => $type);
+                break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
         }

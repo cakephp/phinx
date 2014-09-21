@@ -835,6 +835,18 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'boolean');
                 break;
+            // Geospatial database types
+            // No specific data types exist in SQLite, instead all geospatial
+            // functionality is handled in the client. See also: SpatiaLite.
+            case static::PHINX_TYPE_GEOMETRY:
+            case static::PHINX_TYPE_POLYGON:
+                return array('name' => 'text');
+                return;
+            case static::PHINX_TYPE_LINESTRING:
+                return array('name' => 'varchar', 'limit' => 255);
+                break;
+            case static::PHINX_TYPE_POINT:
+                return array('name' => 'float');
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
         }

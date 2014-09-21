@@ -711,6 +711,22 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'timestamp');
             case static::PHINX_TYPE_BINARY:
                 return array('name' => 'bytea');
+            // Geospatial database types
+            // Spatial storage in Postgres is done via the PostGIS extension,
+            // which enables the use of the "geography" type in combination
+            // with SRID 4326.
+            case static::PHINX_TYPE_GEOMETRY:
+                return array('name' => 'geography', 'geometry', 4326);
+                break;
+            case static::PHINX_TYPE_POINT:
+                return array('name' => 'geography', 'point', 4326);
+                break;
+            case static::PHINX_TYPE_LINESTRING:
+                return array('name' => 'geography', 'linestring', 4326);
+                break;
+            case static::PHINX_TYPE_POLYGON:
+                return array('name' => 'geography', 'polygon', 4326);
+                break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported');
         }

@@ -59,6 +59,12 @@ interface AdapterInterface
     const PHINX_TYPE_UUID           = 'uuid';
     const PHINX_TYPE_FILESTREAM     = 'filestream';
 
+    // Geospatial database types
+    const PHINX_TYPE_GEOMETRY       = 'geometry';
+    const PHINX_TYPE_POINT          = 'point';
+    const PHINX_TYPE_LINESTRING     = 'linestring';
+    const PHINX_TYPE_POLYGON        = 'polygon';
+
     /**
      * Get all migrated version numbers.
      *
