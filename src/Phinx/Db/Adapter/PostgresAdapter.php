@@ -401,21 +401,28 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $this->startCommandTimer();
         $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
         // change data type
-        $sql = sprintf(
-            'ALTER TABLE %s ALTER COLUMN %s TYPE %s',
-            $this->quoteTableName($tableName),
-            $this->quoteColumnName($columnName),
-            $this->getColumnSqlDefinition($newColumn)
-        );
-        $sql = preg_replace('/ NOT NULL$/', '', $sql);
-        $sql = preg_replace('/ NULL$/', '', $sql);
-        $this->execute($sql);
-        // process null
-        $sql = sprintf(
+        $sqlTemplateAlter = sprintf(
             'ALTER TABLE %s ALTER COLUMN %s',
             $this->quoteTableName($tableName),
             $this->quoteColumnName($columnName)
         );
+
+        $sqlDefArray = $this->getColumnSqlDefinitionAsArray($newColumn);
+        // setting type first
+        $sql = $sqlTemplateAlter.' TYPE '.array_shift($sqlDefArray);
+        $this->execute($sql);
+
+        foreach ($sqlDefArray as $sqlDef) {
+            if (mb_strpos($sqlDef, 'NULL')) {
+                continue;
+            }
+            $sql = $sqlTemplateAlter.' SET '.$sqlDef;
+
+            $this->execute($sql);
+        }
+
+        //process null
+        $sql = $sqlTemplateAlter;
         if ($newColumn->isNull()) {
             $sql .= ' DROP NOT NULL';
         } else {
@@ -433,7 +440,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 )
             );
         }
-
         // change column comment if needed
         if ($newColumn->getComment()) {
             $sql = $this->getColumnCommentSqlDefinition($newColumn, $tableName);
@@ -829,6 +835,17 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getColumnSqlDefinition(Column $column)
     {
+        return implode(' ', $this->getColumnSqlDefinitionAsArray($column));
+    }
+
+    /**
+     * Gets the PostgreSQL Column Definition for a Column object in parts as array.
+     *
+     * @param Column $column Column
+     * @return string
+     */
+    protected function getColumnSqlDefinitionAsArray(Column $column)
+    {
         $buffer = array();
         if ($column->isIdentity()) {
             $buffer[] = 'SERIAL';
@@ -849,7 +866,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $buffer[] =  "DEFAULT '{$default}'";
         }
         // TODO - add precision & scale for decimals
-        return implode(' ', $buffer);
+        return $buffer;
     }
 
     /**
