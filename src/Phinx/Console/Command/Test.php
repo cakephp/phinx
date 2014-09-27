@@ -76,11 +76,6 @@ EOT
 
         $migrationsPath = $this->getConfig()->getMigrationPath();
 
-        // validate if migrations path is valid
-        if (!file_exists($migrationsPath)) {
-            throw new \RuntimeException('The migrations path is invalid');
-        }
-
         $envName = $input->getOption('environment');
         if ($envName) {
             if (!$this->getConfig()->hasEnvironment($envName)) {

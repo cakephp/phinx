@@ -43,6 +43,7 @@ use Phinx\Migration\MigrationInterface;
 interface AdapterInterface
 {
     const PHINX_TYPE_STRING         = 'string';
+    const PHINX_TYPE_CHAR           = 'char';
     const PHINX_TYPE_TEXT           = 'text';
     const PHINX_TYPE_INTEGER        = 'integer';
     const PHINX_TYPE_BIG_INTEGER    = 'biginteger';
@@ -57,6 +58,12 @@ interface AdapterInterface
     const PHINX_TYPE_JSON           = 'json';
     const PHINX_TYPE_UUID           = 'uuid';
     const PHINX_TYPE_FILESTREAM     = 'filestream';
+
+    // Geospatial database types
+    const PHINX_TYPE_GEOMETRY       = 'geometry';
+    const PHINX_TYPE_POINT          = 'point';
+    const PHINX_TYPE_LINESTRING     = 'linestring';
+    const PHINX_TYPE_POLYGON        = 'polygon';
 
     /**
      * Get all migrated version numbers.
