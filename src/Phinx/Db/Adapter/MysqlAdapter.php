@@ -164,17 +164,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        $options = $this->getOptions();
-        
-        $tables = array();
-        $rows = $this->fetchAll(sprintf('SHOW TABLES IN `%s`', $options['name']));
-        foreach ($rows as $row) {
-            $tables[] = strtolower($row[0]);
+        try {
+            $this->query(sprintf('SELECT 1 FROM %s LIMIT 1', $this->quoteTableName($tableName)));
+        } catch (\PDOException $e) {
+            return false;
         }
-        
-        return in_array(strtolower($tableName), $tables);
+        return true;
     }
-    
+
     /**
      * {@inheritdoc}
      */
