@@ -793,13 +793,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     protected function getColumnSqlDefinitionAsArray(Column $column)
     {
         $buffer = array();
-        if (!$column->isIdentity()) {
-            $sqlType = $this->getSqlType($column->getType());
-            // integers cant have limits in postgres
-            if ('integer' !== $sqlType['name'] && ($column->getLimit() || isset($sqlType['limit']))) {
-                $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
-            }
-        }
 
         $default = $column->getDefault();
         if (is_numeric($default) || 'CURRENT_TIMESTAMP' === $default) {
@@ -1040,7 +1033,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $sqlType = $this->getSqlType($column->getType());
-        return strtoupper($sqlType['name']);
+
+        $buffer = strtoupper($sqlType['name']);
+        // integers cant have limits in postgres
+        if ('integer' !== $sqlType['name'] && ($column->getLimit() || isset($sqlType['limit']))) {
+            $buffer .= sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
+        }
+
+        return $buffer;
     }
 
     private function getAlterColumnSql($tableName, $columnName)
