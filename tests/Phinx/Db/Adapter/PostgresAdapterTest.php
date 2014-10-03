@@ -2,13 +2,14 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\Table\Column;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\PostgresAdapter;
 
 class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Phinx\Db\Adapter\PostgresqlAdapter
+     * @var \Phinx\Db\Adapter\PostgresAdapter
      */
     private $adapter;
     
@@ -299,6 +300,28 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
                 $this->assertTrue($column->isNull());
             }
         }
+    }
+
+    public function testChangeColumnType()
+    {
+        //issue #313
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table
+            ->addColumn('column1', 'timestamp', array('default' => null, 'null' => true))
+            ->save();
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+
+        $table->changeColumn('column1', 'date', array('default' => '1930-01-01'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+
+        $columns = $this->adapter->getColumns('t');
+        /** @var Column[] $columns */
+        $column = $columns[0];
+        if ($column->getName() == 'column1') {
+            $this->assertFalse($column->isNull());
+            $this->assertFalse($column->getDefault() == 'null');
+        }
+
     }
     
     public function testDropColumn()
