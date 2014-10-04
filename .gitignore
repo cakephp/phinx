@@ -26,7 +26,6 @@ docs/_build
 
 # composer installed dependencies
 vendor
-composer.lock
 
 # this is user specific settings for running phpunit to override the defaults in phpunit.xml.dist
 phpunit.xml
