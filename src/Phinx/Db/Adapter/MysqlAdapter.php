@@ -588,7 +588,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $foreignKeys = array();
         $rows = $this->fetchAll(sprintf(
-            'SELECT
+            "SELECT
               CONSTRAINT_NAME,
               TABLE_NAME,
               COLUMN_NAME,
@@ -597,8 +597,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             FROM information_schema.KEY_COLUMN_USAGE
             WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
               AND REFERENCED_TABLE_NAME IS NOT NULL
-              AND TABLE_NAME = "%s"
-            ORDER BY POSITION_IN_UNIQUE_CONSTRAINT',
+              AND TABLE_NAME = '%s'
+            ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
             $tableName
         ));
         foreach ($rows as $row) {
@@ -652,14 +652,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } else {
             foreach ($columns as $column) {
                 $rows = $this->fetchAll(sprintf(
-                    'SELECT
+                    "SELECT
                         CONSTRAINT_NAME
                       FROM information_schema.KEY_COLUMN_USAGE
                       WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
                         AND REFERENCED_TABLE_NAME IS NOT NULL
-                        AND TABLE_NAME = "%s"
-                        AND COLUMN_NAME = "%s"
-                      ORDER BY POSITION_IN_UNIQUE_CONSTRAINT',
+                        AND TABLE_NAME = '%s'
+                        AND COLUMN_NAME = '%s'
+                      ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
                     $tableName,
                     $column
                 ));
@@ -947,10 +947,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         // mysql specific
         $sql = sprintf(
-            'SELECT *'
-            . ' FROM information_schema.tables'
-            . ' WHERE table_schema = "%s"'
-            . ' AND table_name = "%s"',
+            "SELECT *
+             FROM information_schema.tables
+             WHERE table_schema = '%s'
+             AND table_name = '%s'",
             $options['name'],
             $tableName
         );
