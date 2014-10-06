@@ -948,7 +948,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
       */
     public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
     {
-        if (strcasecmp($direction, 'up') === 0) {
+        if (strcasecmp($direction, MigrationInterface::UP) === 0) {
             // up
             $sql = sprintf(
                 "INSERT INTO %s (version, start_time, end_time) VALUES ('%s', '%s', '%s');",
