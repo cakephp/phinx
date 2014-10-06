@@ -101,7 +101,7 @@ class Environment
     public function registerAdapter($adapterName, $adapterFactoryClosure)
     {
         // TODO When 5.3 support is dropped, the `callable` type hint should be
-        // added to the $adapterFactoryClosure paramter, and this test can be removed.
+        // added to the $adapterFactoryClosure parameter, and this test can be removed.
         if (!is_callable($adapterFactoryClosure)) {
             throw new \RuntimeException('Provided adapter factory must be callable and return an object implementing AdapterInterface.');
         }
@@ -125,10 +125,6 @@ class Environment
         if ($this->getAdapter()->hasTransactions()) {
             $this->getAdapter()->beginTransaction();
         }
-        
-        // force UTF-8 encoding for MySQL
-        // TODO - this code will need to be abstracted when we support other db vendors
-        //$this->getAdapter()->execute('SET NAMES UTF8');
         
         // Run the migration
         if (method_exists($migration, MigrationInterface::CHANGE)) {
