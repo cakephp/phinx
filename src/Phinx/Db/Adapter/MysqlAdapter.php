@@ -165,14 +165,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function hasTable($tableName)
     {
         $options = $this->getOptions();
-        
-        $tables = array();
-        $rows = $this->fetchAll(sprintf('SHOW TABLES IN `%s`', $options['name']));
-        foreach ($rows as $row) {
-            $tables[] = strtolower($row[0]);
-        }
-        
-        return in_array(strtolower($tableName), $tables);
+
+        $exists = $this->fetchRow(sprintf(
+            "SELECT TABLE_NAME
+            FROM INFORMATION_SCHEMA.TABLES
+            WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'",
+            $options['name'], $tableName
+        ));
+
+        return !empty($exists);
     }
     
     /**
@@ -195,7 +196,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $column = new Column();
             $column->setName('id')
                    ->setType('integer')
-                   ->setSigned(false)
                    ->setIdentity(true);
             
             array_unshift($columns, $column);
