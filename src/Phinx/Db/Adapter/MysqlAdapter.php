@@ -724,7 +724,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => $type);
                 break;
             default:
-                throw new \RuntimeException('The type: "' . $type . '" is not supported.');
+                return array('name' => 'type');
         }
     }
 

@@ -728,7 +728,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'geography', 'polygon', 4326);
                 break;
             default:
-                throw new \RuntimeException('The type: "' . $type . '" is not supported');
+                return array('name' => $type);
         }
     }
 

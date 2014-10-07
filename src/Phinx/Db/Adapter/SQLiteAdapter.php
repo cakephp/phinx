@@ -849,7 +849,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_POINT:
                 return array('name' => 'float');
             default:
-                throw new \RuntimeException('The type: "' . $type . '" is not supported.');
+                return array('name' => $type);
         }
     }
 
