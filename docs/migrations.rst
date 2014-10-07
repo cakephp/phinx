@@ -304,8 +304,8 @@ Finally calling ``save()`` commits the changes to the database.
 
 .. note::
 
-    Phinx automatically creates an auto-incrementing primary key for every
-    table called ``id``.
+    Phinx automatically creates an auto-incrementing primary key column called ``id`` for every
+    table.
 
 To specify an alternate primary key you can specify the ``primary_key`` option
 when accessing the Table object. Let's disable the automatic ``id`` column and
@@ -710,7 +710,7 @@ Let's add a foreign key to an example table:
         
                 $refTable = $this->table('tag_relationships');
                 $refTable->addColumn('tag_id', 'integer')
-                         ->addForeignKey('tag_id', 'tags', 'id', array('delete'=> 'SET_NULL', update=> 'NO_ACTION'))
+                         ->addForeignKey('tag_id', 'tags', 'id', array('delete'=> 'SET_NULL', 'update'=> 'NO_ACTION'))
                          ->save();
                 
             }
