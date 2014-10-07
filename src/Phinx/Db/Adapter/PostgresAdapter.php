@@ -304,7 +304,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $columns = array();
         $sql = sprintf(
-            "SELECT column_name, data_type, is_identity, is_nullable,
+            "SELECT column_name, COALESCE (NULLIF(data_type, 'USER-DEFINED'), udt_name) as data_type, is_identity, is_nullable,
              column_default, character_maximum_length, numeric_precision, numeric_scale
              FROM information_schema.columns
              WHERE table_name ='%s'",
@@ -680,6 +680,22 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'timestamp');
             case static::PHINX_TYPE_BINARY:
                 return array('name' => 'bytea');
+            // Geospatial database types
+            // Spatial storage in Postgres is done via the PostGIS extension,
+            // which enables the use of the "geography" type in combination
+            // with SRID 4326.
+            case static::PHINX_TYPE_GEOMETRY:
+                return array('name' => 'geography', 'geometry', 4326);
+                break;
+            case static::PHINX_TYPE_POINT:
+                return array('name' => 'geography', 'point', 4326);
+                break;
+            case static::PHINX_TYPE_LINESTRING:
+                return array('name' => 'geography', 'linestring', 4326);
+                break;
+            case static::PHINX_TYPE_POLYGON:
+                return array('name' => 'geography', 'polygon', 4326);
+                break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported');
         }
@@ -731,6 +747,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'bool':
             case 'boolean':
                 return static::PHINX_TYPE_BOOLEAN;
+            case 'geography':
+                return static::PHINX_TYPE_GEOGRAPHY;
             default:
                 throw new \RuntimeException('The PostgreSQL type: "' . $sqlType . '" is not supported');
         }
@@ -901,7 +919,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
       */
     public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
     {
-        if (strcasecmp($direction, 'up') === 0) {
+        if (strcasecmp($direction, MigrationInterface::UP) === 0) {
             // up
             $sql = sprintf(
                 "INSERT INTO %s (version, start_time, end_time) VALUES ('%s', '%s', '%s');",
