@@ -380,6 +380,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             if (strcasecmp($row['Field'], $columnName) === 0) {
                 $null = ($row['Null'] == 'NO') ? 'NOT NULL' : 'NULL';
                 $extra = ' ' . strtoupper($row['Extra']);
+                if (!is_null($row['Default'])) {
+                    $extra.= ' DEFAULT ' . (is_numeric($row['Default']) || $row['Default'] == 'CURRENT_TIMESTAMP' ? $row['Default'] : '\'' . $row['Default'] . '\'');
+                }
                 $definition = $row['Type'] . ' ' . $null . $extra;
         
                 $this->writeCommand('renameColumn', array($tableName, $columnName, $newColumnName));
