@@ -36,13 +36,17 @@ class Util
      * '12345678901234_limit_resource_names_to_30_chars.php'.
      *
      * @param string $className Class Name
+     * @param string $timestamp Timestamp injecteable from outside to be in sync with class name
      * @return string
      */
-    public static function mapClassNameToFileName($className)
+    public static function mapClassNameToFileName($className, $timestamp = null)
     {
         $arr = preg_split('/(?=[A-Z])/', $className);
         unset($arr[0]); // remove the first element ('')
-        $fileName = date('YmdHis') . '_' . strtolower(implode($arr, '_')) . '.php';
+        if ($timestamp === null) {
+            $timestamp = date('YmdHis');
+        }
+        $fileName = $timestamp . '_' . strtolower(implode($arr, '_')) . '.php';
         return $fileName;
     }
 

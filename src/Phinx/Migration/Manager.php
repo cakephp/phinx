@@ -375,7 +375,7 @@ class Manager
                     if (isset($versions[$version])) {
                         throw new \InvalidArgumentException(sprintf('Duplicate migration - "%s" has the same version as "%s"', $filePath, $versions[$version]->getVersion()));
                     }
-                    
+
                     // convert the filename to a class name
                     $class = preg_replace('/^[0-9]+_/', '', basename($filePath));
                     $class = str_replace('_', ' ', $class);
@@ -384,7 +384,14 @@ class Manager
                     if (false !== strpos($class, '.')) {
                         $class = substr($class, 0, strpos($class, '.'));
                     }
-                    
+
+                    // if true, class names will automatically be suffixed by timestamp
+                    $autoTimestampClass = $this->getConfig()->getAutoTimestampClass();
+                    $timestamp          = strstr(basename($filePath), '_', true);
+                    if ($autoTimestampClass) {
+                        $class = $class . '_' . $timestamp;
+                    }
+
                     if (isset($fileNames[$class])) {
                         throw new \InvalidArgumentException(sprintf(
                             'Migration "%s" has the same name as "%s"',
