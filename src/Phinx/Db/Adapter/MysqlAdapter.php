@@ -856,6 +856,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     protected function getColumnSqlDefinition(Column $column)
     {
         $sqlType = $this->getSqlType($column->getType());
+
+        // Additional check if a limit along 
+        if (strtoupper($sqlType['name']) === 'TEXT' && $column->getLimit()) {
+            $sqlType['name'] = $this->classifyTextColumn($column);
+            // Remove the limit since MySQL does't like limit to be specified with a TEXT Type column
+            $column->setLimit(null);
+        }
+
         $def = '';
         $def .= strtoupper($sqlType['name']);
         if ($column->getPrecision() && $column->getScale()) {
@@ -959,6 +967,41 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         );
 
         return $this->fetchRow($sql);
+    }
+
+
+    /**
+     * Returns the approprite type of text column based on the limit
+     * specified on the column
+     * @param Column $column The column to perform the check. Assumes the column type is text and limit is specified
+     * @return string
+     */
+    protected function classifyTextColumn(Column $column) 
+    {
+        $name = '';
+
+        // The values for the limit are based on:
+        // http://dev.mysql.com/doc/refman/5.0/en/string-type-overview.html
+        switch (true) {
+            case $column->getLimit() <= 255:
+                $name = 'tinytext';
+                break;
+            case $column->getLimit() >= 256 && $column->getLimit() <= 65535:
+                $name = 'text';
+                break;
+            case $column->getLimit() >= 65536 && $column->getLimit() <= 16777215:
+                $name = 'mediumtext';
+                break;
+            case $column->getLimit() >= 16777216:
+                $name = 'longtext';
+                break;
+            default:
+                // Default to the text type
+                $name = 'text';
+                break;
+        }
+
+        return $name;
     }
 
 }
