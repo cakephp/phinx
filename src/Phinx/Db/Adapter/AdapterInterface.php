@@ -65,6 +65,11 @@ interface AdapterInterface
     const PHINX_TYPE_LINESTRING     = 'linestring';
     const PHINX_TYPE_POLYGON        = 'polygon';
 
+    // MySQL specific text types
+    const PHINX_TYPE_TINYTEXT       = 'tinytext';
+    const PHINX_TYPE_MEDIUMTEXT     = 'mediumtext';
+    const PHINX_TYPE_LONGTEXT       = 'longtext';
+
     /**
      * Get all migrated version numbers.
      *

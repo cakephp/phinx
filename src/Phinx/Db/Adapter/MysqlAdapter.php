@@ -689,6 +689,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_TEXT:
                 return array('name' => 'text');
                 break;
+            case static::PHINX_TYPE_TINYTEXT:
+                return array('name' => 'tinytext');
+                break;
+            case static::PHINX_TYPE_MEDIUMTEXT:
+                return array('name' => 'mediumtext');
+                break;
+            case static::PHINX_TYPE_LONGTEXT:
+                return array('name' => 'longtext');
+                break;
             case static::PHINX_TYPE_INTEGER:
                 return array('name' => 'int', 'limit' => 11);
                 break;
