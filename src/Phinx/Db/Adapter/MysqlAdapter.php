@@ -226,13 +226,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $optionsStr .= sprintf(' CHARACTER SET %s', $charset[0]);
             $optionsStr .= sprintf(' COLLATE %s', $options['collation']);
         }
-        
+
+        // set the table comment
+        if (isset($options['comment'])) {
+            $optionsStr .= sprintf(" COMMENT=%s ", $this->getConnection()->quote($options['comment']));
+        }
+
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
             $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
         }
-        
+
         // set the primary key(s)
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
@@ -256,7 +261,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } else {
             $sql = substr(rtrim($sql), 0, -1);              // no primary keys
         }
-        
+
         // set the indexes
         $indexes = $table->getIndexes();
         if (!empty($indexes)) {
