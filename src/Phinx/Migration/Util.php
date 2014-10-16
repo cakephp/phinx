@@ -81,20 +81,16 @@ class Util
         $in_comment = false;
         $filteredOutput = '';
 
-        for($i = 0; $i < $linecount; $i++)
-        {
-            if( preg_match("/^\/\*/", preg_quote($lines[$i])) )
-            {
+        for ($i = 0; $i < $linecount; $i++) {
+            if (preg_match("/^\/\*/", preg_quote($lines[$i]))) {
                 $in_comment = true;
             }
 
-            if( !$in_comment )
-            {
+            if (!$in_comment) {
                 $filteredOutput .= $lines[$i] . "\n";
             }
 
-            if( preg_match("/\*\/$/", preg_quote($lines[$i])) )
-            {
+            if (preg_match("/\*\/$/", preg_quote($lines[$i]))) {
                 $in_comment = false;
             }
         }
@@ -121,16 +117,11 @@ class Util
         $linecount = count($lines);
         $filteredOutput = '';
 
-        for ($i = 0; $i < $linecount; $i++)
-        {
-            if (($i != ($linecount - 1)) || (strlen($lines[$i]) > 0))
-            {
-                if (isset($lines[$i][0]) && $lines[$i][0] != "#")
-                {
+        for ($i = 0; $i < $linecount; $i++) {
+            if (($i != ($linecount - 1)) || (strlen($lines[$i]) > 0)) {
+                if (isset($lines[$i][0]) && $lines[$i][0] != "#") {
                     $filteredOutput .= $lines[$i] . "\n";
-                }
-                else
-                {
+                } else {
                     $filteredOutput .= "\n";
                 }
                 // Trading a bit of speed for lower mem. use here.
@@ -164,11 +155,9 @@ class Util
 
         // this is faster than calling count($tokens) every time thru the loop.
         $token_count = count($tokens);
-        for ($i = 0; $i < $token_count; $i++)
-        {
+        for ($i = 0; $i < $token_count; $i++) {
             // Don't wanna add an empty string as the last thing in the array.
-            if (($i != ($token_count - 1)) || (strlen($tokens[$i] > 0)))
-            {
+            if (($i != ($token_count - 1)) || (strlen($tokens[$i] > 0))) {
                 // This is the total number of single quotes in the token.
                 $total_quotes = preg_match_all("/'/", $tokens[$i], $matches);
                 // Counts single quotes that are preceded by an odd number of backslashes,
@@ -178,15 +167,12 @@ class Util
                 $unescaped_quotes = $total_quotes - $escaped_quotes;
 
                 // If the number of unescaped quotes is even, then the delimiter did NOT occur inside a string literal.
-                if (($unescaped_quotes % 2) == 0)
-                {
+                if (($unescaped_quotes % 2) == 0) {
                     // It's a complete sql statement.
                     $output[] = $tokens[$i];
                     // save memory.
                     $tokens[$i] = "";
-                }
-                else
-                {
+                } else {
                     // incomplete sql statement. keep adding tokens until we have a complete one.
                     // $temp will hold what we have so far.
                     $temp = $tokens[$i] . $delimiter;
@@ -196,8 +182,7 @@ class Util
                     // Do we have a complete statement yet?
                     $complete_stmt = false;
 
-                    for ($j = $i + 1; (!$complete_stmt && ($j < $token_count)); $j++)
-                    {
+                    for ($j = $i + 1; (!$complete_stmt && ($j < $token_count)); $j++) {
                         // This is the total number of single quotes in the token.
                         $total_quotes = preg_match_all("/'/", $tokens[$j], $matches);
                         // Counts single quotes that are preceded by an odd number of backslashes,
@@ -206,8 +191,7 @@ class Util
 
                         $unescaped_quotes = $total_quotes - $escaped_quotes;
 
-                        if (($unescaped_quotes % 2) == 1)
-                        {
+                        if (($unescaped_quotes % 2) == 1) {
                             // odd number of unescaped quotes. In combination with the previous incomplete
                             // statement(s), we now have a complete statement. (2 odds always make an even)
                             $output[] = $temp . $tokens[$j];
@@ -220,9 +204,7 @@ class Util
                             $complete_stmt = true;
                             // make sure the outer loop continues at the right point.
                             $i = $j;
-                        }
-                        else
-                        {
+                        } else {
                             // even number of unescaped quotes. We still don't have a complete statement.
                             // (1 odd and 1 even always make an odd)
                             $temp .= $tokens[$j] . $delimiter;
@@ -237,13 +219,15 @@ class Util
 
         return $output;
     }
+
     /*
      * Reads the content from a file and returns it as string
      *
      * @param $fileName File name of the file to read
      * @return string $fileContents Content of the file
      */
-    public static function readFromFile($fileName) {
+    public static function readFromFile($fileName)
+    {
         return @fread(@fopen($fileName, 'r'), @filesize($fileName));
     }
 }

@@ -146,7 +146,7 @@ abstract class AbstractMigration implements MigrationInterface
         $sqlContent = Util::removeRemarks($sqlContent);
         $sqlContent = Util::splitSqlFile($sqlContent, ';');
 
-        foreach($sqlContent as $sql){
+        foreach ($sqlContent as $sql) {
             $this->getAdapter()->execute($sql);
         }
     }
