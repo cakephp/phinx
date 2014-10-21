@@ -95,6 +95,10 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
 
 Check out http://docs.phinx.org for the comprehensive documentation.
 
+## Unofficial IRC Channel
+
+Some Phinx users often hang out in the #phinx channel on [freenode](https://freenode.net/). Feel free to connect if you wish to discuss Phinx and seek advice.
+
 ## Contributing
 
 Start by forking Phinx on GitHub: https://github.com/robmorgan/phinx
@@ -118,6 +122,16 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 ## Misc
 
 ### Version History
+
+**0.3.8** (Sunday, 5th October 2014)
+
+* Added new CHAR & Geospatial column types
+* Added MySQL unix socket support
+* Added precision & scale support for SQL Server
+* Several bug fixes for SQLite
+* Improved error messages
+* Overall code optimizations
+* Optimizations to MySQL hasTable method
 
 **0.3.7** (Tuesday, 12th August 2014)
 
@@ -190,9 +204,9 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 **0.2.7** (Saturday, 24th August 2013)
 
-* Critical fix for a token parsing bug.
-* Removed legacy build system.
-* Improving docs.
+* Critical fix for a token parsing bug
+* Removed legacy build system
+* Improving docs
 
 **0.2.6** (Saturday, 24th August 2013)
 

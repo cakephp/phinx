@@ -298,7 +298,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
         foreach ($rows as $column) {
-            if (strtolower($column['name']) == strtolower($columnName)) {
+            if (strcasecmp($column['name'], $columnName) === 0) {
                 return true;
             }
         }
@@ -377,6 +377,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $this->execute($sql);
 
+        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
+        $this->endCommandTimer();
     }
     
     /**
@@ -419,9 +421,11 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
 
+        $val = end($columns);
+        $replacement = ($val['name'] === $columnName) ? "%s %s" : "%s %s,";
         $sql = preg_replace(
             sprintf("/%s[^,]*[^\)]/", $this->quoteColumnName($columnName)),
-            sprintf("%s %s", $this->quoteColumnName($newColumn->getName()), $this->getColumnSqlDefinition($newColumn)),
+            sprintf($replacement, $this->quoteColumnName($newColumn->getName()), $this->getColumnSqlDefinition($newColumn)),
             $sql
         );
 
@@ -463,11 +467,13 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
         $columns = array();
+        $columnType = null;
         foreach ($rows as $row) {
             if ($row['name'] != $columnName) {
                 $columns[] = $row['name'];
             } else {
                 $found = true;
+                $columnType = $row['type'];
             }
         }
 
@@ -480,10 +486,14 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
 
         $sql = preg_replace(
-            sprintf("/%s[^,]*/", $this->quoteColumnName($columnName)),
-            '',
+            sprintf("/%s\s%s[^,)]*(,\s|\))/", preg_quote($this->quoteColumnName($columnName)), preg_quote($columnType)),
+            "",
             $sql
         );
+
+        if (substr($sql, -2) === ', ') {
+            $sql = substr($sql, 0, -2) . ')';
+        }
 
         $this->execute($sql);
 
@@ -790,6 +800,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_STRING:
                 return array('name' => 'varchar', 'limit' => 255);
                 break;
+            case static::PHINX_TYPE_CHAR:
+                return array('name' => 'char', 'limit' => 255);
+                break;
             case static::PHINX_TYPE_TEXT:
                 return array('name' => 'text');
                 break;
@@ -823,6 +836,18 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'boolean');
                 break;
+            // Geospatial database types
+            // No specific data types exist in SQLite, instead all geospatial
+            // functionality is handled in the client. See also: SpatiaLite.
+            case static::PHINX_TYPE_GEOMETRY:
+            case static::PHINX_TYPE_POLYGON:
+                return array('name' => 'text');
+                return;
+            case static::PHINX_TYPE_LINESTRING:
+                return array('name' => 'varchar', 'limit' => 255);
+                break;
+            case static::PHINX_TYPE_POINT:
+                return array('name' => 'float');
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
         }
@@ -851,6 +876,12 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             switch ($matches[1]) {
                 case 'varchar':
                     $type = static::PHINX_TYPE_STRING;
+                    if ($limit == 255) {
+                        $limit = null;
+                    }
+                    break;
+                case 'char':
+                    $type = static::PHINX_TYPE_CHAR;
                     if ($limit == 255) {
                         $limit = null;
                     }

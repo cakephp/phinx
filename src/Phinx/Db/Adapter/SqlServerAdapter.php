@@ -277,7 +277,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         // passing 'null' is to remove column comment
         $currentComment = $this->getColumnComment($tableName, $column->getName());
 
-        $comment = (strtoupper($column->getComment()) !== 'NULL') ? $this->getConnection()->quote($column->getComment()) : '\'\'';
+        $comment = (strcasecmp($column->getComment(), 'NULL') !== 0) ? $this->getConnection()->quote($column->getComment()) : '\'\'';
         $command = $currentComment === false ? 'sp_addextendedproperty' : 'sp_updateextendedproperty';
         return sprintf(
             "EXECUTE %s N'MS_Description', N%s, N'SCHEMA', N'%s', N'TABLE', N'%s', N'COLUMN', N'%s';",
@@ -814,6 +814,9 @@ ORDER BY T.[name], I.[index_id];";
             case static::PHINX_TYPE_STRING:
                 return array('name' => 'nvarchar', 'limit' => 255);
                 break;
+            case static::PHINX_TYPE_CHAR:
+                return array('name' => 'nchar', 'limit' => 255);
+                break;
             case static::PHINX_TYPE_TEXT:
                 return array('name' => 'ntext');
                 break;
@@ -840,7 +843,7 @@ ORDER BY T.[name], I.[index_id];";
                 return array('name' => 'date');
                 break;
             case static::PHINX_TYPE_BINARY:
-                return array('name' => 'binary');
+                return array('name' => 'varbinary');
                 break;
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'bit');
@@ -849,6 +852,15 @@ ORDER BY T.[name], I.[index_id];";
                 return array('name' => 'uniqueidentifier');
             case static::PHINX_TYPE_FILESTREAM:
                 return array('name' => 'varbinary', 'limit' => 'max');
+            // Geospatial database types
+            case static::PHINX_TYPE_GEOMETRY:
+            case static::PHINX_TYPE_POINT:
+            case static::PHINX_TYPE_LINESTRING:
+            case static::PHINX_TYPE_POLYGON:
+                // SQL Server stores all spatial data using a single data type.
+                // Specific types (point, polygon, etc) are set at insert time.
+                return array('name' => 'geography');
+                break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
         }
@@ -867,8 +879,10 @@ ORDER BY T.[name], I.[index_id];";
         switch ($sqlType) {
             case 'nvarchar':
             case 'varchar':
-            case 'char':
                 return static::PHINX_TYPE_STRING;
+            case 'char':
+            case 'nchar':
+                return static::PHINX_TYPE_CHAR;
             case 'text':
             case 'ntext':
                 return static::PHINX_TYPE_TEXT;
@@ -886,6 +900,7 @@ ORDER BY T.[name], I.[index_id];";
                 return static::PHINX_TYPE_FLOAT;
             case 'binary':
             case 'image':
+            case 'varbinary':
                 return static::PHINX_TYPE_BINARY;
                 break;
             case 'time':
@@ -976,6 +991,9 @@ SQL;
         if (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
             $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
         }
+        if ($column->getPrecision() && $column->getScale()) {
+            $buffer[] = '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
+        }
 
         $properties = $column->getProperties();
         $buffer[] = $column->getType() == 'filestream' ? 'FILESTREAM' : '';
@@ -996,7 +1014,6 @@ SQL;
             $buffer[] = 'IDENTITY(1, 1)';
         }
 
-        // TODO - add precision & scale for decimals
         return implode(' ', $buffer);
     }
     
@@ -1058,6 +1075,7 @@ SQL;
         return array(
             'string',
             'text',
+            'char',
             'integer',
             'biginteger',
             'float',
@@ -1077,7 +1095,7 @@ SQL;
      * {@inheritdoc}
      */
     public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime) {
-        if (strtolower($direction) == MigrationInterface::UP) {
+        if (strcasecmp($direction, MigrationInterface::UP) === 0) {
             // up
             $sql = sprintf(
                 "INSERT INTO %s ([version], [start_time], [end_time]) VALUES ('%s', '%s', '%s');",
