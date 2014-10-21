@@ -2,11 +2,9 @@
 
 namespace Phinx\Console\Command;
 
-use Phinx\Migration\Schema\Schema;
 use Symfony\Component\Console\Input\InputArgument,
     Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Filesystem\Filesystem;
+    Symfony\Component\Console\Output\OutputInterface;
 
 class SchemaDump extends AbstractCommand
 {
