@@ -1019,25 +1019,33 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     protected function getTableOptions($tableName)
     {
         $rows = $this->fetchAll(sprintf('SHOW COLUMNS IN `%s`', $tableName));
-        $pkFieldName = array();
-        $options = array();
+        $pkFieldNames = array();
+        $isPkAutoIncrement = false;
         foreach ($rows as $row) {
             if ($row['Key'] == 'PRI') {
-                $pkFieldName[] = $row['Field'];
+                $pkFieldNames[] = $row['Field'];
+                if ($row['Extra'] == 'auto_increment') {
+                    $isPkAutoIncrement = true;
+                }
             }
         }
 
+        // new Table('user');
+        $isAutoId = count($pkFieldNames) == 1 && $pkFieldNames[0] == 'id';
+        $isNoPk = count($pkFieldNames) == 0;
+        if ($isAutoId || $isNoPk) {
+            return array();
+        }
+
         // new Table('user', array('id'=>'user_id'));
-        if (count($pkFieldName) == 1 && $pkFieldName[0] != 'id') {
-            $options = array('id'=>$pkFieldName[0]);
+        if (count($pkFieldNames) == 1 && $pkFieldNames[0] != 'id' && $isPkAutoIncrement) {
+            return array('id'=>$pkFieldNames[0]);
         }
 
+        // Everything else ...
+        // new Table('user_followers', array('id'=>false, 'primary_key'=>array('user_id')));
         // new Table('user_followers', array('id'=>false, 'primary_key'=>array('user_id', 'follower_id')));
-        if (count($pkFieldName) > 1) {
-            $options = array('id'=>false, 'primary_key'=>$pkFieldName);
-        }
-
-        return $options;
+        return array('id'=>false, 'primary_key'=>$pkFieldNames);
     }
 
     /**
