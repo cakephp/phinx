@@ -63,6 +63,7 @@ specified under the ``environments`` nested collection. For example:
             pass: ''
             port: 3306
             charset: utf8
+            collation: utf8_general_ci
 
 would define a new environment called ``production``.
 
@@ -101,6 +102,7 @@ demonstrated by the following example:
             pass: %%PHINX_DBPASS%%
             port: 3306
             charset: utf8
+            collation: utf8_general_ci
 
 Supported Adapters
 ------------------
