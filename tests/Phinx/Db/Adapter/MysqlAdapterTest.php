@@ -201,7 +201,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('realname', 'string')
               ->save();
         $this->assertTrue($this->adapter->hasTable('ntable'));
-        $row = $this->adapter->fetchRow(sprintf('SHOW TABLE STATUS WHERE Name = "%s"', 'ntable'));
+        $row = $this->adapter->fetchRow(sprintf("SHOW TABLE STATUS WHERE Name = '%s'", 'ntable'));
         $this->assertEquals('MyISAM', $row['Engine']);
     }
     
@@ -211,7 +211,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('name', 'string')
               ->save();
         $this->assertTrue($this->adapter->hasTable('latin1_table'));
-        $row = $this->adapter->fetchRow(sprintf('SHOW TABLE STATUS WHERE Name = "%s"', 'latin1_table'));
+        $row = $this->adapter->fetchRow(sprintf("SHOW TABLE STATUS WHERE Name = '%s'", 'latin1_table'));
         $this->assertEquals('latin1_general_ci', $row['Collation']);
     }
     
@@ -564,7 +564,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('column1', 'string', array('comment' => $comment = 'Comments from "column1"'))
               ->save();
 
-        $rows = $this->adapter->fetchAll('SELECT column_name, column_comment FROM information_schema.columns WHERE table_name = "table1"');
+        $rows = $this->adapter->fetchAll("SELECT column_name, column_comment FROM information_schema.columns WHERE table_name = 'table1'");
         $columnWithComment = $rows[1];
 
         $this->assertEquals($comment, $columnWithComment['column_comment'], 'Dont set column comment correctly');
