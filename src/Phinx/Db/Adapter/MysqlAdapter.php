@@ -226,13 +226,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $optionsStr .= sprintf(' CHARACTER SET %s', $charset[0]);
             $optionsStr .= sprintf(' COLLATE %s', $options['collation']);
         }
-        
+
+        // set the table comment
+        if (isset($options['comment'])) {
+            $optionsStr .= sprintf(" COMMENT=%s ", $this->getConnection()->quote($options['comment']));
+        }
+
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
             $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
         }
-        
+
         // set the primary key(s)
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
@@ -256,7 +261,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } else {
             $sql = substr(rtrim($sql), 0, -1);              // no primary keys
         }
-        
+
         // set the indexes
         $indexes = $table->getIndexes();
         if (!empty($indexes)) {
@@ -380,6 +385,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             if (strcasecmp($row['Field'], $columnName) === 0) {
                 $null = ($row['Null'] == 'NO') ? 'NOT NULL' : 'NULL';
                 $extra = ' ' . strtoupper($row['Extra']);
+                if (!is_null($row['Default'])) {
+                    $extra .= ' DEFAULT ' . (is_numeric($row['Default']) || $row['Default'] == 'CURRENT_TIMESTAMP' ? $row['Default'] : '\'' . $row['Default'] . '\'');
+                }
                 $definition = $row['Type'] . ' ' . $null . $extra;
         
                 $this->writeCommand('renameColumn', array($tableName, $columnName, $newColumnName));
@@ -588,7 +596,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $foreignKeys = array();
         $rows = $this->fetchAll(sprintf(
-            'SELECT
+            "SELECT
               CONSTRAINT_NAME,
               TABLE_NAME,
               COLUMN_NAME,
@@ -597,8 +605,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             FROM information_schema.KEY_COLUMN_USAGE
             WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
               AND REFERENCED_TABLE_NAME IS NOT NULL
-              AND TABLE_NAME = "%s"
-            ORDER BY POSITION_IN_UNIQUE_CONSTRAINT',
+              AND TABLE_NAME = '%s'
+            ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
             $tableName
         ));
         foreach ($rows as $row) {
@@ -652,14 +660,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } else {
             foreach ($columns as $column) {
                 $rows = $this->fetchAll(sprintf(
-                    'SELECT
+                    "SELECT
                         CONSTRAINT_NAME
                       FROM information_schema.KEY_COLUMN_USAGE
                       WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
                         AND REFERENCED_TABLE_NAME IS NOT NULL
-                        AND TABLE_NAME = "%s"
-                        AND COLUMN_NAME = "%s"
-                      ORDER BY POSITION_IN_UNIQUE_CONSTRAINT',
+                        AND TABLE_NAME = '%s'
+                        AND COLUMN_NAME = '%s'
+                      ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
                     $tableName,
                     $column
                 ));
@@ -947,10 +955,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         // mysql specific
         $sql = sprintf(
-            'SELECT *'
-            . ' FROM information_schema.tables'
-            . ' WHERE table_schema = "%s"'
-            . ' AND table_name = "%s"',
+            "SELECT *
+             FROM information_schema.tables
+             WHERE table_schema = '%s'
+             AND table_name = '%s'",
             $options['name'],
             $tableName
         );

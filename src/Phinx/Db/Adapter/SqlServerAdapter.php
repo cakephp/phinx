@@ -843,7 +843,7 @@ ORDER BY T.[name], I.[index_id];";
                 return array('name' => 'date');
                 break;
             case static::PHINX_TYPE_BINARY:
-                return array('name' => 'binary');
+                return array('name' => 'varbinary');
                 break;
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'bit');
@@ -900,6 +900,7 @@ ORDER BY T.[name], I.[index_id];";
                 return static::PHINX_TYPE_FLOAT;
             case 'binary':
             case 'image':
+            case 'varbinary':
                 return static::PHINX_TYPE_BINARY;
                 break;
             case 'time':
