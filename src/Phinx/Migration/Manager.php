@@ -449,4 +449,28 @@ class Manager
     {
         return $this->config;
     }
+
+    /**
+     * Resets array with migrations to null what allows to load another migration
+     *
+     * @return void
+     */
+    public function reset()
+    {
+        $this->migrations = null;
+    }
+
+    /**
+     * Creates the new schema table, if given table is not the same as currently used one
+     *
+     * @param String $env The name of used environment
+     * @param String $newSchemaTableName The name of new schema table
+     */
+    public function switchSchemaTableName($env, $newSchemaTableName)
+    {
+        $currentSchemaTablaName = $this->getEnvironment($env)->getAdapter()->getSchemaTableName();
+        if ($newSchemaTableName != $currentSchemaTablaName) {
+            $this->getEnvironment($env)->getAdapter()->switchSchemaTableName($newSchemaTableName);
+        }
+    }
 }

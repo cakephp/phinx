@@ -148,6 +148,21 @@ abstract class PdoAdapter implements AdapterInterface
     {
         return $this->schemaTableName;
     }
+
+    /**
+     * Switchs the schema table name the to new one
+     * Creates the new table if given table does not exist yet
+     *
+     * @param $schemaTableName
+     */
+    public function switchSchemaTableName($schemaTableName)
+    {
+        $this->setSchemaTableName($schemaTableName);
+
+        if (!$this->hasSchemaTable()) {
+            $this->createSchemaTable();
+        }
+    }
     
     /**
      * Sets the database connection.
