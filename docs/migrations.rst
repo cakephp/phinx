@@ -23,7 +23,7 @@ This will create a new migration in the format
 replaced with the current timestamp down to the second.
 
 Phinx automatically creates a skeleton migration file with two empty methods
-and one commented out:
+and a commented out one:
 
 .. code-block:: php
         
