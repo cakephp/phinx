@@ -60,6 +60,7 @@ interface AdapterInterface
     const PHINX_TYPE_FILESTREAM     = 'filestream';
 
     // Geospatial database types
+    const PHINX_TYPE_GEOGRAPHY       = 'geography';
     const PHINX_TYPE_GEOMETRY       = 'geometry';
     const PHINX_TYPE_POINT          = 'point';
     const PHINX_TYPE_LINESTRING     = 'linestring';

@@ -710,7 +710,7 @@ Let's add a foreign key to an example table:
         
                 $refTable = $this->table('tag_relationships');
                 $refTable->addColumn('tag_id', 'integer')
-                         ->addForeignKey('tag_id', 'tags', 'id', array('delete'=> 'SET_NULL', update=> 'NO_ACTION'))
+                         ->addForeignKey('tag_id', 'tags', 'id', array('delete'=> 'SET_NULL', 'update'=> 'NO_ACTION'))
                          ->save();
                 
             }

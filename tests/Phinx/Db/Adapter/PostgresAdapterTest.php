@@ -2,13 +2,14 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\Table\Column;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\PostgresAdapter;
 
 class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Phinx\Db\Adapter\PostgresqlAdapter
+     * @var \Phinx\Db\Adapter\PostgresAdapter
      */
     private $adapter;
     
@@ -30,7 +31,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->adapter->dropAllSchemas();
         $this->adapter->createSchema($options['schema']);
-        
+
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
     }
@@ -42,7 +43,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             unset($this->adapter);
         }
     }
-    
+
     public function testConnection()
     {
         $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
@@ -300,6 +301,28 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             }
         }
     }
+
+    public function testChangeColumnType()
+    {
+        //issue #313
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table
+            ->addColumn('column1', 'timestamp', array('default' => null, 'null' => true))
+            ->save();
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+
+        $table->changeColumn('column1', 'date', array('default' => '1930-01-01'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+
+        $columns = $this->adapter->getColumns('t');
+        /** @var Column[] $columns */
+        $column = $columns[0];
+        if ($column->getName() == 'column1') {
+            $this->assertFalse($column->isNull());
+            $this->assertFalse($column->getDefault() == 'null');
+        }
+
+    }
     
     public function testDropColumn()
     {
@@ -313,6 +336,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testGetColumns()
     {
+        $this->createGeoSpatialExtensions();
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string')
               ->addColumn('column2', 'integer')
@@ -326,7 +350,11 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column10', 'boolean')
               ->addColumn('column11', 'datetime')
               ->addColumn('column12', 'binary')
-              ->addColumn('column13', 'string', array('limit' => 10));
+              ->addColumn('column13', 'string', array('limit' => 10))
+              ->addColumn('column16', 'geometry')
+              ->addColumn('column17', 'point')
+              ->addColumn('column18', 'linestring')
+              ->addColumn('column19', 'polygon');
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -620,5 +648,39 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
                 ->create();
 
         $this->assertTrue($foreign->hasForeignKey('user'));
+    }
+
+    public function testAddGeoSpatialColumns()
+    {
+        $this->createGeoSpatialExtensions();
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('geo_geom'));
+        $table->addColumn('geo_geom', 'geometry')
+            ->save();
+        $rows = $this->adapter->fetchAll(
+            "SELECT COALESCE (NULLIF(data_type, 'USER-DEFINED'), udt_name) as data_type
+            FROM information_schema.columns WHERE table_name ='table1'"
+        );
+        $this->assertEquals('geography', $rows[1]['data_type']);
+    }
+
+    private function createGeoSpatialExtensions()
+    {
+        try {
+            $this->adapter->execute('
+            -- Enable PostGIS (includes raster)
+            CREATE EXTENSION postgis;
+            -- Enable Topology
+            CREATE EXTENSION postgis_topology;
+            -- fuzzy matching needed for Tiger
+            CREATE EXTENSION fuzzystrmatch;
+            -- Enable US Tiger Geocoder
+            CREATE EXTENSION postgis_tiger_geocoder;
+            ');
+        } catch (\PDOException $e) {
+            $this->markTestSkipped('Geospatial extensions not installed, skipping test');
+        }
+
     }
 }
