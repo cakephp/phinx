@@ -359,7 +359,12 @@ class Manager
     {
         if (null === $this->migrations) {
             $config = $this->getConfig();
-            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php');
+            
+            $phpFiles = array();
+            foreach ($config->getMigrationPath() as $migrationPath) {
+                $files = glob($migrationPath . DIRECTORY_SEPARATOR . '*.php');
+                $phpFiles = array_merge($phpFiles, $files);
+            }
             
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();

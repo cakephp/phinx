@@ -240,16 +240,26 @@ class Config implements \ArrayAccess
             throw new \UnexpectedValueException('Migrations path missing from config file');
         }
 
-        $path = realpath($this->values['paths']['migrations']);
-
-        if ($path === false) {
-            throw new \UnexpectedValueException(sprintf(
-                'Migrations directory "%s" does not exist',
+        if (!is_array($this->values['paths']['migrations'])) {
+            $this->values['paths']['migrations'] = array(
                 $this->values['paths']['migrations']
-            ));
+            );
         }
 
-        return $path;
+        $pathArray = array();
+        foreach ($this->values['paths']['migrations'] as $pathDirectory) {
+            $path = realpath($pathDirectory);
+
+            if ($path === false) {
+                throw new \UnexpectedValueException(sprintf(
+                        'Migrations directory "%s" does not exist', $pathDirectory
+                ));
+            }
+            
+            $pathArray[] = $path;
+        }
+
+        return $pathArray;
     }
     
     /**
