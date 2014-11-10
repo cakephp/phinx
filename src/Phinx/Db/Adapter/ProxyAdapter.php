@@ -621,4 +621,11 @@ class ProxyAdapter implements AdapterInterface
     public function getConnection() {
         return $this->getAdapter()->getConnection();
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function checkColumnType(Column $column) {
+        return in_array($column->getType(), $this->getColumnTypes());
+    }
 }
