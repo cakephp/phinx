@@ -31,6 +31,7 @@ namespace Phinx\Db\Adapter;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Table;
+use Phinx\Db\Table\Column;
 use Phinx\Migration\MigrationInterface;
 
 /**
@@ -437,5 +438,12 @@ abstract class PdoAdapter implements AdapterInterface
             'linestring',
             'polygon',
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function checkColumnType(Column $column) {
+        return in_array($column->getType(), $this->getColumnTypes());
     }
 }

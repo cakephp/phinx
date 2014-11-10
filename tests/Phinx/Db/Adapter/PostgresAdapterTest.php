@@ -264,6 +264,40 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             }
         }
     }
+
+    public function providerArrayType()
+    {
+        return array(
+            array('array_text', 'text[]'),
+            array('array_char', 'char[]'),
+            array('array_integer', 'integer[]'),
+            array('array_float', 'float[]'),
+            array('array_decimal', 'decimal[]'),
+            array('array_timestamp', 'timestamp[]'),
+            array('array_time', 'time[]'),
+            array('array_date', 'date[]'),
+            array('array_boolean', 'boolean[]'),
+            array('array_json', 'json[]'),
+            array('array_uuid', 'uuid[]'),
+        );
+    }
+
+    /**
+     *
+     * @dataProvider providerArrayType
+     * @param $column_name
+     * @param $column_type
+     */
+    public function testAddColumnArrayType($column_name, $column_type)
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn($column_name));
+        $table->addColumn($column_name, $column_type)
+            ->save();
+        $this->assertTrue($table->hasColumn($column_name));
+    }
+    
     public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
