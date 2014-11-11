@@ -28,6 +28,7 @@
  */
 namespace Phinx\Migration\Manager;
 
+use Phinx\Migration\Schema\Dumper;
 use Phinx\Db\Adapter\SqlServerAdapter;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Db\Adapter\AdapterInterface;
@@ -323,6 +324,17 @@ class Environment
         return $this->schemaTableName;
     }
 
+    /**
+     * @return string
+     */
+    public function schemaDump()
+    {
+        $dumper = new Dumper();
+        $dumper->setAdapter($this->getAdapter());
+        
+        return $dumper->dump();
+    }
+    
     /**
      * @return callable[] Array of factory closures for Phinx's default adapter implementations.
      */

@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Db\Adapter
  */
@@ -41,6 +41,11 @@ use Phinx\Db\Table\ForeignKey;
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
 
+    /**
+     * @var bool
+     */
+    protected $foreignKeyCheck = true;
+
     protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
 
     /**
@@ -54,10 +59,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 throw new \RuntimeException('You need to enable the PDO_Mysql extension for Phinx to run properly.');
                 // @codeCoverageIgnoreEnd
             }
-            
+
             $db = null;
             $options = $this->getOptions();
-            
+
             // if port is specified use it, otherwise use the MySQL default
             if (empty($options['port'])) {
                 $dsn = 'mysql:host=' . $options['host'] . ';dbname=' . $options['name'];
@@ -69,7 +74,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             if (isset($options['unix_socket'])) {
                 $dsn .= ';unix_socket=' . $options['unix_socket'];
             }
-            
+
             // charset support
             if (isset($options['charset'])) {
                 $dsn .= ';charset=' . $options['charset'];
@@ -95,14 +100,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             }
 
             $this->setConnection($db);
-            
+
             // Create the schema table if it doesn't already exist
             if (!$this->hasSchemaTable()) {
                 $this->createSchemaTable();
             }
         }
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -110,7 +115,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->connection = null;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -118,7 +123,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         return true;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -126,7 +131,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->execute('START TRANSACTION');
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -134,7 +139,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->execute('COMMIT');
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -142,7 +147,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->execute('ROLLBACK');
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -150,7 +155,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         return str_replace('.', '`.`', $this->quoteColumnName($tableName));
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -158,7 +163,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         return '`' . str_replace('`', '``', $columnName) . '`';
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -175,7 +180,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         return !empty($exists);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -189,7 +194,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             'collation' => 'utf8_general_ci'
         );
         $options = array_merge($defaultOptions, $table->getOptions());
-        
+
         // Add the default primary key
         $columns = $table->getPendingColumns();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
@@ -197,7 +202,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $column->setName('id')
                    ->setType('integer')
                    ->setIdentity(true);
-            
+
             array_unshift($columns, $column);
             $options['primary_key'] = 'id';
 
@@ -211,15 +216,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             array_unshift($columns, $column);
             $options['primary_key'] = $options['id'];
         }
-        
+
         // TODO - process table options like collation etc
-        
+
         // process table engine (default to InnoDB)
         $optionsStr = 'ENGINE = InnoDB';
         if (isset($options['engine'])) {
             $optionsStr = sprintf('ENGINE = %s', $options['engine']);
         }
-        
+
         // process table collation
         if (isset($options['collation'])) {
             $charset = explode('_', $options['collation']);
@@ -286,7 +291,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $this->execute($sql);
         $this->endCommandTimer();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -297,7 +302,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(sprintf('RENAME TABLE %s TO %s', $this->quoteTableName($tableName), $this->quoteTableName($newTableName)));
         $this->endCommandTimer();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -315,7 +320,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function getColumns($tableName)
     {
         $columns = array();
-        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $tableName));
+        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM `%s`', $tableName));
         foreach ($rows as $columnInfo) {
             $column = new Column();
             $column->setName($columnInfo['Field'])
@@ -336,7 +341,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         return $columns;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -351,7 +356,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         return false;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -364,16 +369,16 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $this->quoteColumnName($column->getName()),
             $this->getColumnSqlDefinition($column)
         );
-        
+
         if ($column->getAfter()) {
             $sql .= ' AFTER ' . $this->quoteColumnName($column->getAfter());
         }
-        
+
         $this->writeCommand('addColumn', array($table->getName(), $column->getName(), $column->getType()));
         $this->execute($sql);
         $this->endCommandTimer();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -389,7 +394,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     $extra .= ' DEFAULT ' . (is_numeric($row['Default']) || $row['Default'] == 'CURRENT_TIMESTAMP' ? $row['Default'] : '\'' . $row['Default'] . '\'');
                 }
                 $definition = $row['Type'] . ' ' . $null . $extra;
-        
+
                 $this->writeCommand('renameColumn', array($tableName, $columnName, $newColumnName));
                 $this->execute(
                     sprintf(
@@ -404,13 +409,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return;
             }
         }
-        
+
         throw new \InvalidArgumentException(sprintf(
             'The specified column doesn\'t exist: '
             . $columnName
         ));
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -429,7 +434,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         );
         $this->endCommandTimer();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -446,7 +451,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         );
         $this->endCommandTimer();
     }
-    
+
     /**
      * Get an array of indexes from a particular table.
      *
@@ -465,7 +470,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
         return $indexes;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -474,20 +479,20 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
-        
+
         $columns = array_map('strtolower', $columns);
         $indexes = $this->getIndexes($tableName);
-        
+
         foreach ($indexes as $index) {
             $a = array_diff($columns, $index['columns']);
             if (empty($a)) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -504,7 +509,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         );
         $this->endCommandTimer();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -514,11 +519,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
-        
+
         $this->writeCommand('dropIndex', array($tableName, $columns));
         $indexes = $this->getIndexes($tableName);
         $columns = array_map('strtolower', $columns);
-        
+
         foreach ($indexes as $indexName => $index) {
             $a = array_diff($columns, $index['columns']);
             if (empty($a)) {
@@ -534,17 +539,17 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             }
         }
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function dropIndexByName($tableName, $indexName)
     {
         $this->startCommandTimer();
-        
+
         $this->writeCommand('dropIndexByName', array($tableName, $indexName));
         $indexes = $this->getIndexes($tableName);
-        
+
         foreach ($indexes as $name => $index) {
             //$a = array_diff($columns, $index['columns']);
             if ($name === $indexName) {
@@ -577,7 +582,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             return false;
         } else {
             foreach ($foreignKeys as $key) {
-                $a = array_diff($columns, $key['columns']);
+                $a = array_diff($columns, $key->getColumns());
                 if (empty($a)) {
                     return true;
                 }
@@ -592,9 +597,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      * @param string $tableName Table Name
      * @return array
      */
-    protected function getForeignKeys($tableName)
+    public function getForeignKeys($tableName)
     {
-        $foreignKeys = array();
+        $foreignKeysArray = array();
         $rows = $this->fetchAll(sprintf(
             "SELECT
               CONSTRAINT_NAME,
@@ -606,15 +611,26 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
               AND REFERENCED_TABLE_NAME IS NOT NULL
               AND TABLE_NAME = '%s'
-            ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
+            ORDER BY COLUMN_NAME",
             $tableName
         ));
         foreach ($rows as $row) {
-            $foreignKeys[$row['CONSTRAINT_NAME']]['table'] = $row['TABLE_NAME'];
-            $foreignKeys[$row['CONSTRAINT_NAME']]['columns'][] = $row['COLUMN_NAME'];
-            $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_table'] = $row['REFERENCED_TABLE_NAME'];
-            $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_columns'][] = $row['REFERENCED_COLUMN_NAME'];
+            $foreignKeysArray[$row['CONSTRAINT_NAME']]['table'] = $row['TABLE_NAME'];
+            $foreignKeysArray[$row['CONSTRAINT_NAME']]['columns'][] = $row['COLUMN_NAME'];
+            $foreignKeysArray[$row['CONSTRAINT_NAME']]['referenced_table'] = $row['REFERENCED_TABLE_NAME'];
+            $foreignKeysArray[$row['CONSTRAINT_NAME']]['referenced_columns'][] = $row['REFERENCED_COLUMN_NAME'];
         }
+
+        $foreignKeys = array();
+        foreach ($foreignKeysArray as $constraint => $foreignKeyArray) {
+            $foreignKey = new ForeignKey();
+            $foreignKey->setColumns($foreignKeyArray['columns']);
+            $foreignKey->setReferencedTable(new Table($foreignKeyArray['referenced_table']));
+            $foreignKey->setReferencedColumns($foreignKeyArray['referenced_columns']);
+            $foreignKeys[$constraint] = $foreignKey;
+        }
+
+
         return $foreignKeys;
     }
 
@@ -644,9 +660,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
-        
+
         $this->writeCommand('dropForeignKey', array($tableName, $columns));
-        
+
         if ($constraint) {
             $this->execute(
                 sprintf(
@@ -678,7 +694,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
         $this->endCommandTimer();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -765,6 +781,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $limit = null;
                     }
                     break;
+                case 'mediumtext':
+                    $type = 'text';
+                    break;
                 case 'char':
                     $type = static::PHINX_TYPE_CHAR;
                     if ($limit == 255) {
@@ -776,11 +795,21 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $limit = null;
                     }
                     break;
+                case 'smallint':
+                case 'year':
+                    $type = 'integer';
+                    if ($limit == 6) {
+                        $limit = null;
+                    }
+                    break;
                 case 'bigint':
                     if ($limit == 20) {
                         $limit = null;
                     }
                     $type = static::PHINX_TYPE_BIG_INTEGER;
+                    break;
+                case 'double':
+                    $type = 'decimal';
                     break;
                 case 'blob':
                     $type = static::PHINX_TYPE_BINARY;
@@ -790,6 +819,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 if ($matches[3] == 1) {
                     $type = static::PHINX_TYPE_BOOLEAN;
                     $limit = null;
+                } else {
+                    $type = 'integer';
                 }
             }
 
@@ -811,7 +842,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $this->startCommandTimer();
         $this->writeCommand('createDatabase', array($name));
         $charset = isset($options['charset']) ? $options['charset'] : 'utf8';
-        
+
         if (isset($options['collation'])) {
             $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`', $name, $charset, $options['collation']));
         } else {
@@ -819,7 +850,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
         $this->endCommandTimer();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -831,16 +862,16 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $name
             )
         );
-        
+
         foreach ($rows as $row) {
             if (!empty($row)) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -851,7 +882,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(sprintf('DROP DATABASE IF EXISTS `%s`', $name));
         $this->endCommandTimer();
     }
-    
+
     /**
      * Gets the MySQL Column Definition for a Column object.
      *
@@ -888,7 +919,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         return $def;
     }
-    
+
     /**
      * Gets the MySQL Index Definition for an Index object.
      *
@@ -898,19 +929,19 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     protected function getIndexSqlDefinition(Index $index)
     {
         $def = '';
-        
+
         if ($index->getType() == Index::UNIQUE) {
             $def .= ' UNIQUE';
         }
-        
+
         $def .= ' KEY';
-        
+
         if (is_string($index->getName())) {
             $def .= ' `' . $index->getName() . '`';
         }
-        
+
         $def .= ' (`' . implode('`,`', $index->getColumns()) . '`)';
-        
+
         return $def;
     }
 
@@ -946,6 +977,78 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * @return Table[]
+     *
+     * TODO: add to the interface
+     */
+    public function getTables()
+    {
+        $options = $this->getOptions();
+
+        $tables = array();
+        $rows = $this->fetchAll(sprintf('SHOW TABLES IN `%s`', $options['name']));
+        foreach ($rows as $row) {
+            $tableOptions = $this->getTableOptions($row[0]);
+            $tables[] = new Table($row[0], $tableOptions, $this);
+        }
+
+        return $tables;
+    }
+
+    /**
+     * Disable or enable foreign key checks.
+     *
+     * TODO: add to the interface
+     */
+    public function toggleForeignKeyChecks()
+    {
+        $this->foreignKeyCheck = $this->foreignKeyCheck ? false : true;
+
+        if ($this->foreignKeyCheck) {
+            $this->execute('SET FOREIGN_KEY_CHECKS=1');
+        } else {
+            $this->execute('SET FOREIGN_KEY_CHECKS=0');
+        }
+    }
+
+    /**
+     * @param string $tableName
+     *
+     * @return array
+     */
+    protected function getTableOptions($tableName)
+    {
+        $rows = $this->fetchAll(sprintf('SHOW COLUMNS IN `%s`', $tableName));
+        $pkFieldNames = array();
+        $isPkAutoIncrement = false;
+        foreach ($rows as $row) {
+            if ($row['Key'] == 'PRI') {
+                $pkFieldNames[] = $row['Field'];
+                if ($row['Extra'] == 'auto_increment') {
+                    $isPkAutoIncrement = true;
+                }
+            }
+        }
+
+        // new Table('user');
+        $isAutoId = count($pkFieldNames) == 1 && $pkFieldNames[0] == 'id';
+        $isNoPk = count($pkFieldNames) == 0;
+        if ($isAutoId || $isNoPk) {
+            return array();
+        }
+
+        // new Table('user', array('id'=>'user_id'));
+        if (count($pkFieldNames) == 1 && $pkFieldNames[0] != 'id' && $isPkAutoIncrement) {
+            return array('id'=>$pkFieldNames[0]);
+        }
+
+        // Everything else ...
+        // new Table('user_followers', array('id'=>false, 'primary_key'=>array('user_id')));
+        // new Table('user_followers', array('id'=>false, 'primary_key'=>array('user_id', 'follower_id')));
+        return array('id'=>false, 'primary_key'=>$pkFieldNames);
+    }
+
+    /**
      * Describes a database table. This is a MySQL adapter specific method.
      * @return array
      */
@@ -965,5 +1068,4 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         return $this->fetchRow($sql);
     }
-
 }
