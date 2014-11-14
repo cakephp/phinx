@@ -365,7 +365,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
                 $column->setLimit($columnInfo['char_length']);
             }
 
-            $columns[] = $column;
+            $columns[$columnInfo['name']] = $column;
         }
 
         return $columns;
@@ -449,7 +449,6 @@ SQL;
     public function changeDefault($tableName, $columnName, Column $newColumn)
     {
         $constraintName = "DF_{$tableName}_{$columnName}";
-        $this->dropDefaultConstraint($tableName, $columnName);
         $default = $newColumn->getDefault();
         if (!is_numeric($default) && $default !== 'CURRENT_TIMESTAMP') {
             $default = $this->getConnection()->quote($default);
@@ -471,12 +470,14 @@ SQL;
     {
         $this->startCommandTimer();
         $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
+        $columns = $this->getColumns($tableName);
+        $changeDefault = $newColumn->getDefault() !== $columns[$columnName]->getDefault() || $newColumn->getType() !== $columns[$columnName]->getType();
         if ($columnName != $newColumn->getName()) {
             $this->renameColumn($tableName, $columnName, $newColumn->getName());
         }
 
-        if ($newColumn->getDefault()) {
-            $this->changeDefault($tableName, $columnName, $newColumn);
+        if ($changeDefault) {
+            $this->dropDefaultConstraint($tableName, $columnName);
         }
 
         $this->execute(
@@ -491,6 +492,10 @@ SQL;
         if ($newColumn->getComment()) {
             $sql = $this->getColumnCommentSqlDefinition($newColumn, $tableName);
             $this->execute($sql);
+        }
+
+        if ($changeDefault) {
+            $this->changeDefault($tableName, $columnName, $newColumn);
         }
         $this->endCommandTimer();
     }
@@ -1120,4 +1125,3 @@ SQL;
         return $this;
     }
 }
-
