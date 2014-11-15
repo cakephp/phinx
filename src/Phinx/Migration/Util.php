@@ -45,6 +45,7 @@ class Util
         $dt = new \DateTime('now', new \DateTimeZone('UTC'));
         return $dt->format(static::DATE_FORMAT);
     }
+
     /**
      * Turn migration names like 'CreateUserTable' into file names like
      * '12345678901234_create_user_table.php' or 'LimitResourceNamesTo30Chars' into
