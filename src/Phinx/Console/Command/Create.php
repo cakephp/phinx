@@ -74,10 +74,10 @@ class Create extends AbstractCommand
                 $path
             ));
         }
-        
+
         $path = realpath($path);
-        $className = $input->getArgument('name');
-        
+        $className = ucfirst($input->getArgument('name'));
+
         if (!Util::isValidMigrationClassName($className)) {
             throw new \InvalidArgumentException(sprintf(
                 'The migration class name "%s" is invalid. Please use CamelCase format.',
@@ -85,8 +85,18 @@ class Create extends AbstractCommand
             ));
         }
         
+        // if true, class names will automatically be suffixed by timestamp
+        $autoTimestampClass = $this->getConfig()->getAutoTimestampClass();
+
         // Compute the file path
-        $fileName = Util::mapClassNameToFileName($className);
+        if ($autoTimestampClass) {
+            $timestamp = date('YmdHis');
+            $fileName  = Util::mapClassNameToFileName($className, $timestamp);
+            $className = $className . '_' . $timestamp;
+        } else {
+            $fileName = Util::mapClassNameToFileName($className);
+        }
+
         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
         
         if (file_exists($filePath)) {
