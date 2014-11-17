@@ -53,6 +53,15 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     {
         $this->environment->getAdapter();
     }
+    
+    public function testTablePrefixAdapter()
+    {
+        $this->environment->setOptions(array('table_prefix' => 'tbl_', 'adapter' => 'mysql'));
+        $this->assertTrue($this->environment->getAdapter() instanceof \Phinx\Db\Adapter\TablePrefixAdapter);
+        
+        $tablePrefixAdapter = $this->environment->getAdapter();
+        $this->assertTrue($tablePrefixAdapter->getAdapter() instanceof \Phinx\Db\Adapter\MysqlAdapter);
+    }
 
     public function testSchemaName()
     {
