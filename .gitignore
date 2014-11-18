@@ -3,6 +3,7 @@
 # See https://help.github.com/articles/ignoring-files
 .DS_Store
 .buildpath
+.idea
 .project
 .settings
 
