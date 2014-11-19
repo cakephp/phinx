@@ -251,7 +251,21 @@ class Config implements \ArrayAccess
 
         return $path;
     }
-    
+
+    /**
+     * Get the flag tp auto timestamp migration class names
+     * If missing return false for backward compatibility
+     * 
+     * @return boolean
+     */
+    public function getAutoTimestampClass()
+    {
+        if (!isset($this->values['auto_timestamp_class'])) {
+            return false;
+        }
+        return filter_var($this->values['auto_timestamp_class'], FILTER_VALIDATE_BOOLEAN);
+    }
+
     /**
      * Replace tokens in the specified array.
      *
