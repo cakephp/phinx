@@ -108,17 +108,19 @@ interface MigrationInterface
      * Executes a SQL statement and returns the number of affected rows.
      * 
      * @param string $sql SQL
+     * @param array $params Parameters to bind for prepared statements
      * @return int
      */
-    public function execute($sql);
+    public function execute($sql, array $params = array());
     
     /**
      * Executes a SQL statement and returns the result as an array. 
      *
      * @param string $sql SQL
+     * @param array $params Parameters to bind for prepared statements
      * @return array
      */
-    public function query($sql);
+    public function query($sql, array $params = array());
     
     /**
      * Executes a query and returns only one row as an array.
