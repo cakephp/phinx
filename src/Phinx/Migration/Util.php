@@ -36,6 +36,13 @@ class Util
     const DATE_FORMAT = 'YmdHis';
 
     /**
+     * Last generated timestamp
+     *
+     * @var string
+     */
+    protected static $lastTimestamp;
+
+    /**
      * Gets the current timestamp string, in UTC.
      *
      * @return string
@@ -43,7 +50,46 @@ class Util
     public static function getCurrentTimestamp()
     {
         $dt = new \DateTime('now', new \DateTimeZone('UTC'));
-        return $dt->format(static::DATE_FORMAT);
+        static::$lastTimestamp = $dt->format(static::DATE_FORMAT);
+        return static::$lastTimestamp;
+    }
+
+    /**
+     * Get the last generated timestamp
+     * @return type
+     */
+    protected static function getLastTimestamp()
+    {
+        if (!static::$lastTimestamp) {
+            return static::getCurrentTimestamp();
+        }
+        return static::$lastTimestamp;
+    }
+
+    /**
+     * Generate class name from string
+     *
+     * @param string  $name
+     * @param boolean $autoTimestamp
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function generateClassName($name, $autoTimestamp = false)
+    {
+        $className = ucfirst($name);
+
+        if (!static::isValidMigrationClassName($className)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The migration class name "%s" is invalid. Please use CamelCase format.',
+                $className
+            ));
+        }
+
+        if ($autoTimestamp) {
+            $className = $className . '_' . static::getLastTimestamp();
+        }
+
+        return $className;
     }
 
     /**
@@ -51,15 +97,46 @@ class Util
      * '12345678901234_create_user_table.php' or 'LimitResourceNamesTo30Chars' into
      * '12345678901234_limit_resource_names_to_30_chars.php'.
      *
-     * @param string $className Class Name
+     * @param string  $className     Class Name
+     * @param boolean $autoTimestamp Append timestamp to the class name?
      * @return string
      */
-    public static function mapClassNameToFileName($className)
+    public static function mapClassNameToFileName($className, $autoTimestamp = false)
     {
+        // remove timestamp from the tail of the class name
+        $matches = array();
+        if ($autoTimestamp && preg_match('/^(.*)_[0-9]+$/', $className, $matches)) {
+            $className = $matches[1];
+        }
+
         $arr = preg_split('/(?=[A-Z])/', $className);
         unset($arr[0]); // remove the first element ('')
-        $fileName = static::getCurrentTimestamp() . '_' . strtolower(implode($arr, '_')) . '.php';
+        $fileName = static::getLastTimestamp() . '_' . strtolower(implode($arr, '_')) . '.php';
         return $fileName;
+    }
+
+    /**
+     * Get the classname from the migration file name
+     * 
+     * @param string  $filename      Migration file name
+     * @param boolean $autoTimestamp Append timestamp to the class name?
+     */
+    public static function mapFileNameToClassName($filename, $autoTimestamp = false)
+    {
+        // convert the filename to a class name
+        $class = preg_replace('/^[0-9]+_/', '', $filename);
+        $class = str_replace('_', ' ', $class);
+        $class = ucwords($class);
+        $class = str_replace(' ', '', $class);
+        if (false !== strpos($class, '.')) {
+            $class = substr($class, 0, strpos($class, '.'));
+        }
+
+        if ($autoTimestamp) {
+            $timestamp = strstr($filename, '_', true);
+            $class     = $class . '_' . $timestamp;
+        }
+        return $class;
     }
 
     /**

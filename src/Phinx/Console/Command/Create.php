@@ -74,19 +74,15 @@ class Create extends AbstractCommand
                 $path
             ));
         }
-        
-        $path = realpath($path);
-        $className = $input->getArgument('name');
-        
-        if (!Util::isValidMigrationClassName($className)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The migration class name "%s" is invalid. Please use CamelCase format.',
-                $className
-            ));
-        }
-        
+
+        // Compute the class name and file name
+        $autoTimestampClass = $this->getConfig()->getAutoTimestampClass();
+
+        $className = Util::generateClassName($input->getArgument('name'), $autoTimestampClass);
+        $fileName  = Util::mapClassNameToFileName($className, $autoTimestampClass);
+
         // Compute the file path
-        $fileName = Util::mapClassNameToFileName($className);
+        $path     = realpath($path);
         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
         
         if (file_exists($filePath)) {
