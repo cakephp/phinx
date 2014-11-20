@@ -136,6 +136,20 @@ abstract class AbstractMigration implements MigrationInterface
     {
         return $this->getAdapter()->execute($sql);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function executeFromFile($sqlFile)
+    {
+        $sqlContent = Util::readFromFile($sqlFile);
+        $sqlContent = Util::removeRemarks($sqlContent);
+        $sqlContent = Util::splitSqlFile($sqlContent, ';');
+
+        foreach ($sqlContent as $sql) {
+            $this->getAdapter()->execute($sql);
+        }
+    }
     
     /**
      * {@inheritdoc}
