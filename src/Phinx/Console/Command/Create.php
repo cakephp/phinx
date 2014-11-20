@@ -102,6 +102,9 @@ class Create extends AbstractCommand
         // inject the class name
         $contents = str_replace('$className', $className, $contents);
         
+        // inject the base class name
+        $contents = str_replace('$baseClassName', $this->getConfig()->getMigrationBaseClassName(), $contents);
+        
         if (false === file_put_contents($filePath, $contents)) {
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',

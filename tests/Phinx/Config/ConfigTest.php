@@ -181,4 +181,13 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('ds6xhj1', $env['pass']);
         $this->assertEquals('1234', $env['port']);
     }
+    
+    /**
+     * @expectedException UnexpectedValueException
+     */
+    public function testGetMigrationBaseClassNameThrowsExceptionForNoBaseClass()
+    {
+        $config = new \Phinx\Config\Config(array());
+        $config->getMigrationBaseClassName();
+    }
 }
