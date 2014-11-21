@@ -53,7 +53,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         if (null === $this->connection) {
 
         	if (!class_exists('PDO') || !in_array('sqlsrv', \PDO::getAvailableDrivers(), true)) {
-                // try our connection via tds (Mac/Linux)
+                // try our connection via freetds (Mac/Linux)
                 return $this->tds_connect();
             }
             
