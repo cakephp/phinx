@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -44,7 +44,7 @@ class Test extends AbstractCommand
     protected function configure()
     {
         parent::configure();
-        
+
         $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
 
         $this->setName('test')
@@ -84,7 +84,7 @@ EOT
                     $envName
                 ));
             }
-            
+
             $output->writeln(sprintf('<info>validating environment</info> %s', $envName));
             $environment = new Environment(
                 $envName,
