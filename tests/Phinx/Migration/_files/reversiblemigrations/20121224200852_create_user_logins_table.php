@@ -19,13 +19,13 @@ class CreateUserLoginsTable extends AbstractMigration
         $table->addForeignKey('user_id', 'users', array('id'))
               ->update();
     }
-    
+
     /**
      * Migrate Up.
      */
     public function up()
     {
-    
+
     }
 
     /**

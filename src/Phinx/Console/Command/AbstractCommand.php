@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -48,17 +48,17 @@ abstract class AbstractCommand extends Command
      * @var Config
      */
     protected $config;
-    
+
     /**
      * @var AdapterInterface
      */
     protected $adapter;
-    
+
     /**
      * @var Manager
      */
     protected $manager;
-    
+
     /**
      * {@inheritdoc}
      */
@@ -107,7 +107,7 @@ abstract class AbstractCommand extends Command
     {
         return $this->config;
     }
-    
+
     /**
      * Sets the database adapter.
      *
@@ -129,7 +129,7 @@ abstract class AbstractCommand extends Command
     {
         return $this->adapter;
     }
-    
+
     /**
      * Sets the migration manager.
      *
@@ -141,7 +141,7 @@ abstract class AbstractCommand extends Command
         $this->manager = $manager;
         return $this;
     }
-    
+
     /**
      * Gets the migration manager.
      *

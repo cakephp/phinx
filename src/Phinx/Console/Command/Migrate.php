@@ -68,17 +68,17 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
-        
+
         $version = $input->getOption('target');
         $environment = $input->getOption('environment');
-        
+
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
-        
+
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         $output->writeln('<info>using database</info> ' . $envOptions['name']);
@@ -87,7 +87,7 @@ EOT
         $start = microtime(true);
         $this->getManager()->migrate($environment, $version);
         $end = microtime(true);
-        
+
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
     }
