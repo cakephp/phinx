@@ -4,6 +4,7 @@ namespace Test\Phinx\Migration;
 
 use Phinx\Db\Table;
 use Phinx\Db\Adapter\AdapterInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
 {
@@ -33,6 +34,20 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($migrationStub->getAdapter());
         $migrationStub->setAdapter($adapterStub);
         $this->assertTrue($migrationStub->getAdapter() instanceof AdapterInterface);
+    }
+
+    public function testSetOutputMethods()
+    {
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
+
+        // stub output
+        $outputStub = $this->getMock('\Symfony\Component\Console\Output\OutputInterface', array(), array(array()));
+
+        // test methods
+        $this->assertNull($migrationStub->getOutput());
+        $migrationStub->setOutput($outputStub);
+        $this->assertTrue($migrationStub->getOutput() instanceof OutputInterface);
     }
 
     public function testGetName()
