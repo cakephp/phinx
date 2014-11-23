@@ -193,7 +193,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('default_zero', 'string', array('default' => 'test'))
               ->save();
         $rows = $this->adapter->fetchAll(sprintf('pragma table_info(%s)', 'table1'));
-        $this->assertEquals("test", $rows[1]['dflt_value']);
+        $this->assertEquals("'test'", $rows[1]['dflt_value']);
     }
 
     public function testAddColumnWithDefaultZero()
@@ -276,7 +276,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $table->changeColumn('column1', $newColumn1);
         $rows = $this->adapter->fetchAll('pragma table_info(t)');
 
-        $this->assertEquals("test1", $rows[1]['dflt_value']);
+        $this->assertEquals("'test1'", $rows[1]['dflt_value']);
     }
 
 
