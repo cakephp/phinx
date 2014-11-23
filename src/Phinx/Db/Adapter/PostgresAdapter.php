@@ -845,6 +845,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if (is_numeric($default) || 'CURRENT_TIMESTAMP' === $default) {
             $buffer[] = 'DEFAULT';
             $buffer[] = $default;
+        } elseif (is_bool($default)) {
+            $buffer[] = 'DEFAULT';
+            $buffer[] = $default ? 'true' : 'false';            
         } elseif ($default) {
             $buffer[] =  "DEFAULT '{$default}'";
         }

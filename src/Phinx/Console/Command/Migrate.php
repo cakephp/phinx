@@ -83,6 +83,13 @@ EOT
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         $output->writeln('<info>using database</info> ' . $envOptions['name']);
 
+        if (isset($envOptions['table_prefix'])) {
+            $output->writeln('<info>using table prefix</info> ' . $envOptions['table_prefix']);
+        }
+        if (isset($envOptions['table_suffix'])) {
+            $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
+        }
+
         // run the migrations
         $start = microtime(true);
         $this->getManager()->migrate($environment, $version);

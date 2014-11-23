@@ -205,9 +205,6 @@ class Column
      */
     public function setDefault($default)
     {
-        if ($default === false || $default === '') {
-            $default = null;
-        }
         $this->default = $default;
         return $this;
     }

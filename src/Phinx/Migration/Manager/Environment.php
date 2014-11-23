@@ -35,6 +35,7 @@ use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Adapter\PostgresAdapter;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Adapter\ProxyAdapter;
+use Phinx\Db\Adapter\TablePrefixAdapter;
 use Phinx\Migration\MigrationInterface;
 
 class Environment
@@ -298,6 +299,12 @@ class Environment
         if (!$adapter instanceof AdapterInterface) {
             throw new \RuntimeException('Adapter factory closure did not return an instance of \\Phinx\\Db\\Adapter\\AdapterInterface');
         }
+        
+        // Use the TablePrefixAdapter if table prefix/suffixes are in use
+        if (isset($this->options['table_prefix']) || isset($this->options['table_suffix'])) {
+            $adapter = new TablePrefixAdapter($this->options, $adapter);
+        }
+        
         return $this->adapter = $adapter;
     }
 
