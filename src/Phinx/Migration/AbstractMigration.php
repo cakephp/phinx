@@ -116,6 +116,14 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function setOutput(OutputInterface $output){
         $this->output = $output;
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOutput(){
+        return $this->output;
     }
 
     /**

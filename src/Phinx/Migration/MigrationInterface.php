@@ -88,9 +88,16 @@ interface MigrationInterface
      * Sets the output object to be used in migration object
      *
      * @param OutputInterface $output
+     * @return MigrationInterface
      */
     public function setOutput(OutputInterface $output);
 
+    /**
+     * Gets the output object to be used in migration object
+     *
+     * @return OutputInterface
+     */
+    public function getOutput();
     
     /**
      * Gets the name.
