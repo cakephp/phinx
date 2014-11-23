@@ -10,6 +10,8 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 
 **Check out http://docs.phinx.org for the comprehensive documentation.**
 
+![phinxterm](https://cloud.githubusercontent.com/assets/178939/3887559/e6b5e524-21f2-11e4-8256-0ba6040725fc.gif)
+
 ### Features
 
 * Write database migrations using database agnostic PHP code.
@@ -111,11 +113,35 @@ Copy the `phpunit.xml.dist` template to `phpunit.xml` and change the configurati
   
 ## News & Updates
 
-Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
+Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
   
 ## Misc
 
 ### Version History
+
+**0.3.8** (Sunday, 5th October 2014)
+
+* Added new CHAR & Geospatial column types
+* Added MySQL unix socket support
+* Added precision & scale support for SQL Server
+* Several bug fixes for SQLite
+* Improved error messages
+* Overall code optimizations
+* Optimizations to MySQL hasTable method
+
+**0.3.7** (Tuesday, 12th August 2014)
+
+* Smarter configuration file support
+* Support for Postgres Schemas
+* Fixed charset support for Microsoft SQL Server
+* Fix for Unique indexes in all adapters
+* Improvements for MySQL foreign key migration syntax 
+* Allow MySQL column types with extra info
+* Fixed SQLite autoincrement behaviour
+* PHPDoc improvements
+* Documentation improvements
+* Unit test improvements
+* Removing primary_key as a type
 
 **0.3.6** (Sunday, 29th June 2014)
 
@@ -174,9 +200,9 @@ Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 **0.2.7** (Saturday, 24th August 2013)
 
-* Critical fix for a token parsing bug.
-* Removed legacy build system.
-* Improving docs.
+* Critical fix for a token parsing bug
+* Removed legacy build system
+* Improving docs
 
 **0.2.6** (Saturday, 24th August 2013)
 

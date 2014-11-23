@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Config
  */
@@ -42,7 +42,7 @@ class Config implements \ArrayAccess
      * @var array
      */
     private $values;
-    
+
     /**
      * @var string
      */
@@ -59,7 +59,7 @@ class Config implements \ArrayAccess
         $this->configFilePath = $configFilePath;
         $this->values = $this->replaceTokens($configArray);
     }
-    
+
     /**
      * Create a new instance of the config class using a Yaml file path.
      *
@@ -103,7 +103,7 @@ class Config implements \ArrayAccess
         ob_start();
         /** @noinspection PhpIncludeInspection */
         $configArray = include($configFilePath);
-        
+
         // Hide console output
         ob_get_clean();
 
@@ -119,9 +119,9 @@ class Config implements \ArrayAccess
 
     /**
      * Returns the configuration for each environment.
-     * 
+     *
      * This method returns <code>null</code> if no environments exist.
-     * 
+     *
      * @return array|null
      */
     public function getEnvironments()
@@ -136,7 +136,7 @@ class Config implements \ArrayAccess
 
             return $environments;
         }
-            
+
         return null;
     }
 
@@ -161,10 +161,10 @@ class Config implements \ArrayAccess
 
             return $environments[$name];
         }
-        
+
         return null;
     }
-    
+
     /**
      * Does the specified environment exist in the configuration file?
      *
@@ -175,7 +175,7 @@ class Config implements \ArrayAccess
     {
         return (!(null === $this->getEnvironment($name)));
     }
-    
+
     /**
      * Gets the default environment name.
      *
@@ -190,7 +190,7 @@ class Config implements \ArrayAccess
             if ($this->hasEnvironment($env)) {
                 return $env;
             }
-            
+
             throw new \RuntimeException(sprintf(
                 'The environment configuration (read from $PHINX_ENVIRONMENT) for \'%s\' is missing',
                 $env
@@ -203,22 +203,22 @@ class Config implements \ArrayAccess
             if ($this->getEnvironment($this->values['environments']['default_database'])) {
                 return $this->values['environments']['default_database'];
             }
-            
+
             throw new \RuntimeException(sprintf(
                 'The environment configuration for \'%s\' is missing',
                 $this->values['environments']['default_database']
             ));
         }
-     
+
         // else default to the first available one
         if (is_array($this->getEnvironments()) && count($this->getEnvironments()) > 0) {
             $names = array_keys($this->getEnvironments());
             return $names[0];
         }
-        
+
         throw new \RuntimeException('Could not find a default environment');
     }
-    
+
     /**
      * Gets the config file path.
      *
@@ -228,7 +228,7 @@ class Config implements \ArrayAccess
     {
         return $this->configFilePath;
     }
-    
+
     /**
      * Gets the path of the migration files.
      *
@@ -236,13 +236,22 @@ class Config implements \ArrayAccess
      */
     public function getMigrationPath()
     {
-        if (isset($this->values['paths']['migrations'])) {
-            return realpath($this->values['paths']['migrations']);
+        if (!isset($this->values['paths']['migrations'])) {
+            throw new \UnexpectedValueException('Migrations path missing from config file');
         }
-        
-        return null;
+
+        $path = realpath($this->values['paths']['migrations']);
+
+        if ($path === false) {
+            throw new \UnexpectedValueException(sprintf(
+                'Migrations directory "%s" does not exist',
+                $this->values['paths']['migrations']
+            ));
+        }
+
+        return $path;
     }
-    
+
     /**
      * Replace tokens in the specified array.
      *
@@ -259,19 +268,19 @@ class Config implements \ArrayAccess
                 $tokens['%%' . $varname . '%%'] = $varvalue;
             }
         }
-        
+
         // Phinx defined tokens (override env tokens)
         $tokens['%%PHINX_CONFIG_PATH%%'] = $this->getConfigFilePath();
         $tokens['%%PHINX_CONFIG_DIR%%'] = dirname($this->getConfigFilePath());
-        
+
         // Recurse the array and replace tokens
         if (is_array($arr)) {
             return $this->recurseArrayForTokens($arr, $tokens);
         }
-        
+
         return $arr;
     }
-    
+
     /**
      * Recurse an array for the specified tokens and replace them.
      *
@@ -298,7 +307,7 @@ class Config implements \ArrayAccess
         }
         return $out;
     }
-    
+
     /**
      * Sets a parameter or an object.
      *

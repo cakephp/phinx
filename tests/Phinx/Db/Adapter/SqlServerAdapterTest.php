@@ -11,7 +11,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
      * @var \Phinx\Db\Adapter\SqlServerAdaptor
      */
     private $adapter;
-    
+
     public function setUp()
     {
         if (!TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED) {
@@ -34,17 +34,17 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
     }
-    
+
     public function tearDown()
     {
         unset($this->adapter);
     }
-    
+
     public function testConnection()
     {
         $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
     }
-    
+
     public function testConnectionWithoutPort()
     {
         $options = $this->adapter->getOptions();
@@ -52,7 +52,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->setOptions($options);
         $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
     }
-    
+
     public function testConnectionWithInvalidCredentials()
     {
         $options = array(
@@ -62,7 +62,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
             'user' => 'invaliduser',
             'pass' => 'invalidpass'
         );
-        
+
         try {
             $adapter = new SqlServerAdapter($options, new NullOutput());
             $adapter->connect();
@@ -76,7 +76,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
             $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
         }
     }
-    
+
     public function testCreatingTheSchemaTableOnConnect()
     {
         $this->adapter->connect();
@@ -87,12 +87,12 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->connect();
         $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
     }
-    
+
     public function testQuoteTableName()
     {
         $this->assertEquals('[test_table]', $this->adapter->quoteTableName('test_table'));
     }
-    
+
     public function testQuoteColumnName()
     {
         $this->assertEquals('[test_column]', $this->adapter->quoteColumnName('test_column'));
@@ -464,10 +464,10 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testDropDatabase()
     {
-        $this->assertFalse($this->adapter->hasDatabase('temp_phinx_database'));
-        $this->adapter->createDatabase('temp_phinx_database');
-        $this->assertTrue($this->adapter->hasDatabase('temp_phinx_database'));
-        $this->adapter->dropDatabase('temp_phinx_database');
+        $this->assertFalse($this->adapter->hasDatabase('phinx_temp_database'));
+        $this->adapter->createDatabase('phinx_temp_database');
+        $this->assertTrue($this->adapter->hasDatabase('phinx_temp_database'));
+        $this->adapter->dropDatabase('phinx_temp_database');
     }
 
     /**
@@ -493,8 +493,10 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('boolean', $this->adapter->getPhinxType('bit'));
 
+        $this->assertEquals('string', $this->adapter->getPhinxType('varchar'));
         $this->assertEquals('string', $this->adapter->getPhinxType('nvarchar'));
-        $this->assertEquals('string', $this->adapter->getPhinxType('char'));
+        $this->assertEquals('char', $this->adapter->getPhinxType('char'));
+        $this->assertEquals('char', $this->adapter->getPhinxType('nchar'));
 
         $this->assertEquals('text', $this->adapter->getPhinxType('text'));
 

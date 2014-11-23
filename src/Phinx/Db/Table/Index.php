@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Db
  */
@@ -34,17 +34,17 @@ class Index
      * @var string
      */
     const UNIQUE = 'unique';
-    
+
     /**
      * @var string
      */
     const INDEX = 'index';
-    
+
     /**
      * @var array
      */
     protected $columns;
-    
+
     /**
      * @var string
      */
@@ -54,7 +54,7 @@ class Index
      * @var string
      */
     protected $name = null;
-    
+
     /**
      * Sets the index columns.
      *
@@ -66,7 +66,7 @@ class Index
         $this->columns = $columns;
         return $this;
     }
-    
+
     /**
      * Gets the index columns.
      *
@@ -76,7 +76,7 @@ class Index
     {
         return $this->columns;
     }
-    
+
     /**
      * Sets the index type.
      *
@@ -88,7 +88,7 @@ class Index
         $this->type = $type;
         return $this;
     }
-    
+
     /**
      * Gets the index type.
      *
@@ -125,10 +125,10 @@ class Index
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid index option.');
             }
-            
+
             // handle $options['unique']
-            if (strtolower($option) == self::UNIQUE) {
-                if( (bool)$value ) {
+            if (strcasecmp($option, self::UNIQUE) === 0) {
+                if ((bool) $value) {
                     $this->setType(self::UNIQUE);
                 }
                 continue;

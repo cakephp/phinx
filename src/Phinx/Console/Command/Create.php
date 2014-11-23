@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -32,7 +32,7 @@ use Phinx\Migration\Util;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
-    
+
 class Create extends AbstractCommand
 {
     /**
@@ -41,7 +41,7 @@ class Create extends AbstractCommand
     protected function configure()
     {
         parent::configure();
-         
+
         $this->setName('create')
             ->setDescription('Create a new migration')
             ->addArgument('name', InputArgument::REQUIRED, 'What is the name of the migration?')
@@ -64,44 +64,44 @@ class Create extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
-        
+
         // get the migration path from the config
         $path = $this->getConfig()->getMigrationPath();
-        
+
         if (!is_writeable($path)) {
             throw new \InvalidArgumentException(sprintf(
                 'The directory "%s" is not writeable',
                 $path
             ));
         }
-        
+
         $path = realpath($path);
         $className = $input->getArgument('name');
-        
+
         if (!Util::isValidMigrationClassName($className)) {
             throw new \InvalidArgumentException(sprintf(
                 'The migration class name "%s" is invalid. Please use CamelCase format.',
                 $className
             ));
         }
-        
+
         // Compute the file path
         $fileName = Util::mapClassNameToFileName($className);
         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
-        
+
         if (file_exists($filePath)) {
             throw new \InvalidArgumentException(sprintf(
                 'The file "%s" already exists',
                 $filePath
             ));
         }
-        
+
         // load the migration template
         $contents = file_get_contents(dirname(__FILE__) . '/../../Migration/Migration.template.php.dist');
-        
+
         // inject the class name
         $contents = str_replace('$className', $className, $contents);
-        
+
         if (false === file_put_contents($filePath, $contents)) {
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',
