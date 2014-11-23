@@ -386,7 +386,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $null = ($row['Null'] == 'NO') ? 'NOT NULL' : 'NULL';
                 $extra = ' ' . strtoupper($row['Extra']);
                 if (!is_null($row['Default'])) {
-                    $extra .= ' DEFAULT ' . (is_numeric($row['Default']) || $row['Default'] == 'CURRENT_TIMESTAMP' ? $row['Default'] : '\'' . $row['Default'] . '\'');
+                    $default = $row['Default'];
+                    if (is_bool($default)) {
+                        $default = (int) $default;
+                    } elseif (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+                        $default = "'{$default}'";
+                    }
+                    $extra .= ' DEFAULT ' . $default;
                 }
                 $definition = $row['Type'] . ' ' . $null . $extra;
 
@@ -871,11 +877,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
+
         $default = $column->getDefault();
-        if (is_numeric($default) || $default == 'CURRENT_TIMESTAMP') {
-            $def .= ' DEFAULT ' . $column->getDefault();
-        } else {
-            $def .= is_null($column->getDefault()) ? '' : ' DEFAULT \'' . $column->getDefault() . '\'';
+        if (is_bool($default)) {
+            $default = (int) $default;
+        } elseif (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+            $default = "'{$default}'";
+        }
+        if (isset($default)) {
+            $def .= ' DEFAULT ' . $default;
         }
 
         if ($column->getComment()) {
