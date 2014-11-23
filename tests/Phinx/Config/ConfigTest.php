@@ -31,7 +31,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             )
         );
     }
-    
+
     public function testGetEnvironmentsMethod()
     {
         $config = new \Phinx\Config\Config($this->getConfigArray());
@@ -39,14 +39,14 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('testing', $config->getEnvironments());
         $this->assertArrayHasKey('production', $config->getEnvironments());
     }
-    
+
     public function testGetEnvironmentMethod()
     {
         $config = new \Phinx\Config\Config($this->getConfigArray());
         $db = $config->getEnvironment('testing');
         $this->assertEquals('sqllite', $db['adapter']);
     }
-    
+
     public function testHasEnvironmentMethod()
     {
         $configArray = $this->getConfigArray();
@@ -54,16 +54,16 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($config->hasEnvironment('testing'));
         $this->assertFalse($config->hasEnvironment('fakeenvironment'));
     }
-    
+
     public function testGetDefaultEnvironmentMethod()
     {
         $path = __DIR__ . '/_files';
-        
+
         // test with the config array
         $configArray = $this->getConfigArray();
         $config = new \Phinx\Config\Config($configArray);
         $this->assertEquals('testing', $config->getDefaultEnvironment());
-        
+
         // test using a Yaml file without the 'default_database' key.
         // (it should default to the first one).
         $config = \Phinx\Config\Config::fromYaml($path . '/no_default_database_key.yml');
@@ -76,7 +76,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('externally-specified-environment', $config->getDefaultEnvironment());
         putenv('PHINX_ENVIRONMENT=');
     }
-    
+
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage Could not find a default environment
@@ -88,7 +88,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $config = \Phinx\Config\Config::fromYaml($path . '/empty.yml');
         $config->getDefaultEnvironment();
     }
-    
+
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage The environment configuration for 'staging' is missing
@@ -101,14 +101,14 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $config = \Phinx\Config\Config::fromYaml($path . '/missing_environment_entry.yml');
         $config->getDefaultEnvironment();
     }
-    
+
     public function testFromPHPMethod()
     {
         $path = __DIR__ . '/_files';
         $config = \Phinx\Config\Config::fromPHP($path . '/valid_config.php');
         $this->assertEquals('dev', $config->getDefaultEnvironment());
     }
-    
+
     /**
      * @expectedException \RuntimeException
      */
@@ -118,13 +118,33 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $config = \Phinx\Config\Config::fromPHP($path . '/config_without_array.php');
         $this->assertEquals('dev', $config->getDefaultEnvironment());
     }
-    
-    public function testGetMigrationPathReturnsNullForNoPath()
+
+    public function testFromJSONMethod()
+    {
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromJSON($path . '/valid_config.json');
+        $this->assertEquals('dev', $config->getDefaultEnvironment());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testFromJSONMethodWithoutJSON()
+    {
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromPHP($path . '/empty.json');
+        $this->assertEquals('dev', $config->getDefaultEnvironment());
+    }
+
+    /**
+     * @expectedException UnexpectedValueException
+     */
+    public function testGetMigrationPathThrowsExceptionForNoPath()
     {
         $config = new \Phinx\Config\Config(array());
-        $this->assertNull($config->getMigrationPath());
+        $config->getMigrationPath();
     }
-    
+
     public function testArrayAccessMethods()
     {
         $config = new \Phinx\Config\Config(array());
@@ -134,7 +154,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         unset($config['foo']);
         $this->assertFalse(isset($config['foo']));
     }
-    
+
     /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage Identifier "foo" is not defined.
@@ -144,7 +164,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $config = new \Phinx\Config\Config(array());
         $config['foo'];
     }
-    
+
     public function testConfigReplacesTokensWithEnvVariables()
     {
         $_SERVER['PHINX_DBHOST'] = 'localhost';

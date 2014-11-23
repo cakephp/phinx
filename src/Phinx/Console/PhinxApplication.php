@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -30,8 +30,6 @@ namespace Phinx\Console;
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputDefinition;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Console\Command;
 
@@ -48,11 +46,10 @@ class PhinxApplication extends Application
      * Initialize the Phinx console application.
      *
      * @param string $version The Application Version
-     * @return void
      */
     public function __construct($version)
     {
-        parent::__construct('Phinx by Rob Morgan.', $version);
+        parent::__construct('Phinx by Rob Morgan - http://phinx.org.', $version);
 
         $this->add(new Command\Init());
         $this->add(new Command\Create());
@@ -61,7 +58,7 @@ class PhinxApplication extends Application
         $this->add(new Command\Status());
         $this->add(new Command\Test());
     }
-     
+
     /**
      * Runs the current application.
      *
@@ -77,7 +74,7 @@ class PhinxApplication extends Application
             $output->writeln($this->getLongVersion());
             $output->writeln('');
         }
-         
+
         return parent::doRun($input, $output);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 namespace Test\Phinx\Console;
- 
+
 use Symfony\Component\Console\Tester\ApplicationTester;
 use Phinx\Console\PhinxApplication;
 
@@ -23,7 +23,7 @@ class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
 
         $this->assertRegExp($result, stream_get_contents($stream));
     }
- 
+
     public function provider()
     {
         return array(

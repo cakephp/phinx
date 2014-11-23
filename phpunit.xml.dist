@@ -11,6 +11,13 @@
     * repository.
     -->
     <php>
+        <!-- SqlServer -->
+        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED" value="false"/>
+        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST" value="localhost"/>
+        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME" value="vagrant"/>
+        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD" value="vagrant"/>
+        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE" value="test"/>
+        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT" value="1433"/>
         <!-- MySQL -->
         <env name="TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED" value="true" />
         <env name="TESTS_PHINX_DB_ADAPTER_MYSQL_HOST" value="localhost" />
@@ -24,6 +31,7 @@
         <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME" value="postgres" />
         <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD" value="" />
         <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE" value="phinx_testing" />
+        <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA" value="public" />
         <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT" value="5432" />
         <!-- SQLite -->
         <env name="TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED" value="true" />

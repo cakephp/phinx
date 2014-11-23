@@ -27,7 +27,7 @@ class CreateInitialSchema extends AbstractMigration
               ->addColumn('updated', 'datetime', array('default' => null))
               ->addIndex(array('username', 'email'), array('unique' => true))
               ->create();
-        
+
         // info table
         $info = $this->table('info');
         $info->addColumn('username', 'string', array('limit' => 20))
@@ -39,7 +39,7 @@ class CreateInitialSchema extends AbstractMigration
      */
     public function up()
     {
-    
+
     }
 
     /**

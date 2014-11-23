@@ -6,13 +6,13 @@ Writing Migrations
 
 Phinx relies on migrations in order to transform your database. Each migration
 is represented by a PHP class in a unique file. It is preferred that you write
-your migrations using the Phinx PHP API, but a raw SQL is also supported.
+your migrations using the Phinx PHP API, but raw SQL is also supported.
 
 Creating a New Migration
 ------------------------
 
 Let's start by creating a new Phinx migration. Run Phinx using the
-``create`` command.
+``create`` command:
 
 .. code-block:: bash
     
@@ -22,7 +22,8 @@ This will create a new migration in the format
 ``YYYYMMDDHHMMSS_my_new_migration.php`` where the first 14 characters are
 replaced with the current timestamp down to the second.
 
-Phinx automatically creates a skeleton migration file with two empty methods.
+Phinx automatically creates a skeleton migration file with two empty methods
+and a commented out one:
 
 .. code-block:: php
         
@@ -33,11 +34,24 @@ Phinx automatically creates a skeleton migration file with two empty methods.
         class MyNewMigration extends AbstractMigration
         {
             /**
+             * Change Method.
+             *
+             * More information on this method is available here:
+             * http://docs.phinx.org/en/latest/migrations.html#the-change-method
+             *
+             * Uncomment this method if you would like to use it.
+             *
+            public function change()
+            {
+            }
+            */
+
+            /**
              * Migrate Up.
              */
             public function up()
             {
-            
+
             }
 
             /**
@@ -77,7 +91,7 @@ The Change Method
 Phinx 0.2.0 introduced a new feature called reversible migrations. With
 reversible migrations you only need to define the ``up`` logic and Phinx can
 figure out how to migrate down automatically for you. To define a reversible
-migration you must declare a ``change`` method in your migration file. For
+migration you must uncomment the ``change`` method in your migration file. For
 example:
 
 .. code-block:: php
@@ -89,7 +103,12 @@ example:
         class CreateUserLoginsTable extends AbstractMigration
         {
             /**
-             * Change.
+             * Change Method.
+             *
+             * More information on this method is available here:
+             * http://docs.phinx.org/en/latest/migrations.html#the-change-method
+             *
+             * Uncomment this method if you would like to use it.
              */
             public function change()
             {
@@ -177,6 +196,15 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
 
             }
         }
+
+.. note::
+
+    These commands run using the PHP Data Objects (PDO) extension which
+    defines a lightweight, consistent interface for accessing databases
+    in PHP. Always make sure your queries abide with PDOs before using
+    the ``execute()`` command. This is especially important when using
+    DELIMITERs during insertion of stored procedures or triggers which
+    don't support DELIMITERs.
         
 Fetching Rows
 -------------
@@ -300,8 +328,8 @@ Finally calling ``save()`` commits the changes to the database.
 
 .. note::
 
-    Phinx automatically creates an auto-incrementing primary key for every
-    table called ``id``.
+    Phinx automatically creates an auto-incrementing primary key column called ``id`` for every
+    table.
 
 To specify an alternate primary key you can specify the ``primary_key`` option
 when accessing the Table object. Let's disable the automatic ``id`` column and
@@ -367,6 +395,27 @@ To do this, we need to override the default ``id`` field name:
 
             }
         }
+        
+Valid Column Types
+~~~~~~~~~~~~~~~~~~
+
+Column types are specified as strings and can be one of: 
+
+-  string
+-  text
+-  integer
+-  biginteger
+-  float
+-  decimal
+-  datetime
+-  timestamp
+-  time
+-  date
+-  binary
+-  boolean
+
+In addition, the Postgres adapter supports a ``json`` column type
+(PostgreSQL 9.3 and above).
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -511,7 +560,55 @@ To rename a column access an instance of the Table object then call the
                 $table->renameColumn('biography', 'bio');
             }
         }
-        
+
+Adding a Column After Another Column
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When adding a column you can dictate it's position using the ``after`` option.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Change Method.
+             */
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->addColumn('city', 'string', array('after' => 'email'))
+                      ->update();
+            }
+        }
+
+Specifying a Column Limit
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can limit the maximum length of a column by using the ``limit`` option.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Change Method.
+             */
+            public function change()
+            {
+                $table = $this->table('tags');
+                $table->addColumn('short_name', 'string', array('limit' => 30))
+                      ->update();
+            }
+        }
+
 Working with Indexes
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -637,9 +734,9 @@ Let's add a foreign key to an example table:
         
                 $refTable = $this->table('tag_relationships');
                 $refTable->addColumn('tag_id', 'integer')
+                         ->addForeignKey('tag_id', 'tags', 'id', array('delete'=> 'SET_NULL', 'update'=> 'NO_ACTION'))
                          ->save();
                 
-                $refTable->addForeignKey('tag_id', 'tags', 'id');
             }
 
             /**
@@ -650,6 +747,8 @@ Let's add a foreign key to an example table:
 
             }
         }
+
+"On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possibles values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.
 
 We can also easily check if a foreign key exists:
 
@@ -709,6 +808,26 @@ Finally to delete a foreign key use the ``dropForeignKey`` method.
 
             }
         }
+
+Valid Column Options
+~~~~~~~~~~~~~~~~~~~~
+
+The following are valid column options:
+
+-  limit
+-  length
+-  default
+-  null
+-  precision
+-  scale
+-  after
+-  update
+-  comment
+
+You can pass one or more of these options to any column with the optional
+third argument array.
+
+The default and update column options can accept 'CURRENT_TIMESTAMP' as a value.
 
 The Save Method
 ~~~~~~~~~~~~~~~

@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Db
  */
@@ -34,22 +34,27 @@ class Index
      * @var string
      */
     const UNIQUE = 'unique';
-    
+
     /**
      * @var string
      */
     const INDEX = 'index';
-    
+
     /**
      * @var array
      */
     protected $columns;
-    
+
     /**
      * @var string
      */
     protected $type = self::INDEX;
-    
+
+    /**
+     * @var string
+     */
+    protected $name = null;
+
     /**
      * Sets the index columns.
      *
@@ -61,7 +66,7 @@ class Index
         $this->columns = $columns;
         return $this;
     }
-    
+
     /**
      * Gets the index columns.
      *
@@ -71,7 +76,7 @@ class Index
     {
         return $this->columns;
     }
-    
+
     /**
      * Sets the index type.
      *
@@ -83,7 +88,7 @@ class Index
         $this->type = $type;
         return $this;
     }
-    
+
     /**
      * Gets the index type.
      *
@@ -93,25 +98,39 @@ class Index
     {
         return $this->type;
     }
-    
+
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+
     /**
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
+     * @throws \RuntimeException
      * @return Index
      */
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('type', 'unique');
+        $validOptions = array('type', 'unique', 'name');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions)) {
                 throw new \RuntimeException('\'' . $option . '\' is not a valid index option.');
             }
-            
+
             // handle $options['unique']
-            if (strtolower($option) == self::UNIQUE) {
-                $this->setType(self::UNIQUE);
+            if (strcasecmp($option, self::UNIQUE) === 0) {
+                if ((bool) $value) {
+                    $this->setType(self::UNIQUE);
+                }
                 continue;
             }
 

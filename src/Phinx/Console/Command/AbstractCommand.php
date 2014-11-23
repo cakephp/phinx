@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -35,7 +35,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Config\Config;
 use Phinx\Migration\Manager;
-use Phinx\Adapter\AdapterInterface;
+use Phinx\Db\Adapter\AdapterInterface;
 
 /**
  * Abstract command, contains bootstrapping info
@@ -45,32 +45,34 @@ use Phinx\Adapter\AdapterInterface;
 abstract class AbstractCommand extends Command
 {
     /**
-     * @var ArrayAccess
+     * @var Config
      */
     protected $config;
-    
+
     /**
-     * @var \Phinx\Adapter\AdapterInterface
+     * @var AdapterInterface
      */
     protected $adapter;
-    
+
     /**
-     * @var \Phinx\Migration\Manager;
+     * @var Manager
      */
     protected $manager;
-    
+
     /**
      * {@inheritdoc}
      */
     protected function configure()
     {
         $this->addOption('--configuration', '-c', InputArgument::OPTIONAL, 'The configuration file to load');
-        $this->addOption('--parser', '-p', InputArgument::OPTIONAL, 'Parser used to read the config file.  Defaults to YAML');
+        $this->addOption('--parser', '-p', InputArgument::OPTIONAL, 'Parser used to read the config file. Defaults to YAML');
     }
-    
+
     /**
      * Bootstrap Phinx.
      *
+     * @param InputInterface $input
+     * @param OutputInterface $output
      * @return void
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
@@ -87,10 +89,10 @@ abstract class AbstractCommand extends Command
     /**
      * Sets the config.
      *
-     * @param \ArrayAccess $config
+     * @param Config $config
      * @return AbstractCommand
      */
-    public function setConfig(\ArrayAccess $config)
+    public function setConfig(Config $config)
     {
         $this->config = $config;
         return $this;
@@ -99,13 +101,13 @@ abstract class AbstractCommand extends Command
     /**
      * Gets the config.
      *
-     * @return \ArrayAccess
+     * @return Config
      */
     public function getConfig()
     {
         return $this->config;
     }
-    
+
     /**
      * Sets the database adapter.
      *
@@ -127,7 +129,7 @@ abstract class AbstractCommand extends Command
     {
         return $this->adapter;
     }
-    
+
     /**
      * Sets the migration manager.
      *
@@ -139,11 +141,11 @@ abstract class AbstractCommand extends Command
         $this->manager = $manager;
         return $this;
     }
-    
+
     /**
      * Gets the migration manager.
      *
-     * @return \Manager
+     * @return Manager
      */
     public function getManager()
     {
@@ -153,15 +155,17 @@ abstract class AbstractCommand extends Command
     /**
      * Returns config file path
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param InputInterface $input
      * @return string
      */
     protected function locateConfigFile(InputInterface $input)
     {
         $configFile = $input->getOption('configuration');
 
-        if (null === $configFile) {
-            $configFile = 'phinx.yml';
+        $useDefault = false;
+
+        if (null === $configFile || false === $configFile) {
+            $useDefault = true;
         }
 
         $cwd = getcwd();
@@ -172,15 +176,29 @@ abstract class AbstractCommand extends Command
             $cwd . DIRECTORY_SEPARATOR
         ));
 
-        // Locate() throws an exception if the file does not exist
-        return $locator->locate($configFile, $cwd, $first = true);
+        if (!$useDefault) {
+            // Locate() throws an exception if the file does not exist
+            return $locator->locate($configFile, $cwd, $first = true);
+        }
+
+        $possibleConfigFiles = array('phinx.php', 'phinx.json', 'phinx.yml');
+        foreach ($possibleConfigFiles as $configFile) {
+            try {
+                return $locator->locate($configFile, $cwd, $first = true);
+            } catch (\InvalidArgumentException $exception) {
+                $lastException = $exception;
+            }
+        }
+        throw $lastException;
+
     }
 
     /**
      * Parse the config file and load it into the config object
      *
-     * @param \Symfony\Component\Console\Input\InputInterface   $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @throws \InvalidArgumentException
      * @return void
      */
     protected function loadConfig(InputInterface $input, OutputInterface $output)
@@ -195,6 +213,9 @@ abstract class AbstractCommand extends Command
             $extension = pathinfo($configFilePath, PATHINFO_EXTENSION);
 
             switch (strtolower($extension)) {
+                case 'json':
+                    $parser = 'json';
+                    break;
                 case 'php':
                     $parser = 'php';
                     break;
@@ -206,6 +227,9 @@ abstract class AbstractCommand extends Command
         }
 
         switch (strtolower($parser)) {
+            case 'json':
+                $config = Config::fromJSON($configFilePath);
+                break;
             case 'php':
                 $config = Config::fromPHP($configFilePath);
                 break;
@@ -223,7 +247,7 @@ abstract class AbstractCommand extends Command
     /**
      * Load the migrations manager and inject the config
      *
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param OutputInterface $output
      * @return void
      */
     protected function loadManager(OutputInterface $output)
