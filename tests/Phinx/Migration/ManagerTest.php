@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Migration;
 
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Phinx\Config\Config;
 use Phinx\Db\Adapter\MysqlAdapter;
@@ -162,6 +163,16 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testGettingAValidEnvironment()
     {
         $this->assertTrue($this->manager->getEnvironment('production') instanceof Environment);
+    }
+
+    public function testGettingOutputObject()
+    {
+        $migrations = $this->manager->getMigrations();
+        $outputObject = $this->manager->getOutput();
+        $this->assertTrue($outputObject instanceof OutputInterface);
+        foreach($migrations as $migration){
+            $this->assertEquals($outputObject,$migration->getOutput());
+        }
     }
 
     /**
