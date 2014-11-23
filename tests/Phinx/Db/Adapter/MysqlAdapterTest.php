@@ -265,10 +265,22 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->save();
-        $table->addColumn('default_zero', 'integer', array('default' => null))
+        $table->addColumn('default_empty', 'string', array('default' => ''))
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertNull($rows[1]['Default']);
+        $this->assertEquals('', $rows[1]['Default']);
+    }
+
+    public function testAddColumnWithDefaultBoolean()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $table->addColumn('default_true', 'boolean', array('default' => true))
+              ->addColumn('default_false', 'boolean', array('default' => false))
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('1', $rows[1]['Default']);
+        $this->assertEquals('0', $rows[2]['Default']);
     }
 
     public function testAddIntegerColumnWithDefaultSigned()
