@@ -971,6 +971,22 @@ SQL;
     }
 
     /**
+     * Get the defintion for a `DEFAULT` statement.
+     *
+     * @param  mixed $default
+     * @return string
+     */
+    protected function getDefaultValueDefinition($default)
+    {
+        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+            $default = $this->getConnection()->quote($default);
+        } elseif (is_bool($default)) {
+            $default = (int) $default;
+        }
+        return isset($default) ? ' DEFAULT ' . $default : '';
+    }
+
+    /**
      * Gets the SqlServer Column Definition for a Column object.
      *
      * @param Column $column Column
@@ -1000,15 +1016,7 @@ SQL;
         $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';
 
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
-        $default = $column->getDefault();
-        if ($create) {
-            if (is_numeric($default) || 'CURRENT_TIMESTAMP' === $default) {
-                $buffer[] = 'DEFAULT';
-                $buffer[] = $default;
-            } elseif ($default) {
-                $buffer[] = "DEFAULT '{$default}'";
-            }
-        }
+        $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
 
         if ($column->isIdentity()) {
             $buffer[] = 'IDENTITY(1, 1)';

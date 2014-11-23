@@ -353,6 +353,22 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * Get the defintion for a `DEFAULT` statement.
+     *
+     * @param  mixed $default
+     * @return string
+     */
+    protected function getDefaultValueDefinition($default)
+    {
+        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+            $default = $this->getConnection()->quote($default);
+        } elseif (is_bool($default)) {
+            $default = (int) $default;
+        }
+        return isset($default) ? ' DEFAULT ' . $default : '';
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function addColumn(Table $table, Column $column)
@@ -386,7 +402,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $null = ($row['Null'] == 'NO') ? 'NOT NULL' : 'NULL';
                 $extra = ' ' . strtoupper($row['Extra']);
                 if (!is_null($row['Default'])) {
-                    $extra .= ' DEFAULT ' . (is_numeric($row['Default']) || $row['Default'] == 'CURRENT_TIMESTAMP' ? $row['Default'] : '\'' . $row['Default'] . '\'');
+                    $extra .= $this->getDefaultValueDefinition($row['Default']);
                 }
                 $definition = $row['Type'] . ' ' . $null . $extra;
 
@@ -871,12 +887,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
-        $default = $column->getDefault();
-        if (is_numeric($default) || $default == 'CURRENT_TIMESTAMP') {
-            $def .= ' DEFAULT ' . $column->getDefault();
-        } else {
-            $def .= is_null($column->getDefault()) ? '' : ' DEFAULT \'' . $column->getDefault() . '\'';
-        }
+        $def .= $this->getDefaultValueDefinition($column->getDefault());
 
         if ($column->getComment()) {
             $def .= ' COMMENT ' . $this->getConnection()->quote($column->getComment());

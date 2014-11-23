@@ -952,6 +952,22 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * Get the defintion for a `DEFAULT` statement.
+     *
+     * @param  mixed $default
+     * @return string
+     */
+    protected function getDefaultValueDefinition($default)
+    {
+        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+            $default = $this->getConnection()->quote($default);
+        } elseif (is_bool($default)) {
+            $default = (int) $default;
+        }
+        return isset($default) ? ' DEFAULT ' . $default : '';
+    }
+
+    /**
      * Gets the SQLite Column Definition for a Column object.
      *
      * @param Column $column Column
@@ -969,16 +985,11 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
             $def .= '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')';
         }
+
         $default = $column->getDefault();
 
         $def .= ($column->isNull() || is_null($default)) ? ' NULL' : ' NOT NULL';
-        if (is_numeric($default) || $default == 'CURRENT_TIMESTAMP') {
-            $def .= ' DEFAULT ' . $column->getDefault();
-        } else {
-            if (!is_null($default)) {
-                $def .= ' DEFAULT '  . $column->getDefault();
-            }
-        }
+        $def .= $this->getDefaultValueDefinition($default);
         $def .= ($column->isIdentity()) ? ' PRIMARY KEY AUTOINCREMENT' : '';
 
         if ($column->getUpdate()) {

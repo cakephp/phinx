@@ -822,6 +822,22 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * Get the defintion for a `DEFAULT` statement.
+     *
+     * @param  mixed $default
+     * @return string
+     */
+    protected function getDefaultValueDefinition($default)
+    {
+        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+            $default = $this->getConnection()->quote($default);
+        } elseif (is_bool($default)) {
+            $default = $default ? 'TRUE' : 'FALSE';
+        }
+        return isset($default) ? 'DEFAULT ' . $default : '';
+    }
+
+    /**
      * Gets the PostgreSQL Column Definition for a Column object.
      *
      * @param Column $column Column
@@ -841,13 +857,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
         }
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
-        $default = $column->getDefault();
-        if (is_numeric($default) || 'CURRENT_TIMESTAMP' === $default) {
-            $buffer[] = 'DEFAULT';
-            $buffer[] = $default;
-        } elseif ($default) {
-            $buffer[] =  "DEFAULT '{$default}'";
+
+        if (!is_null($column->getDefault())) {
+            $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
         }
+
         // TODO - add precision & scale for decimals
         return implode(' ', $buffer);
     }

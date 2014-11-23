@@ -245,6 +245,25 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testAddColumnWithDefaultBoolean()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $table->addColumn('default_true', 'boolean', array('default' => true))
+              ->addColumn('default_false', 'boolean', array('default' => false))
+              ->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() == 'default_true') {
+                $this->assertNotNull($column->getDefault());
+                $this->assertEquals('true', $column->getDefault());
+            }
+            if ($column->getName() == 'default_false') {
+                $this->assertNotNull($column->getDefault());
+                $this->assertEquals('false', $column->getDefault());
+            }
+        }
+    }
     public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
