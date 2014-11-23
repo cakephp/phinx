@@ -814,15 +814,16 @@ Valid Column Options
 
 The following are valid column options:
 
--  limit
--  length
--  default
--  null
--  precision
--  scale
--  after
--  update
--  comment
+-  limit: set maximum length for strings
+-  length: alias for ``limit``
+-  default: set default value or action
+-  null: allow ``NULL`` values
+-  precision: combine with ``scale`` set to set decimial accuracy
+-  scale: combine with ``precision`` to set decimial accuracy
+-  after: specify the column that a new column should be placed after
+-  update: set an action to be triggered when the row is updated
+-  comment: set a text comment on the column
+-  signed: enable or disable the ``UNSIGNED`` option
 
 You can pass one or more of these options to any column with the optional
 third argument array.
