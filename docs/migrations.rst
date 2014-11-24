@@ -823,7 +823,7 @@ The following are valid column options:
 -  after: specify the column that a new column should be placed after
 -  update: set an action to be triggered when the row is updated
 -  comment: set a text comment on the column
--  signed: enable or disable the ``UNSIGNED`` option
+-  signed: enable or disable the ``UNSIGNED`` option *(only applies to MySQL)*
 
 You can pass one or more of these options to any column with the optional
 third argument array.
