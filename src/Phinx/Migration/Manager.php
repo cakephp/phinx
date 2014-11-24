@@ -417,6 +417,7 @@ class Manager
                         ));
                     }
 
+                    $migration->setOutput($this->getOutput());
                     $versions[$version] = $migration;
                 }
             }
