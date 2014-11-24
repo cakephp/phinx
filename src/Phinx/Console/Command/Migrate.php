@@ -29,7 +29,7 @@
 namespace Phinx\Console\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Migrate extends AbstractCommand
@@ -41,11 +41,11 @@ class Migrate extends AbstractCommand
     {
         parent::configure();
 
-        $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
+        $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
         $this->setName('migrate')
              ->setDescription('Migrate the database')
-             ->addOption('--target', '-t', InputArgument::OPTIONAL, 'The version number to migrate to')
+             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
              ->setHelp(
 <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
