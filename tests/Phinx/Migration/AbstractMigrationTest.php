@@ -46,7 +46,7 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         // test methods
         $this->assertNull($migrationStub->getOutput());
         $migrationStub->setOutput($outputStub);
-        $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface',$migrationStub->getOutput());
+        $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $migrationStub->getOutput());
     }
 
     public function testGetName()

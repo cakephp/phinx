@@ -168,7 +168,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         $migrations = $this->manager->getMigrations();
         $outputObject = $this->manager->getOutput();
-        $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface',$outputObject);
+        $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $outputObject);
         foreach ($migrations as $migration) {
             $this->assertEquals($outputObject, $migration->getOutput());
         }
