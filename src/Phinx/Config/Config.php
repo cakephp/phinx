@@ -66,7 +66,7 @@ class Config implements ConfigInterface, \ArrayAccess
     public static function fromYaml($configFilePath)
     {
         $configArray = Yaml::parse($configFilePath);
-        return new self($configArray, $configFilePath);
+        return new static($configArray, $configFilePath);
     }
 
     /**
@@ -85,7 +85,7 @@ class Config implements ConfigInterface, \ArrayAccess
                 $configFilePath
             ));
         }
-        return new self($configArray, $configFilePath);
+        return new static($configArray, $configFilePath);
     }
 
     /**
@@ -102,7 +102,7 @@ class Config implements ConfigInterface, \ArrayAccess
         $configArray = include($configFilePath);
 
         // Hide console output
-        ob_get_clean();
+        ob_end_clean();
 
         if (!is_array($configArray)) {
             throw new \RuntimeException(sprintf(
@@ -111,7 +111,7 @@ class Config implements ConfigInterface, \ArrayAccess
             ));
         }
 
-        return new self($configArray, $configFilePath);
+        return new static($configArray, $configFilePath);
     }
 
     /**
