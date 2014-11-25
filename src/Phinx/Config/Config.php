@@ -41,7 +41,7 @@ class Config implements ConfigInterface, \ArrayAccess
     /**
      * @var array
      */
-    private $values;
+    private $values = array();
 
     /**
      * @var string
