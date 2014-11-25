@@ -61,11 +61,18 @@ class Config implements ConfigInterface, \ArrayAccess
      * Create a new instance of the config class using a Yaml file path.
      *
      * @param  string $configFilePath Path to the Yaml File
+     * @throws \RuntimeException
      * @return Config
      */
     public static function fromYaml($configFilePath)
     {
         $configArray = Yaml::parse($configFilePath);
+        if (!is_array($configArray)) {
+            throw new \RuntimeException(sprintf(
+                'File \'%s\' must be valid YAML',
+                $configFilePath
+            ));
+        }
         return new static($configArray, $configFilePath);
     }
 
