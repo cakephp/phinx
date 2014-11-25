@@ -104,7 +104,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     public function testFromPHPMethod()
     {
         $path = __DIR__ . '/_files';
-        $config = \Phinx\Config\Config::fromPHP($path . '/valid_config.php');
+        $config = \Phinx\Config\Config::fromPhp($path . '/valid_config.php');
         $this->assertEquals('dev', $config->getDefaultEnvironment());
     }
 
@@ -114,14 +114,14 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     public function testFromPHPMethodWithoutArray()
     {
         $path = __DIR__ . '/_files';
-        $config = \Phinx\Config\Config::fromPHP($path . '/config_without_array.php');
+        $config = \Phinx\Config\Config::fromPhp($path . '/config_without_array.php');
         $this->assertEquals('dev', $config->getDefaultEnvironment());
     }
 
     public function testFromJSONMethod()
     {
         $path = __DIR__ . '/_files';
-        $config = \Phinx\Config\Config::fromJSON($path . '/valid_config.json');
+        $config = \Phinx\Config\Config::fromJson($path . '/valid_config.json');
         $this->assertEquals('dev', $config->getDefaultEnvironment());
     }
 
@@ -131,7 +131,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     public function testFromJSONMethodWithoutJSON()
     {
         $path = __DIR__ . '/_files';
-        $config = \Phinx\Config\Config::fromPHP($path . '/empty.json');
+        $config = \Phinx\Config\Config::fromPhp($path . '/empty.json');
         $this->assertEquals('dev', $config->getDefaultEnvironment());
     }
 

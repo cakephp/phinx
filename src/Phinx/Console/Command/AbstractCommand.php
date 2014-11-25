@@ -228,10 +228,10 @@ abstract class AbstractCommand extends Command
 
         switch (strtolower($parser)) {
             case 'json':
-                $config = Config::fromJSON($configFilePath);
+                $config = Config::fromJson($configFilePath);
                 break;
             case 'php':
-                $config = Config::fromPHP($configFilePath);
+                $config = Config::fromPhp($configFilePath);
                 break;
             case 'yaml':
                 $config = Config::fromYaml($configFilePath);

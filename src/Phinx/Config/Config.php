@@ -83,7 +83,7 @@ class Config implements ConfigInterface, \ArrayAccess
      * @throws \RuntimeException
      * @return Config
      */
-    public static function fromJSON($configFilePath)
+    public static function fromJson($configFilePath)
     {
         $configArray = json_decode(file_get_contents($configFilePath), true);
         if (!is_array($configArray)) {
@@ -102,7 +102,7 @@ class Config implements ConfigInterface, \ArrayAccess
      * @throws \RuntimeException
      * @return Config
      */
-    public static function fromPHP($configFilePath)
+    public static function fromPhp($configFilePath)
     {
         ob_start();
         /** @noinspection PhpIncludeInspection */
