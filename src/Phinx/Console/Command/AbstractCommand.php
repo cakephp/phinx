@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -33,7 +33,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
-use Phinx\Config\Config;
+use Phinx\Config\ConfigInterface;
 use Phinx\Migration\Manager;
 use Phinx\Db\Adapter\AdapterInterface;
 
@@ -45,20 +45,20 @@ use Phinx\Db\Adapter\AdapterInterface;
 abstract class AbstractCommand extends Command
 {
     /**
-     * @var Config
+     * @var ConfigInterface
      */
     protected $config;
-    
+
     /**
      * @var AdapterInterface
      */
     protected $adapter;
-    
+
     /**
      * @var Manager
      */
     protected $manager;
-    
+
     /**
      * {@inheritdoc}
      */
@@ -89,10 +89,10 @@ abstract class AbstractCommand extends Command
     /**
      * Sets the config.
      *
-     * @param Config $config
+     * @param  ConfigInterface $config
      * @return AbstractCommand
      */
-    public function setConfig(Config $config)
+    public function setConfig(ConfigInterface $config)
     {
         $this->config = $config;
         return $this;
@@ -107,7 +107,7 @@ abstract class AbstractCommand extends Command
     {
         return $this->config;
     }
-    
+
     /**
      * Sets the database adapter.
      *
@@ -129,7 +129,7 @@ abstract class AbstractCommand extends Command
     {
         return $this->adapter;
     }
-    
+
     /**
      * Sets the migration manager.
      *
@@ -141,7 +141,7 @@ abstract class AbstractCommand extends Command
         $this->manager = $manager;
         return $this;
     }
-    
+
     /**
      * Gets the migration manager.
      *

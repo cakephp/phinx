@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -40,9 +40,9 @@ class Status extends AbstractCommand
     protected function configure()
     {
         parent::configure();
-         
+
         $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment.');
-         
+
         $this->setName('status')
              ->setDescription('Show migration status')
              ->addOption('--format', '-f', InputArgument::OPTIONAL, 'The output format: text or json. Defaults to text.')
@@ -66,10 +66,10 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
-        
+
         $environment = $input->getOption('environment');
         $format = $input->getOption('format');
-        
+
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
@@ -79,7 +79,7 @@ EOT
         if (null !== $format) {
             $output->writeln('<info>using format</info> ' . $format);
         }
-        
+
         // print the status
         $this->getManager()->printStatus($environment, $format);
     }

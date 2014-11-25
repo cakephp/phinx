@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Db\Adapter
  */
@@ -56,10 +56,10 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
                 throw new \RuntimeException('You need to enable the PDO_SqlSrv extension for Phinx to run properly.');
                 // @codeCoverageIgnoreEnd
             }
-            
+
             $db = null;
             $options = $this->getOptions();
-            
+
             // if port is specified use it, otherwise use the SqlServer default
             if (empty($options['port'])) {
                 $dsn = 'sqlsrv:server=' . $options['host'] . ';database=' . $options['name'];
@@ -67,7 +67,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
                 $dsn = 'sqlsrv:server=' . $options['host'] . ',' . $options['port'] . ';database=' . $options['name'];
             }
             $dsn .= ';MultipleActiveResultSets=false';
-            
+
             $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
 
             // charset support
@@ -93,14 +93,14 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             }
 
             $this->setConnection($db);
-            
+
             // Create the schema table if it doesn't already exist
             if (!$this->hasSchemaTable()) {
                 $this->createSchemaTable();
             }
         }
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -108,7 +108,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->connection = null;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -116,7 +116,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     {
         return true;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -124,7 +124,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->execute('BEGIN TRANSACTION');
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -132,7 +132,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->execute('COMMIT TRANSACTION');
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -140,7 +140,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->execute('ROLLBACK TRANSACTION');
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -148,7 +148,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     {
         return str_replace('.', '].[', $this->quoteColumnName($tableName));
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -182,7 +182,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             $column->setName('id')
                    ->setType('integer')
                    ->setIdentity(true);
-            
+
             array_unshift($columns, $column);
             $options['primary_key'] = 'id';
 
@@ -299,7 +299,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(sprintf('EXEC sp_rename \'%s\', \'%s\'', $tableName, $newTableName));
         $this->endCommandTimer();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -365,12 +365,12 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
                 $column->setLimit($columnInfo['char_length']);
             }
 
-            $columns[] = $column;
+            $columns[$columnInfo['name']] = $column;
         }
 
         return $columns;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -387,7 +387,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 
         return $result['count'] > 0;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -405,7 +405,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         $this->execute($sql);
         $this->endCommandTimer();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -449,7 +449,6 @@ SQL;
     public function changeDefault($tableName, $columnName, Column $newColumn)
     {
         $constraintName = "DF_{$tableName}_{$columnName}";
-        $this->dropDefaultConstraint($tableName, $columnName);
         $default = $newColumn->getDefault();
         if (!is_numeric($default) && $default !== 'CURRENT_TIMESTAMP') {
             $default = $this->getConnection()->quote($default);
@@ -463,7 +462,7 @@ SQL;
             $columnName
         ));
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -471,12 +470,14 @@ SQL;
     {
         $this->startCommandTimer();
         $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
+        $columns = $this->getColumns($tableName);
+        $changeDefault = $newColumn->getDefault() !== $columns[$columnName]->getDefault() || $newColumn->getType() !== $columns[$columnName]->getType();
         if ($columnName != $newColumn->getName()) {
             $this->renameColumn($tableName, $columnName, $newColumn->getName());
         }
 
-        if ($newColumn->getDefault()) {
-            $this->changeDefault($tableName, $columnName, $newColumn);
+        if ($changeDefault) {
+            $this->dropDefaultConstraint($tableName, $columnName);
         }
 
         $this->execute(
@@ -492,9 +493,13 @@ SQL;
             $sql = $this->getColumnCommentSqlDefinition($newColumn, $tableName);
             $this->execute($sql);
         }
+
+        if ($changeDefault) {
+            $this->changeDefault($tableName, $columnName, $newColumn);
+        }
         $this->endCommandTimer();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -592,7 +597,7 @@ ORDER BY T.[name], I.[index_id];";
 
         return $indexes;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -601,10 +606,10 @@ ORDER BY T.[name], I.[index_id];";
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
-        
+
         $columns = array_map('strtolower', $columns);
         $indexes = $this->getIndexes($tableName);
-        
+
         foreach ($indexes as $index) {
             $a = array_diff($columns, $index['columns']);
 
@@ -612,10 +617,10 @@ ORDER BY T.[name], I.[index_id];";
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -627,7 +632,7 @@ ORDER BY T.[name], I.[index_id];";
         $this->execute($sql);
         $this->endCommandTimer();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -637,7 +642,7 @@ ORDER BY T.[name], I.[index_id];";
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
-        
+
         $this->writeCommand('dropIndex', array($tableName, $columns));
         $indexes = $this->getIndexes($tableName);
         $columns = array_map('strtolower', $columns);
@@ -657,17 +662,17 @@ ORDER BY T.[name], I.[index_id];";
             }
         }
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function dropIndexByName($tableName, $indexName)
     {
         $this->startCommandTimer();
-        
+
         $this->writeCommand('dropIndexByName', array($tableName, $indexName));
         $indexes = $this->getIndexes($tableName);
-        
+
         foreach ($indexes as $name => $index) {
             if ($name === $indexName) {
                 $this->execute(
@@ -767,9 +772,9 @@ ORDER BY T.[name], I.[index_id];";
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
-        
+
         $this->writeCommand('dropForeignKey', array($tableName, $columns));
-        
+
         if ($constraint) {
             $this->execute(
                 sprintf(
@@ -804,7 +809,7 @@ ORDER BY T.[name], I.[index_id];";
         }
         $this->endCommandTimer();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -937,7 +942,7 @@ ORDER BY T.[name], I.[index_id];";
         $this->execute(sprintf('USE [%s]', $name));
         $this->endCommandTimer();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -952,7 +957,7 @@ ORDER BY T.[name], I.[index_id];";
 
         return $result['count'] > 0;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -969,7 +974,23 @@ SQL;
         $this->execute($sql);
         $this->endCommandTimer();
     }
-    
+
+    /**
+     * Get the defintion for a `DEFAULT` statement.
+     *
+     * @param  mixed $default
+     * @return string
+     */
+    protected function getDefaultValueDefinition($default)
+    {
+        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+            $default = $this->getConnection()->quote($default);
+        } elseif (is_bool($default)) {
+            $default = (int) $default;
+        }
+        return isset($default) ? ' DEFAULT ' . $default : '';
+    }
+
     /**
      * Gets the SqlServer Column Definition for a Column object.
      *
@@ -1000,15 +1021,7 @@ SQL;
         $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';
 
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
-        $default = $column->getDefault();
-        if ($create) {
-            if (is_numeric($default) || 'CURRENT_TIMESTAMP' === $default) {
-                $buffer[] = 'DEFAULT';
-                $buffer[] = $default;
-            } elseif ($default) {
-                $buffer[] = "DEFAULT '{$default}'";
-            }
-        }
+        $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
 
         if ($column->isIdentity()) {
             $buffer[] = 'IDENTITY(1, 1)';
@@ -1016,7 +1029,7 @@ SQL;
 
         return implode(' ', $buffer);
     }
-    
+
     /**
      * Gets the SqlServer Index Definition for an Index object.
      *
@@ -1120,4 +1133,3 @@ SQL;
         return $this;
     }
 }
-

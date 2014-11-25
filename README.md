@@ -95,10 +95,6 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
 
 Check out http://docs.phinx.org for the comprehensive documentation.
 
-## Unofficial IRC Channel
-
-Some Phinx users often hang out in the #phinx channel on [freenode](https://freenode.net/). Feel free to connect if you wish to discuss Phinx and seek advice.
-
 ## Contributing
 
 Start by forking Phinx on GitHub: https://github.com/robmorgan/phinx

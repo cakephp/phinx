@@ -308,7 +308,7 @@ store a collection of users.
                       ->addColumn('first_name', 'string', array('limit' => 30))
                       ->addColumn('last_name', 'string', array('limit' => 30))
                       ->addColumn('created', 'datetime')
-                      ->addColumn('updated', 'datetime', array('default' => null))
+                      ->addColumn('updated', 'datetime', array('null' => true))
                       ->addIndex(array('username', 'email'), array('unique' => true))
                       ->save();
             }
@@ -383,7 +383,7 @@ To do this, we need to override the default ``id`` field name:
                 $table = $this->table('followers', array('id' => 'user_id'));
                 $table->addColumn('user_id', 'integer')
                       ->addColumn('follower_id', 'integer')
-                      ->addColumn('created', 'datetime')
+                      ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'))
                       ->save();
             }
 
@@ -486,7 +486,7 @@ good idea to recreate the table again in the ``down()`` method.
                       ->addColumn('first_name', 'string', array('limit' => 30))
                       ->addColumn('last_name', 'string', array('limit' => 30))
                       ->addColumn('created', 'datetime')
-                      ->addColumn('updated', 'datetime', array('default' => null))
+                      ->addColumn('updated', 'datetime', array('null' => true))
                       ->addIndex(array('username', 'email'), array('unique' => true))
                       ->save();
             }
