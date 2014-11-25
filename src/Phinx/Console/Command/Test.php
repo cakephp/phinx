@@ -30,7 +30,7 @@ namespace Phinx\Console\Command;
 
 use Phinx\Migration\Manager\Environment;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -45,7 +45,7 @@ class Test extends AbstractCommand
     {
         parent::configure();
 
-        $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
+        $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
         $this->setName('test')
              ->setDescription('Verify the configuration file')
