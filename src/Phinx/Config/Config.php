@@ -237,6 +237,20 @@ class Config implements ConfigInterface, \ArrayAccess
     }
 
     /**
+     * Gets the base class name for migrations.
+     *
+     * @return string
+     */
+    public function getMigrationBaseClassName()
+    {
+        if (!isset($this->values['migration_base_class'])) {
+            throw new \UnexpectedValueException('Migration base class name missing from config file');
+        }
+
+        return $this->values['migration_base_class'];
+    }
+    
+    /**
      * Replace tokens in the specified array.
      *
      * @param array $arr Array to replace

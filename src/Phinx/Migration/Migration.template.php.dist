@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class $className extends AbstractMigration
+class $className extends $baseClassName
 {
     /**
      * Change Method.
