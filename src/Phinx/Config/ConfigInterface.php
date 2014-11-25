@@ -32,9 +32,9 @@ namespace Phinx\Config;
  * Phinx configuration interface.
  *
  * @package Phinx
- * @author Rob Morgan
+ * @author  Woody Gilk
  */
-interface ConfigInterface
+interface ConfigInterface extends \ArrayAccess
 {
     /**
      * Class Constructor
@@ -93,48 +93,4 @@ interface ConfigInterface
      * @return string
      */
     public function getMigrationPath();
-
-    /**
-     * Sets a parameter or an object.
-     *
-     * Objects must be defined as Closures.
-     *
-     * Allowing any PHP callable leads to difficult to debug problems
-     * as function names (strings) are callable (creating a function with
-     * the same a name as an existing parameter would break your container).
-     *
-     * @link   http://php.net/ArrayAccess
-     * @param  string $id    The unique identifier for the parameter or object
-     * @param  mixed  $value The value of the parameter or a closure to defined an object
-     * @return void
-     */
-    public function offsetSet($id, $value);
-
-    /**
-     * Gets a parameter or an object.
-     *
-     * @link   http://php.net/ArrayAccess
-     * @param  string $id The unique identifier for the parameter or object
-     * @throws \InvalidArgumentException if the identifier is not defined
-     * @return mixed  The value of the parameter or an object
-     */
-    public function offsetGet($id);
-
-    /**
-     * Checks if a parameter or an object is set.
-     *
-     * @link   http://php.net/ArrayAccess
-     * @param  string $id The unique identifier for the parameter or object
-     * @return boolean
-     */
-    public function offsetExists($id);
-
-    /**
-     * Unsets a parameter or an object.
-     *
-     * @link   http://php.net/ArrayAccess
-     * @param  string $id The unique identifier for the parameter or object
-     * @return void
-     */
-    public function offsetUnset($id);
 }

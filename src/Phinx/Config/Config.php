@@ -36,7 +36,7 @@ use Symfony\Component\Yaml\Yaml;
  * @package Phinx
  * @author Rob Morgan
  */
-class Config implements ConfigInterface, \ArrayAccess
+class Config implements ConfigInterface
 {
     /**
      * @var array
