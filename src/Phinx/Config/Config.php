@@ -60,7 +60,7 @@ class Config implements ConfigInterface, \ArrayAccess
     /**
      * Create a new instance of the config class using a Yaml file path.
      *
-     * @param string $configFilePath Path to the Yaml File
+     * @param  string $configFilePath Path to the Yaml File
      * @return Config
      */
     public static function fromYaml($configFilePath)
@@ -70,9 +70,9 @@ class Config implements ConfigInterface, \ArrayAccess
     }
 
     /**
-     * Create a new instance of the config class using a Yaml file path.
+     * Create a new instance of the config class using a JSON file path.
      *
-     * @param string $configFilePath Path to the Yaml File
+     * @param  string $configFilePath Path to the JSON File
      * @throws \RuntimeException
      * @return Config
      */
@@ -91,7 +91,7 @@ class Config implements ConfigInterface, \ArrayAccess
     /**
      * Create a new instance of the config class using a PHP file path.
      *
-     * @param string $configFilePath Path to the PHP File
+     * @param  string $configFilePath Path to the PHP File
      * @throws \RuntimeException
      * @return Config
      */
