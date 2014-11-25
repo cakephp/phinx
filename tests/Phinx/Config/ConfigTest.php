@@ -79,7 +79,6 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Could not find a default environment
      */
     public function testGetDefaultEnvironmentWithAnEmptyYamlFile()
     {
