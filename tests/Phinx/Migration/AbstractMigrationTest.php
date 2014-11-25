@@ -4,7 +4,6 @@ namespace Test\Phinx\Migration;
 
 use Phinx\Db\Table;
 use Phinx\Db\Adapter\AdapterInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
 {
@@ -47,7 +46,7 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         // test methods
         $this->assertNull($migrationStub->getOutput());
         $migrationStub->setOutput($outputStub);
-        $this->assertTrue($migrationStub->getOutput() instanceof OutputInterface);
+        $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $migrationStub->getOutput());
     }
 
     public function testGetName()
