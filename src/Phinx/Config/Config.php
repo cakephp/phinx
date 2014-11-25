@@ -36,7 +36,7 @@ use Symfony\Component\Yaml\Yaml;
  * @package Phinx
  * @author Rob Morgan
  */
-class Config implements \ArrayAccess
+class Config implements ConfigInterface, \ArrayAccess
 {
     /**
      * @var array
@@ -49,12 +49,9 @@ class Config implements \ArrayAccess
     protected $configFilePath;
 
     /**
-     * Class Constructor
-     *
-     * @param array $configArray Config Array
-     * @param string $configFilePath Optional File Path
+     * {@inheritdoc}
      */
-    public function __construct($configArray, $configFilePath = null)
+    public function __construct(array $configArray, $configFilePath = null)
     {
         $this->configFilePath = $configFilePath;
         $this->values = $this->replaceTokens($configArray);
@@ -118,11 +115,7 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * Returns the configuration for each environment.
-     *
-     * This method returns <code>null</code> if no environments exist.
-     *
-     * @return array|null
+     * {@inheritdoc}
      */
     public function getEnvironments()
     {
@@ -141,13 +134,7 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * Returns the configuration for a given environment.
-     *
-     * This method returns <code>null</code> if the specified environment
-     * doesn't exist.
-     *
-     * @param string $name
-     * @return array|null
+     * {@inheritdoc}
      */
     public function getEnvironment($name)
     {
@@ -166,10 +153,7 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * Does the specified environment exist in the configuration file?
-     *
-     * @param string $name Environment Name
-     * @return boolean
+     * {@inheritdoc}
      */
     public function hasEnvironment($name)
     {
@@ -177,10 +161,7 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * Gets the default environment name.
-     *
-     * @throws \RuntimeException
-     * @return string
+     * {@inheritdoc}
      */
     public function getDefaultEnvironment()
     {
@@ -220,9 +201,7 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * Gets the config file path.
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getConfigFilePath()
     {
@@ -230,9 +209,7 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * Gets the path of the migration files.
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getMigrationPath()
     {
@@ -309,17 +286,7 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * Sets a parameter or an object.
-     *
-     * Objects must be defined as Closures.
-     *
-     * Allowing any PHP callable leads to difficult to debug problems
-     * as function names (strings) are callable (creating a function with
-     * the same a name as an existing parameter would break your container).
-     *
-     * @param string $id    The unique identifier for the parameter or object
-     * @param mixed  $value The value of the parameter or a closure to defined an object
-     * @return void
+     * {@inheritdoc}
      */
     public function offsetSet($id, $value)
     {
@@ -327,11 +294,7 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * Gets a parameter or an object.
-     *
-     * @param  string $id The unique identifier for the parameter or object
-     * @throws \InvalidArgumentException if the identifier is not defined
-     * @return mixed  The value of the parameter or an object
+     * {@inheritdoc}
      */
     public function offsetGet($id)
     {
@@ -343,10 +306,7 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * Checks if a parameter or an object is set.
-     *
-     * @param  string $id The unique identifier for the parameter or object
-     * @return boolean
+     * {@inheritdoc}
      */
     public function offsetExists($id)
     {
@@ -354,10 +314,7 @@ class Config implements \ArrayAccess
     }
 
     /**
-     * Unsets a parameter or an object.
-     *
-     * @param  string $id The unique identifier for the parameter or object
-     * @return void
+     * {@inheritdoc}
      */
     public function offsetUnset($id)
     {
