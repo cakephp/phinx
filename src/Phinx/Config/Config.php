@@ -235,7 +235,7 @@ class Config implements ConfigInterface, \ArrayAccess
      * @param array $arr Array to replace
      * @return array
      */
-    public function replaceTokens($arr)
+    protected function replaceTokens($arr)
     {
         // Get environment variables
         // $_ENV is empty because variables_order does not include it normally
@@ -265,7 +265,7 @@ class Config implements ConfigInterface, \ArrayAccess
      * @param array $tokens Array of tokens to search for
      * @return array
      */
-    public function recurseArrayForTokens($arr, $tokens)
+    protected function recurseArrayForTokens($arr, $tokens)
     {
         $out = array();
         foreach ($arr as $name => $value) {
