@@ -19,7 +19,7 @@
         "symfony/yaml": "2.*"
     },
     "require-dev": {
-        "phpunit/phpunit": "4.*@stable",
+        "phpunit/phpunit": "3.7.*",
         "squizlabs/php_codesniffer": "dev-phpcs-fixer"
     },
     "autoload": {
