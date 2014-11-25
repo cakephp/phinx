@@ -117,3 +117,21 @@ When running Phinx from the command line, you may specify a configuration file u
             );
 
 Phinx auto-detects which language parser to use for files with ``*.yml`` and ``*.php`` extensions. The appropriate parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than ``"php"`` is treated as YAML.
+
+In case with PHP array you can provide ``connection`` key with existing PDO instance to use omitting other parameters:
+
+.. code-block:: php
+
+        <?php
+            return array(
+                "paths" => array(
+                    "migrations" => "application/migrations"
+                ),
+                "environments" => array(
+                    "default_migration_table" => "phinxlog",
+                    "default_database" => "dev",
+                    "dev" => array(
+                        "connection" => $pdo_instance
+                    )
+                )
+            );

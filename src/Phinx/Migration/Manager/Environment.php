@@ -286,6 +286,13 @@ class Environment
         if (isset($this->adapter)) {
             return $this->adapter;
         }
+        if (isset($this->options['connection'])) {
+            if (!is_a($this->options['connection'], '\\PDO')) {
+                throw new \RuntimeException('Given connection is not a PDO instance');
+            }
+
+            $this->options['adapter'] = $this->options['connection']->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        }
         if (!isset($this->options['adapter'])) {
             throw new \RuntimeException('No adapter was specified for environment: ' . $this->getName());
         }

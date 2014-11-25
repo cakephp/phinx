@@ -80,8 +80,13 @@ EOT
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
-        $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
-        $output->writeln('<info>using database</info> ' . $envOptions['name']);
+        if (isset($envOptions['adapter'])) {
+            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
+        }
+
+        if (isset($envOptions['name'])) {
+            $output->writeln('<info>using database</info> ' . $envOptions['name']);
+        }
 
         // rollback the specified environment
         $start = microtime(true);
