@@ -77,6 +77,25 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testConnectionWithSocketConnection()
+    {
+        if (!TESTS_PHINX_DB_ADAPTER_MYSQL_UNIX_SOCKET) {
+            $this->markTestSkipped('MySQL socket connection skipped. See TESTS_PHINX_DB_ADAPTER_MYSQL_UNIX_SOCKET constant.');
+        }
+
+        $options = array(
+            'name'        => TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
+            'user'        => TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME,
+            'pass'        => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
+            'unix_socket' => TESTS_PHINX_DB_ADAPTER_MYSQL_UNIX_SOCKET,
+        );
+
+        $adapter = new MysqlAdapter($options, new NullOutput());
+        $adapter->connect();
+
+        $this->assertInstanceOf('\PDO', $this->adapter->getConnection());
+    }
+
     public function testCreatingTheSchemaTableOnConnect()
     {
         $this->adapter->connect();

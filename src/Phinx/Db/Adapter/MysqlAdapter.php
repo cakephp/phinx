@@ -58,20 +58,23 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $db = null;
             $options = $this->getOptions();
 
-            // if port is specified use it, otherwise use the MySQL default
-            if (empty($options['port'])) {
-                $dsn = 'mysql:host=' . $options['host'] . ';dbname=' . $options['name'];
+            $dsn = 'mysql:';
+
+            if (!empty($options['unix_socket'])) {
+                // use socket connection
+                $dsn .= 'unix_socket=' . $options['unix_socket'];
             } else {
-                $dsn = 'mysql:host=' . $options['host'] . ';port=' . $options['port'] . ';dbname=' . $options['name'];
+                // use network connection
+                $dsn .= 'host=' . $options['host'];
+                if (!empty($options['port'])) {
+                    $dsn .= ';port=' . $options['port'];
+                }
             }
 
-            // unix socket support
-            if (isset($options['unix_socket'])) {
-                $dsn .= ';unix_socket=' . $options['unix_socket'];
-            }
+            $dsn .= ';dbname=' . $options['name'];
 
             // charset support
-            if (isset($options['charset'])) {
+            if (!empty($options['charset'])) {
                 $dsn .= ';charset=' . $options['charset'];
             }
 
