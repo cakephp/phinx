@@ -29,13 +29,13 @@
 namespace Phinx\Migration;
 
 use Symfony\Component\Console\Output\OutputInterface;
-use Phinx\Config\Config;
+use Phinx\Config\ConfigInterface;
 use Phinx\Migration\Manager\Environment;
 
 class Manager
 {
     /**
-     * @var \ArrayAccess
+     * @var ConfigInterface
      */
     protected $config;
 
@@ -57,10 +57,10 @@ class Manager
     /**
      * Class Constructor.
      *
-     * @param Config $config Config
+     * @param ConfigInterface $config Configuration Object
      * @param OutputInterface $output Console Output
      */
-    public function __construct(Config $config, OutputInterface $output)
+    public function __construct(ConfigInterface $config, OutputInterface $output)
     {
         $this->setConfig($config);
         $this->setOutput($output);
@@ -431,10 +431,10 @@ class Manager
     /**
      * Sets the config.
      *
-     * @param Config $config Config
+     * @param  ConfigInterface $config Configuration Object
      * @return Manager
      */
-    public function setConfig(Config $config)
+    public function setConfig(ConfigInterface $config)
     {
         $this->config = $config;
         return $this;
@@ -443,7 +443,7 @@ class Manager
     /**
      * Gets the config.
      *
-     * @return Config
+     * @return ConfigInterface
      */
     public function getConfig()
     {
