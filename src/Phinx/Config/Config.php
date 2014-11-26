@@ -66,6 +66,12 @@ class Config implements ConfigInterface
      */
     public static function fromYaml($configFilePath)
     {
+        if (!class_exists('\Symfony\Component\Yaml\Yaml')) {
+            throw new \RuntimeException(
+                'Yaml config file parsing require "symfony/yaml" component.'
+            );
+        }
+
         $configArray = Yaml::parse($configFilePath);
         if (!is_array($configArray)) {
             throw new \RuntimeException(sprintf(
