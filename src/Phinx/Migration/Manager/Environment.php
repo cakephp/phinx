@@ -287,7 +287,7 @@ class Environment
             return $this->adapter;
         }
         if (isset($this->options['connection'])) {
-            if (!($this->options['connection'] instanceof \\PDO)) {
+            if (!($this->options['connection'] instanceof \PDO)) {
                 throw new \RuntimeException('Given connection is not a PDO instance');
             }
 
