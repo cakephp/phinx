@@ -6,13 +6,13 @@ Writing Migrations
 
 Phinx relies on migrations in order to transform your database. Each migration
 is represented by a PHP class in a unique file. It is preferred that you write
-your migrations using the Phinx PHP API, but a raw SQL is also supported.
+your migrations using the Phinx PHP API, but raw SQL is also supported.
 
 Creating a New Migration
 ------------------------
 
 Let's start by creating a new Phinx migration. Run Phinx using the
-``create`` command.
+``create`` command:
 
 .. code-block:: bash
     
@@ -22,7 +22,8 @@ This will create a new migration in the format
 ``YYYYMMDDHHMMSS_my_new_migration.php`` where the first 14 characters are
 replaced with the current timestamp down to the second.
 
-Phinx automatically creates a skeleton migration file with two empty methods.
+Phinx automatically creates a skeleton migration file with two empty methods
+and a commented out one:
 
 .. code-block:: php
         
@@ -33,11 +34,24 @@ Phinx automatically creates a skeleton migration file with two empty methods.
         class MyNewMigration extends AbstractMigration
         {
             /**
+             * Change Method.
+             *
+             * More information on this method is available here:
+             * http://docs.phinx.org/en/latest/migrations.html#the-change-method
+             *
+             * Uncomment this method if you would like to use it.
+             *
+            public function change()
+            {
+            }
+            */
+
+            /**
              * Migrate Up.
              */
             public function up()
             {
-            
+
             }
 
             /**
@@ -77,7 +91,7 @@ The Change Method
 Phinx 0.2.0 introduced a new feature called reversible migrations. With
 reversible migrations you only need to define the ``up`` logic and Phinx can
 figure out how to migrate down automatically for you. To define a reversible
-migration you must declare a ``change`` method in your migration file. For
+migration you must uncomment the ``change`` method in your migration file. For
 example:
 
 .. code-block:: php
@@ -89,7 +103,12 @@ example:
         class CreateUserLoginsTable extends AbstractMigration
         {
             /**
-             * Change.
+             * Change Method.
+             *
+             * More information on this method is available here:
+             * http://docs.phinx.org/en/latest/migrations.html#the-change-method
+             *
+             * Uncomment this method if you would like to use it.
              */
             public function change()
             {
@@ -180,7 +199,12 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
 
 .. note::
 
-    These commands run using the ``PHP Data Objects (PDO) extension which  defines a lightweight, consistent interface for accessing databases in PHP``. Always make sure your queries abide with PDOs before using the ``execute()`` command; this is especially important when using DELIMITERs during insertion of stored procedures or triggers which don't support DELIMITERs.
+    These commands run using the PHP Data Objects (PDO) extension which
+    defines a lightweight, consistent interface for accessing databases
+    in PHP. Always make sure your queries abide with PDOs before using
+    the ``execute()`` command. This is especially important when using
+    DELIMITERs during insertion of stored procedures or triggers which
+    don't support DELIMITERs.
         
 Fetching Rows
 -------------
@@ -284,7 +308,7 @@ store a collection of users.
                       ->addColumn('first_name', 'string', array('limit' => 30))
                       ->addColumn('last_name', 'string', array('limit' => 30))
                       ->addColumn('created', 'datetime')
-                      ->addColumn('updated', 'datetime', array('default' => null))
+                      ->addColumn('updated', 'datetime', array('null' => true))
                       ->addIndex(array('username', 'email'), array('unique' => true))
                       ->save();
             }
@@ -359,7 +383,7 @@ To do this, we need to override the default ``id`` field name:
                 $table = $this->table('followers', array('id' => 'user_id'));
                 $table->addColumn('user_id', 'integer')
                       ->addColumn('follower_id', 'integer')
-                      ->addColumn('created', 'datetime')
+                      ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'))
                       ->save();
             }
 
@@ -462,7 +486,7 @@ good idea to recreate the table again in the ``down()`` method.
                       ->addColumn('first_name', 'string', array('limit' => 30))
                       ->addColumn('last_name', 'string', array('limit' => 30))
                       ->addColumn('created', 'datetime')
-                      ->addColumn('updated', 'datetime', array('default' => null))
+                      ->addColumn('updated', 'datetime', array('null' => true))
                       ->addIndex(array('username', 'email'), array('unique' => true))
                       ->save();
             }
@@ -710,7 +734,7 @@ Let's add a foreign key to an example table:
         
                 $refTable = $this->table('tag_relationships');
                 $refTable->addColumn('tag_id', 'integer')
-                         ->addForeignKey('tag_id', 'tags', 'id', array('delete'=> 'SET_NULL', update=> 'NO_ACTION'))
+                         ->addForeignKey('tag_id', 'tags', 'id', array('delete'=> 'SET_NULL', 'update'=> 'NO_ACTION'))
                          ->save();
                 
             }
@@ -790,15 +814,16 @@ Valid Column Options
 
 The following are valid column options:
 
--  limit
--  length
--  default
--  null
--  precision
--  scale
--  after
--  update
--  comment
+-  limit: set maximum length for strings
+-  length: alias for ``limit``
+-  default: set default value or action
+-  null: allow ``NULL`` values
+-  precision: combine with ``scale`` set to set decimial accuracy
+-  scale: combine with ``precision`` to set decimial accuracy
+-  after: specify the column that a new column should be placed after
+-  update: set an action to be triggered when the row is updated
+-  comment: set a text comment on the column
+-  signed: enable or disable the ``UNSIGNED`` option *(only applies to MySQL)*
 
 You can pass one or more of these options to any column with the optional
 third argument array.

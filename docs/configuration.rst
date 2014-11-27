@@ -77,6 +77,25 @@ file:
 
     export PHINX_ENVIRONMENT=dev-`whoami`-`hostname`
 
+Socket Connections
+------------------
+
+When using the MySQL adapter, it is also possible to use sockets instead of
+network connections. The socket path is configured with ``unix_socket``:
+
+.. code-block:: yaml
+
+    environments:
+        default_migration_table: phinxlog
+        default_database: development
+        production:
+            adapter: mysql
+            name: production_db
+            user: root
+            pass: ''
+            unix_socket: /var/run/mysql/mysql.sock
+            charset: utf8
+
 External Variables
 ------------------
 

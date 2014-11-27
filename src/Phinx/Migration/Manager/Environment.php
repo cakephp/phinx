@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Migration\Manager
  */
@@ -35,6 +35,7 @@ use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Adapter\PostgresAdapter;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Adapter\ProxyAdapter;
+use Phinx\Db\Adapter\TablePrefixAdapter;
 use Phinx\Migration\MigrationInterface;
 
 class Environment
@@ -43,7 +44,7 @@ class Environment
      * @var string
      */
     protected $name;
-    
+
     /**
      * @var array
      */
@@ -53,12 +54,12 @@ class Environment
      * @var OutputInterface
      */
     protected $output;
-    
+
     /**
      * @var int
      */
     protected $currentVersion;
-    
+
     /**
      * @var string
      */
@@ -120,12 +121,12 @@ class Environment
         $startTime = time();
         $direction = ($direction == MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
         $migration->setAdapter($this->getAdapter());
-        
+
         // begin the transaction if the adapter supports it
         if ($this->getAdapter()->hasTransactions()) {
             $this->getAdapter()->beginTransaction();
         }
-        
+
         // Run the migration
         if (method_exists($migration, MigrationInterface::CHANGE)) {
             if ($direction == MigrationInterface::DOWN) {
@@ -144,7 +145,7 @@ class Environment
         } else {
             $migration->{$direction}();
         }
-        
+
         // commit the transaction if the adapter supports it
         if ($this->getAdapter()->hasTransactions()) {
             $this->getAdapter()->commitTransaction();
@@ -153,7 +154,7 @@ class Environment
         // Record it in the database
         $this->getAdapter()->migrated($migration, $direction, date('Y-m-d H:i:s', $startTime), date('Y-m-d H:i:s', time()));
     }
-    
+
     /**
      * Sets the environment's name.
      *
@@ -165,7 +166,7 @@ class Environment
         $this->name = $name;
         return $this;
     }
-    
+
     /**
      * Gets the environment name.
      *
@@ -175,7 +176,7 @@ class Environment
     {
         return $this->name;
     }
-    
+
     /**
      * Sets the environment's options.
      *
@@ -187,7 +188,7 @@ class Environment
         $this->options = $options;
         return $this;
     }
-    
+
     /**
      * Gets the environment's options.
      *
@@ -209,7 +210,7 @@ class Environment
         $this->output = $output;
         return $this;
     }
-    
+
     /**
      * Gets the console output.
      *
@@ -229,7 +230,7 @@ class Environment
     {
         return $this->getAdapter()->getVersions();
     }
-    
+
     /**
      * Sets the current version of the environment.
      *
@@ -241,7 +242,7 @@ class Environment
         $this->currentVersion = $version;
         return $this;
     }
-    
+
     /**
      * Gets the current version of the environment.
      *
@@ -254,15 +255,15 @@ class Environment
         // maybe we should cache and call a reset() method everytime a migration is run
         $versions = $this->getVersions();
         $version = 0;
-            
+
         if (!empty($versions)) {
             $version = end($versions);
         }
-            
+
         $this->setCurrentVersion($version);
         return $this->currentVersion;
     }
-    
+
     /**
      * Sets the database adapter.
      *
@@ -274,7 +275,7 @@ class Environment
         $this->adapter = $adapter;
         return $this;
     }
-    
+
     /**
      * Gets the database adapter.
      *
@@ -298,9 +299,15 @@ class Environment
         if (!$adapter instanceof AdapterInterface) {
             throw new \RuntimeException('Adapter factory closure did not return an instance of \\Phinx\\Db\\Adapter\\AdapterInterface');
         }
+        
+        // Use the TablePrefixAdapter if table prefix/suffixes are in use
+        if (isset($this->options['table_prefix']) || isset($this->options['table_suffix'])) {
+            $adapter = new TablePrefixAdapter($this->options, $adapter);
+        }
+        
         return $this->adapter = $adapter;
     }
-    
+
     /**
      * Sets the schema table name.
      *
@@ -312,7 +319,7 @@ class Environment
         $this->schemaTableName = $schemaTableName;
         return $this;
     }
-    
+
     /**
      * Gets the schema table name.
      *

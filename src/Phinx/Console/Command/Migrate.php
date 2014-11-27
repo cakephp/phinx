@@ -29,7 +29,7 @@
 namespace Phinx\Console\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Migrate extends AbstractCommand
@@ -41,11 +41,11 @@ class Migrate extends AbstractCommand
     {
         parent::configure();
 
-        $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
+        $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
         $this->setName('migrate')
              ->setDescription('Migrate the database')
-             ->addOption('--target', '-t', InputArgument::OPTIONAL, 'The version number to migrate to')
+             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
              ->setHelp(
 <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
@@ -68,26 +68,33 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
-        
+
         $version = $input->getOption('target');
         $environment = $input->getOption('environment');
-        
+
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
-        
+
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         $output->writeln('<info>using database</info> ' . $envOptions['name']);
+
+        if (isset($envOptions['table_prefix'])) {
+            $output->writeln('<info>using table prefix</info> ' . $envOptions['table_prefix']);
+        }
+        if (isset($envOptions['table_suffix'])) {
+            $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
+        }
 
         // run the migrations
         $start = microtime(true);
         $this->getManager()->migrate($environment, $version);
         $end = microtime(true);
-        
+
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
     }

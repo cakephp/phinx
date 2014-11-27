@@ -14,13 +14,13 @@ class UpdateInfoTable extends AbstractMigration
         $info->addColumn('password', 'string', array('limit' => 40))
              ->update();
     }
-    
+
     /**
      * Migrate Up.
      */
     public function up()
     {
-    
+
     }
 
     /**

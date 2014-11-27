@@ -11,7 +11,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
      * @var \Phinx\Db\Adapter\SqlServerAdaptor
      */
     private $adapter;
-    
+
     public function setUp()
     {
         if (!TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED) {
@@ -34,17 +34,17 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
     }
-    
+
     public function tearDown()
     {
         unset($this->adapter);
     }
-    
+
     public function testConnection()
     {
         $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
     }
-    
+
     public function testConnectionWithoutPort()
     {
         $options = $this->adapter->getOptions();
@@ -52,7 +52,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->setOptions($options);
         $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
     }
-    
+
     public function testConnectionWithInvalidCredentials()
     {
         $options = array(
@@ -62,7 +62,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
             'user' => 'invaliduser',
             'pass' => 'invalidpass'
         );
-        
+
         try {
             $adapter = new SqlServerAdapter($options, new NullOutput());
             $adapter->connect();
@@ -76,7 +76,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
             $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
         }
     }
-    
+
     public function testCreatingTheSchemaTableOnConnect()
     {
         $this->adapter->connect();
@@ -87,12 +87,12 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->connect();
         $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
     }
-    
+
     public function testQuoteTableName()
     {
         $this->assertEquals('[test_table]', $this->adapter->quoteTableName('test_table'));
     }
-    
+
     public function testQuoteColumnName()
     {
         $this->assertEquals('[test_column]', $this->adapter->quoteColumnName('test_column'));
