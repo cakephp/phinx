@@ -697,6 +697,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_DATE:
             case static::PHINX_TYPE_BOOLEAN:
             case static::PHINX_TYPE_JSON:
+            case static::PHINX_TYPE_UUID:
                 return array('name' => $type);
             case static::PHINX_TYPE_STRING:
                 return array('name' => 'character varying', 'limit' => 255);
@@ -781,6 +782,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'bool':
             case 'boolean':
                 return static::PHINX_TYPE_BOOLEAN;
+            case 'uuid':
+                return static::PHINX_TYPE_UUID;
             default:
                 throw new \RuntimeException('The PostgreSQL type: "' . $sqlType . '" is not supported');
         }
