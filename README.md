@@ -1,6 +1,7 @@
 # [Phinx](http://phinx.org): Simple PHP Database Migrations
 
 [![Build Status](https://travis-ci.org/robmorgan/phinx.png?branch=0.2.x-dev)](https://travis-ci.org/robmorgan/phinx)
+[![Build status](https://ci.appveyor.com/api/projects/status/9vag4892hfq6effr)](https://ci.appveyor.com/project/robmorgan/phinx)
 [![Code Coverage](https://scrutinizer-ci.com/g/robmorgan/phinx/badges/coverage.png?s=9776e35b967f5adb0f4958bd72b617e0a9519f7d)](https://scrutinizer-ci.com/g/robmorgan/phinx/)
 [![Latest Stable Version](https://poser.pugx.org/robmorgan/phinx/version.png)](https://packagist.org/packages/robmorgan/phinx)
 [![Total Downloads](https://poser.pugx.org/robmorgan/phinx/d/total.png)](https://packagist.org/packages/robmorgan/phinx)
@@ -8,6 +9,8 @@
 Phinx makes it ridiculously easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or framework.
 
 **Check out http://docs.phinx.org for the comprehensive documentation.**
+
+![phinxterm](https://cloud.githubusercontent.com/assets/178939/3887559/e6b5e524-21f2-11e4-8256-0ba6040725fc.gif)
 
 ### Features
 
@@ -110,11 +113,48 @@ Copy the `phpunit.xml.dist` template to `phpunit.xml` and change the configurati
   
 ## News & Updates
 
-Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
+Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
   
 ## Misc
 
 ### Version History
+
+**0.3.8** (Sunday, 5th October 2014)
+
+* Added new CHAR & Geospatial column types
+* Added MySQL unix socket support
+* Added precision & scale support for SQL Server
+* Several bug fixes for SQLite
+* Improved error messages
+* Overall code optimizations
+* Optimizations to MySQL hasTable method
+
+**0.3.7** (Tuesday, 12th August 2014)
+
+* Smarter configuration file support
+* Support for Postgres Schemas
+* Fixed charset support for Microsoft SQL Server
+* Fix for Unique indexes in all adapters
+* Improvements for MySQL foreign key migration syntax 
+* Allow MySQL column types with extra info
+* Fixed SQLite autoincrement behaviour
+* PHPDoc improvements
+* Documentation improvements
+* Unit test improvements
+* Removing primary_key as a type
+
+**0.3.6** (Sunday, 29th June 2014)
+
+* Add custom adapter support
+* Fix PHP 5.3 compatibility for SQL Server
+
+**0.3.5** (Saturday, 21st June 2014)
+
+* Added Microsoft SQL Server support
+* Removed Primary Key column type
+* Cleaned up and optimized many methods
+* Updated Symfony dependencies to v2.5.0
+* PHPDoc improvements
 
 **0.3.4** (Sunday, 27th April 2014)
 
@@ -160,9 +200,9 @@ Follow Rob (@\_rjm\_) on Twitter to stay to date (http://twitter.com/_rjm_)
 
 **0.2.7** (Saturday, 24th August 2013)
 
-* Critical fix for a token parsing bug.
-* Removed legacy build system.
-* Improving docs.
+* Critical fix for a token parsing bug
+* Removed legacy build system
+* Improving docs
 
 **0.2.6** (Saturday, 24th August 2013)
 

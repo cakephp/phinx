@@ -27,6 +27,21 @@ The first option specifies the path to your migration directory. Phinx uses
     ``%%PHINX_CONFIG_DIR%%`` is a special token and is automatically replaced
     with the root directory where your ``phinx.yml`` file is stored.
 
+In order to overwrite the default ``%%PHINX_CONFIG_DIR%%/migrations``, you need
+to add the following to the yaml configuration.
+
+.. code-block:: yaml
+
+    paths:
+        migrations: /your/full/path
+
+You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
+
+.. code-block:: yaml
+
+    paths:
+        migrations: %%PHINX_CONFIG_DIR%%/your/relative/path
+
 Environments
 ------------
 
@@ -62,6 +77,25 @@ file:
 
     export PHINX_ENVIRONMENT=dev-`whoami`-`hostname`
 
+Socket Connections
+------------------
+
+When using the MySQL adapter, it is also possible to use sockets instead of
+network connections. The socket path is configured with ``unix_socket``:
+
+.. code-block:: yaml
+
+    environments:
+        default_migration_table: phinxlog
+        default_database: development
+        production:
+            adapter: mysql
+            name: production_db
+            user: root
+            pass: ''
+            unix_socket: /var/run/mysql/mysql.sock
+            charset: utf8
+
 External Variables
 ------------------
 
@@ -90,20 +124,32 @@ demonstrated by the following example:
 Supported Adapters
 ------------------
 
-Phinx currently supports the following database adapters:
+Phinx currently supports the following database adapters natively:
 
 * `MySQL <http://www.mysql.com/>`_: specify the ``mysql`` adapter.
 * `PostgreSQL <http://www.postgresql.org/>`_: specify the ``pgsql`` adapter.
 * `SQLite <http://www.sqlite.org/>`_: specify the ``sqlite`` adapter.
+* `SQL Server <http://www.microsoft.com/sqlserver>`_: specify the ``sqlsrv`` adapter.
 
 Declaring an SQLite database uses a simplified structure:
 
 .. code-block:: yaml
 
     environments:
-        devlopment:
+        development:
             adapter: sqlite
             name: ./data/derby
         testing:
             adapter: sqlite
             memory: true     # Setting memory to *any* value overrides name
+
+You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface` with the Environment:
+
+.. code-block:: php
+
+    $customAdapterFactory = function(Phinx\Migration\Manager\Environment $env) {
+        // Configure my adapter with the env and return.
+        $adapter = new \My\Adapter(...);
+        return $adapter;
+    }
+    $environment->registerAdapter('my-adapter', $customAdapterFactory);

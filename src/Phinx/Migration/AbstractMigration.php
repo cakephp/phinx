@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Migration
  */
@@ -30,12 +30,13 @@ namespace Phinx\Migration;
 
 use Phinx\Db\Table;
 use Phinx\Db\Adapter\AdapterInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Abstract Migration Class. 
+ * Abstract Migration Class.
  *
  * It is expected that the migrations you write extend from this class.
- * 
+ *
  * This abstract class proxies the various database methods to your specified
  * adapter.
  *
@@ -53,11 +54,17 @@ abstract class AbstractMigration implements MigrationInterface
      * @var float
      */
     protected $version;
-    
+
     /**
      * @var AdapterInterface
      */
     protected $adapter;
+
+    /**
+     * @var OutputInterface
+     */
+    protected $output;
+
 
     /**
      * Class Constructor.
@@ -69,7 +76,7 @@ abstract class AbstractMigration implements MigrationInterface
         $this->version = $version;
         $this->init();
     }
-    
+
     /**
      * Initialize method.
      *
@@ -78,21 +85,21 @@ abstract class AbstractMigration implements MigrationInterface
     protected function init()
     {
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function up()
     {
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function down()
     {
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -101,7 +108,7 @@ abstract class AbstractMigration implements MigrationInterface
         $this->adapter = $adapter;
         return $this;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -113,11 +120,26 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
+    public function setOutput(OutputInterface $output){
+        $this->output = $output;
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOutput(){
+        return $this->output;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return get_class($this);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -126,7 +148,7 @@ abstract class AbstractMigration implements MigrationInterface
         $this->version = $version;
         return $this;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -134,7 +156,7 @@ abstract class AbstractMigration implements MigrationInterface
     {
         return $this->version;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -142,7 +164,7 @@ abstract class AbstractMigration implements MigrationInterface
     {
         return $this->getAdapter()->execute($sql, $binds);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -150,7 +172,7 @@ abstract class AbstractMigration implements MigrationInterface
     {
         return $this->getAdapter()->query($sql);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -158,7 +180,7 @@ abstract class AbstractMigration implements MigrationInterface
     {
         return $this->getAdapter()->fetchRow($sql);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -166,7 +188,7 @@ abstract class AbstractMigration implements MigrationInterface
     {
         return $this->getAdapter()->fetchAll($sql);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -174,7 +196,7 @@ abstract class AbstractMigration implements MigrationInterface
     {
         $this->getAdapter()->createDatabase($name, $options);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -198,7 +220,7 @@ abstract class AbstractMigration implements MigrationInterface
     {
         return new Table($tableName, $options, $this->getAdapter());
     }
-    
+
     /**
      * A short-hand method to drop the given database table.
      *

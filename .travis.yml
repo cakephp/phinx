@@ -9,7 +9,8 @@ php:
   - 5.4
   - 5.5
   - hhvm
-env: TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED=true
+env:
+  - TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED=true
 script:
     - phpunit --coverage-text --coverage-clover=coverage.clover
     - wget https://scrutinizer-ci.com/ocular.phar
