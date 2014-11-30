@@ -31,3 +31,6 @@ phpunit.xml
 
 # sqlite test database
 phinx_testing.sqlite3
+
+composer.lock
+.idea

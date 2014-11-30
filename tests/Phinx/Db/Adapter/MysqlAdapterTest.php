@@ -580,4 +580,24 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals('geometry', $rows[1]['Type']);
     }
+
+    public function testIndexWithLength()
+    {
+        $cols = ['testA', 'testB(100)'];
+        $ret  = [];
+
+        foreach ($cols as $col) {
+            $patterns = '/(\w+)\((\d+)\)/';
+            $replacements = '`$1`($2)';
+            $ret_ = preg_replace($patterns, $replacements, $col);
+            if ($ret_ === $col) {
+                $ret[] = sprintf('`%s`', $col);
+            } else {
+                $ret[] = $ret_;
+            }
+        }
+
+        $this->assertEquals($ret[0], '`testA`');
+        $this->assertEquals($ret[1], '`testB`(100)');
+    }
 }
