@@ -278,6 +278,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             array('array_date', 'date[]'),
             array('array_boolean', 'boolean[]'),
             array('array_json', 'json[]'),
+            array('array_json2d', 'json[][]'),
+            array('array_json3d', 'json[][][]'),
             array('array_uuid', 'uuid[]'),
         );
     }
