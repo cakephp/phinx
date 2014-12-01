@@ -921,7 +921,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $def .= ' (`' . implode('`,`', $cols) . '`)';
+        $def .= ' (' . implode(',', $cols) . ')';
 
         return $def;
     }
