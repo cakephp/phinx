@@ -1021,7 +1021,10 @@ SQL;
         $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';
 
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
-        $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
+        
+        if ($create === true) {
+            $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
+        }
 
         if ($column->isIdentity()) {
             $buffer[] = 'IDENTITY(1, 1)';
