@@ -93,6 +93,10 @@ abstract class PdoAdapter implements AdapterInterface
             $this->setSchemaTableName($options['default_migration_table']);
         }
 
+        if (isset($options['connection'])) {
+            $this->setConnection($options['connection']);
+        }
+
         return $this;
     }
 
