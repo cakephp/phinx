@@ -37,17 +37,17 @@ use Phinx\Migration\MigrationInterface;
 class PostgresAdapter extends PdoAdapter implements AdapterInterface
 {
     // PostgreSQL support array
-    const PHINX_TYPE_ARRAY_CHAR_PATTERN        = '/^char\[\]{1,}$/';
-    const PHINX_TYPE_ARRAY_TEXT_PATTERN        = '/^text\[\]{1,}$/';
-    const PHINX_TYPE_ARRAY_INTEGER_PATTERN     = '/^integer\[\]{1,}$/';
-    const PHINX_TYPE_ARRAY_FLOAT_PATTERN       = '/^float\[\]{1,}$/';
-    const PHINX_TYPE_ARRAY_DECIMAL_PATTERN     = '/^decimal\[\]{1,}$/';
-    const PHINX_TYPE_ARRAY_TIMESTAMP_PATTERN   = '/^timestamp\[\]{1,}$/';
-    const PHINX_TYPE_ARRAY_TIME_PATTERN        = '/^time\[\]{1,}$/';
-    const PHINX_TYPE_ARRAY_DATE_PATTERN        = '/^date\[\]{1,}$/';
-    const PHINX_TYPE_ARRAY_BOOLEAN_PATTERN     = '/^boolean\[\]{1,}$/';
-    const PHINX_TYPE_ARRAY_JSON_PATTERN        = '/^json\[\]{1,}$/';
-    const PHINX_TYPE_ARRAY_UUID_PATTERN        = '/^uuid\[\]{1,}$/';
+    const PHINX_TYPE_ARRAY_CHAR_PATTERN        = '/^char(\[\]){1,}$/';
+    const PHINX_TYPE_ARRAY_TEXT_PATTERN        = '/^text(\[\]){1,}$/';
+    const PHINX_TYPE_ARRAY_INTEGER_PATTERN     = '/^integer(\[\]){1,}$/';
+    const PHINX_TYPE_ARRAY_FLOAT_PATTERN       = '/^float(\[\]){1,}$/';
+    const PHINX_TYPE_ARRAY_DECIMAL_PATTERN     = '/^decimal(\[\]){1,}$/';
+    const PHINX_TYPE_ARRAY_TIMESTAMP_PATTERN   = '/^timestamp(\[\]){1,}$/';
+    const PHINX_TYPE_ARRAY_TIME_PATTERN        = '/^time(\[\]){1,}$/';
+    const PHINX_TYPE_ARRAY_DATE_PATTERN        = '/^date(\[\]){1,}$/';
+    const PHINX_TYPE_ARRAY_BOOLEAN_PATTERN     = '/^boolean(\[\]){1,}$/';
+    const PHINX_TYPE_ARRAY_JSON_PATTERN        = '/^json(\[\]){1,}$/';
+    const PHINX_TYPE_ARRAY_UUID_PATTERN        = '/^uuid(\[\]){1,}$/';
 
     /**
      * Columns with comments
