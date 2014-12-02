@@ -43,6 +43,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
     protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
 
+    const TEXT_SMALL   = 255;
+    const TEXT_REGULAR = 65535;
+    const TEXT_MEDIUM  = 16777215;
+    const TEXT_LONG    = 4294967295;
+
     /**
      * {@inheritdoc}
      */
@@ -713,6 +718,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_TEXT:
                 return array('name' => 'text');
                 break;
+            case static::PHINX_TYPE_TINYTEXT:
+                return array('name' => 'tinytext');
+                break;
+            case static::PHINX_TYPE_MEDIUMTEXT:
+                return array('name' => 'mediumtext');
+                break;
+            case static::PHINX_TYPE_LONGTEXT:
+                return array('name' => 'longtext');
+                break;
             case static::PHINX_TYPE_INTEGER:
                 return array('name' => 'int', 'limit' => 11);
                 break;
@@ -880,6 +894,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     protected function getColumnSqlDefinition(Column $column)
     {
         $sqlType = $this->getSqlType($column->getType());
+
+        // Additional check if a limit along 
+        if (strtoupper($sqlType['name']) === 'TEXT' && $column->getLimit()) {
+            $sqlType['name'] = $this->classifyTextColumn($column);
+            // Remove the limit since MySQL does't like limit to be specified with a TEXT Type column
+            $column->setLimit(null);
+        }
+
         $def = '';
         $def .= strtoupper($sqlType['name']);
         if ($column->getPrecision() && $column->getScale()) {
@@ -980,4 +1002,33 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         return $this->fetchRow($sql);
     }
 
+
+    /**
+     * Returns the approprite type of text column based on the limit
+     * specified on the column
+     * @param Column $column The column to perform the check. Assumes the column type is text and limit is specified
+     * @return string
+     */
+    protected function classifyTextColumn(Column $column)
+    {
+        $limit = $column->getLimit();
+        $sizes = [
+            // Order matters! Size must always be tested from longest to shortest!
+            'longtext'   => static::TEXT_LONG,
+            'mediumtext' => static::TEXT_MEDIUM,
+            'text'       => static::TEXT_REGULAR,
+            'tinytext'   => static::TEXT_SMALL,
+        ];
+
+        foreach ($sizes as $name => $length) {
+            if ($limit >= $length) {
+                return $name;
+            }
+        }
+
+        throw new \LogicException(
+            'Unable to determine size of MySQL text column. ' .
+            'This should never happen.'
+        );
+    }
 }

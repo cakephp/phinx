@@ -426,6 +426,33 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($rows[1]['Default']);
     }
 
+    public function testLongTextColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_LONG))
+              ->save();
+        $column = $table->getColumns('t')[1];
+        $this->assertEquals('longtext', $column->getType());
+    }
+
+    public function testMediumTextColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_MEDIUM))
+              ->save();
+        $column = $table->getColumns('t')[1];
+        $this->assertEquals('mediumtext', $column->getType());
+    }
+
+    public function testTinyTextColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_SMALL))
+              ->save();
+        $column = $table->getColumns('t')[1];
+        $this->assertEquals('tinytext', $column->getType());
+    }
+
     public function testDropColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
