@@ -446,9 +446,9 @@ SQL;
         ));
     }
 
-    public function changeDefault($tableName, $columnName, Column $newColumn)
+    public function changeDefault($tableName, Column $newColumn)
     {
-        $constraintName = "DF_{$tableName}_{$columnName}";
+        $constraintName = "DF_{$tableName}_{$newColumn->getName()}";
         $default = $newColumn->getDefault();
         if (!is_numeric($default) && $default !== 'CURRENT_TIMESTAMP') {
             $default = $this->getConnection()->quote($default);
@@ -459,7 +459,7 @@ SQL;
             $this->quoteTableName($tableName),
             $constraintName,
             $default,
-            $columnName
+            $this->quoteColumnName($newColumn->getName())
         ));
     }
 
@@ -477,7 +477,7 @@ SQL;
         }
 
         if ($changeDefault) {
-            $this->dropDefaultConstraint($tableName, $columnName);
+            $this->dropDefaultConstraint($tableName, $newColumn->getName());
         }
 
         $this->execute(
@@ -495,7 +495,7 @@ SQL;
         }
 
         if ($changeDefault) {
-            $this->changeDefault($tableName, $columnName, $newColumn);
+            $this->changeDefault($tableName, $newColumn);
         }
         $this->endCommandTimer();
     }
@@ -1021,7 +1021,10 @@ SQL;
         $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';
 
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
-        $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
+        
+        if ($create === true) {
+            $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
+        }
 
         if ($column->isIdentity()) {
             $buffer[] = 'IDENTITY(1, 1)';
