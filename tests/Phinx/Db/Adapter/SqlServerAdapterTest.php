@@ -290,31 +290,32 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-	public function testChangeColumnDefaults()
-	{
-		$table = new \Phinx\Db\Table('t', array(), $this->adapter);
-		$table->addColumn('column1', 'string', ['default' => 'test'])
-			->save();
-		$this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+    public function testChangeColumnDefaults()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string', array('default' => 'test'))
+            ->save();
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
 
-		$columns = $this->adapter->getColumns('t');
-		$this->assertSame('test', $columns['column1']->getDefault());
+        $columns = $this->adapter->getColumns('t');
+        $this->assertSame('test', $columns['column1']->getDefault());
 
-		$newColumn1 = new \Phinx\Db\Table\Column();
-		$newColumn1
-			->setType('string')
-			->setDefault('another test');
-		$table->changeColumn('column1', $newColumn1);
-		$this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1
+            ->setType('string')
+            ->setDefault('another test');
+        $table->changeColumn('column1', $newColumn1);
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
 
-		$columns = $this->adapter->getColumns('t');
-		$this->assertSame('another test', $columns['column1']->getDefault());
-	}
+        $columns = $this->adapter->getColumns('t');
+        $this->assertSame('another test', $columns['column1']->getDefault());
+    }
 
-	public function testDropColumn() {
-		$table = new \Phinx\Db\Table('t', array(), $this->adapter);
-		$table->addColumn('column1', 'string')
-			->save();
+    public function testDropColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->save();
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
         $this->adapter->dropColumn('t', 'column1');
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
