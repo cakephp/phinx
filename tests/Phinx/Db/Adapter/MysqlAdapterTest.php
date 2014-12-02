@@ -398,7 +398,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     public function testLongTextColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-        $table->addColumn('column1', 'text', array('limit' => '16777216'))
+        $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_LONG))
               ->save();
         $column = $table->getColumns('t')[1];
         $this->assertEquals('longtext', $column->getType());
@@ -407,7 +407,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     public function testMediumTextColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-        $table->addColumn('column1', 'text', array('limit' => '65536'))
+        $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_MEDIUM))
               ->save();
         $column = $table->getColumns('t')[1];
         $this->assertEquals('mediumtext', $column->getType());
@@ -416,7 +416,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     public function testTinyTextColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-        $table->addColumn('column1', 'text', array('limit' => '124'))
+        $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_SMALL))
               ->save();
         $column = $table->getColumns('t')[1];
         $this->assertEquals('tinytext', $column->getType());

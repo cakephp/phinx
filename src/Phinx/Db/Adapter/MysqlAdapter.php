@@ -43,6 +43,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
     protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
 
+    const TEXT_SMALL = 255;
+    const TEXT_REGULAR = 65535;
+    const TEXT_MEDIUM = 16777215;
+    const TEXT_LONG = 4294967295;
+
     /**
      * {@inheritdoc}
      */
@@ -992,16 +997,16 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         // The values for the limit are based on:
         // http://dev.mysql.com/doc/refman/5.0/en/string-type-overview.html
         switch (true) {
-            case $column->getLimit() <= 255:
+            case $column->getLimit() <= MysqlAdapter::TEXT_SMALL:
                 $name = 'tinytext';
                 break;
-            case $column->getLimit() >= 256 && $column->getLimit() <= 65535:
+            case $column->getLimit() > MysqlAdapter::TEXT_SMALL && $column->getLimit() <= MysqlAdapter::TEXT_REGULAR:
                 $name = 'text';
                 break;
-            case $column->getLimit() >= 65536 && $column->getLimit() <= 16777215:
+            case $column->getLimit() > MysqlAdapter::TEXT_REGULAR && $column->getLimit() <= MysqlAdapter::TEXT_MEDIUM:
                 $name = 'mediumtext';
                 break;
-            case $column->getLimit() >= 16777216:
+            case $column->getLimit() > MysqlAdapter::TEXT_MEDIUM:
                 $name = 'longtext';
                 break;
             default:
