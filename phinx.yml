@@ -1,5 +1,3 @@
-migration_base_class: AbstractMigration
-
 paths:
     migrations: %%PHINX_CONFIG_DIR%%/migrations
 

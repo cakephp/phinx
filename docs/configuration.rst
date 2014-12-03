@@ -42,6 +42,17 @@ You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
     paths:
         migrations: %%PHINX_CONFIG_DIR%%/your/relative/path
 
+Custom Migration Base
+---------------------
+
+By default all migrations will extend from Phinx's `AbstractMigration` class.
+This can be set to a custom class that extends from `AbstractMigration` by
+setting ``migration_base_class`` in your config:
+
+.. code-block:: yaml
+
+    migration_base_class: MyMagicalMigration
+
 Environments
 ------------
 
