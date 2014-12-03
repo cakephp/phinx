@@ -181,12 +181,9 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('1234', $env['port']);
     }
     
-    /**
-     * @expectedException UnexpectedValueException
-     */
-    public function testGetMigrationBaseClassNameThrowsExceptionForNoBaseClass()
+    public function testGetMigrationBaseClassNameGetsDefaultBaseClass()
     {
         $config = new \Phinx\Config\Config(array());
-        $config->getMigrationBaseClassName();
+        $this->assertEquals('AbstractMigration', $config->getMigrationBaseClassName());
     }
 }
