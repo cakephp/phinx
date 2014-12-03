@@ -1012,13 +1012,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     protected function classifyTextColumn(Column $column)
     {
         $limit = $column->getLimit();
-        $sizes = [
+        $sizes = array(
             // Order matters! Size must always be tested from longest to shortest!
             'longtext'   => static::TEXT_LONG,
             'mediumtext' => static::TEXT_MEDIUM,
             'text'       => static::TEXT_REGULAR,
             'tinytext'   => static::TEXT_SMALL,
-        ];
+        );
 
         foreach ($sizes as $name => $length) {
             if ($limit >= $length) {
