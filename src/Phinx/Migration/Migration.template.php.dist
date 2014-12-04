@@ -12,10 +12,10 @@ class $className extends $baseClassName
      *
      * Uncomment this method if you would like to use it.
      *
+     */
     public function change()
     {
     }
-    */
     
     /**
      * Migrate Up.
