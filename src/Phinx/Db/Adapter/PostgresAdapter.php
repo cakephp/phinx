@@ -77,7 +77,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $this->setConnection($db);
 
             // Create the public/custom schema if it doesn't already exist
-            if ($this->hasSchema($this->getSchemaName()) == false) {
+            if (false === $this->hasSchema($this->getSchemaName())) {
                 $this->createSchema($this->getSchemaName());
             }
 
@@ -1086,6 +1086,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     private function getSchemaName()
     {
         $options = $this->getOptions();
-        return (isset($options['schema'])) ? $options['schema'] : 'public';
+        return empty($options['schema']) ? 'public' : $options['schema'];
     }
 }
