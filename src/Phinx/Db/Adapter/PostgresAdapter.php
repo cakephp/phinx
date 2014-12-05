@@ -203,6 +203,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         // TODO - process table options like collation etc
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
+
+        $this->columnsWithComments = array();
         foreach ($columns as $column) {
             $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
 
@@ -244,9 +246,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $sql .= ') ';
-        $sql = rtrim($sql) . ';';
-
+        $sql .= ');';
 
         // process column comments
         if (!empty($this->columnsWithComments)) {
@@ -884,7 +884,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                  : 'NULL';
 
         return sprintf(
-            'COMMENT ON COLUMN %s.%s IS %s',
+            'COMMENT ON COLUMN %s.%s IS %s;',
             $tableName,
             $column->getName(),
             $comment

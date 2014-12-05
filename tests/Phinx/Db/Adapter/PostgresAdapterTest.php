@@ -625,6 +625,76 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @depends testCanAddColumnComment
+     */
+    public function testCanAddMultipleCommentsToOneTable()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('comment1', 'string', array(
+            'comment' => $comment1 = 'first comment'
+            ))
+            ->addColumn('comment2', 'string', array(
+            'comment' => $comment2 = 'second comment'
+            ))
+            ->save();
+
+        $row = $this->adapter->fetchRow(
+            'SELECT
+                (select pg_catalog.col_description(oid,cols.ordinal_position::int)
+            from pg_catalog.pg_class c
+            where c.relname=cols.table_name ) as column_comment
+            FROM information_schema.columns cols
+            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            AND cols.table_name=\'table1\'
+            AND cols.column_name = \'comment1\''
+        );
+
+        $this->assertEquals($comment1, $row['column_comment'], 'Could not create first column comment');
+
+        $row = $this->adapter->fetchRow(
+            'SELECT
+                (select pg_catalog.col_description(oid,cols.ordinal_position::int)
+            from pg_catalog.pg_class c
+            where c.relname=cols.table_name ) as column_comment
+            FROM information_schema.columns cols
+            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            AND cols.table_name=\'table1\'
+            AND cols.column_name = \'comment2\''
+        );
+
+        $this->assertEquals($comment2, $row['column_comment'], 'Could not create second column comment');
+    }
+
+    /**
+     * @depends testCanAddColumnComment
+     */
+    public function testColumnsAreResetBetweenTables()
+    {
+        $table = new \Phinx\Db\Table('widgets', array(), $this->adapter);
+        $table->addColumn('transport', 'string', array(
+            'comment' => $comment = 'One of: car, boat, truck, plane, train'
+            ))
+            ->save();
+
+        $table = new \Phinx\Db\Table('things', array(), $this->adapter);
+        $table->addColumn('speed', 'integer')
+            ->save();
+
+        $row = $this->adapter->fetchRow(
+            'SELECT
+                (select pg_catalog.col_description(oid,cols.ordinal_position::int)
+            from pg_catalog.pg_class c
+            where c.relname=cols.table_name ) as column_comment
+            FROM information_schema.columns cols
+            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            AND cols.table_name=\'widgets\'
+            AND cols.column_name = \'transport\''
+        );
+
+        $this->assertEquals($comment, $row['column_comment'], 'Could not create column comment');
+    }
+
+    /**
      * Test that column names are properly escaped when creating Foreign Keys
      */
     public function testForignKeysArePropertlyEscaped()
