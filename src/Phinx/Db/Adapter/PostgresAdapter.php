@@ -658,7 +658,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if ($constraint) {
             $this->execute(
                 sprintf(
-                    'ALTER TABLE %s DROP FOREIGN KEY %s',
+                    'ALTER TABLE %s DROP CONSTRAINT %s',
                     $this->quoteTableName($tableName),
                     $constraint
                 )
@@ -668,16 +668,17 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $rows = $this->fetchAll(sprintf(
                     "SELECT CONSTRAINT_NAME
                       FROM information_schema.KEY_COLUMN_USAGE
-                      WHERE TABLE_SCHEMA = CURRENT_DATABASE()
+                      WHERE TABLE_SCHEMA = CURRENT_SCHEMA()
                         AND TABLE_NAME IS NOT NULL
                         AND TABLE_NAME = '%s'
                         AND COLUMN_NAME = '%s'
                       ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
-                    $column,
-                    $this->quoteTableName($tableName)
+                    $tableName,
+                    $column
                 ));
+
                 foreach ($rows as $row) {
-                    $this->dropForeignKey($tableName, $columns, $row['CONSTRAINT_NAME']);
+                    $this->dropForeignKey($tableName, $columns, $row['constraint_name']);
                 }
             }
         }
