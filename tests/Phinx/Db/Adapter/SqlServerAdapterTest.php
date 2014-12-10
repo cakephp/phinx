@@ -311,6 +311,28 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('another test', $columns['column1']->getDefault());
     }
 
+	public function testChangeColumnDefaultToNull() {
+		$table = new \Phinx\Db\Table('t', [], $this->adapter);
+		$table->addColumn('column1', 'string', ['null' => true, 'default' => 'test'])
+			->save();
+		$this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+
+		$columns = $this->adapter->getColumns('t');
+		$this->assertSame('test', $columns['column1']->getDefault());
+		$this->assertTrue($columns['column1']->isNull());
+
+		$newColumn1 = new \Phinx\Db\Table\Column();
+		$newColumn1
+			->setType('string')
+			->setDefault(null);
+		$table->changeColumn('column1', $newColumn1);
+		$this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+
+		$columns = $this->adapter->getColumns('t');
+		$this->assertNull($columns['column1']->getDefault());
+		$this->assertTrue($columns['column1']->isNull());
+	}
+
     public function testDropColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
