@@ -353,11 +353,11 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         );
         $rows = $this->fetchAll($sql);
         foreach ($rows as $columnInfo) {
-            $column = new Column();
+	        $column = new Column();
             $column->setName($columnInfo['name'])
                    ->setType($this->getPhinxType($columnInfo['type']))
                    ->setNull($columnInfo['null'] != 'NO')
-                   ->setDefault(preg_replace(array("/\('(.*)'\)/", "/\(\((.*)\)\)/"), '$1', $columnInfo['default']))
+                   ->setDefault($this->parseDefault($columnInfo['default']))
                    ->setIdentity($columnInfo['identity'] === '1')
                    ->setComment($this->getColumnComment($columnInfo['table_name'], $columnInfo['name']));
 
@@ -370,6 +370,18 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 
         return $columns;
     }
+
+	protected function parseDefault($default) {
+		$default = preg_replace(array("/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"), '$1', $default);
+
+		if (strtoupper($default) === 'NULL') {
+			$default = null;
+		} elseif (is_numeric($default)) {
+			$default = (int) $default;
+		}
+
+		return $default;
+	}
 
     /**
      * {@inheritdoc}
