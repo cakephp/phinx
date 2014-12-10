@@ -450,12 +450,19 @@ SQL;
     {
         $constraintName = "DF_{$tableName}_{$newColumn->getName()}";
         $default = $newColumn->getDefault();
-        if (!is_numeric($default) && $default !== 'CURRENT_TIMESTAMP') {
-            $default = $this->getConnection()->quote($default);
-        }
+
+	    if ($default === null) {
+		    $default = 'DEFAULT NULL';
+	    } else {
+		    $default = $this->getDefaultValueDefinition($default);
+	    }
+
+	    if (empty($default)) {
+		    return;
+	    }
 
         $this->execute(sprintf(
-            'ALTER TABLE %s ADD CONSTRAINT %s DEFAULT %s FOR %s',
+            'ALTER TABLE %s ADD CONSTRAINT %s %s FOR %s',
             $this->quoteTableName($tableName),
             $constraintName,
             $default,

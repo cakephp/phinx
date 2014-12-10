@@ -315,22 +315,26 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 		$table = new \Phinx\Db\Table('t', [], $this->adapter);
 		$table->addColumn('column1', 'string', ['null' => true, 'default' => 'test'])
 			->save();
-		$this->assertTrue($this->adapter->hasColumn('t', 'column1'));
-
-		$columns = $this->adapter->getColumns('t');
-		$this->assertSame('test', $columns['column1']->getDefault());
-		$this->assertTrue($columns['column1']->isNull());
-
 		$newColumn1 = new \Phinx\Db\Table\Column();
 		$newColumn1
 			->setType('string')
 			->setDefault(null);
 		$table->changeColumn('column1', $newColumn1);
-		$this->assertTrue($this->adapter->hasColumn('t', 'column1'));
-
 		$columns = $this->adapter->getColumns('t');
 		$this->assertNull($columns['column1']->getDefault());
-		$this->assertTrue($columns['column1']->isNull());
+	}
+
+	public function testChangeColumnDefaultToZero() {
+		$table = new \Phinx\Db\Table('t', [], $this->adapter);
+		$table->addColumn('column1', 'integer')
+			->save();
+		$newColumn1 = new \Phinx\Db\Table\Column();
+		$newColumn1
+			->setType('string')
+			->setDefault(0);
+		$table->changeColumn('column1', $newColumn1);
+		$columns = $this->adapter->getColumns('t');
+		$this->assertSame(0, $columns['column1']->getDefault());
 	}
 
     public function testDropColumn()
