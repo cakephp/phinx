@@ -1040,9 +1040,13 @@ SQL;
         $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';
 
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
-        
+
         if ($create === true) {
-            $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
+	        if ($column->getDefault() === null && $column->isNull()) {
+		        $buffer[] = ' DEFAULT NULL';
+	        } else {
+		        $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
+	        }
         }
 
         if ($column->isIdentity()) {
