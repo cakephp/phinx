@@ -237,7 +237,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 	public function testAddColumnWithDefaultNull() {
 		$table = new \Phinx\Db\Table('table1', array(), $this->adapter);
 		$table->save();
-		$table->addColumn('default_null', 'integer', array('default' => null))
+		$table->addColumn('default_null', 'string', array('null' => true, 'default' => null))
 			->save();
 		$columns = $this->adapter->getColumns('table1');
 		foreach ($columns as $column) {
@@ -381,10 +381,10 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
     public function testGetColumns()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-        $table->addColumn('column1', 'string')
-              ->addColumn('column2', 'integer')
-              ->addColumn('column3', 'biginteger')
-              ->addColumn('column4', 'text')
+        $table->addColumn('column1', 'string', array('null' => true, 'default' => null))
+              ->addColumn('column2', 'integer', array('default' => 0))
+              ->addColumn('column3', 'biginteger', array('default' => 5))
+              ->addColumn('column4', 'text', array('default' => 'text'))
               ->addColumn('column5', 'float')
               ->addColumn('column6', 'decimal')
               ->addColumn('column7', 'time')
@@ -401,6 +401,11 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         for ($i = 0; $i++; $i < count($pendingColumns)) {
             $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
         }
+
+	    $this->assertNull($columns['column1']->getDefault());
+	    $this->assertSame(0, $columns['column2']->getDefault());
+	    $this->assertSame(5, $columns['column3']->getDefault());
+	    $this->assertSame('text', $columns['column4']->getDefault());
     }
 
     public function testAddIndex()
