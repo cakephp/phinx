@@ -16,9 +16,11 @@ class PhinxApplicationTest extends BaseCommandTest
 
         $di = $this->di;
 
-        $di['command.mockcreate'] = function() use($di) {
+        $refThis =& $this;
+
+        $di['command.mockcreate'] = function() use($di, &$refThis) {
             $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files')));
-            $createCommandMock = $this->getMockBuilder('Phinx\Console\Command\Create')
+            $createCommandMock = $refThis->getMockBuilder('Phinx\Console\Command\Create')
                 ->setMockClassName('Mockcreate')
                 ->setConstructorArgs(array($di))
                 ->setMethods(array('getConfig'))
