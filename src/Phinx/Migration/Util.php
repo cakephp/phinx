@@ -34,13 +34,14 @@ class Util
      * @var string
      */
     const DATE_FORMAT = 'YmdHis';
+    const FILE_NAME_PATTERN = '/^\d+_([\w_]+).php$/i';
 
     /**
      * Gets the current timestamp string, in UTC.
      *
      * @return string
      */
-    public static function getCurrentTimestamp()
+    public function getCurrentTimestamp()
     {
         $dt = new \DateTime('now', new \DateTimeZone('UTC'));
         return $dt->format(static::DATE_FORMAT);
@@ -54,11 +55,11 @@ class Util
      * @param string $className Class Name
      * @return string
      */
-    public static function mapClassNameToFileName($className)
+    public function mapClassNameToFileName($className)
     {
         $arr = preg_split('/(?=[A-Z])/', $className);
         unset($arr[0]); // remove the first element ('')
-        $fileName = static::getCurrentTimestamp() . '_' . strtolower(implode($arr, '_')) . '.php';
+        $fileName = $this->getCurrentTimestamp() . '_' . strtolower(implode($arr, '_')) . '.php';
         return $fileName;
     }
 
@@ -73,8 +74,55 @@ class Util
      * @param string $className Class Name
      * @return boolean
      */
-    public static function isValidMigrationClassName($className)
+    public function checkMigrationClassName($className, $path)
     {
-        return (bool) preg_match('/^([A-Z][a-z0-9]+)+$/', $className);
+        // Return right away if it's not a valid name
+        if (!preg_match('/^([A-Z][a-z0-9]+)+$/', $className)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The migration class name "%s" is invalid. Please use CamelCase format.',
+                $className
+            ));
+        }
+
+        $existingClassNames = $this->getCurrentMigrationClassNames($path);
+        if (in_array($className, $existingClassNames)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The migration with same name already exist'
+            ));
+        }
+    }
+
+    /**
+     * @param $fileName
+     * @return string
+     */
+    public function mapFileNameToClassName($fileName)
+    {
+        $str = $fileName;
+        if (preg_match(static::FILE_NAME_PATTERN, $str, $matches)) {
+            $str = $matches[1];
+        }
+
+        return str_replace(' ', '', ucwords(str_replace('_', ' ', $str)));
+    }
+
+    protected function getCurrentMigrationClassNames($path)
+    {
+        $result = array();
+
+        if (!is_dir($path)) {
+            return $result;
+        }
+
+        if ($handle = opendir($path)) {
+            while (false !== ($entry = readdir($handle))) {
+                if ($entry != "." && $entry != "..") {
+                    $result[] = $this->mapFileNameToClassName($entry);
+                }
+            }
+            closedir($handle);
+        }
+
+        return $result;
     }
 }

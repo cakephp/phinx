@@ -28,6 +28,7 @@
  */
 namespace Phinx\Console\Command;
 
+use Pimple\Container;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -59,6 +60,18 @@ abstract class AbstractCommand extends Command
      * @var Manager
      */
     protected $manager;
+
+    /**
+     * @var Container
+     */
+    protected $di;
+
+    public function __construct(Container $di, $name = null)
+    {
+        parent::__construct($name);
+
+        $this->di = $di;
+    }
 
     /**
      * {@inheritdoc}

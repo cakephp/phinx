@@ -49,4 +49,28 @@ if (!$found) {
     );
 }
 
-return new Phinx\Console\PhinxApplication(PHINX_VERSION);
+$di = new Pimple\Container();
+
+$di['util'] = function() {
+    return new \Phinx\Migration\Util();
+};
+$di['command.init'] = function() {
+    return new \Phinx\Console\Command\Init();
+};
+$di['command.create'] = function() use($di) {
+    return new \Phinx\Console\Command\Create($di);
+};
+$di['command.migrate'] = function() use($di) {
+    return new \Phinx\Console\Command\Migrate($di);
+};
+$di['command.rollback'] = function() use($di) {
+    return new \Phinx\Console\Command\Rollback($di);
+};
+$di['command.status'] = function() use($di) {
+    return new \Phinx\Console\Command\Status($di);
+};
+$di['command.test'] = function() use($di) {
+    return new \Phinx\Console\Command\Test($di);
+};
+
+return new Phinx\Console\PhinxApplication($di, PHINX_VERSION);

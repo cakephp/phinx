@@ -6,13 +6,16 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\StreamOutput;
 use Phinx\Config\Config;
 use Phinx\Console\Command\Rollback;
+use Test\Phinx\BaseCommandTest;
 
-class RollbackTest extends \PHPUnit_Framework_TestCase
+class RollbackTest extends BaseCommandTest
 {
     protected $config = array();
 
     protected function setUp()
     {
+        parent::setUp();
+
         $this->config = new Config(array(
             'paths' => array(
                 'migrations' => __FILE__,
@@ -34,8 +37,8 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
 
     public function testExecute()
     {
-        $application = new \Phinx\Console\PhinxApplication('testing');
-        $application->add(new Rollback());
+        $application = new \Phinx\Console\PhinxApplication($this->di, 'testing');
+        $application->add(new Rollback($this->di));
 
         // setup dependencies
         $output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -58,8 +61,8 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
 
     public function testExecuteWithEnvironmentOption()
     {
-        $application = new \Phinx\Console\PhinxApplication('testing');
-        $application->add(new Rollback());
+        $application = new \Phinx\Console\PhinxApplication($this->di, 'testing');
+        $application->add(new Rollback($this->di));
 
         // setup dependencies
         $output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -81,8 +84,8 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
 
     public function testDatabaseNameSpecified()
     {
-        $application = new \Phinx\Console\PhinxApplication('testing');
-        $application->add(new Rollback());
+        $application = new \Phinx\Console\PhinxApplication($this->di, 'testing');
+        $application->add(new Rollback($this->di));
 
         // setup dependencies
         $output = new StreamOutput(fopen('php://memory', 'a', false));

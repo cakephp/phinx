@@ -11,7 +11,8 @@ class UtilTest extends \PHPUnit_Framework_TestCase
         $dt = new \DateTime('now', new \DateTimeZone('UTC'));
         $expected = $dt->format(Util::DATE_FORMAT);
 
-        $current = Util::getCurrentTimestamp();
+        $util = new Util();
+        $current = $util->getCurrentTimestamp();
 
         // Rather than using a strict equals, we use greater/lessthan checks to
         // prevent false positives when the test hits the edge of a second.
@@ -28,22 +29,72 @@ class UtilTest extends \PHPUnit_Framework_TestCase
             'LimitResourceNamesTo30Chars' => '/^\d{14}_limit_resource_names_to30_chars\.php$/',
         );
 
+        $util = new Util();
         foreach ($expectedResults as $input => $expectedResult) {
-            $this->assertRegExp($expectedResult, Util::mapClassNameToFileName($input));
+            $this->assertRegExp($expectedResult, $util->mapClassNameToFileName($input));
         }
     }
 
-    public function testIsValidMigrationClassName()
+    public function testCheckMigrationClassName()
     {
+        $path = '/path/to/migrations/';
+        $validClassName = array('CreateUserTable', 'Test');
+
+        $util = new Util();
+        foreach ($validClassName as $className) {
+            // Expected: No exception thrown
+            $this->assertNull($util->checkMigrationClassName($className, $path));
+        }
+    }
+
+    public function providerInvalidClassName()
+    {
+        return array(
+            array('CAmelCase'),
+            array('test'),
+        );
+    }
+
+    /**
+     * @dataProvider providerInvalidClassName
+     * @param $className
+     */
+    public function testCheckMigrationClassNameThrowException($className)
+    {
+        $this->setExpectedException('InvalidArgumentException');
+        $path = '/path/to/migrations/';
+
+        $util = new Util();
+        $this->assertNull($util->checkMigrationClassName($className, $path));
+    }
+
+    public function testCheckMigrationClassNameCatchDuplication()
+    {
+        $path = '/path/to/migrations/';
+        $utilMockClass = $this->getMockBuilder('Phinx\Migration\Util')
+            ->setMethods(array('getCurrentMigrationClassNames'))
+            ->getMock();
+
+        $utilMockClass->expects($this->any())
+            ->method('getCurrentMigrationClassNames')
+            ->will($this->returnValue(array('PostRepository')))->with($path);
+
+        $this->setExpectedException('InvalidArgumentException');
+        $utilMockClass->checkMigrationClassName('PostRepository', $path);
+    }
+
+    public function testMapFileNameToClassName()
+    {
+        $util = new Util();
+
         $expectedResults = array(
-            'CAmelCase'         => false,
-            'CreateUserTable'   => true,
-            'Test'              => true,
-            'test'              => false
+            '123456789_camel_case87after_some_booze.php'    => 'CamelCase87afterSomeBooze',
+            '123456789_create_user_table.php'               => 'CreateUserTable',
+            '123456789_limit_resource_names_to30_chars.php' => 'LimitResourceNamesTo30Chars',
         );
 
         foreach ($expectedResults as $input => $expectedResult) {
-            $this->assertEquals($expectedResult, Util::isValidMigrationClassName($input));
+            $this->assertEquals($expectedResult, $util->mapFileNameToClassName($input));
         }
     }
 }

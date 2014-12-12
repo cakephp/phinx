@@ -6,13 +6,16 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\StreamOutput;
 use Phinx\Config\Config;
 use Phinx\Console\Command\Status;
+use Test\Phinx\BaseCommandTest;
 
-class StatusTest extends \PHPUnit_Framework_TestCase
+class StatusTest extends BaseCommandTest
 {
     protected $config = array();
 
     protected function setUp()
     {
+        parent::setUp();
+
         $this->config = new Config(array(
             'paths' => array(
                 'migrations' => __FILE__,
@@ -34,8 +37,8 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 
     public function testExecute()
     {
-        $application = new \Phinx\Console\PhinxApplication('testing');
-        $application->add(new Status());
+        $application = new \Phinx\Console\PhinxApplication($this->di, 'testing');
+        $application->add(new Status($this->di));
 
         // setup dependencies
         $output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -58,8 +61,8 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 
     public function testExecuteWithEnvironmentOption()
     {
-        $application = new \Phinx\Console\PhinxApplication('testing');
-        $application->add(new Status());
+        $application = new \Phinx\Console\PhinxApplication($this->di, 'testing');
+        $application->add(new Status($this->di));
 
         // setup dependencies
         $output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -81,8 +84,8 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 
     public function testFormatSpecified()
     {
-        $application = new \Phinx\Console\PhinxApplication('testing');
-        $application->add(new Status());
+        $application = new \Phinx\Console\PhinxApplication($this->di, 'testing');
+        $application->add(new Status($this->di));
 
         // setup dependencies
         $output = new StreamOutput(fopen('php://memory', 'a', false));
