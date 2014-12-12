@@ -25,9 +25,9 @@ class PhinxApplicationTest extends BaseCommandTest
                 ->setConstructorArgs(array($di))
                 ->setMethods(array('getConfig'))
                 ->getMock();
-            $createCommandMock->expects($this->any())
+            $createCommandMock->expects($refThis->any())
                 ->method('getConfig')
-                ->will($this->returnValue($config));
+                ->will($refThis->returnValue($config));
             $createCommandMock->setName('mockcreate');
 
             return $createCommandMock;
