@@ -357,7 +357,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             $column->setName($columnInfo['name'])
                    ->setType($this->getPhinxType($columnInfo['type']))
                    ->setNull($columnInfo['null'] != 'NO')
-                   ->setDefault(preg_replace(array("/\('(.*)'\)/", "/\(\((.*)\)\)/"), '$1', $columnInfo['default']))
+                   ->setDefault($this->parseDefault($columnInfo['default']))
                    ->setIdentity($columnInfo['identity'] === '1')
                    ->setComment($this->getColumnComment($columnInfo['table_name'], $columnInfo['name']));
 
@@ -369,6 +369,18 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         }
 
         return $columns;
+    }
+
+    protected function parseDefault($default) {
+        $default = preg_replace(array("/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"), '$1', $default);
+
+        if (strtoupper($default) === 'NULL') {
+            $default = null;
+        } elseif (is_numeric($default)) {
+            $default = (int) $default;
+        }
+
+        return $default;
     }
 
     /**
@@ -450,12 +462,19 @@ SQL;
     {
         $constraintName = "DF_{$tableName}_{$newColumn->getName()}";
         $default = $newColumn->getDefault();
-        if (!is_numeric($default) && $default !== 'CURRENT_TIMESTAMP') {
-            $default = $this->getConnection()->quote($default);
+
+        if ($default === null) {
+            $default = 'DEFAULT NULL';
+        } else {
+            $default = $this->getDefaultValueDefinition($default);
+        }
+
+        if (empty($default)) {
+            return;
         }
 
         $this->execute(sprintf(
-            'ALTER TABLE %s ADD CONSTRAINT %s DEFAULT %s FOR %s',
+            'ALTER TABLE %s ADD CONSTRAINT %s %s FOR %s',
             $this->quoteTableName($tableName),
             $constraintName,
             $default,
@@ -1021,9 +1040,13 @@ SQL;
         $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';
 
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
-        
+
         if ($create === true) {
-            $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
+            if ($column->getDefault() === null && $column->isNull()) {
+                $buffer[] = ' DEFAULT NULL';
+            } else {
+                $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
+            }
         }
 
         if ($column->isIdentity()) {
