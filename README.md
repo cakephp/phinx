@@ -1,4 +1,4 @@
-# [Phinx](http://phinx.org): Simple PHP Database Migrations
+# [Phinx](https://phinx.org): Simple PHP Database Migrations
 
 [![Build Status](https://travis-ci.org/robmorgan/phinx.png?branch=0.2.x-dev)](https://travis-ci.org/robmorgan/phinx)
 [![Build status](https://ci.appveyor.com/api/projects/status/9vag4892hfq6effr)](https://ci.appveyor.com/project/robmorgan/phinx)
