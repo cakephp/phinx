@@ -119,6 +119,28 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.4.0** (Sunday, 14th December 2014)
+
+* Adding initial support for running Phinx via a web interface
+* Support for table prefixes and suffixes
+* Bugfix for foreign key options
+* MySQL keeps column default when renaming columns
+* MySQL support for tiny/medium and longtext columns added
+* Changed SQL Server binary columns to varbinary
+* MySQL supports table comments
+* Postgres supports column comments
+* Empty strings are now supported for default column values
+* Booleans are now supported for default column values
+* Fixed SQL Server default constraint error when changing column types
+* Migration timestamps are now created in UTC
+* Locked Symfony Components to 2.5.0
+* Support for custom migration base classes
+* Cleaned up source code formatting
+* Migrations have access to the output stream
+* Support for custom PDO connections when a PHP config
+* Added support for Postgres UUID type
+* Fixed issue with Postgres dropping foreign keys
+
 **0.3.8** (Sunday, 5th October 2014)
 
 * Added new CHAR & Geospatial column types
