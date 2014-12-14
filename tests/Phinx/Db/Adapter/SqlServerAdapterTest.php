@@ -342,7 +342,8 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('another test', $columns['column1']->getDefault());
     }
 
-    public function testChangeColumnDefaultToNull() {
+    public function testChangeColumnDefaultToNull()
+    {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string', array('null' => true, 'default' => 'test'))
             ->save();
@@ -355,7 +356,8 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($columns['column1']->getDefault());
     }
 
-    public function testChangeColumnDefaultToZero() {
+    public function testChangeColumnDefaultToZero()
+    {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'integer')
             ->save();

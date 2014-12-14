@@ -371,7 +371,8 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         return $columns;
     }
 
-    protected function parseDefault($default) {
+    protected function parseDefault($default)
+    {
         $default = preg_replace(array("/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"), '$1', $default);
 
         if (strtoupper($default) === 'NULL') {
