@@ -51,12 +51,12 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     public function connect()
     {
         if (null === $this->connection) {
-            if (!class_exists('PDO') || !in_array('sqlsrv', \PDO::getAvailableDrivers(), true)) {
-                // @codeCoverageIgnoreStart
-                throw new \RuntimeException('You need to enable the PDO_SqlSrv extension for Phinx to run properly.');
-                // @codeCoverageIgnoreEnd
-            }
 
+        	if (!class_exists('PDO') || !in_array('sqlsrv', \PDO::getAvailableDrivers(), true)) {
+                // try our connection via freetds (Mac/Linux)
+                return $this->tds_connect();
+            }
+            
             $db = null;
             $options = $this->getOptions();
 
@@ -101,6 +101,44 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         }
     }
 
+    /**
+     * Connect to MSSQL using dblib/freetds
+     * 
+     * PDO_SqlSrv is not available on Unix machines, so we're providing an alternate method to connect using dblib/freetds
+     * @throws \InvalidArgumentException
+     */
+    public function tds_connect(){
+    	$db = null;
+    	$options = $this->getOptions();
+    	
+    	        
+        // if port is specified use it, otherwise use the SqlServer default
+        if (empty($options['port'])) {
+            $dsn = 'dblib:host=' . $options['host'] . ';dbname=' . $options['name'];
+        } else {
+            $dsn = 'dblib:host=' . $options['host'] . ',' . $options['port'] . ';dbname=' . $options['name'];
+        }
+    	    	
+    	$driverOptions = array();
+    	
+    	
+    	try {
+    		$db = new \PDO($dsn, $options['user'], $options['pass'], $driverOptions);
+    	} catch (\PDOException $exception) {
+    		throw new \InvalidArgumentException(sprintf(
+    				'There was a problem connecting to the database: %s',
+    				$exception->getMessage()
+    		));
+    	}
+    	
+    	$this->setConnection($db);
+    	
+    	// Create the schema table if it doesn't already exist
+    	if (!$this->hasSchemaTable()) {
+    		$this->createSchemaTable();
+    	}
+    }
+    
     /**
      * {@inheritdoc}
      */
