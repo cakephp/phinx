@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -31,9 +31,10 @@ namespace Phinx\Console\Command;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Config\Config;
+use Phinx\Config\ConfigInterface;
 use Phinx\Migration\Manager;
 use Phinx\Db\Adapter\AdapterInterface;
 
@@ -45,27 +46,27 @@ use Phinx\Db\Adapter\AdapterInterface;
 abstract class AbstractCommand extends Command
 {
     /**
-     * @var Config
+     * @var ConfigInterface
      */
     protected $config;
-    
+
     /**
      * @var AdapterInterface
      */
     protected $adapter;
-    
+
     /**
-     * @var Manager;
+     * @var Manager
      */
     protected $manager;
-    
+
     /**
      * {@inheritdoc}
      */
     protected function configure()
     {
-        $this->addOption('--configuration', '-c', InputArgument::OPTIONAL, 'The configuration file to load');
-        $this->addOption('--parser', '-p', InputArgument::OPTIONAL, 'Parser used to read the config file. Defaults to YAML');
+        $this->addOption('--configuration', '-c', InputOption::VALUE_REQUIRED, 'The configuration file to load');
+        $this->addOption('--parser', '-p', InputOption::VALUE_REQUIRED, 'Parser used to read the config file. Defaults to YAML');
     }
 
     /**
@@ -89,10 +90,10 @@ abstract class AbstractCommand extends Command
     /**
      * Sets the config.
      *
-     * @param Config $config
+     * @param  ConfigInterface $config
      * @return AbstractCommand
      */
-    public function setConfig(Config $config)
+    public function setConfig(ConfigInterface $config)
     {
         $this->config = $config;
         return $this;
@@ -107,7 +108,7 @@ abstract class AbstractCommand extends Command
     {
         return $this->config;
     }
-    
+
     /**
      * Sets the database adapter.
      *
@@ -129,7 +130,7 @@ abstract class AbstractCommand extends Command
     {
         return $this->adapter;
     }
-    
+
     /**
      * Sets the migration manager.
      *
@@ -141,7 +142,7 @@ abstract class AbstractCommand extends Command
         $this->manager = $manager;
         return $this;
     }
-    
+
     /**
      * Gets the migration manager.
      *
@@ -162,8 +163,10 @@ abstract class AbstractCommand extends Command
     {
         $configFile = $input->getOption('configuration');
 
-        if (null === $configFile) {
-            $configFile = 'phinx.yml';
+        $useDefault = false;
+
+        if (null === $configFile || false === $configFile) {
+            $useDefault = true;
         }
 
         $cwd = getcwd();
@@ -174,8 +177,21 @@ abstract class AbstractCommand extends Command
             $cwd . DIRECTORY_SEPARATOR
         ));
 
-        // Locate() throws an exception if the file does not exist
-        return $locator->locate($configFile, $cwd, $first = true);
+        if (!$useDefault) {
+            // Locate() throws an exception if the file does not exist
+            return $locator->locate($configFile, $cwd, $first = true);
+        }
+
+        $possibleConfigFiles = array('phinx.php', 'phinx.json', 'phinx.yml');
+        foreach ($possibleConfigFiles as $configFile) {
+            try {
+                return $locator->locate($configFile, $cwd, $first = true);
+            } catch (\InvalidArgumentException $exception) {
+                $lastException = $exception;
+            }
+        }
+        throw $lastException;
+
     }
 
     /**
@@ -213,10 +229,10 @@ abstract class AbstractCommand extends Command
 
         switch (strtolower($parser)) {
             case 'json':
-                $config = Config::fromJSON($configFilePath);
+                $config = Config::fromJson($configFilePath);
                 break;
             case 'php':
-                $config = Config::fromPHP($configFilePath);
+                $config = Config::fromPhp($configFilePath);
                 break;
             case 'yaml':
                 $config = Config::fromYaml($configFilePath);

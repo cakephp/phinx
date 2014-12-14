@@ -145,7 +145,7 @@ class ForeignKey
      */
     public function setOnDelete($onDelete)
     {
-        $this->onDelete = $onDelete;
+        $this->onDelete = $this->normalizeAction($onDelete);
         return $this;
     }
 
@@ -177,7 +177,7 @@ class ForeignKey
      */
     public function setOnUpdate($onUpdate)
     {
-        $this->onUpdate = $onUpdate;
+        $this->onUpdate = $this->normalizeAction($onUpdate);
         return $this;
     }
 
@@ -208,6 +208,7 @@ class ForeignKey
      *
      * @param array $options Options
      * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      * @return ForeignKey
      */
     public function setOptions($options)
@@ -220,10 +221,10 @@ class ForeignKey
             }
 
             // handle $options['delete'] as $options['update']
-            if (strtolower($option) == 'delete' || strtolower($option) == 'update') {
-                if (defined('self::' . strtoupper($value))) {
-                    $this->{'setOn' . ucfirst(strtolower($option))}(constant('self::' . strtoupper($value)));
-                }
+            if ('delete' == $option) {
+                $this->setOnDelete($value);
+            } elseif ('update' == $option) {
+                $this->setOnUpdate($value);
             } else {
                 $method = 'set' . ucfirst($option);
                 $this->$method($value);
@@ -231,5 +232,21 @@ class ForeignKey
         }
 
         return $this;
+    }
+
+    /**
+     * From passed value checks if it's correct and fixes if needed
+     *
+     * @param string $action
+     * @throws \InvalidArgumentException
+     * @return string
+     */
+    protected function normalizeAction($action)
+    {
+        $constantName = 'static::' . str_replace(' ', '_', strtoupper(trim($action)));
+        if (!defined($constantName)) {
+            throw new \InvalidArgumentException('Unknown action passed: ' . $action);
+        }
+        return constant($constantName);
     }
 }

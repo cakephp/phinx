@@ -24,31 +24,5 @@
  * IN THE SOFTWARE.
  */
 
-if (!defined('PHINX_VERSION')) {
-    define('PHINX_VERSION', (0 === strpos('@PHINX_VERSION@', '@PHINX_VERSION')) ? '0.3.6' : '@PHINX_VERSION@');
-}
-
-$files = array(
-  __DIR__ . '/../../../autoload.php',
-  __DIR__ . '/../src/Phinx/autoload.php.dist'
-);
-
-$found = false;
-foreach ($files as $file) {
-    if (file_exists($file)) {
-        require $file;
-        $found = true;
-        break;
-    }
-}
-
-if (!$found) {
-    die(
-      'You need to set up the project dependencies using the following commands:' . PHP_EOL .
-      'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
-      'php composer.phar install' . PHP_EOL
-    );
-}
-
-$app = new Phinx\Console\PhinxApplication(PHINX_VERSION);
+$app = require __DIR__ . '/../app/phinx.php';
 $app->run();

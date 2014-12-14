@@ -15,7 +15,7 @@ init:
   - SET PATH=C:\php\;%PATH%
 install:
   - cd c:\
-  - ps: Start-FileDownload 'http://robmorgan.s3.amazonaws.com/php55/php-5.5.7-nts-Win32-VC11-x86.zip'
+  - ps: Start-FileDownload 'http://phinx.s3.amazonaws.com/php55/php-5.5.7-nts-Win32-VC11-x86.zip'
   - 7z x php-5.5.7-nts-Win32-VC11-x86.zip -oc:\php
   - cd c:\php
   - copy php.ini-production php.ini

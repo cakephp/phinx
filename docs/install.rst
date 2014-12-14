@@ -29,8 +29,11 @@ Then run Composer:
 
     php composer.phar install --no-dev
 
+Create a folder in your project directory called ``migrations`` with adequate permissions.
+It is where your migration files will live and should be writable.
+
 Phinx can now be executed from within your project:
 
 .. code-block:: bash
 
-    php vendor/bin/phinx
+    php vendor/bin/phinx init
