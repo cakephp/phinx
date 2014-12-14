@@ -22,6 +22,15 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 * Take advantage of SCM features such as branching.
 * Integrate with any app.
 
+### Supported Adapters
+
+Phinx natively supports the following database adapters:
+
+* MySQL
+* PostgreSQL
+* SQLite
+* Microsoft SQL Server
+
 ## Install & Run
 
 ### Composer
