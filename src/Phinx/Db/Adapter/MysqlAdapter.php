@@ -323,7 +323,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function getColumns($tableName)
     {
         $columns = array();
-        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $tableName));
+        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $columnInfo) {
             $column = new Column();
             $column->setName($columnInfo['Field'])
@@ -350,7 +350,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasColumn($tableName, $columnName)
     {
-        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $tableName));
+        $sql = sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName));
+        $rows = $this->fetchAll($sql);
         foreach ($rows as $column) {
             if (strcasecmp($column['Field'], $columnName) === 0) {
                 return true;
@@ -895,7 +896,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $sqlType = $this->getSqlType($column->getType());
 
-        // Additional check if a limit along 
+        // Additional check if a limit along
         if (strtoupper($sqlType['name']) === 'TEXT' && $column->getLimit()) {
             $sqlType['name'] = $this->classifyTextColumn($column);
             // Remove the limit since MySQL does't like limit to be specified with a TEXT Type column

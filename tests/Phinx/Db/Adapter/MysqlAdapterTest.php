@@ -493,6 +493,37 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testGetColumnsReservedTableName()
+    {
+        $table = new \Phinx\Db\Table('group', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->addColumn('column2', 'integer')
+              ->addColumn('column3', 'biginteger')
+              ->addColumn('column4', 'text')
+              ->addColumn('column5', 'float')
+              ->addColumn('column6', 'decimal')
+              ->addColumn('column7', 'datetime')
+              ->addColumn('column8', 'time')
+              ->addColumn('column9', 'timestamp')
+              ->addColumn('column10', 'date')
+              ->addColumn('column11', 'binary')
+              ->addColumn('column12', 'boolean')
+              ->addColumn('column13', 'string', array('limit' => 10))
+              ->addColumn('column15', 'integer', array('limit' => 10))
+              ->addColumn('column16', 'geometry')
+              ->addColumn('column17', 'point')
+              ->addColumn('column18', 'linestring')
+              ->addColumn('column19', 'polygon');
+        $pendingColumns = $table->getPendingColumns();
+        $table->save();
+        $columns = $this->adapter->getColumns('group');
+        $this->assertCount(count($pendingColumns) + 1, $columns);
+        for ($i = 0; $i++; $i < count($pendingColumns)) {
+            $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
+        }
+    }
+
+
     public function testAddIndex()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
@@ -638,4 +669,26 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals('geometry', $rows[1]['Type']);
     }
+
+    public function testHasColumn()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->save();
+
+        $this->assertFalse($table->hasColumn('column2'));
+        $this->assertTrue($table->hasColumn('column1'));
+    }
+
+    public function testHasColumnReservedName()
+    {
+        $tableQuoted = new \Phinx\Db\Table('group', array(), $this->adapter);
+        $tableQuoted->addColumn('value', 'string')
+                    ->save();
+
+        $this->assertFalse($tableQuoted->hasColumn('column2'));
+        $this->assertTrue($tableQuoted->hasColumn('value'));
+
+    }
+
 }
