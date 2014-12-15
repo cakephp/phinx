@@ -44,6 +44,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 abstract class AbstractMigration implements MigrationInterface
 {
+    const PHINX_PARAM_BOOL = \PDO::PARAM_BOOL;
+    const PHINX_PARAM_NULL = \PDO::PARAM_NULL;
+    const PHINX_PARAM_INT = \PDO::PARAM_INT;
+    const PHINX_PARAM_STR = \PDO::PARAM_STR;
+    const PHINX_PARAM_LOB = \PDO::PARAM_LOB;
+
     /**
      * @var float
      */
@@ -156,9 +162,9 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
-    public function execute($sql)
+    public function execute($sql, array $binds = null)
     {
-        return $this->getAdapter()->execute($sql);
+        return $this->getAdapter()->execute($sql, $binds);
     }
 
     /**

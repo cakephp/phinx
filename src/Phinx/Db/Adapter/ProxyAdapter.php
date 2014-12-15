@@ -157,9 +157,9 @@ class ProxyAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function execute($sql)
+    public function execute($sql, array $binds = null)
     {
-        return $this->getAdapter()->execute($sql);
+        return $this->getAdapter()->execute($sql, $binds);
     }
 
     /**
@@ -613,6 +613,17 @@ class ProxyAdapter implements AdapterInterface
     public function invertAddForeignKey($args)
     {
         return array('name' => 'dropForeignKey', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
+    }
+
+    /**
+     * Gets the adapter-specific bind param type from the abstracted MigrationInterface::PHINX_PARAM_* type.
+     *
+     * @param int $phinxBindParamType
+     * @return int The \PDO equivalent of the Phinx param type.
+     */
+    public function getAdapterBindParamType($phinxBindParamType)
+    {
+        return $this->adapter->getAdapterBindParamType($phinxBindParamType);
     }
 
     /**

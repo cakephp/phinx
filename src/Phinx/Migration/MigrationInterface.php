@@ -125,10 +125,11 @@ interface MigrationInterface
      * Executes a SQL statement and returns the number of affected rows.
      *
      * @param string $sql SQL
-     * @return int
+     * @param array $binds array of properties to be bound the the query
+     * @return bool Success or failure of the query
      */
-    public function execute($sql);
-
+    public function execute($sql, array $binds = null);
+    
     /**
      * Executes a SQL statement and returns the result as an array.
      *
