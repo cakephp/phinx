@@ -66,7 +66,7 @@ class Config implements ConfigInterface
      */
     public static function fromYaml($configFilePath)
     {
-        $configArray = Yaml::parse($configFilePath);
+        $configArray = Yaml::parse(file_get_contents($configFilePath));
         if (!is_array($configArray)) {
             throw new \RuntimeException(sprintf(
                 'File \'%s\' must be valid YAML',
