@@ -32,6 +32,7 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Console\Command;
+use Pimple\Container;
 
 /**
  * Phinx console application.
@@ -45,18 +46,19 @@ class PhinxApplication extends Application
      *
      * Initialize the Phinx console application.
      *
-     * @param string $version The Application Version
+     * @param Container $di      The Application Dependency Inversion
+     * @param string    $version The Application Version
      */
-    public function __construct($version)
+    public function __construct(Container $di, $version)
     {
         parent::__construct('Phinx by Rob Morgan - https://phinx.org.', $version);
 
-        $this->add(new Command\Init());
-        $this->add(new Command\Create());
-        $this->add(new Command\Migrate());
-        $this->add(new Command\Rollback());
-        $this->add(new Command\Status());
-        $this->add(new Command\Test());
+        $this->add($di['command.init']);
+        $this->add($di['command.create']);
+        $this->add($di['command.migrate']);
+        $this->add($di['command.rollback']);
+        $this->add($di['command.status']);
+        $this->add($di['command.test']);
     }
 
     /**

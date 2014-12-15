@@ -3,6 +3,7 @@
 namespace Test\Phinx\Config;
 
 use Phinx\Console\Command\AbstractCommand;
+use Pimple\Container;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -14,8 +15,11 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
 
     private $baseDir;
 
+    protected $di;
+
     public function setUp()
     {
+        $this->di = new Container();
         $this->previousDir = getcwd();
         $this->baseDir = realpath(__DIR__ . '/_rootDirectories');
     }
@@ -71,7 +75,7 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
         if ($arg) {
             $input->setOption('configuration', $arg);
         }
-        $command = new VoidCommand('void');
+        $command = new VoidCommand($this->di, 'void');
         return $command->locateConfigFile($input);
     }
 

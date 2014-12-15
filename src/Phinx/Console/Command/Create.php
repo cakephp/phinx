@@ -28,7 +28,6 @@
  */
 namespace Phinx\Console\Command;
 
-use Phinx\Migration\Util;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -78,7 +77,11 @@ class Create extends AbstractCommand
         $path = realpath($path);
         $className = $input->getArgument('name');
 
-        if (!Util::isValidMigrationClassName($className)) {
+        /**
+         * @var $util \Phinx\Migration\Util
+         */
+        $util = $this->di['util'];
+        if ($util->checkMigrationClassName($className, $path)) {
             throw new \InvalidArgumentException(sprintf(
                 'The migration class name "%s" is invalid. Please use CamelCase format.',
                 $className
@@ -86,7 +89,7 @@ class Create extends AbstractCommand
         }
 
         // Compute the file path
-        $fileName = Util::mapClassNameToFileName($className);
+        $fileName = $util->mapClassNameToFileName($className);
         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
 
         if (file_exists($filePath)) {
