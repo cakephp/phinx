@@ -573,7 +573,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('table', array(), $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->save();
+        $table->addColumn('ref_table_id', 'integer', array('signed' => false))->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
