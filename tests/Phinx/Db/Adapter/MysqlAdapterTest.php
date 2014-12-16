@@ -130,6 +130,24 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
 
+    public function testCreateTableWithComment()
+    {
+        $table = new \Phinx\Db\Table('ntable', array('comment'=>$tableComment = 'Table comment'), $this->adapter);
+        $table->addColumn('realname', 'string')
+              ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+
+        $rows = $this->adapter->fetchAll(sprintf(
+            "SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='%s' AND table_name='ntable'",
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE));
+        $comment = $rows[0];
+
+        $this->assertEquals($tableComment, $comment['table_comment'], 'Dont set table comment correctly');
+    }
+
     public function testCreateTableCustomIdColumn()
     {
         $table = new \Phinx\Db\Table('ntable', array('id' => 'custom_id'), $this->adapter);
@@ -653,7 +671,9 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('column1', 'string', array('comment' => $comment = 'Comments from "column1"'))
               ->save();
 
-        $rows = $this->adapter->fetchAll("SELECT column_name, column_comment FROM information_schema.columns WHERE table_name = 'table1'");
+        $rows = $this->adapter->fetchAll(sprintf(
+            "SELECT column_name, column_comment FROM information_schema.columns WHERE table_schema='%s' AND table_name='table1'",
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE));
         $columnWithComment = $rows[1];
 
         $this->assertEquals($comment, $columnWithComment['column_comment'], 'Dont set column comment correctly');
