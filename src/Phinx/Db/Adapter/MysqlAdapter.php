@@ -350,8 +350,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasColumn($tableName, $columnName)
     {
-        $sql = sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName));
-        $rows = $this->fetchAll($sql);
+        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $column) {
             if (strcasecmp($column['Field'], $columnName) === 0) {
                 return true;
