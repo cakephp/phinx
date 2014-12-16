@@ -511,6 +511,20 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testDescribeTable()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string');
+        $table->save();
+
+        $described = $this->adapter->describeTable('t');
+
+        $this->assertTrue(in_array($described['TABLE_TYPE'],array('VIEW','BASE TABLE')));
+        $this->assertEquals($described['TABLE_NAME'],'t');
+        $this->assertEquals($described['TABLE_SCHEMA'],TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $this->assertEquals($described['TABLE_ROWS'],0);
+    }
+
     public function testGetColumnsReservedTableName()
     {
         $table = new \Phinx\Db\Table('group', array(), $this->adapter);
