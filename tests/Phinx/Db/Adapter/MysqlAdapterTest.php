@@ -130,6 +130,55 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
 
+    public function testCreateTableWithComment()
+    {
+        $table = new \Phinx\Db\Table('ntable', array('comment'=>$tableComment = 'Table comment'), $this->adapter);
+        $table->addColumn('realname', 'string')
+              ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+
+        $rows = $this->adapter->fetchAll(sprintf(
+            "SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='%s' AND table_name='ntable'",
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE));
+        $comment = $rows[0];
+
+        $this->assertEquals($tableComment, $comment['table_comment'], 'Dont set table comment correctly');
+    }
+
+    public function testCreateTableWithForeignKeys()
+    {
+
+        $tag_table = new \Phinx\Db\Table('ntable_tag', array(), $this->adapter);
+        $tag_table->addColumn('realname', 'string')
+                  ->save();
+
+        $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
+        $table->addColumn('realname', 'string')
+              ->addColumn('tag_id', 'integer')
+              ->addForeignKey('tag_id', 'ntable_tag', 'id', array('delete'=> 'NO_ACTION', 'update'=> 'NO_ACTION'))
+              ->save();
+
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+
+        $rows = $this->adapter->fetchAll(sprintf(
+            "SELECT table_name, column_name, referenced_table_name, referenced_column_name
+             FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+             WHERE table_schema='%s' AND REFERENCED_TABLE_NAME='ntable_tag'",
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE));
+        $foreignKey = $rows[0];
+
+        $this->assertEquals($foreignKey['table_name'], 'ntable');
+        $this->assertEquals($foreignKey['column_name'], 'tag_id');
+        $this->assertEquals($foreignKey['referenced_table_name'], 'ntable_tag');
+        $this->assertEquals($foreignKey['referenced_column_name'], 'id');
+    }
+
     public function testCreateTableCustomIdColumn()
     {
         $table = new \Phinx\Db\Table('ntable', array('id' => 'custom_id'), $this->adapter);
@@ -493,6 +542,20 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testDescribeTable()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string');
+        $table->save();
+
+        $described = $this->adapter->describeTable('t');
+
+        $this->assertTrue(in_array($described['TABLE_TYPE'],array('VIEW','BASE TABLE')));
+        $this->assertEquals($described['TABLE_NAME'],'t');
+        $this->assertEquals($described['TABLE_SCHEMA'],TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $this->assertEquals($described['TABLE_ROWS'],0);
+    }
+
     public function testGetColumnsReservedTableName()
     {
         $table = new \Phinx\Db\Table('group', array(), $this->adapter);
@@ -615,7 +678,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
     }
 
-    public function dropForeignKey()
+    public function testDropForeignKey()
     {
         $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
         $refTable->addColumn('field1', 'string')->save();
@@ -631,6 +694,79 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->addForeignKey($table, $fk);
         $this->adapter->dropForeignKey($table->getName(), array('ref_table_id'));
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+    }
+
+    public function testDropForeignKeyAsString()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+           ->setColumns(array('ref_table_id'))
+           ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->adapter->dropForeignKey($table->getName(), 'ref_table_id');
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+    }
+
+    public function testHasForeignKey()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+           ->setColumns(array('ref_table_id'))
+           ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id2')));
+    }
+
+    public function testHasForeignKeyAsString()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+           ->setColumns(array('ref_table_id'))
+           ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), 'ref_table_id'));
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), 'ref_table_id2'));
+    }
+
+    public function testHasForeignKeyWithConstraint()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+           ->setColumns(array('ref_table_id'))
+           ->setConstraint("my_constraint")
+           ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id'), 'my_constraint'));
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id'), 'my_constraint2'));
     }
 
     public function testHasDatabase()
@@ -653,7 +789,9 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('column1', 'string', array('comment' => $comment = 'Comments from "column1"'))
               ->save();
 
-        $rows = $this->adapter->fetchAll("SELECT column_name, column_comment FROM information_schema.columns WHERE table_name = 'table1'");
+        $rows = $this->adapter->fetchAll(sprintf(
+            "SELECT column_name, column_comment FROM information_schema.columns WHERE table_schema='%s' AND table_name='table1'",
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE));
         $columnWithComment = $rows[1];
 
         $this->assertEquals($comment, $columnWithComment['column_comment'], 'Dont set column comment correctly');
