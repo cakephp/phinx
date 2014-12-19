@@ -31,6 +31,7 @@ namespace Phinx\Console\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Init extends Command
@@ -43,7 +44,13 @@ class Init extends Command
         $this->setName('init')
             ->setDescription('Initialize the application for Phinx')
             ->addArgument('path', InputArgument::OPTIONAL, 'Which path should we initialize for Phinx?')
-            ->setHelp(sprintf(
+            ->addOption(
+                'default-migration-table',
+                'd',
+                InputOption::VALUE_OPTIONAL,
+                'The name of the default migration table',
+                'phinxlog'
+            )->setHelp(sprintf(
                 '%sInitializes the application for Phinx%s',
                 PHP_EOL,
                 PHP_EOL
@@ -63,7 +70,6 @@ class Init extends Command
     {
         // get the migration path from the config
         $path = $input->getArgument('path');
-
         if (null === $path) {
             $path = getcwd();
         }
@@ -77,31 +83,74 @@ class Init extends Command
             ));
         }
 
-        // Compute the file path
-        $fileName = 'phinx.yml'; // TODO - maybe in the future we allow custom config names.
-        $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
+        // Compute the file paths
+        $fileNameConfig = 'phinx.yml'; // TODO - maybe in the future we allow custom config names.
+        $fileNameMigrationTableSchema = 'phinxlog.sql';
 
-        if (file_exists($filePath)) {
+        $migrationTable = $input->getOption('default-migration-table');
+
+        $defaultMigrationTable = $this->getDefinition()
+            ->getOption('default-migration-table')
+            ->getDefault();
+
+        if ($migrationTable !== $defaultMigrationTable) {
+            $fileNameMigrationTableSchema = $migrationTable . '.sql';
+        }
+
+        $filePathConfig = $path . DIRECTORY_SEPARATOR . $fileNameConfig;
+        $filePathMigrationTableSchema = $path . DIRECTORY_SEPARATOR . $fileNameMigrationTableSchema;
+
+        if (file_exists($filePathConfig) || file_exists($filePathMigrationTableSchema)) {
+            $existingFile = $filePathMigrationTableSchema;
+            if (file_exists($filePathConfig)) {
+                $existingFile = $filePathConfig;
+            }
             throw new \InvalidArgumentException(sprintf(
                 'The file "%s" already exists',
-                $filePath
+                $existingFile
             ));
         }
 
-        // load the config template
-        if (is_dir(__DIR__ . '/../../../data/Phinx')) {
-            $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/phinx.yml');
+        // load the config and migration table template
+        if (is_dir(__DIR__ . '/../../../../templates')) {
+            $configContents = file_get_contents(__DIR__ . '/../../../../templates/phinx.yml');
+            $migrationTableContent = file_get_contents(__DIR__ . '/../../../../templates/phinxlog.sql');
         } else {
-            $contents = file_get_contents(__DIR__ . '/../../../../phinx.yml');
+            $configContents = file_get_contents(__DIR__ . '/../../../../phinx.yml');
+            $migrationTableContent = file_get_contents(__DIR__ . '/../../../../phinxlog.sql');
         }
 
-        if (false === file_put_contents($filePath, $contents)) {
+        if ($migrationTable !== $defaultMigrationTable) {
+            $configContents = str_replace(
+                $defaultMigrationTable,
+                $migrationTable,
+                $configContents
+            );
+            $migrationTableContent = str_replace(
+                $defaultMigrationTable,
+                $migrationTable,
+                $migrationTableContent
+            );
+        }
+
+        $createdConfig = file_put_contents($filePathConfig, $configContents);
+        $createdMigrationTableSchema = file_put_contents(
+            $filePathMigrationTableSchema,
+            $migrationTableContent
+        );
+
+        if (false === $createdConfig || false === $createdMigrationTableSchema) {
+            $nonWriteablePath = $filePathMigrationTableSchema;
+            if (false === $createdConfig) {
+                $nonWriteablePath = $filePathConfig;
+            }
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',
-                $path
+                $nonWriteablePath
             ));
         }
 
-        $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
+        $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePathConfig));
+        $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePathMigrationTableSchema));
     }
 }
