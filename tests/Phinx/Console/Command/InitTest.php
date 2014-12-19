@@ -72,11 +72,11 @@ class InitTest extends \PHPUnit_Framework_TestCase
         ));
 
         $this->assertRegExp(
-            '/created (.*)\/phinx.yml/',
+            '/created (.*)phinx.yml/',
             $commandTester->getDisplay()
         );
         $this->assertRegExp(
-            '/created (.*)\/testname.sql/',
+            '/created (.*)testname.sql/',
             $commandTester->getDisplay()
         );
 
