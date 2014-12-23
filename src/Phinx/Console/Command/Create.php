@@ -140,7 +140,7 @@ class Create extends AbstractCommand
                     )
                 );
             }
-            if (!is_subclass_of($creationClassName, '\Phinx\Migration\CreationInterface', true)) {
+            if (!is_subclass_of($creationClassName, self::CREATION_INTERFACE, true)) {
                 throw new \InvalidArgumentException(
                     sprintf(
                         'The class "%s" does not implement the required interface "%s"',
