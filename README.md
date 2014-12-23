@@ -130,6 +130,8 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 **0.4.1** (Tuesday, 23rd December 2014)
 
+* MySQL support for reserved words in hasColumn and getColumns methods
+* Better MySQL Adapter test coverage and performance fixes
 * Updated dependent Symfony components to 2.6.x
 
 **0.4.0** (Sunday, 14th December 2014)
