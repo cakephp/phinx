@@ -417,6 +417,39 @@ class Column
     }
 
     /**
+     * Gets all allowed options. Each option must have a corresponding `setFoo` method.
+     *
+     * @return array
+     */
+    protected function getValidOptions()
+    {
+        return array(
+            'limit',
+            'default',
+            'null',
+            'precision',
+            'scale',
+            'after',
+            'update',
+            'comment',
+            'signed',
+            'properties',
+        );
+    }
+
+    /**
+     * Gets all aliased options. Each alias must reference a valid option.
+     *
+     * @return array
+     */
+    protected function getAliasedOptions()
+    {
+        return array(
+            'length' => 'limit',
+        );
+    }
+
+    /**
      * Utility method that maps an array of column options to this objects methods.
      *
      * @param array $options Options
@@ -424,17 +457,17 @@ class Column
      */
     public function setOptions($options)
     {
-        // Valid Options
-        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment', 'signed', 'properties');
+        $validOptions = $this->getValidOptions();
+        $aliasOptions = $this->getAliasedOptions();
+
         foreach ($options as $option => $value) {
-            if (!in_array($option, $validOptions)) {
-                throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');
+            if (isset($aliasOptions[$option])) {
+                // proxy alias -> option
+                $option = $aliasOptions[$option];
             }
 
-            // proxy length -> limit
-            if (strcasecmp($option, 'length') === 0) {
-                $this->setLimit($value);
-                continue;
+            if (!in_array($option, $validOptions)) {
+                throw new \RuntimeException(sprintf('"%s" is not a valid column option.', $option));
             }
 
             $method = 'set' . ucfirst($option);
