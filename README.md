@@ -128,6 +128,10 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.4.1** (Tuesday, 23rd December 2014)
+
+* Updated dependent Symfony components to 2.6.x
+
 **0.4.0** (Sunday, 14th December 2014)
 
 * Adding initial support for running Phinx via a web interface
