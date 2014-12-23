@@ -545,9 +545,9 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('time', $this->adapter->getPhinxType('time without time zone'));
 
         $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp'));
-        $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamptz'));
         $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp without time zone'));
         
+        $this->assertEquals('timestamp with time zone', $this->adapter->getPhinxType('timestamptz'));
         $this->assertEquals('timestamp with time zone', $this->adapter->getPhinxType('timestamp with time zone'));
 
         $this->assertEquals('uuid', $this->adapter->getPhinxType('uuid'));
