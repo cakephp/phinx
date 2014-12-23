@@ -30,13 +30,19 @@ namespace Phinx\Console\Command;
 
 use Phinx\Migration\CreationInterface;
 use Phinx\Migration\Util;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Create extends AbstractCommand
 {
+
+    /**
+     * The name of the interface that any external template creation class is required to implement.
+     */
+    const CREATION_INTERFACE = '\Phinx\Migration\CreationInterface';
+
     /**
      * {@inheritdoc}
      */
@@ -58,7 +64,7 @@ class Create extends AbstractCommand
 
         // A classname to be used to gain access to the template content as well as the ability to
         // have a callback once the migration file has been created.
-        $this->addOption('class', 'l', InputOption::VALUE_REQUIRED, 'Use a class implementing Phinx\Migration\CreationInterface to generate the template');
+        $this->addOption('class', 'l', InputOption::VALUE_REQUIRED, 'Use a class implementing "' . self::CREATION_INTERFACE . '" to generate the template');
     }
 
     /**
@@ -112,7 +118,7 @@ class Create extends AbstractCommand
         // Get the alternative template and static class options, but only allow one of them.
         $altTemplate = $input->getOption('template');
         $creationClassName = $input->getOption('class');
-        if (!empty($altTemplate) && !empty($creationClassName)){
+        if (!empty($altTemplate) && !empty($creationClassName)) {
             throw new \InvalidArgumentException('Cannot use --template and --class');
         }
 
@@ -137,8 +143,9 @@ class Create extends AbstractCommand
             if (!is_subclass_of($creationClassName, '\Phinx\Migration\CreationInterface', true)) {
                 throw new \InvalidArgumentException(
                     sprintf(
-                        'The class "%s" does not implement the required interface "\Phinx\Migration\CreationInterface"',
-                        $creationClassName
+                        'The class "%s" does not implement the required interface "%s"',
+                        $creationClassName,
+                        self::CREATION_INTERFACE
                     )
                 );
             }
@@ -159,10 +166,10 @@ class Create extends AbstractCommand
 
         // inject the class name
         $contents = str_replace('$className', $className, $contents);
-        
+
         // inject the base class name
         $contents = str_replace('$baseClassName', $this->getConfig()->getMigrationBaseClassName(), $contents);
-        
+
         if (false === file_put_contents($filePath, $contents)) {
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',
