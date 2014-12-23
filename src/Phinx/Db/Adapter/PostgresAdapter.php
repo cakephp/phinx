@@ -778,9 +778,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'date':
                 return static::PHINX_TYPE_DATE;
             case 'timestamp':
-            case 'timestamptz':
             case 'timestamp without time zone':
                 return static::PHINX_TYPE_DATETIME;
+            case 'timestamptz':
             case 'timestamp with time zone':
                 return static::PHINX_TYPE_TIMESTAMP_TZ;
             case 'bool':
