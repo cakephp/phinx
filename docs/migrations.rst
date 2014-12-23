@@ -816,21 +816,57 @@ Valid Column Options
 
 The following are valid column options:
 
--  limit: set maximum length for strings
--  length: alias for ``limit``
--  default: set default value or action
--  null: allow ``NULL`` values
--  precision: combine with ``scale`` set to set decimial accuracy
--  scale: combine with ``precision`` to set decimial accuracy
--  after: specify the column that a new column should be placed after
--  update: set an action to be triggered when the row is updated
--  comment: set a text comment on the column
--  signed: enable or disable the ``UNSIGNED`` option *(only applies to MySQL)*
+For any column type:
+
+======= ===========
+Option  Description
+======= ===========
+limit   set maximum length for strings
+length  alias for ``limit``
+default set default value or action
+null    allow ``NULL`` values (should not be used with primary keys!)
+after   specify the column that a new column should be placed after
+comment set a text comment on the column
+======= ===========
+
+For ``decimal`` columns:
+
+========= ===========
+Option    Description
+========= ===========
+precision combine with ``scale`` set to set decimial accuracy
+scale     combine with ``precision`` to set decimial accuracy
+========= ===========
+
+
+For ``integer`` and ``biginteger`` columns:
+
+====== ===========
+Option Description
+====== ===========
+signed enable or disable the ``unsigned`` option *(only applies to MySQL)*
+====== ===========
+
+For ``timestamp`` columns:
+
+======= ===========
+Option  Description
+======= ===========
+default set default value (use with ``CURRENT_TIMESTAMP``)
+update  set an action to be triggered when the row is updated (use with ``CURRENT_TIMESTAMP``)
+======= ===========
+
+For foreign key definitions:
+
+====== ===========
+Option Description
+====== ===========
+update set an action to be triggered when the row is updated
+delete set an action to be triggered when the row is deleted
+====== ===========
 
 You can pass one or more of these options to any column with the optional
 third argument array.
-
-The default and update column options can accept 'CURRENT_TIMESTAMP' as a value.
 
 The Save Method
 ~~~~~~~~~~~~~~~
