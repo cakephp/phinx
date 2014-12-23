@@ -712,4 +712,29 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($foreign->hasForeignKey('user'));
     }
+
+    public function testTimestampWithTimezone()
+    {
+        $table = new \Phinx\Db\Table('tztable', array('id' => false), $this->adapter);
+        $table
+            ->addColumn('timestamp_tz', 'timestamp', array('timezone' => true))
+            ->addColumn('time_tz', 'time', array('timezone' => true))
+            ->addColumn('date_notz', 'date', array('timezone' => true)) /* date columns cannot have timestamp */
+            ->addColumn('time_notz', 'timestamp') /* default for timezone option is false */
+            ->save();
+
+        $this->assertTrue($this->adapter->hasColumn('tztable', 'timestamp_tz'));
+        $this->assertTrue($this->adapter->hasColumn('tztable', 'time_tz'));
+        $this->assertTrue($this->adapter->hasColumn('tztable', 'date_notz'));
+        $this->assertTrue($this->adapter->hasColumn('tztable', 'time_notz'));
+
+        $columns = $this->adapter->getColumns('tztable');
+        foreach ($columns as $column) {
+            if (substr($column->getName(), -4) === 'notz') {
+                $this->assertFalse($column->isTimezone(), 'column: ' . $column->getName());
+            } else {
+                $this->assertTrue($column->isTimezone(), 'column: ' . $column->getName());
+            }
+        }
+    }
 }

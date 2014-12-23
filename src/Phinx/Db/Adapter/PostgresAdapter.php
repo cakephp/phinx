@@ -320,6 +320,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                    ->setDefault($columnInfo['column_default'])
                    ->setIdentity($columnInfo['is_identity'] == 'YES');
 
+            if (preg_match('/\bwith time zone$/', $columnInfo['data_type'])) {
+                $column->setTimezone(true);
+            }
+
             if (isset($columnInfo['character_maximum_length'])) {
                 $column->setLimit($columnInfo['character_maximum_length']);
             }
@@ -859,7 +863,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             if ('integer' !== $sqlType['name'] && ($column->getLimit() || isset($sqlType['limit']))) {
                 $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
             }
+
+            $timeTypes = array(
+                'time',
+                'timestamp',
+            );
+            if (in_array($sqlType['name'], $timeTypes) && $column->isTimezone()) {
+                $buffer[] = strtoupper('with time zone');
+            }
         }
+
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
 
         if (!is_null($column->getDefault())) {
