@@ -550,10 +550,10 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $described = $this->adapter->describeTable('t');
 
-        $this->assertTrue(in_array($described['TABLE_TYPE'],array('VIEW','BASE TABLE')));
-        $this->assertEquals($described['TABLE_NAME'],'t');
-        $this->assertEquals($described['TABLE_SCHEMA'],TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
-        $this->assertEquals($described['TABLE_ROWS'],0);
+        $this->assertTrue(in_array($described['TABLE_TYPE'], array('VIEW','BASE TABLE')));
+        $this->assertEquals($described['TABLE_NAME'], 't');
+        $this->assertEquals($described['TABLE_SCHEMA'], TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $this->assertEquals($described['TABLE_ROWS'], 0);
     }
 
     public function testGetColumnsReservedTableName()
