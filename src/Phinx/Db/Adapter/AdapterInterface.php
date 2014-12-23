@@ -51,6 +51,7 @@ interface AdapterInterface
     const PHINX_TYPE_DECIMAL        = 'decimal';
     const PHINX_TYPE_DATETIME       = 'datetime';
     const PHINX_TYPE_TIMESTAMP      = 'timestamp';
+    const PHINX_TYPE_TIMESTAMP_TZ   = 'timestamp with time zone';
     const PHINX_TYPE_TIME           = 'time';
     const PHINX_TYPE_DATE           = 'date';
     const PHINX_TYPE_BINARY         = 'binary';
