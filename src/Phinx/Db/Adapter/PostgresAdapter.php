@@ -711,6 +711,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIMESTAMP:
                 return array('name' => 'timestamp');
+            case static::PHINX_TYPE_TIMESTAMP_TZ:
+                return array('name' => 'timestamp with time zone');
             case static::PHINX_TYPE_BINARY:
                 return array('name' => 'bytea');
             // Geospatial database types
@@ -777,9 +779,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return static::PHINX_TYPE_DATE;
             case 'timestamp':
             case 'timestamptz':
-            case 'timestamp with time zone':
             case 'timestamp without time zone':
                 return static::PHINX_TYPE_DATETIME;
+            case 'timestamp with time zone':
+                return static::PHINX_TYPE_TIMESTAMP_TZ;
             case 'bool':
             case 'boolean':
                 return static::PHINX_TYPE_BOOLEAN;
@@ -1076,7 +1079,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('json', 'uuid'));
+        return array_merge(parent::getColumnTypes(), array('json', 'uuid', 'timestamp with time zone'));
     }
 
     /**
