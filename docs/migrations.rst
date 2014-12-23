@@ -414,7 +414,7 @@ Column types are specified as strings and can be one of:
 -  binary
 -  boolean
 
-In addition, the Postgres adapter supports a ``json`` column type
+In addition, the Postgres adapter supports ``json`` and ``uuid`` column types
 (PostgreSQL 9.3 and above).
 
 Determining Whether a Table Exists
