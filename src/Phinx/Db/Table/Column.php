@@ -95,6 +95,11 @@ class Column
     protected $signed = true;
 
     /**
+     * @var boolean
+     */
+    protected $timezone = false;
+
+    /**
      * @var array
      */
     protected $properties = array();
@@ -394,6 +399,39 @@ class Column
     }
 
     /**
+     * Sets whether the field should have a timezone identifier.
+     * Used for date/time columns only!
+     *
+     * @param bool $timezone
+     * @return Column
+     */
+    public function setTimezone($timezone)
+    {
+        $this->timezone = (bool) $timezone;
+        return $this;
+    }
+
+    /**
+     * Gets whether field has a timezone identifier.
+     *
+     * @return boolean
+     */
+    public function getTimezone()
+    {
+        return $this->timezone;
+    }
+
+    /**
+     * Should the column have a timezone?
+     *
+     * @return boolean
+     */
+    public function isTimezone()
+    {
+        return $this->getTimezone();
+    }
+
+    /**
      * Sets field properties.
      *
      * @param array $properties
@@ -433,6 +471,7 @@ class Column
             'update',
             'comment',
             'signed',
+            'timezone',
             'properties',
         );
     }
