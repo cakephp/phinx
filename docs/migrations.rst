@@ -849,12 +849,13 @@ signed enable or disable the ``unsigned`` option *(only applies to MySQL)*
 
 For ``timestamp`` columns:
 
-======= ===========
-Option  Description
-======= ===========
-default set default value (use with ``CURRENT_TIMESTAMP``)
-update  set an action to be triggered when the row is updated (use with ``CURRENT_TIMESTAMP``)
-======= ===========
+======== ===========
+Option   Description
+======== ===========
+default  set default value (use with ``CURRENT_TIMESTAMP``)
+update   set an action to be triggered when the row is updated (use with ``CURRENT_TIMESTAMP``)
+timezone enable or disable the ``with time zone`` option for ``time`` and ``timestamp`` columns *(only applies to Postgres)*
+======== ===========
 
 For foreign key definitions:
 
