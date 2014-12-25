@@ -31,5 +31,10 @@
             "Phinx": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-0": {
+            "Test\\Phinx": "tests/"
+        }
+    },
     "bin": ["bin/phinx"]
 }
