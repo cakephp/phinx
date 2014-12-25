@@ -23,18 +23,23 @@
  * IN THE SOFTWARE.
  */
 
-if (!defined('PHINX_VERSION')) {
-    define('PHINX_VERSION', (0 === strpos('@PHINX_VERSION@', '@PHINX_VERSION')) ? '0.4.1' : '@PHINX_VERSION@');
-}
 
-$autoloader = require __DIR__ . '/../src/composer_autoloader.php';
-
-if (!$autoloader()) {
-    die(
-      'You need to set up the project dependencies using the following commands:' . PHP_EOL .
-      'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
-      'php composer.phar install' . PHP_EOL
+/**
+ * Attempts to load Composer's autoload.php as either a dependency or a
+ * stand-alone package.
+ *
+ * @return boolean
+ */
+return function () {
+    $files = array(
+      __DIR__ . '/../../../autoload.php',  // composer dependency
+      __DIR__ . '/../vendor/autoload.php', // stand-alone package
     );
-}
-
-return new Phinx\Console\PhinxApplication(PHINX_VERSION);
+    foreach ($files as $file) {
+        if (is_file($file)) {
+            require_once $file;
+            return true;
+        }
+    }
+    return false;
+};
