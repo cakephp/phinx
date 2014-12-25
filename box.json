@@ -5,7 +5,7 @@
         "Herrera\\Box\\Compactor\\Json",
         "Herrera\\Box\\Compactor\\Php"
     ],
-    "directories": ["src"],
+    "directories": ["src","app"],
     "files": [
         "LICENSE"
     ],
