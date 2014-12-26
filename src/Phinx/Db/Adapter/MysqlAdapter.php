@@ -328,9 +328,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $phinxType = $this->getPhinxType($columnInfo['Type']);
             $column = new Column();
             $column->setName($columnInfo['Field'])
-                   ->setType($phinxType['name'])
                    ->setNull($columnInfo['Null'] != 'NO')
                    ->setDefault($columnInfo['Default'])
+                   ->setType($phinxType['name'])
                    ->setLimit($phinxType['limit']);
 
             if ($columnInfo['Extra'] == 'auto_increment') {
