@@ -325,7 +325,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $columns = array();
         $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $columnInfo) {
+
             $phinxType = $this->getPhinxType($columnInfo['Type']);
+
             $column = new Column();
             $column->setName($columnInfo['Field'])
                    ->setNull($columnInfo['Null'] != 'NO')
