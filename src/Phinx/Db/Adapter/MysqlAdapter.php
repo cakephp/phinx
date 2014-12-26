@@ -325,14 +325,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $columns = array();
         $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $columnInfo) {
+            $phinxType = $this->getPhinxType($columnInfo['Type']);
             $column = new Column();
             $column->setName($columnInfo['Field'])
-                   ->setType($columnInfo['Type'])
+                   ->setType($phinxType['name'])
                    ->setNull($columnInfo['Null'] != 'NO')
-                   ->setDefault($columnInfo['Default']);
-
-            $phinxType = $this->getPhinxType($columnInfo['Type']);
-            $column->setType($phinxType['name'])
+                   ->setDefault($columnInfo['Default'])
                    ->setLimit($phinxType['limit']);
 
             if ($columnInfo['Extra'] == 'auto_increment') {
