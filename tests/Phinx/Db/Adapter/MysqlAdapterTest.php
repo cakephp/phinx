@@ -885,7 +885,6 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getPhinxType('text(1024)'));
     }
 
-
     public function testPhinxTypeExistsWithLimitNull()
     {
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_STRING, 'limit' => null, 'precision' => null),
@@ -900,4 +899,15 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getPhinxType('tinyint(1)'));
     }
 
+    public function testPhinxTypeNotValidType()
+    {
+        $this->setExpectedException('\RuntimeException', 'The type: "fake" is not supported.');
+        $this->adapter->getPhinxType('fake');
+    }
+
+    public function testPhinxTypeNotValidTypeRegex()
+    {
+        $this->setExpectedException('\RuntimeException', 'Column type ?int? is not supported');
+        $this->adapter->getPhinxType('?int?');
+    }
 }
