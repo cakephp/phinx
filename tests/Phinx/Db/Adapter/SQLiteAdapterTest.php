@@ -482,4 +482,16 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertRegExp('/\/\* Comments from "column1" \*\//', $sql);
     }
+
+    public function testPhinxTypeNotValidType()
+    {
+        $this->setExpectedException('\RuntimeException','The type: "fake" is not supported.');
+        $this->adapter->getPhinxType('fake');
+    }
+
+    public function testPhinxTypeNotValidTypeRegex()
+    {
+        $this->setExpectedException('\RuntimeException','Column type ?int? is not supported');
+        $this->adapter->getPhinxType('?int?');
+    }
 }
