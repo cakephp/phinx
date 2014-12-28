@@ -900,6 +900,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getPhinxType('tinyint(1)'));
     }
 
+
     public function testPhinxTypeNotValidType()
     {
         $this->setExpectedException('\RuntimeException','The type: "fake" is not supported.');
