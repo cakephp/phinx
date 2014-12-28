@@ -82,11 +82,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
 
             $this->setConnection($db);
-
-            // Create the schema table if it doesn't already exist
-            if (!$this->hasSchemaTable()) {
-                $this->createSchemaTable();
-            }
         }
     }
 
