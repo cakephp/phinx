@@ -258,4 +258,27 @@ abstract class AbstractCommand extends Command
             $this->setManager($manager);
         }
     }
+
+    /**
+     * Verify that the migration directory exists and is writable.
+     *
+     * @throws InvalidArgumentException
+     * @return void
+     */
+    protected function verifyMigrationDirectory($path)
+    {
+        if (!is_dir($path)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Migration directory "%s" does not exist',
+                $path
+            ));
+        }
+
+        if (!is_writeable($path)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Migration directory "%s" is not writeable',
+                $path
+            ));
+        }
+    }
 }
