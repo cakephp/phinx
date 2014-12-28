@@ -75,18 +75,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
 
             $this->setConnection($db);
-
-            // Create the public/custom schema if it doesn't already exist
-            if (false === $this->hasSchema($this->getSchemaName())) {
-                $this->createSchema($this->getSchemaName());
-            }
-
-            $this->fetchAll(sprintf('SET search_path TO %s', $this->getSchemaName()));
-
-            // Create the schema table if it doesn't already exist
-            if (!$this->hasSchemaTable()) {
-                $this->createSchemaTable();
-            }
         }
     }
 
@@ -960,18 +948,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createSchemaTable()
     {
-        try {
-            $options = array(
-                'id' => false
-            );
-            $table = new \Phinx\Db\Table($this->getSchemaTableName(), $options, $this);
-            $table->addColumn('version', 'biginteger')
-                  ->addColumn('start_time', 'timestamp')
-                  ->addColumn('end_time', 'timestamp')
-                  ->save();
-        } catch(\Exception $exception) {
-            throw new \InvalidArgumentException('There was a problem creating the schema table');
+        // Create the public/custom schema if it doesn't already exist
+        if (false === $this->hasSchema($this->getSchemaName())) {
+            $this->createSchema($this->getSchemaName());
         }
+
+        $this->fetchAll(sprintf('SET search_path TO %s', $this->getSchemaName()));
+
+        return parent::createSchemaTable();
     }
 
      /**

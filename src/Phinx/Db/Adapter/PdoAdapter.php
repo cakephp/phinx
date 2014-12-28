@@ -162,6 +162,12 @@ abstract class PdoAdapter implements AdapterInterface
     public function setConnection(\PDO $connection)
     {
         $this->connection = $connection;
+
+        // Create the schema table if it doesn't already exist
+        if (!$this->hasSchemaTable()) {
+            $this->createSchemaTable();
+        }
+
         return $this;
     }
 
@@ -375,7 +381,7 @@ abstract class PdoAdapter implements AdapterInterface
             );
 
             $table = new Table($this->getSchemaTableName(), $options, $this);
-            $table->addColumn('version', 'biginteger', array('limit' => 14))
+            $table->addColumn('version', 'biginteger')
                   ->addColumn('start_time', 'timestamp')
                   ->addColumn('end_time', 'timestamp')
                   ->save();
