@@ -803,6 +803,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     if ($limit == 255) {
                         $limit = null;
                     }
+                    break;
                 case 'int':
                     $type = static::PHINX_TYPE_INTEGER;
                     if ($limit == 11) {
@@ -820,7 +821,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     break;
             }
             if ($type == 'tinyint') {
-                if ($matches[3] == 1) {
+                if ($limit == 1) {
                     $type = static::PHINX_TYPE_BOOLEAN;
                     $limit = null;
                 }
