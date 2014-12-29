@@ -51,12 +51,27 @@ class PhinxApplication extends Application
     {
         parent::__construct('Phinx by Rob Morgan - https://phinx.org.', $version);
 
-        $this->add(new Command\Init());
-        $this->add(new Command\Create());
-        $this->add(new Command\Migrate());
-        $this->add(new Command\Rollback());
-        $this->add(new Command\Status());
-        $this->add(new Command\Test());
+        foreach ($this->getApplicationCommands() as $command) {
+            $this->add($command);
+        }
+    }
+
+    /**
+     * Get the default commands that should be added to the application.
+     *
+     * @return array
+     */
+    protected function getApplicationCommands()
+    {
+        return array(
+            // array is associative to allow for easier overloading
+            'init'     => new Command\Init(),
+            'create'   => new Command\Create(),
+            'migrate'  => new Command\Migrate(),
+            'rollback' => new Command\Rollback(),
+            'status'   => new Command\Status(),
+            'test'     => new Command\Test(),
+        );
     }
 
     /**
