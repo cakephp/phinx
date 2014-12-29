@@ -239,15 +239,18 @@ class Config implements ConfigInterface
     /**
      * Gets the base class name for migrations.
      *
+     * @param boolean $dropNamespace Return the base migration class name without the namespace.
      * @return string
      */
-    public function getMigrationBaseClassName()
+    public function getMigrationBaseClassName($dropNamespace = true)
     {
         if (!isset($this->values['migration_base_class'])) {
-            return 'AbstractMigration';
+            $className = 'Phinx\Migration\AbstractMigration';
+        } else {
+            $className = $this->values['migration_base_class'];
         }
 
-        return $this->values['migration_base_class'];
+        return $dropNamespace ? basename(str_replace('\\', DIRECTORY_SEPARATOR, $className)) : $className;
     }
 
     /**
