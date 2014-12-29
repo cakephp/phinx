@@ -51,9 +51,7 @@ class PhinxApplication extends Application
     {
         parent::__construct('Phinx by Rob Morgan - https://phinx.org.', $version);
 
-        foreach ($this->getApplicationCommands() as $command) {
-            $this->add($command);
-        }
+        $this->addCommands($this->getApplicationCommands());
     }
 
     /**
