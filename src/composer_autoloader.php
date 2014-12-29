@@ -22,26 +22,24 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-use Symfony\Component\ClassLoader\UniversalClassLoader;
 
-if (is_dir(__DIR__ . '/../../vendor/symfony')) {
-    $symfonyDir  = __DIR__ . '/../../vendor/symfony/';
-    require __DIR__ . '/../../vendor/autoload.php';
-} else {
-    $symfonyDir = "@@PHP_DIR@@";
-    require_once 'Symfony/Component/ClassLoader/UniversalClassLoader.php';
-}
 
-$loader = new UniversalClassLoader();
-$loader->registerNamespaces(array(
-    'Phinx' => __DIR__ . '/../',
-));
-
-$loader->registerNamespaces(array(
-    'Symfony\Component\ClassLoader'         => $symfonyDir,
-    'Symfony\Component\Config'              => $symfonyDir,
-    'Symfony\Component\Console'             => $symfonyDir,
-    'Symfony\Component\Yaml'                => $symfonyDir
-));
-
-$loader->register();
+/**
+ * Attempts to load Composer's autoload.php as either a dependency or a
+ * stand-alone package.
+ *
+ * @return boolean
+ */
+return function () {
+    $files = array(
+      __DIR__ . '/../../../autoload.php',  // composer dependency
+      __DIR__ . '/../vendor/autoload.php', // stand-alone package
+    );
+    foreach ($files as $file) {
+        if (is_file($file)) {
+            require_once $file;
+            return true;
+        }
+    }
+    return false;
+};
