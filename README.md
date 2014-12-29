@@ -43,7 +43,7 @@ The fastest way to install Phinx in your project is using Composer (http://getco
     curl -s https://getcomposer.org/installer | php
     ```
     
-1. Add Phinx as a dependency to your `composer.json` 
+1. Require Phinx as a dependency using Composer: 
 
     ```
     php composer.phar require robmorgan/phinx
