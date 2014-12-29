@@ -245,10 +245,12 @@ class Config implements ConfigInterface
     public function getMigrationBaseClassName($dropNamespace = true)
     {
         if (!isset($this->values['migration_base_class'])) {
-            return 'Phinx\Migration\AbstractMigration';
+            $className = 'Phinx\Migration\AbstractMigration';
+        } else {
+            $className = $this->values['migration_base_class'];
         }
 
-        return $dropNamespace ? basename(str_replace('\\', DIRECTORY_SEPARATOR, $this->values['migration_base_class'])) : $this->values['migration_base_class'];
+        return $dropNamespace ? basename(str_replace('\\', DIRECTORY_SEPARATOR, $className)) : $className;
     }
 
     /**
