@@ -43,7 +43,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
     protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
 
-    const TEXT_SMALL   = 255;
+    const TEXT_TINY    = 255;
+    const TEXT_SMALL   = 255; /* deprecated, alias of TEXT_TINY */
     const TEXT_REGULAR = 65535;
     const TEXT_MEDIUM  = 16777215;
     const TEXT_LONG    = 4294967295;
@@ -717,16 +718,21 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'char', 'limit' => 255);
                 break;
             case static::PHINX_TYPE_TEXT:
+                if ($limit) {
+                    $sizes = array(
+                        // Order matters! Size must always be tested from longest to shortest!
+                        'longtext'   => static::TEXT_LONG,
+                        'mediumtext' => static::TEXT_MEDIUM,
+                        'text'       => static::TEXT_REGULAR,
+                        'tinytext'   => static::TEXT_SMALL,
+                    );
+                    foreach ($sizes as $name => $length) {
+                        if ($limit >= $length) {
+                            return array('name' => $name);
+                        }
+                    }
+                }
                 return array('name' => 'text');
-                break;
-            case static::PHINX_TYPE_TINYTEXT:
-                return array('name' => 'tinytext');
-                break;
-            case static::PHINX_TYPE_MEDIUMTEXT:
-                return array('name' => 'mediumtext');
-                break;
-            case static::PHINX_TYPE_LONGTEXT:
-                return array('name' => 'longtext');
                 break;
             case static::PHINX_TYPE_INTEGER:
                 return array('name' => 'int', 'limit' => 11);
@@ -827,9 +833,21 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 case 'blob':
                     $type = static::PHINX_TYPE_BINARY;
                     break;
+                case 'tinytext':
+                    $type  = static::PHINX_TYPE_TEXT;
+                    $limit = static::TEXT_TINY;
+                    break;
+                case 'mediumtext':
+                    $type  = static::PHINX_TYPE_TEXT;
+                    $limit = static::TEXT_MEDIUM;
+                    break;
+                case 'longtext':
+                    $type  = static::PHINX_TYPE_TEXT;
+                    $limit = static::TEXT_LONG;
+                    break;
             }
 
-            $this->getSqlType($type);
+            $this->getSqlType($type, $limit);
 
             return array(
                 'name' => $type,
@@ -896,22 +914,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getColumnSqlDefinition(Column $column)
     {
-        $sqlType = $this->getSqlType($column->getType());
-
-        // Additional check if a limit along
-        if (strtoupper($sqlType['name']) === 'TEXT' && $column->getLimit()) {
-            $sqlType['name'] = $this->classifyTextColumn($column);
-            // Remove the limit since MySQL does't like limit to be specified with a TEXT Type column
-            $column->setLimit(null);
-        }
+        $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
 
         $def = '';
         $def .= strtoupper($sqlType['name']);
         if ($column->getPrecision() && $column->getScale()) {
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
+        } elseif (isset($sqlType['limit'])) {
+            $def .= '(' . $sqlType['limit'] . ')';
         }
-        $def .= ($column->getLimit() || isset($sqlType['limit']))
-                     ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
@@ -1003,35 +1014,5 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         );
 
         return $this->fetchRow($sql);
-    }
-
-    /**
-     * Returns the approprite type of text column based on the limit specified
-     * on the column. Assumes the column is of "text" type.
-     *
-     * @param Column $column
-     * @return string
-     */
-    protected function classifyTextColumn(Column $column)
-    {
-        $limit = $column->getLimit();
-        $sizes = array(
-            // Order matters! Size must always be tested from longest to shortest!
-            'longtext'   => static::TEXT_LONG,
-            'mediumtext' => static::TEXT_MEDIUM,
-            'text'       => static::TEXT_REGULAR,
-            'tinytext'   => static::TEXT_SMALL,
-        );
-
-        foreach ($sizes as $name => $length) {
-            if ($limit >= $length) {
-                return $name;
-            }
-        }
-
-        throw new \LogicException(
-            'Unable to determine size of MySQL text column. ' .
-            'This should never happen.'
-        );
     }
 }
