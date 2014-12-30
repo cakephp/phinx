@@ -712,10 +712,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         switch ($type) {
             case static::PHINX_TYPE_STRING:
-                return array('name' => 'varchar', 'limit' => 255);
+                return array('name' => 'varchar', 'limit' => $limit ? $limit : 255);
                 break;
             case static::PHINX_TYPE_CHAR:
-                return array('name' => 'char', 'limit' => 255);
+                return array('name' => 'char', 'limit' => $limit ? $limit : 255);
                 break;
             case static::PHINX_TYPE_TEXT:
                 if ($limit) {
@@ -735,6 +735,29 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'text');
                 break;
             case static::PHINX_TYPE_INTEGER:
+                if ($limit && $limit >= static::INT_TINY) {
+                    $sizes = array(
+                        // Order matters! Size must always be tested from longest to shortest!
+                        'bigint'    => static::INT_BIG,
+                        'int'       => static::INT_REGULAR,
+                        'mediumint' => static::INT_MEDIUM,
+                        'smallint'  => static::INT_SMALL,
+                        'tinyint'   => static::INT_TINY,
+                    );
+                    $limits = array(
+                        'int'    => 11,
+                        'bigint' => 20,
+                    );
+                    foreach ($sizes as $name => $length) {
+                        if ($limit >= $length) {
+                            $def = array('name' => $name);
+                            if (isset($limits[$name])) {
+                                $def['limit'] = $limits[$name];
+                            }
+                            return $def;
+                        }
+                    }
+                }
                 return array('name' => 'int', 'limit' => 11);
                 break;
             case static::PHINX_TYPE_BIG_INTEGER:
@@ -816,8 +839,17 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     }
                     break;
                 case 'tinyint':
+                    $type  = static::PHINX_TYPE_INTEGER;
+                    $limit = static::INT_TINY;
+                    break;
                 case 'smallint':
+                    $type  = static::PHINX_TYPE_INTEGER;
+                    $limit = static::INT_SMALL;
+                    break;
                 case 'mediumint':
+                    $type  = static::PHINX_TYPE_INTEGER;
+                    $limit = static::INT_MEDIUM;
+                    break;
                 case 'int':
                     $type = static::PHINX_TYPE_INTEGER;
                     if ($limit === 11) {

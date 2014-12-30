@@ -505,6 +505,46 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(MysqlAdapter::TEXT_TINY, $columns[1]->getLimit());
     }
 
+    public function testBigIntegerColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'integer', array('limit' => MysqlAdapter::INT_BIG))
+              ->save();
+        $columns = $table->getColumns('t');
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('bigint', $sqlType['name']);
+    }
+
+    public function testMediumIntegerColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'integer', array('limit' => MysqlAdapter::INT_MEDIUM))
+              ->save();
+        $columns = $table->getColumns('t');
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('mediumint', $sqlType['name']);
+    }
+
+    public function testSmallIntegerColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'integer', array('limit' => MysqlAdapter::INT_SMALL))
+              ->save();
+        $columns = $table->getColumns('t');
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('smallint', $sqlType['name']);
+    }
+
+    public function testTinyIntegerColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'integer', array('limit' => MysqlAdapter::INT_TINY))
+              ->save();
+        $columns = $table->getColumns('t');
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('tinyint', $sqlType['name']);
+    }
+
     public function testDropColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
