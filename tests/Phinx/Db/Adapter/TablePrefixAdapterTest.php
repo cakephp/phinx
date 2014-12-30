@@ -251,7 +251,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
         $table
             ->addColumn('bar', 'string')
             ->addColumn('relation', 'integer')
-            ->addForeignKey('relation', 'target_table', ['id']);
+            ->addForeignKey('relation', 'target_table', array('id'));
 
         $mock->expects($this->once())
             ->method('createTable')
