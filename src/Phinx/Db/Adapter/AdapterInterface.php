@@ -379,10 +379,11 @@ interface AdapterInterface
     /**
      * Converts the Phinx logical type to the adapter's SQL type.
      *
-     * @param string $type Type
+     * @param string $type
+     * @param integer $limit
      * @return string
      */
-    public function getSqlType($type);
+    public function getSqlType($type, $limit = null);
 
     /**
      * Creates a new database.
