@@ -237,4 +237,43 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
         
         $this->adapter->dropForeignKey('table', $columns, $constraint);
     }
+
+    public function testAddTableWithForeignKey()
+    {
+        $mock = $this->getMockAdapter();
+        $mock
+            ->expects($this->any())
+            ->method('getColumnTypes')
+            ->will($this->returnValue(array('integer', 'string')));
+        $this->adapter->setAdapter($mock);
+
+        $table = new Table('table', array(), $this->adapter);
+        $table
+            ->addColumn('bar', 'string')
+            ->addColumn('relation', 'integer')
+            ->addForeignKey('relation', 'target_table', ['id']);
+
+        $mock->expects($this->once())
+            ->method('createTable')
+            ->with($this->callback(function($table) {
+                if ($table->getName() !== 'pre_table_suf') {
+                    throw new \Exception(sprintf('Table::getName was not prefixed/suffixed properly: "%s"', $table->getName()));
+                }
+                $fks = $table->getForeignKeys();
+                if (count($fks) !== 1) {
+                    throw new \Exception(sprintf('Table::getForeignKeys count was incorrect: %d', count($fks)));
+                }
+                foreach ($fks as $fk) {
+                    if ($fk->getReferencedTable()->getName() !== 'pre_target_table_suf') {
+                        throw new \Exception(sprintf(
+                            'ForeignKey::getReferencedTable was not prefixed/suffixed properly: "%s"',
+                            $fk->getReferencedTable->getName()
+                        ));
+                    }
+                }
+                return true;
+            }));
+
+        $table->create();
+    }
 }

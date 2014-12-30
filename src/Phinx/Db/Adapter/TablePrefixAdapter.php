@@ -297,6 +297,13 @@ class TablePrefixAdapter implements AdapterInterface
         $adapterTable = clone $table;
         $adapterTableName = $this->getAdapterTableName($table->getName());
         $adapterTable->setName($adapterTableName);
+
+        foreach ($adapterTable->getForeignKeys() as $fk) {
+            $adapterReferenceTable = $fk->getReferencedTable();
+            $adapterReferenceTableName = $this->getAdapterTableName($adapterReferenceTable->getName());
+            $adapterReferenceTable->setName($adapterReferenceTableName);
+        }
+
         $this->getAdapter()->createTable($adapterTable);
     }
     
