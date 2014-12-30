@@ -787,32 +787,39 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $precision = null;
             $type = $matches[1];
             if (count($matches) > 2) {
-                $limit = $matches[3] ? $matches[3] : null;
+                $limit = $matches[3] ? (int) $matches[3] : null;
             }
             if (count($matches) > 4) {
-                $precision = $matches[5];
+                $precision = (int) $matches[5];
             }
-            switch ($matches[1]) {
+            if ($type === 'tinyint' && $limit === 1) {
+                $type = static::PHINX_TYPE_BOOLEAN;
+                $limit = null;
+            }
+            switch ($type) {
                 case 'varchar':
                     $type = static::PHINX_TYPE_STRING;
-                    if ($limit == 255) {
+                    if ($limit === 255) {
                         $limit = null;
                     }
                     break;
                 case 'char':
                     $type = static::PHINX_TYPE_CHAR;
-                    if ($limit == 255) {
+                    if ($limit === 255) {
                         $limit = null;
                     }
                     break;
+                case 'tinyint':
+                case 'smallint':
+                case 'mediumint':
                 case 'int':
                     $type = static::PHINX_TYPE_INTEGER;
-                    if ($limit == 11) {
+                    if ($limit === 11) {
                         $limit = null;
                     }
                     break;
                 case 'bigint':
-                    if ($limit == 20) {
+                    if ($limit === 20) {
                         $limit = null;
                     }
                     $type = static::PHINX_TYPE_BIG_INTEGER;
@@ -820,12 +827,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 case 'blob':
                     $type = static::PHINX_TYPE_BINARY;
                     break;
-            }
-            if ($type == 'tinyint') {
-                if ($limit == 1) {
-                    $type = static::PHINX_TYPE_BOOLEAN;
-                    $limit = null;
-                }
             }
 
             $this->getSqlType($type);
@@ -1004,11 +1005,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         return $this->fetchRow($sql);
     }
 
-
     /**
-     * Returns the approprite type of text column based on the limit
-     * specified on the column
-     * @param Column $column The column to perform the check. Assumes the column type is text and limit is specified
+     * Returns the approprite type of text column based on the limit specified
+     * on the column. Assumes the column is of "text" type.
+     *
+     * @param Column $column
      * @return string
      */
     protected function classifyTextColumn(Column $column)
