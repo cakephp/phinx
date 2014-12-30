@@ -48,6 +48,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     const TEXT_MEDIUM  = 16777215;
     const TEXT_LONG    = 4294967295;
 
+    const INT_TINY    = 255;
+    const INT_SMALL   = 65535;
+    const INT_MEDIUM  = 16777215;
+    const INT_REGULAR = 4294967295;
+    const INT_BIG     = 18446744073709551615;
+
     /**
      * {@inheritdoc}
      */
