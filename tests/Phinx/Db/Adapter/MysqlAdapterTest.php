@@ -481,8 +481,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_LONG))
               ->save();
         $columns = $table->getColumns('t');
-        $this->assertEquals('text', $columns[1]->getType());
-        $this->assertEquals(MysqlAdapter::TEXT_LONG, $columns[1]->getLimit());
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('longtext', $sqlType['name']);
     }
 
     public function testMediumTextColumn()
@@ -491,8 +491,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_MEDIUM))
               ->save();
         $columns = $table->getColumns('t');
-        $this->assertEquals('text', $columns[1]->getType());
-        $this->assertEquals(MysqlAdapter::TEXT_MEDIUM, $columns[1]->getLimit());
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('mediumtext', $sqlType['name']);
     }
 
     public function testTinyTextColumn()
@@ -501,8 +501,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_TINY))
               ->save();
         $columns = $table->getColumns('t');
-        $this->assertEquals('text', $columns[1]->getType());
-        $this->assertEquals(MysqlAdapter::TEXT_TINY, $columns[1]->getLimit());
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('tinytext', $sqlType['name']);
     }
 
     public function testBigIntegerColumn()
