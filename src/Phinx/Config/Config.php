@@ -224,16 +224,7 @@ class Config implements ConfigInterface
             throw new \UnexpectedValueException('Migrations path missing from config file');
         }
 
-        $path = realpath($this->values['paths']['migrations']);
-
-        if ($path === false) {
-            throw new \UnexpectedValueException(sprintf(
-                'Migrations directory "%s" does not exist',
-                $this->values['paths']['migrations']
-            ));
-        }
-
-        return $path;
+        return $this->values['paths']['migrations'];
     }
 
     /**

@@ -31,7 +31,9 @@ namespace Phinx\Console\Command;
 use Phinx\Migration\Util;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class Create extends AbstractCommand
 {
@@ -53,6 +55,17 @@ class Create extends AbstractCommand
     }
 
     /**
+     * Get the confirmation question asking if the user wants to create the
+     * migrations directory.
+     *
+     * @return ConfirmationQuestion
+     */
+    protected function getCreateMigrationDirectoryQuestion()
+    {
+        return new ConfirmationQuestion('Create migrations directory? [y]/n ', true);
+    }
+
+    /**
      * Migrate the database.
      *
      * @param InputInterface $input
@@ -68,12 +81,16 @@ class Create extends AbstractCommand
         // get the migration path from the config
         $path = $this->getConfig()->getMigrationPath();
 
-        if (!is_writeable($path)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The directory "%s" is not writeable',
-                $path
-            ));
+        if (!file_exists($path)) {
+            $helper   = $this->getHelper('question');
+            $question = $this->getCreateMigrationDirectoryQuestion();
+
+            if ($helper->ask($input, $output, $question)) {
+                mkdir($path, 0755, true);
+            }
         }
+
+        $this->verifyMigrationDirectory($path);
 
         $path = realpath($path);
         $className = $input->getArgument('name');
