@@ -50,14 +50,9 @@ class TablePrefixAdapter implements AdapterInterface
     protected $adapter;
 
     /**
-     * @var OutputInterface
-     */
-    protected $output;
-
-    /**
      * @var array
      */
-    protected $commands;
+    protected $options;
 
     /**
      * Class Constructor.
