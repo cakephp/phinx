@@ -132,7 +132,7 @@ class Environment
             if ($direction == MigrationInterface::DOWN) {
                 // Create an instance of the ProxyAdapter so we can record all
                 // of the migration commands for reverse playback
-                $proxyAdapter = new ProxyAdapter($this->getAdapter(), $this->getOutput());
+                $proxyAdapter = new ProxyAdapter($this->getAdapter());
                 $migration->setAdapter($proxyAdapter);
                 /** @noinspection PhpUndefinedMethodInspection */
                 $migration->change();
@@ -309,7 +309,7 @@ class Environment
         
         // Use the TablePrefixAdapter if table prefix/suffixes are in use
         if (isset($this->options['table_prefix']) || isset($this->options['table_suffix'])) {
-            $adapter = new TablePrefixAdapter($this->options, $adapter);
+            $adapter = new TablePrefixAdapter($adapter);
         }
         
         return $this->adapter = $adapter;
