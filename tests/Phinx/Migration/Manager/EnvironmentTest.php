@@ -2,8 +2,8 @@
 
 namespace Test\Phinx\Migration\Manager;
 
-use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Migration\Manager\Environment;
+use Phinx\Migration\MigrationInterface;
 
 class EnvironmentTest extends \PHPUnit_Framework_TestCase
 {
@@ -38,7 +38,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Invalid adapter specified: fakeadapter
+     * @expectedExceptionMessage Adapter "fakeadapter" has not been registered
      */
     public function testInvalidAdapter()
     {
@@ -57,10 +57,10 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     public function testTablePrefixAdapter()
     {
         $this->environment->setOptions(array('table_prefix' => 'tbl_', 'adapter' => 'mysql'));
-        $this->assertTrue($this->environment->getAdapter() instanceof \Phinx\Db\Adapter\TablePrefixAdapter);
+        $this->assertInstanceOf('Phinx\Db\Adapter\TablePrefixAdapter', $this->environment->getAdapter());
         
         $tablePrefixAdapter = $this->environment->getAdapter();
-        $this->assertTrue($tablePrefixAdapter->getAdapter() instanceof \Phinx\Db\Adapter\MysqlAdapter);
+        $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $tablePrefixAdapter->getAdapter());
     }
 
     public function testSchemaName()
@@ -69,18 +69,6 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         $this->environment->setSchemaTableName('changelog');
         $this->assertEquals('changelog', $this->environment->getSchemaTableName());
-    }
-
-    public function testAdapterFactoryCreatesMysqlAdapter()
-    {
-        $this->environment->setOptions(array('adapter' => 'mysql'));
-        $this->assertTrue($this->environment->getAdapter() instanceof \Phinx\Db\Adapter\MysqlAdapter);
-    }
-
-    public function testAdapterFactoryCreatesSqliteAdapter()
-    {
-        $this->environment->setOptions(array('adapter' => 'sqlite'));
-        $this->assertTrue($this->environment->getAdapter() instanceof \Phinx\Db\Adapter\SQLiteAdapter);
     }
 
     public function testCurrentVersion()
@@ -110,7 +98,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $upMigration->expects($this->once())
                     ->method('up');
 
-        $this->environment->executeMigration($upMigration, \Phinx\Migration\MigrationInterface::UP);
+        $this->environment->executeMigration($upMigration, MigrationInterface::UP);
     }
 
     public function testExecutingAMigrationDown()
@@ -128,7 +116,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $downMigration->expects($this->once())
                       ->method('down');
 
-        $this->environment->executeMigration($downMigration, \Phinx\Migration\MigrationInterface::DOWN);
+        $this->environment->executeMigration($downMigration, MigrationInterface::DOWN);
     }
 
     public function testExecutingAMigrationWithTransactions()
@@ -152,7 +140,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $migration->expects($this->once())
                   ->method('up');
 
-        $this->environment->executeMigration($migration, \Phinx\Migration\MigrationInterface::UP);
+        $this->environment->executeMigration($migration, MigrationInterface::UP);
     }
 
     public function testExecutingAChangeMigrationUp()
@@ -170,7 +158,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $migration->expects($this->once())
                   ->method('change');
 
-        $this->environment->executeMigration($migration, \Phinx\Migration\MigrationInterface::UP);
+        $this->environment->executeMigration($migration, MigrationInterface::UP);
     }
 
     public function testExecutingAChangeMigrationDown()
@@ -188,83 +176,6 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $migration->expects($this->once())
                   ->method('change');
 
-        $this->environment->executeMigration($migration, \Phinx\Migration\MigrationInterface::DOWN);
-    }
-
-    /**
-     * Data provider for `::testAdapterRetrieval()`
-     */
-    public function goodAdapterProvider()
-    {
-        return array(
-            array(
-                'mysql',
-                'Phinx\\Db\\Adapter\\MysqlAdapter',
-            ),
-            array(
-                'pgsql',
-                'Phinx\\Db\\Adapter\\PostgresAdapter',
-            ),
-            array(
-                'sqlite',
-                'Phinx\\Db\\Adapter\\SQLiteAdapter',
-            ),
-            array(
-                'sqlsrv',
-                'Phinx\\Db\\Adapter\\SqlServerAdapter',
-            ),
-            array(
-                'custom',
-                'Phinx\\Db\\Adapter\\MysqlAdapter', //Using Mysql adapter in place of a 'custom' adapter.
-            ),
-        );
-    }
-
-    /**
-     * @dataProvider goodAdapterProvider
-     */
-    public function testAdapterFactories($adapterName, $adapterClass)
-    {
-        $env = new Environment('test-'.$adapterName, array());
-        $env->registerAdapter('custom', function (Environment $env) {
-            return new MysqlAdapter($env->getOptions(), $env->getOutput());
-        });
-        $env->setOptions(array('adapter' => $adapterName));
-        $this->assertInstanceOf($adapterClass, $env->getAdapter(), 'Expected adapter provided to be instance of '.$adapterClass.'.');
-    }
-
-    /**
-     * Data provider for `::testBadAdapterCalls()`
-     */
-    public function badAdapterProvider()
-    {
-        return array(
-            array(
-                'not-set',
-                null,
-            ),
-            array(
-                'not-callable',
-                'not callable',
-            ),
-            array(
-                'bad-adapter',
-                function(){
-                    return 'not an AdapterInterface';
-                },
-            ),
-        );
-    }
-
-    /**
-     * @dataProvider badAdapterProvider
-     * @expectedException \RuntimeException
-     */
-    public function testBadAdapterFactories($adapterName, $adapter)
-    {
-        $env = new Environment('test-'.$adapterName, array());
-        $env->registerAdapter($adapterName, $adapter);
-        $env->setOptions(array('adapter' => $adapterName));
-        $env->getAdapter();
+        $this->environment->executeMigration($migration, MigrationInterface::DOWN);
     }
 }
