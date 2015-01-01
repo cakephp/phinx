@@ -51,11 +51,6 @@ class ProxyAdapter implements AdapterInterface
     protected $adapter;
 
     /**
-     * @var OutputInterface
-     */
-    protected $output;
-
-    /**
      * @var array
      */
     protected $commands;
@@ -126,7 +121,7 @@ class ProxyAdapter implements AdapterInterface
      */
     public function setOutput(OutputInterface $output)
     {
-        $this->output = $output;
+        $this->adapter->setOutput($output);
         return $this;
     }
 
@@ -135,7 +130,7 @@ class ProxyAdapter implements AdapterInterface
      */
     public function getOutput()
     {
-        return $this->output;
+        return $this->adapter->getOutput($output);
     }
 
     /**
