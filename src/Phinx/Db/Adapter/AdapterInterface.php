@@ -73,6 +73,21 @@ interface AdapterInterface
     public function getVersions();
 
     /**
+     * Set adapter configuration options.
+     *
+     * @param  array $options
+     * @return AdapterInterface
+     */
+    public function setOptions(array $options);
+
+    /**
+     * Get adapter options.
+     *
+     * @return array
+     */
+    public function getOptions();
+
+    /**
      * Sets the console output.
      *
      * @param OutputInterface $output Output
