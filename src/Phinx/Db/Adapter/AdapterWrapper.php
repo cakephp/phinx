@@ -95,6 +95,22 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function hasOption($name)
+    {
+        return $this->adapter->hasOption($name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOption($name)
+    {
+        return $this->adapter->getOption($name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setOutput(OutputInterface $output)
     {
         $this->adapter->setOutput($output);

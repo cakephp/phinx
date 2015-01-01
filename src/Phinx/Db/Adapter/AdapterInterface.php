@@ -81,11 +81,27 @@ interface AdapterInterface
     public function setOptions(array $options);
 
     /**
-     * Get adapter options.
+     * Get all adapter options.
      *
      * @return array
      */
     public function getOptions();
+
+    /**
+     * Check if an option has been set.
+     *
+     * @param  string $name
+     * @return boolean
+     */
+    public function hasOption($name);
+
+    /**
+     * Get a single adapter option, or null if the option does not exist.
+     *
+     * @param  string $name
+     * @return mixed
+     */
+    public function getOption($name);
 
     /**
      * Sets the console output.

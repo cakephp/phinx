@@ -308,7 +308,7 @@ class Environment
         }
         
         // Use the TablePrefixAdapter if table prefix/suffixes are in use
-        if (isset($this->options['table_prefix']) || isset($this->options['table_suffix'])) {
+        if ($adapter->hasOption('table_prefix') || $adapter->hasOption('table_suffix')) {
             $adapter = new TablePrefixAdapter($adapter);
         }
         
