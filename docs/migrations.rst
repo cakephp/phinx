@@ -841,11 +841,12 @@ scale     combine with ``precision`` to set decimial accuracy
 
 For ``integer`` and ``biginteger`` columns:
 
-====== ===========
-Option Description
-====== ===========
-signed enable or disable the ``unsigned`` option *(only applies to MySQL)*
-====== ===========
+======== ===========
+Option   Description
+======== ===========
+identity enable or disable automatic incrementing
+signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
+======== ===========
 
 For ``timestamp`` columns:
 

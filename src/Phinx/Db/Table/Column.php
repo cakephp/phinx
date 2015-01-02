@@ -465,6 +465,7 @@ class Column
             'limit',
             'default',
             'null',
+            'identity',
             'precision',
             'scale',
             'after',
