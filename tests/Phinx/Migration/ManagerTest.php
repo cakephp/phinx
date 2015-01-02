@@ -27,6 +27,11 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager = null;
     }
 
+    private function getCorrectedPath($path)
+    {
+        return str_replace('/', DIRECTORY_SEPARATOR, $path);
+    }
+
     /**
      * Returns a sample configuration array for use with the unit tests.
      *
@@ -36,7 +41,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             'paths' => array(
-                'migrations' => __DIR__ . '/_files/migrations'
+                'migrations' => $this->getCorrectedPath(__DIR__ . '/_files/migrations'),
             ),
             'environments' => array(
                 'default_migration_table' => 'phinxlog',
@@ -82,7 +87,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         // override the migrations directory to an empty one
         $configArray = $this->getConfigArray();
-        $configArray['paths']['migrations'] = __DIR__ . '/_files/nomigrations';
+        $configArray['paths']['migrations'] = $this->getCorrectedPath(__DIR__ . '/_files/nomigrations');
         $config = new Config($configArray);
 
         $this->manager->setConfig($config);
@@ -115,9 +120,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             'InvalidArgumentException',
-            'Duplicate migration - "' . implode(DIRECTORY_SEPARATOR, array(__DIR__, '_files', 'duplicateversions', '20120111235330_duplicate_migration_2.php')) . '" has the same version as "20120111235330"'
+            'Duplicate migration - "' . $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions/20120111235330_duplicate_migration_2.php') . '" has the same version as "20120111235330"'
         );
-        $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files/duplicateversions')));
+        $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions'))));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $manager = new Manager($config, $output);
         $manager->getMigrations();
@@ -129,7 +134,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             'InvalidArgumentException',
             'Migration "20120111235331_duplicate_migration_name.php" has the same name as "20120111235330_duplicate_migration_name.php"'
         );
-        $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files/duplicatenames')));
+        $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicatenames'))));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $manager = new Manager($config, $output);
         $manager->getMigrations();
@@ -139,9 +144,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             'InvalidArgumentException',
-            'Could not find class "InvalidClass" in file "' . implode(DIRECTORY_SEPARATOR, array(__DIR__, '_files', 'invalidclassname', '20120111235330_invalid_class.php')) . '"'
+            'Could not find class "InvalidClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname/20120111235330_invalid_class.php') . '"'
         );
-        $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files/invalidclassname')));
+        $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname'))));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $manager = new Manager($config, $output);
         $manager->getMigrations();
@@ -151,9 +156,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             'InvalidArgumentException',
-            'The class "InvalidSuperClass" in file "' . implode(DIRECTORY_SEPARATOR, array(__DIR__, '_files', 'invalidsuperclass', '20120111235330_invalid_super_class.php')) . '" must extend \Phinx\Migration\AbstractMigration'
+            'The class "InvalidSuperClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass/20120111235330_invalid_super_class.php') . '" must extend \Phinx\Migration\AbstractMigration'
         );
-        $config = new Config(array('paths' => array('migrations' => __DIR__ . '/_files/invalidsuperclass')));
+        $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass'))));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $manager = new Manager($config, $output);
         $manager->getMigrations();
@@ -192,7 +197,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $adapter = $this->manager->getEnvironment('production')->getAdapter();
 
         // override the migrations directory to use the reversible migrations
-        $configArray['paths']['migrations'] = __DIR__ . '/_files/reversiblemigrations';
+        $configArray['paths']['migrations'] = $this->getCorrectedPath(__DIR__ . '/_files/reversiblemigrations');
         $config = new Config($configArray);
 
         // ensure the database is empty
