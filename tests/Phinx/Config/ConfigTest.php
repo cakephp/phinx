@@ -186,4 +186,10 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $config = new \Phinx\Config\Config(array());
         $this->assertEquals('AbstractMigration', $config->getMigrationBaseClassName());
     }
+
+    public function testGetMigrationBaseClassNameGetsDefaultBaseClassWithNamespace()
+    {
+        $config = new \Phinx\Config\Config(array());
+        $this->assertEquals('Phinx\Migration\AbstractMigration', $config->getMigrationBaseClassName(false));
+    }
 }
