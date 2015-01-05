@@ -183,10 +183,9 @@ class Create extends AbstractCommand
         if (!empty($creationClassName)) {
             try {
                 $creationClass->postMigrationCreation($filePath, $className, $this->getConfig()->getMigrationBaseClassName());
-            }
-            catch(\Exception $ex){
+            } catch(\Exception $ex){
                 throw new \RuntimeException(sprintf(
-                    'Problem calling $s->postMigrationCreation(), resulting in $s',
+                    'Problem calling %s->postMigrationCreation(), resulting in %s',
                     $creationClassName,
                     $ex->getMessage()
                 ));
