@@ -135,3 +135,20 @@ In case with PHP array you can provide ``connection`` key with existing PDO inst
                     )
                 )
             );
+
+Running Phinx in a Web App
+--------------------------
+
+Phinx can also be run inside of a web application by using the ``Phinx\Wrapper\TextWrapper``
+class. An example of this is provided in ``app/web.php``, which can be run as a
+standalone server:
+
+.. code-block:: bash
+
+        $ php -S localhost:8000 vendor/robmorgan/phinx/app/web.php
+
+This will create local web server at `<http://localhost:8000>`__ which will show current
+migration status by default. To run migrations up, use `<http://localhost:8000/migrate>`__
+and to rollback use `<http://localhost:8000/rollback>`__.
+
+**The included web app is only an example and should not be used in production!**
