@@ -58,9 +58,6 @@
 
             $output = call_user_func([$wrap, 'getStatus'], $environment);
             $error  = $wrap->getExitCode() > 0;
-            if($error) {
-                return $error;
-            }
-            return $output;
+            return $error
         }
     }
