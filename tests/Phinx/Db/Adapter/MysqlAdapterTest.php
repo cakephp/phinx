@@ -481,7 +481,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_LONG))
               ->save();
         $columns = $table->getColumns('t');
-        $this->assertEquals('longtext', $columns[1]->getType());
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('longtext', $sqlType['name']);
     }
 
     public function testMediumTextColumn()
@@ -490,16 +491,58 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_MEDIUM))
               ->save();
         $columns = $table->getColumns('t');
-        $this->assertEquals('mediumtext', $columns[1]->getType());
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('mediumtext', $sqlType['name']);
     }
 
     public function testTinyTextColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-        $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_SMALL))
+        $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_TINY))
               ->save();
         $columns = $table->getColumns('t');
-        $this->assertEquals('tinytext', $columns[1]->getType());
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('tinytext', $sqlType['name']);
+    }
+
+    public function testBigIntegerColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'integer', array('limit' => MysqlAdapter::INT_BIG))
+              ->save();
+        $columns = $table->getColumns('t');
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('bigint', $sqlType['name']);
+    }
+
+    public function testMediumIntegerColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'integer', array('limit' => MysqlAdapter::INT_MEDIUM))
+              ->save();
+        $columns = $table->getColumns('t');
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('mediumint', $sqlType['name']);
+    }
+
+    public function testSmallIntegerColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'integer', array('limit' => MysqlAdapter::INT_SMALL))
+              ->save();
+        $columns = $table->getColumns('t');
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('smallint', $sqlType['name']);
+    }
+
+    public function testTinyIntegerColumn()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'integer', array('limit' => MysqlAdapter::INT_TINY))
+              ->save();
+        $columns = $table->getColumns('t');
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('tinyint', $sqlType['name']);
     }
 
     public function testDropColumn()

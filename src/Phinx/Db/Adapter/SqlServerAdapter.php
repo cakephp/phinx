@@ -828,7 +828,7 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * {@inheritdoc}
      */
-    public function getSqlType($type)
+    public function getSqlType($type, $limit = null)
     {
         switch ($type) {
             case static::PHINX_TYPE_STRING:
