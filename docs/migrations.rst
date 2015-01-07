@@ -821,7 +821,7 @@ For any column type:
 ======= ===========
 Option  Description
 ======= ===========
-limit   set maximum length for strings
+limit   set maximum length for strings, also hints column types in adapters (see note below)
 length  alias for ``limit``
 default set default value or action
 null    allow ``NULL`` values (should not be used with primary keys!)
@@ -869,6 +869,36 @@ delete set an action to be triggered when the row is deleted
 
 You can pass one or more of these options to any column with the optional
 third argument array.
+
+Limit Option and MySQL
+~~~~~~~~~~~~~~~~~~~~~~
+
+When using the MySQL adapter, additional hinting of database column type can be
+made for ``integer`` and ``text`` columns. Using ``limit`` with one the following
+options will modify the column type accordingly:
+
+============ ==============
+Limit        Column Type
+============ ==============
+TEXT_TINY    TINYTEXT
+TEXT_REGULAR TEXT
+TEXT_MEDIUM  MEDIUMTEXT
+TEXT_LONG    LONGTEXT
+INT_TINY     TINYINT
+INT_SMALL    SMALLINT
+INT_MEDIUM   MEDIUMINT
+INT_REGULAR  INT
+INT_BIG      BIGINT
+============ ==============
+
+.. code-block:: php
+
+        $table = $this->table('cart_items');
+        $table->addColumn('user_id', 'integer')
+              ->addColumn('product_id', 'integer', array('limit' => MysqlAdapter::INT_BIG))
+              ->addColumn('subtype_id', 'integer', array('limit' => MysqlAdapter::INT_SMALL))
+              ->addColumn('quantity', 'integer', array('limit' => MysqlAdapter::INT_TINY))
+              ->create();
 
 The Save Method
 ~~~~~~~~~~~~~~~
