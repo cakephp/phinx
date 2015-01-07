@@ -27,8 +27,8 @@
 namespace Phinx\Wrapper;
 
 use Phinx\Console\PhinxApplication;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 
@@ -42,17 +42,20 @@ class TextWrapper
 {
     private $app;
     private $env;
+    private $config_path;
+    private $parser;
     private $exit_code;
 
     /**
-     * @param  Phinx\Console\PhinxApplication $app
-     * @param  String                         $default_env  environment fallback, defaults to "development"
-     * @return void
+     * @param PhinxApplication $app
+     * @param array $options
      */
-    public function __construct(PhinxApplication $app, $default_env = 'development')
+    public function __construct(PhinxApplication $app, Array $options = array())
     {
         $this->app = $app;
-        $this->env = $default_env;
+        $this->env = (isset($options['environment']) ? $options['environment'] : 'development');
+        $this->config_path = (isset($options['config_path']) ? $options['config_path'] : './phinx.yml');
+        $this->parser = (isset($options['parser']) ? $options['parser'] : 'yaml');
     }
 
     /**
@@ -71,7 +74,7 @@ class TextWrapper
      */
     public function getStatus($env = null)
     {
-        $command = ['status', '-e' => $env ?: $this->env];
+        $command = ['status', '-e' => $env ?: $this->env, '-c' => $this->config_path, '-p' => $this->parser];
         return $this->executeRun($command);
     }
 
@@ -83,7 +86,7 @@ class TextWrapper
      */
     public function getMigrate($env = null, $target = null)
     {
-        $command = ['migrate', '-e' => $env ?: $this->env];
+        $command = ['migrate', '-e' => $env ?: $this->env, '-c' => $this->config_path, '-p' => $this->parser];
         if ($target) {
             $command += ['-t' => $target];
         }
@@ -98,7 +101,7 @@ class TextWrapper
      */
     public function getRollback($env = null, $target = null)
     {
-        $command = ['rollback', '-e' => $env ?: $this->env];
+        $command = ['rollback', '-e' => $env ?: $this->env, '-c' => $this->config_path, '-p' => $this->parser];
         if (isset($target)) {
             // Need to use isset() with rollback, because -t0 is a valid option!
             // See http://docs.phinx.org/en/latest/commands.html#the-rollback-command
