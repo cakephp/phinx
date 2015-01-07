@@ -522,7 +522,6 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $column->expects($this->any())->method('getAfter')->will($this->returnValue(null));
         $column->expects($this->at(0))->method('getLimit')->will($this->returnValue('2048'));
         $column->expects($this->at(1))->method('getLimit')->will($this->returnValue(null));
-        $column->expects($this->at(2))->method('getLimit')->will($this->returnValue(null));
 
         $this->assertEquals("TEXT NOT NULL",
                             $this->adapter->getColumnSqlDefinition($column));
@@ -792,12 +791,6 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_CHAR));
         $this->assertEquals(array('name' => 'text'),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT));
-        $this->assertEquals(array('name' => 'tinytext'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TINYTEXT));
-        $this->assertEquals(array('name' => 'longtext'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_LONGTEXT));
-        $this->assertEquals(array('name' => 'mediumtext'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_MEDIUMTEXT));
         $this->assertEquals(array('name' => 'int', 'limit' => 11),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER));
         $this->assertEquals(array('name' => 'bigint', 'limit' => 20),
@@ -917,92 +910,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->adapter->getPhinxType('?int?');
     }
 
-    public function testClassifyTextColumnWhenTiny()
-    {
-        $column = $this->getMockBuilder('Phinx\Db\Table\Column')
-                      ->disableOriginalConstructor()
-                      ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit'))
-                      ->getMock();
-
-        $column->expects($this->any())->method('getLimit')->will($this->returnValue('256'));
-        $column->expects($this->any())->method('getType')->will($this->returnValue('text'));
-
-        $this->assertEquals('tinytext', $this->adapter->classifyTextColumn($column));
-    }
-
-    public function testClassifyTextColumnWhenRegular()
-    {
-        $column = $this->getMockBuilder('Phinx\Db\Table\Column')
-                      ->disableOriginalConstructor()
-                      ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit'))
-                      ->getMock();
-
-        $column->expects($this->any())->method('getLimit')->will($this->returnValue('65536'));
-        $column->expects($this->any())->method('getType')->will($this->returnValue('text'));
-
-        $this->assertEquals('text', $this->adapter->classifyTextColumn($column));
-    }
-
-    public function testClassifyTextColumnWhenMedium()
-    {
-        $column = $this->getMockBuilder('Phinx\Db\Table\Column')
-                      ->disableOriginalConstructor()
-                      ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit'))
-                      ->getMock();
-
-        $column->expects($this->any())->method('getLimit')->will($this->returnValue('16777216'));
-        $column->expects($this->any())->method('getType')->will($this->returnValue('text'));
-
-        $this->assertEquals('mediumtext', $this->adapter->classifyTextColumn($column));
-    }
-
-
-    public function testClassifyTextColumnWhenLong()
-    {
-        $column = $this->getMockBuilder('Phinx\Db\Table\Column')
-                      ->disableOriginalConstructor()
-                      ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit'))
-                      ->getMock();
-
-        $column->expects($this->any())->method('getLimit')->will($this->returnValue('4294967296'));
-        $column->expects($this->any())->method('getType')->will($this->returnValue('text'));
-
-        $this->assertEquals('longtext', $this->adapter->classifyTextColumn($column));
-    }
-
-    public function testClassifyTextColumnInvalidLimit()
-    {
-        $column = $this->getMockBuilder('Phinx\Db\Table\Column')
-                      ->disableOriginalConstructor()
-                      ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit'))
-                      ->getMock();
-
-        $column->expects($this->any())->method('getLimit')->will($this->returnValue('0'));
-        $column->expects($this->any())->method('getType')->will($this->returnValue('text'));
-
-        $this->setExpectedException('\LogicException', 'Unable to determine size of MySQL text column. This should never happen.');
-        $this->adapter->classifyTextColumn($column);
-    }
-
-    /**
-     * @todo exception must be thrown when type != text
-     */
-    public function _testClassifyTextColumnInvalidType()
-    {
-        $column = $this->getMockBuilder('Phinx\Db\Table\Column')
-                      ->disableOriginalConstructor()
-                      ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit'))
-                      ->getMock();
-
-        $column->expects($this->any())->method('getLimit')->will($this->returnValue('256'));
-        $column->expects($this->any())->method('getType')->will($this->returnValue('integer'));
-
-        $this->setExpectedException('\InvalidArgumentException', '');
-        $this->adapter->classifyTextColumn($column);
-    }
-
     //index related tests
-
 
     public function testGetIndexesEmpty()
     {
