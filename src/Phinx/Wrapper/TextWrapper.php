@@ -114,7 +114,7 @@ class TextWrapper
 	/**
 	 * Get option from options array
 	 *
-	 * @param $key
+	 * @param string $key
 	 * @return string
 	 */
 	protected function getOption($key)
@@ -128,8 +128,8 @@ class TextWrapper
 	/**
 	 * Set option in options array
 	 *
-	 * @param $key
-	 * @param $value
+	 * @param string $key
+	 * @param string $value
 	 * @return object
 	 */
 	public function setOption($key, $value)
