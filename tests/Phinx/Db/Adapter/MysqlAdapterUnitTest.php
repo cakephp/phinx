@@ -35,10 +35,11 @@ class MysqlAdapterTester extends MysqlAdapter
         return parent::getColumnSqlDefinition($column);
     }
 
-    public function classifyTextColumn($column)
+    public function getIndexSqlDefinition($index)
     {
-        return parent::classifyTextColumn($column);
+        return parent::getIndexSqlDefinition($index);
     }
+
     public function getIndexes($tableName)
     {
         return parent::getIndexes($tableName);
@@ -491,7 +492,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasColumn('table_name', 'column1'));
     }
 
-    public function testGetColumnSqlDefinitionBasic()
+    public function testGetColumnSqlDefinitionInteger()
     {
         $column = $this->getMockBuilder('Phinx\Db\Table\Column')
                       ->disableOriginalConstructor()
@@ -504,6 +505,23 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $column->expects($this->any())->method('getType')->will($this->returnValue('integer'));
 
         $this->assertEquals("INT(11) NOT NULL",
+                            $this->adapter->getColumnSqlDefinition($column));
+    }
+
+    public function testGetColumnSqlDefinitionFloat()
+    {
+        $column = $this->getMockBuilder('Phinx\Db\Table\Column')
+                      ->disableOriginalConstructor()
+                      ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit', 'setLimit', 'getScale', 'getPrecision'))
+                      ->getMock();
+
+        $column->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column->expects($this->any())->method('getType')->will($this->returnValue('float'));
+        $column->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column->expects($this->any())->method('getPrecision')->will($this->returnValue('8'));
+        $column->expects($this->any())->method('getScale')->will($this->returnValue('3'));
+
+        $this->assertEquals("FLOAT(8,3) NOT NULL",
                             $this->adapter->getColumnSqlDefinition($column));
     }
 
@@ -788,12 +806,33 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('name' => 'varchar', 'limit' => 255),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_STRING));
         $this->assertEquals(array('name' => 'char', 'limit' => 255),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_CHAR));
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_CHAR, 255));
+
+        //text combinations
+        $this->assertEquals(array('name' => 'tinytext'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, 512));
         $this->assertEquals(array('name' => 'text'),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT));
+        $this->assertEquals(array('name' => 'text'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, 65539));
+        $this->assertEquals(array('name' => 'mediumtext'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, 16777219));
+        $this->assertEquals(array('name' => 'longtext'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, 4294967299));
+
+        //int combinations
+        $this->assertEquals(array('name' => 'tinyint'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, 259));
         $this->assertEquals(array('name' => 'int', 'limit' => 11),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER));
+        $this->assertEquals(array('name' => 'smallint'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, 65537));
+        $this->assertEquals(array('name' => 'mediumint'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, 16777219));
+        $this->assertEquals(array('name' => 'bigint', 'limit'=> 20),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, 18446744073709551619));
         $this->assertEquals(array('name' => 'bigint', 'limit' => 20),
+
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BIG_INTEGER));
         $this->assertEquals(array('name' => 'float'),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_FLOAT));
@@ -833,8 +872,14 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getPhinxType('varchar'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_CHAR, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('char'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_INTEGER, 'limit' => 255, 'precision' => null),
+                            $this->adapter->getPhinxType('tinyint'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('int'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_INTEGER, 'limit' => 65535, 'precision' => null),
+                            $this->adapter->getPhinxType('smallint'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_INTEGER, 'limit' => 16777215, 'precision' => null),
+                            $this->adapter->getPhinxType('mediumint'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_BIG_INTEGER, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('bigint'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_BINARY, 'limit' => null, 'precision' => null),
@@ -851,8 +896,14 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getPhinxType('date'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TIME, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('time'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TEXT, 'limit' => 255, 'precision' => null),
+                            $this->adapter->getPhinxType('tinytext'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TEXT, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('text'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TEXT, 'limit' => 16777215, 'precision' => null),
+                            $this->adapter->getPhinxType('mediumtext'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TEXT, 'limit' => 4294967295, 'precision' => null),
+                            $this->adapter->getPhinxType('longtext'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_POINT, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('point'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_GEOMETRY, 'limit' => null, 'precision' => null),
@@ -911,6 +962,32 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
     }
 
     //index related tests
+
+    public function testGetIndexSqlDefinitionRegular()
+    {
+        $index = $this->getMockBuilder('Phinx\Db\Table\Index')
+                      ->disableOriginalConstructor()
+                      ->setMethods(array( 'getColumns', 'getName', 'getType'))
+                      ->getMock();
+
+        $index->expects($this->any())->method('getColumns')->will($this->returnValue(array('column_name')));
+        $index->expects($this->any())->method('getName')->will($this->returnValue('index_name'));
+        $index->expects($this->any())->method('getType')->will($this->returnValue(\Phinx\Db\Table\Index::INDEX));
+        $this->assertEquals(' KEY `index_name` (`column_name`)', $this->adapter->getIndexSqlDefinition($index));
+    }
+
+    public function testGetIndexSqlDefinitionUnique()
+    {
+        $index = $this->getMockBuilder('Phinx\Db\Table\Index')
+                      ->disableOriginalConstructor()
+                      ->setMethods(array( 'getColumns', 'getName', 'getType'))
+                      ->getMock();
+
+        $index->expects($this->any())->method('getColumns')->will($this->returnValue(array('column_name')));
+        $index->expects($this->any())->method('getName')->will($this->returnValue('index_name'));
+        $index->expects($this->any())->method('getType')->will($this->returnValue(\Phinx\Db\Table\Index::UNIQUE));
+        $this->assertEquals(' UNIQUE KEY `index_name` (`column_name`)', $this->adapter->getIndexSqlDefinition($index));
+    }
 
     public function testGetIndexesEmpty()
     {
