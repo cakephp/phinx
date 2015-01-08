@@ -27,8 +27,8 @@
 namespace Phinx\Wrapper;
 
 use Phinx\Console\PhinxApplication;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 
@@ -41,18 +41,21 @@ use Symfony\Component\Console\Output\StreamOutput;
 class TextWrapper
 {
     private $app;
-    private $env;
+    private $options;
     private $exit_code;
 
     /**
-     * @param  Phinx\Console\PhinxApplication $app
-     * @param  String                         $default_env  environment fallback, defaults to "development"
-     * @return void
+     * @param PhinxApplication $app
+     * @param array $options
      */
-    public function __construct(PhinxApplication $app, $default_env = 'development')
+    public function __construct(PhinxApplication $app, array $options = array())
     {
+        $options += array(
+            'environment' => 'development',
+        );
+
         $this->app = $app;
-        $this->env = $default_env;
+        $this->options = $options;
     }
 
     /**
@@ -64,26 +67,27 @@ class TextWrapper
         return $this->exit_code;
     }
 
+
     /**
      * Returns the output from running the "status" command.
-     * @param  String  $env  environment name (optional)
+     * @param  String $env environment name (optional)
      * @return String
      */
     public function getStatus($env = null)
     {
-        $command = ['status', '-e' => $env ?: $this->env];
+        $command = ['status', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('configuration'), '-p' => $this->getOption('parser')];
         return $this->executeRun($command);
     }
 
     /**
      * Returns the output from running the "migrate" command.
-     * @param  String  $env     environment name (optional)
-     * @param  String  $target  target version (optional)
+     * @param  String $env environment name (optional)
+     * @param  String $target target version (optional)
      * @return String
      */
     public function getMigrate($env = null, $target = null)
     {
-        $command = ['migrate', '-e' => $env ?: $this->env];
+        $command = ['migrate', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('configuration'), '-p' => $this->getOption('parser')];
         if ($target) {
             $command += ['-t' => $target];
         }
@@ -92,13 +96,13 @@ class TextWrapper
 
     /**
      * Returns the output from running the "rollback" command.
-     * @param  String  $env     environment name (optional)
-     * @param  Mixed   $target  target version, or 0 (zero) fully revert (optional)
+     * @param  String $env environment name (optional)
+     * @param  Mixed $target target version, or 0 (zero) fully revert (optional)
      * @return String
      */
     public function getRollback($env = null, $target = null)
     {
-        $command = ['rollback', '-e' => $env ?: $this->env];
+        $command = ['rollback', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('configuration'), '-p' => $this->getOption('parser')];
         if (isset($target)) {
             // Need to use isset() with rollback, because -t0 is a valid option!
             // See http://docs.phinx.org/en/latest/commands.html#the-rollback-command
@@ -107,7 +111,34 @@ class TextWrapper
         return $this->executeRun($command);
     }
 
-    protected function executeRun(Array $command)
+    /**
+     * Get option from options array
+     *
+     * @param string $key
+     * @return string
+     */
+    protected function getOption($key)
+    {
+        if (!isset($this->options[$key])) {
+            return null;
+        }
+        return $this->options[$key];
+    }
+
+    /**
+     * Set option in options array
+     *
+     * @param string $key
+     * @param string $value
+     * @return object
+     */
+    public function setOption($key, $value)
+    {
+        $this->options[$key] = $value;
+        return $this;
+    }
+
+    protected function executeRun(array $command)
     {
         // Output will be written to a temporary stream, so that it can be
         // collected after running the command.
