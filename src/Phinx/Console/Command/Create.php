@@ -43,6 +43,11 @@ class Create extends AbstractCommand
     const CREATION_INTERFACE = '\Phinx\Migration\CreationInterface';
 
     /**
+     * The location of the default migration template.
+     */
+    const DEFAULT_MIGRATION_TEMPLATE = '/../../Migration/Migration.template.php.dist';
+
+    /**
      * {@inheritdoc}
      */
     protected function configure()
@@ -122,7 +127,7 @@ class Create extends AbstractCommand
         }
 
         // Verify the alternative template file's existence.
-        if (!empty($altTemplate) &&!file_exists($altTemplate)){
+        if (!empty($altTemplate) && !file_exists($altTemplate)){
             throw new \InvalidArgumentException(sprintf(
                 'The alternative template file "%s" does not exist',
                 $altTemplate
@@ -160,7 +165,7 @@ class Create extends AbstractCommand
             $contents = $creationClass->getMigrationTemplate();
         } else {
             // load the migration template
-            $contents = file_get_contents(dirname(__FILE__) . '/../../Migration/Migration.template.php.dist');
+            $contents = file_get_contents(dirname(__FILE__) . self::DEFAULT_MIGRATION_TEMPLATE);
         }
 
         // inject the class name
@@ -187,6 +192,14 @@ class Create extends AbstractCommand
                     $ex->getMessage()
                 ));
             }
+        }
+
+        if (!empty($altTemplate)) {
+            $output->writeln('<info>using alternative template</info> ' . realpath($altTemplate));
+        } elseif (!empty($creationClassName)) {
+            $output->writeln('<info>using template creation class</info> ' . $creationClassName);
+        } else {
+            $output->writeln('<info>using template</info> ' . realpath(dirname(__FILE__) . self::DEFAULT_MIGRATION_TEMPLATE));
         }
 
         $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
