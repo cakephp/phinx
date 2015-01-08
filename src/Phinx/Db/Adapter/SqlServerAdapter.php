@@ -52,9 +52,8 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     {
         if (null === $this->connection) {
             if (!class_exists('PDO') || !in_array('sqlsrv', \PDO::getAvailableDrivers(), true)) {
-                // @codeCoverageIgnoreStart
-                throw new \RuntimeException('You need to enable the PDO_SqlSrv extension for Phinx to run properly.');
-                // @codeCoverageIgnoreEnd
+                // try our connection via freetds (Mac/Linux)
+                return $this->connectDblib();
             }
 
             $db = null;
@@ -94,6 +93,42 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 
             $this->setConnection($db);
         }
+    }
+
+    /**
+     * Connect to MSSQL using dblib/freetds.
+     *
+     * The "sqlsrv" driver is not available on Unix machines.
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function connectDblib()
+    {
+        if (!class_exists('PDO') || !in_array('dblib', \PDO::getAvailableDrivers(), true)) {
+            // @codeCoverageIgnoreStart
+            throw new \RuntimeException('You need to enable the PDO_Dblib extension for Phinx to run properly.');
+            // @codeCoverageIgnoreEnd
+        }
+
+        $options = $this->getOptions();
+
+        // if port is specified use it, otherwise use the SqlServer default
+        if (empty($options['port'])) {
+            $dsn = 'dblib:host=' . $options['host'] . ';dbname=' . $options['name'];
+        } else {
+            $dsn = 'dblib:host=' . $options['host'] . ',' . $options['port'] . ';dbname=' . $options['name'];
+        }
+
+        try {
+            $db = new \PDO($dsn, $options['user'], $options['pass'], $driverOptions);
+        } catch (\PDOException $exception) {
+            throw new \InvalidArgumentException(sprintf(
+                'There was a problem connecting to the database: %s',
+                $exception->getMessage()
+            ));
+        }
+
+        $this->setConnection($db);
     }
 
     /**
