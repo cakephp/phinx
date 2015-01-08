@@ -242,6 +242,7 @@ abstract class AbstractCommand extends Command
         }
 
         $output->writeln('<info>using config parser</info> ' . $parser);
+
         $this->setConfig($config);
     }
 

@@ -116,12 +116,14 @@ class Create extends AbstractCommand
         // load the migration template
         $contents = file_get_contents(dirname(__FILE__) . '/../../Migration/Migration.template.php.dist');
 
-        // inject the class name
-        $contents = str_replace('$className', $className, $contents);
-        
-        // inject the base class name
-        $contents = str_replace('$baseClassName', $this->getConfig()->getMigrationBaseClassName(), $contents);
-        
+        // inject the class names appropriate to this migration
+        $classes = array(
+            '$useClassName'  => $this->getConfig()->getMigrationBaseClassName(false),
+            '$className'     => $className,
+            '$baseClassName' => $this->getConfig()->getMigrationBaseClassName(true),
+        );
+        $contents = strtr($contents, $classes);
+
         if (false === file_put_contents($filePath, $contents)) {
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',
@@ -129,6 +131,7 @@ class Create extends AbstractCommand
             ));
         }
 
+        $output->writeln('<info>using migration base class</info> ' . $classes['$useClassName']);
         $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
     }
 }

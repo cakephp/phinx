@@ -1,6 +1,6 @@
 <?php
 
-use Phinx\Migration\AbstractMigration;
+use $useClassName;
 
 class $className extends $baseClassName
 {
