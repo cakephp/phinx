@@ -114,7 +114,7 @@ class Create extends AbstractCommand
         }
 
         // load the migration template
-        $contents = file_get_contents(dirname(__FILE__) . '/../../Migration/Migration.template.php.dist');
+        $contents = $this->getMigrationTemplate();
 
         // inject the class names appropriate to this migration
         $classes = array(

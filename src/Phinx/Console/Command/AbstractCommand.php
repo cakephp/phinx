@@ -282,4 +282,14 @@ abstract class AbstractCommand extends Command
             ));
         }
     }
+
+    /**
+     * Returns the migration template content.
+     *
+     * @return string
+     */
+    protected function getMigrationTemplate()
+    {
+        return file_get_contents(dirname(__FILE__) . '/../../Migration/Migration.template.php.dist');
+    }
 }
