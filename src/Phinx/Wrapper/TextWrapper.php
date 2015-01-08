@@ -81,7 +81,7 @@ class TextWrapper
 
     /**
      * Returns the exit code from the last run command.
-     * @return Integer
+     * @return integer
      */
     public function getExitCode()
     {
@@ -91,8 +91,8 @@ class TextWrapper
 
     /**
      * Returns the output from running the "status" command.
-     * @param  String $env environment name (optional)
-     * @return String
+     * @param  string $env environment name (optional)
+     * @return string
      */
     public function getStatus($env = null)
     {
@@ -107,9 +107,9 @@ class TextWrapper
 
     /**
      * Returns the output from running the "migrate" command.
-     * @param  String $env environment name (optional)
-     * @param  String $target target version (optional)
-     * @return String
+     * @param  string $env environment name (optional)
+     * @param  string $target target version (optional)
+     * @return string
      */
     public function getMigrate($env = null, $target = null)
     {
@@ -127,9 +127,9 @@ class TextWrapper
 
     /**
      * Returns the output from running the "rollback" command.
-     * @param  String $env environment name (optional)
-     * @param  Mixed $target target version, or 0 (zero) fully revert (optional)
-     * @return String
+     * @param  string $env environment name (optional)
+     * @param  mixed $target target version, or 0 (zero) fully revert (optional)
+     * @return string
      */
     public function getRollback($env = null, $target = null)
     {
@@ -150,7 +150,7 @@ class TextWrapper
     /**
      * Get option from options array
      *
-     * @param string $key
+     * @param  string $key
      * @return string
      */
     protected function getOption($key)
@@ -164,8 +164,8 @@ class TextWrapper
     /**
      * Set option in options array
      *
-     * @param string $key
-     * @param string $value
+     * @param  string $key
+     * @param  string $value
      * @return object
      */
     public function setOption($key, $value)
