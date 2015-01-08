@@ -157,7 +157,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
         $table->addColumn('realname', 'string')
-              ->addColumn('tag_id', 'integer')
+              ->addColumn('tag_id', 'integer', array('signed' => false))
               ->addForeignKey('tag_id', 'ntable_tag', 'id', array('delete'=> 'NO_ACTION', 'update'=> 'NO_ACTION'))
               ->save();
 
@@ -710,7 +710,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('table', array(), $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->save();
+        $table->addColumn('ref_table_id', 'integer', array('signed' => false))->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
@@ -727,7 +727,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('table', array(), $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->save();
+        $table->addColumn('ref_table_id', 'integer', array('signed' => false))->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
@@ -745,7 +745,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('table', array(), $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->save();
+        $table->addColumn('ref_table_id', 'integer', array('signed' => false))->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
@@ -763,7 +763,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('table', array(), $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->save();
+        $table->addColumn('ref_table_id', 'integer', array('signed' => false))->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
@@ -781,7 +781,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('table', array(), $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->save();
+        $table->addColumn('ref_table_id', 'integer', array('signed' => false))->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
@@ -799,7 +799,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('table', array(), $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->save();
+        $table->addColumn('ref_table_id', 'integer', array('signed' => false))->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
