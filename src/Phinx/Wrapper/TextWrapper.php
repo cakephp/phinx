@@ -110,6 +110,45 @@ class TextWrapper
         return $this->executeRun($command);
     }
 
+    /**
+     * Set the environment
+     *
+     * @param string $environment
+     */
+    public function setEnvironment($environment = null) {
+        if(is_null($environment)) {
+            throw new \InvalidArgumentException('Environment cannot be null');
+        } else {
+            $this->env = $environment;
+        }
+    }
+
+    /**
+     * Set the parser format
+     *
+     * @param string $parser
+     */
+    public function setParser($parser = null) {
+        if(is_null($parser)) {
+            throw new \InvalidArgumentException('Parser cannot be null');
+        } else {
+            $this->parser = $parser;
+        }
+    }
+
+    /**
+     * Set the Config Path
+     *
+     * @param string $config_path
+     */
+    public function setConfigPath($config_path = null) {
+        if(is_null($config_path)) {
+            throw new \InvalidArgumentException('Config path cannot be null');
+        } else {
+            $this->config_path = $config_path;
+        }
+    }
+
     protected function executeRun(Array $command)
     {
         // Output will be written to a temporary stream, so that it can be
