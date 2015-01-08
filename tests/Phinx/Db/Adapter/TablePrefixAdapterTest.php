@@ -21,14 +21,25 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->adapter = new TablePrefixAdapter(array(
+        $options = array(
             'table_prefix' => 'pre_',
-            'table_suffix' => '_suf'
-            ));
+            'table_suffix' => '_suf',
+        );
 
         $this->mock = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
 
-        $this->adapter->setAdapter($this->mock);
+        $this->mock
+            ->expects($this->any())
+            ->method('getOption')
+            ->with($this->logicalOr(
+                $this->equalTo('table_prefix'),
+                $this->equalTo('table_suffix')
+            ))
+            ->will($this->returnCallback(function ($option) use ($options) {
+                return $options[$option];
+            }));
+
+        $this->adapter = new TablePrefixAdapter($this->mock);
     }
 
     public function tearDown()

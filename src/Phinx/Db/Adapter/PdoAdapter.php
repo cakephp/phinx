@@ -43,7 +43,7 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * @var array
      */
-    protected $options;
+    protected $options = array();
 
     /**
      * @var OutputInterface
@@ -80,10 +80,7 @@ abstract class PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Sets the adapter options.
-     *
-     * @param array $options Options
-     * @return AdapterInterface
+     * {@inheritdoc}
      */
     public function setOptions(array $options)
     {
@@ -101,13 +98,30 @@ abstract class PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Gets the adapter options.
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasOption($name)
+    {
+        return isset($this->options[$name]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOption($name)
+    {
+        if (!$this->hasOption($name)) {
+            return null;
+        }
+        return $this->options[$name];
     }
 
     /**
@@ -395,8 +409,7 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function getAdapterType()
     {
-        $options = $this->getOptions();
-        return $options['adapter'];
+        return $this->getOption('adapter');
     }
 
     /**
