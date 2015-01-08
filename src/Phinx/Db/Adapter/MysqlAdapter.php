@@ -206,6 +206,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $column = new Column();
             $column->setName('id')
                    ->setType('integer')
+                   ->setSigned(false)
                    ->setIdentity(true);
 
             array_unshift($columns, $column);
