@@ -138,7 +138,7 @@ class Create extends AbstractCommand
         }
 
         // Verify the alternative template file's existence.
-        if (!empty($altTemplate) &&!file_exists($altTemplate)){
+        if (!empty($altTemplate) && !file_exists($altTemplate)) {
             throw new \InvalidArgumentException(sprintf(
                 'The alternative template file "%s" does not exist',
                 $altTemplate

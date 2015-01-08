@@ -46,6 +46,11 @@ use Phinx\Db\Adapter\AdapterInterface;
 abstract class AbstractCommand extends Command
 {
     /**
+     * The location of the default migration template.
+     */
+    const DEFAULT_MIGRATION_TEMPLATE = '/../../Migration/Migration.template.php.dist';
+
+    /**
      * @var ConfigInterface
      */
     protected $config;
@@ -290,6 +295,6 @@ abstract class AbstractCommand extends Command
      */
     protected function getMigrationTemplate()
     {
-        return file_get_contents(dirname(__FILE__) . '/../../Migration/Migration.template.php.dist');
+        return file_get_contents(dirname(__FILE__) . self::DEFAULT_MIGRATION_TEMPLATE);
     }
 }
