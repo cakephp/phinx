@@ -48,7 +48,7 @@ class TextWrapper
 	 * @param PhinxApplication $app
 	 * @param array $options
 	 */
-	public function __construct(PhinxApplication $app, Array $options = array())
+	public function __construct(PhinxApplication $app, array $options = array())
 	{
 		$options += array(
 			'environment' => 'development',
@@ -138,7 +138,7 @@ class TextWrapper
 		return $this;
 	}
 
-	protected function executeRun(Array $command)
+	protected function executeRun(array $command)
 	{
 		// Output will be written to a temporary stream, so that it can be
 		// collected after running the command.
