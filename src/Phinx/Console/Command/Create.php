@@ -114,6 +114,7 @@ class Create extends AbstractCommand
             ));
         }
 
+        $output->writeln('<info>using migration base class</info> ' . $this->getConfig()->getMigrationBaseClassName(false));
         $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
     }
 }
