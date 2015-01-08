@@ -132,9 +132,11 @@ class TextWrapper
 	 *
 	 * @param $key
 	 * @param $value
+	 * @return object
 	 */
 	public function setOption($key, $value) {
 		$this->options[$key] = $value;
+		return $this;
 	}
 
     protected function executeRun(Array $command)
