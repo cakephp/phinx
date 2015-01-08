@@ -180,7 +180,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('ds6xhj1', $env['pass']);
         $this->assertEquals('1234', $env['port']);
     }
-    
+
     public function testGetMigrationBaseClassNameGetsDefaultBaseClass()
     {
         $config = new \Phinx\Config\Config(array());
@@ -191,5 +191,17 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         $config = new \Phinx\Config\Config(array());
         $this->assertEquals('Phinx\Migration\AbstractMigration', $config->getMigrationBaseClassName(false));
+    }
+
+    public function testGetMigrationBaseClassNameGetsAlternativeBaseClass()
+    {
+        $config = new \Phinx\Config\Config(array('migration_base_class' => 'Phinx\Migration\AlternativeAbstractMigration'));
+        $this->assertEquals('AlternativeAbstractMigration', $config->getMigrationBaseClassName());
+    }
+
+    public function testGetMigrationBaseClassNameGetsAlternativeBaseClassWithNamespace()
+    {
+        $config = new \Phinx\Config\Config(array('migration_base_class' => 'Phinx\Migration\AlternativeAbstractMigration'));
+        $this->assertEquals('Phinx\Migration\AlternativeAbstractMigration', $config->getMigrationBaseClassName(false));
     }
 }
