@@ -23,10 +23,6 @@
  * IN THE SOFTWARE.
  */
 
-if (!defined('PHINX_VERSION')) {
-    define('PHINX_VERSION', (0 === strpos('@PHINX_VERSION@', '@PHINX_VERSION')) ? '0.4.1' : '@PHINX_VERSION@');
-}
-
 $autoloader = require __DIR__ . '/../src/composer_autoloader.php';
 
 if (!$autoloader()) {
@@ -37,4 +33,4 @@ if (!$autoloader()) {
     );
 }
 
-return new Phinx\Console\PhinxApplication(PHINX_VERSION);
+return new Phinx\Console\PhinxApplication();
