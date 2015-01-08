@@ -40,8 +40,19 @@ use Symfony\Component\Console\Output\StreamOutput;
  */
 class TextWrapper
 {
+    /**
+     * @var PhinxApplication
+     */
     private $app;
-    private $options;
+
+    /**
+     * @var array
+     */
+    private $options = array();
+
+    /**
+     * @var integer
+     */
     private $exit_code;
 
     /**
@@ -56,6 +67,16 @@ class TextWrapper
 
         $this->app = $app;
         $this->options = $options;
+    }
+
+    /**
+     * Get the application instance.
+     *
+     * @return PhinxApplication
+     */
+    public function getApp()
+    {
+        return $this->app;
     }
 
     /**
@@ -75,7 +96,12 @@ class TextWrapper
      */
     public function getStatus($env = null)
     {
-        $command = ['status', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('configuration'), '-p' => $this->getOption('parser')];
+        $command = array(
+            'status',
+            '-e' => $env ?: $this->getOption('environment'),
+            '-c' => $this->getOption('configuration'),
+            '-p' => $this->getOption('parser')
+        );
         return $this->executeRun($command);
     }
 
@@ -87,9 +113,14 @@ class TextWrapper
      */
     public function getMigrate($env = null, $target = null)
     {
-        $command = ['migrate', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('configuration'), '-p' => $this->getOption('parser')];
+        $command = array(
+            'migrate',
+            '-e' => $env ?: $this->getOption('environment'),
+            '-c' => $this->getOption('configuration'),
+            '-p' => $this->getOption('parser')
+        );
         if ($target) {
-            $command += ['-t' => $target];
+            $command += array('-t' => $target);
         }
         return $this->executeRun($command);
     }
@@ -102,11 +133,16 @@ class TextWrapper
      */
     public function getRollback($env = null, $target = null)
     {
-        $command = ['rollback', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('configuration'), '-p' => $this->getOption('parser')];
+        $command = array(
+            'rollback',
+            '-e' => $env ?: $this->getOption('environment'),
+            '-c' => $this->getOption('configuration'),
+            '-p' => $this->getOption('parser')
+        );
         if (isset($target)) {
             // Need to use isset() with rollback, because -t0 is a valid option!
             // See http://docs.phinx.org/en/latest/commands.html#the-rollback-command
-            $command += ['-t' => $target];
+            $command += array('-t' => $target);
         }
         return $this->executeRun($command);
     }
@@ -138,6 +174,12 @@ class TextWrapper
         return $this;
     }
 
+    /**
+     * Execute a command, capturing output and storing the exit code.
+     *
+     * @param  array $command
+     * @return string
+     */
     protected function executeRun(array $command)
     {
         // Output will be written to a temporary stream, so that it can be
