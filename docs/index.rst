@@ -14,6 +14,7 @@ Contents
    install
    migrations
    commands
+   code-usage
    configuration
    copyright
 
