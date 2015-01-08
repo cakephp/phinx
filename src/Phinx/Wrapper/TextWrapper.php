@@ -41,9 +41,7 @@ use Symfony\Component\Console\Output\StreamOutput;
 class TextWrapper
 {
     private $app;
-    private $env;
-    private $config_path;
-    private $parser;
+    private $options;
     private $exit_code;
 
     /**
@@ -52,10 +50,14 @@ class TextWrapper
      */
     public function __construct(PhinxApplication $app, Array $options = array())
     {
+        $options += array(
+            'environment' => 'development',
+            'config_path' => './phinx.yml',
+            'parser' => 'yaml'
+        );
+
         $this->app = $app;
-        $this->env = (isset($options['environment']) ? $options['environment'] : 'development');
-        $this->config_path = (isset($options['config_path']) ? $options['config_path'] : './phinx.yml');
-        $this->parser = (isset($options['parser']) ? $options['parser'] : 'yaml');
+        $this->options = $options;
     }
 
     /**
@@ -67,6 +69,7 @@ class TextWrapper
         return $this->exit_code;
     }
 
+
     /**
      * Returns the output from running the "status" command.
      * @param  String  $env  environment name (optional)
@@ -74,7 +77,7 @@ class TextWrapper
      */
     public function getStatus($env = null)
     {
-        $command = ['status', '-e' => $env ?: $this->env, '-c' => $this->config_path, '-p' => $this->parser];
+        $command = ['status', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('config_path'), '-p' => $this->getOption('parser')];
         return $this->executeRun($command);
     }
 
@@ -86,7 +89,7 @@ class TextWrapper
      */
     public function getMigrate($env = null, $target = null)
     {
-        $command = ['migrate', '-e' => $env ?: $this->env, '-c' => $this->config_path, '-p' => $this->parser];
+        $command = ['migrate', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('config_path'), '-p' => $this->getOption('parser')];
         if ($target) {
             $command += ['-t' => $target];
         }
@@ -101,7 +104,7 @@ class TextWrapper
      */
     public function getRollback($env = null, $target = null)
     {
-        $command = ['rollback', '-e' => $env ?: $this->env, '-c' => $this->config_path, '-p' => $this->parser];
+        $command = ['rollback', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('config_path'), '-p' => $this->getOption('parser')];
         if (isset($target)) {
             // Need to use isset() with rollback, because -t0 is a valid option!
             // See http://docs.phinx.org/en/latest/commands.html#the-rollback-command
@@ -110,44 +113,29 @@ class TextWrapper
         return $this->executeRun($command);
     }
 
-    /**
-     * Set the environment
-     *
-     * @param string $environment
-     */
-    public function setEnvironment($environment = null) {
-        if(is_null($environment)) {
-            throw new \InvalidArgumentException('Environment cannot be null');
-        } else {
-            $this->env = $environment;
+	/**
+	 * Get option from options array
+	 *
+	 * @param $key
+	 * @return null
+	 */
+    protected function getOption($key)
+    {
+        if(!isset($this->options[$key])) {
+	        return null;
         }
-    }
+	    return $this->options[$key];
+	}
 
-    /**
-     * Set the parser format
-     *
-     * @param string $parser
-     */
-    public function setParser($parser = null) {
-        if(is_null($parser)) {
-            throw new \InvalidArgumentException('Parser cannot be null');
-        } else {
-            $this->parser = $parser;
-        }
-    }
-
-    /**
-     * Set the Config Path
-     *
-     * @param string $config_path
-     */
-    public function setConfigPath($config_path = null) {
-        if(is_null($config_path)) {
-            throw new \InvalidArgumentException('Config path cannot be null');
-        } else {
-            $this->config_path = $config_path;
-        }
-    }
+	/**
+	 * Set option in options array
+	 *
+	 * @param $key
+	 * @param $value
+	 */
+	public function setOption($key, $value) {
+		$this->options[$key] = $value;
+	}
 
     protected function executeRun(Array $command)
     {
