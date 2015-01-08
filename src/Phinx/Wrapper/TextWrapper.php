@@ -52,7 +52,7 @@ class TextWrapper
     {
         $options += array(
             'environment' => 'development',
-            'config_path' => './phinx.yml',
+            'configuration' => './phinx.yml',
             'parser' => 'yaml'
         );
 
@@ -77,7 +77,7 @@ class TextWrapper
      */
     public function getStatus($env = null)
     {
-        $command = ['status', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('config_path'), '-p' => $this->getOption('parser')];
+        $command = ['status', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('configuration'), '-p' => $this->getOption('parser')];
         return $this->executeRun($command);
     }
 
@@ -89,7 +89,7 @@ class TextWrapper
      */
     public function getMigrate($env = null, $target = null)
     {
-        $command = ['migrate', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('config_path'), '-p' => $this->getOption('parser')];
+        $command = ['migrate', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('configuration'), '-p' => $this->getOption('parser')];
         if ($target) {
             $command += ['-t' => $target];
         }
@@ -104,7 +104,7 @@ class TextWrapper
      */
     public function getRollback($env = null, $target = null)
     {
-        $command = ['rollback', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('config_path'), '-p' => $this->getOption('parser')];
+        $command = ['rollback', '-e' => $env ?: $this->getOption('environment'), '-c' => $this->getOption('configuration'), '-p' => $this->getOption('parser')];
         if (isset($target)) {
             // Need to use isset() with rollback, because -t0 is a valid option!
             // See http://docs.phinx.org/en/latest/commands.html#the-rollback-command
