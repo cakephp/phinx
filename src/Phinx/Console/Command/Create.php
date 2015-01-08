@@ -105,7 +105,7 @@ class Create extends AbstractCommand
             '$className'     => $className,
             '$baseClassName' => $this->getConfig()->getMigrationBaseClassName(true),
         );
-        $contents = str_replace(array_keys($classes), $classes, $contents);
+        $contents = strtr($contents, $classes);
 
         if (false === file_put_contents($filePath, $contents)) {
             throw new \RuntimeException(sprintf(
