@@ -28,11 +28,10 @@
  */
 namespace Phinx\Console;
 
-use Phinx\Config\Config;
-use Phinx\Console\Command;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Phinx\Console\Command;
 
 /**
  * Phinx console application.
@@ -48,12 +47,8 @@ class PhinxApplication extends Application
      *
      * @param string $version The Application Version
      */
-    public function __construct($version = null)
+    public function __construct($version)
     {
-        if(is_null($version)) {
-            $version = Config::$phinx_version;
-        }
-
         parent::__construct('Phinx by Rob Morgan - https://phinx.org.', $version);
 
         $this->addCommands(array(
