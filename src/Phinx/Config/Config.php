@@ -49,11 +49,6 @@ class Config implements ConfigInterface
     protected $configFilePath;
 
     /**
-     * @var $phinx_version
-     */
-    public static $phinx_version = "0.4.1";
-
-    /**
      * {@inheritdoc}
      */
     public function __construct(array $configArray, $configFilePath = null)
