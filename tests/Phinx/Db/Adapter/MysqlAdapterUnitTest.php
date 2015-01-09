@@ -83,16 +83,11 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     private function assertQuerySql($expectedSql, $returnValue = null)
     {
-        //this piece of code must be simplified
-        if (!is_null($returnValue)) {
-            $this->conn->expects($this->once())
-                       ->method('query')
-                       ->with($this->equalTo($expectedSql))
-                       ->will($this->returnValue($returnValue));
-        } else {
-            $this->conn->expects($this->once())
+        $expect = $this->conn->expects($this->once())
                        ->method('query')
                        ->with($this->equalTo($expectedSql));
+        if (!is_null($returnValue)) {
+            $expect->will($this->returnValue($returnValue));
         }
     }
 
@@ -809,31 +804,51 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_CHAR, 255));
 
         //text combinations
-        $this->assertEquals(array('name' => 'tinytext'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, 512));
         $this->assertEquals(array('name' => 'text'),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT));
+        $this->assertEquals(array('name' => 'tinytext'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_TINY));
+        $this->assertEquals(array('name' => 'tinytext'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_TINY+1));
         $this->assertEquals(array('name' => 'text'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, 65539));
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_REGULAR));
+        $this->assertEquals(array('name' => 'text'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_REGULAR+1));
         $this->assertEquals(array('name' => 'mediumtext'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, 16777219));
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_MEDIUM));
+        $this->assertEquals(array('name' => 'mediumtext'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_MEDIUM+1));
         $this->assertEquals(array('name' => 'longtext'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, 4294967299));
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_LONG));
+        $this->assertEquals(array('name' => 'longtext'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_LONG+1));
 
         //int combinations
-        $this->assertEquals(array('name' => 'tinyint'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, 259));
         $this->assertEquals(array('name' => 'int', 'limit' => 11),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER));
-        $this->assertEquals(array('name' => 'smallint'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, 65537));
-        $this->assertEquals(array('name' => 'mediumint'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, 16777219));
-        $this->assertEquals(array('name' => 'bigint', 'limit'=> 20),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, 18446744073709551619));
         $this->assertEquals(array('name' => 'bigint', 'limit' => 20),
-
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BIG_INTEGER));
+        $this->assertEquals(array('name' => 'tinyint'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_TINY));
+        $this->assertEquals(array('name' => 'tinyint'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_TINY+1));
+        $this->assertEquals(array('name' => 'smallint'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_SMALL));
+        $this->assertEquals(array('name' => 'smallint'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_SMALL+1));
+        $this->assertEquals(array('name' => 'mediumint'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_MEDIUM));
+        $this->assertEquals(array('name' => 'mediumint'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_MEDIUM+1));
+        $this->assertEquals(array('name' => 'int', 'limit' => 11),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_REGULAR));
+        $this->assertEquals(array('name' => 'int', 'limit' => 11),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_REGULAR+1));
+        $this->assertEquals(array('name' => 'bigint', 'limit'=> 20),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_BIG));
+        $this->assertEquals(array('name' => 'bigint', 'limit'=> 20),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_BIG+1));
+
         $this->assertEquals(array('name' => 'float'),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_FLOAT));
         $this->assertEquals(array('name' => 'decimal'),
@@ -872,13 +887,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getPhinxType('varchar'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_CHAR, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('char'));
-        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_INTEGER, 'limit' => 255, 'precision' => null),
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_INTEGER, 'limit' => MysqlAdapter::INT_TINY, 'precision' => null),
                             $this->adapter->getPhinxType('tinyint'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('int'));
-        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_INTEGER, 'limit' => 65535, 'precision' => null),
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_INTEGER, 'limit' => MysqlAdapter::INT_SMALL, 'precision' => null),
                             $this->adapter->getPhinxType('smallint'));
-        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_INTEGER, 'limit' => 16777215, 'precision' => null),
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_INTEGER, 'limit' => MysqlAdapter::INT_MEDIUM, 'precision' => null),
                             $this->adapter->getPhinxType('mediumint'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_BIG_INTEGER, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('bigint'));
@@ -896,13 +911,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getPhinxType('date'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TIME, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('time'));
-        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TEXT, 'limit' => 255, 'precision' => null),
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TEXT, 'limit' => MysqlAdapter::TEXT_TINY, 'precision' => null),
                             $this->adapter->getPhinxType('tinytext'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TEXT, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('text'));
-        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TEXT, 'limit' => 16777215, 'precision' => null),
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TEXT, 'limit' => MysqlAdapter::TEXT_MEDIUM, 'precision' => null),
                             $this->adapter->getPhinxType('mediumtext'));
-        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TEXT, 'limit' => 4294967295, 'precision' => null),
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TEXT, 'limit' => MysqlAdapter::TEXT_LONG, 'precision' => null),
                             $this->adapter->getPhinxType('longtext'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_POINT, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('point'));
