@@ -28,12 +28,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Phinx": "src/Phinx"
+            "Phinx\\": "src/Phinx"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Test\\Phinx": "tests/Phinx"
+            "Test\\Phinx\\": "tests/Phinx"
         }
     },
     "bin": ["bin/phinx"]
