@@ -49,7 +49,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
                 $e,
                 'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
-            $this->assertRegExp('/An invalid column type was specified./', $e->getMessage());
+            $this->assertRegExp('/^An invalid column type /', $e->getMessage());
         }
     }
 

@@ -288,8 +288,13 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $this->mock
             ->expects($this->any())
-            ->method('getColumnTypes')
-            ->will($this->returnValue(array('integer', 'string')));
+            ->method('isValidColumnType')
+            ->with($this->callback(
+                function ($column) {
+                    return in_array($column->getType(), array('string', 'integer'));
+                }
+            ))
+            ->will($this->returnValue(true));
 
         $table = new Table('table', array(), $this->adapter);
         $table

@@ -36,19 +36,6 @@ use Phinx\Migration\MigrationInterface;
 
 class PostgresAdapter extends PdoAdapter implements AdapterInterface
 {
-    // PostgreSQL support array
-    const PHINX_TYPE_ARRAY_CHAR_PATTERN        = '/^char(\[\]){1,}$/';
-    const PHINX_TYPE_ARRAY_TEXT_PATTERN        = '/^text(\[\]){1,}$/';
-    const PHINX_TYPE_ARRAY_INTEGER_PATTERN     = '/^integer(\[\]){1,}$/';
-    const PHINX_TYPE_ARRAY_FLOAT_PATTERN       = '/^float(\[\]){1,}$/';
-    const PHINX_TYPE_ARRAY_DECIMAL_PATTERN     = '/^decimal(\[\]){1,}$/';
-    const PHINX_TYPE_ARRAY_TIMESTAMP_PATTERN   = '/^timestamp(\[\]){1,}$/';
-    const PHINX_TYPE_ARRAY_TIME_PATTERN        = '/^time(\[\]){1,}$/';
-    const PHINX_TYPE_ARRAY_DATE_PATTERN        = '/^date(\[\]){1,}$/';
-    const PHINX_TYPE_ARRAY_BOOLEAN_PATTERN     = '/^boolean(\[\]){1,}$/';
-    const PHINX_TYPE_ARRAY_JSON_PATTERN        = '/^json(\[\]){1,}$/';
-    const PHINX_TYPE_ARRAY_UUID_PATTERN        = '/^uuid(\[\]){1,}$/';
-
     /**
      * Columns with comments
      *
@@ -735,8 +722,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'geography', 'polygon', 4326);
                 break;
             default:
-                if ($this->isArrayType($type))
-                {
+                if ($this->isArrayType($type)) {
                     return array('name' => $type);
                 }
                 // Return array type
@@ -1097,47 +1083,26 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function checkColumnType(Column $column)
+    public function isValidColumnType(Column $column)
     {
-        if (in_array($column->getType(), $this->getColumnTypes()) || $this->isArrayType($column->getType()))
-        {
-            return true;
-        }
-
-        return false;
+        // If not a standard column type, maybe it is array type?
+        return (parent::isValidColumnType($column) || $this->isArrayType($column->getType()));
     }
 
     /**
-     * Check if provided type is valid
+     * Check if the given column is an array of a valid type.
      *
-     * @param $type
+     * @param  string $columnType
      * @return bool
      */
-    private function isArrayType($type)
+    protected function isArrayType($columnType)
     {
-        $arrayTypes = array(
-            static::PHINX_TYPE_ARRAY_CHAR_PATTERN,
-            static::PHINX_TYPE_ARRAY_TEXT_PATTERN,
-            static::PHINX_TYPE_ARRAY_INTEGER_PATTERN,
-            static::PHINX_TYPE_ARRAY_FLOAT_PATTERN,
-            static::PHINX_TYPE_ARRAY_DECIMAL_PATTERN,
-            static::PHINX_TYPE_ARRAY_TIMESTAMP_PATTERN,
-            static::PHINX_TYPE_ARRAY_TIME_PATTERN,
-            static::PHINX_TYPE_ARRAY_DATE_PATTERN,
-            static::PHINX_TYPE_ARRAY_BOOLEAN_PATTERN,
-            static::PHINX_TYPE_ARRAY_JSON_PATTERN,
-            static::PHINX_TYPE_ARRAY_UUID_PATTERN,
-        );
-
-        foreach ($arrayTypes as $_arrTypePattern)
-        {
-            if (preg_match($_arrTypePattern, $type))
-            {
-                return true;
-            }
+        if (!preg_match('/^([a-z]+)(?:\[\]){1,}$/', $columnType, $matches)) {
+            return false;
         }
 
-        return false;
+        $baseType = $matches[1];
+        return in_array($baseType, $this->getColumnTypes());
     }
 
     /**

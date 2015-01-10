@@ -319,8 +319,12 @@ class Table
         }
 
         // Delegate to Adapters to check column type
-        if (!$this->getAdapter()->checkColumnType($column)) {
-            throw new \InvalidArgumentException("An invalid column type was specified: {$column->getName()}");
+        if (!$this->getAdapter()->isValidColumnType($column)) {
+            throw new \InvalidArgumentException(sprintf(
+                'An invalid column type "%s" was specified for column "%s".',
+                $column->getType(),
+                $column->getName()
+            ));
         }
 
         $this->columns[] = $column;

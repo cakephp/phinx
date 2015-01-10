@@ -217,6 +217,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function isValidColumnType(Column $column)
+    {
+        return $this->getAdapter()->isValidColumnType($column);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasTransactions()
     {
         return $this->getAdapter()->hasTransaction();

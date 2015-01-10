@@ -285,10 +285,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
      * @dataProvider providerArrayType
-     * @param $column_name
-     * @param $column_type
      */
     public function testAddColumnArrayType($column_name, $column_type)
     {
@@ -299,7 +296,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             ->save();
         $this->assertTrue($table->hasColumn($column_name));
     }
-    
+
     public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);

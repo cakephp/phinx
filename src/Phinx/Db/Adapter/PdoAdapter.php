@@ -443,7 +443,7 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function checkColumnType(Column $column) {
+    public function isValidColumnType(Column $column) {
         return in_array($column->getType(), $this->getColumnTypes());
     }
 }

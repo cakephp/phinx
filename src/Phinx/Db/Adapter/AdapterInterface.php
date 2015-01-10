@@ -403,6 +403,14 @@ interface AdapterInterface
     public function getColumnTypes();
 
     /**
+     * Checks that the given column is of a supported type.
+     *
+     * @param  Column $column
+     * @return boolean
+     */
+    public function isValidColumnType(Column $column);
+
+    /**
      * Converts the Phinx logical type to the adapter's SQL type.
      *
      * @param string $type
