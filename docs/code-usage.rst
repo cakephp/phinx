@@ -22,11 +22,11 @@ Phinx will require instantiating, which can be achieved by the following.
 
 .. code-block:: php
 
-    $app = new \Phinx\Console\PhinxApplication($version);
-    $phinx = new \Phinx\Wrapper\TextWrapper($app);
+    $phinx = new Phinx($options);
 
-Where ``$version`` is the version number of Phinx (eg. '0.4.1').
-``$phinx`` now contains our Phinx object which will expose to us the commands.
+``$phinx`` now contains our Phinx object which will expose to us the commands. 
+
+``$options`` is optional.
 
 
 
@@ -35,25 +35,15 @@ Custom Options
 
 Phinx comes with some sensible options set for us, however these are not always appropriate and may need changing.
 
-There are two ways an option value can be set.
-
-The first way is instead of the ``$phinx`` declaration above, we can pass through a second parameter ``$options`` as an array of options.
+When instantiating our Phinx object above, we can pass through 
 
 .. code-block:: php
 
-    $phinx = \Phinx\Wrapper\TextWrapper($app, array(
-        'option_name' => 'option_value',
+    $phinx = Phinx(array(
+        'option_name' => 'option_value'
     ));
 
 To set multiple options and values, simply add more key value pairs to the ``$options`` array.
-
-The second way uses the original ``$phinx`` object and uses the ``setOption($option, $value)`` method.
-
-This method can be invoked multiple times, and either chained together or with each invokation done separately.
-
-.. code-block:: php
-
-    $phinx->setOption('option_name', 'option_value');
 
 The three options we can alter are:
 
@@ -73,7 +63,9 @@ The value you assign should match the config file environment declared (eg. ``de
 
 .. code-block:: php
 
-    $phinx->setOption('environment', 'development');
+    $phinx = Phinx(array(
+        'environment' => 'development'
+    ));
 
 The default value if left blank is: ``development``.
 
@@ -85,7 +77,9 @@ The value you assign should match the relative or absolute path to the phinx.yml
 
 .. code-block:: php
 
-    $phinx->setOption('configuration', '/var/www/phinx.yml');
+    $phinx = Phinx(array(
+        'configuration' => '/var/www/phinx.yml'
+    ));
 
 .. note::
 
@@ -108,7 +102,9 @@ Possible values are:
 
 .. code-block:: php
 
-    $phinx->setOption('parser', 'yaml');
+    $phinx = Phinx(array(
+        'parser' => 'yaml'
+    ));
 
 .. note::
 
@@ -121,14 +117,12 @@ This command will run the same command as ``phinx migrate``.
 
 .. code-block:: php
 
-    $phinx->getMigrate($env, $target);
+    $phinx->migrate($target);
 
-The parameters in this function are both optional. ``$env`` is the environment to use.
-Setting this value **will override** the environment set above.
+The parameter in this function is optional. 
 ``$target`` allows you to target a specific migration to run. It is the same as setting ``-t`` as an option in the command line.
-If you wish to set the ``$target`` but not ``$env``, set ``$env`` to ``null``.
 
-This function will return the same string that the terminal command returns.
+This function will return a boolean based on its success.
 
 Rollback
 ---------
@@ -137,42 +131,20 @@ This command will run the same command as ``phinx rollback``.
 
 .. code-block:: php
 
-    $phinx->getRollback($env, $target);
+    $phinx->rollback($target);
 
-The parameters in this function are both optional. ``$env`` is the environment to use.
-Setting this value **will override** the environment set above.
+The parameter in this function is optional. 
 ``$target`` allows you to target a specific migration to run. It is the same as setting ``-t`` as an option in the command line.
-If you wish to set the ``$target`` but not ``$env``, set ``$env`` to ``null``.
 
-This function will return the same string that the terminal command returns.
+This function will return a boolean based on its success.
 
-Status
--------
+Getting Command Output
+-----------------------
 
-This command will run the same command as ``phinx status``.
-
-.. code-block:: php
-
-    $phinx->getStatus($env);
-
-The parameters in this function are both optional. ``$env`` is the environment to use.
-Setting this value **will override** the environment set above.
-
-This function will return the same string that the terminal command returns.
-
-Determining Success
---------------------
-
-Success of a command can be determined by getting the exit code.
+This command will get the string output, for the last command ran, as you would by running the terminal commands.
 
 .. code-block:: php
 
-    $phinx->getExitCode();
+    $phinx->getOutput();
 
-.. note::
-
-    This will return the most recent exit code.
-
-If the exit code is ``0``, the command was successful.
-
-If the exit code is ``> 0``, then the command was unsuccessful.
+This function will return the same string that the terminal command returns.
