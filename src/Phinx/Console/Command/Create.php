@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -41,7 +41,7 @@ class Create extends AbstractCommand
     /**
      * The name of the interface that any external template creation class is required to implement.
      */
-    const CREATION_INTERFACE = '\Phinx\Migration\CreationInterface';
+    const CREATION_INTERFACE = 'Phinx\Migration\CreationInterface';
 
     /**
      * {@inheritdoc}
@@ -123,7 +123,7 @@ class Create extends AbstractCommand
         $fileName = Util::mapClassNameToFileName($className);
         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
 
-        if (file_exists($filePath)) {
+        if (is_file($filePath)) {
             throw new \InvalidArgumentException(sprintf(
                 'The file "%s" already exists',
                 $filePath
@@ -133,7 +133,7 @@ class Create extends AbstractCommand
         // Get the alternative template and static class options, but only allow one of them.
         $altTemplate = $input->getOption('template');
         $creationClassName = $input->getOption('class');
-        if (!empty($altTemplate) && !empty($creationClassName)) {
+        if ($altTemplate && $creationClassName) {
             throw new \InvalidArgumentException('Cannot use --template and --class');
         }
 
@@ -147,22 +147,18 @@ class Create extends AbstractCommand
 
         // Verify the static class exists and that it implements the required interface.
         if (!empty($creationClassName)) {
-            if (!class_exists($creationClassName, true)) {
-                throw new \InvalidArgumentException(
-                    sprintf(
-                        'The class "%s" does not exist',
-                        $creationClassName
-                    )
-                );
+            if (!class_exists($creationClassName)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'The class "%s" does not exist',
+                    $creationClassName
+                ));
             }
-            if (!is_subclass_of($creationClassName, self::CREATION_INTERFACE, true)) {
-                throw new \InvalidArgumentException(
-                    sprintf(
-                        'The class "%s" does not implement the required interface "%s"',
-                        $creationClassName,
-                        self::CREATION_INTERFACE
-                    )
-                );
+            if (!is_subclass_of($creationClassName, self::CREATION_INTERFACE)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'The class "%s" does not implement the required interface "%s"',
+                    $creationClassName,
+                    self::CREATION_INTERFACE
+                ));
             }
         }
 
@@ -195,16 +191,8 @@ class Create extends AbstractCommand
         }
 
         // Do we need to do the post creation call to the creation class?
-        if (!empty($creationClassName)) {
-            try {
-                $creationClass->postMigrationCreation($filePath, $className, $this->getConfig()->getMigrationBaseClassName());
-            } catch(\Exception $ex) {
-                throw new \RuntimeException(sprintf(
-                    'Problem calling %s->postMigrationCreation(), resulting in %s',
-                    $creationClassName,
-                    $ex->getMessage()
-                ));
-            }
+        if ($creationClassName) {
+            $creationClass->postMigrationCreation($filePath, $className, $this->getConfig()->getMigrationBaseClassName());
         }
 
         $output->writeln('<info>using migration base class</info> ' . $classes['$useClassName']);
