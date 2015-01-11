@@ -295,6 +295,6 @@ abstract class AbstractCommand extends Command
      */
     protected function getMigrationTemplate()
     {
-        return file_get_contents(dirname(__FILE__) . self::DEFAULT_MIGRATION_TEMPLATE);
+        return file_get_contents(__DIR__ . self::DEFAULT_MIGRATION_TEMPLATE);
     }
 }
