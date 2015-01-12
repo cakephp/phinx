@@ -89,10 +89,6 @@ class Create extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /**
-         * @var CreationInterface $creationClass
-         */
-
         $this->bootstrap($input, $output);
 
         // get the migration path from the config
@@ -138,7 +134,7 @@ class Create extends AbstractCommand
         }
 
         // Verify the alternative template file's existence.
-        if (!empty($altTemplate) && !file_exists($altTemplate)) {
+        if ($altTemplate && !is_file($altTemplate)) {
             throw new \InvalidArgumentException(sprintf(
                 'The alternative template file "%s" does not exist',
                 $altTemplate
@@ -146,7 +142,7 @@ class Create extends AbstractCommand
         }
 
         // Verify the static class exists and that it implements the required interface.
-        if (!empty($creationClassName)) {
+        if ($creationClassName) {
             if (!class_exists($creationClassName)) {
                 throw new \InvalidArgumentException(sprintf(
                     'The class "%s" does not exist',
@@ -163,16 +159,13 @@ class Create extends AbstractCommand
         }
 
         // Determine the appropriate mechanism to get the template
-        if (!empty($altTemplate)) {
-            // Get the template from the alternative template filename.
-            $contents = file_get_contents($altTemplate);
-        } elseif (!empty($creationClassName)) {
+        if ($creationClassName) {
             // Get the template from the creation class
             $creationClass = new $creationClassName();
             $contents = $creationClass->getMigrationTemplate();
         } else {
-            // load the migration template
-            $contents = $this->getMigrationTemplate();
+            // Load the alternative template if it is defined.
+            $contents = file_get_contents($altTemplate ?: $this->getMigrationTemplateFilename());
         }
 
         // inject the class names appropriate to this migration

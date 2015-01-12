@@ -289,12 +289,12 @@ abstract class AbstractCommand extends Command
     }
 
     /**
-     * Returns the migration template content.
+     * Returns the migration template filename.
      *
      * @return string
      */
-    protected function getMigrationTemplate()
+    protected function getMigrationTemplateFilename()
     {
-        return file_get_contents(__DIR__ . self::DEFAULT_MIGRATION_TEMPLATE);
+        return __DIR__ . self::DEFAULT_MIGRATION_TEMPLATE;
     }
 }
