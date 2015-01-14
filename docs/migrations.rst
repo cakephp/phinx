@@ -893,12 +893,16 @@ INT_BIG      BIGINT
 
 .. code-block:: php
 
-        $table = $this->table('cart_items');
-        $table->addColumn('user_id', 'integer')
-              ->addColumn('product_id', 'integer', array('limit' => MysqlAdapter::INT_BIG))
-              ->addColumn('subtype_id', 'integer', array('limit' => MysqlAdapter::INT_SMALL))
-              ->addColumn('quantity', 'integer', array('limit' => MysqlAdapter::INT_TINY))
-              ->create();
+         use Phinx\Db\Adapter\MysqlAdapter;
+   
+         //...
+   
+         $table = $this->table('cart_items');
+         $table->addColumn('user_id', 'integer')
+               ->addColumn('product_id', 'integer', array('limit' => MysqlAdapter::INT_BIG))
+               ->addColumn('subtype_id', 'integer', array('limit' => MysqlAdapter::INT_SMALL))
+               ->addColumn('quantity', 'integer', array('limit' => MysqlAdapter::INT_TINY))
+               ->create();
 
 The Save Method
 ~~~~~~~~~~~~~~~
