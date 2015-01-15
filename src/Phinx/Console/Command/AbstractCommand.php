@@ -307,7 +307,7 @@ abstract class AbstractCommand extends Command
     protected function getDatabases($envOptions, array $databases = null)
     {
         $envDatabases = array();
-        if (empty($envOptions['name']) && !empty($envOptions)) {
+        if (empty($envOptions['name']) && !empty($envOptions) && !empty($envOptions['databases']) && is_array($envOptions['databases'])) {
             foreach ($envOptions['databases'] as $envDatabase) {
                 if (is_array($envDatabase)) {
                     $temp = array_keys($envDatabase);
