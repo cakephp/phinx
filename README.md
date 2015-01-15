@@ -36,7 +36,7 @@ Phinx natively supports the following database adapters:
 features not covered in official documentation
 
 * multi-databases in one environment
-* added new data types for mysql adapter (char, tinyint, smallint, enum, set)
+* added new data types for mysql adapter (enum, set)
 
 
 ## Install & Run
