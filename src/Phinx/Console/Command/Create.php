@@ -130,7 +130,7 @@ class Create extends AbstractCommand
         $altTemplate = $input->getOption('template');
         $creationClassName = $input->getOption('class');
         if ($altTemplate && $creationClassName) {
-            throw new \InvalidArgumentException('Cannot use --template and --class');
+            throw new \InvalidArgumentException('Cannot use --template and --class at the same time');
         }
 
         // Verify the alternative template file's existence.
@@ -191,11 +191,11 @@ class Create extends AbstractCommand
         $output->writeln('<info>using migration base class</info> ' . $classes['$useClassName']);
 
         if (!empty($altTemplate)) {
-            $output->writeln('<info>using alternative template</info> ' . realpath($altTemplate));
+            $output->writeln('<info>using alternative template</info> ' . $altTemplate);
         } elseif (!empty($creationClassName)) {
             $output->writeln('<info>using template creation class</info> ' . $creationClassName);
         } else {
-            $output->writeln('<info>using template</info> ' . realpath(dirname(__FILE__) . self::DEFAULT_MIGRATION_TEMPLATE));
+            $output->writeln('<info>using default template</info>');
         }
 
         $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
