@@ -45,13 +45,17 @@ class Rollback extends AbstractCommand
 
         $this->setName('rollback')
              ->setDescription('Rollback the last or to a specific migration')
+             ->addOption('--individual', '-i', InputOption::VALUE_OPTIONAL, 'An individual migration to roll back')
              ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to rollback to')
              ->setHelp(
 <<<EOT
-The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
+The <info>rollback</info> command reverts the last migration, or optionally up to a specific version.
+
+Using -i will rollback a single, individual migration.
 
 <info>phinx rollback -e development</info>
 <info>phinx rollback -e development -t 20111018185412</info>
+<info>phinx rollback -e development -t 20111018185412 -i</info>
 <info>phinx rollback -e development -v</info>
 
 EOT
@@ -71,6 +75,7 @@ EOT
 
         $environment = $input->getOption('environment');
         $version = $input->getOption('target');
+        $individual = $this->getOption('individual')
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -90,7 +95,7 @@ EOT
 
         // rollback the specified environment
         $start = microtime(true);
-        $this->getManager()->rollback($environment, $version);
+        $this->getManager()->rollback($environment, $version, $individual == true);
         $end = microtime(true);
 
         $output->writeln('');
