@@ -399,7 +399,7 @@ class Manager
      */
     public function getMigrations($database = null)
     {
-        if (null === $this->migrations) {
+        if (empty($this->migrations)) {
             $config = $this->getConfig();
             $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php');
 
