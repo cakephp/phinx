@@ -46,12 +46,15 @@ class Migrate extends AbstractCommand
         $this->setName('migrate')
              ->setDescription('Migrate the database')
              ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
+             ->addOption('--databases', '-d', InputOption::VALUE_OPTIONAL, 'The name of database(s) which will be used to migrate (separate multiple names with a space)')
              ->setHelp(
 <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
 
 <info>phinx migrate -e development</info>
 <info>phinx migrate -e development -t 20110103081132</info>
+<info>phinx migrate -e development -t 20110103081132 -d m*</info>
+<info>phinx migrate -e development -t 20110103081132 -d "m1 m7 m18"</info>
 <info>phinx migrate -e development -v</info>
 
 EOT
@@ -71,6 +74,10 @@ EOT
 
         $version = $input->getOption('target');
         $environment = $input->getOption('environment');
+        $databases = $input->getOption('databases');
+        if (!empty(trim($databases))) {
+            $databases = explode(' ', $databases);
+        }
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -80,24 +87,36 @@ EOT
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
+
         if (isset($envOptions['adapter'])) {
             $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
-        }
-
-        if (isset($envOptions['name'])) {
-            $output->writeln('<info>using database</info> ' . $envOptions['name']);
         }
 
         if (isset($envOptions['table_prefix'])) {
             $output->writeln('<info>using table prefix</info> ' . $envOptions['table_prefix']);
         }
+
         if (isset($envOptions['table_suffix'])) {
             $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
         }
 
-        // run the migrations
+        $envDatabases = array ();
+        $envDatabases = $this->getDatabases($envOptions, $databases);
+
+        // rollback the specified environment
         $start = microtime(true);
-        $this->getManager()->migrate($environment, $version);
+        if (!empty($envDatabases)) {
+            // run the migrations against all database
+            $output->writeln('<info>using database' . (count ( $envDatabases ) > 1 ? 's ' : '') . '</info> ' . implode (', ', $envDatabases));
+            foreach ($envDatabases as $database) {
+                $output->writeln('');
+                $output->writeln('<info>database:</info> ' . $database);
+                $this->getManager()->migrate($environment, $database, $version);
+            }
+        } else {
+            $output->writeln('<error>database was not found</error> ');
+            $this->getManager()->migrate($environment, null, $version);
+        }
         $end = microtime(true);
 
         $output->writeln('');

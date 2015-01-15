@@ -34,7 +34,7 @@ use Symfony\Component\Yaml\Yaml;
  * Phinx configuration class.
  *
  * @package Phinx
- * @author Rob Morgan
+ * @author  Rob Morgan <robbym@gmail.com>
  */
 class Config implements ConfigInterface
 {
@@ -81,6 +81,7 @@ class Config implements ConfigInterface
      *
      * @param  string $configFilePath Path to the JSON File
      * @throws \RuntimeException
+     *
      * @return Config
      */
     public static function fromJson($configFilePath)
@@ -100,6 +101,7 @@ class Config implements ConfigInterface
      *
      * @param  string $configFilePath Path to the PHP File
      * @throws \RuntimeException
+     *
      * @return Config
      */
     public static function fromPhp($configFilePath)
@@ -143,7 +145,7 @@ class Config implements ConfigInterface
     /**
      * {@inheritdoc}
      */
-    public function getEnvironment($name)
+    public function getEnvironment($name, $database = null)
     {
         $environments = $this->getEnvironments();
 
@@ -151,6 +153,49 @@ class Config implements ConfigInterface
             if (isset($this->values['environments']['default_migration_table'])) {
                 $environments[$name]['default_migration_table'] =
                     $this->values['environments']['default_migration_table'];
+            }
+
+            if (!empty($environments[$name]['name']) && $database !== null) {
+                if ($database != $environments[$name]['name']) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'The database "%s" does not exists in environment "%s"',
+                        $database,
+                        $name
+                    ));
+                }
+                $environments[$name]['name'] = $database;
+            }
+            elseif (!empty($environments[$name]['databases']) && $database !== null ) {
+                $found = false;
+                $nestedSetup = array();
+
+                foreach ($environments[$name]['databases'] as $configRecord) {
+                    if (is_array($configRecord) && array_key_exists($database, $configRecord)) {
+                        $found = true;
+                        $nestedSetup = $configRecord[$database];
+                        break;
+                    } elseif ($database === $configRecord) {
+                        $found = true;
+                        $nestedSetup = array();
+                        break;
+                    }
+                }
+
+                if ($found == false) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'The database "%s" does not exists in environment "%s"',
+                        $database,
+                        $name
+                    ));
+                }
+
+                $environments[$name]['name'] = $database;
+                if (!empty($nestedSetup)) {
+                    $environments[$name] = array_merge($environments[$name], $nestedSetup);
+                }
+                unset($environments[$name]['databases']);
+            } else {
+
             }
 
             return $environments[$name];
@@ -201,6 +246,7 @@ class Config implements ConfigInterface
         // else default to the first available one
         if (is_array($this->getEnvironments()) && count($this->getEnvironments()) > 0) {
             $names = array_keys($this->getEnvironments());
+
             return $names[0];
         }
 
@@ -244,6 +290,7 @@ class Config implements ConfigInterface
      * Replace tokens in the specified array.
      *
      * @param array $arr Array to replace
+     *
      * @return array
      */
     protected function replaceTokens($arr)
@@ -272,8 +319,9 @@ class Config implements ConfigInterface
     /**
      * Recurse an array for the specified tokens and replace them.
      *
-     * @param array $arr Array to recurse
+     * @param array $arr    Array to recurse
      * @param array $tokens Array of tokens to search for
+     *
      * @return array
      */
     protected function recurseArrayForTokens($arr, $tokens)
@@ -293,6 +341,7 @@ class Config implements ConfigInterface
             }
             $out[$name] = $value;
         }
+
         return $out;
     }
 

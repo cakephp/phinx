@@ -41,7 +41,7 @@ use Phinx\Db\Table\ForeignKey;
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
 
-    protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
+    protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true, 'tinyint' => true, 'smallint' => true);
 
     const TEXT_TINY    = 255;
     const TEXT_SMALL   = 255; /* deprecated, alias of TEXT_TINY */
@@ -793,6 +793,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_LINESTRING:
             case static::PHINX_TYPE_POLYGON:
                 return array('name' => $type);
+            case static::PHINX_TYPE_ENUM:
+                return array('name' => 'enum', 'limit' => $limit);
+                break;
+            case static::PHINX_TYPE_SET:
+                return array('name' => 'set', 'limit' => $limit);
                 break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
@@ -1046,5 +1051,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         );
 
         return $this->fetchRow($sql);
+    }
+
+    /**
+     * Returns MySQL column types (inherited and MySQL specified).
+     * @return array
+     */
+    public function getColumnTypes()
+    {
+        return array_merge(parent::getColumnTypes(),
+            [
+                'enum',
+                'set',
+            ]);
     }
 }

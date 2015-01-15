@@ -46,6 +46,7 @@ class Rollback extends AbstractCommand
         $this->setName('rollback')
              ->setDescription('Rollback the last or to a specific migration')
              ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to rollback to')
+             ->addOption('--databases', '-d', InputOption::VALUE_OPTIONAL, 'The name of database(s) which will be used to migrate (separate multiple names with a space)')
              ->setHelp(
 <<<EOT
 The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
@@ -61,8 +62,9 @@ EOT
     /**
      * Rollback the migration.
      *
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -71,6 +73,10 @@ EOT
 
         $environment = $input->getOption('environment');
         $version = $input->getOption('target');
+        $databases = $input->getOption('databases');
+        if (!empty(trim($databases))) {
+            $databases = explode(' ', $databases);
+        }
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -80,17 +86,25 @@ EOT
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
-        if (isset($envOptions['adapter'])) {
-            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
-        }
+        $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
 
-        if (isset($envOptions['name'])) {
-            $output->writeln('<info>using database</info> ' . $envOptions['name']);
-        }
+        $envDatabases = array ();
+        $envDatabases = $this->getDatabases($envOptions, $databases);
 
         // rollback the specified environment
         $start = microtime(true);
-        $this->getManager()->rollback($environment, $version);
+        if (!empty($envDatabases)) {
+            // run the migrations against all database
+            $output->writeln('<info>using database' . (count ( $envDatabases ) > 1 ? 's ' : '') . '</info> ' . implode (', ', $envDatabases));
+            foreach ($envDatabases as $database) {
+                $output->writeln('');
+                $output->writeln('<info>database:</info> ' . $database);
+                $this->getManager()->rollback($environment, $database, $version);
+            }
+        } else {
+            $output->writeln('<error>database was not found</error> ');
+            $this->getManager()->rollback($environment, null, $version);
+        }
         $end = microtime(true);
 
         $output->writeln('');

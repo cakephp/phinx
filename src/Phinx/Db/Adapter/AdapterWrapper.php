@@ -227,7 +227,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
      */
     public function hasTransactions()
     {
-        return $this->getAdapter()->hasTransaction();
+        return $this->getAdapter()->hasTransactions();
     }
 
     /**

@@ -151,7 +151,7 @@ class Column
     /**
      * Sets the column limit.
      *
-     * @param integer $limit
+     * @param mixed $limit - can be string for floats
      * @return Column
      */
     public function setLimit($limit)
@@ -163,7 +163,7 @@ class Column
     /**
      * Gets the column limit.
      *
-     * @return integer
+     * @return mixed - can be string for floats
      */
     public function getLimit()
     {
