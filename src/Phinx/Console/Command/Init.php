@@ -53,12 +53,10 @@ class Init extends Command
     /**
      * Initializes the application.
      *
-     * @param InputInterface  $input
+     * @param InputInterface $input
      * @param OutputInterface $output
-     *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     *
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)

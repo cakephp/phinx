@@ -34,7 +34,7 @@ use Symfony\Component\Yaml\Yaml;
  * Phinx configuration class.
  *
  * @package Phinx
- * @author  Rob Morgan <robbym@gmail.com>
+ * @author Rob Morgan
  */
 class Config implements ConfigInterface
 {
@@ -81,7 +81,6 @@ class Config implements ConfigInterface
      *
      * @param  string $configFilePath Path to the JSON File
      * @throws \RuntimeException
-     *
      * @return Config
      */
     public static function fromJson($configFilePath)
@@ -101,7 +100,6 @@ class Config implements ConfigInterface
      *
      * @param  string $configFilePath Path to the PHP File
      * @throws \RuntimeException
-     *
      * @return Config
      */
     public static function fromPhp($configFilePath)
@@ -246,7 +244,6 @@ class Config implements ConfigInterface
         // else default to the first available one
         if (is_array($this->getEnvironments()) && count($this->getEnvironments()) > 0) {
             $names = array_keys($this->getEnvironments());
-
             return $names[0];
         }
 
@@ -290,7 +287,6 @@ class Config implements ConfigInterface
      * Replace tokens in the specified array.
      *
      * @param array $arr Array to replace
-     *
      * @return array
      */
     protected function replaceTokens($arr)
@@ -319,9 +315,8 @@ class Config implements ConfigInterface
     /**
      * Recurse an array for the specified tokens and replace them.
      *
-     * @param array $arr    Array to recurse
+     * @param array $arr Array to recurse
      * @param array $tokens Array of tokens to search for
-     *
      * @return array
      */
     protected function recurseArrayForTokens($arr, $tokens)
@@ -341,7 +336,6 @@ class Config implements ConfigInterface
             }
             $out[$name] = $value;
         }
-
         return $out;
     }
 

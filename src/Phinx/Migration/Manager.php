@@ -253,7 +253,6 @@ class Manager
         // Check we have at least 1 migration to revert
         if (empty($versions) || $version == end($versions)) {
             $this->getOutput()->writeln('<error>No migrations to rollback</error>');
-
             return;
         }
 
@@ -275,7 +274,6 @@ class Manager
         // Check the target version exists
         if (0 !== $version && !isset($migrations[$version])) {
             $this->getOutput()->writeln("<error>Target version ($version) not found</error>");
-
             return;
         }
 
@@ -296,13 +294,11 @@ class Manager
      * Sets the environments.
      *
      * @param array $environments Environments
-     *
      * @return Manager
      */
     public function setEnvironments($environments = array())
     {
         $this->environments = $environments;
-
         return $this;
     }
 
@@ -342,19 +338,17 @@ class Manager
      * Sets the console output.
      *
      * @param OutputInterface $output Output
-     *
      * @return Manager
      */
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
-
         return $this;
     }
 
     /**
      * Gets the console output.
-     *
+
      * @return OutputInterface
      */
     public function getOutput()
@@ -366,13 +360,11 @@ class Manager
      * Sets the database migrations.
      *
      * @param array $migrations Migrations
-     *
      * @return Manager
      */
     public function setMigrations(array $migrations)
     {
         $this->migrations = $migrations;
-
         return $this;
     }
 
@@ -394,7 +386,6 @@ class Manager
      * @param string $database Database name
      *
      * @throws \InvalidArgumentException
-     *
      * @return AbstractMigration[]
      */
     public function getMigrations($database = null)
@@ -482,7 +473,6 @@ class Manager
     public function setConfig(ConfigInterface $config)
     {
         $this->config = $config;
-
         return $this;
     }
 

@@ -100,7 +100,6 @@ abstract class AbstractMigration implements MigrationInterface
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
-
         return $this;
     }
 
@@ -143,7 +142,6 @@ abstract class AbstractMigration implements MigrationInterface
     public function setVersion($version)
     {
         $this->version = $version;
-
         return $this;
     }
 
@@ -223,7 +221,6 @@ abstract class AbstractMigration implements MigrationInterface
      * A short-hand method to drop the given database table.
      *
      * @param string $tableName Table Name
-     *
      * @return void
      */
     public function dropTable($tableName)
