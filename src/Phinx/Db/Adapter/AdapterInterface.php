@@ -227,6 +227,14 @@ interface AdapterInterface
     public function fetchAll($sql);
 
     /**
+     * Inserts data into the table
+     *
+     * @param Table $table where to insert data
+     * @param $data
+     */
+    public function insert(Table $table, $data);
+
+    /**
      * Quotes a table name for use in a query.
      *
      * @param string $tableName Table Name

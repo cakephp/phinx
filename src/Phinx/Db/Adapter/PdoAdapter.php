@@ -330,6 +330,38 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function insert(Table $table, $data)
+    {
+        $this->startCommandTimer();
+
+        foreach ($data as $row) {
+
+            $sql = sprintf(
+                "INSERT INTO %s (",
+                $this->quoteTableName($table->getName())
+            );
+
+            foreach (array_keys($row) as $columnName) {
+                $sql .= $this->quoteColumnName($columnName) . ', ';
+            }
+            $sql = substr(rtrim($sql), 0, -1) . ")";
+
+            $sql .= " VALUES (";
+
+            foreach (array_values($row) as $value) {
+                $sql .= (is_numeric($value) ? $value : "'" . $value . "'") . ', ';
+            }
+            $sql = substr(rtrim($sql), 0, -1) . ")";
+
+            $this->execute($sql);
+        }
+
+        $this->endCommandTimer();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getVersions()
     {
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY version ASC', $this->getSchemaTableName()));

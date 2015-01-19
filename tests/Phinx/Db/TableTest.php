@@ -197,4 +197,39 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($columns[1]->isNull());
         $this->assertNull($columns[1]->getDefault());
     }
+
+    public function testInsert()
+    {
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+        $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $data = array(array("column1" => "value1"));
+        $table->insert($data);
+        $this->assertEquals($data, $table->getData());
+    }
+
+    public function testInsertSaveData()
+    {
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+
+        $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $data = array(
+            array("column1" => "value1"),
+            array("column1" => "value2")
+        );
+
+        $adapterStub->expects($this->once())
+            ->method('insert')
+            ->with($table, $data);
+
+        $table->insert($data)->save();
+    }
+
+    public function testResetAfterAddingData()
+    {
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+        $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $data = array(array("column1" => "value1"));
+        $table->insert($data)->save();
+        $this->assertEquals(array(), $table->getData());
+    }
 }

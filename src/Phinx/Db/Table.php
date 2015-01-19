@@ -70,6 +70,11 @@ class Table
     protected $foreignKeys = array();
 
     /**
+     * @var array
+     */
+    protected $data = array();
+
+    /**
      * Class Constuctor.
      *
      * @param string $name Table Name
@@ -275,6 +280,25 @@ class Table
     }
 
     /**
+     * @param $data array of data to be inserted
+     * @return Table
+     */
+    public function setData($data)
+    {
+        $this->data = $data;
+        return $this;
+    }
+
+    /**
+     * Gets the data waiting to be inserted
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
      * Resets all of the pending table changes.
      *
      * @return void
@@ -284,6 +308,7 @@ class Table
         $this->setPendingColumns(array());
         $this->setIndexes(array());
         $this->setForeignKeys(array());
+        $this->setData(array());
     }
 
     /**
@@ -541,6 +566,21 @@ class Table
     }
 
     /**
+     * @param $data array of data in the form :
+     *              array(
+     *                  array("column1" => "value1", "column2" => "anotherValue1"),
+     *                  array("column1" => "value2", "column2" => "anotherValue2"),
+     *              )
+     *
+     * @return Table
+     */
+    public function insert($data)
+    {
+        $this->data = $data;
+        return $this;
+    }
+
+    /**
      * Creates a table from the object instance.
      *
      * @return void
@@ -548,6 +588,7 @@ class Table
     public function create()
     {
         $this->getAdapter()->createTable($this);
+        $this->saveData();
         $this->reset(); // reset pending changes
     }
 
@@ -576,7 +617,17 @@ class Table
             $this->getAdapter()->addForeignKey($this, $foreignKey);
         }
 
+        $this->saveData();
+
         $this->reset(); // reset pending changes
+    }
+
+    /**
+     * Does the actual insertion of pending data
+     */
+    public function saveData()
+    {
+        $this->getAdapter()->insert($this, $this->getData());
     }
 
     /**
