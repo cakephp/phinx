@@ -787,6 +787,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'tinyint', 'limit' => 1);
                 break;
+            case static::PHINX_TYPE_UUID:
+                return array('name' => 'char', 'limit' => 36);
             // Geospatial database types
             case static::PHINX_TYPE_GEOMETRY:
             case static::PHINX_TYPE_POINT:
@@ -836,6 +838,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     $type = static::PHINX_TYPE_CHAR;
                     if ($limit === 255) {
                         $limit = null;
+                    }
+                    if ($limit === 36) {
+                        $type = static::PHINX_TYPE_UUID;
                     }
                     break;
                 case 'tinyint':

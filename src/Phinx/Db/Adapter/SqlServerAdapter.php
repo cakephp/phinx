@@ -1142,23 +1142,7 @@ SQL;
      */
     public function getColumnTypes()
     {
-        return array(
-            'string',
-            'text',
-            'char',
-            'integer',
-            'biginteger',
-            'float',
-            'decimal',
-            'datetime',
-            'timestamp',
-            'time',
-            'date',
-            'binary',
-            'boolean',
-            'uuid',
-            'filestream'
-        );
+        return array_merge(parent::getColumnTypes(), array('filestream'));
     }
 
     /**

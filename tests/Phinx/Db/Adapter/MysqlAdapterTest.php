@@ -575,7 +575,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column16', 'geometry')
               ->addColumn('column17', 'point')
               ->addColumn('column18', 'linestring')
-              ->addColumn('column19', 'polygon');
+              ->addColumn('column19', 'polygon')
+              ->addColumn('column20', 'uuid');
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -619,7 +620,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column16', 'geometry')
               ->addColumn('column17', 'point')
               ->addColumn('column18', 'linestring')
-              ->addColumn('column19', 'polygon');
+              ->addColumn('column19', 'polygon')
+              ->addColumn('column20', 'uuid');
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('group');
