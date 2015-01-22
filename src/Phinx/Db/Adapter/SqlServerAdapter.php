@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -1142,23 +1142,7 @@ SQL;
      */
     public function getColumnTypes()
     {
-        return array(
-            'string',
-            'text',
-            'char',
-            'integer',
-            'biginteger',
-            'float',
-            'decimal',
-            'datetime',
-            'timestamp',
-            'time',
-            'date',
-            'binary',
-            'boolean',
-            'uuid',
-            'filestream'
-        );
+        return array_merge(parent::getColumnTypes(), array('filestream'));
     }
 
     /**

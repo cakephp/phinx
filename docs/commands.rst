@@ -152,3 +152,10 @@ migration status by default. To run migrations up, use `<http://localhost:8000/m
 and to rollback use `<http://localhost:8000/rollback>`__.
 
 **The included web app is only an example and should not be used in production!**
+
+.. note::
+
+        To modify configuration variables at runtime and overrid ``%%PHINX_DBNAME%%``
+        or other another dynamic option, set ``$_SERVER['PHINX_DBNAME']`` before
+        running commands. Available options are documented in the Configuration page.
+
