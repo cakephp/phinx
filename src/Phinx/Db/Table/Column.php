@@ -151,7 +151,7 @@ class Column
     /**
      * Sets the column limit.
      *
-     * @param mixed $limit integer|string - can be string for SET and ENUM
+     * @param integer $limit
      * @return Column
      */
     public function setLimit($limit)
@@ -163,7 +163,7 @@ class Column
     /**
      * Gets the column limit.
      *
-     * @return mixed $limit integer|string - can be string for SET and ENUM
+     * @return integer
      */
     public function getLimit()
     {
