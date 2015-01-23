@@ -873,32 +873,4 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($tableQuoted->hasColumn('value'));
 
     }
-
-    public function testGetColumnTypes()
-    {
-        //smoke test
-        $expected = [
-            'string',
-            'char',
-            'text',
-            'integer',
-            'biginteger',
-            'float',
-            'decimal',
-            'datetime',
-            'timestamp',
-            'time',
-            'date',
-            'binary',
-            'boolean',
-            'geometry',
-            'point',
-            'linestring',
-            'polygon',
-            'enum',
-            'set'
-        ];
-        
-        $this->assertSame($expected, $this->adapter->getColumnTypes());
-    }
 }
