@@ -795,6 +795,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_LINESTRING:
             case static::PHINX_TYPE_POLYGON:
                 return array('name' => $type);
+            case static::PHINX_TYPE_ENUM:
+                return array('name' => 'enum', 'limit' => $limit);
+                break;
+            case static::PHINX_TYPE_SET:
+                return array('name' => 'set', 'limit' => $limit);
                 break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
@@ -1051,5 +1056,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         );
 
         return $this->fetchRow($sql);
+    }
+
+    /**
+     * Returns MySQL column types (inherited and MySQL specified).
+     * @return array
+     */
+    public function getColumnTypes()
+    {
+        return array_merge(parent::getColumnTypes(),
+            [
+                'enum',
+                'set',
+            ]);
     }
 }
