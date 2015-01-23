@@ -414,6 +414,8 @@ Column types are specified as strings and can be one of:
 -  binary
 -  boolean
 
+In addition, the MySQL adapter supports ``enum`` and ``set`` column types.
+
 In addition, the Postgres adapter supports ``json`` and ``uuid`` column types
 (PostgreSQL 9.3 and above).
 
@@ -838,6 +840,13 @@ precision combine with ``scale`` set to set decimial accuracy
 scale     combine with ``precision`` to set decimial accuracy
 ========= ===========
 
+For ``enum`` and ``set`` columns:
+
+========= ===========
+Option    Description
+========= ===========
+values    Can be a comma separated list or an array of values
+========= ===========
 
 For ``integer`` and ``biginteger`` columns:
 

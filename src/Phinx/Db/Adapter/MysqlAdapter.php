@@ -796,10 +796,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_POLYGON:
                 return array('name' => $type);
             case static::PHINX_TYPE_ENUM:
-                return array('name' => 'enum', 'limit' => $limit);
+                return array('name' => 'enum');
                 break;
             case static::PHINX_TYPE_SET:
-                return array('name' => 'set', 'limit' => $limit);
+                return array('name' => 'set');
                 break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
@@ -965,6 +965,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } elseif (isset($sqlType['limit'])) {
             $def .= '(' . $sqlType['limit'] . ')';
         }
+        if (($values = $column->getValues()) && is_array($values)) {
+            $def .= "('" . implode("', '", $values) . "')";
+        }
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
@@ -1064,10 +1067,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(),
-            [
-                'enum',
-                'set',
-            ]);
+        return array_merge(parent::getColumnTypes(), array ('enum', 'set'));
     }
 }

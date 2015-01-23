@@ -31,14 +31,6 @@ Phinx natively supports the following database adapters:
 * SQLite
 * Microsoft SQL Server
 
-#### Features added in this fork
-
-features not covered in official documentation
-
-* multi-databases in one environment
-* added new data types for mysql adapter (enum, set)
-
-
 ## Install & Run
 
 ### Composer
@@ -108,152 +100,10 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
 
 Check out http://docs.phinx.org for the comprehensive documentation.
 
-## Documentation of fork features
-
-### Multi-database
-
-#### Configuration
-
-1. Example of default configuration:
-
-    ```    
-    environments:
-        default_migration_table: phinxlog
-        default_database: development
-        production:
-            adapter: mysql
-            host: localhost
-            name: production_db
-            user: root
-            pass: ''
-            port: 3306
-            charset: utf8
-        development:
-            adapter: mysql
-            host: localhost
-            name: development_db
-            user: root
-            pass: ''
-            port: 3306
-            charset: utf8
-        testing:
-            adapter: mysql
-            host: localhost
-            name: testing_db
-            user: root
-            pass: ''
-            port: 3306
-            charset: utf8
-    ```
-
-2. Few database in one environment
-
-    ```    
-    environments:
-        default_migration_table: phinxlog
-        default_database: development
-        production:
-            adapter: mysql
-            host: localhost
-            user: root
-            pass: ''
-            port: 3306
-            charset: utf8
-            databases: [ production_db1, production_db ]
-        development:
-            adapter: mysql
-            host: localhost
-            name: development_db
-            user: root
-            pass: ''
-            port: 3306
-            charset: utf8
-        testing:
-            adapter: mysql
-            host: localhost
-            name: testing_db
-            user: root
-            pass: ''
-            port: 3306
-            charset: utf8
-    ```
-    
-3. Nested databases configuration (all parameters will be merge with default environment setup)
-
-    ```    
-    environments:
-        default_migration_table: phinxlog
-        default_database: development
-        production:
-            adapter: mysql
-            host: localhost
-            user: root
-            pass: ''
-            port: 3306
-            charset: utf8
-            databases: 
-                - production_db1
-                - production_db2: 
-                      adapter: pgsql
-                      user: root
-                      pass: ''
-                      port: 5433
-                - production_db3: []
-        development:
-            adapter: mysql
-            host: localhost
-            name: development_db
-            user: root
-            pass: ''
-            port: 3306
-            charset: utf8
-        testing:
-            adapter: mysql
-            host: localhost
-            name: testing_db
-            user: root
-            pass: ''
-            port: 3306
-            charset: utf8
-    ```
-
-#### Running migration against specific databases
-
-There was added new option "--databases" or "-d" for commands migrate and rollback so you can run phinx only for one or few database.
-Example of use:
-   ```   
-   phinx migrate --environment production --databases production_db2 
-   ```   
-or
-   ```   
-   phinx migrate --environment production --databases "production_db1 production_db2"
-   ```   
-   
-Additionally you can add now in your migration properties "useInDatabases" what describes for which database it may be apply
-
-   ```   
-   protected $useInDatabases = array ('production_db2');
-   ```   
-
-In that case, above class will be apply on "production_db2" table only and others tables will be omit.
-
-
 ## Contributing
 
-Start by forking Phinx on GitHub: https://github.com/robmorgan/phinx
+Please read the [CONTRIBUTING](CONTRIBUTING.md) document.
 
-Clone your repository to a local directory on your development box.
-
-If you do not have Composer set up already, install it:
- 
- * `curl -s https://getcomposer.org/installer | php`
-
-Change to your Phinx clone directory and pull the necessary dependencies:
-
- * `php composer.phar install --dev`
-
-Copy the `phpunit.xml.dist` template to `phpunit.xml` and change the configuration to suit your environment.
-  
 ## News & Updates
 
 Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
@@ -261,6 +111,19 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 ## Misc
 
 ### Version History
+
+**0.4.2.1** (Saturday, 7th Feburary 2015)
+
+* Proper release, updated docs
+
+**0.4.2** (Friday, 6th Feburary 2015)
+
+* Postgres support for `json` columns added
+* MySQL support for `enum` and `set` columns added
+* Allow setting `identity` option on columns
+* Template configuration and generation made more extensible
+* Created a base class for `ProxyAdapter` and `TablePrefixAdapter`
+* Switched to PSR-4
 
 **0.4.1** (Tuesday, 23rd December 2014)
 

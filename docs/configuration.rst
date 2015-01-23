@@ -74,6 +74,7 @@ specified under the ``environments`` nested collection. For example:
             pass: ''
             port: 3306
             charset: utf8
+            collation: utf8_unicode_ci
 
 would define a new environment called ``production``.
 
@@ -87,6 +88,134 @@ file:
 .. code-block:: bash
 
     export PHINX_ENVIRONMENT=dev-`whoami`-`hostname`
+
+### Multi-database
+
+#### Configuration
+
+1. Example of default configuration:
+
+    ```    
+    environments:
+        default_migration_table: phinxlog
+        default_database: development
+        production:
+            adapter: mysql
+            host: localhost
+            name: production_db
+            user: root
+            pass: ''
+            port: 3306
+            charset: utf8
+        development:
+            adapter: mysql
+            host: localhost
+            name: development_db
+            user: root
+            pass: ''
+            port: 3306
+            charset: utf8
+        testing:
+            adapter: mysql
+            host: localhost
+            name: testing_db
+            user: root
+            pass: ''
+            port: 3306
+            charset: utf8
+    ```
+
+2. Few database in one environment
+
+    ```    
+    environments:
+        default_migration_table: phinxlog
+        default_database: development
+        production:
+            adapter: mysql
+            host: localhost
+            user: root
+            pass: ''
+            port: 3306
+            charset: utf8
+            databases: [ production_db1, production_db ]
+        development:
+            adapter: mysql
+            host: localhost
+            name: development_db
+            user: root
+            pass: ''
+            port: 3306
+            charset: utf8
+        testing:
+            adapter: mysql
+            host: localhost
+            name: testing_db
+            user: root
+            pass: ''
+            port: 3306
+            charset: utf8
+    ```
+    
+3. Nested databases configuration (all parameters will be merge with default environment setup)
+
+    ```    
+    environments:
+        default_migration_table: phinxlog
+        default_database: development
+        production:
+            adapter: mysql
+            host: localhost
+            user: root
+            pass: ''
+            port: 3306
+            charset: utf8
+            databases: 
+                - production_db1
+                - production_db2: 
+                      adapter: pgsql
+                      user: root
+                      pass: ''
+                      port: 5433
+                - production_db3: []
+        development:
+            adapter: mysql
+            host: localhost
+            name: development_db
+            user: root
+            pass: ''
+            port: 3306
+            charset: utf8
+        testing:
+            adapter: mysql
+            host: localhost
+            name: testing_db
+            user: root
+            pass: ''
+            port: 3306
+            charset: utf8
+    ```
+
+#### Running migration against specific databases
+
+There was added new option "--databases" or "-d" for commands migrate and rollback so you can run phinx only for one or few database.
+Example of use:
+   ```   
+   phinx migrate --environment production --databases production_db2 
+   ```   
+or
+   ```   
+   phinx migrate --environment production --databases "production_db1 production_db2"
+   ```   
+   
+Additionally you can add now in your migration properties "useInDatabases" what describes for which database it may be apply
+
+   ```   
+   protected $useInDatabases = array ('production_db2');
+   ```   
+
+In that case, above class will be apply on "production_db2" table only and others tables will be omit.
+
 
 Socket Connections
 ------------------
@@ -153,6 +282,10 @@ Declaring an SQLite database uses a simplified structure:
         testing:
             adapter: sqlite
             memory: true     # Setting memory to *any* value overrides name
+
+When using the ``sqlsrv`` adapter and connecting to a named instance of 
+SQLServer you should omit the ``port`` setting as sqlsrv will negotiate the port
+automatically.
 
 You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface`
 with `AdapterFactory`: 
