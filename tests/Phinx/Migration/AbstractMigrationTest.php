@@ -193,4 +193,20 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub->setAdapter($adapterStub);
         $migrationStub->dropTable('test_table');
     }
+
+	public function testDatabaseAllowedMethod()
+	{
+		// stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
+        $migrationStub->useInDatabases = ['testing1', 'testing2'];
+        // smoke test
+        $this->assertTrue($migrationStub->databaseAllowed(null));
+        // database not match
+        $this->assertFalse($migrationStub->databaseAllowed('testing'));
+        // trie case
+        $this->assertTrue($migrationStub->databaseAllowed('testing2'));
+        // checking for wildcard
+        $migrationStub->useInDatabases = ['testing*'];
+        $this->assertTrue($migrationStub->databaseAllowed('testing1'));
+	}
 }

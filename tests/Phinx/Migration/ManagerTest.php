@@ -218,7 +218,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($adapter->hasForeignKey('user_logins', array('user_id')));
 
         // revert all changes to the first
-        $this->manager->rollback('production', '20121213232502');
+        $this->manager->rollback('production', null, '20121213232502');
 
         // ensure reversed migrations worked
         $this->assertTrue($adapter->hasTable('info'));
