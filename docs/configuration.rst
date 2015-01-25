@@ -74,6 +74,7 @@ specified under the ``environments`` nested collection. For example:
             pass: ''
             port: 3306
             charset: utf8
+            collation: utf8_unicode_ci
 
 would define a new environment called ``production``.
 
