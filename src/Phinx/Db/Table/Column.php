@@ -468,11 +468,7 @@ class Column
      */
     public function setValues($values)
     {
-        if(is_array($values))
-        {
-            foreach($values as &$value) { $value = "'{$value}'"; }
-            $values = implode(',', $values);
-        }
+        if(!is_array($values)) { $values = explode(',', $values); }
         $this->values = $values;
         return $this;
     }

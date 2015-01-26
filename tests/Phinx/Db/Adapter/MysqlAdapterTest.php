@@ -577,7 +577,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column18', 'linestring')
               ->addColumn('column19', 'polygon')
               ->addColumn('column20', 'uuid')
-              ->addColumn('column21', 'set', array('values' => "'one', 'two'"))
+              ->addColumn('column21', 'set', array('values' => "one, two"))
               ->addColumn('column22', 'enum', array('values' => array('three', 'four')));
         $pendingColumns = $table->getPendingColumns();
         $table->save();
@@ -624,7 +624,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column18', 'linestring')
               ->addColumn('column19', 'polygon')
               ->addColumn('column20', 'uuid')
-              ->addColumn('column21', 'set', array('values' => "'one', 'two'"))
+              ->addColumn('column21', 'set', array('values' => "one, two"))
               ->addColumn('column22', 'enum', array('values' => array('three', 'four')));
         $pendingColumns = $table->getPendingColumns();
         $table->save();
