@@ -33,6 +33,7 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Yaml;
 
 class Init extends Command
 {
@@ -79,24 +80,12 @@ class Init extends Command
 
         // set the config format
         $getFormat = new ChoiceQuestion(
-            'Would you like Phinx to use json yml or php based configuration?',
+            'Would you like to use JSON, YML, or PHP configuration files?',
             array('php', 'json', 'yml'),
             2
         );
 
         $type = $helper->ask($input, $output, $getFormat);
-
-        switch ($type) {
-            case 'php':
-            case 'json':
-            case 'yml':
-                break;
-            default:
-                throw new \InvalidArgumentException(sprintf(
-                    'The format "%s" is not one of json, php or yml',
-                    $type
-                ));
-        }
 
         // Compute the file path
         $fileName = 'phinx.'.$type; // TODO - maybe in the future we allow custom config names.
@@ -111,10 +100,24 @@ class Init extends Command
 
         // load the config template
         if (is_dir(__DIR__ . '/../../../data/Phinx')) {
-            $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/phinx.'.$type);
+            $file = __DIR__ . '/../../../data/Phinx/phinx.php';
         } else {
-            $contents = file_get_contents(__DIR__ . '/../../../../phinx.'.$type);
+            $file = __DIR__  . '/../../../../phinx.php';
         }
+
+        switch ($type) {
+            case 'json':
+                $contents = json_encode(require $file, JSON_PRETTY_PRINT);
+                break;
+            case 'yml':
+                $contents = Yaml::dump(require $file, 6);
+                break;
+            case 'php':
+            default:
+                $contents = file_get_contents($file);
+                break;
+        }
+
 
         if (false === file_put_contents($filePath, $contents)) {
             throw new \RuntimeException(sprintf(
