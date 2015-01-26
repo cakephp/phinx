@@ -29,8 +29,9 @@
 namespace Phinx\Console\Command;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Init extends Command
@@ -42,7 +43,6 @@ class Init extends Command
     {
         $this->setName('init')
             ->setDescription('Initialize the application for Phinx')
-            ->addArgument('path', InputArgument::OPTIONAL, 'Which path should we initialize for Phinx?')
             ->setHelp(sprintf(
                 '%sInitializes the application for Phinx%s',
                 PHP_EOL,
@@ -61,13 +61,13 @@ class Init extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // get the migration path from the config
-        $path = $input->getArgument('path');
-
-        if (null === $path) {
-            $path = getcwd();
-        }
-
+        //set the path
+        $helper = $this->getHelper('question');
+        $getPath = new Question(
+            'Which path should we initialize for Phinx? (default is current directory) ',
+            getcwd()
+        );
+        $path = $helper->ask($input, $output, $getPath);
         $path = realpath($path);
 
         if (!is_writeable($path)) {
@@ -77,8 +77,29 @@ class Init extends Command
             ));
         }
 
+        // set the config format
+        $getFormat = new ChoiceQuestion(
+            'Would you like Phinx to use json yml or php based configuration?',
+            array('php', 'json', 'yml'),
+            2
+        );
+
+        $type = $helper->ask($input, $output, $getFormat);
+
+        switch ($type) {
+            case 'php':
+            case 'json':
+            case 'yml':
+                break;
+            default:
+                throw new \InvalidArgumentException(sprintf(
+                    'The format "%s" is not one of json, php or yml',
+                    $type
+                ));
+        }
+
         // Compute the file path
-        $fileName = 'phinx.yml'; // TODO - maybe in the future we allow custom config names.
+        $fileName = 'phinx.'.$type; // TODO - maybe in the future we allow custom config names.
         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
 
         if (file_exists($filePath)) {
@@ -90,9 +111,9 @@ class Init extends Command
 
         // load the config template
         if (is_dir(__DIR__ . '/../../../data/Phinx')) {
-            $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/phinx.yml');
+            $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/phinx.'.$type);
         } else {
-            $contents = file_get_contents(__DIR__ . '/../../../../phinx.yml');
+            $contents = file_get_contents(__DIR__ . '/../../../../phinx.'.$type);
         }
 
         if (false === file_put_contents($filePath, $contents)) {
