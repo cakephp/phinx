@@ -4,20 +4,21 @@ Phinx relies heavily on external contributions in order to make it the best data
 tool possible. Without the support of our 70+ contributors we wouldn't be where we are today!
 We encourage anyone to submit documentation enhancements and code.
 
-Issues, bugs and feature requests should be submitted using the Github issue tool:
+Issues, feature requests and bugs should be submitted using the Github issue tool:
 https://github.com/robmorgan/phinx/issues.
 
 This document briefly outlines the requirements to contribute code to Phinx.
 
 ## Considerations
 
-Before you submit your pull request take a moment to answer the following questions. The more
-you can answer 'YES' to will increase the likelyhood of your PR being accepted!
+Before you submit your pull request take a moment to answer the following questions.
+
+Answering '**YES**' to all questions will increase the likelyhood of your PR being accepted!
 
 * Have I implemented my feature for as many database adapters as possible?
 * Does my new feature improve Phinx's performance or keep it consistent?
 * Does my feature fit within the database migration space?
-* Is my code entirely my own and free from any commercial licensing?
+* Is the code entirely my own and free from any commercial licensing?
 * Am I happy to release my code under the MIT license?
 * Is my code formatted using the [PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md) coding standard?
 
@@ -34,8 +35,6 @@ Great, so you want to contribute. Let's get started:
 
 1. If you do not have Composer set up already, install it:
 
-1. Install Composer
-
     ```    
     curl -s https://getcomposer.org/installer | php
     ```
@@ -48,9 +47,9 @@ Great, so you want to contribute. Let's get started:
  
 1. Copy the `phpunit.xml.dist` template to `phpunit.xml` and change the configuration to suit your environment.
 
-1. Run the unit-tests locally to ensure they pass. If you are not using any particular adapter you can disable it in the `phpunit.xml` file.
+1. Run the unit tests locally to ensure they pass. If you are not using any particular adapter you can disable it in the `phpunit.xml` file.
 
-1. Write the code and unit-tests for your bug fix or feature.
+1. Write the code and unit tests for your bug fix or feature.
 
 1. Add any relevant documentation.
 
