@@ -102,20 +102,8 @@ Check out http://docs.phinx.org for the comprehensive documentation.
 
 ## Contributing
 
-Start by forking Phinx on GitHub: https://github.com/robmorgan/phinx
+Please read the [CONTRIBUTING](CONTRIBUTING.md) document.
 
-Clone your repository to a local directory on your development box.
-
-If you do not have Composer set up already, install it:
- 
- * `curl -s https://getcomposer.org/installer | php`
-
-Change to your Phinx clone directory and pull the necessary dependencies:
-
- * `php composer.phar install --dev`
-
-Copy the `phpunit.xml.dist` template to `phpunit.xml` and change the configuration to suit your environment.
-  
 ## News & Updates
 
 Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
