@@ -330,31 +330,31 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function insert(Table $table, $data)
+    public function insert(Table $table, $columns, $data)
     {
         $this->startCommandTimer();
 
+        $sql = sprintf(
+            "INSERT INTO %s ",
+            $this->quoteTableName($table->getName())
+        );
+
+        $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
+        $sql .= " VALUES ";
+
+        $rows = [];
         foreach ($data as $row) {
-
-            $sql = sprintf(
-                "INSERT INTO %s (",
-                $this->quoteTableName($table->getName())
-            );
-
-            foreach (array_keys($row) as $columnName) {
-                $sql .= $this->quoteColumnName($columnName) . ', ';
-            }
-            $sql = substr(rtrim($sql), 0, -1) . ")";
-
-            $sql .= " VALUES (";
-
-            foreach (array_values($row) as $value) {
-                $sql .= (is_numeric($value) ? $value : "'" . $value . "'") . ', ';
-            }
-            $sql = substr(rtrim($sql), 0, -1) . ")";
-
-            $this->execute($sql);
+            $rows[] = "(" . implode(', ', array_map(function ($value) {
+                if (is_numeric($value)) {
+                    return $value;
+                }
+                return "'{$value}'";
+            }, $row)) . ")";
         }
+
+        $sql .= implode(', ', $rows);
+
+        $this->execute($sql);
 
         $this->endCommandTimer();
     }

@@ -160,9 +160,9 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function insert(Table $table, $data)
+    public function insert(Table $table, $columns, $data)
     {
-        return $this->getAdapter()->insert($table, $data);
+        return $this->getAdapter()->insert($table, $columns, $data);
     }
 
     /**

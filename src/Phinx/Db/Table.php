@@ -566,17 +566,18 @@ class Table
     }
 
     /**
+     * @param array $columns column names
      * @param $data array of data in the form :
      *              array(
-     *                  array("column1" => "value1", "column2" => "anotherValue1"),
-     *                  array("column1" => "value2", "column2" => "anotherValue2"),
+     *                  array("value1", "anotherValue1"),
+     *                  array("value2", "anotherValue2"),
      *              )
      *
      * @return Table
      */
-    public function insert($data)
+    public function insert($columns, $data)
     {
-        $this->data = $data;
+        $this->data[] = array("columns" => $columns, "data" => $data);
         return $this;
     }
 
@@ -627,7 +628,9 @@ class Table
      */
     public function saveData()
     {
-        $this->getAdapter()->insert($this, $this->getData());
+        foreach ($this->getData() as $data) {
+            $this->getAdapter()->insert($this, $data["columns"], $data["data"]);
+        }
     }
 
     /**

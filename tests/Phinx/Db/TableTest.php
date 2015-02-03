@@ -202,9 +202,13 @@ class TableTest extends \PHPUnit_Framework_TestCase
     {
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
-        $data = array(array("column1" => "value1"));
-        $table->insert($data);
-        $this->assertEquals($data, $table->getData());
+        $columns = array("column1", "column2");
+        $data = array( array("value1", "value2") );
+        $table->insert($columns, $data);
+        $expectedData = array(
+            array("columns" => $columns, "data" => $data)
+        );
+        $this->assertEquals($expectedData, $table->getData());
     }
 
     public function testInsertSaveData()
@@ -212,24 +216,26 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
 
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $columns = array("column1");
         $data = array(
-            array("column1" => "value1"),
-            array("column1" => "value2")
+            array("value1"),
+            array("value2")
         );
 
         $adapterStub->expects($this->once())
             ->method('insert')
-            ->with($table, $data);
+            ->with($table, $columns, $data);
 
-        $table->insert($data)->save();
+        $table->insert($columns, $data)->save();
     }
 
     public function testResetAfterAddingData()
     {
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
-        $data = array(array("column1" => "value1"));
-        $table->insert($data)->save();
+        $columns = array("column1");
+        $data = array(array("value1"));
+        $table->insert($columns, $data)->save();
         $this->assertEquals(array(), $table->getData());
     }
 }

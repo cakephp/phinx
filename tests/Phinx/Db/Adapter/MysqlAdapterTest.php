@@ -877,11 +877,15 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('column1', 'string')
             ->addColumn('column2', 'integer')
-            ->insert(array(
-                array('column1' => 'value1', 'column2' => 1),
-                array('column1' => 'value2', 'column2' => 2)
-            ))
+            ->insert(
+                array("column1", "column2"),
+                array(
+                    array('value1', 1),
+                    array('value2', 2)
+                )
+            )
             ->save();
+
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
 
