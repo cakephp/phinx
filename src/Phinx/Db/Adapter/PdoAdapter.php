@@ -352,9 +352,9 @@ abstract class PdoAdapter implements AdapterInterface
                 'INSERT INTO %s ('
                 . 'version, start_time, end_time'
                 . ') VALUES ('
-                . '"%s",'
-                . '"%s",'
-                . '"%s"'
+                . '\'%s\','
+                . '\'%s\','
+                . '\'%s\''
                 . ');',
                 $this->getSchemaTableName(),
                 $migration->getVersion(),
