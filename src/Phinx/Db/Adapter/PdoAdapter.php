@@ -342,7 +342,7 @@ abstract class PdoAdapter implements AdapterInterface
         $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
         $sql .= " VALUES ";
 
-        $rows = [];
+        $rows = array();
         foreach ($data as $row) {
             $rows[] = "(" . implode(', ', array_map(function ($value) {
                 if (is_numeric($value)) {
