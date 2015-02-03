@@ -221,12 +221,18 @@ class TableTest extends \PHPUnit_Framework_TestCase
             array("value1"),
             array("value2")
         );
+        $moreData = array(
+            array("value3"),
+            array("value4")
+        );
 
-        $adapterStub->expects($this->once())
+        $adapterStub->expects($this->exactly(2))
             ->method('insert')
-            ->with($table, $columns, $data);
+            ->with($table, $columns, $this->logicalOr($data, $moreData));
 
-        $table->insert($columns, $data)->save();
+        $table->insert($columns, $data)
+            ->insert($columns, $moreData)
+            ->save();
     }
 
     public function testResetAfterAddingData()

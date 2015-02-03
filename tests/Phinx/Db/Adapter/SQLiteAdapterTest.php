@@ -507,13 +507,21 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
                     array('value2', 2)
                 )
             )
+            ->insert(
+                array("column1", "column2"),
+                array(
+                    array('value3', 3),
+                )
+            )
             ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
 
         $this->assertEquals('value1', $rows[0]['column1']);
         $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals('value3', $rows[2]['column1']);
         $this->assertEquals(1, $rows[0]['column2']);
         $this->assertEquals(2, $rows[1]['column2']);
+        $this->assertEquals(3, $rows[2]['column2']);
     }
 }
