@@ -105,7 +105,7 @@ class Column
     protected $properties = array();
 
     /**
-     * @var string
+     * @var array
      */
     protected $values;
 
@@ -468,8 +468,8 @@ class Column
      */
     public function setValues($values)
     {
-        if(!is_array($values)) {
-            $values = explode(',', $values);
+        if (!is_array($values)) {
+            $values = preg_split('/,\s*/', $values);
         }
         $this->values = $values;
         return $this;
