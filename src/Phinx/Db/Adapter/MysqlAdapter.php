@@ -965,7 +965,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } elseif (isset($sqlType['limit'])) {
             $def .= '(' . $sqlType['limit'] . ')';
         }
-        if(($values = $column->getValues()) && is_array($values)) {
+        if (($values = $column->getValues()) && is_array($values)) {
             $def .= "('" . implode("', '", $values) . "')";
         }
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
