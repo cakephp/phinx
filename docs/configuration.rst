@@ -1,6 +1,6 @@
 .. index::
    single: Configuration
-   
+
 Configuration
 =============
 
@@ -19,7 +19,7 @@ If you do not wish to use the default configuration file, you may specify a conf
 Migration Path
 --------------
 
-The first option specifies the path to your migration directory. Phinx uses 
+The first option specifies the path to your migration directory. Phinx uses
 ``%%PHINX_CONFIG_DIR%%/migrations`` by default.
 
 .. note::
@@ -191,7 +191,7 @@ Custom Adapters
 `````````````````
 
 You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface`
-with `AdapterFactory`: 
+with `AdapterFactory`:
 
 .. code-block:: php
 
@@ -202,3 +202,16 @@ with `AdapterFactory`:
 
 Adapters can be registered any time before `$app->run()` is called, which normally
 called by `bin/phinx`.
+
+Aliases
+-------
+
+Template creation class names can be aliased and used with the ``--class`` command line option for the :doc:`Create Command <commands>`.
+
+The aliased classes will still be required to implement the ``Phinx\Migration\CreationInterface`` interface.
+
+.. code-block:: yaml
+
+    aliases:
+        permission: \Namespace\Migrations\PermissionMigrationTemplateGenerator
+        view: \Namespace\Migrations\ViewMigrationTemplateGenerator
