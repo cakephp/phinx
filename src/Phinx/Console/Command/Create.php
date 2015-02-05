@@ -126,9 +126,10 @@ class Create extends AbstractCommand
             ));
         }
 
-        // Get the alternative template and static class options, but only allow one of them.
-        $altTemplate = $input->getOption('template');
+        // Get the alternative template and/or template creation class options, but only allow one of them.
+        $altTemplate       = $input->getOption('template');
         $creationClassName = $input->getOption('class');
+        $aliasedClassName  = null;
         if ($altTemplate && $creationClassName) {
             throw new \InvalidArgumentException('Cannot use --template and --class at the same time');
         }
@@ -141,22 +142,44 @@ class Create extends AbstractCommand
             ));
         }
 
-        // Verify the static class exists and that it implements the required interface.
+        // Verify that the template creation class (or the aliased class) exists and that it implements the required interface.
         if ($creationClassName) {
+            // Supplied class does not exist, is it aliased?
             if (!class_exists($creationClassName)) {
-                throw new \InvalidArgumentException(sprintf(
-                    'The class "%s" does not exist',
-                    $creationClassName
-                ));
+                $aliasedClassName = $this->getConfig()->getAlias($creationClassName);
+                if ($aliasedClassName && !class_exists($aliasedClassName)) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'The class "%s" via the alias "%s" does not exist',
+                        $aliasedClassName,
+                        $creationClassName
+                    ));
+                } elseif (!$aliasedClassName) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'The class "%s" does not exist',
+                        $creationClassName
+                    ));
+                }
             }
-            if (!is_subclass_of($creationClassName, self::CREATION_INTERFACE)) {
+
+            // Does the class implement the required interface?
+            if (!$aliasedClassName && !is_subclass_of($creationClassName, self::CREATION_INTERFACE)) {
                 throw new \InvalidArgumentException(sprintf(
                     'The class "%s" does not implement the required interface "%s"',
                     $creationClassName,
                     self::CREATION_INTERFACE
                 ));
+            } elseif ($aliasedClassName && !is_subclass_of($aliasedClassName, self::CREATION_INTERFACE)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'The class "%s" via the alias "%s" does not implement the required interface "%s"',
+                    $aliasedClassName,
+                    $creationClassName,
+                    self::CREATION_INTERFACE
+                ));
             }
         }
+
+        // Use the aliased class.
+        $creationClassName = $aliasedClassName ?: $creationClassName;
 
         // Determine the appropriate mechanism to get the template
         if ($creationClassName) {
