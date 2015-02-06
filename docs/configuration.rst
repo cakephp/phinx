@@ -155,6 +155,10 @@ Declaring an SQLite database uses a simplified structure:
             adapter: sqlite
             memory: true     # Setting memory to *any* value overrides name
 
+When using the ``sqlsrv`` adapter and connecting to a named instance of 
+SQLServer you should omit the ``port`` setting as sqlsrv will negotiate the port
+automatically.
+
 You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface`
 with `AdapterFactory`: 
 
