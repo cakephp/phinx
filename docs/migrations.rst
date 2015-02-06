@@ -413,8 +413,8 @@ Column types are specified as strings and can be one of:
 -  date
 -  binary
 -  boolean
--  enum
--  set
+
+In addition, the MySQL adapter supports ``enum`` and ``set`` column types.
 
 In addition, the Postgres adapter supports ``json`` and ``uuid`` column types
 (PostgreSQL 9.3 and above).
