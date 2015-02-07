@@ -112,6 +112,15 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.4.2** (Friday, 6th Feburary 2015)
+
+* Postgres support for `json` columns added
+* MySQL support for `enum` and `set` columns added
+* Allow setting `identity` option on columns
+* Template configuration and generation made more extensible
+* Created a base class for `ProxyAdapter` and `TablePrefixAdapter`
+* Switched to PSR-4
+
 **0.4.1** (Tuesday, 23rd December 2014)
 
 * MySQL support for reserved words in hasColumn and getColumns methods
