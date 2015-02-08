@@ -112,6 +112,10 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.4.2.1** (Saturday, 6th Feburary 2015)
+
+* Proper release, updated docs
+
 **0.4.2** (Friday, 6th Feburary 2015)
 
 * Postgres support for `json` columns added
