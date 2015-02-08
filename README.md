@@ -112,7 +112,7 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 ### Version History
 
-**0.4.2.1** (Saturday, 6th Feburary 2015)
+**0.4.2.1** (Saturday, 7th Feburary 2015)
 
 * Proper release, updated docs
 
