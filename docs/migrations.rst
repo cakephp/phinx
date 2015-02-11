@@ -416,7 +416,7 @@ Column types are specified as strings and can be one of:
 
 In addition, the MySQL adapter supports ``enum`` and ``set`` column types.
 
-In addition, the Postgres adapter supports ``json`` and ``uuid`` column types
+In addition, the Postgres adapter supports ``json``, ``jsonb``, ``bigserial``, and ``uuid`` column types
 (PostgreSQL 9.3 and above).
 
 For valid options, see the `Valid Column Options`_ below.
