@@ -583,6 +583,9 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('uuid', $this->adapter->getPhinxType('uuid'));
 
+        $this->assertEquals('jsonb', $this->adapter->getPhinxType('jsonb'));
+        $this->assertEquals('bigserial', $this->adapter->getPhinxType('bigserial'));
+
     }
 
     public function testCanAddColumnComment()

@@ -748,6 +748,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'text':
             case 'json':
                 return static::PHINX_TYPE_TEXT;
+            case 'jsonb':
+                return static::PHINX_TYPE_JSONB;
+            case 'bigserial':
+                return static::PHINX_TYPE_BIGSERIAL;
             case 'int':
             case 'int4':
             case 'integer':
