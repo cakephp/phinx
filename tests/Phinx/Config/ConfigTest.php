@@ -181,4 +181,15 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('ds6xhj1', $env['pass']);
         $this->assertEquals('1234', $env['port']);
     }
+    
+    public function testFromPHPMethodWithMultipleMigration()
+    {
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromPHP($path . '/valid_config_multiple_migration.php');
+        $this->assertEquals('dev', $config->getDefaultEnvironment());
+        $migrations = $config->getMigrationPath();
+        $this->assertEquals(2, count($migrations));
+        $this->assertEquals(realpath($path.'/_migrations'), $migrations[0]);
+        $this->assertEquals(realpath($path.'/_migrations_1'), $migrations[1]);
+    }
 }

@@ -110,6 +110,23 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/up  20120103083300  \*\* MISSING \*\*/', $outputStr);
         $this->assertRegExp('/up  20120815145812  \*\* MISSING \*\*/', $outputStr);
     }
+    
+    public function testGetMigrationsWithDifferentDirectories()
+    {
+        $configArray = $this->getConfigArray();
+        $migration1 = $configArray['paths']['migrations'];
+        $configArray['paths']['migrations'] = array();
+        $configArray['paths']['migrations'][] = $migration1;
+        $configArray['paths']['migrations'][] = __DIR__ . '/_files/migrations_2';
+        $config = new Config($configArray);
+        
+        $this->manager->setConfig($config);
+        $migrations = $this->manager->getMigrations();
+        
+        $this->assertArrayHasKey('20120111235330', $migrations);
+        $this->assertArrayHasKey('20120116183504', $migrations);
+        $this->assertArrayHasKey('20120116183505', $migrations);
+    }
 
     public function testGetMigrationsWithDuplicateMigrationVersions()
     {
