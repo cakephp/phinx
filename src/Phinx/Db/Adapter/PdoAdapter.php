@@ -438,9 +438,6 @@ abstract class PdoAdapter implements AdapterInterface
             'point',
             'linestring',
             'polygon',
-            'jsonb',
-            'bigserial',
-            'inet',
         );
     }
 

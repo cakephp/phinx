@@ -1083,7 +1083,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('json'));
+        $types = parent::getColumnTypes();
+        return array_merge(parent::getColumnTypes(), array(
+            'json'
+            'jsonb',
+            'bigserial',
+            'inet',
+        ));
     }
 
     /**
