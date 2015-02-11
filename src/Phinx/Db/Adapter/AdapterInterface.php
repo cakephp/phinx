@@ -60,6 +60,7 @@ interface AdapterInterface
     const PHINX_TYPE_UUID           = 'uuid';
     const PHINX_TYPE_FILESTREAM     = 'filestream';
     const PHINX_TYPE_BIGSERIAL      = 'bigserial';
+    const PHINX_TYPE_INET           = 'inet';
 
     // Geospatial database types
     const PHINX_TYPE_GEOMETRY       = 'geometry';
