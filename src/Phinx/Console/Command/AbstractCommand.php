@@ -297,4 +297,41 @@ abstract class AbstractCommand extends Command
     {
         return __DIR__ . self::DEFAULT_MIGRATION_TEMPLATE;
     }
+
+
+/**
+* Get database which must be migrated
+*
+* @param array $envOptions
+* @param array $databases [=null]
+*
+* @throws \InvalidArgumentException
+*
+* @return array
+*/
+    protected function getDatabases($envOptions, array $databases = null)
+    {
+        $envDatabases = array();
+        if (empty($envOptions['name']) && !empty($envOptions) && !empty($envOptions['databases']) && is_array($envOptions['databases'])) {
+            foreach ($envOptions['databases'] as $envDatabase) {
+                if (is_array($envDatabase)) {
+                    $temp = array_keys($envDatabase);
+                    $envDatabases[] = $temp[0];
+                } else {
+                    $envDatabases[] = $envDatabase;
+                }
+            }
+        } elseif (!empty($envOptions)) {
+            $envDatabases = array($envOptions['name']);
+        }
+        if (count($databases)) {
+            foreach ($databases as $key => $database) {
+                if (!in_array($database, $envDatabases)) {
+                    throw new \InvalidArgumentException(sprintf('Database "%s" not found in environment "%s".', $database, $environment));
+                }
+            }
+            $envDatabases = $databases;
+        }
+        return $envDatabases;
+    }
 }

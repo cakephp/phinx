@@ -80,7 +80,20 @@ EOT
             $output->writeln('<info>using format</info> ' . $format);
         }
 
-        // print the status
-        $this->getManager()->printStatus($environment, $format);
+        $envOptions = $this->getConfig()->getEnvironment($environment);
+        $envDatabases = $this->getDatabases($envOptions);
+        $output->writeln('<info>using database'.(count($envDatabases) > 1 ? 's ' :'') .'</info> ' . implode(', ', $envDatabases));
+
+        // print status
+        if (!empty($envDatabases)) {
+            foreach ($envDatabases as $database) {
+                $output->writeln('');
+                $output->writeln('<info>database:</info> ' . $database);
+                $this->getManager()->printStatus($environment, $database, $format);
+            }
+        } else {
+            $output->writeln('<error>database was not found</error> ');
+            $this->getManager()->printStatus($environment, null, $format);
+        }
     }
 }
