@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -31,6 +31,7 @@ namespace Phinx\Db\Adapter;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Table;
+use Phinx\Db\Table\Column;
 use Phinx\Migration\MigrationInterface;
 
 /**
@@ -43,7 +44,7 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * @var array
      */
-    protected $options;
+    protected $options = array();
 
     /**
      * @var OutputInterface
@@ -80,10 +81,7 @@ abstract class PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Sets the adapter options.
-     *
-     * @param array $options Options
-     * @return AdapterInterface
+     * {@inheritdoc}
      */
     public function setOptions(array $options)
     {
@@ -101,13 +99,30 @@ abstract class PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Gets the adapter options.
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasOption($name)
+    {
+        return isset($this->options[$name]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOption($name)
+    {
+        if (!$this->hasOption($name)) {
+            return null;
+        }
+        return $this->options[$name];
     }
 
     /**
@@ -162,6 +177,12 @@ abstract class PdoAdapter implements AdapterInterface
     public function setConnection(\PDO $connection)
     {
         $this->connection = $connection;
+
+        // Create the schema table if it doesn't already exist
+        if (!$this->hasSchemaTable()) {
+            $this->createSchemaTable();
+        }
+
         return $this;
     }
 
@@ -331,9 +352,9 @@ abstract class PdoAdapter implements AdapterInterface
                 'INSERT INTO %s ('
                 . 'version, start_time, end_time'
                 . ') VALUES ('
-                . '"%s",'
-                . '"%s",'
-                . '"%s"'
+                . '\'%s\','
+                . '\'%s\','
+                . '\'%s\''
                 . ');',
                 $this->getSchemaTableName(),
                 $migration->getVersion(),
@@ -375,7 +396,7 @@ abstract class PdoAdapter implements AdapterInterface
             );
 
             $table = new Table($this->getSchemaTableName(), $options, $this);
-            $table->addColumn('version', 'biginteger', array('limit' => 14))
+            $table->addColumn('version', 'biginteger')
                   ->addColumn('start_time', 'timestamp')
                   ->addColumn('end_time', 'timestamp')
                   ->save();
@@ -389,8 +410,7 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function getAdapterType()
     {
-        $options = $this->getOptions();
-        return $options['adapter'];
+        return $this->getOption('adapter');
     }
 
     /**
@@ -412,11 +432,19 @@ abstract class PdoAdapter implements AdapterInterface
             'date',
             'binary',
             'boolean',
+            'uuid',
             // Geospatial data types
             'geometry',
             'point',
             'linestring',
             'polygon',
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isValidColumnType(Column $column) {
+        return in_array($column->getType(), $this->getColumnTypes());
     }
 }

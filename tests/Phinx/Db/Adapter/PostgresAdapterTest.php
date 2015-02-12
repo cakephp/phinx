@@ -264,6 +264,39 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             }
         }
     }
+
+    public function providerArrayType()
+    {
+        return array(
+            array('array_text', 'text[]'),
+            array('array_char', 'char[]'),
+            array('array_integer', 'integer[]'),
+            array('array_float', 'float[]'),
+            array('array_decimal', 'decimal[]'),
+            array('array_timestamp', 'timestamp[]'),
+            array('array_time', 'time[]'),
+            array('array_date', 'date[]'),
+            array('array_boolean', 'boolean[]'),
+            array('array_json', 'json[]'),
+            array('array_json2d', 'json[][]'),
+            array('array_json3d', 'json[][][]'),
+            array('array_uuid', 'uuid[]'),
+        );
+    }
+
+    /**
+     * @dataProvider providerArrayType
+     */
+    public function testAddColumnArrayType($column_name, $column_type)
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn($column_name));
+        $table->addColumn($column_name, $column_type)
+            ->save();
+        $this->assertTrue($table->hasColumn($column_name));
+    }
+
     public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
@@ -711,5 +744,30 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
                 ->create();
 
         $this->assertTrue($foreign->hasForeignKey('user'));
+    }
+
+    public function testTimestampWithTimezone()
+    {
+        $table = new \Phinx\Db\Table('tztable', array('id' => false), $this->adapter);
+        $table
+            ->addColumn('timestamp_tz', 'timestamp', array('timezone' => true))
+            ->addColumn('time_tz', 'time', array('timezone' => true))
+            ->addColumn('date_notz', 'date', array('timezone' => true)) /* date columns cannot have timestamp */
+            ->addColumn('time_notz', 'timestamp') /* default for timezone option is false */
+            ->save();
+
+        $this->assertTrue($this->adapter->hasColumn('tztable', 'timestamp_tz'));
+        $this->assertTrue($this->adapter->hasColumn('tztable', 'time_tz'));
+        $this->assertTrue($this->adapter->hasColumn('tztable', 'date_notz'));
+        $this->assertTrue($this->adapter->hasColumn('tztable', 'time_notz'));
+
+        $columns = $this->adapter->getColumns('tztable');
+        foreach ($columns as $column) {
+            if (substr($column->getName(), -4) === 'notz') {
+                $this->assertFalse($column->isTimezone(), 'column: ' . $column->getName());
+            } else {
+                $this->assertTrue($column->isTimezone(), 'column: ' . $column->getName());
+            }
+        }
     }
 }

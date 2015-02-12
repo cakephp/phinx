@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -318,9 +318,13 @@ class Table
             $column = $columnName;
         }
 
-        // check column type
-        if (!in_array($column->getType(), $this->getAdapter()->getColumnTypes())) {
-            throw new \InvalidArgumentException("An invalid column type was specified: {$column->getName()}");
+        // Delegate to Adapters to check column type
+        if (!$this->getAdapter()->isValidColumnType($column)) {
+            throw new \InvalidArgumentException(sprintf(
+                'An invalid column type "%s" was specified for column "%s".',
+                $column->getType(),
+                $column->getName()
+            ));
         }
 
         $this->columns[] = $column;

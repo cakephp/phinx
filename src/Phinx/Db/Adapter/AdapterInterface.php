@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -65,10 +65,9 @@ interface AdapterInterface
     const PHINX_TYPE_LINESTRING     = 'linestring';
     const PHINX_TYPE_POLYGON        = 'polygon';
 
-    // MySQL specific text types
-    const PHINX_TYPE_TINYTEXT       = 'tinytext';
-    const PHINX_TYPE_MEDIUMTEXT     = 'mediumtext';
-    const PHINX_TYPE_LONGTEXT       = 'longtext';
+	// only for mysql so far
+    const PHINX_TYPE_ENUM           = 'enum';
+    const PHINX_TYPE_SET            = 'set';
 
     /**
      * Get all migrated version numbers.
@@ -76,6 +75,37 @@ interface AdapterInterface
      * @return array
      */
     public function getVersions();
+
+    /**
+     * Set adapter configuration options.
+     *
+     * @param  array $options
+     * @return AdapterInterface
+     */
+    public function setOptions(array $options);
+
+    /**
+     * Get all adapter options.
+     *
+     * @return array
+     */
+    public function getOptions();
+
+    /**
+     * Check if an option has been set.
+     *
+     * @param  string $name
+     * @return boolean
+     */
+    public function hasOption($name);
+
+    /**
+     * Get a single adapter option, or null if the option does not exist.
+     *
+     * @param  string $name
+     * @return mixed
+     */
+    public function getOption($name);
 
     /**
      * Sets the console output.
@@ -377,12 +407,21 @@ interface AdapterInterface
     public function getColumnTypes();
 
     /**
+     * Checks that the given column is of a supported type.
+     *
+     * @param  Column $column
+     * @return boolean
+     */
+    public function isValidColumnType(Column $column);
+
+    /**
      * Converts the Phinx logical type to the adapter's SQL type.
      *
-     * @param string $type Type
+     * @param string $type
+     * @param integer $limit
      * @return string
      */
-    public function getSqlType($type);
+    public function getSqlType($type, $limit = null);
 
     /**
      * Creates a new database.

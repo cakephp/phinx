@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -22,13 +22,12 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Db\Adapter
  */
 namespace Phinx\Db\Adapter;
 
-use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
@@ -42,253 +41,25 @@ use Phinx\Migration\MigrationInterface;
  *
  * @author Samuel Fisher <sam@sfisher.co>
  */
-class TablePrefixAdapter implements AdapterInterface
+class TablePrefixAdapter extends AdapterWrapper
 {
-    /**
-     * @var AdapterInterface
-     */
-    protected $adapter;
-    
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
-        
-    /**
-     * @var array
-     */
-    protected $commands;
-    
-    /**
-     * Class Constructor.
-     *
-     * @param array $options Options
-     * @param AdapterInterface $adapter The adapter to proxy commands to
-     * @return void
-     */
-    public function __construct(array $options, AdapterInterface $adapter = null)
-    {
-        $this->setOptions($options);
-        if (null !== $adapter) {
-            $this->setAdapter($adapter);
-        }
-    }
-    
-    /**
-     * Sets the database adapter to proxy commands to.
-     *
-     * @param AdapterInterface $adapter Database Adapter
-     * @return AdapterInterface
-     */
-    public function setAdapter(AdapterInterface $adapter)
-    {
-        $this->adapter = $adapter;
-        return $this;
-    }
-    
-    /**
-     * Gets the database adapter.
-     *
-     * @return AdapterInterface
-     */
-    public function getAdapter()
-    {
-        return $this->adapter;
-    }
-    
-    /**
-     * Sets the adapter options.
-     *
-     * @param array $options Options
-     * @return AdapterInterface
-     */
-    public function setOptions(array $options)
-    {
-        $this->options = $options;
-        return $this;
-    }
-    
-    /**
-     * Gets the adapter options.
-     *
-     * @return array
-     */
-    public function getOptions()
-    {
-        return $this->options;
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function setOutput(OutputInterface $output)
-    {
-        $this->adapter->setOutput($output);
-        return $this;
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function getOutput()
-    {
-        return $this->adapter->getOutput();
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function connect()
-    {
-        $this->getAdapter()->connect();
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function disconnect()
-    {
-        $this->getAdapter()->disconnect();
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function execute($sql)
-    {
-        return $this->getAdapter()->execute($sql);
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function query($sql)
-    {
-        return $this->getAdapter()->query($sql);
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchRow($sql)
-    {
-        return $this->getAdapter()->fetchRow($sql);
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAll($sql)
-    {
-        return $this->getAdapter()->fetchAll($sql);
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function getVersions()
-    {
-        return $this->getAdapter()->getVersions();
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
-    {
-        $this->getAdapter()->migrated($migration, $direction, $startTime, $endTime);
-        return $this;
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function hasSchemaTable()
-    {
-        return $this->getAdapter()->hasSchemaTable();
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function createSchemaTable()
-    {
-        return $this->getAdapter()->createSchemaTable();
-    }
-
     /**
      * {@inheritdoc}
      */
     public function getAdapterType()
     {
-        return 'ProxyAdapter';
+        return 'TablePrefixAdapter';
     }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function getColumnTypes()
-    {
-        return $this->getAdapter()->getColumnTypes();
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function hasTransactions()
-    {
-        return $this->getAdapter()->hasTransactions();
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function beginTransaction()
-    {
-        return $this->getAdapter()->beginTransaction();
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function commitTransaction()
-    {
-        return $this->getAdapter()->commitTransaction();
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function rollbackTransaction()
-    {
-        return $this->getAdapter()->rollbackTransaction();
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function quoteTableName($tableName)
-    {
-        return $this->getAdapter()->quoteTableName($tableName);
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function quoteColumnName($columnName)
-    {
-        return $this->getAdapter()->quoteColumnName($columnName);
-    }
-    
+
     /**
      * {@inheritdoc}
      */
     public function hasTable($tableName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        return $this->getAdapter()->hasTable($adapterTableName);
+        return parent::hasTable($adapterTableName);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -297,9 +68,16 @@ class TablePrefixAdapter implements AdapterInterface
         $adapterTable = clone $table;
         $adapterTableName = $this->getAdapterTableName($table->getName());
         $adapterTable->setName($adapterTableName);
-        $this->getAdapter()->createTable($adapterTable);
+
+        foreach ($adapterTable->getForeignKeys() as $fk) {
+            $adapterReferenceTable = $fk->getReferencedTable();
+            $adapterReferenceTableName = $this->getAdapterTableName($adapterReferenceTable->getName());
+            $adapterReferenceTable->setName($adapterReferenceTableName);
+        }
+
+        return parent::createTable($adapterTable);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -307,16 +85,16 @@ class TablePrefixAdapter implements AdapterInterface
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
         $adapterNewTableName = $this->getAdapterTableName($newTableName);
-        $this->getAdapter()->renameTable($adapterTableName, $adapterNewTableName);
+        return parent::renameTable($adapterTableName, $adapterNewTableName);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function dropTable($tableName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        $this->getAdapter()->dropTable($adapterTableName);
+        return parent::dropTable($adapterTableName);
     }
 
     /**
@@ -325,18 +103,18 @@ class TablePrefixAdapter implements AdapterInterface
     public function getColumns($tableName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        return $this->getAdapter()->getColumns($adapterTableName);
+        return parent::getColumns($adapterTableName);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function hasColumn($tableName, $columnName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        return $this->getAdapter()->hasColumn($adapterTableName, $columnName);
+        return parent::hasColumn($adapterTableName, $columnName);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -345,45 +123,45 @@ class TablePrefixAdapter implements AdapterInterface
         $adapterTable = clone $table;
         $adapterTableName = $this->getAdapterTableName($table->getName());
         $adapterTable->setName($adapterTableName);
-        $this->getAdapter()->addColumn($adapterTable, $column);
+        return parent::addColumn($adapterTable, $column);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function renameColumn($tableName, $columnName, $newColumnName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        $this->getAdapter()->renameColumn($adapterTableName, $columnName, $newColumnName);
+        return parent::renameColumn($adapterTableName, $columnName, $newColumnName);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function changeColumn($tableName, $columnName, Column $newColumn)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        $this->getAdapter()->changeColumn($adapterTableName, $columnName, $newColumn);
+        return parent::changeColumn($adapterTableName, $columnName, $newColumn);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function dropColumn($tableName, $columnName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        $this->getAdapter()->dropColumn($adapterTableName, $columnName);
+        return parent::dropColumn($adapterTableName, $columnName);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function hasIndex($tableName, $columns)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        return $this->getAdapter()->hasIndex($adapterTableName, $columns);
+        return parent::hasIndex($adapterTableName, $columns);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -392,25 +170,25 @@ class TablePrefixAdapter implements AdapterInterface
         $adapterTable = clone $table;
         $adapterTableName = $this->getAdapterTableName($table->getName());
         $adapterTable->setName($adapterTableName);
-        $this->getAdapter()->addIndex($adapterTable, $index);
+        return parent::addIndex($adapterTable, $index);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function dropIndex($tableName, $columns, $options = array())
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        $this->getAdapter()->dropIndex($adapterTableName, $columns, $options);
+        return parent::dropIndex($adapterTableName, $columns, $options);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function dropIndexByName($tableName, $indexName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        $this->getAdapter()->dropIndexByName($adapterTableName, $indexName);
+        return parent::dropIndexByName($adapterTableName, $indexName);
     }
 
     /**
@@ -419,9 +197,9 @@ class TablePrefixAdapter implements AdapterInterface
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        return $this->getAdapter()->hasForeignKey($adapterTableName, $columns, $constraint);
+        return parent::hasForeignKey($adapterTableName, $columns, $constraint);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -430,7 +208,7 @@ class TablePrefixAdapter implements AdapterInterface
         $adapterTable = clone $table;
         $adapterTableName = $this->getAdapterTableName($table->getName());
         $adapterTable->setName($adapterTableName);
-        $this->getAdapter()->addForeignKey($adapterTable, $foreignKey);
+        return parent::addForeignKey($adapterTable, $foreignKey);
     }
 
     /**
@@ -439,95 +217,37 @@ class TablePrefixAdapter implements AdapterInterface
     public function dropForeignKey($tableName, $columns, $constraint = null)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        $this->getAdapter()->dropForeignKey($adapterTableName, $columns, $constraint);
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function getSqlType($type)
-    {
-        return $this->getAdapter()->getSqlType($type);
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function createDatabase($name, $options = array())
-    {
-        $this->getAdapter()->createDatabase($name, $options);
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function hasDatabase($name)
-    {
-        return $this->getAdapter()->hasDatabase($name);
-    }
-    
-    /**
-     * {@inheritdoc}
-     */
-    public function dropDatabase($name)
-    {
-        return $this->getAdapter()->dropDatabase($name);
+        return parent::dropForeignKey($adapterTableName, $columns, $constraint);
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function getConnection() {
-        return $this->getAdapter()->getConnection();
-    }
-    
-    /**
      * Gets the table prefix.
-     * 
+     *
      * @return string
      */
-    public function getPrefix() {
-        return isset($this->options['table_prefix'])
-            ? $this->options['table_prefix']
-            : '';
+    public function getPrefix()
+    {
+        return (string) $this->getOption('table_prefix');
     }
-    
-    /**
-     * Sets the table prefix.
-     * 
-     * @param string $prefix
-     */
-    public function setPrefix($prefix) {
-        $this->options['table_prefix'] = $prefix;
-    }
-    
+
     /**
      * Gets the table suffix.
-     * 
+     *
      * @return string
      */
-    public function getSuffix() {
-        return isset($this->options['table_suffix'])
-            ? $this->options['table_suffix']
-            : '';
+    public function getSuffix()
+    {
+        return (string) $this->getOption('table_suffix');
     }
-    
-    /**
-     * Sets the table suffix.
-     * 
-     * @param string $suffix
-     */
-    public function setSuffix($suffix) {
-        $this->options['table_suffix'] = $suffix;
-    }
-    
+
     /**
      * Applies the prefix and suffix to the table name.
-     * 
+     *
      * @param string $tableName
      * @return string
      */
-    public function getAdapterTableName($tableName) {
+    public function getAdapterTableName($tableName)
+    {
         return $this->getPrefix() . $tableName . $this->getSuffix();
     }
 }

@@ -74,6 +74,7 @@ specified under the ``environments`` nested collection. For example:
             pass: ''
             port: 3306
             charset: utf8
+            collation: utf8_unicode_ci
 
 would define a new environment called ``production``.
 
@@ -154,13 +155,19 @@ Declaring an SQLite database uses a simplified structure:
             adapter: sqlite
             memory: true     # Setting memory to *any* value overrides name
 
-You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface` with the Environment:
+When using the ``sqlsrv`` adapter and connecting to a named instance of 
+SQLServer you should omit the ``port`` setting as sqlsrv will negotiate the port
+automatically.
+
+You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface`
+with `AdapterFactory`: 
 
 .. code-block:: php
 
-    $customAdapterFactory = function(Phinx\Migration\Manager\Environment $env) {
-        // Configure my adapter with the env and return.
-        $adapter = new \My\Adapter(...);
-        return $adapter;
-    }
-    $environment->registerAdapter('my-adapter', $customAdapterFactory);
+    $name  = 'fizz';
+    $class = 'Acme\Adapter\FizzAdapter';
+
+    AdapterFactory::instance()->registerAdapter($name, $class);
+
+Adapters can be registered any time before `$app->run()` is called, which normally
+called by `bin/phinx`.

@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -95,9 +95,19 @@ class Column
     protected $signed = true;
 
     /**
+     * @var boolean
+     */
+    protected $timezone = false;
+
+    /**
      * @var array
      */
     protected $properties = array();
+
+    /**
+     * @var array
+     */
+    protected $values;
 
     /**
      * Sets the column name.
@@ -394,6 +404,39 @@ class Column
     }
 
     /**
+     * Sets whether the field should have a timezone identifier.
+     * Used for date/time columns only!
+     *
+     * @param bool $timezone
+     * @return Column
+     */
+    public function setTimezone($timezone)
+    {
+        $this->timezone = (bool) $timezone;
+        return $this;
+    }
+
+    /**
+     * Gets whether field has a timezone identifier.
+     *
+     * @return boolean
+     */
+    public function getTimezone()
+    {
+        return $this->timezone;
+    }
+
+    /**
+     * Should the column have a timezone?
+     *
+     * @return boolean
+     */
+    public function isTimezone()
+    {
+        return $this->getTimezone();
+    }
+
+    /**
      * Sets field properties.
      *
      * @param array $properties
@@ -417,6 +460,68 @@ class Column
     }
 
     /**
+     * Sets field values.
+     *
+     * @param mixed (array|string) $values
+     *
+     * @return Column
+     */
+    public function setValues($values)
+    {
+        if (!is_array($values)) {
+            $values = preg_split('/,\s*/', $values);
+        }
+        $this->values = $values;
+        return $this;
+    }
+
+    /**
+     * Gets field values
+     *
+     * @return string
+     */
+    public function getValues()
+    {
+        return $this->values;
+    }
+
+    /**
+     * Gets all allowed options. Each option must have a corresponding `setFoo` method.
+     *
+     * @return array
+     */
+    protected function getValidOptions()
+    {
+        return array(
+            'limit',
+            'default',
+            'null',
+            'identity',
+            'precision',
+            'scale',
+            'after',
+            'update',
+            'comment',
+            'signed',
+            'timezone',
+            'properties',
+            'values',
+        );
+    }
+
+    /**
+     * Gets all aliased options. Each alias must reference a valid option.
+     *
+     * @return array
+     */
+    protected function getAliasedOptions()
+    {
+        return array(
+            'length' => 'limit',
+        );
+    }
+
+    /**
      * Utility method that maps an array of column options to this objects methods.
      *
      * @param array $options Options
@@ -424,17 +529,17 @@ class Column
      */
     public function setOptions($options)
     {
-        // Valid Options
-        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment', 'signed', 'properties');
+        $validOptions = $this->getValidOptions();
+        $aliasOptions = $this->getAliasedOptions();
+
         foreach ($options as $option => $value) {
-            if (!in_array($option, $validOptions)) {
-                throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');
+            if (isset($aliasOptions[$option])) {
+                // proxy alias -> option
+                $option = $aliasOptions[$option];
             }
 
-            // proxy length -> limit
-            if (strcasecmp($option, 'length') === 0) {
-                $this->setLimit($value);
-                continue;
+            if (!in_array($option, $validOptions)) {
+                throw new \RuntimeException(sprintf('"%s" is not a valid column option.', $option));
             }
 
             $method = 'set' . ucfirst($option);

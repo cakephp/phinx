@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -69,7 +69,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             if (isset($options['memory'])) {
                 $dsn = 'sqlite::memory:';
             } else {
-                $dsn = 'sqlite:' . $options['name'] . '.sqlite3';
+                $dsn = 'sqlite:' . $options['name'];
+                if (file_exists($options['name'] . '.sqlite3')) {
+                    $dsn = 'sqlite:' . $options['name'] . '.sqlite3';
+                }
             }
 
             try {
@@ -82,11 +85,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
 
             $this->setConnection($db);
-
-            // Create the schema table if it doesn't already exist
-            if (!$this->hasSchemaTable()) {
-                $this->createSchemaTable();
-            }
         }
     }
 
@@ -794,7 +792,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getSqlType($type)
+    public function getSqlType($type, $limit = null)
     {
         switch ($type) {
             case static::PHINX_TYPE_STRING:
@@ -836,6 +834,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'boolean');
                 break;
+            case static::PHINX_TYPE_UUID:
+                return array('name' => 'char', 'limit' => 36);
             // Geospatial database types
             // No specific data types exist in SQLite, instead all geospatial
             // functionality is handled in the client. See also: SpatiaLite.
@@ -861,7 +861,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getPhinxType($sqlTypeDef)
     {
-        if (preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*$/', $sqlTypeDef, $matches) === false) {
+        if (!preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*$/', $sqlTypeDef, $matches)) {
             throw new \RuntimeException('Column type ' . $sqlTypeDef . ' is not supported');
         } else {
             $limit = null;
@@ -884,6 +884,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                     $type = static::PHINX_TYPE_CHAR;
                     if ($limit == 255) {
                         $limit = null;
+                    }
+                    if ($limit === 36) {
+                        $type = static::PHINX_TYPE_UUID;
                     }
                     break;
                 case 'int':

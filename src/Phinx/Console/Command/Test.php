@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -74,7 +74,7 @@ EOT
         $this->loadConfig($input, $output);
         $this->loadManager($output);
 
-        $migrationsPath = $this->getConfig()->getMigrationPath();
+        $this->verifyMigrationDirectory($this->getConfig()->getMigrationPath());
 
         $envName = $input->getOption('environment');
         if ($envName) {

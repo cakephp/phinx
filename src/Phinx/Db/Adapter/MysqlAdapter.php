@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -43,10 +43,17 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
     protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
 
-    const TEXT_SMALL   = 255;
+    const TEXT_TINY    = 255;
+    const TEXT_SMALL   = 255; /* deprecated, alias of TEXT_TINY */
     const TEXT_REGULAR = 65535;
     const TEXT_MEDIUM  = 16777215;
     const TEXT_LONG    = 4294967295;
+
+    const INT_TINY    = 255;
+    const INT_SMALL   = 65535;
+    const INT_MEDIUM  = 16777215;
+    const INT_REGULAR = 4294967295;
+    const INT_BIG     = 18446744073709551615;
 
     /**
      * {@inheritdoc}
@@ -103,11 +110,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             }
 
             $this->setConnection($db);
-
-            // Create the schema table if it doesn't already exist
-            if (!$this->hasSchemaTable()) {
-                $this->createSchemaTable();
-            }
         }
     }
 
@@ -323,16 +325,16 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function getColumns($tableName)
     {
         $columns = array();
-        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $tableName));
+        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $columnInfo) {
-            $column = new Column();
-            $column->setName($columnInfo['Field'])
-                   ->setType($columnInfo['Type'])
-                   ->setNull($columnInfo['Null'] != 'NO')
-                   ->setDefault($columnInfo['Default']);
 
             $phinxType = $this->getPhinxType($columnInfo['Type']);
-            $column->setType($phinxType['name'])
+
+            $column = new Column();
+            $column->setName($columnInfo['Field'])
+                   ->setNull($columnInfo['Null'] != 'NO')
+                   ->setDefault($columnInfo['Default'])
+                   ->setType($phinxType['name'])
                    ->setLimit($phinxType['limit']);
 
             if ($columnInfo['Extra'] == 'auto_increment') {
@@ -350,7 +352,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasColumn($tableName, $columnName)
     {
-        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $tableName));
+        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $column) {
             if (strcasecmp($column['Field'], $columnName) === 0) {
                 return true;
@@ -706,28 +708,56 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getSqlType($type)
+    public function getSqlType($type, $limit = null)
     {
         switch ($type) {
             case static::PHINX_TYPE_STRING:
-                return array('name' => 'varchar', 'limit' => 255);
+                return array('name' => 'varchar', 'limit' => $limit ? $limit : 255);
                 break;
             case static::PHINX_TYPE_CHAR:
-                return array('name' => 'char', 'limit' => 255);
+                return array('name' => 'char', 'limit' => $limit ? $limit : 255);
                 break;
             case static::PHINX_TYPE_TEXT:
+                if ($limit) {
+                    $sizes = array(
+                        // Order matters! Size must always be tested from longest to shortest!
+                        'longtext'   => static::TEXT_LONG,
+                        'mediumtext' => static::TEXT_MEDIUM,
+                        'text'       => static::TEXT_REGULAR,
+                        'tinytext'   => static::TEXT_SMALL,
+                    );
+                    foreach ($sizes as $name => $length) {
+                        if ($limit >= $length) {
+                            return array('name' => $name);
+                        }
+                    }
+                }
                 return array('name' => 'text');
                 break;
-            case static::PHINX_TYPE_TINYTEXT:
-                return array('name' => 'tinytext');
-                break;
-            case static::PHINX_TYPE_MEDIUMTEXT:
-                return array('name' => 'mediumtext');
-                break;
-            case static::PHINX_TYPE_LONGTEXT:
-                return array('name' => 'longtext');
-                break;
             case static::PHINX_TYPE_INTEGER:
+                if ($limit && $limit >= static::INT_TINY) {
+                    $sizes = array(
+                        // Order matters! Size must always be tested from longest to shortest!
+                        'bigint'    => static::INT_BIG,
+                        'int'       => static::INT_REGULAR,
+                        'mediumint' => static::INT_MEDIUM,
+                        'smallint'  => static::INT_SMALL,
+                        'tinyint'   => static::INT_TINY,
+                    );
+                    $limits = array(
+                        'int'    => 11,
+                        'bigint' => 20,
+                    );
+                    foreach ($sizes as $name => $length) {
+                        if ($limit >= $length) {
+                            $def = array('name' => $name);
+                            if (isset($limits[$name])) {
+                                $def['limit'] = $limits[$name];
+                            }
+                            return $def;
+                        }
+                    }
+                }
                 return array('name' => 'int', 'limit' => 11);
                 break;
             case static::PHINX_TYPE_BIG_INTEGER:
@@ -757,12 +787,19 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'tinyint', 'limit' => 1);
                 break;
+            case static::PHINX_TYPE_UUID:
+                return array('name' => 'char', 'limit' => 36);
             // Geospatial database types
             case static::PHINX_TYPE_GEOMETRY:
             case static::PHINX_TYPE_POINT:
             case static::PHINX_TYPE_LINESTRING:
             case static::PHINX_TYPE_POLYGON:
                 return array('name' => $type);
+            case static::PHINX_TYPE_ENUM:
+                return array('name' => 'enum');
+                break;
+            case static::PHINX_TYPE_SET:
+                return array('name' => 'set');
                 break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
@@ -779,38 +816,58 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getPhinxType($sqlTypeDef)
     {
-        if (preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*(.+)*$/', $sqlTypeDef, $matches) === false) {
+        if (!preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*(.+)*$/', $sqlTypeDef, $matches)) {
             throw new \RuntimeException('Column type ' . $sqlTypeDef . ' is not supported');
         } else {
             $limit = null;
             $precision = null;
             $type = $matches[1];
             if (count($matches) > 2) {
-                $limit = $matches[3] ? $matches[3] : null;
+                $limit = $matches[3] ? (int) $matches[3] : null;
             }
             if (count($matches) > 4) {
-                $precision = $matches[5];
+                $precision = (int) $matches[5];
             }
-            switch ($matches[1]) {
+            if ($type === 'tinyint' && $limit === 1) {
+                $type = static::PHINX_TYPE_BOOLEAN;
+                $limit = null;
+            }
+            switch ($type) {
                 case 'varchar':
                     $type = static::PHINX_TYPE_STRING;
-                    if ($limit == 255) {
+                    if ($limit === 255) {
                         $limit = null;
                     }
                     break;
                 case 'char':
                     $type = static::PHINX_TYPE_CHAR;
-                    if ($limit == 255) {
+                    if ($limit === 255) {
                         $limit = null;
                     }
+                    if ($limit === 36) {
+                        $type = static::PHINX_TYPE_UUID;
+                    }
+                    break;
+                case 'tinyint':
+                    $type  = static::PHINX_TYPE_INTEGER;
+                    $limit = static::INT_TINY;
+                    break;
+                case 'smallint':
+                    $type  = static::PHINX_TYPE_INTEGER;
+                    $limit = static::INT_SMALL;
+                    break;
+                case 'mediumint':
+                    $type  = static::PHINX_TYPE_INTEGER;
+                    $limit = static::INT_MEDIUM;
+                    break;
                 case 'int':
                     $type = static::PHINX_TYPE_INTEGER;
-                    if ($limit == 11) {
+                    if ($limit === 11) {
                         $limit = null;
                     }
                     break;
                 case 'bigint':
-                    if ($limit == 20) {
+                    if ($limit === 20) {
                         $limit = null;
                     }
                     $type = static::PHINX_TYPE_BIG_INTEGER;
@@ -818,15 +875,21 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 case 'blob':
                     $type = static::PHINX_TYPE_BINARY;
                     break;
-            }
-            if ($type == 'tinyint') {
-                if ($matches[3] == 1) {
-                    $type = static::PHINX_TYPE_BOOLEAN;
-                    $limit = null;
-                }
+                case 'tinytext':
+                    $type  = static::PHINX_TYPE_TEXT;
+                    $limit = static::TEXT_TINY;
+                    break;
+                case 'mediumtext':
+                    $type  = static::PHINX_TYPE_TEXT;
+                    $limit = static::TEXT_MEDIUM;
+                    break;
+                case 'longtext':
+                    $type  = static::PHINX_TYPE_TEXT;
+                    $limit = static::TEXT_LONG;
+                    break;
             }
 
-            $this->getSqlType($type);
+            $this->getSqlType($type, $limit);
 
             return array(
                 'name' => $type,
@@ -893,22 +956,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getColumnSqlDefinition(Column $column)
     {
-        $sqlType = $this->getSqlType($column->getType());
-
-        // Additional check if a limit along 
-        if (strtoupper($sqlType['name']) === 'TEXT' && $column->getLimit()) {
-            $sqlType['name'] = $this->classifyTextColumn($column);
-            // Remove the limit since MySQL does't like limit to be specified with a TEXT Type column
-            $column->setLimit(null);
-        }
+        $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
 
         $def = '';
         $def .= strtoupper($sqlType['name']);
         if ($column->getPrecision() && $column->getScale()) {
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
+        } elseif (isset($sqlType['limit'])) {
+            $def .= '(' . $sqlType['limit'] . ')';
         }
-        $def .= ($column->getLimit() || isset($sqlType['limit']))
-                     ? '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')' : '';
+        if (($values = $column->getValues()) && is_array($values)) {
+            $def .= "('" . implode("', '", $values) . "')";
+        }
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
@@ -1002,33 +1061,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         return $this->fetchRow($sql);
     }
 
-
     /**
-     * Returns the approprite type of text column based on the limit
-     * specified on the column
-     * @param Column $column The column to perform the check. Assumes the column type is text and limit is specified
-     * @return string
+     * Returns MySQL column types (inherited and MySQL specified).
+     * @return array
      */
-    protected function classifyTextColumn(Column $column)
+    public function getColumnTypes()
     {
-        $limit = $column->getLimit();
-        $sizes = array(
-            // Order matters! Size must always be tested from longest to shortest!
-            'longtext'   => static::TEXT_LONG,
-            'mediumtext' => static::TEXT_MEDIUM,
-            'text'       => static::TEXT_REGULAR,
-            'tinytext'   => static::TEXT_SMALL,
-        );
-
-        foreach ($sizes as $name => $length) {
-            if ($limit >= $length) {
-                return $name;
-            }
-        }
-
-        throw new \LogicException(
-            'Unable to determine size of MySQL text column. ' .
-            'This should never happen.'
-        );
+        return array_merge(parent::getColumnTypes(), array ('enum', 'set'));
     }
 }

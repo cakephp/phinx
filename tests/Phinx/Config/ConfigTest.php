@@ -181,9 +181,38 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('1234', $env['port']);
     }
     
+    public function testFromPHPMethodWithMultipleMigration()
+    {
+        $path = __DIR__ . '/_files';
+        $config = \Phinx\Config\Config::fromPHP($path . '/valid_config_multiple_migration.php');
+        $this->assertEquals('dev', $config->getDefaultEnvironment());
+        $migrations = $config->getMigrationPath();
+        $this->assertEquals(2, count($migrations));
+        $this->assertEquals(realpath($path.'/_migrations'), $migrations[0]);
+        $this->assertEquals(realpath($path.'/_migrations_1'), $migrations[1]);
+    }
+
     public function testGetMigrationBaseClassNameGetsDefaultBaseClass()
     {
         $config = new \Phinx\Config\Config(array());
         $this->assertEquals('AbstractMigration', $config->getMigrationBaseClassName());
+    }
+
+    public function testGetMigrationBaseClassNameGetsDefaultBaseClassWithNamespace()
+    {
+        $config = new \Phinx\Config\Config(array());
+        $this->assertEquals('Phinx\Migration\AbstractMigration', $config->getMigrationBaseClassName(false));
+    }
+
+    public function testGetMigrationBaseClassNameGetsAlternativeBaseClass()
+    {
+        $config = new \Phinx\Config\Config(array('migration_base_class' => 'Phinx\Migration\AlternativeAbstractMigration'));
+        $this->assertEquals('AlternativeAbstractMigration', $config->getMigrationBaseClassName());
+    }
+
+    public function testGetMigrationBaseClassNameGetsAlternativeBaseClassWithNamespace()
+    {
+        $config = new \Phinx\Config\Config(array('migration_base_class' => 'Phinx\Migration\AlternativeAbstractMigration'));
+        $this->assertEquals('Phinx\Migration\AlternativeAbstractMigration', $config->getMigrationBaseClassName(false));
     }
 }

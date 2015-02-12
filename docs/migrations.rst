@@ -414,8 +414,12 @@ Column types are specified as strings and can be one of:
 -  binary
 -  boolean
 
-In addition, the Postgres adapter supports a ``json`` column type
+In addition, the MySQL adapter supports ``enum`` and ``set`` column types.
+
+In addition, the Postgres adapter supports ``json`` and ``uuid`` column types
 (PostgreSQL 9.3 and above).
+
+For valid options, see the `Valid Column Options`_ below.
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -814,21 +818,100 @@ Valid Column Options
 
 The following are valid column options:
 
--  limit: set maximum length for strings
--  length: alias for ``limit``
--  default: set default value or action
--  null: allow ``NULL`` values
--  precision: combine with ``scale`` set to set decimial accuracy
--  scale: combine with ``precision`` to set decimial accuracy
--  after: specify the column that a new column should be placed after
--  update: set an action to be triggered when the row is updated
--  comment: set a text comment on the column
--  signed: enable or disable the ``UNSIGNED`` option *(only applies to MySQL)*
+For any column type:
+
+======= ===========
+Option  Description
+======= ===========
+limit   set maximum length for strings, also hints column types in adapters (see note below)
+length  alias for ``limit``
+default set default value or action
+null    allow ``NULL`` values (should not be used with primary keys!)
+after   specify the column that a new column should be placed after
+comment set a text comment on the column
+======= ===========
+
+For ``decimal`` columns:
+
+========= ===========
+Option    Description
+========= ===========
+precision combine with ``scale`` set to set decimial accuracy
+scale     combine with ``precision`` to set decimial accuracy
+========= ===========
+
+For ``enum`` and ``set`` columns:
+
+========= ===========
+Option    Description
+========= ===========
+values    Can be a comma separated list or an array of values
+========= ===========
+
+For ``integer`` and ``biginteger`` columns:
+
+======== ===========
+Option   Description
+======== ===========
+identity enable or disable automatic incrementing
+signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
+======== ===========
+
+For ``timestamp`` columns:
+
+======== ===========
+Option   Description
+======== ===========
+default  set default value (use with ``CURRENT_TIMESTAMP``)
+update   set an action to be triggered when the row is updated (use with ``CURRENT_TIMESTAMP``)
+timezone enable or disable the ``with time zone`` option for ``time`` and ``timestamp`` columns *(only applies to Postgres)*
+======== ===========
+
+For foreign key definitions:
+
+====== ===========
+Option Description
+====== ===========
+update set an action to be triggered when the row is updated
+delete set an action to be triggered when the row is deleted
+====== ===========
 
 You can pass one or more of these options to any column with the optional
 third argument array.
 
-The default and update column options can accept 'CURRENT_TIMESTAMP' as a value.
+Limit Option and MySQL
+~~~~~~~~~~~~~~~~~~~~~~
+
+When using the MySQL adapter, additional hinting of database column type can be
+made for ``integer`` and ``text`` columns. Using ``limit`` with one the following
+options will modify the column type accordingly:
+
+============ ==============
+Limit        Column Type
+============ ==============
+TEXT_TINY    TINYTEXT
+TEXT_REGULAR TEXT
+TEXT_MEDIUM  MEDIUMTEXT
+TEXT_LONG    LONGTEXT
+INT_TINY     TINYINT
+INT_SMALL    SMALLINT
+INT_MEDIUM   MEDIUMINT
+INT_REGULAR  INT
+INT_BIG      BIGINT
+============ ==============
+
+.. code-block:: php
+
+         use Phinx\Db\Adapter\MysqlAdapter;
+   
+         //...
+   
+         $table = $this->table('cart_items');
+         $table->addColumn('user_id', 'integer')
+               ->addColumn('product_id', 'integer', array('limit' => MysqlAdapter::INT_BIG))
+               ->addColumn('subtype_id', 'integer', array('limit' => MysqlAdapter::INT_SMALL))
+               ->addColumn('quantity', 'integer', array('limit' => MysqlAdapter::INT_TINY))
+               ->create();
 
 The Save Method
 ~~~~~~~~~~~~~~~

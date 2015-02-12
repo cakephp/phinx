@@ -1,8 +1,9 @@
 <?php
-/* Phinx
+/**
+ * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -21,27 +22,38 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
+ *
+ * @package    Phinx
+ * @subpackage Phinx\Migration
  */
-use Symfony\Component\ClassLoader\UniversalClassLoader;
+namespace Phinx\Migration;
 
-if (is_dir(__DIR__ . '/../../vendor/symfony')) {
-    $symfonyDir  = __DIR__ . '/../../vendor/symfony/';
-    require __DIR__ . '/../../vendor/autoload.php';
-} else {
-    $symfonyDir = "@@PHP_DIR@@";
-    require_once 'Symfony/Component/ClassLoader/UniversalClassLoader.php';
+/**
+ * Migration interface
+ *
+ * @author Richard Quadling <RQuadling@GMail.com>
+ */
+interface CreationInterface
+{
+    /**
+     * Get the migration template.
+     *
+     * This will be the content that Phinx will amend to generate the migration file.
+     *
+     * @return string The content of the template for Phinx to amend.
+     */
+    public function getMigrationTemplate();
+
+    /**
+     * Post Migration Creation.
+     *
+     * Once the migration file has been created, this method will be called, allowing any additional
+     * processing, specific to the template to be performed.
+     *
+     * @param string $migrationFilename The name of the newly created migration.
+     * @param string $className         The class name.
+     * @param string $baseClassName     The name of the base class.
+     * @return void
+     */
+    public function postMigrationCreation($migrationFilename, $className, $baseClassName);
 }
-
-$loader = new UniversalClassLoader();
-$loader->registerNamespaces(array(
-    'Phinx' => __DIR__ . '/../',
-));
-
-$loader->registerNamespaces(array(
-    'Symfony\Component\ClassLoader'         => $symfonyDir,
-    'Symfony\Component\Config'              => $symfonyDir,
-    'Symfony\Component\Console'             => $symfonyDir,
-    'Symfony\Component\Yaml'                => $symfonyDir
-));
-
-$loader->register();

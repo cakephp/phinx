@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -66,7 +66,7 @@ class Config implements ConfigInterface
      */
     public static function fromYaml($configFilePath)
     {
-        $configArray = Yaml::parse($configFilePath);
+        $configArray = Yaml::parse(file_get_contents($configFilePath));
         if (!is_array($configArray)) {
             throw new \RuntimeException(sprintf(
                 'File \'%s\' must be valid YAML',
@@ -224,30 +224,39 @@ class Config implements ConfigInterface
             throw new \UnexpectedValueException('Migrations path missing from config file');
         }
 
-        $path = realpath($this->values['paths']['migrations']);
-
-        if ($path === false) {
-            throw new \UnexpectedValueException(sprintf(
-                'Migrations directory "%s" does not exist',
+        if (!is_array($this->values['paths']['migrations'])) {
+            $this->values['paths']['migrations'] = array(
                 $this->values['paths']['migrations']
-            ));
+            );
         }
 
-        return $path;
+        $pathArray = array();
+        foreach ($this->values['paths']['migrations'] as $pathDirectory) {
+            $path = realpath($pathDirectory);
+
+            if ($path === false) {
+                throw new \UnexpectedValueException(sprintf(
+                        'Migrations directory "%s" does not exist', $pathDirectory
+                ));
+            }
+            
+            $pathArray[] = $path;
+        }
+
+        return $pathArray;
     }
 
     /**
      * Gets the base class name for migrations.
      *
+     * @param boolean $dropNamespace Return the base migration class name without the namespace.
      * @return string
      */
-    public function getMigrationBaseClassName()
+    public function getMigrationBaseClassName($dropNamespace = true)
     {
-        if (!isset($this->values['migration_base_class'])) {
-            return 'AbstractMigration';
-        }
+        $className = !isset($this->values['migration_base_class']) ? 'Phinx\Migration\AbstractMigration' : $this->values['migration_base_class'];
 
-        return $this->values['migration_base_class'];
+        return $dropNamespace ? substr(strrchr($className, '\\'), 1) : $className;
     }
 
     /**

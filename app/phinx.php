@@ -23,25 +23,9 @@
  * IN THE SOFTWARE.
  */
 
-if (!defined('PHINX_VERSION')) {
-    define('PHINX_VERSION', (0 === strpos('@PHINX_VERSION@', '@PHINX_VERSION')) ? '0.3.8' : '@PHINX_VERSION@');
-}
+$autoloader = require __DIR__ . '/../src/composer_autoloader.php';
 
-$files = array(
-  __DIR__ . '/../../../autoload.php',
-  __DIR__ . '/../src/Phinx/autoload.php.dist'
-);
-
-$found = false;
-foreach ($files as $file) {
-    if (file_exists($file)) {
-        require $file;
-        $found = true;
-        break;
-    }
-}
-
-if (!$found) {
+if (!$autoloader()) {
     die(
       'You need to set up the project dependencies using the following commands:' . PHP_EOL .
       'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
@@ -49,4 +33,4 @@ if (!$found) {
     );
 }
 
-return new Phinx\Console\PhinxApplication(PHINX_VERSION);
+return new Phinx\Console\PhinxApplication();

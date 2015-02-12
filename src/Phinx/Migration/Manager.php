@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -359,7 +359,12 @@ class Manager
     {
         if (null === $this->migrations) {
             $config = $this->getConfig();
-            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php');
+            
+            $phpFiles = array();
+            foreach ($config->getMigrationPath() as $migrationPath) {
+                $files = glob($migrationPath . DIRECTORY_SEPARATOR . '*.php');
+                $phpFiles = array_merge($phpFiles, $files);
+            }
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();

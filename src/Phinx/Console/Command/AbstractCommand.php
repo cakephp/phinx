@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -46,6 +46,11 @@ use Phinx\Db\Adapter\AdapterInterface;
 abstract class AbstractCommand extends Command
 {
     /**
+     * The location of the default migration template.
+     */
+    const DEFAULT_MIGRATION_TEMPLATE = '/../../Migration/Migration.template.php.dist';
+
+    /**
      * @var ConfigInterface
      */
     protected $config;
@@ -84,7 +89,9 @@ abstract class AbstractCommand extends Command
 
         $this->loadManager($output);
         // report the migrations path
-        $output->writeln('<info>using migration path</info> ' . $this->getConfig()->getMigrationPath());
+        foreach($this->getConfig()->getMigrationPath() as $directory) {
+            $output->writeln('<info>using migration path</info> ' . $directory);
+        }
     }
 
     /**
@@ -242,6 +249,7 @@ abstract class AbstractCommand extends Command
         }
 
         $output->writeln('<info>using config parser</info> ' . $parser);
+
         $this->setConfig($config);
     }
 
@@ -257,5 +265,38 @@ abstract class AbstractCommand extends Command
             $manager = new Manager($this->getConfig(), $output);
             $this->setManager($manager);
         }
+    }
+
+    /**
+     * Verify that the migration directory exists and is writable.
+     *
+     * @throws InvalidArgumentException
+     * @return void
+     */
+    protected function verifyMigrationDirectory($path)
+    {
+        if (!is_dir($path)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Migration directory "%s" does not exist',
+                $path
+            ));
+        }
+
+        if (!is_writeable($path)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Migration directory "%s" is not writeable',
+                $path
+            ));
+        }
+    }
+
+    /**
+     * Returns the migration template filename.
+     *
+     * @return string
+     */
+    protected function getMigrationTemplateFilename()
+    {
+        return __DIR__ . self::DEFAULT_MIGRATION_TEMPLATE;
     }
 }

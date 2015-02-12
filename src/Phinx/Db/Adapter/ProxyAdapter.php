@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -28,12 +28,10 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
-use Phinx\Migration\MigrationInterface;
 use Phinx\Migration\IrreversibleMigrationException;
 
 /**
@@ -43,181 +41,12 @@ use Phinx\Migration\IrreversibleMigrationException;
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-class ProxyAdapter implements AdapterInterface
+class ProxyAdapter extends AdapterWrapper
 {
-    /**
-     * @var AdapterInterface
-     */
-    protected $adapter;
-
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
-
     /**
      * @var array
      */
     protected $commands;
-
-    /**
-     * Class Constructor.
-     *
-     * @param AdapterInterface $adapter The adapter to proxy commands to
-     * @param OutputInterface  $output  Output Interface
-     * @return void
-     */
-    public function __construct(AdapterInterface $adapter = null, OutputInterface $output = null)
-    {
-        if (null !== $adapter) {
-            $this->setAdapter($adapter);
-        }
-        if (null !== $output) {
-            $this->setOutput($output);
-        }
-    }
-
-    /**
-     * Sets the database adapter to proxy commands to.
-     *
-     * @param AdapterInterface $adapter Database Adapter
-     * @return AdapterInterface
-     */
-    public function setAdapter(AdapterInterface $adapter)
-    {
-        $this->adapter = $adapter;
-        return $this;
-    }
-
-    /**
-     * Gets the database adapter.
-     *
-     * @return AdapterInterface
-     */
-    public function getAdapter()
-    {
-        return $this->adapter;
-    }
-
-    /**
-     * Sets the adapter options.
-     *
-     * @param array $options Options
-     * @return AdapterInterface
-     */
-    public function setOptions(array $options)
-    {
-        $this->options = $options;
-        return $this;
-    }
-
-    /**
-     * Gets the adapter options.
-     *
-     * @return array
-     */
-    public function getOptions()
-    {
-        return $this->options;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setOutput(OutputInterface $output)
-    {
-        $this->output = $output;
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOutput()
-    {
-        return $this->output;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function connect()
-    {
-        $this->getAdapter()->connect();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function disconnect()
-    {
-        $this->getAdapter()->disconnect();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function execute($sql)
-    {
-        return $this->getAdapter()->execute($sql);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function query($sql)
-    {
-        return $this->getAdapter()->query($sql);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchRow($sql)
-    {
-        return $this->getAdapter()->fetchRow($sql);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAll($sql)
-    {
-        return $this->getAdapter()->fetchAll($sql);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getVersions()
-    {
-        return $this->getAdapter()->getVersions();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
-    {
-        $this->getAdapter()->migrated($migration, $direction, $startTime, $endTime);
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasSchemaTable()
-    {
-        return $this->getAdapter()->hasSchemaTable();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createSchemaTable()
-    {
-        return $this->getAdapter()->createSchemaTable();
-    }
 
     /**
      * {@inheritdoc}
@@ -226,71 +55,6 @@ class ProxyAdapter implements AdapterInterface
     {
         return 'ProxyAdapter';
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getColumnTypes()
-    {
-        return $this->getAdapter()->getColumnTypes();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasTransactions()
-    {
-        return $this->getAdapter()->hasTransaction();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function beginTransaction()
-    {
-        return $this->getAdapter()->beginTransaction();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function commitTransaction()
-    {
-        return $this->getAdapter()->commitTransaction();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function rollbackTransaction()
-    {
-        return $this->getAdapter()->rollbackTransaction();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function quoteTableName($tableName)
-    {
-        return $this->getAdapter()->quoteTableName($tableName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function quoteColumnName($columnName)
-    {
-        return $this->getAdapter()->quoteColumnName($columnName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasTable($tableName)
-    {
-        return $this->getAdapter()->hasTable($tableName);
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -313,22 +77,6 @@ class ProxyAdapter implements AdapterInterface
     public function dropTable($tableName)
     {
         $this->recordCommand('dropTable', array($tableName));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getColumns($tableName)
-    {
-        return $this->getAdapter()->getColumns($tableName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasColumn($tableName, $columnName)
-    {
-        return $this->getAdapter()->hasColumn($tableName, $columnName);
     }
 
     /**
@@ -366,14 +114,6 @@ class ProxyAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasIndex($tableName, $columns)
-    {
-        return $this->getAdapter()->hasIndex($tableName, $columns);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function addIndex(Table $table, Index $index)
     {
         $this->recordCommand('addIndex', array($table, $index));
@@ -398,14 +138,6 @@ class ProxyAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasForeignKey($tableName, $columns, $constraint = null)
-    {
-        return $this->getAdapter()->hasForeignKey($tableName, $columns, $constraint);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function addForeignKey(Table $table, ForeignKey $foreignKey)
     {
         $this->recordCommand('addForeignKey', array($table, $foreignKey));
@@ -422,33 +154,9 @@ class ProxyAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getSqlType($type)
-    {
-        return $this->getAdapter()->getSqlType($type);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createDatabase($name, $options = array())
     {
         $this->recordCommand('createDatabase', array($name, $options));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasDatabase($name)
-    {
-        return $this->getAdapter()->hasDatabase($name);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function dropDatabase($name)
-    {
-        return $this->getAdapter()->dropDatabase($name);
     }
 
     /**
@@ -613,12 +321,5 @@ class ProxyAdapter implements AdapterInterface
     public function invertAddForeignKey($args)
     {
         return array('name' => 'dropForeignKey', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConnection() {
-        return $this->getAdapter()->getConnection();
     }
 }

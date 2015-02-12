@@ -1,9 +1,10 @@
 <?php
-/* Phinx
+/**
+ * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
- * Copyright (c) 2014 Woody Gilk
+ * Copyright (c) 2015 Rob Morgan
+ * Copyright (c) 2015 Woody Gilk
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -27,9 +28,7 @@
 namespace Phinx\Wrapper;
 
 use Phinx\Console\PhinxApplication;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 
 /**
@@ -40,74 +39,147 @@ use Symfony\Component\Console\Output\StreamOutput;
  */
 class TextWrapper
 {
+    /**
+     * @var PhinxApplication
+     */
     private $app;
-    private $env;
+
+    /**
+     * @var array
+     */
+    private $options = array();
+
+    /**
+     * @var integer
+     */
     private $exit_code;
 
     /**
-     * @param  Phinx\Console\PhinxApplication $app
-     * @param  String                         $default_env  environment fallback, defaults to "development"
-     * @return void
+     * @param PhinxApplication $app
+     * @param array $options
      */
-    public function __construct(PhinxApplication $app, $default_env = 'development')
+    public function __construct(PhinxApplication $app, array $options = array())
     {
+        $options += array(
+            'environment' => 'development',
+        );
+
         $this->app = $app;
-        $this->env = $default_env;
+        $this->options = $options;
+    }
+
+    /**
+     * Get the application instance.
+     *
+     * @return PhinxApplication
+     */
+    public function getApp()
+    {
+        return $this->app;
     }
 
     /**
      * Returns the exit code from the last run command.
-     * @return Integer
+     * @return integer
      */
     public function getExitCode()
     {
         return $this->exit_code;
     }
 
+
     /**
      * Returns the output from running the "status" command.
-     * @param  String  $env  environment name (optional)
-     * @return String
+     * @param  string $env environment name (optional)
+     * @return string
      */
     public function getStatus($env = null)
     {
-        $command = ['status', '-e' => $env ?: $this->env];
+        $command = array(
+            'status',
+            '-e' => $env ?: $this->getOption('environment'),
+            '-c' => $this->getOption('configuration'),
+            '-p' => $this->getOption('parser')
+        );
         return $this->executeRun($command);
     }
 
     /**
      * Returns the output from running the "migrate" command.
-     * @param  String  $env     environment name (optional)
-     * @param  String  $target  target version (optional)
-     * @return String
+     * @param  string $env environment name (optional)
+     * @param  string $target target version (optional)
+     * @return string
      */
     public function getMigrate($env = null, $target = null)
     {
-        $command = ['migrate', '-e' => $env ?: $this->env];
+        $command = array(
+            'migrate',
+            '-e' => $env ?: $this->getOption('environment'),
+            '-c' => $this->getOption('configuration'),
+            '-p' => $this->getOption('parser')
+        );
         if ($target) {
-            $command += ['-t' => $target];
+            $command += array('-t' => $target);
         }
         return $this->executeRun($command);
     }
 
     /**
      * Returns the output from running the "rollback" command.
-     * @param  String  $env     environment name (optional)
-     * @param  Mixed   $target  target version, or 0 (zero) fully revert (optional)
-     * @return String
+     * @param  string $env environment name (optional)
+     * @param  mixed $target target version, or 0 (zero) fully revert (optional)
+     * @return string
      */
     public function getRollback($env = null, $target = null)
     {
-        $command = ['rollback', '-e' => $env ?: $this->env];
+        $command = array(
+            'rollback',
+            '-e' => $env ?: $this->getOption('environment'),
+            '-c' => $this->getOption('configuration'),
+            '-p' => $this->getOption('parser')
+        );
         if (isset($target)) {
             // Need to use isset() with rollback, because -t0 is a valid option!
             // See http://docs.phinx.org/en/latest/commands.html#the-rollback-command
-            $command += ['-t' => $target];
+            $command += array('-t' => $target);
         }
         return $this->executeRun($command);
     }
 
-    protected function executeRun(Array $command)
+    /**
+     * Get option from options array
+     *
+     * @param  string $key
+     * @return string
+     */
+    protected function getOption($key)
+    {
+        if (!isset($this->options[$key])) {
+            return null;
+        }
+        return $this->options[$key];
+    }
+
+    /**
+     * Set option in options array
+     *
+     * @param  string $key
+     * @param  string $value
+     * @return object
+     */
+    public function setOption($key, $value)
+    {
+        $this->options[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * Execute a command, capturing output and storing the exit code.
+     *
+     * @param  array $command
+     * @return string
+     */
+    protected function executeRun(array $command)
     {
         // Output will be written to a temporary stream, so that it can be
         // collected after running the command.
