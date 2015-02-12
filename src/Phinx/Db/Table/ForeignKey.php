@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -145,7 +145,7 @@ class ForeignKey
      */
     public function setOnDelete($onDelete)
     {
-        $this->onDelete = $onDelete;
+        $this->onDelete = $this->normalizeAction($onDelete);
         return $this;
     }
 
@@ -177,7 +177,7 @@ class ForeignKey
      */
     public function setOnUpdate($onUpdate)
     {
-        $this->onUpdate = $onUpdate;
+        $this->onUpdate = $this->normalizeAction($onUpdate);
         return $this;
     }
 
@@ -208,6 +208,7 @@ class ForeignKey
      *
      * @param array $options Options
      * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      * @return ForeignKey
      */
     public function setOptions($options)
@@ -220,10 +221,10 @@ class ForeignKey
             }
 
             // handle $options['delete'] as $options['update']
-            if (strcasecmp($option, 'delete') === 0 || strcasecmp($option, 'update') === 0) {
-                if (defined('static::' . strtoupper($value))) {
-                    $this->{'setOn' . ucfirst(strtolower($option))}(constant('static::' . strtoupper($value)));
-                }
+            if ('delete' == $option) {
+                $this->setOnDelete($value);
+            } elseif ('update' == $option) {
+                $this->setOnUpdate($value);
             } else {
                 $method = 'set' . ucfirst($option);
                 $this->$method($value);
@@ -231,5 +232,21 @@ class ForeignKey
         }
 
         return $this;
+    }
+
+    /**
+     * From passed value checks if it's correct and fixes if needed
+     *
+     * @param string $action
+     * @throws \InvalidArgumentException
+     * @return string
+     */
+    protected function normalizeAction($action)
+    {
+        $constantName = 'static::' . str_replace(' ', '_', strtoupper(trim($action)));
+        if (!defined($constantName)) {
+            throw new \InvalidArgumentException('Unknown action passed: ' . $action);
+        }
+        return constant($constantName);
     }
 }

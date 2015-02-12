@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -31,6 +31,22 @@ namespace Phinx\Migration;
 class Util
 {
     /**
+     * @var string
+     */
+    const DATE_FORMAT = 'YmdHis';
+
+    /**
+     * Gets the current timestamp string, in UTC.
+     *
+     * @return string
+     */
+    public static function getCurrentTimestamp()
+    {
+        $dt = new \DateTime('now', new \DateTimeZone('UTC'));
+        return $dt->format(static::DATE_FORMAT);
+    }
+
+    /**
      * Turn migration names like 'CreateUserTable' into file names like
      * '12345678901234_create_user_table.php' or 'LimitResourceNamesTo30Chars' into
      * '12345678901234_limit_resource_names_to_30_chars.php'.
@@ -42,7 +58,7 @@ class Util
     {
         $arr = preg_split('/(?=[A-Z])/', $className);
         unset($arr[0]); // remove the first element ('')
-        $fileName = date('YmdHis') . '_' . strtolower(implode($arr, '_')) . '.php';
+        $fileName = static::getCurrentTimestamp() . '_' . strtolower(implode($arr, '_')) . '.php';
         return $fileName;
     }
 

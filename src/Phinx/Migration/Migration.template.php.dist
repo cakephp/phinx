@@ -1,8 +1,8 @@
 <?php
 
-use Phinx\Migration\AbstractMigration;
+use $useClassName;
 
-class $className extends AbstractMigration
+class $className extends $baseClassName
 {
     /**
      * Change Method.

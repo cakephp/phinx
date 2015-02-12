@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -30,7 +30,7 @@ namespace Phinx\Console\Command;
 
 use Phinx\Migration\Manager\Environment;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -44,8 +44,8 @@ class Test extends AbstractCommand
     protected function configure()
     {
         parent::configure();
-        
-        $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment');
+
+        $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
         $this->setName('test')
              ->setDescription('Verify the configuration file')
@@ -74,7 +74,7 @@ EOT
         $this->loadConfig($input, $output);
         $this->loadManager($output);
 
-        $migrationsPath = $this->getConfig()->getMigrationPath();
+        $this->verifyMigrationDirectory($this->getConfig()->getMigrationPath());
 
         $envName = $input->getOption('environment');
         if ($envName) {
@@ -84,7 +84,7 @@ EOT
                     $envName
                 ));
             }
-            
+
             $output->writeln(sprintf('<info>validating environment</info> %s', $envName));
             $environment = new Environment(
                 $envName,

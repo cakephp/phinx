@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -47,18 +47,20 @@ class PhinxApplication extends Application
      *
      * @param string $version The Application Version
      */
-    public function __construct($version)
+    public function __construct($version = '0.4.2.1')
     {
-        parent::__construct('Phinx by Rob Morgan - http://phinx.org.', $version);
+        parent::__construct('Phinx by Rob Morgan - https://phinx.org.', $version);
 
-        $this->add(new Command\Init());
-        $this->add(new Command\Create());
-        $this->add(new Command\Migrate());
-        $this->add(new Command\Rollback());
-        $this->add(new Command\Status());
-        $this->add(new Command\Test());
+        $this->addCommands(array(
+            new Command\Init(),
+            new Command\Create(),
+            new Command\Migrate(),
+            new Command\Rollback(),
+            new Command\Status(),
+            new Command\Test(),
+        ));
     }
-     
+
     /**
      * Runs the current application.
      *
@@ -74,7 +76,7 @@ class PhinxApplication extends Application
             $output->writeln($this->getLongVersion());
             $output->writeln('');
         }
-         
+
         return parent::doRun($input, $output);
     }
 }

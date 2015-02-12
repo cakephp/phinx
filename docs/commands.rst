@@ -1,6 +1,6 @@
 .. index::
    single: Commands
-   
+
 Commands
 ========
 
@@ -14,13 +14,33 @@ argument and that is the name of the migration. The migration name should be
 specified in CamelCase format.
 
 .. code-block:: bash
-    
+
         $ phinx create MyNewMigration
 
 Open the new migration file in your text editor to add your database
 transformations. Phinx creates migration files using the path specified in your
-``phinx.yml`` file. Please see the :doc:`Configuration <configuration>` chapter 
+``phinx.yml`` file. Please see the :doc:`Configuration <configuration>` chapter
 for more information.
+
+You are able to override the template file used by Phinx by supplying an
+alternative template filename.
+
+.. code-block:: bash
+
+        $ phinx create MyNewMigration --template="<file>"
+
+You can also supply a template generating class. This class must implement the
+interface ``Phinx\Migration\CreationInterface``.
+
+.. code-block:: bash
+
+        $ phinx create MyNewMigration --class="<class>"
+
+In addition to providing the template for the migration, the class can also define
+a callback that will be called once the migration file has been generated from the
+template.
+
+You cannot use ``--template`` and ``--class`` together.
 
 The Init Command
 ----------------
@@ -30,7 +50,7 @@ Phinx. This command generates the ``phinx.yml`` file in the root of your
 project directory.
 
 .. code-block:: bash
-    
+
         $ cd yourapp
         $ phinx init .
 
@@ -44,7 +64,7 @@ The Migrate command runs all of the available migrations, optionally up to a
 specific version.
 
 .. code-block:: bash
-    
+
         $ phinx migrate -e development
 
 To migrate to a specific version then use the ``--target`` parameter or ``-t``
@@ -64,20 +84,20 @@ You can rollback to the previous migration by using the ``rollback`` command
 with no arguments.
 
 .. code-block:: bash
-    
+
         $ phinx rollback -e development
 
 To rollback all migrations to a specific version then use the ``--target``
 parameter or ``-t`` for short.
 
 .. code-block:: bash
-    
+
         $ phinx rollback -e development -t 20120103083322
 
 Specifying 0 as the target version will revert all migrations.
 
 .. code-block:: bash
-    
+
         $ phinx rollback -e development -t 0
 
 The Status Command
@@ -87,7 +107,7 @@ The Status command prints a list of all migrations, along with their current
 status. You can use this command to determine which migrations have been run.
 
 .. code-block:: bash
-    
+
         $ phinx status -e development
 
 Configuration File Parameter
@@ -117,3 +137,45 @@ When running Phinx from the command line, you may specify a configuration file u
             );
 
 Phinx auto-detects which language parser to use for files with ``*.yml`` and ``*.php`` extensions. The appropriate parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than ``"php"`` is treated as YAML.
+
+In case with PHP array you can provide ``connection`` key with existing PDO instance to use omitting other parameters:
+
+.. code-block:: php
+
+        <?php
+            return array(
+                "paths" => array(
+                    "migrations" => "application/migrations"
+                ),
+                "environments" => array(
+                    "default_migration_table" => "phinxlog",
+                    "default_database" => "dev",
+                    "dev" => array(
+                        "connection" => $pdo_instance
+                    )
+                )
+            );
+
+Running Phinx in a Web App
+--------------------------
+
+Phinx can also be run inside of a web application by using the ``Phinx\Wrapper\TextWrapper``
+class. An example of this is provided in ``app/web.php``, which can be run as a
+standalone server:
+
+.. code-block:: bash
+
+        $ php -S localhost:8000 vendor/robmorgan/phinx/app/web.php
+
+This will create local web server at `<http://localhost:8000>`__ which will show current
+migration status by default. To run migrations up, use `<http://localhost:8000/migrate>`__
+and to rollback use `<http://localhost:8000/rollback>`__.
+
+**The included web app is only an example and should not be used in production!**
+
+.. note::
+
+        To modify configuration variables at runtime and overrid ``%%PHINX_DBNAME%%``
+        or other another dynamic option, set ``$_SERVER['PHINX_DBNAME']`` before
+        running commands. Available options are documented in the Configuration page.
+

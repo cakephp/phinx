@@ -1,4 +1,4 @@
-# [Phinx](http://phinx.org): Simple PHP Database Migrations
+# [Phinx](https://phinx.org): Simple PHP Database Migrations
 
 [![Build Status](https://travis-ci.org/robmorgan/phinx.png?branch=0.2.x-dev)](https://travis-ci.org/robmorgan/phinx)
 [![Build status](https://ci.appveyor.com/api/projects/status/9vag4892hfq6effr)](https://ci.appveyor.com/project/robmorgan/phinx)
@@ -22,6 +22,15 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 * Take advantage of SCM features such as branching.
 * Integrate with any app.
 
+### Supported Adapters
+
+Phinx natively supports the following database adapters:
+
+* MySQL
+* PostgreSQL
+* SQLite
+* Microsoft SQL Server
+
 ## Install & Run
 
 ### Composer
@@ -34,14 +43,10 @@ The fastest way to install Phinx in your project is using Composer (http://getco
     curl -s https://getcomposer.org/installer | php
     ```
     
-1. Add Phinx as a dependency to your `composer.json` file:
+1. Require Phinx as a dependency using Composer: 
 
-    ```js
-    {
-        "require": {
-            "robmorgan/phinx": "*"
-        }
-    }
+    ```
+    php composer.phar require robmorgan/phinx
     ```
     
 1. Install Phinx:
@@ -95,26 +100,10 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
 
 Check out http://docs.phinx.org for the comprehensive documentation.
 
-## Unofficial IRC Channel
-
-Some Phinx users often hang out in the #phinx channel on [freenode](https://freenode.net/). Feel free to connect if you wish to discuss Phinx and seek advice.
-
 ## Contributing
 
-Start by forking Phinx on GitHub: https://github.com/robmorgan/phinx
+Please read the [CONTRIBUTING](CONTRIBUTING.md) document.
 
-Clone your repository to a local directory on your development box.
-
-If you do not have Composer set up already, install it:
- 
- * `curl -s https://getcomposer.org/installer | php`
-
-Change to your Phinx clone directory and pull the necessary dependencies:
-
- * `php composer.phar install --dev`
-
-Copy the `phpunit.xml.dist` template to `phpunit.xml` and change the configuration to suit your environment.
-  
 ## News & Updates
 
 Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
@@ -122,6 +111,47 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 ## Misc
 
 ### Version History
+
+**0.4.2.1** (Saturday, 7th Feburary 2015)
+
+* Proper release, updated docs
+
+**0.4.2** (Friday, 6th Feburary 2015)
+
+* Postgres support for `json` columns added
+* MySQL support for `enum` and `set` columns added
+* Allow setting `identity` option on columns
+* Template configuration and generation made more extensible
+* Created a base class for `ProxyAdapter` and `TablePrefixAdapter`
+* Switched to PSR-4
+
+**0.4.1** (Tuesday, 23rd December 2014)
+
+* MySQL support for reserved words in hasColumn and getColumns methods
+* Better MySQL Adapter test coverage and performance fixes
+* Updated dependent Symfony components to 2.6.x
+
+**0.4.0** (Sunday, 14th December 2014)
+
+* Adding initial support for running Phinx via a web interface
+* Support for table prefixes and suffixes
+* Bugfix for foreign key options
+* MySQL keeps column default when renaming columns
+* MySQL support for tiny/medium and longtext columns added
+* Changed SQL Server binary columns to varbinary
+* MySQL supports table comments
+* Postgres supports column comments
+* Empty strings are now supported for default column values
+* Booleans are now supported for default column values
+* Fixed SQL Server default constraint error when changing column types
+* Migration timestamps are now created in UTC
+* Locked Symfony Components to 2.5.0
+* Support for custom migration base classes
+* Cleaned up source code formatting
+* Migrations have access to the output stream
+* Support for custom PDO connections when a PHP config
+* Added support for Postgres UUID type
+* Fixed issue with Postgres dropping foreign keys
 
 **0.3.8** (Sunday, 5th October 2014)
 

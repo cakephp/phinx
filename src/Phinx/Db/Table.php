@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Db
  */
@@ -43,22 +43,22 @@ class Table
      * @var string
      */
     protected $name;
-    
+
     /**
      * @var array
      */
     protected $options = array();
-    
+
     /**
      * @var AdapterInterface
      */
     protected $adapter;
-    
+
     /**
      * @var array
      */
     protected $columns = array();
-    
+
     /**
      * @var array
      */
@@ -80,12 +80,12 @@ class Table
     {
         $this->setName($name);
         $this->setOptions($options);
-        
+
         if (null !== $adapter) {
             $this->setAdapter($adapter);
         }
     }
-    
+
     /**
      * Sets the table name.
      *
@@ -97,7 +97,7 @@ class Table
         $this->name = $name;
         return $this;
     }
-    
+
     /**
      * Gets the table name.
      *
@@ -107,10 +107,10 @@ class Table
     {
         return $this->name;
     }
-    
+
     /**
      * Sets the table options.
-     * 
+     *
      * @param array $options
      * @return Table
      */
@@ -119,17 +119,17 @@ class Table
         $this->options = $options;
         return $this;
     }
-    
+
     /**
      * Gets the table options.
-     * 
+     *
      * @return array
      */
     public function getOptions()
     {
         return $this->options;
     }
-    
+
     /**
      * Sets the database adapter.
      *
@@ -141,7 +141,7 @@ class Table
         $this->adapter = $adapter;
         return $this;
     }
-    
+
     /**
      * Gets the database adapter.
      *
@@ -151,7 +151,7 @@ class Table
     {
         return $this->adapter;
     }
-    
+
     /**
      * Does the table exist?
      *
@@ -161,7 +161,7 @@ class Table
     {
         return $this->getAdapter()->hasTable($this->getName());
     }
-    
+
     /**
      * Drops the database table.
      *
@@ -171,7 +171,7 @@ class Table
     {
         $this->getAdapter()->dropTable($this->getName());
     }
-    
+
     /**
      * Renames the database table.
      *
@@ -184,7 +184,7 @@ class Table
         $this->setName($newTableName);
         return $this;
     }
-    
+
     /**
      * Sets an array of columns waiting to be committed.
      * Use setPendingColumns
@@ -197,7 +197,7 @@ class Table
     {
         $this->setPendingColumns($columns);
     }
-    
+
     /**
      * Gets an array of the table columns.
      *
@@ -229,7 +229,7 @@ class Table
     {
         return $this->columns;
     }
-    
+
     /**
      * Sets an array of columns waiting to be indexed.
      *
@@ -241,10 +241,10 @@ class Table
         $this->indexes = $indexes;
         return $this;
     }
-    
+
     /**
      * Gets an array of indexes waiting to be committed.
-     * 
+     *
      * @return array
      */
     public function getIndexes()
@@ -273,7 +273,7 @@ class Table
     {
         return $this->foreignKeys;
     }
-    
+
     /**
      * Resets all of the pending table changes.
      *
@@ -307,7 +307,7 @@ class Table
         if (null === $this->getAdapter()) {
             throw new \RuntimeException('An adapter must be specified to add a column.');
         }
-        
+
         // create a new column object if only strings were supplied
         if (!$columnName instanceof Column) {
             $column = new Column();
@@ -317,16 +317,20 @@ class Table
         } else {
             $column = $columnName;
         }
-        
-        // check column type
-        if (!in_array($column->getType(), $this->getAdapter()->getColumnTypes())) {
-            throw new \InvalidArgumentException("An invalid column type was specified: {$column->getName()}");
+
+        // Delegate to Adapters to check column type
+        if (!$this->getAdapter()->isValidColumnType($column)) {
+            throw new \InvalidArgumentException(sprintf(
+                'An invalid column type "%s" was specified for column "%s".',
+                $column->getType(),
+                $column->getName()
+            ));
         }
-        
+
         $this->columns[] = $column;
         return $this;
     }
-    
+
     /**
      * Remove a table column.
      *
@@ -338,7 +342,7 @@ class Table
         $this->getAdapter()->dropColumn($this->getName(), $columnName);
         return $this;
     }
-    
+
     /**
      * Rename a table column.
      *
@@ -351,7 +355,7 @@ class Table
         $this->getAdapter()->renameColumn($this->getName(), $oldName, $newName);
         return $this;
     }
-    
+
     /**
      * Change a table column type.
      *
@@ -370,16 +374,16 @@ class Table
         } else {
             $newColumn = $newColumnType;
         }
-        
+
         // if the name was omitted use the existing column name
         if (null === $newColumn->getName() || strlen($newColumn->getName()) == 0) {
             $newColumn->setName($columnName);
         }
-        
+
         $this->getAdapter()->changeColumn($this->getName(), $columnName, $newColumn);
         return $this;
     }
-    
+
     /**
      * Checks to see if a column exists.
      *
@@ -391,10 +395,10 @@ class Table
     {
         return $this->getAdapter()->hasColumn($this->getName(), $columnName, $options);
     }
-    
+
     /**
      * Add an index to a database table.
-     * 
+     *
      * In $options you can specific unique = true/false or name (index name).
      *
      * @param string|array|Index $columns Table Column(s)
@@ -418,7 +422,7 @@ class Table
         $this->indexes[] = $index;
         return $this;
     }
-    
+
     /**
      * Removes the given index from a table.
      *
@@ -431,7 +435,7 @@ class Table
         $this->getAdapter()->dropIndex($this->getName(), $columns, $options);
         return $this;
     }
-    
+
     /**
      * Removes the given index identified by its name from a table.
      *
@@ -443,7 +447,7 @@ class Table
         $this->getAdapter()->dropIndexByName($this->getName(), $name);
         return $this;
     }
-    
+
     /**
      * Checks to see if an index exists.
      *
@@ -504,7 +508,7 @@ class Table
         } else {
             $this->getAdapter()->dropForeignKey($this->getName(), $columns);
         }
-        
+
         return $this;
     }
 
@@ -535,7 +539,7 @@ class Table
 
         return $this;
     }
-    
+
     /**
      * Creates a table from the object instance.
      *
@@ -558,12 +562,12 @@ class Table
         if (!$this->exists()) {
             throw new \RuntimeException('Cannot update a table that doesn\'t exist!');
         }
-        
+
         // update table
         foreach ($this->getPendingColumns() as $column) {
             $this->getAdapter()->addColumn($this, $column);
         }
-            
+
         foreach ($this->getIndexes() as $index) {
             $this->getAdapter()->addIndex($this, $index);
         }
@@ -571,15 +575,15 @@ class Table
         foreach ($this->getForeignKeys() as $foreignKey) {
             $this->getAdapter()->addForeignKey($this, $foreignKey);
         }
-        
+
         $this->reset(); // reset pending changes
     }
-    
+
     /**
      * Commits the table changes.
      *
      * If the table doesn't exist it is created otherwise it is updated.
-     * 
+     *
      * @return void
      */
     public function save()
@@ -589,7 +593,7 @@ class Table
         } else {
             $this->create(); // create the table
         }
-        
+
         $this->reset(); // reset pending changes
     }
 }

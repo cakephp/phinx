@@ -12,16 +12,11 @@ website for more information.
 
     Phinx requires at least PHP 5.3.2 (or later).
 
-To install Phinx simply add it as a dependency to your project's 
-``composer.json`` file:
+To install Phinx, simply require it using Composer:
 
-.. code-block:: javascript
+.. code-block:: bash
 
-    {
-        "require": {
-            "robmorgan/phinx": "*"
-        }
-    }
+    php composer.phar require robmorgan/phinx
 
 Then run Composer:
 
@@ -29,8 +24,8 @@ Then run Composer:
 
     php composer.phar install --no-dev
 
-Create a folder in your project directory called "migrations" with adequate permissions,
-it is where your migration files will be located and should be writable.
+Create a folder in your project directory called ``migrations`` with adequate permissions.
+It is where your migration files will live and should be writable.
 
 Phinx can now be executed from within your project:
 

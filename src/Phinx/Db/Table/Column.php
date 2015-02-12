@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Db
  */
@@ -38,27 +38,27 @@ class Column
      * @var string
      */
     protected $name;
-    
+
     /**
      * @var string
      */
     protected $type;
-    
+
     /**
      * @var integer
      */
     protected $limit = null;
-    
+
     /**
      * @var boolean
      */
     protected $null = false;
-    
+
     /**
      * @var mixed
      */
     protected $default = null;
-    
+
     /**
      * @var boolean
      */
@@ -73,7 +73,7 @@ class Column
      * @var integer
      */
     protected $scale;
-    
+
     /**
      * @var string
      */
@@ -95,9 +95,19 @@ class Column
     protected $signed = true;
 
     /**
+     * @var boolean
+     */
+    protected $timezone = false;
+
+    /**
      * @var array
      */
     protected $properties = array();
+
+    /**
+     * @var array
+     */
+    protected $values;
 
     /**
      * Sets the column name.
@@ -110,7 +120,7 @@ class Column
         $this->name = $name;
         return $this;
     }
-    
+
     /**
      * Gets the column name.
      *
@@ -120,7 +130,7 @@ class Column
     {
         return $this->name;
     }
-    
+
     /**
      * Sets the column type.
      *
@@ -132,7 +142,7 @@ class Column
         $this->type = $type;
         return $this;
     }
-    
+
     /**
      * Gets the column type.
      *
@@ -142,7 +152,7 @@ class Column
     {
         return $this->type;
     }
-    
+
     /**
      * Sets the column limit.
      *
@@ -154,7 +164,7 @@ class Column
         $this->limit = $limit;
         return $this;
     }
-    
+
     /**
      * Gets the column limit.
      *
@@ -164,7 +174,7 @@ class Column
     {
         return $this->limit;
     }
-    
+
     /**
      * Sets whether the column allows nulls.
      *
@@ -176,7 +186,7 @@ class Column
         $this->null = (bool) $null;
         return $this;
     }
-    
+
     /**
      * Gets whether the column allows nulls.
      *
@@ -186,7 +196,7 @@ class Column
     {
         return $this->null;
     }
-    
+
     /**
      * Does the column allow nulls?
      *
@@ -196,7 +206,7 @@ class Column
     {
         return $this->getNull();
     }
-    
+
     /**
      * Sets the default column value.
      *
@@ -205,13 +215,10 @@ class Column
      */
     public function setDefault($default)
     {
-        if ($default === false || $default === '') {
-            $default = null;
-        }
         $this->default = $default;
         return $this;
     }
-    
+
     /**
      * Gets the default column value.
      *
@@ -221,7 +228,7 @@ class Column
     {
         return $this->default;
     }
-    
+
     /**
      * Sets whether or not the column is an identity column.
      *
@@ -233,7 +240,7 @@ class Column
         $this->identity = $identity;
         return $this;
     }
-    
+
     /**
      * Gets whether or not the column is an identity column.
      *
@@ -243,7 +250,7 @@ class Column
     {
         return $this->identity;
     }
-    
+
     /**
      * Is the column an identity column?
      *
@@ -253,7 +260,7 @@ class Column
     {
         return $this->getIdentity();
     }
-    
+
     /**
      * Sets the name of the column to add this column after.
      *
@@ -265,7 +272,7 @@ class Column
         $this->after = $after;
         return $this;
     }
-    
+
     /**
      * Returns the name of the column to add this column after.
      *
@@ -309,7 +316,7 @@ class Column
         $this->precision = $precision;
         return $this;
     }
-    
+
     /**
      * Gets the column precision for decimal.
      *
@@ -331,7 +338,7 @@ class Column
         $this->scale = $scale;
         return $this;
     }
-    
+
     /**
      * Gets the column scale for decimal.
      *
@@ -397,6 +404,39 @@ class Column
     }
 
     /**
+     * Sets whether the field should have a timezone identifier.
+     * Used for date/time columns only!
+     *
+     * @param bool $timezone
+     * @return Column
+     */
+    public function setTimezone($timezone)
+    {
+        $this->timezone = (bool) $timezone;
+        return $this;
+    }
+
+    /**
+     * Gets whether field has a timezone identifier.
+     *
+     * @return boolean
+     */
+    public function getTimezone()
+    {
+        return $this->timezone;
+    }
+
+    /**
+     * Should the column have a timezone?
+     *
+     * @return boolean
+     */
+    public function isTimezone()
+    {
+        return $this->getTimezone();
+    }
+
+    /**
      * Sets field properties.
      *
      * @param array $properties
@@ -420,6 +460,68 @@ class Column
     }
 
     /**
+     * Sets field values.
+     *
+     * @param mixed (array|string) $values
+     *
+     * @return Column
+     */
+    public function setValues($values)
+    {
+        if (!is_array($values)) {
+            $values = preg_split('/,\s*/', $values);
+        }
+        $this->values = $values;
+        return $this;
+    }
+
+    /**
+     * Gets field values
+     *
+     * @return string
+     */
+    public function getValues()
+    {
+        return $this->values;
+    }
+
+    /**
+     * Gets all allowed options. Each option must have a corresponding `setFoo` method.
+     *
+     * @return array
+     */
+    protected function getValidOptions()
+    {
+        return array(
+            'limit',
+            'default',
+            'null',
+            'identity',
+            'precision',
+            'scale',
+            'after',
+            'update',
+            'comment',
+            'signed',
+            'timezone',
+            'properties',
+            'values',
+        );
+    }
+
+    /**
+     * Gets all aliased options. Each alias must reference a valid option.
+     *
+     * @return array
+     */
+    protected function getAliasedOptions()
+    {
+        return array(
+            'length' => 'limit',
+        );
+    }
+
+    /**
      * Utility method that maps an array of column options to this objects methods.
      *
      * @param array $options Options
@@ -427,19 +529,19 @@ class Column
      */
     public function setOptions($options)
     {
-        // Valid Options
-        $validOptions = array('limit', 'length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment', 'signed', 'properties');
+        $validOptions = $this->getValidOptions();
+        $aliasOptions = $this->getAliasedOptions();
+
         foreach ($options as $option => $value) {
+            if (isset($aliasOptions[$option])) {
+                // proxy alias -> option
+                $option = $aliasOptions[$option];
+            }
+
             if (!in_array($option, $validOptions)) {
-                throw new \RuntimeException('\'' . $option . '\' is not a valid column option.');
+                throw new \RuntimeException(sprintf('"%s" is not a valid column option.', $option));
             }
-            
-            // proxy length -> limit
-            if (strcasecmp($option, 'length') === 0) {
-                $this->setLimit($value);
-                continue;
-            }
-            
+
             $method = 'set' . ucfirst($option);
             $this->$method($value);
         }

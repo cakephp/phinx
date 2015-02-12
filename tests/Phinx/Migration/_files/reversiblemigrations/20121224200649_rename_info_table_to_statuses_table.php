@@ -13,13 +13,13 @@ class RenameInfoTableToStatusesTable extends AbstractMigration
         $table = $this->table('info');
         $table->rename('statuses');
     }
-    
+
     /**
      * Migrate Up.
      */
     public function up()
     {
-    
+
     }
 
     /**

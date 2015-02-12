@@ -3,28 +3,37 @@
     "type": "library",
     "description": "Phinx makes it ridiculously easy to manage the database migrations for your PHP app.",
     "keywords": ["phinx", "migrations", "database", "db", "database migrations"],
-    "homepage": "http://phinx.org",
+    "homepage": "https://phinx.org",
     "license": "MIT",
     "authors": [{
         "name": "Rob Morgan",
         "email": "robbym@gmail.com",
         "homepage": "http://robmorgan.id.au",
         "role": "Lead Developer"
+    }, {
+        "name": "Woody Gilk",
+        "email": "woody.gilk@gmail.com",
+        "homepage": "http://shadowhand.me",
+        "role": "Developer"
     }],
     "require": {
         "php": ">=5.3.2",
-        "symfony/console": "2.*",
-        "symfony/config": "2.*",
-        "symfony/class-loader": "2.*",
-        "symfony/yaml": "2.*"
+        "symfony/console": "~2.6.0",
+        "symfony/config": "~2.6.0",
+        "symfony/yaml": "~2.6.0"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",
         "squizlabs/php_codesniffer": "dev-phpcs-fixer"
     },
     "autoload": {
-        "psr-0": {
-            "Phinx": "src/"
+        "psr-4": {
+            "Phinx\\": "src/Phinx"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\Phinx\\": "tests/Phinx"
         }
     },
     "bin": ["bin/phinx"]

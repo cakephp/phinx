@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -22,14 +22,14 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Console
  */
 namespace Phinx\Console\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Status extends AbstractCommand
@@ -40,12 +40,12 @@ class Status extends AbstractCommand
     protected function configure()
     {
         parent::configure();
-         
-        $this->addOption('--environment', '-e', InputArgument::OPTIONAL, 'The target environment.');
-         
+
+        $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment.');
+
         $this->setName('status')
              ->setDescription('Show migration status')
-             ->addOption('--format', '-f', InputArgument::OPTIONAL, 'The output format: text or json. Defaults to text.')
+             ->addOption('--format', '-f', InputOption::VALUE_REQUIRED, 'The output format: text or json. Defaults to text.')
              ->setHelp(
 <<<EOT
 The <info>status</info> command prints a list of all migrations, along with their current status
@@ -66,10 +66,10 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
-        
+
         $environment = $input->getOption('environment');
         $format = $input->getOption('format');
-        
+
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
@@ -79,7 +79,7 @@ EOT
         if (null !== $format) {
             $output->writeln('<info>using format</info> ' . $format);
         }
-        
+
         // print the status
         $this->getManager()->printStatus($environment, $format);
     }

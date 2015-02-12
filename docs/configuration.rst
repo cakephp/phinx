@@ -42,6 +42,17 @@ You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
     paths:
         migrations: %%PHINX_CONFIG_DIR%%/your/relative/path
 
+Custom Migration Base
+---------------------
+
+By default all migrations will extend from Phinx's `AbstractMigration` class.
+This can be set to a custom class that extends from `AbstractMigration` by
+setting ``migration_base_class`` in your config:
+
+.. code-block:: yaml
+
+    migration_base_class: MyMagicalMigration
+
 Environments
 ------------
 
@@ -63,6 +74,7 @@ specified under the ``environments`` nested collection. For example:
             pass: ''
             port: 3306
             charset: utf8
+            collation: utf8_unicode_ci
 
 would define a new environment called ``production``.
 
@@ -76,6 +88,25 @@ file:
 .. code-block:: bash
 
     export PHINX_ENVIRONMENT=dev-`whoami`-`hostname`
+
+Socket Connections
+------------------
+
+When using the MySQL adapter, it is also possible to use sockets instead of
+network connections. The socket path is configured with ``unix_socket``:
+
+.. code-block:: yaml
+
+    environments:
+        default_migration_table: phinxlog
+        default_database: development
+        production:
+            adapter: mysql
+            name: production_db
+            user: root
+            pass: ''
+            unix_socket: /var/run/mysql/mysql.sock
+            charset: utf8
 
 External Variables
 ------------------
@@ -124,13 +155,19 @@ Declaring an SQLite database uses a simplified structure:
             adapter: sqlite
             memory: true     # Setting memory to *any* value overrides name
 
-You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface` with the Environment:
+When using the ``sqlsrv`` adapter and connecting to a named instance of 
+SQLServer you should omit the ``port`` setting as sqlsrv will negotiate the port
+automatically.
+
+You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface`
+with `AdapterFactory`: 
 
 .. code-block:: php
 
-    $customAdapterFactory = function(Phinx\Migration\Manager\Environment $env) {
-        // Configure my adapter with the env and return.
-        $adapter = new \My\Adapter(...);
-        return $adapter;
-    }
-    $environment->registerAdapter('my-adapter', $customAdapterFactory);
+    $name  = 'fizz';
+    $class = 'Acme\Adapter\FizzAdapter';
+
+    AdapterFactory::instance()->registerAdapter($name, $class);
+
+Adapters can be registered any time before `$app->run()` is called, which normally
+called by `bin/phinx`.

@@ -13,13 +13,13 @@ class RenameBioToBiography extends AbstractMigration
         $table = $this->table('users');
         $table->renameColumn('bio', 'biography');
     }
-    
+
     /**
      * Migrate Up.
      */
     public function up()
     {
-    
+
     }
 
     /**

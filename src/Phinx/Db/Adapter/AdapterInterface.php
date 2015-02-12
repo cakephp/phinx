@@ -3,7 +3,7 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2014 Rob Morgan
+ * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
- * 
+ *
  * @package    Phinx
  * @subpackage Phinx\Db\Adapter
  */
@@ -65,6 +65,10 @@ interface AdapterInterface
     const PHINX_TYPE_LINESTRING     = 'linestring';
     const PHINX_TYPE_POLYGON        = 'polygon';
 
+	// only for mysql so far
+    const PHINX_TYPE_ENUM           = 'enum';
+    const PHINX_TYPE_SET            = 'set';
+
     /**
      * Get all migrated version numbers.
      *
@@ -73,20 +77,51 @@ interface AdapterInterface
     public function getVersions();
 
     /**
+     * Set adapter configuration options.
+     *
+     * @param  array $options
+     * @return AdapterInterface
+     */
+    public function setOptions(array $options);
+
+    /**
+     * Get all adapter options.
+     *
+     * @return array
+     */
+    public function getOptions();
+
+    /**
+     * Check if an option has been set.
+     *
+     * @param  string $name
+     * @return boolean
+     */
+    public function hasOption($name);
+
+    /**
+     * Get a single adapter option, or null if the option does not exist.
+     *
+     * @param  string $name
+     * @return mixed
+     */
+    public function getOption($name);
+
+    /**
      * Sets the console output.
      *
      * @param OutputInterface $output Output
      * @return AdapterInterface
      */
     public function setOutput(OutputInterface $output);
-    
+
     /**
      * Gets the console output.
      *
      * @return OutputInterface
      */
     public function getOutput();
-    
+
     /**
      * Records a migration being run.
      *
@@ -112,14 +147,14 @@ interface AdapterInterface
      * @return void
      */
     public function createSchemaTable();
-    
+
     /**
      * Returns the adapter type.
      *
      * @return string
      */
     public function getAdapterType();
-    
+
     /**
      * Initializes the database connection.
      *
@@ -127,58 +162,58 @@ interface AdapterInterface
      * @return void
      */
     public function connect();
-    
+
     /**
      * Closes the database connection.
      *
      * @return void
      */
     public function disconnect();
-    
+
     /**
      * Does the adapter support transactions?
      *
      * @return boolean
      */
     public function hasTransactions();
-    
+
     /**
      * Begin a transaction.
      *
      * @return void
      */
     public function beginTransaction();
-    
+
     /**
      * Commit a transaction.
      *
      * @return void
      */
     public function commitTransaction();
-    
+
     /**
      * Rollback a transaction.
      *
      * @return void
      */
     public function rollbackTransaction();
-    
+
     /**
      * Executes a SQL statement and returns the number of affected rows.
-     * 
+     *
      * @param string $sql SQL
      * @return int
      */
     public function execute($sql);
-    
+
     /**
-     * Executes a SQL statement and returns the result as an array. 
+     * Executes a SQL statement and returns the result as an array.
      *
      * @param string $sql SQL
      * @return array
      */
     public function query($sql);
-    
+
     /**
      * Executes a query and returns only one row as an array.
      *
@@ -186,7 +221,7 @@ interface AdapterInterface
      * @return array
      */
     public function fetchRow($sql);
-    
+
     /**
      * Executes a query and returns an array of rows.
      *
@@ -194,23 +229,23 @@ interface AdapterInterface
      * @return array
      */
     public function fetchAll($sql);
-    
+
     /**
      * Quotes a table name for use in a query.
-     * 
+     *
      * @param string $tableName Table Name
      * @return string
      */
     public function quoteTableName($tableName);
-    
+
     /**
      * Quotes a column name for use in a query.
-     * 
+     *
      * @param string $columnName Table Name
      * @return string
      */
     public function quoteColumnName($columnName);
-    
+
     /**
      * Checks to see if a table exists.
      *
@@ -218,7 +253,7 @@ interface AdapterInterface
      * @return boolean
      */
     public function hasTable($tableName);
-    
+
     /**
      * Creates the specified database table.
      *
@@ -226,7 +261,7 @@ interface AdapterInterface
      * @return void
      */
     public function createTable(Table $table);
-    
+
     /**
      * Renames the specified database table.
      *
@@ -235,10 +270,10 @@ interface AdapterInterface
      * @return void
      */
     public function renameTable($tableName, $newName);
-    
+
     /**
      * Drops the specified database table.
-     * 
+     *
      * @param string $tableName Table Name
      * @return void
      */
@@ -251,7 +286,7 @@ interface AdapterInterface
      * @return Column[]
      */
     public function getColumns($tableName);
-    
+
     /**
      * Checks to see if a column exists.
      *
@@ -260,16 +295,16 @@ interface AdapterInterface
      * @return boolean
      */
     public function hasColumn($tableName, $columnName);
-    
+
     /**
      * Adds the specified column to a database table.
-     * 
+     *
      * @param Table  $table  Table
      * @param Column $column Column
      * @return void
      */
     public function addColumn(Table $table, Column $column);
-    
+
     /**
      * Renames the specified column.
      *
@@ -279,7 +314,7 @@ interface AdapterInterface
      * @return void
      */
     public function renameColumn($tableName, $columnName, $newColumnName);
-    
+
     /**
      * Change a table column type.
      *
@@ -289,7 +324,7 @@ interface AdapterInterface
      * @return Table
      */
     public function changeColumn($tableName, $columnName, Column $newColumn);
-    
+
     /**
      * Drops the specified column.
      *
@@ -298,7 +333,7 @@ interface AdapterInterface
      * @return void
      */
     public function dropColumn($tableName, $columnName);
-    
+
     /**
      * Checks to see if an index exists.
      *
@@ -307,28 +342,28 @@ interface AdapterInterface
      * @return boolean
      */
     public function hasIndex($tableName, $columns);
-    
+
     /**
      * Adds the specified index to a database table.
-     * 
+     *
      * @param Table $table Table
      * @param Index $index Index
      * @return void
      */
     public function addIndex(Table $table, Index $index);
-    
+
     /**
      * Drops the specified index from a database table.
-     * 
+     *
      * @param string $tableName
      * @param mixed  $columns Column(s)
      * @return void
      */
     public function dropIndex($tableName, $columns);
-    
+
     /**
      * Drops the index specified by name from a database table.
-     * 
+     *
      * @param string $tableName
      * @param string $indexName
      * @return void
@@ -366,19 +401,28 @@ interface AdapterInterface
 
     /**
      * Returns an array of the supported Phinx column types.
-     * 
+     *
      * @return array
      */
     public function getColumnTypes();
-    
+
+    /**
+     * Checks that the given column is of a supported type.
+     *
+     * @param  Column $column
+     * @return boolean
+     */
+    public function isValidColumnType(Column $column);
+
     /**
      * Converts the Phinx logical type to the adapter's SQL type.
-     * 
-     * @param string $type Type
+     *
+     * @param string $type
+     * @param integer $limit
      * @return string
      */
-    public function getSqlType($type);
-    
+    public function getSqlType($type, $limit = null);
+
     /**
      * Creates a new database.
      *
@@ -387,7 +431,7 @@ interface AdapterInterface
      * @return void
      */
     public function createDatabase($name, $options = array());
-    
+
     /**
      * Checks to see if a database exists.
      *
@@ -395,7 +439,7 @@ interface AdapterInterface
      * @return boolean
      */
     public function hasDatabase($name);
-    
+
     /**
      * Drops the specified database.
      *

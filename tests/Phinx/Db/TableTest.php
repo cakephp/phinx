@@ -21,7 +21,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
             $this->assertRegExp('/An adapter must be specified to add a column./', $e->getMessage());
         }
     }
-    
+
     public function testAddColumnWithColumnObject()
     {
         $adapter = new MysqlAdapter(array());
@@ -34,7 +34,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('email', $columns[0]->getName());
         $this->assertEquals('integer', $columns[0]->getType());
     }
-    
+
     public function testAddColumnWithAnInvalidColumnType()
     {
         try {
@@ -49,10 +49,10 @@ class TableTest extends \PHPUnit_Framework_TestCase
                 $e,
                 'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
-            $this->assertRegExp('/An invalid column type was specified./', $e->getMessage());
+            $this->assertRegExp('/^An invalid column type /', $e->getMessage());
         }
     }
-    
+
     public function testRemoveColumn()
     {
         // stub adapter
@@ -62,7 +62,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
         $table->removeColumn('test');
     }
-    
+
     public function testRenameColumn()
     {
         // stub adapter
@@ -72,7 +72,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
         $table->renameColumn('test1', 'test2');
     }
-    
+
     public function testChangeColumn()
     {
         // stub adapter
@@ -104,7 +104,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('table1', array(), $adapterStub);
         $table->getColumns();
     }
-    
+
     public function testAddIndex()
     {
         $adapter = new MysqlAdapter(array());
@@ -115,7 +115,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('myemailindex', $indexes[0]->getName());
         $this->assertContains('email', $indexes[0]->getColumns());
     }
-    
+
     public function testAddIndexWithoutType()
     {
         $adapter = new MysqlAdapter(array());
@@ -125,7 +125,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(\Phinx\Db\Table\Index::INDEX, $indexes[0]->getType());
         $this->assertContains('email', $indexes[0]->getColumns());
     }
-    
+
     public function testAddIndexWithIndexObject()
     {
         $adapter = new MysqlAdapter(array());
@@ -138,7 +138,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(\Phinx\Db\Table\Index::INDEX, $indexes[0]->getType());
         $this->assertContains('email', $indexes[0]->getColumns());
     }
-    
+
     public function testRemoveIndex()
     {
         // stub adapter
@@ -148,7 +148,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
         $table->removeIndex(array('email'));
     }
-    
+
     public function testRemoveIndexByName()
     {
         // stub adapter
