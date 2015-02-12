@@ -427,8 +427,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $sql
         );
 
-        print "\n\n".$sql."\n\n";
-
         $this->execute($sql);
 
         $sql = sprintf(
