@@ -265,6 +265,31 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
     }
 
+    /**
+     * It's not possible to have an auto incrementing BIGINT in SQLite. However SQL lite uses a dynamic type system.
+     * We can therefor use INTEGER. See: http://www.sqlite.org/datatype3.html
+     */
+    public function testChangeTypeOfPrimaryKeyToBIGINT(){
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->addColumn('column2', 'integer')
+              ->save();
+
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+
+        //test if changing type
+        $newColumn = new \Phinx\Db\Table\Column();
+        $newColumn->setIdentity(true);  // Needed to be AUTO_INCREMENT
+        $newColumn->setType('biginteger');  // Or it can also be "biginteger"
+        $newColumn->setOptions(["signed" => false]);  // Makes the column unsigned
+        $table->changeColumn('id', $newColumn)->save();
+
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
+    }
+
+
+
     public function testChangeColumnDefaultValue()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
