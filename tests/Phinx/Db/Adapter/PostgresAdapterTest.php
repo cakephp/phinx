@@ -770,4 +770,111 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             }
         }
     }
+
+    /**
+     * @depends testCreateTable
+     * @dataProvider positionalQueryParams
+     */
+    public function testSqlPositionalParams($params)
+    {
+        $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
+        $table->addColumn('realname', 'string')
+            ->addColumn('email', 'integer')
+            ->save();
+
+        $this->assertEquals(true, $this->adapter->execute('DELETE FROM ntable WHERE 1=1'));
+        $this->assertEquals(1, $this->adapter->execute('INSERT INTO ntable (id, realname, email) VALUES (?, ?, ?)', $params));
+        $pdoStmt = $this->adapter->query('SELECT * FROM ntable WHERE id = ? AND realname = ? AND email = ?', $params);
+        $this->assertInstanceOf('PDOStatement', $pdoStmt);
+        $this->assertCount(1, $pdoStmt->fetchAll());
+    }
+
+    /**
+     * @depends testCreateTable
+     * @dataProvider queryParams
+     */
+    public function testSqlNamedParams($params)
+    {
+        $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
+        $table->addColumn('realname', 'string')
+            ->addColumn('email', 'integer')
+            ->save();
+
+        $this->assertEquals(true, $this->adapter->execute('DELETE FROM ntable WHERE 1=1'));
+        $this->assertEquals(1, $this->adapter->execute('INSERT INTO ntable (id, realname, email) VALUES (:val1, :val2, :val3)', $params));
+        $pdoStmt = $this->adapter->query('SELECT * FROM ntable WHERE id = :val1 AND realname = :val2 AND email = :val3', $params);
+        $this->assertInstanceOf('PDOStatement', $pdoStmt);
+        $this->assertCount(1, $pdoStmt->fetchAll());
+    }
+
+    /**
+     * Provides a positional input parameters in a variety of formats for parameterised queries.
+     * @return array
+     */
+    public function positionalQueryParams()
+    {
+        return array(
+            array(
+                array(
+                    1,
+                    'Joey Jo-jo',
+                    'email@example.com'
+                )
+            ),
+            array(
+                array(
+                    4 => 1,
+                    0 => 'Joey Jo-jo',
+                    1 => 'email@example.com'
+                )
+            ),
+            array(
+                array(
+                    array(
+                        'value' => '1',
+                        'type' => \PDO::PARAM_INT
+                    ),
+                    array(
+                        'value' => 'Joey Jo-jo',
+                        'type' => \PDO::PARAM_STR
+                    ),
+                    array(
+                        'value' => 'email@example.com',
+                    )
+                )
+            )
+        );
+    }
+
+    /**
+     * Provides a named input parameters in a variety of formats for parameterised queries.
+     * @return array
+     */
+    public function namedQueryParams()
+    {
+        return array(
+            array(
+                array(
+                    ':val1' => 1,
+                    ':val2' => 'Joey Jo-jo',
+                    ':val3' => 'email@example.com'
+                )
+            ),
+            array(
+                array(
+                    ':val1' => array(
+                        'value' => '1',
+                        'type' => \PDO::PARAM_INT
+                    ),
+                    ':val2' => array(
+                        'value' => 'Joey Jo-jo',
+                        'type' => \PDO::PARAM_STR
+                    ),
+                    ':val3' => array(
+                        'value' => 'email@example.com',
+                    )
+                )
+            )
+        );
+    }
 }

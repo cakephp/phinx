@@ -20,3 +20,4 @@ if (!$autoloader()) {
 }
 
 require __DIR__ . '/TestConfiguration.php';
+require __DIR__ . '/lib/PdoMockable.php';

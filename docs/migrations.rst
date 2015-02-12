@@ -205,6 +205,84 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
     the ``execute()`` command. This is especially important when using
     DELIMITERs during insertion of stored procedures or triggers which
     don't support DELIMITERs.
+
+Parameterised queries
+~~~~~~~~~~~~~~~~~~~~~
+
+Both the ``execute()`` and ``query()`` methods accept a second argument for an array of values for parameterised queries.
+
+The following example shows queries with positional ? placeholders.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $queryParams = array(10, 15);
+
+                // execute()
+                $count = $this->execute('DELETE FROM users WHERE user_id BETWEEN ? AND ?', $queryParams);
+
+                // query()
+                $rows = $this->query('SELECT * FROM users WHERE user_id BETWEEN ? AND ?', $queryParams);
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
+This example show queries with named placeholders and an optional bind type.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $queryParams = array(
+                    ':minId' => 10
+                    ':maxId' = array(
+                        'value => 15,
+                        'type' => self::PHINX_PARAM_INT; // Specify the bind type for the value.
+                    )
+                );
+
+                // execute()
+                $count = $this->execute('DELETE FROM users WHERE user_id BETWEEN :minId AND :maxId', $queryParams);
+
+                // query()
+                $rows = $this->query('SELECT * FROM users WHERE user_id BETWEEN :minId AND :maxId', $queryParams);
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
         
 Fetching Rows
 -------------

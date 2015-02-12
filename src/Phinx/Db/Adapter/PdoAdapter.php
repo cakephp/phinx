@@ -292,17 +292,68 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function execute($sql)
+    public function execute($sql, array $inputParams = null)
     {
-        return $this->getConnection()->exec($sql);
+        if (empty($inputParams)) {
+            $rowCount = $this->getConnection()->exec($sql);
+        } else {
+            $rowCount = $this->executeParameterisedQuery($sql, $inputParams)->rowCount();
+        }
+
+        return $rowCount !== false;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function query($sql)
+    public function query($sql, array $inputParams = null)
     {
-        return $this->getConnection()->query($sql);
+        if (empty($inputParams)) {
+            $statement = $this->getConnection()->query($sql);
+        } else {
+            $statement = $this->executeParameterisedQuery($sql, $inputParams);
+        }
+
+        return $statement;
+    }
+
+
+    /**
+     * @param $sql
+     * @param array $inputParams
+     * @return \PDOStatement
+     */
+    protected function executeParameterisedQuery($sql, array $inputParams)
+    {
+        $statement = $this->getConnection()->prepare($sql);
+
+        $position = 1;
+        foreach ($inputParams as $key => $bind) {
+            $value = $bind;
+            $type = \PDO::PARAM_STR;    // This is PDO's default type already.
+            $parameter = is_int($key) ? $position : $key;
+
+
+            if (is_array($bind)) {
+                if (!isset($bind['value'])) {
+                    throw new \InvalidArgumentException('Invalid query bind definition: if bind is array, it must contain a \'value\' key.');
+                }
+
+                $value = $bind['value'];
+
+                if (isset($bind['type'])) {
+                    $type = $bind['type'];  // If a valid type doesn't exist, PDO will provide an exception.
+                }
+            }
+
+            $statement->bindValue($parameter, $value, $type);
+
+            $position++;
+        }
+
+        $statement->execute();
+
+        return $statement;
     }
 
     /**
@@ -446,5 +497,12 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function isValidColumnType(Column $column) {
         return in_array($column->getType(), $this->getColumnTypes());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAdapterBindParamType($phinxBindParamType) {
+        return $phinxBindParamType;
     }
 }
