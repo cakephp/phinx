@@ -809,7 +809,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'integer');
                 break;
             case static::PHINX_TYPE_BIG_INTEGER:
-                // It's not possible to have an auto incrementing BIGINT in SQLite. However SQL lite uses a dynamic type system.
+                // It's not possible to have an auto incrementing BIGINT in SQLite. However SQLite uses a dynamic type system.
                 // We can therefor use INTEGER. See: http://www.sqlite.org/datatype3.html
                 return $identity ? array('name' => 'bigint') : array('name' => 'integer');
                 break;
