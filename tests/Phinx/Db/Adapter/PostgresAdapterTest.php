@@ -779,30 +779,32 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
         $table->addColumn('realname', 'string')
-            ->addColumn('email', 'integer')
+            ->addColumn('email', 'string')
+            ->addColumn('yob', 'integer')
             ->save();
 
         $this->assertEquals(true, $this->adapter->execute('DELETE FROM ntable WHERE 1=1'));
-        $this->assertEquals(1, $this->adapter->execute('INSERT INTO ntable (id, realname, email) VALUES (?, ?, ?)', $params));
-        $pdoStmt = $this->adapter->query('SELECT * FROM ntable WHERE id = ? AND realname = ? AND email = ?', $params);
+        $this->assertEquals(1, $this->adapter->execute('INSERT INTO ntable (realname, email, yob) VALUES (?, ?, ?)', $params));
+        $pdoStmt = $this->adapter->query('SELECT * FROM ntable WHERE realname = ? AND email = ? AND yob = ?', $params);
         $this->assertInstanceOf('PDOStatement', $pdoStmt);
         $this->assertCount(1, $pdoStmt->fetchAll());
     }
 
     /**
      * @depends testCreateTable
-     * @dataProvider queryParams
+     * @dataProvider namedQueryParams
      */
     public function testSqlNamedParams($params)
     {
         $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
         $table->addColumn('realname', 'string')
-            ->addColumn('email', 'integer')
+            ->addColumn('email', 'string')
+            ->addColumn('yob', 'integer')
             ->save();
 
         $this->assertEquals(true, $this->adapter->execute('DELETE FROM ntable WHERE 1=1'));
-        $this->assertEquals(1, $this->adapter->execute('INSERT INTO ntable (id, realname, email) VALUES (:val1, :val2, :val3)', $params));
-        $pdoStmt = $this->adapter->query('SELECT * FROM ntable WHERE id = :val1 AND realname = :val2 AND email = :val3', $params);
+        $this->assertEquals(1, $this->adapter->execute('INSERT INTO ntable (realname, email, yob) VALUES (:val1, :val2, :val3)', $params));
+        $pdoStmt = $this->adapter->query('SELECT * FROM ntable WHERE realname = :val1 AND email = :val2 AND yob = :val3', $params);
         $this->assertInstanceOf('PDOStatement', $pdoStmt);
         $this->assertCount(1, $pdoStmt->fetchAll());
     }
@@ -816,31 +818,31 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         return array(
             array(
                 array(
-                    1,
                     'Joey Jo-jo',
-                    'email@example.com'
+                    'email@example.com',
+                    1980
                 )
             ),
             array(
                 array(
-                    4 => 1,
-                    0 => 'Joey Jo-jo',
-                    1 => 'email@example.com'
+                    4 => 'Joey Jo-jo',
+                    1 => 'email@example.com',
+                    0 => 1980
                 )
             ),
             array(
                 array(
-                    array(
-                        'value' => '1',
-                        'type' => \PDO::PARAM_INT
-                    ),
                     array(
                         'value' => 'Joey Jo-jo',
                         'type' => \PDO::PARAM_STR
                     ),
                     array(
                         'value' => 'email@example.com',
-                    )
+                    ),
+                    array(
+                        'value' => 1980,
+                        'type' => \PDO::PARAM_INT
+                    ),
                 )
             )
         );
@@ -855,24 +857,24 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         return array(
             array(
                 array(
-                    ':val1' => 1,
-                    ':val2' => 'Joey Jo-jo',
-                    ':val3' => 'email@example.com'
+                    ':val1' => 'Joey Jo-jo',
+                    ':val2' => 'email@example.com',
+                    ':val3' => 1980,
                 )
             ),
             array(
                 array(
                     ':val1' => array(
-                        'value' => '1',
-                        'type' => \PDO::PARAM_INT
-                    ),
-                    ':val2' => array(
                         'value' => 'Joey Jo-jo',
                         'type' => \PDO::PARAM_STR
                     ),
-                    ':val3' => array(
+                    ':val2' => array(
                         'value' => 'email@example.com',
-                    )
+                    ),
+                    ':val3' => array(
+                        'value' => 1980,
+                        'type' => \PDO::PARAM_INT
+                    ),
                 )
             )
         );
