@@ -141,7 +141,22 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     public function testGetMigrationPathThrowsExceptionForNoPath()
     {
         $config = new \Phinx\Config\Config(array());
-        $config->getMigrationPath();
+        $config->getMigrationPaths();
+    }
+
+    public function testGetMigrationPathConvertsStringToArray()
+    {
+        $values = array(
+            'paths' => array(
+                'migrations' => '/test'
+            )
+        );
+
+        $config = new \Phinx\Config\Config($values);
+        $paths = $config->getMigrationPaths();
+
+        $this->assertTrue(is_array($paths));
+        $this->assertTrue(count($paths) == 1);
     }
 
     public function testArrayAccessMethods()

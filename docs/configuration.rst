@@ -16,10 +16,10 @@ creates a file called ``phinx.yml`` in the root of your project directory.
 
 If you do not wish to use the default configuration file, you may specify a configuration file (or a file that generates a PHP array) on the command line. See the :doc:`Commands <commands>` chapter for more information.
 
-Migration Path
---------------
+Migration Paths
+---------------
 
-The first option specifies the path to your migration directory. Phinx uses 
+The first option specifies the path to your migration directory. Phinx uses
 ``%%PHINX_CONFIG_DIR%%/migrations`` by default.
 
 .. note::
@@ -34,6 +34,15 @@ to add the following to the yaml configuration.
 
     paths:
         migrations: /your/full/path
+
+You can also provide multiple migration paths by using an array in your configuration:
+
+.. code-block:: yaml
+
+    paths:
+        migrations:
+            - application/module1/migrations
+            - application/module2/migrations
 
 You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 

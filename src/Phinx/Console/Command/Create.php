@@ -34,6 +34,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class Create extends AbstractCommand
@@ -79,6 +80,17 @@ class Create extends AbstractCommand
     }
 
     /**
+     * Get the question that allows the user to select which migration path to use.
+     *
+     * @param string[] $paths
+     * @return ChoiceQuestion
+     */
+    protected function getSelectMigrationPathQuestion(array $paths)
+    {
+        return new ChoiceQuestion('Which migrations path would you like to use?', $paths, 0);
+    }
+
+    /**
      * Migrate the database.
      *
      * @param InputInterface $input
@@ -91,8 +103,17 @@ class Create extends AbstractCommand
     {
         $this->bootstrap($input, $output);
 
-        // get the migration path from the config
-        $path = $this->getConfig()->getMigrationPath();
+        // get the migration path from the config, allowing the user to select a path if there are more than one.
+        $paths = $this->getConfig()->getMigrationPaths();
+
+        if (count($paths) > 1) {
+            $helper = $this->getHelper('question');
+            $question = $this->getSelectMigrationPathQuestion($paths);
+
+            $path = $helper->ask($input, $output, $question);
+        } else {
+            $path = array_shift($paths);
+        }
 
         if (!file_exists($path)) {
             $helper   = $this->getHelper('question');

@@ -1,7 +1,10 @@
 <?php
 return array(
     'paths' => array(
-        'migrations' => 'application/migrations'
+        'migrations' => array(
+            'application/migrations',
+            'application2/migrations',
+        )
     ),
     'environments' => array(
         'default_migration_table' => 'phinxlog',

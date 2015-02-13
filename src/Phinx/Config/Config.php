@@ -218,10 +218,14 @@ class Config implements ConfigInterface
     /**
      * {@inheritdoc}
      */
-    public function getMigrationPath()
+    public function getMigrationPaths()
     {
         if (!isset($this->values['paths']['migrations'])) {
             throw new \UnexpectedValueException('Migrations path missing from config file');
+        }
+
+        if (is_string($this->values['paths']['migrations'])) {
+            $this->values['paths']['migrations'] = array($this->values['paths']['migrations']);
         }
 
         return $this->values['paths']['migrations'];
