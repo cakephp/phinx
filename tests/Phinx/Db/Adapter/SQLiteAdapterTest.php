@@ -448,6 +448,14 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
            ->setReferencedColumns(array('id'));
 
         $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+
+        $this->adapter->dropForeignKey($table->getName(), array('ref_table_id'));
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+
         $this->adapter->dropForeignKey($table->getName(), array('ref_table_id'));
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
     }

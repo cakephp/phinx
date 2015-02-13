@@ -772,9 +772,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($tableName), $tmpTableName));
 
         foreach ($columns as $columnName) {
-            $sql = preg_replace(sprintf("/%s[^,]*[,]?[\ ]?/", $this->quoteColumnName($columnName)), '', $sql, 1);
             $sql = preg_replace(sprintf("/,[^,]*\(%s\) REFERENCES[^,]*\([^\)]*\)/", $this->quoteColumnName($columnName)), '', $sql, 1);
         }
+
+        $this->execute($sql);
 
         $sql = sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
