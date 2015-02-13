@@ -30,6 +30,27 @@ class StatusTest extends \PHPUnit_Framework_TestCase
                 )
             )
         ));
+        
+        $this->config2 = new Config(array(
+            'paths' => array(
+                'migrations' => array(
+                    __DIR__ . '/../_files/_migrations_1',
+                    __DIR__ . '/../_files/_migrations_2',
+                ),
+            ),
+            'environments' => array(
+                'default_migration_table' => 'phinxlog',
+                'default_database' => 'development',
+                'development' => array(
+                    'adapter' => 'pgsql',
+                    'host' => 'fakehost',
+                    'name' => 'development',
+                    'user' => '',
+                    'pass' => '',
+                    'port' => 5433,
+                )
+            )
+        ));
     }
 
     public function testExecute()
@@ -100,5 +121,30 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName(), '--format' => 'json'));
         $this->assertRegExp('/using format json/', $commandTester->getDisplay());
+    }
+    
+    public function testDisplayMultipleDirectories()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Status());
+        
+        // setup dependencies
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+        
+        $command = $application->find('status');
+        
+        // mock the manager class
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config2, $output));
+        $managerStub->expects($this->once())
+                    ->method('printStatus');
+        
+        $command->setConfig($this->config2);
+        $command->setManager($managerStub);
+        
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName()));
+        $this->assertRegExp('/using migration path/', $commandTester->getDisplay());
+        $this->assertRegExp('/_migrations_2/', $commandTester->getDisplay());
+        $this->assertRegExp('/_migrations_1/', $commandTester->getDisplay());
     }
 }

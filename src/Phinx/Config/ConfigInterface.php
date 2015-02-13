@@ -88,9 +88,9 @@ interface ConfigInterface extends \ArrayAccess
     public function getConfigFilePath();
 
     /**
-     * Gets the path of the migration files.
+     * Gets list of paths of the migration files.
      *
-     * @return string
+     * @return array
      */
     public function getMigrationPath();
 }

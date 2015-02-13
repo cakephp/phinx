@@ -92,7 +92,9 @@ class Create extends AbstractCommand
         $this->bootstrap($input, $output);
 
         // get the migration path from the config
-        $path = $this->getConfig()->getMigrationPath();
+        $paths = $this->getConfig()->getMigrationPath();
+        
+        $path = $paths[0];
 
         if (!file_exists($path)) {
             $helper   = $this->getHelper('question');
