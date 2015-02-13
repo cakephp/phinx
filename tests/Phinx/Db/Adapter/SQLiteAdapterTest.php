@@ -266,7 +266,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * It's not possible to have an auto incrementing BIGINT in SQLite. However SQL lite uses a dynamic type system.
+     * It's not possible to have an auto incrementing BIGINT in SQLite. However SQLite uses a dynamic type system.
      * We can therefor use INTEGER. See: http://www.sqlite.org/datatype3.html
      */
     public function testChangeTypeOfPrimaryKeyToBIGINT(){
