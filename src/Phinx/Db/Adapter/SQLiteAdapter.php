@@ -568,7 +568,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(
             sprintf(
                 'CREATE %s ON %s (%s)',
-                $this->getIndexSqlDefinition($index),
+                $this->getIndexSqlDefinition($table, $index),
                 $this->quoteTableName($table->getName()),
                 $indexColumns
             )
@@ -1025,7 +1025,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      * @param Index $index Index
      * @return string
      */
-    protected function getIndexSqlDefinition(Index $index)
+    protected function getIndexSqlDefinition(Table $table, Index $index)
     {
         if ($index->getType() == Index::UNIQUE) {
             $def = 'UNIQUE INDEX';
@@ -1035,7 +1035,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (is_string($index->getName())) {
             $indexName = $index->getName();
         } else {
-            $indexName = '';
+            $indexName = $table->getName() . '_';
             foreach ($index->getColumns() as $column) {
                 $indexName .= $column . '_';
             }
