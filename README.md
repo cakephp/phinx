@@ -112,6 +112,12 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.4.3** (Monday, 23rd Feburary 2015)
+
+* Postgres bugfix for modifying column DEFAULTs
+* MySQL bugfix for setting column INTEGER lengths
+* SQLite bugfix for creating multiple indexes with similar names
+
 **0.4.2.1** (Saturday, 7th Feburary 2015)
 
 * Proper release, updated docs
