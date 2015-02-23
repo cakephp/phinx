@@ -242,7 +242,6 @@ class Manager
 
         // If no target version was supplied, revert the last migration and exit
         if (null === $version) {
-            // Get the migration before the last run migration
             $version = end($versions);
 
             $this->getOutput()->writeln('<info>Attempting to rollback version: </info><comment>' . $version . '</comment>');
