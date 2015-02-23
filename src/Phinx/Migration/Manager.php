@@ -246,13 +246,19 @@ class Manager
 
             $this->getOutput()->writeln('<info>Attempting to rollback version: </info><comment>' . $version . '</comment>');
 
+            $migration_found = false;
+
             foreach ($migrations as $migration){
                 if ($migration->getVersion() == $version) {
-                  $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
-                  break;
+                    $migration_found = true;
+                    $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                    break;
                 }
             }
 
+            if(!$migration_found) {
+              $this->getOutput()->writeln('<error>Migration for version: ' . $version . ' not found.</error>');
+            }
             return;
         } else {
             // Get the first migration number
