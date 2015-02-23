@@ -448,6 +448,14 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
            ->setReferencedColumns(array('id'));
 
         $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+
+        $this->adapter->dropForeignKey($table->getName(), array('ref_table_id'));
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+
         $this->adapter->dropForeignKey($table->getName(), array('ref_table_id'));
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
     }
@@ -494,4 +502,27 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('\RuntimeException','Column type ?int? is not supported');
         $this->adapter->getPhinxType('?int?');
     }
+
+
+    public function testAddIndexTwoTablesSameIndex()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->save();
+        $table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
+        $table2->addColumn('email', 'string')
+               ->save();
+
+        $this->assertFalse($table->hasIndex('email'));
+        $this->assertFalse($table2->hasIndex('email'));
+
+        $table->addIndex('email')
+              ->save();
+        $table2->addIndex('email')
+               ->save();
+
+        $this->assertTrue($table->hasIndex('email'));
+        $this->assertTrue($table2->hasIndex('email'));
+    }
+
 }
