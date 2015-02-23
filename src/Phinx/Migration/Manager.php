@@ -240,11 +240,23 @@ class Manager
             return;
         }
 
-        // If no target version was supplied, revert the last migration
+        // If no target version was supplied, revert the last migration and exit
         if (null === $version) {
             // Get the migration before the last run migration
-            $prev = count($versions) - 2;
-            $version = $prev >= 0 ? $versions[$prev] : 0;
+            $version = end($versions);
+
+            $this->getOutput()->writeln('<info>Attempting to rollback version: </info><comment>' . $version . '</comment>');
+
+            foreach ($migrations as $migration)
+            {
+              if ($migration->getVersion() == $version)
+              {
+                $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                break;
+              }
+            }
+
+            exit();
         } else {
             // Get the first migration number
             $first = reset($versions);
