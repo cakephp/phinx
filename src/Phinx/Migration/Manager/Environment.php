@@ -223,11 +223,13 @@ class Environment
     /**
      * Gets all migrated version numbers.
      *
+     * @param bool $fullRow Return full version information.
+     *
      * @return array
      */
-    public function getVersions()
+    public function getVersions($fullRow = false)
     {
-        return $this->getAdapter()->getVersions();
+        return $this->getAdapter()->getVersions($fullRow);
     }
 
     /**

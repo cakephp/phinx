@@ -181,6 +181,13 @@ abstract class PdoAdapter implements AdapterInterface
         // Create the schema table if it doesn't already exist
         if (!$this->hasSchemaTable()) {
             $this->createSchemaTable();
+        } else{
+            $table = new Table($this->getSchemaTableName(), [], $this);
+            if (!$table->hasColumn('breakpoint')) {
+                $table
+                    ->addColumn('breakpoint', 'boolean')
+                    ->save();
+            }
         }
 
         return $this;
@@ -352,15 +359,24 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getVersions()
+    public function getVersions($fullVersion = false)
     {
+        $result = [];
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY version ASC', $this->getSchemaTableName()));
-        return array_map(
-            function ($v) {
-                return $v['version'];
-            },
-            $rows
-        );
+        if ($fullVersion){
+            foreach($rows as $v) {
+                $result[$v['version']] = $v;
+            }
+        } else {
+            $result = array_map(
+                function ($v) {
+                    return $v['version'];
+                },
+                $rows
+            );
+        }
+
+        return $result;
     }
 
     /**
@@ -425,11 +441,13 @@ abstract class PdoAdapter implements AdapterInterface
                 $table->addColumn('version', 'biginteger', array('limit' => 14))
                       ->addColumn('start_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
                       ->addColumn('end_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
+                      ->addColumn('breakpoint', 'boolean')
                       ->save();
             } else {
                 $table->addColumn('version', 'biginteger')
                       ->addColumn('start_time', 'timestamp')
                       ->addColumn('end_time', 'timestamp')
+                      ->addColumn('breakpoint', 'boolean')
                       ->save();
             }
         } catch (\Exception $exception) {
