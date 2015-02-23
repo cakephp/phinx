@@ -117,8 +117,12 @@ class Manager
                     $status
                     . sprintf(' %14.0f ', $migration->getVersion())
                     . ' <comment>' . $migration->getName() . '</comment>'
-                    . (isset($versions[$migration->getVersion()]) && 0 != $versions[$migration->getVersion()]['breakpoint'] ? ' <error>BREAKPOINT SET</error>' : '')
                 );
+
+                 if (isset($versions[$migration->getVersion()]) && 0 != $versions[$migration->getVersion()]['breakpoint']) {
+                     $output->writeln('         <error>BREAKPOINT SET</error>');
+                 }
+
                 $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
 
                 if (array_key_exists($migration->getVersion(), $versions)) {
