@@ -253,7 +253,7 @@ class Manager
                 }
             }
 
-            exit();
+            return;
         } else {
             // Get the first migration number
             $first = reset($versions);
