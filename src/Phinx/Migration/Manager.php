@@ -730,4 +730,17 @@ class Manager
             ' <comment>' . $migrations[$version]->getName() . '</comment>'
         );
     }
+
+    public function removeBreakpoints($environment){
+        $env = $this->getEnvironment($environment);
+        $breakpointsReset = $env->getAdapter()->execute(sprintf(
+            'UPDATE %s SET breakpoint = 0 WHERE breakpoint <> 0;',
+            $env->getSchemaTableName()
+        ));
+
+        $this->getOutput()->writeln(sprintf(
+            ' %d breakpoints cleared.',
+            $breakpointsReset
+        ));
+    }
 }

@@ -47,6 +47,7 @@ class Breakpoint extends AbstractCommand
         $this->setName('breakpoint')
              ->setDescription('Manage breakpoints')
              ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to set or clear a breakpoint against')
+             ->addOption('--remove-all', '-r', InputOption::VALUE_NONE, 'Remove all breakpoints')
              ->setHelp(
 <<<EOT
 The <info>breakpoint</info> command allows you to set or clear a breakpoint against a specific target to inhibit rollbacks beyond a certain target.
@@ -55,6 +56,7 @@ You cannot specify un-migrated targets
 
 <info>phinx breakpoint -e development</info>
 <info>phinx breakpoint -e development -t 20110103081132</info>
+<info>phinx breakpoint -e development -r</info>
 EOT
              );
     }
@@ -72,6 +74,7 @@ EOT
 
         $environment = $input->getOption('environment');
         $version = $input->getOption('target');
+        $removeAll = $input->getOption('remove-all');
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -80,7 +83,16 @@ EOT
             $output->writeln('<info>using environment</info> ' . $environment);
         }
 
-        // Toggle the breakpoint.
-        $this->getManager()->toggleBreakpoint($environment, $version);
+        if ($version && $removeAll){
+            throw new \InvalidArgumentException('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
+        }
+
+        // Remove all breakpoints
+        if ($removeAll){
+            $this->getManager()->removeBreakpoints($environment);
+        } else {
+            // Toggle the breakpoint.
+            $this->getManager()->toggleBreakpoint($environment, $version);
+        }
     }
 }
