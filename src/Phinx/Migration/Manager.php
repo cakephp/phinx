@@ -246,13 +246,11 @@ class Manager
 
             $this->getOutput()->writeln('<info>Attempting to rollback version: </info><comment>' . $version . '</comment>');
 
-            foreach ($migrations as $migration)
-            {
-              if ($migration->getVersion() == $version)
-              {
-                $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
-                break;
-              }
+            foreach ($migrations as $migration){
+                if ($migration->getVersion() == $version) {
+                  $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                  break;
+                }
             }
 
             exit();
