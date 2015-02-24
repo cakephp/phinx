@@ -211,10 +211,11 @@ class Manager
      *
      * @param string    $environment Environment
      * @param \DateTime $dateTime    Date to roll back to
+     * @param bool $force
      *
      * @return void
      */
-    public function rollbackToDateTime($environment, \DateTime $dateTime)
+    public function rollbackToDateTime($environment, \DateTime $dateTime, $force)
     {
         $env        = $this->getEnvironment($environment);
         $versions   = $env->getVersions();
@@ -226,13 +227,13 @@ class Manager
                 if (!is_null($laterVersion)) {
                     $this->getOutput()->writeln('Rolling back to version '.$version);
                 }
-                $this->rollback($environment, $version);
+                $this->rollback($environment, $version, $force);
                 return;
             }
             $laterVersion = $version;
         }
         $this->getOutput()->writeln('Rolling back to version ' . $laterVersion);
-        $this->rollback($environment, $laterVersion);
+        $this->rollback($environment, $laterVersion, $force);
     }
 
     /**
@@ -358,9 +359,10 @@ class Manager
      *
      * @param string $environment Environment
      * @param int $version
+     * @param bool $force
      * @return void
      */
-    public function rollback($environment, $version = null)
+    public function rollback($environment, $version = null, $force = false)
     {
         $migrations = $this->getMigrations();
         $versions = $this->getEnvironment($environment)->getVersions(true);
@@ -402,7 +404,7 @@ class Manager
                 break;
             }
             if (array_key_exists($migration->getVersion(), $versions)) {
-                if (isset($versions[$migration->getVersion()]) && 0 != $versions[$migration->getVersion()]['breakpoint']){
+                if (isset($versions[$migration->getVersion()]) && 0 != $versions[$migration->getVersion()]['breakpoint'] && !$force){
                     $this->getOutput()->writeln('<error>Breakpoint reached. Further rollbacks inhibited.</error>');
                     break;
                 }
