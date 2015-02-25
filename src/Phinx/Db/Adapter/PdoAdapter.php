@@ -388,11 +388,12 @@ abstract class PdoAdapter implements AdapterInterface
             // up
             $sql = sprintf(
                 'INSERT INTO %s ('
-                . 'version, start_time, end_time'
+                . 'version, start_time, end_time, breakpoint'
                 . ') VALUES ('
                 . '\'%s\','
                 . '\'%s\','
-                . '\'%s\''
+                . '\'%s\','
+                . '0'
                 . ');',
                 $this->getSchemaTableName(),
                 $migration->getVersion(),
