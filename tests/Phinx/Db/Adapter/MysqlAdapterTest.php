@@ -545,6 +545,17 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('tinyint', $sqlType['name']);
     }
 
+    public function testIntegerColumnLimit()
+    {
+        $limit = 8;
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'integer', array('limit' => $limit))
+              ->save();
+        $columns = $table->getColumns('t');
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals($limit, $sqlType['limit']);
+    }
+
     public function testDropColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);

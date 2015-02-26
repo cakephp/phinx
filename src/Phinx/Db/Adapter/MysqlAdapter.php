@@ -757,8 +757,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                             return $def;
                         }
                     }
+                } elseif (!$limit) {
+                    $limit = 11;
                 }
-                return array('name' => 'int', 'limit' => 11);
+                return array('name' => 'int', 'limit' => $limit);
                 break;
             case static::PHINX_TYPE_BIG_INTEGER:
                 return array('name' => 'bigint', 'limit' => 20);
