@@ -146,7 +146,7 @@ Phinx currently supports the following database adapters natively:
 MySQL
 `````````````````
 
-Since version 0.4.0 you can define a table prefix and table suffix:
+You can define a table prefix and table suffix:
 
 .. code-block:: yaml
 
