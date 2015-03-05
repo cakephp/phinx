@@ -532,7 +532,7 @@ To rename a table access an instance of the Table object then call the
 Working With Columns
 ~~~~~~~~~~~~~~~~~~~~
 
-Get a cloumn list
+Get a column list
 ~~~~~~~~~~~~~~~~~
 
 To retrieve all table columns, simply create a `table` object and call `getColumns()` method. This method will return an array of Column classes with basic info. Example below:
