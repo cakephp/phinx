@@ -89,6 +89,25 @@ file:
 
     export PHINX_ENVIRONMENT=dev-`whoami`-`hostname`
 
+
+Table Prefix and Suffix
+------------------
+
+You can define a table prefix and table suffix:
+
+.. code-block:: yaml
+
+    environments:
+        development:
+            ....
+            table_prefix: dev_
+            table_suffix: _v1
+        testing:
+            ....
+            table_prefix: test_
+            table_suffix: _v2
+
+
 Socket Connections
 ------------------
 
@@ -142,23 +161,6 @@ Phinx currently supports the following database adapters natively:
 * `PostgreSQL <http://www.postgresql.org/>`_: specify the ``pgsql`` adapter.
 * `SQLite <http://www.sqlite.org/>`_: specify the ``sqlite`` adapter.
 * `SQL Server <http://www.microsoft.com/sqlserver>`_: specify the ``sqlsrv`` adapter.
-
-MySQL
-`````````````````
-
-You can define a table prefix and table suffix:
-
-.. code-block:: yaml
-
-    environments:
-        development:
-            ....
-            table_prefix: dev_
-            table_suffix: _v1
-        testing:
-            ....
-            table_prefix: test_
-            table_suffix: _v2
 
 SQLite
 `````````````````
