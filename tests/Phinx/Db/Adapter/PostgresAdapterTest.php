@@ -415,18 +415,19 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string')
-              ->addColumn('column2', 'integer')
-              ->addColumn('column3', 'biginteger')
-              ->addColumn('column4', 'text')
-              ->addColumn('column5', 'float')
-              ->addColumn('column6', 'decimal')
-              ->addColumn('column7', 'time')
-              ->addColumn('column8', 'timestamp')
-              ->addColumn('column9', 'date')
-              ->addColumn('column10', 'boolean')
-              ->addColumn('column11', 'datetime')
-              ->addColumn('column12', 'binary')
-              ->addColumn('column13', 'string', array('limit' => 10));
+              ->addColumn('column2', 'integer', array('limit' => PostgresAdapter::INT_SMALL))
+              ->addColumn('column3', 'integer')
+              ->addColumn('column4', 'biginteger')
+              ->addColumn('column5', 'text')
+              ->addColumn('column6', 'float')
+              ->addColumn('column7', 'decimal')
+              ->addColumn('column8', 'time')
+              ->addColumn('column9', 'timestamp')
+              ->addColumn('column10', 'date')
+              ->addColumn('column11', 'boolean')
+              ->addColumn('column12', 'datetime')
+              ->addColumn('column13', 'binary')
+              ->addColumn('column14', 'string', array('limit' => 10));
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -599,6 +600,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     public function testGetPhinxType()
     {
         $this->assertEquals('integer', $this->adapter->getPhinxType('int'));
+        $this->assertEquals('integer', $this->adapter->getPhinxType('int2'));
         $this->assertEquals('integer', $this->adapter->getPhinxType('int4'));
         $this->assertEquals('integer', $this->adapter->getPhinxType('integer'));
 

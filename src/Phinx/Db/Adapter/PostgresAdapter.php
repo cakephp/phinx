@@ -36,6 +36,8 @@ use Phinx\Migration\MigrationInterface;
 
 class PostgresAdapter extends PdoAdapter implements AdapterInterface
 {
+
+    const INT_SMALL   = 65535;
     /**
      * Columns with comments
      *
@@ -708,6 +710,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         switch ($type) {
             case static::PHINX_TYPE_INTEGER:
+                if ($limit && $limit == static::INT_SMALL) {
+                    return array(
+                        'name' => 'smallint',
+                        'limit' => static::INT_SMALL
+                    );
+                }
+                return array('name' => $type);
             case static::PHINX_TYPE_TEXT:
             case static::PHINX_TYPE_DECIMAL:
             case static::PHINX_TYPE_TIME:
@@ -772,7 +781,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'text':
             case 'json':
                 return static::PHINX_TYPE_TEXT;
+            case 'smallint':
+                return array(
+                    'name' => 'smallint',
+                    'limit' => static::INT_SMALL
+                );
             case 'int':
+            case 'int2':
             case 'int4':
             case 'integer':
                 return static::PHINX_TYPE_INTEGER;
@@ -873,11 +888,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if ($column->isIdentity()) {
             $buffer[] = 'SERIAL';
         } else {
-            $sqlType = $this->getSqlType($column->getType());
+            $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
             $buffer[] = strtoupper($sqlType['name']);
             // integers cant have limits in postgres
-            if ('integer' !== $sqlType['name'] && ($column->getLimit() || isset($sqlType['limit']))) {
-                $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
+            if (!in_array($sqlType['name'], array('integer', 'smallint'))) {
+                if ($column->getLimit() || isset($sqlType['limit'])) {
+                    $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
+                }
             }
 
             $timeTypes = array(
