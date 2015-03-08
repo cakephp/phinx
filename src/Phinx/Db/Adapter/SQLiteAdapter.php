@@ -109,7 +109,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function beginTransaction()
     {
-        $this->execute('START TRANSACTION');
+        $this->execute('BEGIN TRANSACTION');
     }
 
     /**

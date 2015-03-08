@@ -41,6 +41,13 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
     }
 
+    public function testBeginTransaction()
+    {
+        $this->adapter->getConnection()
+            ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $this->adapter->beginTransaction();
+    }
+
     public function testCreatingTheSchemaTableOnConnect()
     {
         $this->adapter->connect();
