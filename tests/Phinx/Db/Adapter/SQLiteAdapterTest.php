@@ -46,6 +46,8 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->getConnection()
             ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $this->adapter->beginTransaction();
+
+        $this->assertTrue(true, 'Transaction query succeeded');
     }
 
     public function testCreatingTheSchemaTableOnConnect()
