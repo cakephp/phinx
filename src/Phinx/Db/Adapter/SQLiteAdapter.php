@@ -702,9 +702,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($table->getName())));
+        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($table->getName())));
         $columns = array();
-        foreach ($columns as $column) {
+        foreach ($rows as $column) {
             $columns[] = $this->quoteColumnName($column['name']);
         }
 
@@ -715,10 +715,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $table->getName(),
+            $this->quoteTableName($table->getName()),
             implode(', ', $columns),
             implode(', ', $columns),
-            $tmpTableName
+            $this->quoteTableName($tmpTableName)
         );
 
         $this->execute($sql);

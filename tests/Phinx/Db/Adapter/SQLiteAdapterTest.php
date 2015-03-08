@@ -455,6 +455,24 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
     }
 
+    public function testAddForeignKeyWithPdoExceptionErrorMode()
+    {
+        $this->adapter->getConnection()
+            ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+            ->setColumns(array('ref_table_id'))
+            ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+    }
+
     public function testDropForeignKey()
     {
         $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
