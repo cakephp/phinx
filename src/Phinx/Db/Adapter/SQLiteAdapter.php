@@ -217,8 +217,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $sql = substr(rtrim($sql), 0, -1);              // no primary keys
         }
 
-        $sql .= ') ';
-
         // set the foreign keys
         $foreignKeys = $table->getForeignKeys();
         if (!empty($foreignKeys)) {
@@ -227,7 +225,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $sql = rtrim($sql) . ';';
+        $sql = rtrim($sql) . ');';
         // execute the sql
         $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
