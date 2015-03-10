@@ -600,7 +600,6 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     public function testGetPhinxType()
     {
         $this->assertEquals('integer', $this->adapter->getPhinxType('int'));
-        $this->assertEquals('integer', $this->adapter->getPhinxType('int2'));
         $this->assertEquals('integer', $this->adapter->getPhinxType('int4'));
         $this->assertEquals('integer', $this->adapter->getPhinxType('integer'));
 

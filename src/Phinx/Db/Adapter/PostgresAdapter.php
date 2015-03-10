@@ -787,7 +787,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     'limit' => static::INT_SMALL
                 );
             case 'int':
-            case 'int2':
             case 'int4':
             case 'integer':
                 return static::PHINX_TYPE_INTEGER;
