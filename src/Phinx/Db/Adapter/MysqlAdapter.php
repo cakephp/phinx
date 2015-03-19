@@ -811,7 +811,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Returns Phinx type by SQL type
      *
-     * @param $sqlTypeDef
+     * @param string $sqlTypeDef
      * @throws \RuntimeException
      * @internal param string $sqlType SQL type
      * @returns string Phinx type
@@ -1044,6 +1044,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
     /**
      * Describes a database table. This is a MySQL adapter specific method.
+     *
+     * @param string $tableName Table name
      * @return array
      */
     public function describeTable($tableName)

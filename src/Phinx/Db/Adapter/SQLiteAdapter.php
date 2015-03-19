@@ -857,7 +857,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Returns Phinx type by SQL type
      *
-     * @param string $sqlType SQL type
+     * @param string $sqlTypeDef SQL type
      * @returns string Phinx type
      */
     public function getPhinxType($sqlTypeDef)
@@ -956,7 +956,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Get the defintion for a `DEFAULT` statement.
+     * Get the definition for a `DEFAULT` statement.
      *
      * @param  mixed $default
      * @return string

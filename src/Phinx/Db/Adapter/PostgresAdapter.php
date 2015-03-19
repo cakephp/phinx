@@ -1033,7 +1033,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Checks to see if a schema exists.
      *
-     * @param string $schemaName  Schema Name
+     * @param string $schemaName Schema Name
      * @return boolean
      */
     public function hasSchema($schemaName)
@@ -1051,7 +1051,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Drops the specified schema table.
      *
-     * @param string $tableName Table Name
+     * @param string $schemaName Schema name
      * @return void
      */
     public function dropSchema($schemaName)
