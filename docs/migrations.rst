@@ -783,7 +783,7 @@ Let's add a foreign key to an example table:
             }
         }
 
-"On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possibles values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.
+"On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possible values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.
 
 We can also easily check if a foreign key exists:
 
@@ -867,8 +867,8 @@ For ``decimal`` columns:
 ========= ===========
 Option    Description
 ========= ===========
-precision combine with ``scale`` set to set decimial accuracy
-scale     combine with ``precision`` to set decimial accuracy
+precision combine with ``scale`` set to set decimal accuracy
+scale     combine with ``precision`` to set decimal accuracy
 ========= ===========
 
 For ``enum`` and ``set`` columns:
