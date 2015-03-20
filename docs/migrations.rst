@@ -40,9 +40,11 @@ and a commented out one:
              * http://docs.phinx.org/en/latest/migrations.html#the-change-method
              *
              * Uncomment this method if you would like to use it.
-             *
+             */
+            /*
             public function change()
             {
+             
             }
             */
 
