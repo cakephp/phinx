@@ -161,6 +161,61 @@ Phinx can only reverse the following commands:
 If a command cannot be reversed then Phinx will throw a 
 ``IrreversibleMigrationException`` exception when it's migrating down.
 
+The Init Method
+~~~~~~~~~~~~~~~
+The init method is automatically run by Phinx when you start migrating, *regardless*
+if the current operation is an `up` or `down` operation or whether this migration
+*was already run or not*. You SHOULD NOT use this method for any migration-related
+logic, which you should normally put under `up` or `down` methods. If you use init
+method, you MUST call the parent init method to actually start the migration.
+
+.. code-block:: php
+        
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class CreateUserLoginsTable extends AbstractMigration
+        {
+            protected function init()
+            {
+               // Here I set the current timezone.
+               date_default_timezone_set('America/New_York');
+        
+               // Let's call the parent init to start migration.
+               parent::init();
+            }
+            
+            /**
+             * Change Method.
+             *
+             * More information on this method is available here:
+             * http://docs.phinx.org/en/latest/migrations.html#the-change-method
+             *
+             * Uncomment this method if you would like to use it.
+             */
+            public function change()
+            {
+                
+            }
+    
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+    
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
 Executing Queries
 -----------------
 
