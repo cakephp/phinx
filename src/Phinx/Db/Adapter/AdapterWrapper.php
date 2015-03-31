@@ -144,17 +144,17 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function execute($sql, array $inputParams = null)
+    public function execute($sql, array $bindValues = null)
     {
-        return $this->getAdapter()->execute($sql, $inputParams);
+        return $this->getAdapter()->execute($sql, $bindValues);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function query($sql, array $inputParams = null)
+    public function query($sql, array $bindValues = null)
     {
-        return $this->getAdapter()->query($sql, $inputParams);
+        return $this->getAdapter()->query($sql, $bindValues);
     }
 
     /**

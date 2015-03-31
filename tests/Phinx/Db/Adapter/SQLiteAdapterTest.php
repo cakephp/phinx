@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\Adapter\QueryBindInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\SQLiteAdapter;
 
@@ -568,6 +569,21 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
      */
     public function positionalQueryParams()
     {
+        /** @var \Phinx\Db\Adapter\QueryBind|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind1 */
+        $mockQueryBind1 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind1->expects($this->any())->method('getValue')->will($this->returnValue('Joey Jo-jo'));
+        $mockQueryBind1->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_STR));
+
+        /** @var \Phinx\Db\Adapter\QueryBind|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind2 */
+        $mockQueryBind2 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind2->expects($this->any())->method('getValue')->will($this->returnValue('email@example.com'));
+        $mockQueryBind2->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_STR));
+
+        /** @var \Phinx\Db\Adapter\QueryBind|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind3 */
+        $mockQueryBind3 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind3->expects($this->any())->method('getValue')->will($this->returnValue(1980));
+        $mockQueryBind3->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_INT));
+
         return array(
             array(
                 array(
@@ -585,17 +601,9 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
             ),
             array(
                 array(
-                    array(
-                        'value' => 'Joey Jo-jo',
-                        'type' => \PDO::PARAM_STR
-                    ),
-                    array(
-                        'value' => 'email@example.com',
-                    ),
-                    array(
-                        'value' => 1980,
-                        'type' => \PDO::PARAM_INT
-                    ),
+                    $mockQueryBind1,
+                    $mockQueryBind2,
+                    $mockQueryBind3,
                 )
             )
         );
@@ -607,6 +615,21 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
      */
     public function namedQueryParams()
     {
+        /** @var \Phinx\Db\Adapter\QueryBindInterface|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind1 */
+        $mockQueryBind1 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind1->expects($this->any())->method('getValue')->will($this->returnValue('Joey Jo-jo'));
+        $mockQueryBind1->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_STR));
+
+        /** @var \Phinx\Db\Adapter\QueryBindInterface|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind2 */
+        $mockQueryBind2 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind2->expects($this->any())->method('getValue')->will($this->returnValue('email@example.com'));
+        $mockQueryBind2->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_STR));
+
+        /** @var \Phinx\Db\Adapter\QueryBindInterface|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind3 */
+        $mockQueryBind3 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind3->expects($this->any())->method('getValue')->will($this->returnValue(1980));
+        $mockQueryBind3->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_INT));
+
         return array(
             array(
                 array(
@@ -617,17 +640,9 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
             ),
             array(
                 array(
-                    ':val1' => array(
-                        'value' => 'Joey Jo-jo',
-                        'type' => \PDO::PARAM_STR
-                    ),
-                    ':val2' => array(
-                        'value' => 'email@example.com',
-                    ),
-                    ':val3' => array(
-                        'value' => 1980,
-                        'type' => \PDO::PARAM_INT
-                    ),
+                    ':val1' => $mockQueryBind1,
+                    ':val2' => $mockQueryBind2,
+                    ':val3' => $mockQueryBind3,
                 )
             )
         );

@@ -244,7 +244,7 @@ The following example shows queries with positional ? placeholders.
             }
         }
 
-This example show queries with named placeholders and an optional bind type.
+The following example show queries with named placeholders.
 
 .. code-block:: php
 
@@ -260,10 +260,8 @@ This example show queries with named placeholders and an optional bind type.
             public function up()
             {
                 $queryParams = array(
-                    ':minId' => 10
-                    ':maxId' = array(
-                        'value => 15,
-                        'type' => self::PHINX_PARAM_INT; // Specify the bind type for the value.
+                    ':minId' => 10,
+                    ':maxId' => 15
                     )
                 );
 
@@ -283,6 +281,43 @@ This example show queries with named placeholders and an optional bind type.
             }
         }
 
+By default, values as bound as the SQL string type (i.e. ``CHAR``). If you want to force the SQL type the value
+should be bound as, you can use the ``QueryBind`` class, as the following example show.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $queryParams = array(
+                    ':minId' => new QueryBind(10, QueryBind::TYPE_INT),
+                    ':maxId' => new QueryBind(15, QueryBind::TYPE_INT)
+                    )
+                );
+
+                // execute()
+                $count = $this->execute('DELETE FROM users WHERE user_id BETWEEN :minId AND :maxId', $queryParams);
+
+                // query()
+                $rows = $this->query('SELECT * FROM users WHERE user_id BETWEEN :minId AND :maxId', $queryParams);
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
         
 Fetching Rows
 -------------

@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\PdoAdapter;
+use Phinx\Db\Adapter\QueryBindInterface;
 
 class PdoAdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -69,9 +70,9 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
                 $name = $i + 1;
             }
 
-            if (is_array($bind)) {
-                $value = $bind['value'];
-                $type = isset($bind['type']) ? $bind['type'] : \PDO::PARAM_STR;
+            if ($bind instanceof QueryBindInterface) {
+                $value = $bind->getValue();
+                $type = $bind->getBindType();
             } else {
                 $value = $bind;
                 $type = \PDO::PARAM_STR;
@@ -134,9 +135,9 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
                 $name = $i + 1;
             }
 
-            if (is_array($bind)) {
-                $value = $bind['value'];
-                $type = isset($bind['type']) ? $bind['type'] : \PDO::PARAM_STR;
+            if ($bind instanceof QueryBindInterface) {
+                $value = $bind->getValue();
+                $type = $bind->getBindType();
             } else {
                 $value = $bind;
                 $type = \PDO::PARAM_STR;
@@ -168,6 +169,16 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
      */
     public function queryParams()
     {
+        /** @var \Phinx\Db\Adapter\QueryBindInterface|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind1 */
+        $mockQueryBind1 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind1->expects($this->any())->method('getValue')->will($this->returnValue(1));
+        $mockQueryBind1->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_INT));
+
+        /** @var \Phinx\Db\Adapter\QueryBindInterface|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind2 */
+        $mockQueryBind2 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind2->expects($this->any())->method('getValue')->will($this->returnValue('fiz'));
+        $mockQueryBind2->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_STR));
+
         return array(
             array(
                 array(
@@ -189,13 +200,8 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
             ),
             array(
                 array(
-                    ':val1' => array(
-                        'value' => 1,
-                        'type' => \PDO::PARAM_INT
-                    ),
-                    ':val2' => array(
-                        'value' => 'fiz',
-                    )
+                    ':val1' => $mockQueryBind1,
+                    ':val2' => $mockQueryBind2
                 )
             )
         );

@@ -292,12 +292,12 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function execute($sql, array $inputParams = null)
+    public function execute($sql, array $bindValues = null)
     {
-        if (empty($inputParams)) {
+        if (empty($bindValues)) {
             $rowCount = $this->getConnection()->exec($sql);
         } else {
-            $rowCount = $this->executeParameterisedQuery($sql, $inputParams)->rowCount();
+            $rowCount = $this->executeParameterisedQuery($sql, $bindValues)->rowCount();
         }
 
         return $rowCount !== false;
@@ -306,12 +306,12 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function query($sql, array $inputParams = null)
+    public function query($sql, array $bindValues = null)
     {
-        if (empty($inputParams)) {
+        if (empty($bindValues)) {
             $statement = $this->getConnection()->query($sql);
         } else {
-            $statement = $this->executeParameterisedQuery($sql, $inputParams);
+            $statement = $this->executeParameterisedQuery($sql, $bindValues);
         }
 
         return $statement;
@@ -320,30 +320,23 @@ abstract class PdoAdapter implements AdapterInterface
 
     /**
      * @param $sql
-     * @param array $inputParams
+     * @param array|QueryBindInterface[] $bindValues
      * @return \PDOStatement
      */
-    protected function executeParameterisedQuery($sql, array $inputParams)
+    protected function executeParameterisedQuery($sql, array $bindValues)
     {
         $statement = $this->getConnection()->prepare($sql);
 
         $position = 1;
-        foreach ($inputParams as $key => $bind) {
-            $value = $bind;
-            $type = \PDO::PARAM_STR;    // This is PDO's default type already.
+        foreach ($bindValues as $key => $bind) {
             $parameter = is_int($key) ? $position : $key;
 
-
-            if (is_array($bind)) {
-                if (!isset($bind['value'])) {
-                    throw new \InvalidArgumentException('Invalid query bind definition: if bind is array, it must contain a \'value\' key.');
-                }
-
-                $value = $bind['value'];
-
-                if (isset($bind['type'])) {
-                    $type = $bind['type'];  // If a valid type doesn't exist, PDO will provide an exception.
-                }
+            if ($bind instanceof QueryBindInterface) {
+                $value = $bind->getValue();
+                $type = $bind->getBindType();
+            } else {
+                $value = $bind;
+                $type = \PDO::PARAM_STR;    // This is PDO's default type already.
             }
 
             $statement->bindValue($parameter, $value, $type);
