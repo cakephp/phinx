@@ -566,7 +566,7 @@ To retrieve all table columns, simply create a `table` object and call `getColum
 Checking whether a column exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can check whether a table has certain column already or not with the
+You can check if a table already has a certain column by using the 
 ``hasColumn()`` method.
 
 .. code-block:: php
