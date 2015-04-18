@@ -563,6 +563,36 @@ To retrieve all table columns, simply create a `table` object and call `getColum
             }
         }
 
+Checking whether a column exists
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can check whether a table has certain column already or not with the
+``hasColumn()`` method.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Change Method.
+             */
+            public function change()
+            {
+                $table = $this->table('user');
+                $column = $table->hasColumn('username');
+
+                if ($column)
+                {
+                    ...
+                }
+                    
+            }
+        }
+
 Renaming a Column
 ~~~~~~~~~~~~~~~~~
 
