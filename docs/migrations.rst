@@ -649,6 +649,31 @@ When adding a column you can dictate it's position using the ``after`` option.
                       ->update();
             }
         }
+        
+Dropping a Column
+~~~~~~~~~~~~~~~~~
+
+To drop a column, use the ``removeColumn()`` method.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Change Method.
+             */
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->removeColumn('short_name')
+                      ->update();
+            }
+        }
+                
 
 Specifying a Column Limit
 ~~~~~~~~~~~~~~~~~~~~~~~~~
