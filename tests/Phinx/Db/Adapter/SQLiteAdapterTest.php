@@ -41,6 +41,15 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
     }
 
+    public function testBeginTransaction()
+    {
+        $this->adapter->getConnection()
+            ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $this->adapter->beginTransaction();
+
+        $this->assertTrue(true, 'Transaction query succeeded');
+    }
+
     public function testCreatingTheSchemaTableOnConnect()
     {
         $this->adapter->connect();
@@ -158,6 +167,20 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     public function testCreateTableWithMultiplePKsAndUniqueIndexes()
     {
         $this->markTestIncomplete();
+    }
+
+    public function testCreateTableWithForeignKey()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer');
+        $table->addForeignKey('ref_table_id', 'ref_table', 'id');
+        $table->save();
+
+        $this->assertTrue($this->adapter->hasTable($table->getName()));
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
     }
 
     public function testRenameTable()
@@ -428,6 +451,26 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $fk->setReferencedTable($refTable)
            ->setColumns(array('ref_table_id'))
            ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+    }
+
+    public function testAddForeignKeyWithPdoExceptionErrorMode()
+    {
+        $this->adapter->getConnection()
+            ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+            ->setColumns(array('ref_table_id'))
+            ->setReferencedColumns(array('id'));
 
         $this->adapter->addForeignKey($table, $fk);
 
