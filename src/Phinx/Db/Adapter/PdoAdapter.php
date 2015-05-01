@@ -340,21 +340,13 @@ abstract class PdoAdapter implements AdapterInterface
         );
 
         $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
-        $sql .= " VALUES ";
+        $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
 
-        $rows = array();
+        $stmt = $this->getConnection()->prepare($sql);
+
         foreach ($data as $row) {
-            $rows[] = "(" . implode(', ', array_map(function ($value) {
-                if (is_numeric($value)) {
-                    return $value;
-                }
-                return "'{$value}'";
-            }, $row)) . ")";
+            $stmt->execute($row);
         }
-
-        $sql .= implode(', ', $rows);
-
-        $this->execute($sql);
 
         $this->endCommandTimer();
     }
