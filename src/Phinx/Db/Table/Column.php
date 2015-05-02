@@ -105,6 +105,11 @@ class Column
     protected $properties = array();
 
     /**
+     * @var array
+     */
+    protected $values;
+
+    /**
      * Sets the column name.
      *
      * @param string $name
@@ -455,6 +460,32 @@ class Column
     }
 
     /**
+     * Sets field values.
+     *
+     * @param mixed (array|string) $values
+     *
+     * @return Column
+     */
+    public function setValues($values)
+    {
+        if (!is_array($values)) {
+            $values = preg_split('/,\s*/', $values);
+        }
+        $this->values = $values;
+        return $this;
+    }
+
+    /**
+     * Gets field values
+     *
+     * @return string
+     */
+    public function getValues()
+    {
+        return $this->values;
+    }
+
+    /**
      * Gets all allowed options. Each option must have a corresponding `setFoo` method.
      *
      * @return array
@@ -474,6 +505,7 @@ class Column
             'signed',
             'timezone',
             'properties',
+            'values',
         );
     }
 

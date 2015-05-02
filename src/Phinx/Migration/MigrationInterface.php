@@ -98,7 +98,7 @@ interface MigrationInterface
      * @return OutputInterface
      */
     public function getOutput();
-    
+
     /**
      * Gets the name.
      *

@@ -376,9 +376,9 @@ abstract class PdoAdapter implements AdapterInterface
                 'INSERT INTO %s ('
                 . 'version, start_time, end_time'
                 . ') VALUES ('
-                . '"%s",'
-                . '"%s",'
-                . '"%s"'
+                . '\'%s\','
+                . '\'%s\','
+                . '\'%s\''
                 . ');',
                 $this->getSchemaTableName(),
                 $migration->getVersion(),
@@ -456,6 +456,7 @@ abstract class PdoAdapter implements AdapterInterface
             'date',
             'binary',
             'boolean',
+            'uuid',
             // Geospatial data types
             'geometry',
             'point',

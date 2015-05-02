@@ -109,7 +109,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function beginTransaction()
     {
-        $this->execute('START TRANSACTION');
+        $this->execute('BEGIN TRANSACTION');
     }
 
     /**
@@ -217,8 +217,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $sql = substr(rtrim($sql), 0, -1);              // no primary keys
         }
 
-        $sql .= ') ';
-
         // set the foreign keys
         $foreignKeys = $table->getForeignKeys();
         if (!empty($foreignKeys)) {
@@ -227,7 +225,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $sql = rtrim($sql) . ';';
+        $sql = rtrim($sql) . ');';
         // execute the sql
         $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
@@ -568,7 +566,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(
             sprintf(
                 'CREATE %s ON %s (%s)',
-                $this->getIndexSqlDefinition($index),
+                $this->getIndexSqlDefinition($table, $index),
                 $this->quoteTableName($table->getName()),
                 $indexColumns
             )
@@ -704,9 +702,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($table->getName())));
+        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($table->getName())));
         $columns = array();
-        foreach ($columns as $column) {
+        foreach ($rows as $column) {
             $columns[] = $this->quoteColumnName($column['name']);
         }
 
@@ -717,10 +715,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $table->getName(),
+            $this->quoteTableName($table->getName()),
             implode(', ', $columns),
             implode(', ', $columns),
-            $tmpTableName
+            $this->quoteTableName($tmpTableName)
         );
 
         $this->execute($sql);
@@ -772,9 +770,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($tableName), $tmpTableName));
 
         foreach ($columns as $columnName) {
-            $sql = preg_replace(sprintf("/%s[^,]*[,]?[\ ]?/", $this->quoteColumnName($columnName)), '', $sql, 1);
             $sql = preg_replace(sprintf("/,[^,]*\(%s\) REFERENCES[^,]*\([^\)]*\)/", $this->quoteColumnName($columnName)), '', $sql, 1);
         }
+
+        $this->execute($sql);
 
         $sql = sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
@@ -863,6 +862,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'boolean');
                 break;
+            case static::PHINX_TYPE_UUID:
+                return array('name' => 'char', 'limit' => 36);
             // Geospatial database types
             // No specific data types exist in SQLite, instead all geospatial
             // functionality is handled in the client. See also: SpatiaLite.
@@ -911,6 +912,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                     $type = static::PHINX_TYPE_CHAR;
                     if ($limit == 255) {
                         $limit = null;
+                    }
+                    if ($limit === 36) {
+                        $type = static::PHINX_TYPE_UUID;
                     }
                     break;
                 case 'int':
@@ -1048,7 +1052,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      * @param Index $index Index
      * @return string
      */
-    protected function getIndexSqlDefinition(Index $index)
+    protected function getIndexSqlDefinition(Table $table, Index $index)
     {
         if ($index->getType() == Index::UNIQUE) {
             $def = 'UNIQUE INDEX';
@@ -1058,7 +1062,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (is_string($index->getName())) {
             $indexName = $index->getName();
         } else {
-            $indexName = '';
+            $indexName = $table->getName() . '_';
             foreach ($index->getColumns() as $column) {
                 $indexName .= $column . '_';
             }

@@ -399,8 +399,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $this->quoteColumnName($columnName),
             $this->getColumnSqlDefinition($newColumn)
         );
-        $sql = preg_replace('/ NOT NULL$/', '', $sql);
-        $sql = preg_replace('/ NULL$/', '', $sql);
+        //NULL and DEFAULT cannot be set while changing column type
+        $sql = preg_replace('/ NOT NULL/', '', $sql);
+        $sql = preg_replace('/ NULL/', '', $sql);
+        //If it is set, DEFAULT is the last definition
+        $sql = preg_replace('/DEFAULT .*/', '', $sql);
         $this->execute($sql);
         // process null
         $sql = sprintf(
@@ -414,6 +417,27 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $sql .= ' SET NOT NULL';
         }
         $this->execute($sql);
+        if (!is_null($newColumn->getDefault())) {
+            //change default
+            $this->execute(
+                sprintf(
+                    'ALTER TABLE %s ALTER COLUMN %s SET %s',
+                    $this->quoteTableName($tableName),
+                    $this->quoteColumnName($columnName),
+                    $this->getDefaultValueDefinition($newColumn->getDefault())
+                )
+            );
+        }
+        else {
+            //drop default
+            $this->execute(
+                sprintf(
+                    'ALTER TABLE %s ALTER COLUMN %s DROP DEFAULT',
+                    $this->quoteTableName($tableName),
+                    $this->quoteColumnName($columnName)
+                )
+            );
+        }
         // rename column
         if ($columnName !== $newColumn->getName()) {
             $this->execute(
@@ -1077,7 +1101,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('json', 'uuid'));
+        return array_merge(parent::getColumnTypes(), array('json'));
     }
 
     /**

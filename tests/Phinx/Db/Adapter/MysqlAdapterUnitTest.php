@@ -873,6 +873,10 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_POINT));
         $this->assertEquals(array('name' => 'polygon'),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_POLYGON));
+        $this->assertEquals(array('name' => 'enum'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_ENUM));
+        $this->assertEquals(array('name' => 'set'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_SET));
     }
 
     public function testGetSqlTypeNotExists()

@@ -545,6 +545,17 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('tinyint', $sqlType['name']);
     }
 
+    public function testIntegerColumnLimit()
+    {
+        $limit = 8;
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'integer', array('limit' => $limit))
+              ->save();
+        $columns = $table->getColumns('t');
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals($limit, $sqlType['limit']);
+    }
+
     public function testDropColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
@@ -575,7 +586,10 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column16', 'geometry')
               ->addColumn('column17', 'point')
               ->addColumn('column18', 'linestring')
-              ->addColumn('column19', 'polygon');
+              ->addColumn('column19', 'polygon')
+              ->addColumn('column20', 'uuid')
+              ->addColumn('column21', 'set', array('values' => "one, two"))
+              ->addColumn('column22', 'enum', array('values' => array('three', 'four')));
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -619,7 +633,10 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column16', 'geometry')
               ->addColumn('column17', 'point')
               ->addColumn('column18', 'linestring')
-              ->addColumn('column19', 'polygon');
+              ->addColumn('column19', 'polygon')
+              ->addColumn('column20', 'uuid')
+              ->addColumn('column21', 'set', array('values' => "one, two"))
+              ->addColumn('column22', 'enum', array('values' => array('three', 'four')));
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('group');
@@ -849,6 +866,28 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals('geometry', $rows[1]['Type']);
+    }
+
+    public function testAddSetColumn()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('set_column'));
+        $table->addColumn('set_column', 'set', array('values' => array('one', 'two')))
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals("set('one','two')", $rows[1]['Type']);
+    }
+
+    public function testAddEnumColumn()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('enum_column'));
+        $table->addColumn('enum_column', 'enum', array('values' => array('one', 'two')))
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals("enum('one','two')", $rows[1]['Type']);
     }
 
     public function testHasColumn()
