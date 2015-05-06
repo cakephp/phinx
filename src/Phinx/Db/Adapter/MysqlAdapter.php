@@ -122,6 +122,16 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * Get version of mysql
+     * @return string
+     */
+    public function getMySqlVersion()
+    {
+        $result = $this->fetchRow("SHOW VARIABLES where variable_name like 'version';");
+        return isset($result['Value']) ? $result['Value'] : '';
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function hasTransactions()
@@ -366,10 +376,19 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      * Get the defintion for a `DEFAULT` statement.
      *
      * @param  mixed $default
+     * @param  mixed $columnType
      * @return string
+     * @throws \RunTimeException
      */
-    protected function getDefaultValueDefinition($default)
+    protected function getDefaultValueDefinition($default, $columnType = null)
     {
+        if($columnType == 'DATETIME' && $default == 'CURRENT_TIMESTAMP' ) {
+            $version = $this->getMySqlVersion();
+            if(version_compare($version, '5.6.5', '<')) {
+                throw new \RuntimeException("You cannot use CURRENT_TIMESTAMP as DEFAULT value for DATETIME on this version ({$version}) of MySQL.".PHP_EOL."Try using a TIMESTAMP column type.");
+            }
+        }
+
         if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
@@ -973,7 +992,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
-        $def .= $this->getDefaultValueDefinition($column->getDefault());
+        $def .= $this->getDefaultValueDefinition($column->getDefault(), $column->getType());
 
         if ($column->getComment()) {
             $def .= ' COMMENT ' . $this->getConnection()->quote($column->getComment());
