@@ -790,13 +790,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
     public function testGetDefaultValueDefinitionCurrentTimestampException()
     {
         $this->setExpectedException('\RuntimeException', 'You cannot use CURRENT_TIMESTAMP as DEFAULT value for DATETIME on this version (5.6.4) of MySQL.');
-        $this->assertFetchRowSql("SHOW VARIABLES where variable_name like 'version';", ['Value' => '5.6.4']);
+        $this->assertFetchRowSql("SHOW VARIABLES where variable_name like 'version';",  array('Value' => '5.6.4'));
         $this->adapter->getDefaultValueDefinition('CURRENT_TIMESTAMP', 'DATETIME');
     }
 
     public function testGetDefaultValueDefinitionCurrentTimestampCorrectVersion()
     {
-        $this->assertFetchRowSql("SHOW VARIABLES where variable_name like 'version';", ['Value' => '5.6.5']);
+        $this->assertFetchRowSql("SHOW VARIABLES where variable_name like 'version';", array('Value' => '5.6.5'));
         $this->assertEquals(' DEFAULT CURRENT_TIMESTAMP',
             $this->adapter->getDefaultValueDefinition('CURRENT_TIMESTAMP', 'DATETIME'));
     }
