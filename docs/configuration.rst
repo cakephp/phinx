@@ -1,6 +1,6 @@
 .. index::
    single: Configuration
-   
+
 Configuration
 =============
 
@@ -19,7 +19,7 @@ If you do not wish to use the default configuration file, you may specify a conf
 Migration Path
 --------------
 
-The first option specifies the path to your migration directory. Phinx uses 
+The first option specifies the path to your migration directory. Phinx uses
 ``%%PHINX_CONFIG_DIR%%/migrations`` by default.
 
 .. note::
@@ -52,6 +52,20 @@ setting ``migration_base_class`` in your config:
 .. code-block:: yaml
 
     migration_base_class: MyMagicalMigration
+
+Boostrap File Path
+------------
+
+You can also define a file to be executed during the Phinx bootstrap process, prior to the execution of the migrations (or other operations). To define this, you should set a path in the ``phinx.yml`` configuration file. This path should either be relative to the path where the ``phinx`` command is being called or a full path.
+
+To define the bootstrap file, add it to the ``paths`` section of the configuration:
+
+.. code-block:: yaml
+
+    paths:
+        bootstrap: /tmp/foo/bar.php
+
+The file should be a PHP file and will be executed through a ``require_once`` call. If the file is defined and not accessible an exception will be thrown. In the context of this PHP file, you will have access to the current command object via ``$this`` (example: Phinx\Console\Command\Migrate)
 
 Environments
 ------------
@@ -155,12 +169,12 @@ Declaring an SQLite database uses a simplified structure:
             adapter: sqlite
             memory: true     # Setting memory to *any* value overrides name
 
-When using the ``sqlsrv`` adapter and connecting to a named instance of 
+When using the ``sqlsrv`` adapter and connecting to a named instance of
 SQLServer you should omit the ``port`` setting as sqlsrv will negotiate the port
 automatically.
 
 You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface`
-with `AdapterFactory`: 
+with `AdapterFactory`:
 
 .. code-block:: php
 

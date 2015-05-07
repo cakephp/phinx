@@ -156,6 +156,22 @@ In case with PHP array you can provide ``connection`` key with existing PDO inst
                 )
             );
 
+Bootstrap File Parameter
+----------------------------
+
+A boostrap file can also be defined as a part of the execution of any Phinx commands (migrate, rollback, etc). This bootstrap file will be executed prior to any other actions are taken place. You should use the ``--bootstrap`` or ``--b`` parameter to define the path to the file. This path can be either a path relative to where the ``phinx`` command is being executed or a full path. The file should be written in PHP (it will just be executed via a ``require_once`` inclusion).
+
+It will also be introduced into the local scope of the command, so that command object is available as ``$this``, for example on a call to the ``migrate`` command:
+
+.. code-block:: php
+
+    <?php
+    echo get_class($this); // results in "Phinx\Console\Command\Migrate"
+
+You can then use the ``getConfig`` method to gain access to the configuration options. Note that if a bootstrap file is provided on the command line, it will **override** any file defined in the configuration file.
+
+If the file is defined and not accessible an exception will be thrown.
+
 Running Phinx in a Web App
 --------------------------
 
