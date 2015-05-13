@@ -49,6 +49,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     const TEXT_MEDIUM  = 16777215;
     const TEXT_LONG    = 4294967295;
 
+    // According to https://dev.mysql.com/doc/refman/5.0/en/blob.html BLOB sizes are the same as TEXT
+    const BLOB_TINY    = 255;
+    const BLOB_SMALL   = 255; /* deprecated, alias of BLOB_TINY */
+    const BLOB_REGULAR = 65535;
+    const BLOB_MEDIUM  = 16777215;
+    const BLOB_LONG    = 4294967295;
+
     const INT_TINY    = 255;
     const INT_SMALL   = 65535;
     const INT_MEDIUM  = 16777215;
@@ -734,6 +741,23 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 }
                 return array('name' => 'text');
                 break;
+            case static::PHINX_TYPE_BINARY:
+                if ($limit) {
+                    $sizes = array(
+                        // Order matters! Size must always be tested from longest to shortest!
+                        'longblob'   => static::BLOB_LONG,
+                        'mediumblob' => static::BLOB_MEDIUM,
+                        'blob'       => static::BLOB_REGULAR,
+                        'tinyblob'   => static::BLOB_SMALL,
+                    );
+                    foreach ($sizes as $name => $length) {
+                        if ($limit >= $length) {
+                            return array('name' => $name);
+                        }
+                    }
+                }
+                return array('name' => 'blob');
+                break;
             case static::PHINX_TYPE_INTEGER:
                 if ($limit && $limit >= static::INT_TINY) {
                     $sizes = array(
@@ -782,9 +806,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 break;
             case static::PHINX_TYPE_DATE:
                 return array('name' => 'date');
-                break;
-            case static::PHINX_TYPE_BINARY:
-                return array('name' => 'blob');
                 break;
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'tinyint', 'limit' => 1);
@@ -876,6 +897,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     break;
                 case 'blob':
                     $type = static::PHINX_TYPE_BINARY;
+                    break;
+                case 'tinyblob':
+                    $type  = static::PHINX_TYPE_BINARY;
+                    $limit = static::BLOB_TINY;
+                    break;
+                case 'mediumblob':
+                    $type  = static::PHINX_TYPE_BINARY;
+                    $limit = static::BLOB_MEDIUM;
+                    break;
+                case 'longblob':
+                    $type  = static::PHINX_TYPE_BINARY;
+                    $limit = static::BLOB_LONG;
                     break;
                 case 'tinytext':
                     $type  = static::PHINX_TYPE_TEXT;
