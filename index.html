@@ -212,20 +212,16 @@
       </div>
       <div class="modal-body">
           <p>By far the best way to install Phinx is via Composer 
-             (<a href="https://getcomposer.org" target="_blank">https://getcomposer.org</a>).
+             (<a href="https://getcomposer.org" target="_blank">https://getcomposer.org</a>):
           </p>
-        
-          <p>Simply add Phinx as a dependency to your <code>composer.json</code> file:</p>
-        
-<pre><code>{
-    "require": {
-        "robmorgan/phinx": "*"
-    }
-}
-</code></pre>
-  <p>and install it:</p>
-
+          
 <pre><code>curl -s https://getcomposer.org/installer | php
+php composer.phar install --no-dev
+</code></pre>
+          
+          <p>Then install Phinx:</p>
+        
+<pre><code>php composer.phar require robmorgan/phinx
 php composer.phar install --no-dev
 </code></pre>
 
