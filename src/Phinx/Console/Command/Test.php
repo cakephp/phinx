@@ -65,9 +65,11 @@ EOT
      *
      * @param InputInterface $input
      * @param OutputInterface $output
+     *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     * @return void
+     *
+     * @return null|int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -95,5 +97,7 @@ EOT
         }
 
         $output->writeln('<info>success!</info>');
+
+        return 0;
     }
 }

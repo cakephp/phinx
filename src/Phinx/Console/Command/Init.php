@@ -55,9 +55,11 @@ class Init extends Command
      *
      * @param InputInterface $input
      * @param OutputInterface $output
+     *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     * @return void
+     *
+     * @return null|int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -103,5 +105,7 @@ class Init extends Command
         }
 
         $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
+
+        return 0;
     }
 }

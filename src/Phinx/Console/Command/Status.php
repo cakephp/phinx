@@ -61,7 +61,8 @@ EOT
      *
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return void
+     *
+     * @return null|int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -82,5 +83,7 @@ EOT
 
         // print the status
         $this->getManager()->printStatus($environment, $format);
+
+        return 0;
     }
 }

@@ -79,6 +79,7 @@ abstract class AbstractCommand extends Command
      *
      * @param InputInterface $input
      * @param OutputInterface $output
+     *
      * @return void
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
@@ -162,6 +163,7 @@ abstract class AbstractCommand extends Command
      * Returns config file path
      *
      * @param InputInterface $input
+     *
      * @return string
      */
     protected function locateConfigFile(InputInterface $input)
@@ -193,18 +195,20 @@ abstract class AbstractCommand extends Command
                 return $locator->locate($configFile, $cwd, $first = true);
             } catch (\InvalidArgumentException $exception) {
                 $lastException = $exception;
+
+                throw $lastException;
             }
         }
-        throw $lastException;
-
     }
 
     /**
      * Parse the config file and load it into the config object
      *
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @throws \InvalidArgumentException
+     *
      * @return void
      */
     protected function loadConfig(InputInterface $input, OutputInterface $output)
@@ -268,7 +272,8 @@ abstract class AbstractCommand extends Command
     /**
      * Verify that the migration directory exists and is writable.
      *
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
+     *
      * @return void
      */
     protected function verifyMigrationDirectory($path)
