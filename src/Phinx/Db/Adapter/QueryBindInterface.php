@@ -8,7 +8,10 @@
 
 namespace Phinx\Db\Adapter;
 
-
+/**
+ * Interface QueryBindInterface
+ * @package Phinx\Db\Adapter
+ */
 interface QueryBindInterface {
     /**
      * Represents a boolean data type.
