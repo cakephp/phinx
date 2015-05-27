@@ -645,6 +645,67 @@ To rename a table access an instance of the Table object then call the
 Working With Columns
 ~~~~~~~~~~~~~~~~~~~~
 
+Get a column list
+~~~~~~~~~~~~~~~~~
+
+To retrieve all table columns, simply create a `table` object and call `getColumns()` method. This method will return an array of Column classes with basic info. Example below:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class ColumnListMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $columns = $this->table('users')->getColumns();
+                ...
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+                ...
+            }
+        }
+
+Checking whether a column exists
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can check if a table already has a certain column by using the 
+``hasColumn()`` method.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Change Method.
+             */
+            public function change()
+            {
+                $table = $this->table('user');
+                $column = $table->hasColumn('username');
+
+                if ($column)
+                {
+                    ...
+                }
+                    
+            }
+        }
+
 Renaming a Column
 ~~~~~~~~~~~~~~~~~
 
@@ -701,6 +762,31 @@ When adding a column you can dictate it's position using the ``after`` option.
                       ->update();
             }
         }
+        
+Dropping a Column
+~~~~~~~~~~~~~~~~~
+
+To drop a column, use the ``removeColumn()`` method.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Change Method.
+             */
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->removeColumn('short_name')
+                      ->update();
+            }
+        }
+                
 
 Specifying a Column Limit
 ~~~~~~~~~~~~~~~~~~~~~~~~~

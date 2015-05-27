@@ -109,7 +109,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function beginTransaction()
     {
-        $this->execute('START TRANSACTION');
+        $this->execute('BEGIN TRANSACTION');
     }
 
     /**
@@ -217,8 +217,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $sql = substr(rtrim($sql), 0, -1);              // no primary keys
         }
 
-        $sql .= ') ';
-
         // set the foreign keys
         $foreignKeys = $table->getForeignKeys();
         if (!empty($foreignKeys)) {
@@ -227,7 +225,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $sql = rtrim($sql) . ';';
+        $sql = rtrim($sql) . ');';
         // execute the sql
         $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
@@ -704,9 +702,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($table->getName())));
+        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($table->getName())));
         $columns = array();
-        foreach ($columns as $column) {
+        foreach ($rows as $column) {
             $columns[] = $this->quoteColumnName($column['name']);
         }
 
@@ -717,10 +715,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $table->getName(),
+            $this->quoteTableName($table->getName()),
             implode(', ', $columns),
             implode(', ', $columns),
-            $tmpTableName
+            $this->quoteTableName($tmpTableName)
         );
 
         $this->execute($sql);
@@ -787,6 +785,35 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $this->execute($sql);
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
+        $this->endCommandTimer();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function insert(Table $table, $columns, $data)
+    {
+        $this->startCommandTimer();
+
+        foreach($data as $row) {
+            $sql = sprintf(
+                "INSERT INTO %s ",
+                $this->quoteTableName($table->getName())
+            );
+
+            $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
+            $sql .= " VALUES ";
+
+            $sql .= "(" . implode(', ', array_map(function ($value) {
+                    if (is_numeric($value)) {
+                        return $value;
+                    }
+                    return "'{$value}'";
+                }, $row)) . ")";
+
+            $this->execute($sql);
+        }
+
         $this->endCommandTimer();
     }
 
