@@ -166,7 +166,7 @@ Executing Queries
 
 Queries can be executed with the ``execute()`` and ``query()`` methods. The
 ``execute()`` method returns the number of affected rows whereas the
-``query()`` method returns the result as an array.
+``query()`` method returns the a [PDOStatement](http://php.net/manual/en/class.pdostatement.php).
 
 .. code-block:: php
         
