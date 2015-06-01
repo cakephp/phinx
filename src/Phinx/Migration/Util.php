@@ -63,6 +63,18 @@ class Util
     }
 
     /**
+     *
+     * Migration file names must be in a format similar to following:
+     * $timestamp_$lowerCaseMigrationName
+     *
+     * @see Util::mapClassNameToFileName()
+     * @param string $filePath Path to the migration file to be checked
+     */
+    public static function isValidMigrationFilePath($filePath){
+        return preg_match('/([0-9]+)_([_a-z0-9]*).php/', basename($filePath));
+    }
+
+    /**
      * Check if a migration class name is valid.
      *
      * Migration class names must be in CamelCase format.

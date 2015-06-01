@@ -30,6 +30,7 @@ namespace Phinx\Migration;
 
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Config\ConfigInterface;
+use Phinx\Migration\Util;
 use Phinx\Migration\Manager\Environment;
 
 class Manager
@@ -367,7 +368,7 @@ class Manager
             $versions = array();
 
             foreach ($phpFiles as $filePath) {
-                if (preg_match('/([0-9]+)_([_a-z0-9]*).php/', basename($filePath))) {
+                if (Util::isValidMigrationFilePath($filePath)) {
                     $matches = array();
                     preg_match('/^[0-9]+/', basename($filePath), $matches); // get the version from the start of the filename
                     $version = $matches[0];
