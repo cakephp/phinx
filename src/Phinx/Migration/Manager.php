@@ -369,9 +369,7 @@ class Manager
 
             foreach ($phpFiles as $filePath) {
                 if (Util::isValidMigrationFilePath($filePath)) {
-                    $matches = array();
-                    preg_match('/^[0-9]+/', basename($filePath), $matches); // get the version from the start of the filename
-                    $version = $matches[0];
+                    $version = Util::getVersionFromMigrationFilePath($filePath);
 
                     if (isset($versions[$version])) {
                         throw new \InvalidArgumentException(sprintf('Duplicate migration - "%s" has the same version as "%s"', $filePath, $versions[$version]->getVersion()));

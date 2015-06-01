@@ -63,15 +63,29 @@ class Util
     }
 
     /**
+     * Check if the given path to a migration file is valid.
      *
      * Migration file names must be in a format similar to following:
      * $timestamp_$lowerCaseMigrationName
      *
      * @see Util::mapClassNameToFileName()
      * @param string $filePath Path to the migration file to be checked
+     * @return boolean true if and only if $filePath is a valid path to a migration file
      */
     public static function isValidMigrationFilePath($filePath){
         return preg_match('/([0-9]+)_([_a-z0-9]*).php/', basename($filePath));
+    }
+
+    /**
+     * Returns the version of a migration based on the path to the file of the migration
+     *
+     * @param string $filePath Path to the migration file the version number is to be acquired
+     * @return string version of the migration corresponding to the given file path
+     */
+    public static function getVersionFromMigrationFilePath($filePath){
+        $matches = array();
+        preg_match('/^[0-9]+/', basename($filePath), $matches); // get the version from the start of the filename
+        return $matches[0];
     }
 
     /**
