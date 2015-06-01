@@ -63,6 +63,24 @@ class Util
     }
 
     /**
+     * Turn migration file names like '20150601153656_create_user_table.php' into class names like 'CreateUserTable'.
+     *
+     * @param string $className Class Name
+     * @return string
+     */
+    public static function mapFileNameToClassName($fileName)
+    {
+        $class = preg_replace('/^[0-9]+_/', '', $fileName);
+        $class = str_replace('_', ' ', $class);
+        $class = ucwords($class);
+        $class = str_replace(' ', '', $class);
+        if (false !== strpos($class, '.')) {
+            $class = substr($class, 0, strpos($class, '.'));
+        }
+        return $class;
+    }
+
+    /**
      * Check if the given path to a migration file is valid.
      *
      * Migration file names must be in a format similar to following:
