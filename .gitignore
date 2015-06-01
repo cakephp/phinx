@@ -32,3 +32,5 @@ phpunit.xml
 
 # sqlite test database
 phinx_testing.sqlite3
+phinx_testing.sqlite3-journal
+
