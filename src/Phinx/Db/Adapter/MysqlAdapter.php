@@ -784,7 +784,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'date');
                 break;
             case static::PHINX_TYPE_BINARY:
-                return array('name' => 'blob');
+                return array('name' => 'longblob');
                 break;
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'tinyint', 'limit' => 1);
@@ -874,6 +874,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     }
                     $type = static::PHINX_TYPE_BIG_INTEGER;
                     break;
+                case 'longblob':
                 case 'blob':
                     $type = static::PHINX_TYPE_BINARY;
                     break;
