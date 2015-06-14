@@ -106,7 +106,7 @@
   <div class="col-sm-2 col-md-2 text-center"><img src="img/icon5.png" class="img-rounded" alt=""></div>
   <div class="col-sm-10 col-md-8">
    <h2>Completely Free</h2>
-   <p>Phinx is and will always remain completely free, open-source software. Developers are encouraged to fork, hack and modify Phinx. If you use Phinx commercially then please consider making a donation.</p>
+   <p>Phinx is and will always remain completely free, open-source software. Developers are encouraged to fork, hack and modify Phinx. If you use Phinx commercially then please consider making a donation or purchasing the screencast below.</p>
   </div>
  </div>
 </div>
@@ -196,7 +196,7 @@
 <div class="container">
  <div class="row">
   <div class="col-xs-12">
-  <p>Copyright &copy; 2014 - Phinx is open-source software.</p>
+  <p>Copyright &copy; 2015 - Phinx is open-source software.</p>
   </div>
   </div>
   </div>
@@ -211,21 +211,16 @@
         <h4 class="modal-title">Install &amp; Run</h4>
       </div>
       <div class="modal-body">
-          <p>By far the best way to install Phinx is via Composer
-             (<a href="https://getcomposer.org" target="_blank">https://getcomposer.org</a>).
+          <p>The best way to get Phinx is is via Composer
+             (<a href="https://getcomposer.org" target="_blank">https://getcomposer.org</a>):
           </p>
 
-          <p>Simply add Phinx as a dependency to your <code>composer.json</code> file:</p>
-
-<pre><code>{
-    "require": {
-        "robmorgan/phinx": "*"
-    }
-}
-</code></pre>
-  <p>and install it:</p>
-
 <pre><code>curl -s https://getcomposer.org/installer | php
+</code></pre>
+
+          <p>Then install Phinx:</p>
+
+<pre><code>php composer.phar require robmorgan/phinx
 php composer.phar install --no-dev
 </code></pre>
 
