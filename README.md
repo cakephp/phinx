@@ -39,24 +39,24 @@ The fastest way to install Phinx in your project is using Composer (http://getco
 
 1. Install Composer:
 
-    ```    
+    ```
     curl -s https://getcomposer.org/installer | php
     ```
-    
-1. Require Phinx as a dependency using Composer: 
+
+1. Require Phinx as a dependency using Composer:
 
     ```
     php composer.phar require robmorgan/phinx
     ```
-    
+
 1. Install Phinx:
-    
+
     ```
     php composer.phar install
     ```
-    
+
 1. Execute Phinx:
-    
+
     ```
     php vendor/bin/phinx
     ```
@@ -74,7 +74,7 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
 
 1. Install Composer
 
-    ```    
+    ```
     curl -s https://getcomposer.org/installer | php
     ```
 
@@ -89,7 +89,7 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
     ```
     curl -s http://box-project.org/installer.php | php
     ```
-    
+
 1. Create a Phar archive
 
     ```
@@ -107,10 +107,19 @@ Please read the [CONTRIBUTING](CONTRIBUTING.md) document.
 ## News & Updates
 
 Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
-  
+
 ## Misc
 
 ### Version History
+
+**0.4.4** (Sunday, 14th June 2015)
+
+* The `change` method is now the default
+* Added a generic adapter insert method. Warning: The implementation will change
+* Updated Symfony depdencies to ~2.7
+* Support for MySQL `BLOB` column types
+* SQLite migration fixes
+* Documentation improvements
 
 **0.4.3** (Monday, 23rd Feburary 2015)
 
@@ -175,7 +184,7 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 * Support for Postgres Schemas
 * Fixed charset support for Microsoft SQL Server
 * Fix for Unique indexes in all adapters
-* Improvements for MySQL foreign key migration syntax 
+* Improvements for MySQL foreign key migration syntax
 * Allow MySQL column types with extra info
 * Fixed SQLite autoincrement behaviour
 * PHPDoc improvements
@@ -340,7 +349,7 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 **0.1.0** (Friday, 13th January 2012)
 
 * Initial public release.
-  
+
 ### License
 
 (The MIT license)
