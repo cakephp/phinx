@@ -32,3 +32,8 @@ test_script:
   - cd C:\projects\phinx
   - "%PHP%/php.exe --version"
   - vendor\bin\phpunit.bat --no-configuration --bootstrap tests/phpunit-bootstrap.php tests/
+# to disable automatic tests
+test: off
+
+# to disable deployment
+deploy: off

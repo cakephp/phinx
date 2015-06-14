@@ -122,7 +122,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
      */
     public function getOutput()
     {
-        return $this->adapter->getOutput($output);
+        return $this->adapter->getOutput();
     }
 
     /**
@@ -155,6 +155,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function query($sql)
     {
         return $this->getAdapter()->query($sql);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function insert(Table $table, $columns, $data)
+    {
+        return $this->getAdapter()->insert($table, $columns, $data);
     }
 
     /**

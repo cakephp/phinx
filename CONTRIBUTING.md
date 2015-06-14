@@ -30,7 +30,6 @@ Great, so you want to contribute. Let's get started:
 
 1. Start by forking Phinx on GitHub: https://github.com/robmorgan/phinx
 
-
 1. Clone your repository to a local directory on your development box.
 
 1. If you do not have Composer set up already, install it:
@@ -55,7 +54,7 @@ Great, so you want to contribute. Let's get started:
 
 1. Run the unit tests again and ensure they pass.
 
-7. Open a pull request on the Github project page. Ensure the code is being merged into the latest development branch and not `master`.
+1. Open a pull request on the Github project page. Ensure the code is being merged into the latest development branch (e.g: `0.5.x-dev`) and not `master`.
 
 ## Documentation
 

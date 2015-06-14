@@ -350,6 +350,54 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             if ($column->getName() == 'column2') {
                 $this->assertTrue($column->isNull());
             }
+        }        
+    }
+
+    public function testChangeColumnWithDefault() {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->save();
+
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1->setName('column1')
+                   ->setType('string')
+                   ->setNull(true);
+
+        $newColumn1->setDefault('Test');
+        $table->changeColumn('column1', $newColumn1);
+
+        $columns = $this->adapter->getColumns('t');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'column1') {
+                $this->assertTrue($column->isNull());
+                $this->assertRegExp('/Test/', $column->getDefault());
+            }
+        }
+    }
+
+    public function testChangeColumnWithDropDefault() {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string', array('default' => 'Test'))
+              ->save();
+
+        $columns = $this->adapter->getColumns('t');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'column1') {
+                $this->assertRegExp('/Test/', $column->getDefault());
+            }
+        }
+
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1->setName('column1')
+                   ->setType('string');
+
+        $table->changeColumn('column1', $newColumn1);
+
+        $columns = $this->adapter->getColumns('t');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'column1') {
+                $this->assertNull($column->getDefault());
+            }
         }
     }
 
@@ -769,5 +817,27 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
                 $this->assertTrue($column->isTimezone(), 'column: ' . $column->getName());
             }
         }
+    }
+
+    public function testInsertData()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->insert(
+                array("column1", "column2"),
+                array(
+                    array('value1', 1),
+                    array('value2', 2)
+                )
+            )
+            ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+
+        $this->assertEquals('value1', $rows[0]['column1']);
+        $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals(1, $rows[0]['column2']);
+        $this->assertEquals(2, $rows[1]['column2']);
     }
 }
