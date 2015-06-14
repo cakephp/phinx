@@ -421,8 +421,8 @@ abstract class PdoAdapter implements AdapterInterface
 
             $table = new Table($this->getSchemaTableName(), $options, $this);
             $table->addColumn('version', 'biginteger')
-                  ->addColumn('start_time', 'timestamp')
-                  ->addColumn('end_time', 'timestamp')
+				  ->addColumn('start_time', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
+				  ->addColumn('end_time', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
                   ->save();
         } catch (\Exception $exception) {
             throw new \InvalidArgumentException('There was a problem creating the schema table: ' . $exception->getMessage());
