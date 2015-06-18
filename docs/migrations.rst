@@ -401,22 +401,29 @@ Valid Column Types
 
 Column types are specified as strings and can be one of:
 
--  string
--  text
--  integer
 -  biginteger
--  float
--  decimal
--  datetime
--  timestamp
--  time
--  date
 -  binary
 -  boolean
+-  date
+-  datetime
+-  decimal
+-  float
+-  integer
+-  string
+-  text
+-  timestamp
+-  time
 
 In addition, the MySQL adapter supports ``enum`` and ``set`` column types.
 
-In addition, the Postgres adapter supports ``json`` and ``uuid`` column types
+In addition, the Postgres adapter supports these additional column types:
+
+- bigserial
+- json
+- jsonb
+- inet
+- uuid
+
 (PostgreSQL 9.3 and above).
 
 For valid options, see the `Valid Column Options`_ below.

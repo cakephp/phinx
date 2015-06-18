@@ -56,8 +56,11 @@ interface AdapterInterface
     const PHINX_TYPE_BINARY         = 'binary';
     const PHINX_TYPE_BOOLEAN        = 'boolean';
     const PHINX_TYPE_JSON           = 'json';
+    const PHINX_TYPE_JSONB          = 'jsonb';
     const PHINX_TYPE_UUID           = 'uuid';
     const PHINX_TYPE_FILESTREAM     = 'filestream';
+    const PHINX_TYPE_BIGSERIAL      = 'bigserial';
+    const PHINX_TYPE_INET           = 'inet';
 
     // Geospatial database types
     const PHINX_TYPE_GEOMETRY       = 'geometry';
