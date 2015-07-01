@@ -72,6 +72,20 @@ EOT
         $environment = $input->getOption('environment');
         $version = $input->getOption('target');
 
+        if ($environment == 'all') {
+            $startAll = microtime(true);
+            foreach (array_keys($this->config['environments']) as $environmentName) {
+                if ($environmentName == 'default_migration_table') {
+                    continue;
+                }
+                $input->setOption('environment', $environmentName);
+                $this->execute($input, $output);
+            }
+            $endAll = microtime(true);
+            $output->writeln('<comment>All databases complete. Took ' . sprintf('%.4fs', $endAll - $startAll) . '</comment>');
+            return;
+        }
+
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
