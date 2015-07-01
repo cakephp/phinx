@@ -111,7 +111,13 @@ EOT
 
         // run the migrations
         $start = microtime(true);
-        $this->getManager()->migrate($environment, $version);
+        try {
+            $this->getManager()->migrate($environment, $version);
+        } catch (\PDOException $exception) {
+            $message = $exception->getMessage();
+            $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
+            $errors[$environment][] = $message;
+        }
         $end = microtime(true);
 
         $output->writeln('');

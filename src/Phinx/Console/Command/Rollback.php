@@ -104,7 +104,13 @@ EOT
 
         // rollback the specified environment
         $start = microtime(true);
-        $this->getManager()->rollback($environment, $version);
+        try {
+            $this->getManager()->rollback($environment, $version);
+        } catch (\PDOException $exception) {
+            $message = $exception->getMessage();
+            $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
+            $errors[$environment][] = $message;
+        }
         $end = microtime(true);
 
         $output->writeln('');
