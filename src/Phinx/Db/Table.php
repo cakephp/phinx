@@ -550,20 +550,40 @@ class Table
     }
 
     /**
-     * Add timestamp columns created_at and updated_at to the table.
+     * Add timestamp columns created_at and updated_at to the table, along with an optional soft delete column
+     *
+     * @param bool $softDelete Include soft delete column
+     * @return Table
+     */
+    public function addTimestamps($softDelete = false)
+    {
+        $this->addColumn('created_at', 'timestamp', array(
+            'default' => 'CURRENT_TIMESTAMP',
+            'update'  => ''
+        ))
+            ->addColumn('updated_at', 'timestamp', array(
+                'null'    => true,
+                'default' => null
+            ));
+
+        if ($softDelete) {
+            $this->addSoftDelete();
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add a soft delete timestamp column deleted_at to the table
      *
      * @return Table
      */
-    public function addTimestamps()
+    public function addSoftDelete()
     {
-        $this->addColumn('created_at', 'timestamp', array(
-                'default' => 'CURRENT_TIMESTAMP',
-                'update' => ''
-            ))
-             ->addColumn('updated_at', 'timestamp', array(
-                'null'    => true,
-                'default' => null
-             ));
+        $this->addColumn('deleted_at', 'timestamp', array(
+            'null' => true,
+            'default' => null
+        ));
 
         return $this;
     }
