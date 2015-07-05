@@ -558,13 +558,13 @@ class Table
     public function addTimestamps($softDelete = false)
     {
         $this->addColumn('created_at', 'timestamp', array(
-                'default' => 'CURRENT_TIMESTAMP',
-                'update' => ''
-            ))
-             ->addColumn('updated_at', 'timestamp', array(
+            'default' => 'CURRENT_TIMESTAMP',
+            'update'  => ''
+        ))
+            ->addColumn('updated_at', 'timestamp', array(
                 'null'    => true,
                 'default' => null
-             ));
+            ));
 
         if ($softDelete) {
             $this->addSoftDelete();
