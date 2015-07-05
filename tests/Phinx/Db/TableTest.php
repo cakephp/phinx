@@ -200,6 +200,50 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($columns[1]->getDefault());
     }
 
+    public function testAddSoftDelete()
+    {
+        $adapter = new MysqlAdapter(array());
+
+        $table = new \Phinx\Db\Table('ntable', array(), $adapter);
+        $table->addSoftDelete();
+
+        $columns = $table->getPendingColumns();
+
+        $this->assertEquals('deleted_at', $columns[0]->getName());
+        $this->assertEquals('timestamp', $columns[0]->getType());
+        $this->assertNull($columns[0]->getDefault());
+        $this->assertEquals('', $columns[0]->getUpdate());
+    }
+
+    public function testAddTimestampsWithSoftDelete()
+    {
+        $adapter = new MysqlAdapter(array());
+        $table = new \Phinx\Db\Table('ntable', array(), $adapter);
+        $table->addTimestamps(true);
+
+        $columns = $table->getPendingColumns();
+
+        $this->assertCount(3, $columns);
+
+        // created_at
+        $this->assertEquals('created_at', $columns[0]->getName());
+        $this->assertEquals('timestamp', $columns[0]->getType());
+        $this->assertEquals('CURRENT_TIMESTAMP', $columns[0]->getDefault());
+        $this->assertEquals('', $columns[0]->getUpdate());
+
+        // updated_at
+        $this->assertEquals('updated_at', $columns[1]->getName());
+        $this->assertEquals('timestamp', $columns[1]->getType());
+        $this->assertTrue($columns[1]->isNull());
+        $this->assertNull($columns[1]->getDefault());
+
+        // deleted_at
+        $this->assertEquals('deleted_at', $columns[2]->getName());
+        $this->assertEquals('timestamp', $columns[2]->getType());
+        $this->assertNull($columns[2]->getDefault());
+        $this->assertEquals('', $columns[2]->getUpdate());
+    }
+
     public function testInsert()
     {
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
