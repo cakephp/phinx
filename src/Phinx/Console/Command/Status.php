@@ -73,7 +73,7 @@ EOT
         if ($environment == 'all') {
             $startAll = microtime(true);
             foreach (array_keys($this->config['environments']) as $environmentName) {
-                if ($environmentName == 'default_migration_table') {
+                if ($environmentName == 'default_migration_table' || $environmentName == 'default_database') {
                     continue;
                 }
                 $input->setOption('environment', $environmentName);
@@ -95,6 +95,16 @@ EOT
         }
 
         // print the status
-        $this->getManager()->printStatus($environment, $format);
+        try {
+            $this->getManager()->printStatus($environment, $format);
+        } catch (\PDOException $exception) {
+            $message = $exception->getMessage();
+            $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
+            $errors[$environment][] = $message;
+        } catch (\InvalidArgumentException $exception) {
+            $message = $exception->getMessage();
+            $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
+            $errors[$environment][] = $message;
+        }
     }
 }

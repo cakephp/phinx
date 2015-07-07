@@ -117,7 +117,11 @@ EOT
             $message = $exception->getMessage();
             $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
             $errors[$environment][] = $message;
-        }
+        } catch (\InvalidArgumentException $exception) {
+            $message = $exception->getMessage();
+            $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
+            $errors[$environment][] = $message;
+        } 
         $end = microtime(true);
 
         $output->writeln('');
