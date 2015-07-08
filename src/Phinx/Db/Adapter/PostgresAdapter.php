@@ -709,7 +709,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         switch ($type) {
             case static::PHINX_TYPE_INTEGER:
             case static::PHINX_TYPE_TEXT:
-            case static::PHINX_TYPE_DECIMAL:
             case static::PHINX_TYPE_TIME:
             case static::PHINX_TYPE_DATE:
             case static::PHINX_TYPE_BOOLEAN:
@@ -717,6 +716,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_JSONB:
             case static::PHINX_TYPE_UUID:
                 return array('name' => $type);
+            case static::PHINX_TYPE_DECIMAL:
+                return array('name' => $type, 'precision' => 18, 'scale' => 0);
             case static::PHINX_TYPE_STRING:
                 return array('name' => 'character varying', 'limit' => 255);
             case static::PHINX_TYPE_CHAR:
@@ -879,8 +880,15 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         } else {
             $sqlType = $this->getSqlType($column->getType());
             $buffer[] = strtoupper($sqlType['name']);
-            // integers cant have limits in postgres
-            if ('integer' !== $sqlType['name'] && ($column->getLimit() || isset($sqlType['limit']))) {
+
+            if (static::PHINX_TYPE_DECIMAL == $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
+                $buffer[] = sprintf(
+                    '(%s, %s)',
+                    $column->getPrecision() ? $column->getPrecision() : $sqlType['precision'],
+                    $column->getScale() ? $column->getScale() : $sqlType['scale']
+                );
+            } elseif ('integer' !== $sqlType['name'] && ($column->getLimit() || isset($sqlType['limit']))) {
+                // integers cant have limits in postgres
                 $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
             }
 
@@ -899,7 +907,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
         }
 
-        // TODO - add precision & scale for decimals
         return implode(' ', $buffer);
     }
 
