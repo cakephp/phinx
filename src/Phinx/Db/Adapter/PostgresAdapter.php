@@ -306,7 +306,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                    ->setType($this->getPhinxType($columnInfo['data_type']))
                    ->setNull($columnInfo['is_nullable'] == 'YES')
                    ->setDefault($columnInfo['column_default'])
-                   ->setIdentity($columnInfo['is_identity'] == 'YES');
+                   ->setIdentity($columnInfo['is_identity'] == 'YES')
+                   ->setPrecision($columnInfo['numeric_precision'])
+                   ->setScale($columnInfo['numeric_scale']);
 
             if (preg_match('/\bwith time zone$/', $columnInfo['data_type'])) {
                 $column->setTimezone(true);
