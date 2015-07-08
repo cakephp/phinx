@@ -265,6 +265,27 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testAddDecimalWithPrecisionAndScale()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $table->addColumn('number', 'decimal', array('precision' => 10, 'scale' => 2))
+            ->addColumn('number2', 'decimal', array('limit' => 12))
+            ->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() == 'number') {
+                $this->assertEquals("10", $column->getPrecision());
+                $this->assertEquals("2", $column->getScale());
+            }
+
+            if ($column->getName() == 'number2') {
+                $this->assertEquals("12", $column->getPrecision());
+                $this->assertEquals("0", $column->getScale());
+            }
+        }
+    }
+
     public function providerArrayType()
     {
         return array(
@@ -350,7 +371,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             if ($column->getName() == 'column2') {
                 $this->assertTrue($column->isNull());
             }
-        }        
+        }
     }
 
     public function testChangeColumnWithDefault() {
