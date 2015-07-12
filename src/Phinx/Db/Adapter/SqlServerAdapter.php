@@ -116,7 +116,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         if (empty($options['port'])) {
             $dsn = 'dblib:host=' . $options['host'] . ';dbname=' . $options['name'];
         } else {
-            $dsn = 'dblib:host=' . $options['host'] . ',' . $options['port'] . ';dbname=' . $options['name'];
+            $dsn = 'dblib:host=' . $options['host'] . ':' . $options['port'] . ';dbname=' . $options['name'];
         }
 
         try {
