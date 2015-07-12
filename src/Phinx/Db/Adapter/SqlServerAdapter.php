@@ -119,6 +119,9 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             $dsn = 'dblib:host=' . $options['host'] . ':' . $options['port'] . ';dbname=' . $options['name'];
         }
 
+        $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
+
+
         try {
             $db = new \PDO($dsn, $options['user'], $options['pass'], $driverOptions);
         } catch (\PDOException $exception) {
