@@ -8,7 +8,7 @@ use Phinx\Db\Adapter\SqlServerAdapter;
 class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Phinx\Db\Adapter\SqlServerAdaptor
+     * @var \Phinx\Db\Adapter\SqlServerAdapter
      */
     private $adapter;
 
