@@ -270,6 +270,11 @@ class Environment
         $adapter = AdapterFactory::instance()
             ->getAdapter($this->options['adapter'], $this->options);
 
+        if (isset($this->options['wrapper'])) {
+            $adapter = AdapterFactory::instance()
+                ->getWrapper($this->options['wrapper'], $adapter);
+        }
+
         if ($this->getOutput()) {
             $adapter->setOutput($this->getOutput());
         }
