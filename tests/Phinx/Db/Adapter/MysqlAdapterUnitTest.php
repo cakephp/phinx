@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Symfony\Component\Console\Output\NullOutput;
+use Phinx\Db\Table\Column;
 use Phinx\Db\Adapter\MysqlAdapter;
 
 class PDOMock extends \PDO
@@ -30,7 +31,7 @@ class MysqlAdapterTester extends MysqlAdapter
         return parent::getDefaultValueDefinition($default);
     }
 
-    public function getColumnSqlDefinition($column)
+    public function getColumnSqlDefinition(Column $column)
     {
         return parent::getColumnSqlDefinition($column);
     }
