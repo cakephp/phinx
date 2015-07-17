@@ -246,7 +246,7 @@ class Config implements ConfigInterface
      * @param array $arr Array to replace
      * @return array
      */
-    protected function replaceTokens($arr)
+    protected function replaceTokens(array $arr)
     {
         // Get environment variables
         // $_ENV is empty because variables_order does not include it normally
@@ -262,11 +262,7 @@ class Config implements ConfigInterface
         $tokens['%%PHINX_CONFIG_DIR%%'] = dirname($this->getConfigFilePath());
 
         // Recurse the array and replace tokens
-        if (is_array($arr)) {
-            return $this->recurseArrayForTokens($arr, $tokens);
-        }
-
-        return $arr;
+        return $this->recurseArrayForTokens($arr, $tokens);
     }
 
     /**
