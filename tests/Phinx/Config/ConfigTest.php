@@ -2,6 +2,13 @@
 
 namespace Test\Phinx\Config;
 
+use \Phinx\Config\Config;
+
+/**
+ * Class ConfigTest
+ * @package Test\Phinx\Config
+ * @group config
+ */
 class ConfigTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -32,121 +39,115 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @covers \Phinx\Config\Config::__construct
+     */
+    public function testConstructEmptyArguments()
+    {
+        $config = new Config(array());
+        $this->assertAttributeEmpty('values', $config);
+        $this->assertAttributeEquals(null, 'configFilePath', $config);
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::__construct
+     */
+    public function testConstructByArray()
+    {
+        $config = new Config($this->getConfigArray());
+        $this->assertAttributeNotEmpty('values', $config);
+        $this->assertAttributeEquals(null, 'configFilePath', $config);
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::getEnvironments
+     */
     public function testGetEnvironmentsMethod()
     {
-        $config = new \Phinx\Config\Config($this->getConfigArray());
-        $this->assertEquals(2, sizeof($config->getEnvironments()));
+        $config = new Config($this->getConfigArray());
+        $this->assertEquals(2, count($config->getEnvironments()));
         $this->assertArrayHasKey('testing', $config->getEnvironments());
         $this->assertArrayHasKey('production', $config->getEnvironments());
     }
 
+    /**
+     * @covers \Phinx\Config\Config::hasEnvironment
+     */
+    public function testHasEnvironmentDoesntHave()
+    {
+        $config = new Config(array());
+        $this->assertFalse($config->hasEnvironment('dummy'));
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::hasEnvironment
+     */
+    public function testHasEnvironmentHasOne()
+    {
+        $config = new Config($this->getConfigArray());
+        $this->assertTrue($config->hasEnvironment('testing'));
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::getEnvironments
+     */
+    public function testGetEnvironmentsNotSet()
+    {
+        $config = new Config(array());
+        $this->assertNull($config->getEnvironments());
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::getEnvironment
+     */
     public function testGetEnvironmentMethod()
     {
-        $config = new \Phinx\Config\Config($this->getConfigArray());
+        $config = new Config($this->getConfigArray());
         $db = $config->getEnvironment('testing');
         $this->assertEquals('sqllite', $db['adapter']);
     }
 
+    /**
+     * @covers \Phinx\Config\Config::getEnvironment
+     */
     public function testHasEnvironmentMethod()
     {
         $configArray = $this->getConfigArray();
-        $config = new \Phinx\Config\Config($configArray);
+        $config = new Config($configArray);
         $this->assertTrue($config->hasEnvironment('testing'));
         $this->assertFalse($config->hasEnvironment('fakeenvironment'));
     }
 
+    /**
+     * @covers \Phinx\Config\Config::getDefaultEnvironment
+     */
     public function testGetDefaultEnvironmentMethod()
     {
-        $path = __DIR__ . '/_files';
-
         // test with the config array
         $configArray = $this->getConfigArray();
-        $config = new \Phinx\Config\Config($configArray);
+        $config = new Config($configArray);
         $this->assertEquals('testing', $config->getDefaultEnvironment());
-
-        // test using a Yaml file without the 'default_database' key.
-        // (it should default to the first one).
-        $config = \Phinx\Config\Config::fromYaml($path . '/no_default_database_key.yml');
-        $this->assertEquals('production', $config->getDefaultEnvironment());
-
-        // test using environment variable PHINX_ENVIRONMENT
-        // (it should return the configuration specified in the environment)
-        putenv('PHINX_ENVIRONMENT=externally-specified-environment');
-        $config = \Phinx\Config\Config::fromYaml($path . '/no_default_database_key.yml');
-        $this->assertEquals('externally-specified-environment', $config->getDefaultEnvironment());
-        putenv('PHINX_ENVIRONMENT=');
     }
 
     /**
-     * @expectedException \RuntimeException
-     */
-    public function testGetDefaultEnvironmentWithAnEmptyYamlFile()
-    {
-        // test using a Yaml file with no key or entries
-        $path = __DIR__ . '/_files';
-        $config = \Phinx\Config\Config::fromYaml($path . '/empty.yml');
-        $config->getDefaultEnvironment();
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage The environment configuration for 'staging' is missing
-     */
-    public function testGetDefaultEnvironmentWithAMissingEnvironmentEntry()
-    {
-        // test using a Yaml file with a 'default_database' key, but without a
-        // corresponding entry
-        $path = __DIR__ . '/_files';
-        $config = \Phinx\Config\Config::fromYaml($path . '/missing_environment_entry.yml');
-        $config->getDefaultEnvironment();
-    }
-
-    public function testFromPHPMethod()
-    {
-        $path = __DIR__ . '/_files';
-        $config = \Phinx\Config\Config::fromPhp($path . '/valid_config.php');
-        $this->assertEquals('dev', $config->getDefaultEnvironment());
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testFromPHPMethodWithoutArray()
-    {
-        $path = __DIR__ . '/_files';
-        $config = \Phinx\Config\Config::fromPhp($path . '/config_without_array.php');
-        $this->assertEquals('dev', $config->getDefaultEnvironment());
-    }
-
-    public function testFromJSONMethod()
-    {
-        $path = __DIR__ . '/_files';
-        $config = \Phinx\Config\Config::fromJson($path . '/valid_config.json');
-        $this->assertEquals('dev', $config->getDefaultEnvironment());
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testFromJSONMethodWithoutJSON()
-    {
-        $path = __DIR__ . '/_files';
-        $config = \Phinx\Config\Config::fromPhp($path . '/empty.json');
-        $this->assertEquals('dev', $config->getDefaultEnvironment());
-    }
-
-    /**
-     * @expectedException UnexpectedValueException
+     * @covers \Phinx\Config\Config::getMigrationPath
+     * @expectedException \UnexpectedValueException
      */
     public function testGetMigrationPathThrowsExceptionForNoPath()
     {
-        $config = new \Phinx\Config\Config(array());
+        $config = new Config(array());
         $config->getMigrationPath();
     }
 
+    /**
+     * @covers \Phinx\Config\Config::offsetGet
+     * @covers \Phinx\Config\Config::offsetSet
+     * @covers \Phinx\Config\Config::offsetExists
+     * @covers \Phinx\Config\Config::offsetUnset
+     */
     public function testArrayAccessMethods()
     {
-        $config = new \Phinx\Config\Config(array());
+        $config = new Config(array());
         $config['foo'] = 'bar';
         $this->assertEquals('bar', $config['foo']);
         $this->assertTrue(isset($config['foo']));
@@ -155,15 +156,21 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Phinx\Config\Config::offsetGet
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage Identifier "foo" is not defined.
      */
     public function testUndefinedArrayAccess()
     {
-        $config = new \Phinx\Config\Config(array());
+        $config = new Config(array());
         $config['foo'];
     }
 
+    /**
+     * @covers \Phinx\Config\Config::fromYaml
+     * @covers \Phinx\Config\Config::getEnvironment
+     * @covers \Phinx\Config\Config::getDefaultEnvironment
+     */
     public function testConfigReplacesTokensWithEnvVariables()
     {
         $_SERVER['PHINX_DBHOST'] = 'localhost';
@@ -172,7 +179,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $_SERVER['PHINX_DBPASS'] = 'ds6xhj1';
         $_SERVER['PHINX_DBPORT'] = '1234';
         $path = __DIR__ . '/_files';
-        $config = \Phinx\Config\Config::fromYaml($path . '/external_variables.yml');
+        $config = Config::fromYaml($path . '/external_variables.yml');
         $env = $config->getEnvironment($config->getDefaultEnvironment());
         $this->assertEquals('localhost', $env['host']);
         $this->assertEquals('productionapp', $env['name']);
@@ -181,27 +188,39 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('1234', $env['port']);
     }
 
+    /**
+     * @covers \Phinx\Config\Config::getMigrationBaseClassName
+     */
     public function testGetMigrationBaseClassNameGetsDefaultBaseClass()
     {
-        $config = new \Phinx\Config\Config(array());
+        $config = new Config(array());
         $this->assertEquals('AbstractMigration', $config->getMigrationBaseClassName());
     }
 
+    /**
+     * @covers \Phinx\Config\Config::getMigrationBaseClassName
+     */
     public function testGetMigrationBaseClassNameGetsDefaultBaseClassWithNamespace()
     {
-        $config = new \Phinx\Config\Config(array());
+        $config = new Config(array());
         $this->assertEquals('Phinx\Migration\AbstractMigration', $config->getMigrationBaseClassName(false));
     }
 
+    /**
+     * @covers \Phinx\Config\Config::getMigrationBaseClassName
+     */
     public function testGetMigrationBaseClassNameGetsAlternativeBaseClass()
     {
-        $config = new \Phinx\Config\Config(array('migration_base_class' => 'Phinx\Migration\AlternativeAbstractMigration'));
+        $config = new Config(array('migration_base_class' => 'Phinx\Migration\AlternativeAbstractMigration'));
         $this->assertEquals('AlternativeAbstractMigration', $config->getMigrationBaseClassName());
     }
 
+    /**
+     * @covers \Phinx\Config\Config::getMigrationBaseClassName
+     */
     public function testGetMigrationBaseClassNameGetsAlternativeBaseClassWithNamespace()
     {
-        $config = new \Phinx\Config\Config(array('migration_base_class' => 'Phinx\Migration\AlternativeAbstractMigration'));
+        $config = new Config(array('migration_base_class' => 'Phinx\Migration\AlternativeAbstractMigration'));
         $this->assertEquals('Phinx\Migration\AlternativeAbstractMigration', $config->getMigrationBaseClassName(false));
     }
 }
