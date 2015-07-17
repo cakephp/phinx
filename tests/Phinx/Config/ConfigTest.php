@@ -9,54 +9,30 @@ use \Phinx\Config\Config;
  * @package Test\Phinx\Config
  * @group config
  */
-class ConfigTest extends \PHPUnit_Framework_TestCase
+class ConfigTest extends AbstractConfigTest
 {
     /**
-     * Returns a sample configuration array for use with the unit tests.
-     *
-     * @return array
-     */
-    public function getConfigArray()
-    {
-        return array(
-            'default' => array(
-                'paths' => array(
-                    'migrations' => '%%PHINX_CONFIG_PATH%%/testmigrations2',
-                    'schema' => '%%PHINX_CONFIG_PATH%%/testmigrations2/schema.sql',
-                )
-            ),
-            'environments' => array(
-                'default_migration_table' => 'phinxlog',
-                'default_database' => 'testing',
-                'testing' => array(
-                    'adapter' => 'sqllite',
-                    'path' => '%%PHINX_CONFIG_PATH%%/testdb/test.db'
-                ),
-                'production' => array(
-                    'adapter' => 'mysql'
-                )
-            )
-        );
-    }
-
-    /**
      * @covers \Phinx\Config\Config::__construct
+     * @covers \Phinx\Config\Config::getConfigFilePath
      */
     public function testConstructEmptyArguments()
     {
         $config = new Config(array());
         $this->assertAttributeEmpty('values', $config);
         $this->assertAttributeEquals(null, 'configFilePath', $config);
+        $this->assertNull($config->getConfigFilePath());
     }
 
     /**
      * @covers \Phinx\Config\Config::__construct
+     * @covers \Phinx\Config\Config::getConfigFilePath
      */
     public function testConstructByArray()
     {
         $config = new Config($this->getConfigArray());
         $this->assertAttributeNotEmpty('values', $config);
         $this->assertAttributeEquals(null, 'configFilePath', $config);
+        $this->assertNull($config->getConfigFilePath());
     }
 
     /**
@@ -119,27 +95,6 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Phinx\Config\Config::getDefaultEnvironment
-     */
-    public function testGetDefaultEnvironmentMethod()
-    {
-        // test with the config array
-        $configArray = $this->getConfigArray();
-        $config = new Config($configArray);
-        $this->assertEquals('testing', $config->getDefaultEnvironment());
-    }
-
-    /**
-     * @covers \Phinx\Config\Config::getMigrationPath
-     * @expectedException \UnexpectedValueException
-     */
-    public function testGetMigrationPathThrowsExceptionForNoPath()
-    {
-        $config = new Config(array());
-        $config->getMigrationPath();
-    }
-
-    /**
      * @covers \Phinx\Config\Config::offsetGet
      * @covers \Phinx\Config\Config::offsetSet
      * @covers \Phinx\Config\Config::offsetExists
@@ -164,28 +119,6 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         $config = new Config(array());
         $config['foo'];
-    }
-
-    /**
-     * @covers \Phinx\Config\Config::fromYaml
-     * @covers \Phinx\Config\Config::getEnvironment
-     * @covers \Phinx\Config\Config::getDefaultEnvironment
-     */
-    public function testConfigReplacesTokensWithEnvVariables()
-    {
-        $_SERVER['PHINX_DBHOST'] = 'localhost';
-        $_SERVER['PHINX_DBNAME'] = 'productionapp';
-        $_SERVER['PHINX_DBUSER'] = 'root';
-        $_SERVER['PHINX_DBPASS'] = 'ds6xhj1';
-        $_SERVER['PHINX_DBPORT'] = '1234';
-        $path = __DIR__ . '/_files';
-        $config = Config::fromYaml($path . '/external_variables.yml');
-        $env = $config->getEnvironment($config->getDefaultEnvironment());
-        $this->assertEquals('localhost', $env['host']);
-        $this->assertEquals('productionapp', $env['name']);
-        $this->assertEquals('root', $env['user']);
-        $this->assertEquals('ds6xhj1', $env['pass']);
-        $this->assertEquals('1234', $env['port']);
     }
 
     /**
