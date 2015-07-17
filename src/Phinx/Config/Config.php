@@ -164,7 +164,7 @@ class Config implements ConfigInterface
      */
     public function hasEnvironment($name)
     {
-        return (!(null === $this->getEnvironment($name)));
+        return (null !== $this->getEnvironment($name));
     }
 
     /**
