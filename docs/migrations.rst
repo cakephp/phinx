@@ -401,18 +401,18 @@ Valid Column Types
 
 Column types are specified as strings and can be one of:
 
--  string
--  text
--  integer
 -  biginteger
--  float
--  decimal
--  datetime
--  timestamp
--  time
--  date
 -  binary
 -  boolean
+-  date
+-  datetime
+-  decimal
+-  float
+-  integer
+-  string
+-  text
+-  time
+-  timestamp
 -  uuid
 
 In addition, the MySQL adapter supports ``enum`` and ``set`` column types.
