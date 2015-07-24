@@ -968,12 +968,16 @@ Limit Option and MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
 
 When using the MySQL adapter, additional hinting of database column type can be
-made for ``integer`` and ``text`` columns. Using ``limit`` with one the following
-options will modify the column type accordingly:
+made for ``integer``, ``text`` and ``binary`` columns. Using ``limit`` with 
+one the following options will modify the column type accordingly:
 
 ============ ==============
 Limit        Column Type
 ============ ==============
+BLOB_TINY    TINYBLOB
+BLOB_REGULAR BLOB
+BLOB_MEDIUM  MEDIUMBLOB
+BLOB_LONG    LONGBLOB
 TEXT_TINY    TINYTEXT
 TEXT_REGULAR TEXT
 TEXT_MEDIUM  MEDIUMTEXT
