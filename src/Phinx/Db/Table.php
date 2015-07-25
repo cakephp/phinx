@@ -45,6 +45,11 @@ class Table
     protected $name;
 
     /**
+     * @var string
+     */
+    protected $schema;
+
+    /**
      * @var array
      */
     protected $options = array();
@@ -99,7 +104,11 @@ class Table
      */
     public function setName($name)
     {
-        $this->name = $name;
+        $a = explode('.', $name);
+        if( count($a) > 1 )
+            list($this->schema, $this->name) = $a;
+        else
+            $this->name = $name;
         return $this;
     }
 
@@ -108,9 +117,12 @@ class Table
      *
      * @return string
      */
-    public function getName()
+    public function getName($include_schema=false)
     {
-        return $this->name;
+        if ($include_schema && isset($this->schema)) 
+            return "{$this->schema}.{$this->name}";
+        else 
+            return $this->name;
     }
 
     /**
@@ -210,6 +222,9 @@ class Table
      */
     public function getColumns()
     {
+        if (null === $this->getAdapter()) {
+            throw new \RuntimeException('An adapter must be specified to get column names.');
+        }
         return $this->getAdapter()->getColumns($this->getName());
     }
 
@@ -652,5 +667,15 @@ class Table
         }
 
         $this->reset(); // reset pending changes
+    }
+
+    /**
+     * gets the table sql to create this table
+     *
+     * @return string
+     */
+    public function getTableDefinition()
+    {
+        return $this->getAdapter()->getTableDefinition($this);
     }
 }

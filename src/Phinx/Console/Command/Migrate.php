@@ -46,6 +46,7 @@ class Migrate extends AbstractCommand
         $this->setName('migrate')
              ->setDescription('Migrate the database')
              ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
+             ->addOption('--no-schema-dump', null, InputOption::VALUE_NONE, 'Do not dump the modified schema into schema.sql. Useful for production deploys')
              ->setHelp(
 <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
@@ -99,8 +100,16 @@ EOT
         $start = microtime(true);
         $this->getManager()->migrate($environment, $version);
         $end = microtime(true);
-
-        $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+        $output->writeln('');
+
+        if( !$input->getOption('no-schema-dump') ) {
+            $output->writeln('<info>Dumping latest schema</info>');
+            $start = microtime(true);
+            $this->getManager()->dumpSchema($environment);
+            $end = microtime(true);
+            $output->writeln('<comment>Schema dump finished. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+            $output->writeln('');
+        }
     }
 }

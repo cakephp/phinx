@@ -306,4 +306,14 @@ class Environment
     {
         return $this->schemaTableName;
     }
+
+    /**
+     * Return a descriptive name for the endpoint
+     * 
+     * @return string
+     */
+    public function getEndpoint()
+    {
+        return sprintf("%s://%s/%s", $this->options['adapter'], $this->options['host'], $this->options['name']);
+    }
 }

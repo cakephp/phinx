@@ -223,7 +223,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                      ->will($this->returnValue(array('somecontent')));
         $expectedSql = 'SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
-            WHERE TABLE_SCHEMA = \'database_name\' AND TABLE_NAME = \'table_name\'';
+            WHERE TABLE_SCHEMA = \'database_name\' AND TABLE_NAME = \'table_name\'
+            AND TABLE_TYPE = \'BASE TABLE\'';
         $this->assertQuerySql($expectedSql, $this->result);
         $this->assertTrue($this->adapter->hasTable("table_name"));
     }
@@ -236,7 +237,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                      ->will($this->returnValue(array()));
         $expectedSql = 'SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
-            WHERE TABLE_SCHEMA = \'database_name\' AND TABLE_NAME = \'table_name\'';
+            WHERE TABLE_SCHEMA = \'database_name\' AND TABLE_NAME = \'table_name\'
+            AND TABLE_TYPE = \'BASE TABLE\'';
         $this->assertQuerySql($expectedSql, $this->result);
         $this->assertFalse($this->adapter->hasTable("table_name"));
     }

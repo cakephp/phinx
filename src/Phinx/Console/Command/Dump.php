@@ -3,7 +3,6 @@
  * Phinx
  *
  * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated * documentation files (the "Software"), to
@@ -32,7 +31,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Rollback extends AbstractCommand
+class Dump extends AbstractCommand
 {
     /**
      * {@inheritdoc}
@@ -41,26 +40,24 @@ class Rollback extends AbstractCommand
     {
         parent::configure();
 
-        $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
+        $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment.');
 
-        $this->setName('rollback')
-             ->setDescription('Rollback the last or to a specific migration')
-             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to rollback to')
-             ->addOption('--no-schema-dump', null, InputOption::VALUE_NONE, 'Do not dump the modified schema into schema.sql.')
+        $this->setName('dump')
+             ->setDescription('Dump current database structure and seed data')
+             ->addOption('--outfile', '-o', InputOption::VALUE_REQUIRED, 'The output file. Defaults to path specificed in phinx.yml')
              ->setHelp(
 <<<EOT
-The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
+The <info>dump</info> command will use the current state of the database in the 
+target environment as a new 'initial state' for the database, which includes a full
+database-specific dump of the structure, as well as any configured seed data.
 
-<info>phinx rollback -e development</info>
-<info>phinx rollback -e development -t 20111018185412</info>
-<info>phinx rollback -e development -v</info>
-
+<info>phinx dump -e development</info>
 EOT
              );
     }
 
     /**
-     * Rollback the migration.
+     * Dump a new db state from the target environment
      *
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -71,7 +68,6 @@ EOT
         $this->bootstrap($input, $output);
 
         $environment = $input->getOption('environment');
-        $version = $input->getOption('target');
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -80,30 +76,7 @@ EOT
             $output->writeln('<info>using environment</info> ' . $environment);
         }
 
-        $envOptions = $this->getConfig()->getEnvironment($environment);
-        if (isset($envOptions['adapter'])) {
-            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
-        }
-
-        if (isset($envOptions['name'])) {
-            $output->writeln('<info>using database</info> ' . $envOptions['name']);
-        }
-
-        // rollback the specified environment
-        $start = microtime(true);
-        $this->getManager()->rollback($environment, $version);
-        $end = microtime(true);
-
-        $output->writeln('');
-        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
-        $output->writeln('');
-        if( !$input->getOption('no-schema-dump') ) {
-            $output->writeln('<info>Dumping latest schema</info>');
-            $start = microtime(true);
-            $this->getManager()->dumpSchema($environment);
-            $end = microtime(true);
-            $output->writeln('<comment>Schema dump finished. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
-            $output->writeln('');
-        }
+        // dump the schema into structure.sql
+        $this->getManager()->dumpSchema($environment, $input->getOption('outfile'));
     }
 }

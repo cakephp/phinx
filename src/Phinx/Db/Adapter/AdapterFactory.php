@@ -180,4 +180,9 @@ class AdapterFactory
         $class = $this->getWrapperClass($name);
         return new $class($adapter);
     }
+
+    public function getAdapters()
+    {
+        return $this->adapters;
+    }
 }

@@ -31,6 +31,7 @@ namespace Phinx\Migration;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Config\ConfigInterface;
 use Phinx\Migration\Manager\Environment;
+use Phinx\Db\SqlParser;
 
 class Manager
 {
@@ -449,5 +450,163 @@ class Manager
     public function getConfig()
     {
         return $this->config;
+    }
+
+    /**
+     * Dump the database schema and seed data
+     */
+    public function dumpSchema($environment, $outfile=false)
+    {
+        $output = $this->output;
+        $config = $this->config;
+
+        $schema_file = $config->getSchemaPath();
+        if($outfile)
+            $schema_file = $outfile;
+
+        $env = $this->getEnvironment($environment);
+        $adapter = $env->getAdapter();
+
+        $db = $env->getOptions()['name'];
+
+        $output->writeln("<info>Writing to schema to</info> $schema_file");
+
+        $f = fopen($schema_file,'w');
+        if($f===FALSE)
+            throw new \RuntimeException("Cannot open $schema_file for writing");
+
+        $tables = $adapter->listTables($db);
+        $seeds = $config->getSeeds($adapter);
+        $seed_table_names = array_map(function($s){return $s->getName();}, $seeds);
+
+        $output->writeln("Schema dump includes " . count($tables) . " tables");
+        $output->writeln("Schema dump includes " . count($seeds) . " seed tables");
+
+        $foreign_keys=array();
+        $dependencies=array();
+
+        foreach( $adapter->listTables($db) as $table )
+        {
+            $sql = $table->getTableDefinition();
+            fwrite($f, $sql);
+            fwrite($f, "\n");
+
+            foreach( $adapter->listForeignKeyDefinitions($table) as $fk ) {
+                $foreign_keys[] = $fk;
+                if( preg_match('/REFERENCES [`"\']?(\w+)\b/i', $fk, $m) ) {
+                    # this $table depends on the reference table to be inserted into first
+                    # set the seed table dependency 
+                    #
+                    # only do this if not a self-circular dependency
+                    if($table->getName()!=$m[1]) {
+
+                        // if both the table and the foreign key table are in the seed 
+                        // list, set the dependency, otherwise we're wasting time
+                        if( static::listContainsAll($seed_table_names, $table->getName(), $m[1]) )
+                        {
+                            $ret = static::getSeed($table->getName(), $seeds)
+                                ->setDependency( static::getSeed($m[1], $seeds) );
+                            if(!$ret) 
+                                $output->writeln("<comment>Warning!</comment> Circular dependency detected for seed table <info>{$table->getName()}. We will attempt to export the seed data but might not import correctly.");
+                        }
+                    }
+                }
+            }
+        }
+
+        // now write the foreign keys
+        foreach( $foreign_keys as $fk ) 
+        {
+            fwrite($f, $fk);
+            fwrite($f, "\n");
+        }
+
+
+        $processed = array();
+
+        // this will have an infinite loop if we have circular dependency.
+        // A -> B -> C -> A, or A->A. These are explicitly detected before hand and 
+        // removed. so we *shouldn't* loop forever. just in case, we'll count
+        $n = 0;
+        while( count($processed) != count($seeds) )
+        {
+            if($n++ > 100) 
+                throw new \RuntimeException("Runaway loop! This shouldn't happen.");
+
+            foreach( $seeds as $seed ) {
+
+                $name = $seed->getName();
+                if( !$seed->exists() ) {
+                    $output->writeln('<comment>Warning: </comment>Skipping non-existent seed table <comment>' . $name . '</comment>');
+                    $processed[$name]=$seed;
+                    continue;
+                }
+
+                // write the seed if there are no dependencies
+                if( !$seed->getDependencies() and !isset($processed[$name]) ) {
+                    $output->writeln("Writing seed table <info>$name</info>");
+                    $sql = $seed->getInsertSql();
+                    if($sql) {
+                        fwrite($f, $sql . "\n");
+                    }
+                    $processed[$name]=$seed;
+                } else {
+                    // this seed has depencies
+                    // remove any dependencies that have already been processed
+                    foreach( $processed as $n=>$finished_seed ) {
+                        if( $seed->dependsOn($finished_seed) )
+                            $seed->unsetDependency($finished_seed);
+                    }
+                }
+            }
+        }
+    }
+
+    private static function getSeed($name, &$seeds) {
+        foreach( $seeds as $seed ) { 
+            if( $seed->getName() == $name ) return $seed;
+        }
+    }
+
+    private static function listContainsAll()
+    {
+        $args = func_get_args();
+        $list = array_shift($args);
+        foreach( $args as $a ) {
+            if( !in_array($a , $list) )
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * This will reset the requested database to the state stored in schema.sql
+     */
+    public function reset($environment)
+    {
+        $output = $this->output;
+        $config = $this->config;
+
+        $env = $this->getEnvironment($environment);
+        $endpoint = $env->getEndpoint();
+
+        $output->writeln("<info>Resetting database at </info>$endpoint");
+
+        $schema_file = $config->getSchemaPath();
+        if( !file_exists($schema_file) ) {
+            throw new \RuntimeException("Cannot reset the database without a schema file. Please configure phinx.yml and run <info>phinx migrate</info> to create one.");
+        }
+
+        $adapter = $env->getAdapter();
+
+        $db = $env->getOptions()['name'];
+        $adapter->dropDatabase($db);
+        $adapter->createDatabase($db);
+        // force reconnect because dropDb removes db context
+        $adapter->disconnect();
+
+        foreach(SqlParser::parse(file_get_contents($schema_file)) as $sql) {
+            $adapter->execute($sql);
+        }
     }
 }

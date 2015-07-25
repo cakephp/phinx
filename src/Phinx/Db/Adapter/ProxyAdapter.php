@@ -322,4 +322,5 @@ class ProxyAdapter extends AdapterWrapper
     {
         return array('name' => 'dropForeignKey', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
     }
+
 }

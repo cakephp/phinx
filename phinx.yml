@@ -1,5 +1,13 @@
 paths:
     migrations: %%PHINX_CONFIG_DIR%%/migrations
+    schema: %%PHINX_CONFIG_DIR%%/schema.sql
+
+seeds:
+    tables:
+      # set up optional seed tables to be dumped to schema.sql
+      #- table_one
+      #- name: table_two
+      #  where: col1 < 10
 
 environments:
     default_migration_table: phinxlog

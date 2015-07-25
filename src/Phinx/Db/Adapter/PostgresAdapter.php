@@ -295,7 +295,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             "SELECT column_name, data_type, is_identity, is_nullable,
              column_default, character_maximum_length, numeric_precision, numeric_scale
              FROM information_schema.columns
-             WHERE table_name ='%s'",
+             WHERE table_name ='%s'
+             order by ordinal_position",
             $tableName
         );
         $columnsInfo = $this->fetchAll($sql);
@@ -643,6 +644,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
         return $foreignKeys;
     }
+
 
     /**
      * {@inheritdoc}
@@ -1137,5 +1139,82 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $options = $this->getOptions();
         return empty($options['schema']) ? 'public' : $options['schema'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listTables($name)
+    {
+        $tables=[];
+
+        $stmt = $this->getConnection()->prepare("
+select concat(table_schema,'.', table_name) table_name
+  from information_schema.tables
+ where table_type = 'BASE TABLE'
+   and table_catalog = ?
+   and table_schema not in ('pg_catalog','information_schema')
+ ");
+        $stmt->execute(array($name));
+        foreach( $stmt->fetchAll() as $row ) {
+            $tables[] = new Table($row['table_name'], $this->getOptions(), $this);
+        }
+        return $tables;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTableDefinition(Table $table)
+    {
+        // TODO - process table options like collation etc
+        $sql = 'CREATE TABLE ';
+        $sql .= $this->quoteTableName($table->getName()) . ' (';
+        $sql .= implode(',', array_map(function($c) {
+            return $this->quoteColumnName($c->getName()) . ' ' . $this->getColumnSqlDefinition($c);
+        }, $table->getColumns()));
+        $sql .= ");\n";
+
+        // set the indexes
+        $pg_magic = <<<SQL
+select pg_catalog.pg_get_indexdef(i.indexrelid, 0, true) index_sql, contype, c2.relname index_name
+from pg_catalog.pg_class c, 
+pg_catalog.pg_class c2, 
+pg_catalog.pg_index i 
+left join pg_catalog.pg_constraint con 
+on (conrelid=i.indrelid and conindid = i.indexrelid and contype in ('p','u','x')) 
+where c.oid='{$table->getName(true)}'::regclass 
+and c.oid=i.indrelid 
+and i.indexrelid=c2.oid;
+SQL;
+        foreach( $this->fetchAll($pg_magic) as $row ) {    
+            $sql .= $row['index_sql'] . ";\n";
+
+            if( $row['contype'] == 'p')
+                $sql .= sprintf("ALTER TABLE %s ADD PRIMARY KEY USING INDEX %s;\n",
+                    $this->quoteTableName($table->getName()),
+                    $row['index_name']);
+        }
+        return $sql;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listForeignKeyDefinitions(Table $table)
+    {
+        $pg_magic = sprintf("
+select conname, pg_catalog.pg_get_constraintdef(r.oid, true) as def 
+  from pg_catalog.pg_constraint r 
+ where r.conrelid = '%s'::regclass 
+ and r.contype='f'", $table->getName(true));
+        $fk_defs=[];
+        foreach($this->fetchAll($pg_magic) as $fk) {
+            $fk_defs[] = sprintf("ALTER TABLE %s ADD CONSTRAINT %s %s;\n",
+                $this->quoteTableName($table->getName()),
+                $this->quoteColumnName($fk['conname']),
+                $fk['def']);
+        }
+        return $fk_defs;
     }
 }

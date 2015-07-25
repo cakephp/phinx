@@ -29,6 +29,7 @@
 namespace Phinx\Config;
 
 use Symfony\Component\Yaml\Yaml;
+use Phinx\Db\SeedTable;
 
 /**
  * Phinx configuration class.
@@ -47,6 +48,11 @@ class Config implements ConfigInterface
      * @var string
      */
     protected $configFilePath;
+
+    /**
+     * @var SeedTable[]
+     */
+    private $seeds = null;
 
     /**
      * {@inheritdoc}
@@ -332,5 +338,44 @@ class Config implements ConfigInterface
     public function offsetUnset($id)
     {
         unset($this->values[$id]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSchemaPath()
+    {
+        //TODO: default to something sane here?
+        if (!isset($this->values['paths']['schema'])) {
+            throw new \UnexpectedValueException('Schema file path missing from config file');
+        }
+
+        return $this->values['paths']['schema'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSeeds($adapter=null)
+    {
+        if($this->seeds !== null)
+            return $this->seeds;
+
+        $this->seeds = array();
+        $this->seeds[] = new SeedTable(
+            $this->values['environments']['default_migration_table'],
+            array(),
+            $adapter
+        );
+        
+        if(!isset($this->values['seeds']) || !isset($this->values['seeds']['tables'])) {
+            return $this->seeds;
+        }
+
+        foreach( $this->values['seeds']['tables'] as $seedinfo ) {
+            $this->seeds[] = new SeedTable($seedinfo, array(), $adapter);
+        }
+
+        return $this->seeds;
     }
 }

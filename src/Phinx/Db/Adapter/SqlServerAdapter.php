@@ -202,7 +202,6 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     public function createTable(Table $table)
     {
         $this->startCommandTimer();
-
         $options = $table->getOptions();
 
         // Add the default primary key
@@ -1173,4 +1172,118 @@ SQL;
 
         return $this;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTableDefinition(Table $table)
+    {
+        $sql = 'CREATE TABLE ';
+        $sql .= $this->quoteTableName($table->getName()) . ' (';
+        $sqlBuffer = array();
+        $columnsWithComments = array();
+        $columns = $table->getColumns();
+        foreach ($columns as $column) {
+            $sqlBuffer[] = $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column);
+
+            // set column comments, if needed
+            if ($column->getComment()) {
+                $columnsWithComments[] = $column;
+            }
+        }
+
+        // set the primary key(s)
+        if (isset($options['primary_key'])) {
+            $pkSql = sprintf('CONSTRAINT PK_%s PRIMARY KEY (', $table->getName());
+            if (is_string($options['primary_key'])) { // handle primary_key => 'id'
+                $pkSql .= $this->quoteColumnName($options['primary_key']);
+            } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
+                // PHP 5.4 will allow access of $this, so we can call quoteColumnName() directly in the anonymous function,
+                // but for now just hard-code the adapter quotes
+                $pkSql .= implode(
+                    ',',
+                    array_map(
+                        function ($v) {
+                            return '[' . $v . ']';
+                        },
+                        $options['primary_key']
+                    )
+                );
+            }
+            $pkSql .= ')';
+            $sqlBuffer[] = $pkSql;
+        }
+
+        // set the foreign keys
+        $foreignKeys = $table->getForeignKeys();
+        if (!empty($foreignKeys)) {
+            foreach ($foreignKeys as $foreignKey) {
+                $sqlBuffer[] = $this->getForeignKeySqlDefinition($foreignKey, $table->getName());
+            }
+        }
+
+        $sql .= implode(', ', $sqlBuffer);
+        $sql .= ');';
+
+        // process column comments
+        if (!empty($columnsWithComments)) {
+            foreach ($columnsWithComments as $column) {
+                $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
+            }
+        }
+
+        // set the indexes
+        $indexes = $table->getIndexes();
+        if (!empty($indexes)) {
+            foreach ($indexes as $index) {
+                $sql .= $this->getIndexSqlDefinition($index, $table->getName());
+            }
+        }
+
+        return $sql;
+    }
+
+
+    /**
+     * {@inheritdoc}
+     * NOTE: this is completely untested! I implemented this completely from
+     * https://msdn.microsoft.com/en-us/library/ms175090.aspx
+     */
+    public function listForeignKeyDefinitons(Table $table)
+    {
+        try{
+            list($owner,$tab) = explode('.',$table->getName());
+        }catch(Exception $e) {
+            $owner='';
+            $tab=$table->getName();
+        }
+        $fkdata = $this->getConnection()->fetchAll(
+            sprintf("exec sp_fkeys(@pktable_name=%s,@pktable_owner=%s,@pktable_qualifier=%s)", 
+                $tab,
+                $owner,
+                $this->getOptions()['name']));
+        $fks = array();
+        foreach($fkdata as $row) {
+            $fks[$row['FK_NAME']]['cols'][$row['KEY_SEQ']] = $row['FKCOLUMN_NAME'];
+            $fks[$row['FK_NAME']]['ref_cols'][$row['KEY_SEQ']] = $row['PKCOLUMN_NAME'];
+            $fks[$row['FK_NAME']]['ref_table'] = $row['PKTABLE_NAME'];
+            $fks[$row['FK_NAME']]['update_rule'] = SqlServerAdapter::$constraint_action[$row['UPDATE_RULE']];
+            $fks[$row['FK_NAME']]['delete_rule'] = SqlServerAdapter::$constraint_action[$row['DELETE_RULE']];
+        }
+        $sql=[];
+        foreach($fks as $fk_name => $fk) {
+            $sql[] = sprintf("ALTER TABLE %s ADD FOREIGN KEY %s(%s) REFERENCES %s(%s) ON UPDATE %s ON DELETE %s",
+                $this->quoteTableName($table->getName()),
+                $this->quoteColumnName($fk_name),
+                implode(',', array_map(array($this,'quoteColumnName'), $fk['cols'])),
+                $fk['ref_table'],
+                implode(',', array_map(array($this,'quoteColumnName'), $fk['ref_cols'])),
+                $fk['update_rule'],
+                $fk['delete_rule']);
+        }
+        return $sql;
+    }
+
+    private static $constraint_action = array(0=>'CASCADE', 1=>'NO ACTION');
+
 }

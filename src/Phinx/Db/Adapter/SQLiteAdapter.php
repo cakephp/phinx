@@ -164,7 +164,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     public function createTable(Table $table)
     {
         $this->startCommandTimer();
-
         // Add the default primary key
         $columns = $table->getPendingColumns();
         $options = $table->getOptions();
@@ -226,7 +225,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $sql = rtrim($sql) . ');';
-        // execute the sql
+
         $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
         $this->endCommandTimer();
@@ -235,7 +234,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $this->addIndex($table, $index);
         }
     }
-
+    
     /**
      * {@inheritdoc}
      */
@@ -791,35 +790,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function insert(Table $table, $columns, $data)
-    {
-        $this->startCommandTimer();
-
-        foreach($data as $row) {
-            $sql = sprintf(
-                "INSERT INTO %s ",
-                $this->quoteTableName($table->getName())
-            );
-
-            $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
-            $sql .= " VALUES ";
-
-            $sql .= "(" . implode(', ', array_map(function ($value) {
-                    if (is_numeric($value)) {
-                        return $value;
-                    }
-                    return "'{$value}'";
-                }, $row)) . ")";
-
-            $this->execute($sql);
-        }
-
-        $this->endCommandTimer();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getSqlType($type, $limit = null)
     {
         switch ($type) {
@@ -1102,5 +1072,44 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
         return $def;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listTables($name)
+    {
+        $tables=[];
+        $rows = $this->fetchAll("
+select tbl_name from sqlite_master
+ where type = 'table'");
+        foreach( $rows as $r ) {
+            $tables[] = new Table($r[0], $this->getOptions(), $this);
+        }
+        return $tables;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTableDefinition(Table $table)
+    {
+        $st = $this->connection->prepare("select sql from sqlite_master where type in ('table','index') and tbl_name=? order by type desc");
+        $st->execute(array($table->getName()));
+        $sql = '';
+        foreach( $st->fetchAll() as $row )
+            $sql .= $row[0] . ";\n";
+        return $sql;
+    }
+
+    /**
+     * SQLite doesn't really use foreign keys. They have them, but you have to 
+     * mess with a pragma, and i imagine very seldom is that actually done.
+     *
+     * {@inheritdoc}
+     */
+    public function listForeignKeyDefinitions(Table $table)
+    {
+        return [];
     }
 }

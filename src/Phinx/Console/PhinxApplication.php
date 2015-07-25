@@ -58,6 +58,8 @@ class PhinxApplication extends Application
             new Command\Rollback(),
             new Command\Status(),
             new Command\Test(),
+            new Command\Dump(),
+            new Command\Reset(),
         ));
     }
 
