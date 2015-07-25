@@ -42,6 +42,24 @@ template.
 
 You cannot use ``--template`` and ``--class`` together.
 
+The Dump Command
+----------------
+
+The Dump command is used to manually create a schema.sql file of the current
+status of the target database. This is mainly used to test the seed table 
+configuration.
+
+.. code-block:: bash
+
+        $ phinx dump
+
+The output file is configured by the schema path set up in phinx.yml. If you'd
+like to use a different path, use the ``--outfile`` option:
+
+.. code-block:: bash
+
+        $ phinx dump --outfile /tmp/my-schema.sql
+
 The Init Command
 ----------------
 
@@ -74,6 +92,51 @@ for short.
 
         $ phinx migrate -e development -t 20110103081132
 
+Similar to Ruby on Rails migrations, after a migration is run, the latest state of the
+target database is dumped to a schema.sql file. This is a simple sql file containing
+create statements for all the current tables, as well as any seed data that has been
+configured. See the :doc:`Configuration <configuration>` chapter for more information
+about seed data.
+
+If you don't want to run a schema dump after a migration, (if you're migrating a
+production instance, for example) use the ``--no-schema-dump`` option to avoid
+unnecessarily dumping a schema file.
+
+The Reset Command
+-----------------
+
+This command is primarily used for developers. It's an easy way to get the db
+back to a fresh, trusted state after making changes. Be aware that this will drop
+the target schema completely and recreate it from the structure and seed data stored
+in the schema.sql file (which is produced by the ``Dump`` or ``Migrate`` commands.)
+
+The reason for this command is that for larger projects you may have hundreds of 
+migrations that add up over time. It's usually more efficient and less error prone to
+deploy a fresh database from a single schema file rather than re-executing all of the
+migrations.
+
+Since this is an invasive command, many attempts have been made to make sure that you
+_really_ want to reset the database. In addition, Phinx will by default refuse to reset an
+environment that looks like it might be a production environment (matches this regex 
+``/pro?d(uction)?/i``).
+
+You can get around this by using the ``--force`` and ``--no-interaaction`` options if
+you know what you're doing.
+
+.. code-block:: bash
+
+        $ phinx reset
+        Phinx by Rob Morgan - https://phinx.org. version 0.4.4
+
+        using config file ./phinx.yml
+        using config parser yaml
+        using migration path /home/cru/phinx/migrations
+        warning no environment specified, defaulting to: development
+        Are you sure you want to drop and recreate the development database: 'mysql://localhost/development'? yes
+        Resetting database at mysql://localhost/development
+        $ 
+
+
 The Rollback Command
 --------------------
 
@@ -100,6 +163,10 @@ Specifying 0 as the target version will revert all migrations.
 
         $ phinx rollback -e development -t 0
 
+Similar to the Migrate command , a rollback also regenerates a schema dump to keep it in
+sync with the current version of the database. If you don't want to do this for some
+reason, use the ``--no-schema-dump`` option.
+
 The Status Command
 ------------------
 
@@ -120,7 +187,8 @@ When running Phinx from the command line, you may specify a configuration file u
         <?php
             return array(
                 "paths" => array(
-                    "migrations" => "application/migrations"
+                    "migrations" => "application/migrations",
+                    "schema" => "application/schema.sql"
                 ),
                 "environments" => array(
                     "default_migration_table" => "phinxlog",
@@ -145,7 +213,8 @@ In case with PHP array you can provide ``connection`` key with existing PDO inst
         <?php
             return array(
                 "paths" => array(
-                    "migrations" => "application/migrations"
+                    "migrations" => "application/migrations",
+                    "schema" => "application/schema.sql"
                 ),
                 "environments" => array(
                     "default_migration_table" => "phinxlog",
