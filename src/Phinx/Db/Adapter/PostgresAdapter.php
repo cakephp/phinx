@@ -1155,7 +1155,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function listTables($name)
     {
-        $tables=[];
+        $tables=array();
 
         $stmt = $this->getConnection()->prepare("
 select concat(table_schema,'.', table_name) table_name
@@ -1217,7 +1217,7 @@ select conname, pg_catalog.pg_get_constraintdef(r.oid, true) as def
   from pg_catalog.pg_constraint r 
  where r.conrelid = '%s'::regclass 
  and r.contype='f'", $table->getName(true));
-        $fk_defs=[];
+        $fk_defs=array();
         foreach($this->fetchAll($pg_magic) as $fk) {
             $fk_defs[] = sprintf("ALTER TABLE %s ADD CONSTRAINT %s %s;\n",
                 $this->quoteTableName($table->getName()),

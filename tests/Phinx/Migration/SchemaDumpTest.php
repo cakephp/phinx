@@ -181,7 +181,7 @@ SQL;
     public static function getAdapters()
     {
         $adapters = array_keys(AdapterFactory::instance()->getAdapters());
-        $adaptersUnderTest = [];
+        $adaptersUnderTest = array();
         foreach( $adapters as $adapter ) {
             $prefix = 'TESTS_PHINX_DB_ADAPTER_' . strtoupper($adapter);
             if( !@constant("${prefix}_ENABLED") ) 

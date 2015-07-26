@@ -1124,7 +1124,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function listTables($name)
     {
-        $tables = [];
+        $tables = array();
         $stmt = $this->getConnection()->prepare("
 select table_name
   from information_schema.tables
@@ -1142,7 +1142,7 @@ select table_name
      */
     public function listForeignKeyDefinitions(Table $table)
     {
-        $fks=[];
+        $fks=array();
 
         // information_schema.key_column_usage is super slow.
         //
@@ -1190,8 +1190,8 @@ select c.column_name,
  order by c.constraint_name, c.ordinal_position");
 
             $stmt->execute(array($this->getOption('name'), $row['constraint_name']));
-            $cols=[];
-            $ref_cols=[];
+            $cols=array();
+            $ref_cols=array();
             foreach( $stmt->fetchAll() as $colinfo ) {
                 $cols[] = $colinfo['column_name'];
                 $ref_cols[] = $colinfo['referenced_column_name'];

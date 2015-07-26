@@ -1270,7 +1270,7 @@ SQL;
             $fks[$row['FK_NAME']]['update_rule'] = SqlServerAdapter::$constraint_action[$row['UPDATE_RULE']];
             $fks[$row['FK_NAME']]['delete_rule'] = SqlServerAdapter::$constraint_action[$row['DELETE_RULE']];
         }
-        $sql=[];
+        $sql=array();
         foreach($fks as $fk_name => $fk) {
             $sql[] = sprintf("ALTER TABLE %s ADD FOREIGN KEY %s(%s) REFERENCES %s(%s) ON UPDATE %s ON DELETE %s",
                 $this->quoteTableName($table->getName()),

@@ -483,7 +483,7 @@ abstract class PdoAdapter implements AdapterInterface
         // all recent versions of MySQL, PostgreSQL, and MS SQL Server should
         // support information_schema, though they all use it slightly differently.
         // this should work for postgres and sqlserver. Override as necessary
-        $tables = [];
+        $tables = array();
         $stmt = $this->getConnection()->prepare("
 select concat(table_schema,'.',table_name) table_name
   from information_schema.tables

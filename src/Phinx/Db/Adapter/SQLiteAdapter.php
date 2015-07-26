@@ -1079,7 +1079,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function listTables($name)
     {
-        $tables=[];
+        $tables=array();
         $rows = $this->fetchAll("
 select tbl_name from sqlite_master
  where type = 'table'");
@@ -1110,6 +1110,6 @@ select tbl_name from sqlite_master
      */
     public function listForeignKeyDefinitions(Table $table)
     {
-        return [];
+        return array();
     }
 }
