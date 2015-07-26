@@ -108,9 +108,10 @@ INSERT INTO %table_name (%i, %v) VALUES ('3', 'funk')");
         foreach( SqlParser::parse($insert) as $sql) {
             $adapter->query(str_replace('test_seed','test_seed2', $sql));
         }
-        $this->assertEquals(
+        $rows = $adapter->fetchAll("select * from test_seed2");
+        $this->assertCount(
             3,
-            $adapter->fetchRow("select count(*) from test_seed2")[0]
+            $rows
         );
     }
 
