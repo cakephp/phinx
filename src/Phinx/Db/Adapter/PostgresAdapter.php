@@ -1179,9 +1179,15 @@ select concat(table_schema,'.', table_name) table_name
         // TODO - process table options like collation etc
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
-        $sql .= implode(',', array_map(function($c) {
-            return $this->quoteColumnName($c->getName()) . ' ' . $this->getColumnSqlDefinition($c);
-        }, $table->getColumns()));
+        $col_list = array();
+        $i=0;
+        foreach( $table->getColumns() as $c ) {
+            if($i++ > 0) 
+                $sql .= ',';
+            $sql .= $this->quoteColumnName($c->getName()) 
+                 . ' ' 
+                 .  $this->getColumnSqlDefinition($c);
+        }
         $sql .= ");\n";
 
         // set the indexes
