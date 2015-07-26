@@ -139,9 +139,10 @@ INSERT INTO %table_name (%i, %v) VALUES ('3', 'funk')");
         // test insert actually works. This will throw exception if not
         $adapter->query("create table test_seed2 as select * from test_seed limit 0");
         $adapter->query(str_replace('test_seed','test_seed2', $insert));
-        $this->assertEquals(
+        $rows = $adapter->fetchAll("select * from test_seed2");
+        $this->assertCount(
             1,
-            $adapter->fetchRow("select count(*) from test_seed2")[0]
+            $rows
         );
     }
 

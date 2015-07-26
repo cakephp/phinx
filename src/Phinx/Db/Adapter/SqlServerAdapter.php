@@ -1257,11 +1257,12 @@ SQL;
             $owner='';
             $tab=$table->getName();
         }
+        $options = $this->getOptions();
         $fkdata = $this->getConnection()->fetchAll(
             sprintf("exec sp_fkeys(@pktable_name=%s,@pktable_owner=%s,@pktable_qualifier=%s)", 
                 $tab,
                 $owner,
-                $this->getOptions()['name']));
+                $options['name']));
         $fks = array();
         foreach($fkdata as $row) {
             $fks[$row['FK_NAME']]['cols'][$row['KEY_SEQ']] = $row['FKCOLUMN_NAME'];

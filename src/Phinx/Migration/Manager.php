@@ -478,7 +478,8 @@ class Manager
         $env = $this->getEnvironment($environment);
         $adapter = $env->getAdapter();
 
-        $db = $env->getOptions()['name'];
+        $options = $env->getOptions();
+        $db = $options['name'];
 
         $output->writeln("<info>Writing to schema to</info> $schema_file");
 
@@ -612,8 +613,9 @@ class Manager
         }
 
         $adapter = $env->getAdapter();
+        $options = $env->getOptions();
 
-        $db = $env->getOptions()['name'];
+        $db = $options['name'];
         $adapter->dropDatabase($db);
         $adapter->createDatabase($db);
         // force reconnect because dropDb removes db context

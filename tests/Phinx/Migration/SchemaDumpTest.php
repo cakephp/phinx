@@ -205,9 +205,8 @@ SQL;
         $this->assertCount(4, $creates);
 
         // make sure the schema table is listed explicitly
-        $schema_table = static::$managers[$adapter]
-            ->getConfig()
-            ->getEnvironment('phpunit')['default_migration_table'];
+        $env = static::$managers[$adapter]->getConfig()->getEnvironment('phpunit');
+        $schema_table = $env['default_migration_table'];
         $this->assertTrue(strlen($schema_table)>0);
 
         foreach( $creates as $sql ) {
