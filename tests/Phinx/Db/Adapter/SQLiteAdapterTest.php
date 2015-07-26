@@ -50,17 +50,6 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(true, 'Transaction query succeeded');
     }
 
-    public function testCreatingTheSchemaTableOnConnect()
-    {
-        $this->adapter->connect();
-        $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
-        $this->adapter->dropTable($this->adapter->getSchemaTableName());
-        $this->assertFalse($this->adapter->hasTable($this->adapter->getSchemaTableName()));
-        $this->adapter->disconnect();
-        $this->adapter->connect();
-        $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
-    }
-
     public function testQuoteTableName()
     {
         $this->assertEquals('`test_table`', $this->adapter->quoteTableName('test_table'));

@@ -74,6 +74,22 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 ));
             }
 
+            // create the new schema if it doesn't exist yet.
+            // don't use the $this->has* functions because they will
+            // try to automaticalaly re-connect, resulting in infinite
+            // recursion
+            $schemaName = $this->getSchemaName();
+            $sth = $db->prepare(
+                "SELECT count(*)
+                FROM pg_namespace
+                WHERE nspname = ?");
+            $sth->execute(array($schemaName));
+            $res=$sth->fetch();
+            if( $res['count'] == 0 )
+                $db->query(sprintf("create schema %s", $this->quoteColumnName($schemaName)));
+
+            $db->query(sprintf('SET search_path TO %s', $this->getSchemaName()));
+
             $this->setConnection($db);
         }
     }
@@ -977,13 +993,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createSchemaTable()
     {
-        // Create the public/custom schema if it doesn't already exist
-        if (false === $this->hasSchema($this->getSchemaName())) {
-            $this->createSchema($this->getSchemaName());
-        }
-
-        $this->fetchAll(sprintf('SET search_path TO %s', $this->getSchemaName()));
-
         return parent::createSchemaTable();
     }
 

@@ -99,17 +99,15 @@ EOT
         // run the migrations
         $start = microtime(true);
         $this->getManager()->migrate($environment, $version);
-        $end = microtime(true);
-        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
         $output->writeln('');
+        $end = microtime(true);
 
         if( !$input->getOption('no-schema-dump') ) {
             $output->writeln('<info>Dumping latest schema</info>');
             $start = microtime(true);
             $this->getManager()->dumpSchema($environment);
             $end = microtime(true);
-            $output->writeln('<comment>Schema dump finished. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
-            $output->writeln('');
         }
+        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
     }
 }

@@ -178,11 +178,6 @@ abstract class PdoAdapter implements AdapterInterface
     {
         $this->connection = $connection;
 
-        // Create the schema table if it doesn't already exist
-        if (!$this->hasSchemaTable()) {
-            $this->createSchemaTable();
-        }
-
         return $this;
     }
 

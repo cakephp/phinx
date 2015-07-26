@@ -142,6 +142,7 @@ SQL;
                 $adapterObj->createDatabase($conf['environments']['phpunit']['name']);
             }
             $adapterObj->disconnect();
+            $adapterObj->createSchemaTable();
 
             // setup the schema
             foreach(SqlParser::parse(static::$setup_script) as $cmd) { 

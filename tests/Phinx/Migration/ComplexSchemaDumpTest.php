@@ -96,9 +96,6 @@ class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
                 $a->createDatabase($conf['environments']['phpunit']['name']);
             }
             $a->disconnect();
-            // PDO's setConnection automatically creates schema table
-            // so drop it to make sure our schema can load
-            $a->dropTable($a->getSchemaTableName());
             foreach( $dumped_sql as $cmd ) {
                 $a->execute($cmd);
             }
@@ -120,6 +117,7 @@ class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
             $a->createDatabase($conf['environments']['phpunit']['name']);
         }
         $a->disconnect();
+        $a->createSchemaTable();
 
         $this->temp_file = tempnam( sys_get_temp_dir(), "phinxDump_complex");
     }

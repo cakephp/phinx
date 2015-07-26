@@ -101,6 +101,8 @@ tables section. For example:
 
 .. code-block:: yaml
 
+    paths:
+        schema: %%PHINX_CONFIG_DIR%%/schema.sql
     seeds:
         tables:
             - table_one
@@ -111,6 +113,11 @@ tables section. For example:
 The above seed configuration would cause Phinx to store all the data stored in table_one
 and table_two, as well as any record in table_three where i<10, in Phinx's schema.sql
 file.
+
+Since Phinx is a lightweight database migration tool, with no heavy ORM layer, Phinx has
+no real concept of creating seed data from php objects. Any seed data is expected to be
+added by you (either via a migration, or manually) and then explicitly added in phinx's
+seed configuration section.
 
 Socket Connections
 ------------------

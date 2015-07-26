@@ -452,6 +452,16 @@ class Manager
         return $this->config;
     }
 
+    private function getSchemaPath() 
+    {
+        $schema_file = $this->config->getSchemaPath();
+        if( !$schema_file ) {
+            $schema_file = dirname($this->config->getConfigFilePath()) . DIRECTORY_SEPARATOR . "schema.sql";
+            $this->output->writeln("<comment>Schema path not specified.</comment> Using default.");
+        }
+        return $schema_file;
+    }
+
     /**
      * Dump the database schema and seed data
      */
@@ -460,7 +470,8 @@ class Manager
         $output = $this->output;
         $config = $this->config;
 
-        $schema_file = $config->getSchemaPath();
+        $schema_file = $this->getSchemaPath();
+
         if($outfile)
             $schema_file = $outfile;
 
@@ -479,11 +490,13 @@ class Manager
         $seeds = $config->getSeeds($adapter);
         $seed_table_names = array_map(function($s){return $s->getName();}, $seeds);
 
-        $output->writeln("Schema dump includes " . count($tables) . " tables");
-        $output->writeln("Schema dump includes " . count($seeds) . " seed tables");
+        
+        $args = array_map( function($list) { $c=count($list); $s=$c==1?'':'s'; return array($c,$s); }, array($tables, $seeds) );
+        $output->writeln(
+            sprintf("Schema dump includes %d table%s (%d seed table%s)", 
+            $args[0][0], $args[0][1], $args[1][0], $args[1][1]));
 
         $foreign_keys=array();
-        $dependencies=array();
 
         foreach( $adapter->listTables($db) as $table )
         {
@@ -544,7 +557,7 @@ class Manager
 
                 // write the seed if there are no dependencies
                 if( !$seed->getDependencies() and !isset($processed[$name]) ) {
-                    $output->writeln("Writing seed table <info>$name</info>");
+                    $output->writeln("Writing seed data from <info>$name</info>");
                     $sql = $seed->getInsertSql();
                     if($sql) {
                         fwrite($f, $sql . "\n");
@@ -587,12 +600,13 @@ class Manager
         $output = $this->output;
         $config = $this->config;
 
+        $schema_file = $this->getSchemaPath();
+
         $env = $this->getEnvironment($environment);
         $endpoint = $env->getEndpoint();
 
         $output->writeln("<info>Resetting database at </info>$endpoint");
 
-        $schema_file = $config->getSchemaPath();
         if( !file_exists($schema_file) ) {
             throw new \RuntimeException("Cannot reset the database without a schema file. Please configure phinx.yml and run <info>phinx migrate</info> to create one.");
         }

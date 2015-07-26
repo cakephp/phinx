@@ -345,10 +345,8 @@ class Config implements ConfigInterface
      */
     public function getSchemaPath()
     {
-        //TODO: default to something sane here?
-        if (!isset($this->values['paths']['schema'])) {
-            throw new \UnexpectedValueException('Schema file path missing from config file');
-        }
+        if (!isset($this->values['paths']['schema']))
+            return '';
 
         return $this->values['paths']['schema'];
     }

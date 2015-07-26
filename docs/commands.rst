@@ -46,8 +46,8 @@ The Dump Command
 ----------------
 
 The Dump command is used to manually create a schema.sql file of the current
-status of the target database. This is mainly used to test the seed table 
-configuration.
+status of the target database. This includes all table creation definitions,
+as well as the data from any configured seed tables.
 
 .. code-block:: bash
 
