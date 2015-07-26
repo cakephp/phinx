@@ -334,7 +334,7 @@ SQL;
             'max_create_line'=>-1,
             'min_fk_line'=>-1,
             'dumped_migration_structure'=>false,
-            'dumped_migration_structure'=>false
+            'dumped_migration_data'=>false
         );
         foreach( array('creates','inserts','foreignKeys','primaryKeys','uniqueKeys','normalKeys') as $var ) {
             $info[$var] = array();
