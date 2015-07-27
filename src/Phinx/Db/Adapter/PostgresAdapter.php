@@ -85,8 +85,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 WHERE nspname = ?");
             $sth->execute(array($schemaName));
             $res=$sth->fetch();
-            if( $res['count'] == 0 )
+            if ($res['count'] == 0) {
                 $db->query(sprintf("create schema %s", $this->quoteColumnName($schemaName)));
+            }
 
             $db->query(sprintf('SET search_path TO %s', $this->getSchemaName()));
 
@@ -192,7 +193,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
             array_unshift($columns, $column);
             $options['primary_key'] = 'id';
-
         } elseif (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
@@ -444,8 +444,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     $this->getDefaultValueDefinition($newColumn->getDefault())
                 )
             );
-        }
-        else {
+        } else {
             //drop default
             $this->execute(
                 sprintf(
@@ -1157,7 +1156,7 @@ select table_schema || '.' || table_name table_name
    and table_schema not in ('pg_catalog','information_schema')
  ");
         $stmt->execute(array($name));
-        foreach( $stmt->fetchAll() as $row ) {
+        foreach ($stmt->fetchAll() as $row) {
             $tables[] = new Table($row['table_name'], $this->getOptions(), $this);
         }
         return $tables;
@@ -1173,11 +1172,12 @@ select table_schema || '.' || table_name table_name
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         $col_list = array();
         $i=0;
-        foreach( $table->getColumns() as $c ) {
-            if($i++ > 0) 
+        foreach ($table->getColumns() as $c) {
+            if ($i++ > 0) {
                 $sql .= ',';
-            $sql .= $this->quoteColumnName($c->getName()) 
-                 . ' ' 
+            }
+            $sql .= $this->quoteColumnName($c->getName())
+                 . ' '
                  .  $this->getColumnSqlDefinition($c);
         }
         $sql .= ");\n";
@@ -1197,13 +1197,14 @@ where c.oid='{$table->getName(true)}'::regclass
 and c.oid=i.indrelid 
 and i.indexrelid=c2.oid;
 SQL;
-        foreach( $this->fetchAll($pg_magic) as $row ) {    
+        foreach ($this->fetchAll($pg_magic) as $row) {
             $sql .= $row['index_sql'] . ";\n";
 
-            if( $row['contype'] == 'p')
+            if ($row['contype'] == 'p') {
                 $sql .= sprintf("ALTER TABLE %s ADD PRIMARY KEY USING INDEX %s;\n",
                     $this->quoteTableName($table->getName()),
                     $row['index_name']);
+            }
         }
         return $sql;
     }
@@ -1220,7 +1221,7 @@ select conname, pg_catalog.pg_get_constraintdef(r.oid, true) as def
  where r.conrelid = '%s'::regclass 
  and r.contype='f'", $table->getName(true));
         $fk_defs=array();
-        foreach($this->fetchAll($pg_magic) as $fk) {
+        foreach ($this->fetchAll($pg_magic) as $fk) {
             $fk_defs[] = sprintf("ALTER TABLE %s ADD CONSTRAINT %s %s;\n",
                 $this->quoteTableName($table->getName()),
                 $this->quoteColumnName($fk['conname']),

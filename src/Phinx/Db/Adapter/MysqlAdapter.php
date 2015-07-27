@@ -40,7 +40,6 @@ use Phinx\Db\Table\ForeignKey;
  */
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
-
     protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
 
     const TEXT_TINY    = 255;
@@ -217,7 +216,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
             array_unshift($columns, $column);
             $options['primary_key'] = 'id';
-
         } elseif (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
@@ -333,7 +331,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $columns = array();
         $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $columnInfo) {
-
             $phinxType = $this->getPhinxType($columnInfo['Type']);
 
             $column = new Column();
@@ -1100,7 +1097,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array ('enum', 'set'));
+        return array_merge(parent::getColumnTypes(), array('enum', 'set'));
     }
 
     /**
@@ -1108,11 +1105,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getTableDefinition(Table $table)
     {
-        list(,$sql) = $this->fetchRow(sprintf("show create table %s", $table->getName()));
+        list(, $sql) = $this->fetchRow(sprintf("show create table %s", $table->getName()));
         // remove foreign keys because this sql is for re-creating the table. if we 
         // re-create the table and refer to a non-existent table, the load will die.
-        if(preg_match_all('/^(.*\bFOREIGN KEY \(.*$)/im', $sql, $matches, PREG_SET_ORDER) ) {
-            foreach($matches as $m) {
+        if (preg_match_all('/^(.*\bFOREIGN KEY \(.*$)/im', $sql, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $m) {
                 $sql = preg_replace('/,?\s*'.preg_quote($m[0]).'/sm', "", $sql);
             }
         }
@@ -1131,7 +1128,7 @@ select table_name
  where table_type = 'BASE TABLE'
    and table_schema = ?");
         $stmt->execute(array($name));
-        foreach( $stmt->fetchAll() as $row ) {
+        foreach ($stmt->fetchAll() as $row) {
             $tables[] = new Table($row['table_name'], $this->getOptions(), $this);
         }
         return $tables;
@@ -1158,7 +1155,7 @@ select table_name
         // TODO: find a faster way that doesn't require folks to turn off
         // innodb metadata? It's *real* slow for big schema with lots of 
         // innodb tables otherwise.
-        
+
         $stmt = $this->getConnection()->prepare("
 select r.constraint_catalog, 
        r.constraint_schema, 
@@ -1173,7 +1170,7 @@ select r.constraint_catalog,
         $stmt->execute(array($this->getOption('name'), $table->getName()));
         $rows = $stmt->fetchAll();
 
-        foreach( $rows as $row ) {
+        foreach ($rows as $row) {
             $fk = new ForeignKey();
             $fk->setConstraint($row['constraint_name']);
             $fk->setReferencedTable(new Table($row['referenced_table_name']));
@@ -1192,7 +1189,7 @@ select c.column_name,
             $stmt->execute(array($this->getOption('name'), $row['constraint_name']));
             $cols=array();
             $ref_cols=array();
-            foreach( $stmt->fetchAll() as $colinfo ) {
+            foreach ($stmt->fetchAll() as $colinfo) {
                 $cols[] = $colinfo['column_name'];
                 $ref_cols[] = $colinfo['referenced_column_name'];
             }
@@ -1204,6 +1201,6 @@ select c.column_name,
                 $this->getForeignKeySqlDefinition($fk));
         }
 
-        return $fks; 
+        return $fks;
     }
 }

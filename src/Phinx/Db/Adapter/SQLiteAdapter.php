@@ -174,7 +174,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                    ->setIdentity(true);
 
             array_unshift($columns, $column);
-
         } elseif (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
@@ -669,7 +668,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         foreach ($rows as $row) {
             if ($row['tbl_name'] == $tableName) {
-
                 if (strpos($row['sql'], 'REFERENCES') !== false) {
                     preg_match_all("/\(`([^`]*)`\) REFERENCES/", $row['sql'], $matches);
                     foreach ($matches[1] as $match) {
@@ -1083,7 +1081,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $rows = $this->fetchAll("
 select tbl_name from sqlite_master
  where type = 'table'");
-        foreach( $rows as $r ) {
+        foreach ($rows as $r) {
             $tables[] = new Table($r[0], $this->getOptions(), $this);
         }
         return $tables;
@@ -1097,8 +1095,9 @@ select tbl_name from sqlite_master
         $st = $this->connection->prepare("select sql from sqlite_master where type in ('table','index') and tbl_name=? order by type desc");
         $st->execute(array($table->getName()));
         $sql = '';
-        foreach( $st->fetchAll() as $row )
+        foreach ($st->fetchAll() as $row) {
             $sql .= $row[0] . ";\n";
+        }
         return $sql;
     }
 

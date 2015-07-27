@@ -525,13 +525,13 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testPhinxTypeNotValidType()
     {
-        $this->setExpectedException('\RuntimeException','The type: "fake" is not supported.');
+        $this->setExpectedException('\RuntimeException', 'The type: "fake" is not supported.');
         $this->adapter->getPhinxType('fake');
     }
 
     public function testPhinxTypeNotValidTypeRegex()
     {
-        $this->setExpectedException('\RuntimeException','Column type ?int? is not supported');
+        $this->setExpectedException('\RuntimeException', 'Column type ?int? is not supported');
         $this->adapter->getPhinxType('?int?');
     }
 
@@ -588,12 +588,12 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(3, $rows[2]['column2']);
     }
 
-    public function testSeedTable() 
+    public function testSeedTable()
     {
         // create a test seed table for SeedTable tests
         $this->adapter->query("create table test_seed as select cast(1 as INT) i, cast('fizzie' as TEXT) v union select 2,'figgle' union select 3, 'funk'");
         $seed = new \Phinx\Db\SeedTable('test_seed', array(), $this->adapter);
-        $this->assertNull( $seed->getWhere() );
+        $this->assertNull($seed->getWhere());
         $insert = $seed->getInsertSql();
         $this->assertEquals("INSERT INTO `test_seed` (`i`, `v`) VALUES ('1', 'fizzie');
 INSERT INTO `test_seed` (`i`, `v`) VALUES ('2', 'figgle');
@@ -602,14 +602,14 @@ INSERT INTO `test_seed` (`i`, `v`) VALUES ('3', 'funk');\n",
         );
         // test insert actually works. This will throw exception if not
         $this->adapter->query("create table test_seed2 like test_seed");
-        $this->adapter->query(str_replace('test_seed','test_seed2', $insert));
+        $this->adapter->query(str_replace('test_seed', 'test_seed2', $insert));
     }
 
     // purposefully inserting all columns as strings, letting db take care of type conversion
     public function testSeedTableWhere()
     {
         $this->adapter->query("create table test_seed as select cast(1 as int) i,cast('fizzie' as text) v union select 2,'figgle' union select 3, 'funk'");
-        $seed = new \Phinx\Db\SeedTable(array('name'=>'test_seed','where'=>'i>2'), array(), $this->adapter);
+        $seed = new \Phinx\Db\SeedTable(array('name'=>'test_seed', 'where'=>'i>2'), array(), $this->adapter);
         $this->assertEquals('i>2', $seed->getWhere());
         $insert = $seed->getInsertSql();
         $this->assertEquals(
@@ -618,6 +618,6 @@ INSERT INTO `test_seed` (`i`, `v`) VALUES ('3', 'funk');\n",
         );
         // test insert actually works. This will throw exception if not
         $this->adapter->query("create table test_seed2 like test_seed");
-        $this->adapter->query(str_replace('test_seed','test_seed2', $insert));
+        $this->adapter->query(str_replace('test_seed', 'test_seed2', $insert));
     }
 }

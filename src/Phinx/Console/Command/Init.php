@@ -101,8 +101,8 @@ class Init extends Command
                 $path
             ));
         }
-        if(strpos($filePath,getcwd().DIRECTORY_SEPARATOR)===0) {
-            $filePath=".".substr($filePath,strlen(getcwd()));
+        if (strpos($filePath, getcwd().DIRECTORY_SEPARATOR)===0) {
+            $filePath=".".substr($filePath, strlen(getcwd()));
         }
         $output->writeln('<info>created</info> ' . $filePath);
     }

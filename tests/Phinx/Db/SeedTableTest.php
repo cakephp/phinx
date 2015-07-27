@@ -41,10 +41,10 @@ class SeedTableTest extends \PHPUnit_Framework_TestCase
     public function getAdapters()
     {
         $adapter_list = AdapterFactory::instance()->getAdapters();
-        $adapters = array_map( function($adapter, $alist) {
+        $adapters = array_map(function ($adapter, $alist) {
             $prefix = 'TESTS_PHINX_DB_ADAPTER_' . strtoupper($adapter);
-            if(constant($prefix.'_ENABLED')) {
-                if($adapter=='sqlite') {
+            if (constant($prefix.'_ENABLED')) {
+                if ($adapter=='sqlite') {
                     $options = array('name' => constant($prefix.'_DATABASE'));
                 } else {
                     $options = array(
@@ -55,14 +55,14 @@ class SeedTableTest extends \PHPUnit_Framework_TestCase
                         'port' => constant($prefix.'_PORT')
                     );
                 }
-                if($adapter == 'pgsql') {
+                if ($adapter == 'pgsql') {
                     $options['schema'] = constant($prefix.'_DATABASE_SCHEMA');
                 }
 
                 $class = $alist[$adapter];
-                $a = new $class( $options, new NullOutput());
+                $a = new $class($options, new NullOutput());
 
-                if(isset($options['schema'])) {
+                if (isset($options['schema'])) {
                     $a->dropAllSchemas();
                     $a->createSchema($options['schema']);
                 } else {
@@ -72,9 +72,8 @@ class SeedTableTest extends \PHPUnit_Framework_TestCase
                 $a->disconnect();
                 return array($a);
             }
-        }, array_keys($adapter_list) 
-         , array_pad(array(), count($adapter_list), $adapter_list)); 
-        return array_filter($adapters, function($x) { return $x!==null; });
+        }, array_keys($adapter_list), array_pad(array(), count($adapter_list), $adapter_list));
+        return array_filter($adapters, function ($x) { return $x!==null; });
     }
 
     /**
@@ -82,15 +81,16 @@ class SeedTableTest extends \PHPUnit_Framework_TestCase
      */
     public function testSeedTableInsertSql($adapter)
     {
-        foreach(array('test_seed','test_seed2') as $t) {
-            if( $adapter->hasTable($t) )
+        foreach (array('test_seed', 'test_seed2') as $t) {
+            if ($adapter->hasTable($t)) {
                 $adapter->dropTable($t);
+            }
         }
         // create a test seed table for SeedTable tests
         $adapter->query("create table test_seed(i int, v varchar(10))");
         $adapter->query("insert into test_seed select 1 i,'fizzie' v union select 2,'figgle' union select 3, 'funk'");
         $seed = new SeedTable('test_seed', array(), $adapter);
-        $this->assertNull( $seed->getWhere() );
+        $this->assertNull($seed->getWhere());
         $insert = $seed->getInsertSql();
 
         // each adapter quotes the insert statement differently
@@ -100,13 +100,13 @@ INSERT INTO %table_name (%i, %v) VALUES ('2', 'figgle');
 INSERT INTO %table_name (%i, %v) VALUES ('3', 'funk')");
     
         // we can't guarantee ordering so just make sure each insert statement exists
-        foreach( explode(";\n", $expected) as $x ) {
+        foreach (explode(";\n", $expected) as $x) {
             $this->assertTrue(strpos($insert, $x) >= 0);
         }
         // test insert actually works. This will throw exception if not
         $adapter->query("create table test_seed2 as select * from test_seed limit 0");
-        foreach( SqlParser::parse($insert) as $sql) {
-            $adapter->query(str_replace('test_seed','test_seed2', $sql));
+        foreach (SqlParser::parse($insert) as $sql) {
+            $adapter->query(str_replace('test_seed', 'test_seed2', $sql));
         }
         $rows = $adapter->fetchAll("select * from test_seed2");
         $this->assertCount(
@@ -120,13 +120,14 @@ INSERT INTO %table_name (%i, %v) VALUES ('3', 'funk')");
      */
     public function testSeedTableWhere($adapter)
     {
-        foreach(array('test_seed','test_seed2') as $t) {
-            if( $adapter->hasTable($t) )
+        foreach (array('test_seed', 'test_seed2') as $t) {
+            if ($adapter->hasTable($t)) {
                 $adapter->dropTable($t);
+            }
         }
         $adapter->query("create table test_seed(i int, v varchar(10))");
         $adapter->query("insert into test_seed select 1 i,'fizzie' v union select 2,'figgle' union select 3, 'funk'");
-        $seed = new SeedTable(array('name'=>'test_seed','where'=>'i>2'), array(), $adapter);
+        $seed = new SeedTable(array('name'=>'test_seed', 'where'=>'i>2'), array(), $adapter);
 
         $this->assertTrue($seed->exists(), 'seed->exists() should be true for existing table');
         $this->assertEquals('i>2', $seed->getWhere(), 'where clause should be set');
@@ -138,7 +139,7 @@ INSERT INTO %table_name (%i, %v) VALUES ('3', 'funk')");
         );
         // test insert actually works. This will throw exception if not
         $adapter->query("create table test_seed2 as select * from test_seed limit 0");
-        $adapter->query(str_replace('test_seed','test_seed2', $insert));
+        $adapter->query(str_replace('test_seed', 'test_seed2', $insert));
         $rows = $adapter->fetchAll("select * from test_seed2");
         $this->assertCount(
             1,
@@ -151,9 +152,9 @@ INSERT INTO %table_name (%i, %v) VALUES ('3', 'funk')");
      */
     public function testNonExistentTable($adapter)
     {
-        $seed = new SeedTable('ThisTableDoesNotExist',array(), $adapter);
-        $this->assertEmpty( $seed->getInsertSql(), 'non-existent table should return false');
-        $this->assertFalse( $seed->exists(), 'seed->exists() should be false for non existent table');
+        $seed = new SeedTable('ThisTableDoesNotExist', array(), $adapter);
+        $this->assertEmpty($seed->getInsertSql(), 'non-existent table should return false');
+        $this->assertFalse($seed->exists(), 'seed->exists() should be false for non existent table');
     }
 
     /**
@@ -161,11 +162,12 @@ INSERT INTO %table_name (%i, %v) VALUES ('3', 'funk')");
      */
     public function testEmptySeed($adapter)
     {
-        if( $adapter->hasTable('test_empty_seed') )
+        if ($adapter->hasTable('test_empty_seed')) {
             $adapter->dropTable('test_empty_seed');
+        }
         $adapter->query("create table test_empty_seed(i int);");
         $seed = new SeedTable('test_empty_seed', array(), $adapter);
-        $this->assertEquals( '', $seed->getInsertSql(), 'empty tables should return empty string');
+        $this->assertEquals('', $seed->getInsertSql(), 'empty tables should return empty string');
         $adapter->dropTable('test_empty_seed');
     }
 
@@ -204,20 +206,20 @@ INSERT INTO %table_name (%i, %v) VALUES ('3', 'funk')");
         $b->setDependency($c);
         $b->setDependency($d);
 
-        $this->assertTrue( $a->dependsOn($b) );
-        $this->assertFalse( $a->dependsOn($c) );
-        $this->assertTrue( $a->dependsOn($c, true) );
-        $this->assertTrue( $a->dependsOn($d, true) );
+        $this->assertTrue($a->dependsOn($b));
+        $this->assertFalse($a->dependsOn($c));
+        $this->assertTrue($a->dependsOn($c, true));
+        $this->assertTrue($a->dependsOn($d, true));
 
         $ret = $b->setDependency($a);
         $this->assertFalse($ret);
         $this->assertFalse($b->dependsOn($a));
     }
 
-    private static function quoteExpectedSql($adapter, $table_name, $expected) 
+    private static function quoteExpectedSql($adapter, $table_name, $expected)
     {
         return str_replace(
-            array('%table_name', '%i', '%v'), 
+            array('%table_name', '%i', '%v'),
             array( $adapter->quoteTableName($table_name), $adapter->quoteColumnName('i'), $adapter->quoteColumnName('v')),
             $expected);
     }

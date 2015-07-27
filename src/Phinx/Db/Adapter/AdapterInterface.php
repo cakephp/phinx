@@ -65,7 +65,7 @@ interface AdapterInterface
     const PHINX_TYPE_LINESTRING     = 'linestring';
     const PHINX_TYPE_POLYGON        = 'polygon';
 
-	// only for mysql so far
+    // only for mysql so far
     const PHINX_TYPE_ENUM           = 'enum';
     const PHINX_TYPE_SET            = 'set';
 
@@ -462,7 +462,7 @@ interface AdapterInterface
     #    seed data dumping and schema resetting
     #    via the `dump` and `reset` commands
     # -----------------------------------------------------
-    
+
     /**
      * gives the create sql for a specific table
      * NOTE: this should NOT include foreign key definitions.

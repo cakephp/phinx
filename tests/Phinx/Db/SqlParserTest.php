@@ -32,7 +32,7 @@ use Phinx\Db\SqlParser;
 
 class SqlParserTest extends \PHPUnit_Framework_TestCase
 {
-    static $script = "-- this is a comment;
+    public static $script = "-- this is a comment;
 /* don't split; here
  * insert into table (col) values ('this is commented out');
  * */
@@ -57,7 +57,7 @@ insert into table (code) values ('--some comments; /*in text*/');";
 
     public function testStripComments()
     {
-        $commands = SqlParser::parse(SqlParserTest::$script,true);
+        $commands = SqlParser::parse(SqlParserTest::$script, true);
         $this->assertEquals(
             3,
             count($commands)

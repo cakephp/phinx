@@ -471,7 +471,8 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function isValidColumnType(Column $column) {
+    public function isValidColumnType(Column $column)
+    {
         return in_array($column->getType(), $this->getColumnTypes());
     }
 
@@ -490,7 +491,7 @@ select concat(table_schema,'.',table_name) table_name
  where table_type = 'BASE TABLE'
    and table_catalog = ?");
         $stmt->execute(array($name));
-        foreach( $stmt->fetchAll() as $row ) {
+        foreach ($stmt->fetchAll() as $row) {
             $tables[] = new Table($row['table_name'], $this->getOptions(), $this);
         }
         return $tables;

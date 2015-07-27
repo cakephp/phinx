@@ -87,8 +87,8 @@ EOT
             $output->writeln('<info>using environment</info> ' . $environment);
         }
 
-        if( preg_match('/pro?d(uction)?/i', $environment) ) {
-            if( !$input->getOption('force') ) {
+        if (preg_match('/pro?d(uction)?/i', $environment)) {
+            if (!$input->getOption('force')) {
                 $output->writeln("<comment>WARNING!</comment> It looks like you're trying to reset the database of a production environment.");
                 $output->writeln("Since this will completely drop and recreate the database, we will politely decline to continue.");
                 $output->writeln("If you really want to do this, use the <info>--force</info> option.");

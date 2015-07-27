@@ -139,7 +139,6 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateTableWithForeignKeys()
     {
-
         $tag_table = new \Phinx\Db\Table('ntable_tag', array(), $this->adapter);
         $tag_table->addColumn('realname', 'string')
                   ->save();
@@ -596,7 +595,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $described = $this->adapter->describeTable('t');
 
-        $this->assertTrue(in_array($described['TABLE_TYPE'], array('VIEW','BASE TABLE')));
+        $this->assertTrue(in_array($described['TABLE_TYPE'], array('VIEW', 'BASE TABLE')));
         $this->assertEquals($described['TABLE_NAME'], 't');
         $this->assertEquals($described['TABLE_SCHEMA'], TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
         $this->assertEquals($described['TABLE_ROWS'], 0);
@@ -897,7 +896,6 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($tableQuoted->hasColumn('column2'));
         $this->assertTrue($tableQuoted->hasColumn('value'));
-
     }
 
     public function testInsertData()
@@ -922,5 +920,4 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $rows[0]['column2']);
         $this->assertEquals(2, $rows[1]['column2']);
     }
-
 }

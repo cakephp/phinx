@@ -28,6 +28,7 @@
 namespace Phinx\Db;
 
 use Phinx\Db\Adapter\AdapterInterface;
+
 /**
  *
  * A SeedTable is a table with an optional where clause that helps create
@@ -72,17 +73,16 @@ class SeedTable
         $this->options = $options;
         $this->adapter = $adapter;
 
-        if(is_array($seedinfo)) {
-            if(!isset($seedinfo['name'])) {
+        if (is_array($seedinfo)) {
+            if (!isset($seedinfo['name'])) {
                 throw new \RuntimeException("Seed configuration needs a table name. Problematic config: " . json_encode($seedinfo));
             }
             $table_name = $seedinfo['name'];
 
-            if(isset($seedinfo['where'])) {
+            if (isset($seedinfo['where'])) {
                 $this->where = $seedinfo['where'];
             }
-        }
-        else {
+        } else {
             $table_name = $seedinfo;
         }
 
@@ -92,7 +92,7 @@ class SeedTable
     /**
      * @return string where clause for the table
      */
-    public function getWhere() 
+    public function getWhere()
     {
         return $this->where;
     }
@@ -136,8 +136,9 @@ class SeedTable
      */
     public function exists()
     {
-        if(!$this->getAdapter())
+        if (!$this->getAdapter()) {
             throw new \RuntimeException("A database adapter needs to query the db");
+        }
         return $this->getAdapter()->hasTable($this->getName());
     }
 
@@ -148,14 +149,12 @@ class SeedTable
      * @param SeedTable
      * @return void
      */
-    public function setDependency(SeedTable $seed) 
+    public function setDependency(SeedTable $seed)
     {
-        if(!isset($this->dependencies[$seed->getName()]) ) 
-        {
+        if (!isset($this->dependencies[$seed->getName()])) {
             $this->dependencies[$seed->getName()]=$seed;
 
-            if( $this->dependsOn($this, true) ) 
-            {
+            if ($this->dependsOn($this, true)) {
                 unset($this->dependencies[$seed->getName()]);
                 return false;
             }
@@ -188,13 +187,14 @@ class SeedTable
      */
     public function dependsOn(SeedTable $seed, $recurse=false)
     {
-        if( isset($this->dependencies[$seed->getName()]) ) {
+        if (isset($this->dependencies[$seed->getName()])) {
             return true;
         }
-        if( $recurse ) {
-            foreach($this->dependencies as $name=>$obj) { 
-                if( $obj->dependsOn($seed) )
+        if ($recurse) {
+            foreach ($this->dependencies as $name=>$obj) {
+                if ($obj->dependsOn($seed)) {
                     return true;
+                }
             }
         }
         return false;
@@ -205,30 +205,30 @@ class SeedTable
      */
     public function getInsertSql()
     {
-        if( !$this->getSeedData() )
+        if (!$this->getSeedData()) {
             return;
+        }
         
         $cols = array();
-        foreach($this->table->getColumns() as $col) {
+        foreach ($this->table->getColumns() as $col) {
             $cols[] = $col->getName();
         }
         $sql = $this->getAdapter()->getInsertSql($this->table, $cols, $this->getSeedData());
         // if getInsertSql returned a prepared statement to run a bunch of times, turn 
         // that into explicit inserts
-        if( strpos($sql, '(?') ) {
+        if (strpos($sql, '(?')) {
             $base = preg_replace('/\(\?(, *\?)*\)/', '', $sql);
             $sql = '';
-            foreach($this->getSeedData() as $row) {
+            foreach ($this->getSeedData() as $row) {
                 $sql .= $base . '(';
                 $sql .= '\''.$row[0].'\'';
-                for($i=1; $i<count($cols); $i++) {
-                    $sql .= ', \''.preg_replace("/'/",'\\\'', $row[$i]).'\'';
+                for ($i=1; $i<count($cols); $i++) {
+                    $sql .= ', \''.preg_replace("/'/", '\\\'', $row[$i]).'\'';
                 }
                 $sql .= ");\n";
             }
             return $sql;
-        }
-        else {
+        } else {
             return $sql.';';
         }
     }
@@ -238,18 +238,19 @@ class SeedTable
      */
     private function getSeedData()
     {
-        if($this->seedData !== null )
+        if ($this->seedData !== null) {
             return $this->seedData;
+        }
 
-        if(!$this->getAdapter()) {
+        if (!$this->getAdapter()) {
             throw new \RuntimeException('SeedTable must have a DB adapter to get data');
         }
 
         // return false if the table doesn't exist
         $this->seedData=false;
-        if( $this->getAdapter()->hasTable($this->getName()) ) {
+        if ($this->getAdapter()->hasTable($this->getName())) {
             $rows = $this->getAdapter()->fetchAll($this->getQuery());
-            foreach( $rows as $row ) {
+            foreach ($rows as $row) {
                 $this->seedData[] = $row;
             }
         }
@@ -263,11 +264,10 @@ class SeedTable
     {
         $sql = "select * from " . $this->getAdapter()->quoteTableName($this->table->getName());
 
-        if($this->where) {
+        if ($this->where) {
             $sql .= " where " . $this->where;
         }
 
         return $sql;
     }
-
 }

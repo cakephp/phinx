@@ -97,7 +97,7 @@ EOT
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
         $output->writeln('');
-        if( !$input->getOption('no-schema-dump') ) {
+        if (!$input->getOption('no-schema-dump')) {
             $output->writeln('<info>Dumping latest schema</info>');
             $start = microtime(true);
             $this->getManager()->dumpSchema($environment);

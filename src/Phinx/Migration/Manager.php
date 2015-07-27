@@ -127,7 +127,6 @@ class Manager
                     break;
             }
         }
-
     }
 
     /**
@@ -452,10 +451,10 @@ class Manager
         return $this->config;
     }
 
-    private function getSchemaPath() 
+    private function getSchemaPath()
     {
         $schema_file = $this->config->getSchemaPath();
-        if( !$schema_file ) {
+        if (!$schema_file) {
             $schema_file = dirname($this->config->getConfigFilePath()) . DIRECTORY_SEPARATOR . "schema.sql";
             $this->output->writeln("<comment>Schema path not specified.</comment> Using default.");
         }
@@ -472,8 +471,9 @@ class Manager
 
         $schema_file = $this->getSchemaPath();
 
-        if($outfile)
+        if ($outfile) {
             $schema_file = $outfile;
+        }
 
         $env = $this->getEnvironment($environment);
 
@@ -484,48 +484,49 @@ class Manager
 
         $output->writeln("<info>Writing to schema to</info> $schema_file");
 
-        $f = fopen($schema_file,'w');
-        if($f===FALSE)
+        $f = fopen($schema_file, 'w');
+        if ($f===false) {
             throw new \RuntimeException("Cannot open $schema_file for writing");
+        }
 
         $tables = $adapter->listTables($db);
         $seeds = $config->getSeeds($adapter);
-        $seed_table_names = array_map(function($s){return $s->getName();}, $seeds);
+        $seed_table_names = array_map(function ($s) {return $s->getName();}, $seeds);
 
         
-        $args = array_map( function($list) { $c=count($list); $s=$c==1?'':'s'; return array($c,$s); }, array($tables, $seeds) );
+        $args = array_map(function ($list) { $c=count($list); $s=$c==1?'':'s'; return array($c, $s); }, array($tables, $seeds));
         $output->writeln(
-            sprintf("Schema dump includes %d table%s (%d seed table%s)", 
+            sprintf("Schema dump includes %d table%s (%d seed table%s)",
             $args[0][0], $args[0][1], $args[1][0], $args[1][1]));
 
         $foreign_keys=array();
 
-	if(!$adapter->hasSchemaTable())
+        if (!$adapter->hasSchemaTable()) {
             $adapter->createSchemaTable();
+        }
 
-        foreach( $adapter->listTables($db) as $table )
-        {
+        foreach ($adapter->listTables($db) as $table) {
             $sql = $table->getTableDefinition();
             fwrite($f, $sql);
             fwrite($f, "\n");
 
-            foreach( $adapter->listForeignKeyDefinitions($table) as $fk ) {
+            foreach ($adapter->listForeignKeyDefinitions($table) as $fk) {
                 $foreign_keys[] = $fk;
-                if( preg_match('/REFERENCES [`"\']?(\w+)\b/i', $fk, $m) ) {
+                if (preg_match('/REFERENCES [`"\']?(\w+)\b/i', $fk, $m)) {
                     # this $table depends on the reference table to be inserted into first
                     # set the seed table dependency 
                     #
                     # only do this if not a self-circular dependency
-                    if($table->getName()!=$m[1]) {
+                    if ($table->getName()!=$m[1]) {
 
                         // if both the table and the foreign key table are in the seed 
                         // list, set the dependency, otherwise we're wasting time
-                        if( static::listContainsAll($seed_table_names, $table->getName(), $m[1]) )
-                        {
+                        if (static::listContainsAll($seed_table_names, $table->getName(), $m[1])) {
                             $ret = static::getSeed($table->getName(), $seeds)
-                                ->setDependency( static::getSeed($m[1], $seeds) );
-                            if(!$ret) 
+                                ->setDependency(static::getSeed($m[1], $seeds));
+                            if (!$ret) {
                                 $output->writeln("<comment>Warning!</comment> Circular dependency detected for seed table <info>{$table->getName()}. We will attempt to export the seed data but might not import correctly.");
+                            }
                         }
                     }
                 }
@@ -533,8 +534,7 @@ class Manager
         }
 
         // now write the foreign keys
-        foreach( $foreign_keys as $fk ) 
-        {
+        foreach ($foreign_keys as $fk) {
             fwrite($f, $fk);
             fwrite($f, "\n");
         }
@@ -546,43 +546,46 @@ class Manager
         // A -> B -> C -> A, or A->A. These are explicitly detected before hand and 
         // removed. so we *shouldn't* loop forever. just in case, we'll count
         $n = 0;
-        while( count($processed) != count($seeds) )
-        {
-            if($n++ > 100) 
+        while (count($processed) != count($seeds)) {
+            if ($n++ > 100) {
                 throw new \RuntimeException("Runaway loop! This shouldn't happen.");
+            }
 
-            foreach( $seeds as $seed ) {
-
+            foreach ($seeds as $seed) {
                 $name = $seed->getName();
-                if( !$seed->exists() ) {
+                if (!$seed->exists()) {
                     $output->writeln('<comment>Warning: </comment>Skipping non-existent seed table <comment>' . $name . '</comment>');
                     $processed[$name]=$seed;
                     continue;
                 }
 
                 // write the seed if there are no dependencies
-                if( !$seed->getDependencies() and !isset($processed[$name]) ) {
+                if (!$seed->getDependencies() and !isset($processed[$name])) {
                     $output->writeln("Writing seed data from <info>$name</info>");
                     $sql = $seed->getInsertSql();
-                    if($sql) {
+                    if ($sql) {
                         fwrite($f, $sql . "\n");
                     }
                     $processed[$name]=$seed;
                 } else {
                     // this seed has depencies
                     // remove any dependencies that have already been processed
-                    foreach( $processed as $n=>$finished_seed ) {
-                        if( $seed->dependsOn($finished_seed) )
+                    foreach ($processed as $n=>$finished_seed) {
+                        if ($seed->dependsOn($finished_seed)) {
                             $seed->unsetDependency($finished_seed);
+                        }
                     }
                 }
             }
         }
     }
 
-    private static function getSeed($name, &$seeds) {
-        foreach( $seeds as $seed ) { 
-            if( $seed->getName() == $name ) return $seed;
+    private static function getSeed($name, &$seeds)
+    {
+        foreach ($seeds as $seed) {
+            if ($seed->getName() == $name) {
+                return $seed;
+            }
         }
     }
 
@@ -590,9 +593,10 @@ class Manager
     {
         $args = func_get_args();
         $list = array_shift($args);
-        foreach( $args as $a ) {
-            if( !in_array($a , $list) )
+        foreach ($args as $a) {
+            if (!in_array($a, $list)) {
                 return false;
+            }
         }
         return true;
     }
@@ -612,7 +616,7 @@ class Manager
 
         $output->writeln("<info>Resetting database at </info>$endpoint");
 
-        if( !file_exists($schema_file) ) {
+        if (!file_exists($schema_file)) {
             throw new \RuntimeException("Cannot reset the database without a schema file. Please configure phinx.yml and run <info>phinx migrate</info> to create one.");
         }
 
@@ -625,7 +629,7 @@ class Manager
         // force reconnect because dropDb removes db context
         $adapter->disconnect();
 
-        foreach(SqlParser::parse(file_get_contents($schema_file)) as $sql) {
+        foreach (SqlParser::parse(file_get_contents($schema_file)) as $sql) {
             $adapter->execute($sql);
         }
     }

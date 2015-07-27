@@ -67,9 +67,9 @@ class SqlParser
      * @param boolean stripComments
      * @return an array of statements
      */
-    static function parse( $script, $stripComments=false ) {
-           
-        if( $script == null || preg_match('/^\s*$/', $script) ) {
+    public static function parse($script, $stripComments=false)
+    {
+        if ($script == null || preg_match('/^\s*$/', $script)) {
             return array();
         }
         
@@ -80,13 +80,13 @@ class SqlParser
         $capture = true;
         
         $stack = array();
-        array_push($stack,SqlParser::NORMAL);
+        array_push($stack, SqlParser::NORMAL);
         
         $stmt = "";
-        for( $i=0;$i<$len;$i++ ) {
+        for ($i=0;$i<$len;$i++) {
             $c = $script{$i};
                 
-            switch(end($stack)) {
+            switch (end($stack)) {
             case SqlParser::NORMAL:
                 /*
                  * handle the following state changes
@@ -97,9 +97,9 @@ class SqlParser
                  * COMMENT_START 
                  */
                 $capture = true;
-                switch($c) {
+                switch ($c) {
                 case ';':
-                    if ( strlen($stmt) > 0 ) {
+                    if (strlen($stmt) > 0) {
                         $out[] = trim($stmt);
                     }
                     $stmt = "";
@@ -133,14 +133,15 @@ class SqlParser
                  *   LINE_COMMENT
                  */
                 array_pop($stack);
-                if( $c == '-' && $commentChar == '-' ) 
+                if ($c == '-' && $commentChar == '-') {
                     array_push($stack, SqlParser::LINE_COMMENT);
-                else if ( $c == '*' && $commentChar == '/' ) 
+                } elseif ($c == '*' && $commentChar == '/') {
                     array_push($stack, SqlParser::MULTI_COMMENT);
-                else {
+                } else {
                     $capture=true;
-                    if( $stripComments )
+                    if ($stripComments) {
                         $stmt .= $commentChar;
+                    }
                 }
                 break;
         
@@ -151,10 +152,11 @@ class SqlParser
                  *   COMMENT_END
                  */
                 $capture = false;
-                if( $c == '\\' )
+                if ($c == '\\') {
                     array_push($stack, SqlParser::ESCAPED);
-                else if( $c == "\n" ) 
+                } elseif ($c == "\n") {
                     array_pop($stack);
+                }
                 break;
                 
             case SqlParser::MULTI_COMMENT:
@@ -165,9 +167,9 @@ class SqlParser
                  * NOTE: nested comments not supported
                  */
                 $capture = false;
-                if( $c == '\\' )
+                if ($c == '\\') {
                     array_push($stack, SqlParser::ESCAPED);
-                else if( $c == '*' ) {
+                } elseif ($c == '*') {
                     array_push($stack, SqlParser::COMMENT_END);
                 }
                 /*else if( $c == '/' ) {                 
@@ -178,8 +180,9 @@ class SqlParser
                 
             case SqlParser::COMMENT_END:
                 array_pop($stack);
-                if( $c == '/' )
+                if ($c == '/') {
                     array_pop($stack);
+                }
                 
             case SqlParser::SINGLE_QUOTED:
                 /*
@@ -187,10 +190,11 @@ class SqlParser
                  *    ESCAPE
                  *    QUOTE_END
                  */
-                if( $c == '\\' )
+                if ($c == '\\') {
                     array_push($stack, SqlParser::ESCAPED);
-                else if ( $c == '\'' )
+                } elseif ($c == '\'') {
                     array_pop($stack);
+                }
                 break;
                 
             case SqlParser::DOUBLE_QUOTED:
@@ -199,10 +203,11 @@ class SqlParser
                  *    ESCAPE
                  *    QUOTE_END
                  */
-                if( $c == '\\' )
+                if ($c == '\\') {
                     array_push($stack, SqlParser::ESCAPED);
-                else if ( $c == '"' )
+                } elseif ($c == '"') {
                     array_pop($stack);
+                }
                 break;
                 
             case SqlParser::ESCAPED:
@@ -211,13 +216,15 @@ class SqlParser
             }
             
             // don't print comments if requested
-            if( $capture || !$stripComments )
+            if ($capture || !$stripComments) {
                 $stmt .= $c;
+            }
         }
         
-        if( strlen($stmt) > 0 ) {
-            if(!preg_match("/^\s*$/",$stmt))
+        if (strlen($stmt) > 0) {
+            if (!preg_match("/^\s*$/", $stmt)) {
                 $out[] = $stmt;
+            }
         }
         return $out;
     }

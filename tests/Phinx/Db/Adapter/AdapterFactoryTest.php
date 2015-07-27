@@ -19,7 +19,6 @@ class AdapterFactoryTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         unset($this->factory);
-
     }
 
     public function testInstanceIsFactory()

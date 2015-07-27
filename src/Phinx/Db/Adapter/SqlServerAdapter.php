@@ -214,7 +214,6 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 
             array_unshift($columns, $column);
             $options['primary_key'] = 'id';
-
         } elseif (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
@@ -617,7 +616,7 @@ ORDER BY IC.[key_ordinal];";
 
         $rows = $this->fetchAll($sql);
         $columns = array();
-        foreach($rows as $row) {
+        foreach ($rows as $row) {
             $columns[] = strtolower($row['column_name']);
         }
         return $columns;
@@ -1147,7 +1146,8 @@ SQL;
     /**
      * {@inheritdoc}
      */
-    public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime) {
+    public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
+    {
         if (strcasecmp($direction, MigrationInterface::UP) === 0) {
             // up
             $sql = sprintf(
@@ -1251,20 +1251,20 @@ SQL;
      */
     public function listForeignKeyDefinitons(Table $table)
     {
-        try{
-            list($owner,$tab) = explode('.',$table->getName());
-        }catch(Exception $e) {
+        try {
+            list($owner, $tab) = explode('.', $table->getName());
+        } catch (Exception $e) {
             $owner='';
             $tab=$table->getName();
         }
         $options = $this->getOptions();
         $fkdata = $this->getConnection()->fetchAll(
-            sprintf("exec sp_fkeys(@pktable_name=%s,@pktable_owner=%s,@pktable_qualifier=%s)", 
+            sprintf("exec sp_fkeys(@pktable_name=%s,@pktable_owner=%s,@pktable_qualifier=%s)",
                 $tab,
                 $owner,
                 $options['name']));
         $fks = array();
-        foreach($fkdata as $row) {
+        foreach ($fkdata as $row) {
             $fks[$row['FK_NAME']]['cols'][$row['KEY_SEQ']] = $row['FKCOLUMN_NAME'];
             $fks[$row['FK_NAME']]['ref_cols'][$row['KEY_SEQ']] = $row['PKCOLUMN_NAME'];
             $fks[$row['FK_NAME']]['ref_table'] = $row['PKTABLE_NAME'];
@@ -1272,13 +1272,13 @@ SQL;
             $fks[$row['FK_NAME']]['delete_rule'] = SqlServerAdapter::$constraint_action[$row['DELETE_RULE']];
         }
         $sql=array();
-        foreach($fks as $fk_name => $fk) {
+        foreach ($fks as $fk_name => $fk) {
             $sql[] = sprintf("ALTER TABLE %s ADD FOREIGN KEY %s(%s) REFERENCES %s(%s) ON UPDATE %s ON DELETE %s",
                 $this->quoteTableName($table->getName()),
                 $this->quoteColumnName($fk_name),
-                implode(',', array_map(array($this,'quoteColumnName'), $fk['cols'])),
+                implode(',', array_map(array($this, 'quoteColumnName'), $fk['cols'])),
                 $fk['ref_table'],
-                implode(',', array_map(array($this,'quoteColumnName'), $fk['ref_cols'])),
+                implode(',', array_map(array($this, 'quoteColumnName'), $fk['ref_cols'])),
                 $fk['update_rule'],
                 $fk['delete_rule']);
         }
@@ -1286,5 +1286,4 @@ SQL;
     }
 
     private static $constraint_action = array(0=>'CASCADE', 1=>'NO ACTION');
-
 }

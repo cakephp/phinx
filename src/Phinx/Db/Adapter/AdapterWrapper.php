@@ -457,7 +457,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function getTableDefinition(Table $table) 
+    public function getTableDefinition(Table $table)
     {
         return $this->getAdapter()->getTableDefinition($table);
     }

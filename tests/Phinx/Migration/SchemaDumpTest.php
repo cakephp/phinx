@@ -36,7 +36,6 @@ use Phinx\Migration\Manager;
 
 class SchemaDumpTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * @var Manager[]
      */
@@ -98,11 +97,11 @@ SQL;
     public static function setUpBeforeClass()
     {
         $adapters = array_keys(AdapterFactory::instance()->getAdapters());
-        foreach( $adapters as $adapter ) {
-
+        foreach ($adapters as $adapter) {
             $prefix = 'TESTS_PHINX_DB_ADAPTER_' . strtoupper($adapter);
-            if( !@constant("${prefix}_ENABLED") ) 
+            if (!@constant("${prefix}_ENABLED")) {
                 continue;
+            }
 
             $conf = array(
                 'paths' => array(
@@ -120,7 +119,7 @@ SQL;
                         'name' => constant("${prefix}_DATABASE")
                     )
                 ));
-            if($adapter != 'sqlite') {
+            if ($adapter != 'sqlite') {
                 $conf['environments']['phpunit'] = array(
                     'adapter' => $adapter,
                     'host' => constant("${prefix}_HOST"),
@@ -129,30 +128,33 @@ SQL;
                     'pass' => constant("${prefix}_PASSWORD"),
                     'port' => constant("${prefix}_PORT")
                 );
-                if ( $adapter == 'pgsql' )
+                if ($adapter == 'pgsql') {
                     $conf['environments']['phpunit']['schema'] = constant("${prefix}_DATABASE_SCHEMA");
+                }
             }
 
             $manager = new Manager(new Config($conf), new NullOutput());
             $adapterObj = $manager->getEnvironment('phpunit')->getAdapter();
 
             // kill the schema for this test
-            if($adapter=='pgsql') {
+            if ($adapter=='pgsql') {
                 $adapterObj->dropAllSchemas();
                 $adapterObj->createSchema($conf['environments']['phpunit']['schema']);
             } else {
                 $adapterObj->dropDatabase($conf['environments']['phpunit']['name']);
-                if($adapter=='mysql')
+                if ($adapter=='mysql') {
                     $adapterObj->query('set storage_engine=InnoDB');
+                }
                 $adapterObj->createDatabase($conf['environments']['phpunit']['name']);
             }
             $adapterObj->disconnect();
-            if($adapter=='mysql')
+            if ($adapter=='mysql') {
                 $adapterObj->query('set storage_engine=InnoDB');
+            }
             $adapterObj->createSchemaTable();
 
             // setup the schema
-            foreach(SqlParser::parse(static::$setup_script) as $cmd) { 
+            foreach (SqlParser::parse(static::$setup_script) as $cmd) {
                 $adapterObj->query($cmd);
             }
             
@@ -162,23 +164,22 @@ select 1, ?, ?
  union 
 select 123456, ?, ?
 SQL;
-            if( $adapter == 'pgsql' ) {
-                $time_sql = str_replace('?','cast(? as timestamp)', $time_sql);
+            if ($adapter == 'pgsql') {
+                $time_sql = str_replace('?', 'cast(? as timestamp)', $time_sql);
             }
             $st = $adapterObj->getConnection()->prepare($time_sql);
-            $st->execute(array('2014-01-01 00:00:01','2014-01-01 00:00:02',
-                '2015-01-01 00:01:00','2015-01-01 00:05:00'));
+            $st->execute(array('2014-01-01 00:00:01', '2014-01-01 00:00:02',
+                '2015-01-01 00:01:00', '2015-01-01 00:05:00'));
             
             static::$managers[$adapter] = $manager;
             # create a temp directory for the dump to live
-            static::$dump_files[$adapter] = tempnam( sys_get_temp_dir(), "phinxDump_$adapter" );
+            static::$dump_files[$adapter] = tempnam(sys_get_temp_dir(), "phinxDump_$adapter");
         }
-
     }
 
     public static function tearDownAfterClass()
     {
-        foreach(static::$dump_files as $file) {
+        foreach (static::$dump_files as $file) {
             unlink($file);
         }
     }
@@ -190,10 +191,11 @@ SQL;
     {
         $adapters = array_keys(AdapterFactory::instance()->getAdapters());
         $adaptersUnderTest = array();
-        foreach( $adapters as $adapter ) {
+        foreach ($adapters as $adapter) {
             $prefix = 'TESTS_PHINX_DB_ADAPTER_' . strtoupper($adapter);
-            if( !@constant("${prefix}_ENABLED") ) 
+            if (!@constant("${prefix}_ENABLED")) {
                 continue;
+            }
             $adaptersUnderTest[] = array($adapter);
         }
         return $adaptersUnderTest;
@@ -217,8 +219,8 @@ SQL;
         $schema_table = $env['default_migration_table'];
         $this->assertTrue(strlen($schema_table)>0);
 
-        foreach( $creates as $sql ) {
-            $this->assertNotRegExp( '/FOREIGN KEY/mi', $sql, 'FOREIGN KEY statements should be removed from CREATE TABLE statements');
+        foreach ($creates as $sql) {
+            $this->assertNotRegExp('/FOREIGN KEY/mi', $sql, 'FOREIGN KEY statements should be removed from CREATE TABLE statements');
         }
     }
 
@@ -235,8 +237,8 @@ SQL;
         // plus 2 for phinx migration log
         $this->assertCount(7, $inserts);
 
-        foreach($inserts as $insert) {
-            $this->assertRegExp('/\b(test_seed\d?|testing_seed_log)\b/', $insert,'should only dump the seed tables specified + migration_table');
+        foreach ($inserts as $insert) {
+            $this->assertRegExp('/\b(test_seed\d?|testing_seed_log)\b/', $insert, 'should only dump the seed tables specified + migration_table');
         }
     }
 
@@ -254,8 +256,9 @@ SQL;
      */
     public function testForeignKeys($adapter)
     {
-        if($adapter=='sqlite')
+        if ($adapter=='sqlite') {
             $this->markTestSkipped('sqlite adapter doesn\'t support foreign keys right now');
+        }
         $fks = $this->sql('foreignKeys', $adapter);
         $this->assertCount(2, $fks, 'adapter should dump right number of foreign keys');
     }
@@ -265,8 +268,9 @@ SQL;
      */
     public function testForeignKeysAfterCreate($adapter)
     {
-        if($adapter=='sqlite')
+        if ($adapter=='sqlite') {
             $this->markTestSkipped('sqlite adapter doesn\'t support foreign keys right now');
+        }
         $this->getSqlInfo($adapter);
         $this->assertTrue(static::$sql_info[$adapter]['min_fk_line'] > static::$sql_info[$adapter]['max_create_line'], 'foreign key definitions should happen after table creates');
     }
@@ -276,12 +280,13 @@ SQL;
      */
     public function testForeignKeyActions($adapter)
     {
-        if($adapter=='sqlite')
+        if ($adapter=='sqlite') {
             $this->markTestSkipped('sqlite adapter doesn\'t support foreign keys right now');
+        }
         
         $fks = $this->sql('foreignKeys', $adapter);
 
-        foreach($fks as $fk) {
+        foreach ($fks as $fk) {
             $this->assertRegExp('/ON DELETE CASCADE/mi', $fk, 'onDelete action should be returned in foreign key create statement');
             $this->assertRegExp('/ON UPDATE CASCADE/mi', $fk, 'onUpdate action should be returned in foreign key create statement');
         }
@@ -325,20 +330,21 @@ SQL;
         $manager = static::$managers[$adapter];
         $adapterObj = $manager->getEnvironment('phpunit')->getAdapter();
         // kill and recreate the test schema
-        foreach(array('test_seed','test_seed2','test_seed3','foo_users','testing_seed_log') as $t) {
-            if( $adapterObj->hasTable($t) )
+        foreach (array('test_seed', 'test_seed2', 'test_seed3', 'foo_users', 'testing_seed_log') as $t) {
+            if ($adapterObj->hasTable($t)) {
                 $adapterObj->dropTable($t);
+            }
         }
-        foreach(static::$schema_statements[$adapter] as $sql) {
+        foreach (static::$schema_statements[$adapter] as $sql) {
             $adapterObj->query($sql);
-        } 
+        }
     }
 
     //
     // ----- helper functions -----
     //
-    
-    private function sql($type, $adapter) 
+
+    private function sql($type, $adapter)
     {
         $this->getSqlInfo($adapter);
         return isset(static::$sql_info[$adapter][$type]) ? static::$sql_info[$adapter][$type] : array();
@@ -352,42 +358,44 @@ SQL;
             'dumped_migration_structure'=>false,
             'dumped_migration_data'=>false
         );
-        foreach( array('creates','inserts','foreignKeys','primaryKeys','uniqueKeys','normalKeys') as $var ) {
+        foreach (array('creates', 'inserts', 'foreignKeys', 'primaryKeys', 'uniqueKeys', 'normalKeys') as $var) {
             $info[$var] = array();
         }
 
         $line = 0;
 
-        foreach( $sql_list as $sql )
-        {
-            if( preg_match('/^CREATE TABLE/i', $sql) ) {
+        foreach ($sql_list as $sql) {
+            if (preg_match('/^CREATE TABLE/i', $sql)) {
                 $info['creates'][] = $sql;
                 $info['max_create_line']=$line;
-                if( preg_match('/\btesting_seed_log\b/i', $sql) )
+                if (preg_match('/\btesting_seed_log\b/i', $sql)) {
                     $info['dumped_migration_structure']=true;
+                }
             }
 
-            if( preg_match('/^INSERT INTO/i', $sql) ) {
+            if (preg_match('/^INSERT INTO/i', $sql)) {
                 $info['inserts'][] = $sql;
-                if( preg_match('/\btesting_seed_log\b/i', $sql) )
+                if (preg_match('/\btesting_seed_log\b/i', $sql)) {
                     $info['dumped_migration_data']=true;
+                }
             }
 
-            if( preg_match('/FOREIGN KEY/mi', $sql) ) {
+            if (preg_match('/FOREIGN KEY/mi', $sql)) {
                 $info['foreignKeys'][]=$sql;
-                if( $info['min_fk_line'] == -1 )
+                if ($info['min_fk_line'] == -1) {
                     $info['min_fk_line'] = $line;
+                }
             }
 
-            if( preg_match('/PRIMARY KEY/mi', $sql) ) {
+            if (preg_match('/PRIMARY KEY/mi', $sql)) {
                 $info['primaryKeys'][]=$sql;
             }
 
-            if( preg_match('/\bfoo_u\b/mi', $sql) ) {
+            if (preg_match('/\bfoo_u\b/mi', $sql)) {
                 $info['uniqueKeys'][]=$sql;
             }
 
-            if( preg_match('/\bfoo_nu\b/mi', $sql) ) {
+            if (preg_match('/\bfoo_nu\b/mi', $sql)) {
                 $info['normalKeys'][]=$sql;
             }
 
@@ -398,7 +406,7 @@ SQL;
 
     private function getSqlInfo($adapter)
     {
-        if( !isset(static::$sql_info[$adapter] )) {
+        if (!isset(static::$sql_info[$adapter])) {
             $raw_sql = $this->getSchemaDump($adapter);
             $sql_list = SqlParser::parse($raw_sql);
             $info = static::categorizeSqlStatements($sql_list);
@@ -408,9 +416,9 @@ SQL;
         return static::$sql_info[$adapter];
     }
 
-    private function getSchemaDump($adapter) 
+    private function getSchemaDump($adapter)
     {
-        if(!isset(static::$schema_dumps[$adapter])) {
+        if (!isset(static::$schema_dumps[$adapter])) {
             $this->cache($adapter);
         }
         return static::$schema_dumps[$adapter];

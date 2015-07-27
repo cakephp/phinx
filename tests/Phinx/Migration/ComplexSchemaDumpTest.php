@@ -34,9 +34,8 @@ use Phinx\Db\Adapter\AdapterFactory;
 use Phinx\Db\SqlParser;
 use Phinx\Migration\Manager;
 
-class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase 
+class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * @var string
      */
@@ -56,9 +55,9 @@ class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
         $a = $this->manager->getEnvironment('phpunit')->getAdapter();
 
         // create the schema
-        foreach($schema_commands as $sql) {
+        foreach ($schema_commands as $sql) {
             $a->query($sql);
-        } 
+        }
         
         // dump the schema
         $this->manager->dumpSchema('phpunit', $this->temp_file);
@@ -68,11 +67,11 @@ class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
         $inserts=array();
         $fks=array();
 
-        foreach( $dumped_sql as $sql ) { 
-            if( preg_match('/^INSERT INTO/i', $sql) ) {
+        foreach ($dumped_sql as $sql) {
+            if (preg_match('/^INSERT INTO/i', $sql)) {
                 $inserts[] = $sql;
             }
-            if( preg_match('/FOREIGN KEY/i', $sql) ) {
+            if (preg_match('/FOREIGN KEY/i', $sql)) {
                 $fks[] = $sql;
             }
         }
@@ -80,7 +79,7 @@ class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
         $this->assertCount($expected_inserts, $inserts);
         $this->assertCount($expected_fks, $fks);
 
-        if($name == 'circularDependency') {
+        if ($name == 'circularDependency') {
             // make sure the user is warned about circular dependency
             $s = $this->manager->getOutput()->getStream();
             rewind($s);
@@ -93,7 +92,7 @@ class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
             $a = $this->manager->getEnvironment('phpunit')->getAdapter();
 
             $conf = $this->manager->getConfig();
-            if(static::$adapter=='pgsql') {
+            if (static::$adapter=='pgsql') {
                 $a->dropAllSchemas();
                 $a->createSchema($conf['environments']['phpunit']['schema']);
             } else {
@@ -101,7 +100,7 @@ class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
                 $a->createDatabase($conf['environments']['phpunit']['name']);
             }
             $a->disconnect();
-            foreach( $dumped_sql as $cmd ) {
+            foreach ($dumped_sql as $cmd) {
                 $a->execute($cmd);
             }
         }
@@ -110,25 +109,27 @@ class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $conf = $this->getConfig(array());
-        $this->manager = new Manager($conf, new StreamOutput(fopen('php://memory','a')));
+        $this->manager = new Manager($conf, new StreamOutput(fopen('php://memory', 'a')));
         $a = $this->manager->getEnvironment('phpunit')->getAdapter();
 
         // kill the schema competely
-        if(static::$adapter=='pgsql') {
+        if (static::$adapter=='pgsql') {
             $a->dropAllSchemas();
             $a->createSchema($conf['environments']['phpunit']['schema']);
         } else {
             $a->dropDatabase($conf['environments']['phpunit']['name']);
-            if(static::$adapter=='mysql')
+            if (static::$adapter=='mysql') {
                 $a->query('set storage_engine=InnoDB');
+            }
             $a->createDatabase($conf['environments']['phpunit']['name']);
         }
         $a->disconnect();
-        if(static::$adapter=='mysql')
+        if (static::$adapter=='mysql') {
             $a->query('set storage_engine=InnoDB');
+        }
         $a->createSchemaTable();
 
-        $this->temp_file = tempnam( sys_get_temp_dir(), "phinxDump_complex");
+        $this->temp_file = tempnam(sys_get_temp_dir(), "phinxDump_complex");
     }
 
     public function tearDown()
@@ -139,7 +140,8 @@ class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
     /*
      * data provider for tests
      */
-    public static function getData() {
+    public static function getData()
+    {
 
         // return a list of complicated schema to run a round trip dump and import on
         // each schema will have a 
@@ -201,7 +203,7 @@ alter table state add constraint state_fk foreign key ( capital_city_id ) refere
 SQL
         ));
          
-        return array_map( function($a) { return array($a[0],$a[1],$a[2],SqlParser::parse($a[3])); }, $data );
+        return array_map(function ($a) { return array($a[0], $a[1], $a[2], SqlParser::parse($a[3])); }, $data);
     }
 
     //
@@ -211,9 +213,10 @@ SQL
     {
         $prefix = 'TESTS_PHINX_DB_ADAPTER_' . strtoupper(static::$adapter);
         $table_list = array();
-        foreach($script_commands as $cmd) {
-            if(preg_match('/^create table [\'`"]?(\w+)\b/i', $cmd, $m))
+        foreach ($script_commands as $cmd) {
+            if (preg_match('/^create table [\'`"]?(\w+)\b/i', $cmd, $m)) {
                 $table_list[]=$m[1];
+            }
         }
         $conf = array(
             'paths' => array(
@@ -233,10 +236,10 @@ SQL
                     'port' => constant("${prefix}_PORT")
                 )
             ));
-        if(static::$adapter == 'pgsql')
+        if (static::$adapter == 'pgsql') {
             $conf['environments']['phpunit']['schema'] = constant("${prefix}_DATABASE_SCHMA");
+        }
 
         return new Config($conf);
     }
 }
-

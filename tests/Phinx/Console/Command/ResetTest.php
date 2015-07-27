@@ -17,8 +17,8 @@ class ResetTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $prefix = 'TESTS_PHINX_DB_ADAPTER_' . strtoupper($this->adapter);
-        if(constant($prefix.'_ENABLED')) {
-            if($this->adapter=='sqlite') {
+        if (constant($prefix.'_ENABLED')) {
+            if ($this->adapter=='sqlite') {
                 $options = array('adapter' => $this->adapter, 'name' => constant($prefix.'_DATABASE'));
             } else {
                 $options = array(
@@ -30,7 +30,7 @@ class ResetTest extends \PHPUnit_Framework_TestCase
                     'port' => constant($prefix.'_PORT')
                 );
             }
-            if($this->adapter == 'pgsql') {
+            if ($this->adapter == 'pgsql') {
                 $options['schema'] = constant($prefix.'_DATABASE_SCHEMA');
             }
         
@@ -46,9 +46,9 @@ class ResetTest extends \PHPUnit_Framework_TestCase
                     'development' => $options
                 )
             ));
-        }
-        else 
+        } else {
             $this->markTestSkipped("Only running reset test on mysql");
+        }
     }
 
     public function testRefuseResettingProduction()
@@ -74,5 +74,4 @@ class ResetTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/using environment production/', $display);
         $this->assertRegExp('/WARNING! It looks like you\'re trying to reset the database of a production environment./', $display);
     }
-
 }

@@ -340,10 +340,11 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             if ($column->getName() == 'column2') {
                 $this->assertTrue($column->isNull());
             }
-        }        
+        }
     }
 
-    public function testChangeColumnWithDefault() {
+    public function testChangeColumnWithDefault()
+    {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string')
               ->save();
@@ -365,7 +366,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testChangeColumnWithDropDefault() {
+    public function testChangeColumnWithDropDefault()
+    {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string', array('default' => 'Test'))
               ->save();
@@ -439,7 +441,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testDropIndex()
     {
-         // single column index
+        // single column index
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('email', 'string')
               ->addIndex('email')
@@ -620,7 +622,6 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp without time zone'));
 
         $this->assertEquals('uuid', $this->adapter->getPhinxType('uuid'));
-
     }
 
     public function testCanAddColumnComment()

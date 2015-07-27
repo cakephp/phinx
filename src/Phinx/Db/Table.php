@@ -105,10 +105,11 @@ class Table
     public function setName($name)
     {
         $a = explode('.', $name);
-        if( count($a) > 1 )
+        if (count($a) > 1) {
             list($this->schema, $this->name) = $a;
-        else
+        } else {
             $this->name = $name;
+        }
         return $this;
     }
 
@@ -119,10 +120,11 @@ class Table
      */
     public function getName($include_schema=false)
     {
-        if ($include_schema && isset($this->schema)) 
+        if ($include_schema && isset($this->schema)) {
             return "{$this->schema}.{$this->name}";
-        else 
+        } else {
             return $this->name;
+        }
     }
 
     /**

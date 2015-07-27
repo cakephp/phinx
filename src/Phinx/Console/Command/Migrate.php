@@ -102,7 +102,7 @@ EOT
         $output->writeln('');
         $end = microtime(true);
 
-        if( !$input->getOption('no-schema-dump') ) {
+        if (!$input->getOption('no-schema-dump')) {
             $output->writeln('<info>Dumping latest schema</info>');
             $start = microtime(true);
             $this->getManager()->dumpSchema($environment);

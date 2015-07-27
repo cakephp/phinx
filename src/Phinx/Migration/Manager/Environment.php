@@ -198,8 +198,9 @@ class Environment
      */
     public function getVersions()
     {
-        if( !$this->getAdapter()->hasSchemaTable() )
+        if (!$this->getAdapter()->hasSchemaTable()) {
             $this->getAdapter()->createSchemaTable();
+        }
         return $this->getAdapter()->getVersions();
     }
 

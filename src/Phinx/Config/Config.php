@@ -345,8 +345,9 @@ class Config implements ConfigInterface
      */
     public function getSchemaPath()
     {
-        if (!isset($this->values['paths']['schema']))
+        if (!isset($this->values['paths']['schema'])) {
             return '';
+        }
 
         return $this->values['paths']['schema'];
     }
@@ -356,8 +357,9 @@ class Config implements ConfigInterface
      */
     public function getSeeds($adapter=null)
     {
-        if($this->seeds !== null)
+        if ($this->seeds !== null) {
             return $this->seeds;
+        }
 
         $this->seeds = array();
         $this->seeds[] = new SeedTable(
@@ -366,11 +368,11 @@ class Config implements ConfigInterface
             $adapter
         );
         
-        if(!isset($this->values['seeds']) || !isset($this->values['seeds']['tables'])) {
+        if (!isset($this->values['seeds']) || !isset($this->values['seeds']['tables'])) {
             return $this->seeds;
         }
 
-        foreach( $this->values['seeds']['tables'] as $seedinfo ) {
+        foreach ($this->values['seeds']['tables'] as $seedinfo) {
             $this->seeds[] = new SeedTable($seedinfo, array(), $adapter);
         }
 
