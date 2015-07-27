@@ -49,7 +49,7 @@ class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider getData()
      */
-    public function testCorrectInserts($name, $expected_inserts, $schema_commands)
+    public function testCorrectInserts($name, $expected_inserts, $expected_fks, $schema_commands)
     {
         $this->manager->setConfig($this->getConfig($schema_commands));
 
@@ -66,14 +66,19 @@ class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
         //print_r($dumped);
         $dumped_sql = SqlParser::parse($dumped);
         $inserts=array();
+        $fks=array();
 
         foreach( $dumped_sql as $sql ) { 
             if( preg_match('/^INSERT INTO/i', $sql) ) {
                 $inserts[] = $sql;
             }
+            if( preg_match('/FOREIGN KEY/i', $sql) ) {
+                $fks[] = $sql;
+            }
         }
 
         $this->assertCount($expected_inserts, $inserts);
+        $this->assertCount($expected_fks, $fks);
 
         if($name == 'circularDependency') {
             // make sure the user is warned about circular dependency
@@ -139,7 +144,7 @@ class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
         // return a list of complicated schema to run a round trip dump and import on
         // each schema will have a 
         $data = array(
-            array( 'nestedDependencies', 9,
+            array( 'nestedDependencies', 9, 2,
                    <<<SQL
 create table t3(id int not null primary key, t2_id int, v varchar(10));
 insert into t3 select 1, 1, 'm1.det1.1' union select 2, 1, 'm1.det1.2' union select 3, 2, 'm1.det2.1';
@@ -152,7 +157,7 @@ alter table t3 add constraint t3_fk foreign key ( t2_id ) references t2 ( id ) o
 alter table t2 add constraint t2_fk foreign key ( t1_id ) references t1 ( id ) on delete no action on update no action;
 SQL
                 ),
-            array( 'multipleParents', 4,
+            array( 'multipleParents', 4, 3,
                    <<<SQL
 create table kid1(id int not null primary key, p1_id int, v varchar(10));
 create table kid2(id int not null primary key, p1_id int, p2_id int, v varchar(10));
@@ -169,7 +174,21 @@ insert into kid1 select 1, 1, 'alice';
 insert into kid2 select 1, 1, 1, 'bob';
 SQL
             ),
-            array( 'circularDependency', 2,
+            array( 'mulitpleFks', 3, 2,
+                    <<<SQL
+create table parent( id int not null primary key, name varchar(10), kid_id int, pet_id int );
+create table kid(id int not null primary key, name varchar(10));
+create table pet(id int not null primary key, name varchar(10));
+
+alter table parent add constraint p_kid_fk foreign key ( kid_id ) references kid ( id ) on delete no action on update no action;
+alter table parent add constraint p_pet_fk foreign key ( pet_id ) references pet ( id ) on delete no action on update no action;
+
+insert into kid select 1, 'billy';
+insert into pet select 1, 'fido';
+insert into parent select 1, 'dad', 1, 1;
+SQL
+            ),
+            array( 'circularDependency', 2, 2,
                     <<<SQL
 create table city( id int not null primary key, name varchar(30), state_id int);
 create table state( id int not null primary key, name varchar(30), capital_city_id int);
@@ -182,7 +201,7 @@ alter table state add constraint state_fk foreign key ( capital_city_id ) refere
 SQL
         ));
          
-        return array_map( function($a) { return array($a[0],$a[1],SqlParser::parse($a[2])); }, $data );
+        return array_map( function($a) { return array($a[0],$a[1],$a[2],SqlParser::parse($a[3])); }, $data );
     }
 
     //

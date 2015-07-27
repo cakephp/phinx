@@ -77,14 +77,22 @@ class SchemaDumpTest extends \PHPUnit_Framework_TestCase
      * 3 tables, 2 of which are seed tables
      */
     private static $setup_script = <<<SQL
-create table test_seed(id int not null primary key, ext_id int);
-insert into test_seed select 1, 1 union select 2,2;
-create table test_seed2(id int not null primary key,  v varchar(10));
+create table test_seed(id int not null primary key, ext_id int, ext_id2 int);
+create table test_seed2(id int not null primary key, v varchar(10));
+create table test_seed3(id int not null primary key, v varchar(10));
+
+insert into test_seed select 1,1,1 union select 2,2,1;
 insert into test_seed2 select 1, 'fuzzie' union select 2, 'wuzzie';
+insert into test_seed3 select 1, 'was a';
+
 alter table test_seed add constraint test_fk foreign key ( ext_id ) references test_seed2 ( id ) on delete cascade on update cascade;
+alter table test_seed add constraint test_fk2 foreign key ( ext_id2 ) references test_seed3( id ) on delete cascade on update cascade;
+
 create table foo_users(user_id int not null primary key, name varchar(10), constraint foo_u unique (user_id,name));
+
 create index foo_nu on foo_users(name);
-insert into foo_users select 1, 'jimmy';
+
+insert into foo_users select 1, 'bear';
 SQL;
 
     public static function setUpBeforeClass()
@@ -102,7 +110,7 @@ SQL;
                 'seeds' => array(
                     'tables' => array(
                         array('name'=>'test_seed', 'where'=>'id>=0'),
-                        'test_seed2')
+                        'test_seed2', 'test_seed3')
                     ),
                 'environments' => array(
                     'default_migration_table' => 'testing_seed_log',
@@ -200,9 +208,9 @@ SQL;
 
         $this->assertTrue(static::$sql_info[$adapter]['dumped_migration_structure'], 'schema dump should include migration log table structure');
 
-        // make sure that 4 table statements are present. 
-        // the three defined tables plus the schema log table
-        $this->assertCount(4, $creates);
+        // make sure that 5 table statements are present. 
+        // the four defined tables plus the schema log table
+        $this->assertCount(5, $creates);
 
         // make sure the schema table is listed explicitly
         $env = static::$managers[$adapter]->getConfig()->getEnvironment('phpunit');
@@ -223,10 +231,9 @@ SQL;
 
         $this->assertTrue(static::$sql_info[$adapter]['dumped_migration_data'], 'schema dump should include migration log table data');
 
-        // 2 record from test_seed, 2 from test_seed2
+        // 2 record from test_seed, 2 from test_seed2, 1 from test_seed3
         // plus 2 for phinx migration log
-        // t1,t2,t3 are in the seed config but do not exist
-        $this->assertCount(6, $inserts);
+        $this->assertCount(7, $inserts);
 
         foreach($inserts as $insert) {
             $this->assertRegExp('/\b(test_seed\d?|testing_seed_log)\b/', $insert,'should only dump the seed tables specified + migration_table');
@@ -239,7 +246,18 @@ SQL;
     public function testPrimaryKeys($adapter)
     {
         $pks = $this->sql('primaryKeys', $adapter);
-        $this->assertCount(3, $pks, 'adapters should include primary key data in table creation sql');
+        $this->assertCount(4, $pks, 'adapters should include primary key data in table creation sql');
+    }
+
+    /**
+     * @dataProvider getAdapters()
+     */
+    public function testForeignKeys($adapter)
+    {
+        if($adapter=='sqlite')
+            $this->markTestSkipped('sqlite adapter doesn\'t support foreign keys right now');
+        $fks = $this->sql('foreignKeys', $adapter);
+        $this->assertCount(2, $fks, 'adapter should dump right number of foreign keys');
     }
 
     /**
@@ -262,7 +280,6 @@ SQL;
             $this->markTestSkipped('sqlite adapter doesn\'t support foreign keys right now');
         
         $fks = $this->sql('foreignKeys', $adapter);
-        $this->assertCount(1, $fks);
 
         foreach($fks as $fk) {
             $this->assertRegExp('/ON DELETE CASCADE/mi', $fk, 'onDelete action should be returned in foreign key create statement');
@@ -297,6 +314,7 @@ SQL;
      * @depends testSchemaCorrectTables
      * @depends testSchemaCorrectSeeds
      * @depends testPrimaryKeys
+     * @depends testForeignKeys
      * @depends testForeignKeysAfterCreate
      * @depends testForeignKeyActions
      * @depends testNormalIndexes
@@ -307,7 +325,7 @@ SQL;
         $manager = static::$managers[$adapter];
         $adapterObj = $manager->getEnvironment('phpunit')->getAdapter();
         // kill and recreate the test schema
-        foreach(array('test_seed','test_seed2','foo_users','testing_seed_log') as $t) {
+        foreach(array('test_seed','test_seed2','test_seed3','foo_users','testing_seed_log') as $t) {
             if( $adapterObj->hasTable($t) )
                 $adapterObj->dropTable($t);
         }

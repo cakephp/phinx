@@ -1171,9 +1171,9 @@ select r.constraint_catalog,
    and r.table_name = ?");
 
         $stmt->execute(array($this->getOption('name'), $table->getName()));
-        $row = $stmt->fetch();
+        $rows = $stmt->fetchAll();
 
-        if( $row ) {
+        foreach( $rows as $row ) {
             $fk = new ForeignKey();
             $fk->setConstraint($row['constraint_name']);
             $fk->setReferencedTable(new Table($row['referenced_table_name']));
