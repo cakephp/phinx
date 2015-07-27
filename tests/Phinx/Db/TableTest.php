@@ -191,6 +191,8 @@ class TableTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('created_at', $columns[0]->getName());
         $this->assertEquals('timestamp', $columns[0]->getType());
+        $this->assertEquals('CURRENT_TIMESTAMP', $columns[0]->getDefault());
+        $this->assertEquals('', $columns[0]->getUpdate());
 
         $this->assertEquals('updated_at', $columns[1]->getName());
         $this->assertEquals('timestamp', $columns[1]->getType());

@@ -714,6 +714,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_DATE:
             case static::PHINX_TYPE_BOOLEAN:
             case static::PHINX_TYPE_JSON:
+            case static::PHINX_TYPE_JSONB:
             case static::PHINX_TYPE_UUID:
                 return array('name' => $type);
             case static::PHINX_TYPE_STRING:
@@ -770,8 +771,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'char':
                 return static::PHINX_TYPE_CHAR;
             case 'text':
-            case 'json':
                 return static::PHINX_TYPE_TEXT;
+            case 'json':
+                return static::PHINX_TYPE_JSON;
+            case 'jsonb':
+                return static::PHINX_TYPE_JSONB;
             case 'int':
             case 'int4':
             case 'integer':
@@ -958,9 +962,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
     {
-        $def = ' CONSTRAINT "';
-        $def .= $tableName . '_' . implode('_', $foreignKey->getColumns());
-        $def .= '" FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
+        $constraintName = $foreignKey->getConstraint() ?: $tableName . '_' . implode('_', $foreignKey->getColumns());
+        $def = ' CONSTRAINT "' . $constraintName . '" FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
         $def .= " REFERENCES {$foreignKey->getReferencedTable()->getName()} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
         if ($foreignKey->getOnDelete()) {
             $def .= " ON DELETE {$foreignKey->getOnDelete()}";
@@ -1101,7 +1104,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('json'));
+        return array_merge(parent::getColumnTypes(), array('json', 'jsonb'));
     }
 
     /**

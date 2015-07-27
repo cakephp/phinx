@@ -35,7 +35,7 @@ Phinx natively supports the following database adapters:
 
 ### Composer
 
-The fastest way to install Phinx in your project is using Composer (http://getcomposer.org/).
+The fastest way to install Phinx is to add it to your project using Composer (http://getcomposer.org/).
 
 1. Install Composer:
 
