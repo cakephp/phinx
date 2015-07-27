@@ -186,7 +186,7 @@ class Manager
                 $this->executeMigration($environment, $migration, MigrationInterface::UP);
             }
         }
-				$env->getAdapter()->disconnect();
+        $env->getAdapter()->disconnect();
     }
 
     /**
