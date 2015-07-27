@@ -988,14 +988,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         return $def;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function createSchemaTable()
-    {
-        return parent::createSchemaTable();
-    }
-
      /**
       * {@inheritdoc}
       */
@@ -1191,6 +1183,9 @@ select table_schema || '.' || table_name table_name
         $sql .= ");\n";
 
         // set the indexes
+        // NOTE: pg_catalog unfortuantely changes a lot between pg versions.
+        // while this *should* be fine in newer versions of pgsql, it has only
+        // been tested in pg 9. it does _not_ work for 8.4 and earlier.
         $pg_magic = <<<SQL
 select pg_catalog.pg_get_indexdef(i.indexrelid, 0, true) index_sql, contype, c2.relname index_name
 from pg_catalog.pg_class c, 
@@ -1218,6 +1213,7 @@ SQL;
      */
     public function listForeignKeyDefinitions(Table $table)
     {
+        // as above, query based on pgsql 9.
         $pg_magic = sprintf("
 select conname, pg_catalog.pg_get_constraintdef(r.oid, true) as def 
   from pg_catalog.pg_constraint r 
