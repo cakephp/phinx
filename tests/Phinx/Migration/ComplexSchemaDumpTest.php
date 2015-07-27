@@ -114,9 +114,13 @@ class ComplexSchemaDumpTest extends \PHPUnit_Framework_TestCase
             $a->createSchema($conf['environments']['phpunit']['schema']);
         } else {
             $a->dropDatabase($conf['environments']['phpunit']['name']);
+            if(static::$adapter=='mysql')
+                $a->query('set storage_engine=InnoDB');
             $a->createDatabase($conf['environments']['phpunit']['name']);
         }
         $a->disconnect();
+        if(static::$adapter=='mysql')
+            $a->query('set storage_engine=InnoDB');
         $a->createSchemaTable();
 
         $this->temp_file = tempnam( sys_get_temp_dir(), "phinxDump_complex");

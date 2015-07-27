@@ -476,6 +476,7 @@ class Manager
             $schema_file = $outfile;
 
         $env = $this->getEnvironment($environment);
+
         $adapter = $env->getAdapter();
 
         $options = $env->getOptions();
@@ -498,6 +499,9 @@ class Manager
             $args[0][0], $args[0][1], $args[1][0], $args[1][1]));
 
         $foreign_keys=array();
+
+	if(!$adapter->hasSchemaTable())
+            $adapter->createSchemaTable();
 
         foreach( $adapter->listTables($db) as $table )
         {

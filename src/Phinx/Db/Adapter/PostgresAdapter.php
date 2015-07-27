@@ -1158,7 +1158,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $tables=array();
 
         $stmt = $this->getConnection()->prepare("
-select concat(table_schema,'.', table_name) table_name
+select table_schema || '.' || table_name table_name
   from information_schema.tables
  where table_type = 'BASE TABLE'
    and table_catalog = ?

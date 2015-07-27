@@ -88,8 +88,9 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testQuoteTableName()
     {
-        $this->assertEquals('"public"."table"', $this->adapter->quoteTableName('table'));
-        $this->assertEquals('"public"."table.table"', $this->adapter->quoteTableName('table.table'));
+        $schema = '"'.TESTS_PHINX_DB_ADAPTER_PGSQL_DATABASE_SCHEMA.'"';
+        $this->assertEquals($schema.'."table"', $this->adapter->quoteTableName('table'));
+        $this->assertEquals($schema.'."table.table"', $this->adapter->quoteTableName('table.table'));
     }
 
     public function testQuoteColumnName()

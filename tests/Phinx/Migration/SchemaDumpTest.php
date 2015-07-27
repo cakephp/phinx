@@ -38,11 +38,6 @@ class SchemaDumpTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @var string
-     */
-    private static $migration_table = 'testing_seed_log';
-
-    /**
      * @var Manager[]
      */
     private static $managers=array();
@@ -110,7 +105,7 @@ SQL;
                         'test_seed2')
                     ),
                 'environments' => array(
-                    'default_migration_table' => static::$migration_table,
+                    'default_migration_table' => 'testing_seed_log',
                     'default_environment' => 'phpunit',
                     'phpunit' => array(
                         'adapter' => $adapter,
@@ -139,9 +134,13 @@ SQL;
                 $adapterObj->createSchema($conf['environments']['phpunit']['schema']);
             } else {
                 $adapterObj->dropDatabase($conf['environments']['phpunit']['name']);
+                if($adapter=='mysql')
+                    $adapterObj->query('set storage_engine=InnoDB');
                 $adapterObj->createDatabase($conf['environments']['phpunit']['name']);
             }
             $adapterObj->disconnect();
+            if($adapter=='mysql')
+                $adapterObj->query('set storage_engine=InnoDB');
             $adapterObj->createSchemaTable();
 
             // setup the schema
@@ -155,8 +154,9 @@ select 1, ?, ?
  union 
 select 123456, ?, ?
 SQL;
-            if( $adapter == 'pgsql' )
-                $time_sql = str_replace('?','?::timestamp', $time_sql);
+            if( $adapter == 'pgsql' ) {
+                $time_sql = str_replace('?','cast(? as timestamp)', $time_sql);
+            }
             $st = $adapterObj->getConnection()->prepare($time_sql);
             $st->execute(array('2014-01-01 00:00:01','2014-01-01 00:00:02',
                 '2015-01-01 00:01:00','2015-01-01 00:05:00'));
@@ -229,7 +229,7 @@ SQL;
         $this->assertCount(6, $inserts);
 
         foreach($inserts as $insert) {
-            $this->assertRegExp('/\b(test_seed\d?|' . static::$migration_table .')\b/', $insert,'should only dump the seed tables specified + migration_table');
+            $this->assertRegExp('/\b(test_seed\d?|testing_seed_log)\b/', $insert,'should only dump the seed tables specified + migration_table');
         }
     }
 
@@ -239,8 +239,6 @@ SQL;
     public function testPrimaryKeys($adapter)
     {
         $pks = $this->sql('primaryKeys', $adapter);
-        #print_r($pks);
-        #print $this->getSchemaDump($adapter);
         $this->assertCount(3, $pks, 'adapters should include primary key data in table creation sql');
     }
 
@@ -309,7 +307,7 @@ SQL;
         $manager = static::$managers[$adapter];
         $adapterObj = $manager->getEnvironment('phpunit')->getAdapter();
         // kill and recreate the test schema
-        foreach(array('test_seed','test_seed2','foo_users',static::$migration_table) as $t) {
+        foreach(array('test_seed','test_seed2','foo_users','testing_seed_log') as $t) {
             if( $adapterObj->hasTable($t) )
                 $adapterObj->dropTable($t);
         }
@@ -347,13 +345,13 @@ SQL;
             if( preg_match('/^CREATE TABLE/i', $sql) ) {
                 $info['creates'][] = $sql;
                 $info['max_create_line']=$line;
-                if( preg_match('/\b'.static::$migration_table.'\b/i', $sql) )
+                if( preg_match('/\btesting_seed_log\b/i', $sql) )
                     $info['dumped_migration_structure']=true;
             }
 
             if( preg_match('/^INSERT INTO/i', $sql) ) {
                 $info['inserts'][] = $sql;
-                if( preg_match('/\b'.static::$migration_table.'\b/i', $sql) )
+                if( preg_match('/\btesting_seed_log\b/i', $sql) )
                     $info['dumped_migration_data']=true;
             }
 
