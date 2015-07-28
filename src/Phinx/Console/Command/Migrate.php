@@ -84,21 +84,6 @@ EOT
             $endAll = microtime(true);
             $output->writeln('<comment>All databases complete. Took ' . sprintf('%.4fs', $endAll - $startAll) . '</comment>');
             return;
-        } else if (sscanf($environment, "%d/%d", $offset, $division) == 2) {
-            $startAll = microtime(true);
-            $environmentCount = count($this->config['environments']);
-            for($i = $offset; $i < $environmentCount; $i += $division) {
-                $environmentNames = array_keys($this->config['environments']);
-                $environmentName = $environmentNames[$i];
-                if ($environmentName == 'default_migration_table' || $environmentName == 'default_database') {
-                    continue;
-                }
-                $input->setOption('environment', $environmentName);
-                $this->execute($input, $output);
-            }
-            $endAll = microtime(true);
-            $output->writeln('<comment>All databases complete. Took ' . sprintf('%.4fs', $endAll - $startAll) . '</comment>');
-            return;
         }
 
         if (null === $environment) {
