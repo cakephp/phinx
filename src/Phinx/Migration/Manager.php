@@ -273,7 +273,7 @@ class Manager
                 $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
             }
         }
-        $env->getAdapter->disconnect();
+        $env->getAdapter()->disconnect();
     }
 
     /**

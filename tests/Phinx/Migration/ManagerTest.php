@@ -107,7 +107,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testPrintStatusMethodWithMissingMigrations()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', null, array('mockenv', array()));
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array('getVersions'), array('mockenv', array()));
         $envStub->expects($this->once())
                 ->method('getVersions')
                 ->will($this->returnValue(array('20120103083300', '20120815145812')));
