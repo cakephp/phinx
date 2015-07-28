@@ -72,6 +72,20 @@ EOT
         $environment = $input->getOption('environment');
         $version = $input->getOption('target');
 
+        if ($environment == 'all') {
+            $startAll = microtime(true);
+            foreach (array_keys($this->config['environments']) as $environmentName) {
+                if ($environmentName == 'default_migration_table' || $environmentName == 'default_database') {
+                    continue;
+                }
+                $input->setOption('environment', $environmentName);
+                $this->execute($input, $output);
+            }
+            $endAll = microtime(true);
+            $output->writeln('<comment>All databases complete. Took ' . sprintf('%.4fs', $endAll - $startAll) . '</comment>');
+            return;
+        }
+
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
@@ -90,7 +104,21 @@ EOT
 
         // rollback the specified environment
         $start = microtime(true);
-        $this->getManager()->rollback($environment, $version);
+        try {
+            $this->getManager()->rollback($environment, $version);
+        } catch (\PDOException $exception) {
+            $message = $exception->getMessage();
+            $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
+            $errors[$environment][] = $message;
+        } catch (\InvalidArgumentException $exception) {
+            $message = $exception->getMessage();
+            $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
+            $errors[$environment][] = $message;
+        } catch (IrreversibleMigrationException $exception) {
+            $message = $exception->getMessage();
+            $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
+            $errors[$environment][] = $message;
+        }
         $end = microtime(true);
 
         $output->writeln('');
