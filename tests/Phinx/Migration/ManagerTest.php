@@ -65,15 +65,17 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testPrintStatusMethod()
     {
-        // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
-        $envStub->expects($this->once())
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array('getVersions'), array('mockenv', array()));
+        $envStub->expects($this->any())
                 ->method('getVersions')
                 ->will($this->returnValue(array('20120111235330', '20120116183504')));
-
+        $mockadapter = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')->disableOriginalConstructor()->setMethods(['disconnect'])->getMock();
+        $mockadapter->expects($this->any())
+                ->method('disconnect');
+        $envStub->setAdapter($mockadapter);
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->printStatus('mockenv');
-
+        
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
         $this->assertRegExp('/up  20120111235330  TestMigration/', $outputStr);
@@ -83,8 +85,11 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testPrintStatusMethodWithNoMigrations()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
-
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', null, array('mockenv', array()));
+        $mockadapter = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')->disableOriginalConstructor()->setMethods(['disconnect'])->getMock();
+        $mockadapter->expects($this->any())
+                ->method('disconnect');
+        $envStub->setAdapter($mockadapter);
         // override the migrations directory to an empty one
         $configArray = $this->getConfigArray();
         $configArray['paths']['migrations'] = $this->getCorrectedPath(__DIR__ . '/_files/nomigrations');
@@ -102,11 +107,14 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testPrintStatusMethodWithMissingMigrations()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', null, array('mockenv', array()));
         $envStub->expects($this->once())
                 ->method('getVersions')
                 ->will($this->returnValue(array('20120103083300', '20120815145812')));
-
+        $mockadapter = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')->disableOriginalConstructor()->setMethods(['disconnect'])->getMock();
+        $mockadapter->expects($this->any())
+                ->method('disconnect');
+        $envStub->setAdapter($mockadapter);
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->printStatus('mockenv');
 
