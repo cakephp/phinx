@@ -69,7 +69,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $envStub->expects($this->any())
                 ->method('getVersions')
                 ->will($this->returnValue(array('20120111235330', '20120116183504')));
-        $mockadapter = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')->disableOriginalConstructor()->setMethods(['disconnect'])->getMock();
+        $mockadapter = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')->disableOriginalConstructor()->setMethods(array('disconnect'))->getMock();
         $mockadapter->expects($this->any())
                 ->method('disconnect');
         $envStub->setAdapter($mockadapter);
@@ -86,7 +86,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', null, array('mockenv', array()));
-        $mockadapter = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')->disableOriginalConstructor()->setMethods(['disconnect'])->getMock();
+        $mockadapter = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')->disableOriginalConstructor()->setMethods(array('disconnect'))->getMock();
         $mockadapter->expects($this->any())
                 ->method('disconnect');
         $envStub->setAdapter($mockadapter);
@@ -111,7 +111,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $envStub->expects($this->once())
                 ->method('getVersions')
                 ->will($this->returnValue(array('20120103083300', '20120815145812')));
-        $mockadapter = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')->disableOriginalConstructor()->setMethods(['disconnect'])->getMock();
+        $mockadapter = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')->disableOriginalConstructor()->setMethods(array('disconnect'))->getMock();
         $mockadapter->expects($this->any())
                 ->method('disconnect');
         $envStub->setAdapter($mockadapter);
