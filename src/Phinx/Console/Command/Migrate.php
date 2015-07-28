@@ -88,7 +88,8 @@ EOT
             $startAll = microtime(true);
             $environmentCount = count($this->config['environments']);
             for($i = $offset; $i < $environmentCount; $i += $division) {
-                $environmentName = array_keys($this->config['environments'])[$i];
+                $environmentNames = array_keys($this->config['environments']);
+                $environmentName = $environmentNames[$i];
                 if ($environmentName == 'default_migration_table' || $environmentName == 'default_database') {
                     continue;
                 }
