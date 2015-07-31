@@ -182,7 +182,7 @@ abstract class PdoAdapter implements AdapterInterface
         if (!$this->hasSchemaTable()) {
             $this->createSchemaTable();
         } else{
-            $table = new Table($this->getSchemaTableName(), [], $this);
+            $table = new Table($this->getSchemaTableName(), array(), $this);
             if (!$table->hasColumn('breakpoint')) {
                 $table
                     ->addColumn('breakpoint', 'boolean')
