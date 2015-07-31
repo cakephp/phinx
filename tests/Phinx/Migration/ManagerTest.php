@@ -70,7 +70,25 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
                 ->method('getVersions')
-                ->will($this->returnValue(array('20120111235330', '20120116183504')));
+                ->with(true)
+                ->will($this->returnValue(
+                    array (
+                        '20120111235330' =>
+                            array (
+                                'version' => '20120111235330',
+                                'start_time' => '2012-01-11 23:53:36',
+                                'end_time' => '2012-01-11 23:53:37',
+                                'breakpoint' => '0',
+                            ),
+                        '20120116183504' =>
+                            array (
+                                'version' => '20120116183504',
+                                'start_time' => '2012-01-16 18:35:40',
+                                'end_time' => '2012-01-16 18:35:41',
+                                'breakpoint' => '0',
+                            ),
+                    )
+                ));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $return = $this->manager->printStatus('mockenv');
@@ -108,7 +126,32 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
                 ->method('getVersions')
-                ->will($this->returnValue(array('20120103083300', '20120815145812')));
+                ->will($this->returnValue(
+                    array (
+                        '20120103083300' =>
+                            array (
+                                'version' => '20120103083300',
+                                0 => '20120103083300',
+                                'start_time' => '2012-01-11 23:53:36',
+                                1 => '2012-01-11 23:53:36',
+                                'end_time' => '2012-01-11 23:53:37',
+                                2 => '2012-01-11 23:53:37',
+                                'breakpoint' => '0',
+                                3 => '0',
+                            ),
+                        '20120815145812' =>
+                            array (
+                                'version' => '20120815145812',
+                                0 => '20120815145812',
+                                'start_time' => '2012-01-16 18:35:40',
+                                1 => '2012-01-16 18:35:40',
+                                'end_time' => '2012-01-16 18:35:41',
+                                2 => '2012-01-16 18:35:41',
+                                'breakpoint' => '0',
+                                3 => '0',
+                            ),
+                    )
+                ));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $return = $this->manager->printStatus('mockenv');
