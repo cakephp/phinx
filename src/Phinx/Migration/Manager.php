@@ -371,7 +371,8 @@ class Manager
         asort($versions);
 
         // Check we have at least 1 migration to revert
-        if (empty($versions) || $version == end($versions)['version']) {
+        $lastVersion = end($versions);
+        if (empty($versions) || $version == $lastVersion['version']) {
             $this->getOutput()->writeln('<error>No migrations to rollback</error>');
             return;
         }
