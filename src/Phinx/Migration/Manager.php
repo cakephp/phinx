@@ -378,13 +378,18 @@ class Manager
         }
 
         // If no target version was supplied, revert the last migration
+        $versionKeys = array_keys($versions);
         if (null === $version) {
             // Get the migration before the last run migration
             $prev = count($versions) - 2;
-            $version = $prev >= 0 ? array_keys($versions)[$prev] : 0;
+            if (0 == $prev){
+                $version = 0;
+            } else {
+                $version = $versionKeys[$prev];
+            }
         } else {
             // Get the first migration number
-            $first = reset($versions)['version'];
+            $first = $versionKeys[0];
 
             // If the target version is before the first migration, revert all migrations
             if ($version < $first) {
