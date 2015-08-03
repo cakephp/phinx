@@ -45,7 +45,7 @@ class ConfigDefaultEnvironmentTest extends AbstractConfigTest
     {
         // set dummy
         $dummyEnv = 'conf-test';
-        putenv('PHINX_ENVIRONMENT='.$dummyEnv);
+        putenv('PHINX_ENVIRONMENT=' . $dummyEnv);
 
         try {
             $config = new Config(array());
