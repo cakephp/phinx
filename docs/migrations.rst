@@ -628,7 +628,7 @@ To rename a column access an instance of the Table object then call the
 Adding a Column After Another Column
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When adding a column you can dictate it's position using the ``after`` option.
+When adding a column you can dictate its position using the ``after`` option.
 
 .. code-block:: php
 
