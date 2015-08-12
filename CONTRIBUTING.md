@@ -63,4 +63,4 @@ Great, so you want to contribute. Let's get started:
 ## Documentation
 
 The Phinx documentation is stored in the **docs** directory using the [RestructedText](http://docutils.sourceforge.net/rst.html) format. All documentation merged to `master` is automatically published to the Phinx documentation site available
-at: http://docs.phinx.org.
+at: http://docs.phinx.org. Keep this in mind when submitting your PR, or ask someone to merge the development branch back down to master.
