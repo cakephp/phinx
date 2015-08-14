@@ -225,7 +225,7 @@ class Manager
      * @param int $version
      * @return void
      */
-    public function rollback($environment, $version = null)
+    public function rollback($environment, $version = null, $individual = false)
     {
         $migrations = $this->getMigrations();
         $env = $this->getEnvironment($environment);
@@ -235,7 +235,7 @@ class Manager
         sort($versions);
 
         // Check we have at least 1 migration to revert
-        if (empty($versions) || $version == end($versions)) {
+        if (empty($versions)) {
             $this->getOutput()->writeln('<error>No migrations to rollback</error>');
             return;
         }
@@ -252,6 +252,14 @@ class Manager
             // If the target version is before the first migration, revert all migrations
             if ($version < $first) {
                 $version = 0;
+            }
+        }
+
+        if($individual) {
+            $migration = $migrations[$version];
+            if (in_array($migration->getVersion(), $versions)) {                
+                $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                return;
             }
         }
 

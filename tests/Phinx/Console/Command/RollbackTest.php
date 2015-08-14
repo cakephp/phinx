@@ -79,6 +79,54 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
     }
 
+    public function testExecuteWithVersionOption()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        // setup dependencies
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub->expects($this->once())
+                    ->method('rollback')
+                    ->with('fakeenv', '283492874');
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv', '--target' => '283492874'));
+        $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
+    }
+
+    public function testExecuteWithIndividualVersionOption()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        // setup dependencies
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub->expects($this->once())
+                    ->method('rollback')
+                    ->with('fakeenv', '283492874', true);
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv', '--target' => '283492874', '--individual' => 'true'));
+        $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
+    }
+
     public function testDatabaseNameSpecified()
     {
         $application = new \Phinx\Console\PhinxApplication('testing');
