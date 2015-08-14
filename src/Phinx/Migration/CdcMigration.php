@@ -1,11 +1,11 @@
 <?php
-/**
- * CDC all the things in the grail and elp databases (for GRAIL-705, 706)
- */
+
 use Phinx\Migration\AbstractMigration;
 
 class CdcMigration extends AbstractMigration
 {
+	private $db_name = '';
+
 	/**
 	 * CDC method types.
 	 */
@@ -33,22 +33,20 @@ class CdcMigration extends AbstractMigration
 	/**
 	 * Migrate Up.
 	 */
-	public function up($db_names=array())
+	public function up()
 	{
 		// get the list of tables currently in the CDC db and save it for use during rollback...
 		$existing_cdc_tables = $this->getTableNames($this->cdc_db);
 
 		// get the triggers from the source dbs...
-		foreach ($db_names as $db_name) {
-			$triggers[$db_name] = $this->getTriggers($db_name);
-		}
+		$triggers = $this->getTriggers($this->db_name);
 
 		// make a master list of these db objects and their types to save db state prior to migration...
 		$existing_db_objs = array();
 		foreach ($existing_cdc_tables as $table) {
 			$existing_db_objs[$table] = 'table';
 		}
-		foreach (array_merge($triggers['grail'], $triggers['elp_1']) as $trigger) {
+		foreach ($triggers as $trigger) {
 			$existing_db_objs[$trigger] = 'trigger';
 		}
 
@@ -56,17 +54,16 @@ class CdcMigration extends AbstractMigration
 		$this->saveRollbackIgnoreList($existing_db_objs);
 
 		// there are overlapping tables, but if these 2 statements are in this particular order, it shouldn't be a problem...
-		foreach ($db_names as $db_name) {
-			$this->createCDC(
-				$db_name,
-				array('cdc_', 'bak', 'phinx'), // skip the bak, phinx and cdc tables...
-				$existing_cdc_tables,
-				$triggers[$db_name]
-			);
-		}
+		$this->createCDC(
+			array(
+				'db_name'         => $this->db_name,
+				'ignore_prefixes' => array('cdc_', 'bak', 'phinx'),
+				'ignore_tables'   => $existing_cdc_tables,
+				'ignore_triggers' => $triggers[$this->db_name]
+			)
+		);
 
-		// switch back to grail for Phinx's sake...
-		$this->execute("USE grail");
+		$this->execute("USE {$this->db_name}");
 	}// end fn
 
 	/**
@@ -75,11 +72,10 @@ class CdcMigration extends AbstractMigration
 	public function down()
 	{
 		// roll back the CDC's...
-		$this->removeCDC('grail');
-		$this->removeCDC('elp_1');
+		$this->removeCDC($this->db_name);
 
 		// for Phinx...
-		$this->execute("USE grail");
+		$this->execute("USE {$this->db_name}");
 	}
 
 	/**
@@ -193,18 +189,19 @@ class CdcMigration extends AbstractMigration
 	}//end fn
 
 	/**
-	 * @param $db_source
-	 * @param array $ignore_prefixes : An array of table prefixes we don't want included.
-	 * @param array $ignore_tables : An array of specific tables we don't want included or recreated.
-	 * @param array $ignore_triggers : An array of triggers we don't want included or recreated.
+	 * @param $params
 	 */
-	private function createCDC(
-		$db_source,
-		$ignore_prefixes=array(),
-		$ignore_tables=array(),
-		$ignore_triggers=array()
-	)
+	private function createCDC($params=array())
 	{
+		if (!isset($params['db_source'])) {
+			return;
+		} else {
+			$db_source = $params['db_source'];
+		}
+		isset($params['db_source']) ? $ignore_prefixes = $params['ignore_prefixes'] : $ignore_prefixes = array();
+		isset($params['ignore_tables']) ? $ignore_tables = $params['ignore_tables'] : $ignore_tables = array();
+		isset($params['ignore_triggers']) ? $ignore_triggers = $params['ignore_triggers'] : $ignore_triggers = array();
+
 		$tables = $this->getTableNames($db_source, $ignore_prefixes);
 
 		if ($this->create_sql_file) {
@@ -217,14 +214,14 @@ class CdcMigration extends AbstractMigration
 		// create the CDC table for each original table in the db...
 		foreach ($tables as $table) {
 			// gather column information for the table...
-			$results = $this->fetchAll(sprintf('DESCRIBE %s.%s', $db_source, $table));
+			$results = $this->fetchAll("DESCRIBE `$db_source`.`$table`");
 
 			if (!in_array($table, $ignore_tables)) {
 				// start assembling the create CDC table query...
 				$query = "CREATE TABLE IF NOT EXISTS ";
 				$query .= "`$this->cdc_db`.`$table` (\n";
 
-				$query .= sprintf("  `%s_id` int(11) NOT NULL AUTO_INCREMENT,\n", $this->cdc_db);
+				$query .= "  `{$this->cdc_db}_id` int(11) NOT NULL AUTO_INCREMENT,\n";
 
 				// CDC change data columns...
 				$query .= "  `change_type` char(1) DEFAULT NULL,\n";
@@ -276,15 +273,14 @@ class CdcMigration extends AbstractMigration
 					if ($key == 'del') $direction = 'old';
 					$action_time = 'AFTER';
 
-					$trigger = sprintf("USE `%s`;\n", $db_source);
-					$trigger .= sprintf("DROP TRIGGER IF EXISTS `%s`;\n", $trigger_name);
+					$trigger = "USE `$db_source`;\n";
+					$trigger .= "DROP TRIGGER IF EXISTS `$trigger_name`;\n";
 					// $trigger .= "DELIMITER $$\n";
-					$trigger .= sprintf("CREATE TRIGGER `%s`\n  %s %s ON `%s`.`%s`\n",
-						$trigger_name, $action_time, $method, $db_source, $table);
+					$trigger .= "CREATE TRIGGER `$trigger_name`\n  $action_time $method ON `$db_source`.`$table`\n";
 
 					$trigger .= "FOR EACH ROW\n";
 					$trigger .= "BEGIN\n";
-					$trigger .= sprintf("  INSERT INTO `$this->cdc_db`.`$table` (`change_type`, `capture_date`)";
+					$trigger .= "  INSERT INTO `$this->cdc_db`.`$table` (`change_type`, `capture_date`)";
 
 					// each original field...
 					foreach ($results as $row) {
@@ -295,7 +291,7 @@ class CdcMigration extends AbstractMigration
 
 					// insert into new CDC field...
 					foreach ($results as $row) {
-						$trigger .= sprintf(", `%s`.`%s`", $direction, $row['Field']);
+						$trigger .= ", `$direction`.`{$row['Field']}`";
 					}
 					$trigger .= ");\n";
 					$trigger .= "END";
