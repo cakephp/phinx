@@ -25,11 +25,45 @@ class UtilTest extends \PHPUnit_Framework_TestCase
         $expectedResults = array(
             'CamelCase87afterSomeBooze'   => '/^\d{14}_camel_case87after_some_booze\.php$/',
             'CreateUserTable'             => '/^\d{14}_create_user_table\.php$/',
-            'LimitResourceNamesTo30Chars' => '/^\d{14}_limit_resource_names_to30_chars\.php$/',
+            'LimitResourceNamesTo30Chars' => '/^\d{14}_limit_resource_names_to30_chars\.php$/'
         );
 
         foreach ($expectedResults as $input => $expectedResult) {
             $this->assertRegExp($expectedResult, Util::mapClassNameToFileName($input));
+        }
+    }
+
+    public function testMapFileNameToClassName()
+    {
+        $expectedResults = array(
+            '20150601153940_camel_case87after_some_booze.php' => '/^CamelCase87afterSomeBooze$/'
+        );
+
+        foreach ($expectedResults as $input => $expectedResult) {
+            $this->assertRegExp($expectedResult, Util::mapFileNameToClassName($input));
+        }
+    }
+
+    public function testIsValidMigrationFilePath(){
+        $expectedResults = array(
+            '/some/path/20150601153656_create_user_table.php'         => true,
+            '/some/Other Path/20150601153656_another_migration.php'   => true,
+            '/some/ugly/path/20150601153656_das_ist_unschön.php'   => false
+        );
+
+
+        foreach ($expectedResults as $input => $expectedResult) {
+            $this->assertEquals($expectedResult, Util::isValidMigrationFilePath($input));
+        }
+    }
+
+    public function testGetVersionFromMigrationFilePath(){
+        $expectedResults = array(
+            '20150601153940_some_migration.php' => '/^20150601153940$/'
+        );
+
+        foreach ($expectedResults as $input => $expectedResult) {
+            $this->assertRegExp($expectedResult, Util::getVersionFromMigrationFilePath($input));
         }
     }
 
@@ -39,7 +73,8 @@ class UtilTest extends \PHPUnit_Framework_TestCase
             'CAmelCase'         => false,
             'CreateUserTable'   => true,
             'Test'              => true,
-            'test'              => false
+            'test'              => false,
+            'Häßlich'         => false
         );
 
         foreach ($expectedResults as $input => $expectedResult) {
