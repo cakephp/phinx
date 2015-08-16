@@ -1,8 +1,6 @@
 <?php
 
-use Phinx\Migration\AbstractMigration;
-
-class CdcMigration extends AbstractMigration
+trait CdcMigration
 {
 	private $db_name = '';
 
