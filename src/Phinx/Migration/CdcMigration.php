@@ -9,7 +9,7 @@ class CdcMigration extends AbstractMigration
 	/**
 	 * CDC method types.
 	 */
-	private $methods = array(
+	private $events = array(
 		'ins' => 'INSERT',
 		'upd' => 'UPDATE',
 		'del' => 'DELETE'
@@ -33,8 +33,17 @@ class CdcMigration extends AbstractMigration
 	/**
 	 * Migrate Up.
 	 */
-	public function up()
+	public function createCDC($params=array())
 	{
+		if (! isset($params['db_source'])) {
+			return;
+		} else {
+			$db_source = $params['db_source'];
+		}
+		isset($params['db_source']) ? $ignore_prefixes = $params['ignore_prefixes'] : $ignore_prefixes = array();
+		isset($params['ignore_tables']) ? $ignore_tables = $params['ignore_tables'] : $ignore_tables = array();
+		isset($params['ignore_triggers']) ? $ignore_triggers = $params['ignore_triggers'] : $ignore_triggers = array();
+
 		// get the list of tables currently in the CDC db and save it for use during rollback...
 		$existing_cdc_tables = $this->getTableNames($this->cdc_db);
 
@@ -54,25 +63,23 @@ class CdcMigration extends AbstractMigration
 		$this->saveRollbackIgnoreList($existing_db_objs);
 
 		// there are overlapping tables, but if these 2 statements are in this particular order, it shouldn't be a problem...
-		$this->createCDC(
-			array(
-				'db_name'         => $this->db_name,
-				'ignore_prefixes' => array('cdc_', 'bak', 'phinx'),
-				'ignore_tables'   => $existing_cdc_tables,
-				'ignore_triggers' => $triggers[$this->db_name]
-			)
+		$this->createCDCTablesAndTriggers(
+			$db_source,
+			$ignore_tables,
+			$ignore_triggers,
+			$ignore_prefixes
 		);
 
 		$this->execute("USE {$this->db_name}");
-	}// end fn
+	}
 
 	/**
 	 * Migrate Down.
 	 */
-	public function down()
+	public function removeCDC()
 	{
 		// roll back the CDC's...
-		$this->removeCDC($this->db_name);
+		$this->removeCDCTablesAndTriggers($this->db_name);
 
 		// for Phinx...
 		$this->execute("USE {$this->db_name}");
@@ -98,7 +105,7 @@ class CdcMigration extends AbstractMigration
 				$this->execute($sql);
 			}
 		}
-	}// end fn
+	}
 
 	/**
 	 * @return array
@@ -128,7 +135,7 @@ class CdcMigration extends AbstractMigration
 			}
 		}
 		return $db_objects;
-	}// end fn
+	}
 
 	/**
 	 * @param $db_from : The database to draw the table names from.
@@ -152,10 +159,10 @@ class CdcMigration extends AbstractMigration
 					$in_ignore_list = true;
 				}
 			}
-			if (!$in_ignore_list) $tables[] = $row[0];
+			if (! $in_ignore_list) $tables[] = $row[0];
 		}// foreach
 		return $tables;
-	}//end fn
+	}
 
 	/**
 	 * @param $db_from : The database to draw the trigger names from.
@@ -184,28 +191,22 @@ class CdcMigration extends AbstractMigration
 			if ($is_cdc_tr) {
 				$triggers[] = $row[0];
 			}
-		}// foreach
+		}
 		return $triggers;
-	}//end fn
+	}
 
 	/**
-	 * @param $params
+	 * @param $db_source
+	 * @param $ignore_tables
+	 * @param $ignore_triggers
+	 * @param $ignore_prefixes
 	 */
-	private function createCDC($params=array())
+	private function createCDCTablesAndTriggers($db_source, $ignore_tables, $ignore_triggers, $ignore_prefixes)
 	{
-		if (!isset($params['db_source'])) {
-			return;
-		} else {
-			$db_source = $params['db_source'];
-		}
-		isset($params['db_source']) ? $ignore_prefixes = $params['ignore_prefixes'] : $ignore_prefixes = array();
-		isset($params['ignore_tables']) ? $ignore_tables = $params['ignore_tables'] : $ignore_tables = array();
-		isset($params['ignore_triggers']) ? $ignore_triggers = $params['ignore_triggers'] : $ignore_triggers = array();
-
 		$tables = $this->getTableNames($db_source, $ignore_prefixes);
 
 		if ($this->create_sql_file) {
-			if (!file_exists('tmp/')) {
+			if (! file_exists('tmp/')) {
 				mkdir('tmp/', 0755);
 			}
 			file_put_contents($this->sql_filename, '');
@@ -214,9 +215,9 @@ class CdcMigration extends AbstractMigration
 		// create the CDC table for each original table in the db...
 		foreach ($tables as $table) {
 			// gather column information for the table...
-			$results = $this->fetchAll("DESCRIBE `$db_source`.`$table`");
+			$table_description = $this->fetchAll("DESCRIBE `$db_source`.`$table`");
 
-			if (!in_array($table, $ignore_tables)) {
+			if (! in_array($table, $ignore_tables)) {
 				// start assembling the create CDC table query...
 				$query = "CREATE TABLE IF NOT EXISTS ";
 				$query .= "`$this->cdc_db`.`$table` (\n";
@@ -228,25 +229,25 @@ class CdcMigration extends AbstractMigration
 				$query .= "  `capture_date` datetime DEFAULT NULL,\n";
 
 				// create each CDC table column from original table info...
-				foreach ($results as $row) {
-					if ($row['Type'] == 'timestamp') {
+				foreach ($table_description as $column) {
+					if ($column['Type'] == 'timestamp') {
 						$query .= sprintf(
 							"  `%s` %s %s,\n",
-							$row['Field'], 'datetime',
-							($row['Null'] === 'NO' ? 'NOT NULL' :
-								($row['Default'] === null ? 'DEFAULT NULL' : '')
+							$column['Field'], 'datetime',
+							($column['Null'] === 'NO' ? 'NOT NULL' :
+								($column['Default'] === null ? 'DEFAULT NULL' : '')
 							));
 					} else {
 						$query .= sprintf(
 							"  `%s` %s %s,\n",
-							$row['Field'], $row['Type'],
-							($row['Null'] === 'NO' ? 'NOT NULL' :
-								($row['Default'] === null ? 'DEFAULT NULL' : '')
+							$column['Field'], $column['Type'],
+							($column['Null'] === 'NO' ? 'NOT NULL' :
+								($column['Default'] === null ? 'DEFAULT NULL' : '')
 							));
 					}
-				}// foreach
+				}
 
-				$query .= sprintf("  PRIMARY KEY (`%s_id`)", $this->cdc_db);
+				$query .= "  PRIMARY KEY (`{$this->cdc_db}_id`)";
 				$query .= "\n) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n";
 				$query .= "\n";
 
@@ -261,37 +262,35 @@ class CdcMigration extends AbstractMigration
 						$e->getMessage(), $db_source, $table);
 					error_log($msg, 0);
 				}
-				// now create the INSERT, UPDATE and DELETE triggers for the newly-created CDC tablec...
-			}// end if
+			}
 
-			foreach ($this->methods as $key => $method) {
-				$trigger_name = sprintf("tr_%s_%s", $key, $table);
+			foreach ($this->events as $key => $event) {
+				$trigger_name = "tr_{$key}_{$table}";
 
-				if (!in_array($trigger_name, $ignore_triggers)) {
+				if (! in_array($trigger_name, $ignore_triggers)) {
 					// default is for handling inserts and updates...
-					$direction = 'new';
-					if ($key == 'del') $direction = 'old';
+					$key == 'del' ? $direction = 'old' : $direction = 'new';
 					$action_time = 'AFTER';
 
 					$trigger = "USE `$db_source`;\n";
 					$trigger .= "DROP TRIGGER IF EXISTS `$trigger_name`;\n";
 					// $trigger .= "DELIMITER $$\n";
-					$trigger .= "CREATE TRIGGER `$trigger_name`\n  $action_time $method ON `$db_source`.`$table`\n";
+					$trigger .= "CREATE TRIGGER `$trigger_name`\n  $action_time $event ON `$db_source`.`$table`\n";
 
 					$trigger .= "FOR EACH ROW\n";
 					$trigger .= "BEGIN\n";
 					$trigger .= "  INSERT INTO `$this->cdc_db`.`$table` (`change_type`, `capture_date`)";
 
 					// each original field...
-					foreach ($results as $row) {
-						$trigger .= ", `{$row['Field']}`";
+					foreach ($table_description as $column) {
+						$trigger .= ", `{$column['Field']}`";
 					}
 					$trigger .= ")\n";
-					$trigger .= "  VALUES ('{$method[0]}', now()"; // adds I, D or U for change_type...
+					$trigger .= "  VALUES ('{$event[0]}', now()"; // adds I, D or U for change_type...
 
 					// insert into new CDC field...
-					foreach ($results as $row) {
-						$trigger .= ", `$direction`.`{$row['Field']}`";
+					foreach ($table_description as $column) {
+						$trigger .= ", `$direction`.`{$column['Field']}`";
 					}
 					$trigger .= ");\n";
 					$trigger .= "END";
@@ -311,15 +310,15 @@ class CdcMigration extends AbstractMigration
 							$e->getMessage(), $trigger_name);
 						error_log($msg, 0);
 					}
-				}// end if
-			}// end methods foreach
-		}// end tables foreach
-	}//end fn
+				}
+			}
+		}
+	}
 
 	/**
 	 * @param $cdc_db_name : the db that's being CDC'd.
 	 */
-	private function removeCDC($cdc_db_name)
+	private function removeCDCTablesAndTriggers($cdc_db_name)
 	{
 		// gather listing of original tables...
 		$cdc_tables = $this->getTableNames($cdc_db_name);
@@ -329,10 +328,10 @@ class CdcMigration extends AbstractMigration
 
 		foreach ($cdc_tables as $table) {
 			// delete the INSERT, UPDATE and DELETE triggers for the CDC tables...
-			foreach ($this->methods as $key => $method) {
-				$trigger = sprintf("tr_%s_%s", $key, $table);
+			foreach ($this->events as $key => $event) {
+				$trigger = "tr_{$key}_{$table}";
 
-				if (!in_array($trigger, $ignore['triggers'])) {
+				if (! in_array($trigger, $ignore['triggers'])) {
 					$sql = "DROP TRIGGER IF EXISTS `$cdc_db_name`.`$trigger`;\n";
 					try {
 						$this->execute($sql);
@@ -342,11 +341,11 @@ class CdcMigration extends AbstractMigration
 						error_log($msg, 0);
 					}
 				}
-			}// foreach
+			}
 
-			if (!in_array($table, $ignore['tables'])) {
+			if (! in_array($table, $ignore['tables'])) {
 				// drop the table...
-				$sql = sprintf("DROP TABLE IF EXISTS `%s`.`%s`\n", $this->cdc_db, $table);
+				$sql = "DROP TABLE IF EXISTS `{$this->cdc_db}`.`{$table}`\n";
 
 				try {
 					$this->execute($sql);
@@ -356,6 +355,6 @@ class CdcMigration extends AbstractMigration
 					error_log($msg, 0);
 				}
 			}
-		}// foreach
-	}// fn
-}// class
+		}
+	}
+}
