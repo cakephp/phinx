@@ -127,14 +127,14 @@ class Create extends AbstractCommand
         }
 
         // Get the alternative template and static class options, but only allow one of them.
-        $altTemplate = $this->getConfig()->getTemplateFile();
+        $altTemplate = $input->getOption('template');
         if (!$altTemplate) {
-            $altTemplate = $input->getOption('template');
+            $altTemplate = $this->getConfig()->getTemplateFile();
         }
 
-        $creationClassName = $this->getConfig()->getTemplateClass();
+        $creationClassName = $input->getOption('class');
         if (!$creationClassName) {
-            $creationClassName = $input->getOption('class');
+            $creationClassName = $this->getConfig()->getTemplateClass();
         }
 
         if ($altTemplate && $creationClassName) {
