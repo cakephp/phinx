@@ -127,8 +127,16 @@ class Create extends AbstractCommand
         }
 
         // Get the alternative template and static class options, but only allow one of them.
-        $altTemplate = $input->getOption('template');
-        $creationClassName = $input->getOption('class');
+        $altTemplate = $this->getConfig()->getTemplateFile();
+        if (!$altTemplate) {
+            $altTemplate = $input->getOption('template');
+        }
+
+        $creationClassName = $this->getConfig()->getTemplateClass();
+        if (!$creationClassName) {
+            $creationClassName = $input->getOption('class');
+        }
+
         if ($altTemplate && $creationClassName) {
             throw new \InvalidArgumentException('Cannot use --template and --class at the same time');
         }
