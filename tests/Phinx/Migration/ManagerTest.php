@@ -169,6 +169,84 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->manager->getEnvironment('production') instanceof Environment);
     }
 
+    /**
+     * Test that migrating by date chooses the correct
+     * migration to point to.
+     *
+     * @dataProvider migrateDateDataProvider
+     */
+    public function testMigrationsByDate($availableMigrations, $dateString, $expectedMigration)
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->once())
+                ->method('getVersions')
+                ->will($this->returnValue($availableMigrations));
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->migrateToDateTime('mockenv', new \DateTime($dateString));
+        rewind($this->manager->getOutput()->getStream());
+        $output = stream_get_contents($this->manager->getOutput()->getStream());
+        if (is_null($expectedMigration)) {
+            $this->assertEmpty($output);
+        } else {
+            $this->assertContains($expectedMigration, $output);
+        }
+    }
+
+    /**
+     * Test that migrating by date chooses the correct
+     * migration to point to.
+     *
+     * @dataProvider rollbackDateDataProvider
+     */
+    public function testRollbacksByDate($availableRollbacks, $dateString, $expectedRollback)
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->any())
+                ->method('getVersions')
+                ->will($this->returnValue($availableRollbacks));
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->rollbackToDateTime('mockenv', new \DateTime($dateString));
+        rewind($this->manager->getOutput()->getStream());
+        $output = stream_get_contents($this->manager->getOutput()->getStream());
+        if (is_null($expectedRollback)) {
+            $this->assertEmpty($output);
+        } else {
+            $this->assertContains($expectedRollback, $output);
+        }
+    }
+
+    /**
+     * Migration lists, dates, and expected migrations to point to.
+     *
+     * @return array
+     */
+    public function migrateDateDataProvider()
+    {
+        return array(
+            array(array('20120111235330', '20120116183504'), '20120118', '20120116183504'),
+            array(array('20120111235330', '20120116183504'), '20120115', '20120111235330'),
+            array(array('20120111235330', '20120116183504'), '20110115', null),
+        );
+    }
+
+    /**
+     * Migration lists, dates, and expected migrations to point to.
+     *
+     * @return array
+     */
+    public function rollbackDateDataProvider()
+    {
+        return array(
+            array(array('20120111235330', '20120116183504', '20120120183504'), '20120118', '20120116183504'),
+            array(array('20120111235330', '20120116183504'), '20120115', '20120111235330'),
+            array(array('20120111235330', '20120116183504'), '20110115', '20120111235330'),
+        );
+    }
+
     public function testGettingOutputObject()
     {
         $migrations = $this->manager->getMigrations();
