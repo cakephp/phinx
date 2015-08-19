@@ -97,7 +97,25 @@ EOT
 
         // run the migrations
         $start = microtime(true);
-        $this->getManager()->migrate($environment, $version);
+
+        $adapter = $this->getManager()->getEnvironment($environment)->getAdapter();
+        if ($adapter->hasTransactions()) {
+            $adapter->beginTransaction();
+        }
+
+        try {
+            $this->getManager()->migrate($environment, $version);
+        } catch (Exception $e) {
+            if ($adapter->hasTransactions()) {
+                $adapter->rollbackTransaction();
+            }
+            throw $e;
+        }
+
+        if ($adapter->hasTransactions()) {
+            $adapter->commitTransaction();
+        }
+
         $end = microtime(true);
 
         $output->writeln('');

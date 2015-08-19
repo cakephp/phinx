@@ -90,7 +90,25 @@ EOT
 
         // rollback the specified environment
         $start = microtime(true);
-        $this->getManager()->rollback($environment, $version);
+
+        $adapter = $this->getManager()->getEnvironment($environment)->getAdapter();
+        if ($adapter->hasTransactions()) {
+            $adapter->beginTransaction();
+        }
+
+        try {
+            $this->getManager()->rollback($environment, $version);
+        } catch (Exception $e) {
+            if ($adapter->hasTransactions()) {
+                $adapter->rollbackTransaction();
+            }
+            throw $e;
+        }
+
+        if ($adapter->hasTransactions()) {
+            $adapter->commitTransaction();
+        }
+
         $end = microtime(true);
 
         $output->writeln('');
