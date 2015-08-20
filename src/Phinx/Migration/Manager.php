@@ -130,6 +130,67 @@ class Manager
     }
 
     /**
+     * Migrate to the version of the database on a given date.
+     *
+     * @param string    $environment Environment
+     * @param \DateTime $dateTime    Date to migrate to
+     *
+     * @return void
+     */
+    public function migrateToDateTime($environment, \DateTime $dateTime)
+    {
+        $env            = $this->getEnvironment($environment);
+        $versions       = array_keys($this->getMigrations());
+        $dateString     = $dateTime->format('Ymdhis');
+        $earlierVersion = null;
+        foreach ($versions as $version) {
+            if ($version > $dateString) {
+                if (!is_null($earlierVersion)) {
+                    $this->getOutput()->writeln(
+                        'Migrating to version ' . $earlierVersion
+                    );
+                }
+                return $this->migrate($environment, $earlierVersion);
+            }
+            $earlierVersion = $version;
+        }
+        //If the date is greater than the latest version, migrate
+        //to the latest version.
+        $this->getOutput()->writeln(
+            'Migrating to version ' . $earlierVersion
+        );
+        return $this->migrate($environment, $earlierVersion);
+    }
+
+    /**
+     * Roll back to the version of the database on a given date.
+     *
+     * @param string    $environment Environment
+     * @param \DateTime $dateTime    Date to roll back to
+     *
+     * @return void
+     */
+    public function rollbackToDateTime($environment, \DateTime $dateTime)
+    {
+        $env        = $this->getEnvironment($environment);
+        $versions   = $env->getVersions();
+        $dateString = $dateTime->format('Ymdhis');
+        sort($versions);
+        $laterVersion = null;
+        foreach (array_reverse($versions) as $version) {
+            if ($version < $dateString) {
+                if (!is_null($laterVersion)) {
+                    $this->getOutput()->writeln('Rolling back to version '.$version);
+                }
+                return $this->rollback($environment, $version);
+            }
+            $laterVersion = $version;
+        }
+        $this->getOutput()->writeln('Rolling back to version ' . $laterVersion);
+        return $this->rollback($environment, $laterVersion);
+    }
+
+    /**
      * Migrate an environment to the specified version.
      *
      * @param string $environment Environment
