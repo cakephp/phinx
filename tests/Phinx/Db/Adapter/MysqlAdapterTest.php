@@ -908,7 +908,6 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($tableQuoted->hasColumn('column2'));
         $this->assertTrue($tableQuoted->hasColumn('value'));
-
     }
 
     public function testInsertData()
@@ -924,7 +923,6 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
                 )
             )
             ->save();
-
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
 
