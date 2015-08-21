@@ -152,30 +152,6 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->environment->executeMigration($downMigration, MigrationInterface::DOWN);
     }
 
-    public function testExecutingAMigrationWithTransactions()
-    {
-        // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
-        $adapterStub->expects($this->once())
-                    ->method('beginTransaction');
-
-        $adapterStub->expects($this->once())
-                    ->method('commitTransaction');
-
-        $adapterStub->expects($this->exactly(2))
-                    ->method('hasTransactions')
-                    ->will($this->returnValue(true));
-
-        $this->environment->setAdapter($adapterStub);
-
-        // migrate
-        $migration = $this->getMock('\Phinx\Migration\AbstractMigration', array('up'), array('20110301080000'));
-        $migration->expects($this->once())
-                  ->method('up');
-
-        $this->environment->executeMigration($migration, MigrationInterface::UP);
-    }
-
     public function testExecutingAChangeMigrationUp()
     {
         // stub adapter
