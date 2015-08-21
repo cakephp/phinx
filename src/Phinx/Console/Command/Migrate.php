@@ -101,27 +101,10 @@ EOT
         // run the migrations
         $start = microtime(true);
 
-        $adapter = $this->getManager()->getEnvironment($environment)->getAdapter();
-        if ($adapter->hasTransactions()) {
-            $adapter->beginTransaction();
-        }
-
-        try {
-            if (null !== $date) {
-                $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
-            } else {
-                $this->getManager()->migrate($environment, $version);
-            }
-
-        } catch (Exception $e) {
-            if ($adapter->hasTransactions()) {
-                $adapter->rollbackTransaction();
-            }
-            throw $e;
-        }
-
-        if ($adapter->hasTransactions()) {
-            $adapter->commitTransaction();
+        if (null !== $date) {
+            $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
+        } else {
+            $this->getManager()->migrate($environment, $version);
         }
 
         $end = microtime(true);
