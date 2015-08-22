@@ -89,6 +89,25 @@ file:
 
     export PHINX_ENVIRONMENT=dev-`whoami`-`hostname`
 
+
+Table Prefix and Suffix
+------------------
+
+You can define a table prefix and table suffix:
+
+.. code-block:: yaml
+
+    environments:
+        development:
+            ....
+            table_prefix: dev_
+            table_suffix: _v1
+        testing:
+            ....
+            table_prefix: test_
+            table_suffix: _v2
+
+
 Socket Connections
 ------------------
 
@@ -143,6 +162,9 @@ Phinx currently supports the following database adapters natively:
 * `SQLite <http://www.sqlite.org/>`_: specify the ``sqlite`` adapter.
 * `SQL Server <http://www.microsoft.com/sqlserver>`_: specify the ``sqlsrv`` adapter.
 
+SQLite
+`````````````````
+
 Declaring an SQLite database uses a simplified structure:
 
 .. code-block:: yaml
@@ -155,9 +177,18 @@ Declaring an SQLite database uses a simplified structure:
             adapter: sqlite
             memory: true     # Setting memory to *any* value overrides name
 
+
+
+SQL Server
+`````````````````
+
 When using the ``sqlsrv`` adapter and connecting to a named instance of 
 SQLServer you should omit the ``port`` setting as sqlsrv will negotiate the port
 automatically.
+
+
+Custom Adapters
+`````````````````
 
 You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface`
 with `AdapterFactory`: 
