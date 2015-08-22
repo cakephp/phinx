@@ -72,6 +72,7 @@ abstract class AbstractCommand extends Command
     {
         $this->addOption('--configuration', '-c', InputOption::VALUE_REQUIRED, 'The configuration file to load');
         $this->addOption('--parser', '-p', InputOption::VALUE_REQUIRED, 'Parser used to read the config file. Defaults to YAML');
+        $this->addOption('--bootstrap', '-b', InputOption::VALUE_REQUIRED, 'Path to PHP bootstrap file');
     }
 
     /**
@@ -87,9 +88,34 @@ abstract class AbstractCommand extends Command
             $this->loadConfig($input, $output);
         }
 
+        $this->loadBootstrapFile($input);
         $this->loadManager($output);
         // report the migrations path
         $output->writeln('<info>using migration path</info> ' . $this->getConfig()->getMigrationPath());
+    }
+
+    /**
+     * Check for an load a bootstrap file if defined and accessible
+     *
+     * @param  InputInterface $input
+     * @throws \RuntimeException If file is defined but not accessible
+     */
+    public function loadBootstrapFile(InputInterface $input)
+    {
+        // Get bootstrap path from config
+        $bootstrapPath = $this->getConfig()->getBootstrapPath();
+
+        // Bootstrap option overrides
+        $bootstrapOption = $input->getOption('bootstrap');
+        if ($bootstrapOption !== null) {
+            if (!is_file($bootstrapOption)) {
+                throw new \RuntimeException('Cannot access bootstrap file: '.$bootstrapOption);
+            }
+            $bootstrapPath = $bootstrapOption;
+        }
+        if ($bootstrapPath !== null) {
+            require_once $bootstrapPath;
+        }
     }
 
     /**

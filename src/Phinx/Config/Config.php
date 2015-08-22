@@ -243,6 +243,24 @@ class Config implements ConfigInterface
     }
 
     /**
+     * Get the path to the bootstrap file if it exists
+     *     Ensures access allowed as well
+     *
+     * @return null|string Path to the file if provided, null otherwise
+     */
+    public function getBootstrapPath()
+    {
+        if (isset($this->values['paths']['bootstrap'])) {
+            $bootstrapFile = $this->values['paths']['bootstrap'];
+
+            if (!is_file($bootstrapFile)) {
+                throw new \RuntimeException('Boostrap file defined but inaccessible');
+            }
+            return $bootstrapFile;
+        }
+    }
+
+    /**
      * Replace tokens in the specified array.
      *
      * @param array $arr Array to replace
