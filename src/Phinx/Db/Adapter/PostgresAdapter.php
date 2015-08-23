@@ -150,10 +150,18 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        $tables = array();
-        $result = $this->getConnection()->query(sprintf('SELECT lower(table_name) FROM information_schema.tables WHERE table_schema = \'%s\';', $this->getSchemaName()));
-        while ($tables[] = $result->fetchColumn());
-        return in_array(strtolower($tableName), $tables);
+        $result = $this->getConnection()->query(
+            sprintf(
+                'SELECT *
+                FROM information_schema.tables
+                WHERE table_schema = %s
+                AND lower(table_name) = lower(%s)',
+                $this->getConnection()->quote($this->getSchemaName()),
+                $this->getConnection()->quote($tableName)
+            )
+        );
+
+        return $result->rowCount() !== 0;
     }
 
     /**
