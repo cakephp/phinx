@@ -68,14 +68,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
-        $envStub->expects($this->once())
-            ->method('getVersions')
-            ->will($this->returnValue(
-                array (
-                    '20120111235330',
-                    '20120116183504',
-                )
-            ));
+        $envStub->expects($this->never())
+            ->method('getVersions');
         $envStub->expects($this->once())
             ->method('getFullVersions')
             ->will($this->returnValue(
@@ -131,14 +125,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
-        $envStub->expects($this->once())
-            ->method('getVersions')
-            ->will($this->returnValue(
-                array (
-                    '20120103083300',
-                    '20120815145812',
-                )
-            ));
+        $envStub->expects($this->never())
+            ->method('getVersions');
         $envStub->expects($this->once())
                 ->method('getFullVersions')
                 ->will($this->returnValue(
