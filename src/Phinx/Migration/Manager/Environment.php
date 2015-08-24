@@ -223,13 +223,23 @@ class Environment
     /**
      * Gets all migrated version numbers.
      *
-     * @param bool $fullRow Return full version information.
+     * @return array
+     */
+    public function getVersions()
+    {
+        return $this->getAdapter()->getVersions(false);
+    }
+
+    /**
+     * Gets all migrated version rows.
+     *
+     * This will include the breakpoint marker.
      *
      * @return array
      */
-    public function getVersions($fullRow = false)
+    public function getFullVersions()
     {
-        return $this->getAdapter()->getVersions($fullRow);
+        return $this->getAdapter()->getVersions(true);
     }
 
     /**

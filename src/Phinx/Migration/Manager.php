@@ -103,7 +103,7 @@ class Manager
             $output->writeln('-----------------------------------------');
 
             $env = $this->getEnvironment($environment);
-            $versions = $env->getVersions(true);
+            $versions = $env->getFullVersions();
 
             foreach ($this->getMigrations() as $migration) {
                 if (array_key_exists($migration->getVersion(), $versions)) {
@@ -365,7 +365,7 @@ class Manager
     public function rollback($environment, $version = null, $force = false)
     {
         $migrations = $this->getMigrations();
-        $versions = $this->getEnvironment($environment)->getVersions(true);
+        $versions = $this->getEnvironment($environment)->getFullVersions();
 
         ksort($migrations);
         asort($versions);
