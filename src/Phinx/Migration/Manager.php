@@ -215,7 +215,7 @@ class Manager
      *
      * @return void
      */
-    public function rollbackToDateTime($environment, \DateTime $dateTime, $force)
+    public function rollbackToDateTime($environment, \DateTime $dateTime, $force = false)
     {
         $env        = $this->getEnvironment($environment);
         $versions   = $env->getVersions();
