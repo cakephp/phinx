@@ -69,26 +69,33 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
-                ->method('getVersions')
-                ->with(true)
-                ->will($this->returnValue(
-                    array (
-                        '20120111235330' =>
-                            array (
-                                'version' => '20120111235330',
-                                'start_time' => '2012-01-11 23:53:36',
-                                'end_time' => '2012-01-11 23:53:37',
-                                'breakpoint' => '0',
-                            ),
-                        '20120116183504' =>
-                            array (
-                                'version' => '20120116183504',
-                                'start_time' => '2012-01-16 18:35:40',
-                                'end_time' => '2012-01-16 18:35:41',
-                                'breakpoint' => '0',
-                            ),
-                    )
-                ));
+            ->method('getVersions')
+            ->will($this->returnValue(
+                array (
+                    '20120111235330',
+                    '20120116183504',
+                )
+            ));
+        $envStub->expects($this->once())
+            ->method('getFullVersions')
+            ->will($this->returnValue(
+                array (
+                    '20120111235330' =>
+                        array (
+                            'version' => '20120111235330',
+                            'start_time' => '2012-01-11 23:53:36',
+                            'end_time' => '2012-01-11 23:53:37',
+                            'breakpoint' => '0',
+                        ),
+                    '20120116183504' =>
+                        array (
+                            'version' => '20120116183504',
+                            'start_time' => '2012-01-16 18:35:40',
+                            'end_time' => '2012-01-16 18:35:41',
+                            'breakpoint' => '0',
+                        ),
+                )
+            ));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $return = $this->manager->printStatus('mockenv');
@@ -125,7 +132,15 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
-                ->method('getVersions')
+            ->method('getVersions')
+            ->will($this->returnValue(
+                array (
+                    '20120103083300',
+                    '20120815145812',
+                )
+            ));
+        $envStub->expects($this->once())
+                ->method('getFullVersions')
                 ->will($this->returnValue(
                     array (
                         '20120103083300' =>
