@@ -161,7 +161,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             )
         );
 
-        return $result->rowCount() !== 0;
+        return $result->rowCount() === 1;
     }
 
     /**
