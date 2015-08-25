@@ -373,6 +373,17 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('int(11) unsigned', $rows[1]['Type']);
     }
 
+    public function testAddBooleanColumnWithSignedEqualsFalse()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('test_boolean'));
+        $table->addColumn('test_boolean', 'boolean', array('signed' => false))
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('tinyint(1) unsigned', $rows[1]['Type']);
+    }
+
     public function testAddStringColumnWithSignedEqualsFalse()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
