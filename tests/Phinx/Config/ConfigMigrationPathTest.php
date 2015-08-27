@@ -8,7 +8,7 @@ use \Phinx\Config\Config;
  * Class ConfigMigrationPathTest
  * @package Test\Phinx\Config
  * @group config
- * @covers \Phinx\Config\Config::getMigrationPath
+ * @covers \Phinx\Config\Config::getMigrationPaths
  */
 class ConfigMigrationPathTest extends AbstractConfigTest
 {
