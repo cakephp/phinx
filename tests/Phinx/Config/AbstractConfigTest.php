@@ -55,6 +55,6 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
         if (null === $this->migrationPath) {
             $this->migrationPath = uniqid('phinx', true);
         }
-        return $this->migrationPath;
+        return [$this->migrationPath];
     }
 }

@@ -18,7 +18,7 @@ class ConfigMigrationPathTest extends AbstractConfigTest
     public function testGetMigrationPathThrowsExceptionForNoPath()
     {
         $config = new Config(array());
-        $config->getMigrationPath();
+        $config->getMigrationPaths();
     }
 
     /**
@@ -27,6 +27,19 @@ class ConfigMigrationPathTest extends AbstractConfigTest
     public function testGetMigrationPath()
     {
         $config = new Config($this->getConfigArray());
-        $this->assertEquals($this->getMigrationPath(), $config->getMigrationPath());
+        $this->assertEquals($this->getMigrationPath(), $config->getMigrationPaths());
+    }
+
+    public function testGetMigrationPathConvertsStringToArray()
+    {
+        $values = array(
+            'paths' => array(
+                'migrations' => '/test'
+            )
+        );
+        $config = new Config($values);
+        $paths = $config->getMigrationPaths();
+        $this->assertTrue(is_array($paths));
+        $this->assertTrue(count($paths) == 1);
     }
 }
