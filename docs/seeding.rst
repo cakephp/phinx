@@ -1,8 +1,44 @@
 .. index::
-   single: Writing Migrations
+   single: Database Seeding
 
-Writing Migrations
-==================
+Database Seeding
+================
+
+Since version 0.5.0 Phinx supports seed classes to seed your database with dummy
+data. Seed classes are stored in your `seeds` directory. This path can be
+changed in your configuration file.
+
+.. note::
+
+    Database seeding is entirely optional and Phinx does not create a `seeds`
+    directory by default.
+
+To use this feature simply uncomment the `seeds` configuration parameter in your
+`phinx.yml` file and create a `seed.php` file in your seeds directory. It should
+contain code similar to the following:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractSeed;
+
+        class MyNewMigration extends AbstractMigration
+        {
+        }
+
+To seed your database simply run the `seed` command:
+
+.. code-block:: bash
+
+        $ phinx seed
+
+By default Phinx will execute the `seed.php` class. If you would like to call
+a specific class simply pass in the name of it as an argument:
+
+.. code-block:: bash
+
+        $ phinx seed PostTableSeeder
 
 Phinx relies on migrations in order to transform your database. Each migration
 is represented by a PHP class in a unique file. It is preferred that you write
@@ -16,14 +52,11 @@ Let's start by creating a new Phinx migration. Run Phinx using the
 
 .. code-block:: bash
 
-        $ php vendor/bin/phinx create MyNewMigration
+        $ phinx create MyNewMigration
 
 This will create a new migration in the format
 ``YYYYMMDDHHMMSS_my_new_migration.php`` where the first 14 characters are
 replaced with the current timestamp down to the second.
-
-If you have specified multiple migration paths, you will be asked to select
-which path to create the new migration in.
 
 Phinx automatically creates a skeleton migration file with two empty methods
 and a commented out one:
@@ -589,8 +622,9 @@ You can check if a table already has a certain column by using the
                 $table = $this->table('user');
                 $column = $table->hasColumn('username');
 
-                if ($column) {
-                    // do something
+                if ($column)
+                {
+                    ...
                 }
 
             }
@@ -632,7 +666,7 @@ To rename a column access an instance of the Table object then call the
 Adding a Column After Another Column
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When adding a column you can dictate its position using the ``after`` option.
+When adding a column you can dictate it's position using the ``after`` option.
 
 .. code-block:: php
 

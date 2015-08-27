@@ -35,28 +35,28 @@ Phinx natively supports the following database adapters:
 
 ### Composer
 
-The fastest way to install Phinx in your project is using Composer (http://getcomposer.org/).
+The fastest way to install Phinx is to add it to your project using Composer (http://getcomposer.org/).
 
 1. Install Composer:
 
-    ```    
+    ```
     curl -s https://getcomposer.org/installer | php
     ```
-    
-1. Require Phinx as a dependency using Composer: 
+
+1. Require Phinx as a dependency using Composer:
 
     ```
     php composer.phar require robmorgan/phinx
     ```
-    
+
 1. Install Phinx:
-    
+
     ```
     php composer.phar install
     ```
-    
+
 1. Execute Phinx:
-    
+
     ```
     php vendor/bin/phinx
     ```
@@ -74,7 +74,7 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
 
 1. Install Composer
 
-    ```    
+    ```
     curl -s https://getcomposer.org/installer | php
     ```
 
@@ -89,7 +89,7 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
     ```
     curl -s http://box-project.org/installer.php | php
     ```
-    
+
 1. Create a Phar archive
 
     ```
@@ -107,10 +107,25 @@ Please read the [CONTRIBUTING](CONTRIBUTING.md) document.
 ## News & Updates
 
 Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
-  
+
 ## Misc
 
 ### Version History
+
+**0.4.4** (Sunday, 14th June 2015)
+
+* The `change` method is now the default
+* Added a generic adapter insert method. Warning: The implementation will change
+* Updated Symfony depdencies to ~2.7
+* Support for MySQL `BLOB` column types
+* SQLite migration fixes
+* Documentation improvements
+
+**0.4.3** (Monday, 23rd Feburary 2015)
+
+* Postgres bugfix for modifying column DEFAULTs
+* MySQL bugfix for setting column INTEGER lengths
+* SQLite bugfix for creating multiple indexes with similar names
 
 **0.4.2.1** (Saturday, 7th Feburary 2015)
 
@@ -169,7 +184,7 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 * Support for Postgres Schemas
 * Fixed charset support for Microsoft SQL Server
 * Fix for Unique indexes in all adapters
-* Improvements for MySQL foreign key migration syntax 
+* Improvements for MySQL foreign key migration syntax
 * Allow MySQL column types with extra info
 * Fixed SQLite autoincrement behaviour
 * PHPDoc improvements
@@ -334,12 +349,12 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 **0.1.0** (Friday, 13th January 2012)
 
 * Initial public release.
-  
+
 ### License
 
 (The MIT license)
 
-Copyright (c) 2014 Rob Morgan
+Copyright (c) 2015 Rob Morgan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

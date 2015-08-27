@@ -191,10 +191,59 @@ class TableTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('created_at', $columns[0]->getName());
         $this->assertEquals('timestamp', $columns[0]->getType());
+        $this->assertEquals('CURRENT_TIMESTAMP', $columns[0]->getDefault());
+        $this->assertEquals('', $columns[0]->getUpdate());
 
         $this->assertEquals('updated_at', $columns[1]->getName());
         $this->assertEquals('timestamp', $columns[1]->getType());
         $this->assertTrue($columns[1]->isNull());
         $this->assertNull($columns[1]->getDefault());
+    }
+
+    public function testInsert()
+    {
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+        $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $columns = array("column1", "column2");
+        $data = array( array("value1", "value2") );
+        $table->insert($columns, $data);
+        $expectedData = array(
+            array("columns" => $columns, "data" => $data)
+        );
+        $this->assertEquals($expectedData, $table->getData());
+    }
+
+    public function testInsertSaveData()
+    {
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+
+        $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $columns = array("column1");
+        $data = array(
+            array("value1"),
+            array("value2")
+        );
+        $moreData = array(
+            array("value3"),
+            array("value4")
+        );
+
+        $adapterStub->expects($this->exactly(2))
+            ->method('insert')
+            ->with($table, $columns, $this->logicalOr($data, $moreData));
+
+        $table->insert($columns, $data)
+            ->insert($columns, $moreData)
+            ->save();
+    }
+
+    public function testResetAfterAddingData()
+    {
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+        $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $columns = array("column1");
+        $data = array(array("value1"));
+        $table->insert($columns, $data)->save();
+        $this->assertEquals(array(), $table->getData());
     }
 }

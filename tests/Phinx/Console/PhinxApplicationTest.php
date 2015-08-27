@@ -27,7 +27,7 @@ class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
     public function provider()
     {
         return array(
-            array('help', '/help \[--xml\] \[--format="..."\] \[--raw\] \[command_name\]/')
+            array('help', '/help \[options\] \[--\] \[<command_name>\]/')
         );
     }
 }

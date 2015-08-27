@@ -109,7 +109,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function beginTransaction()
     {
-        $this->execute('START TRANSACTION');
+        $this->execute('BEGIN TRANSACTION');
     }
 
     /**
@@ -217,8 +217,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $sql = substr(rtrim($sql), 0, -1);              // no primary keys
         }
 
-        $sql .= ') ';
-
         // set the foreign keys
         $foreignKeys = $table->getForeignKeys();
         if (!empty($foreignKeys)) {
@@ -227,7 +225,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $sql = rtrim($sql) . ';';
+        $sql = rtrim($sql) . ');';
         // execute the sql
         $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
@@ -568,7 +566,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(
             sprintf(
                 'CREATE %s ON %s (%s)',
-                $this->getIndexSqlDefinition($index),
+                $this->getIndexSqlDefinition($table, $index),
                 $this->quoteTableName($table->getName()),
                 $indexColumns
             )
@@ -704,9 +702,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($table->getName())));
+        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($table->getName())));
         $columns = array();
-        foreach ($columns as $column) {
+        foreach ($rows as $column) {
             $columns[] = $this->quoteColumnName($column['name']);
         }
 
@@ -717,10 +715,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $table->getName(),
+            $this->quoteTableName($table->getName()),
             implode(', ', $columns),
             implode(', ', $columns),
-            $tmpTableName
+            $this->quoteTableName($tmpTableName)
         );
 
         $this->execute($sql);
@@ -793,6 +791,35 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function insert(Table $table, $columns, $data)
+    {
+        $this->startCommandTimer();
+
+        foreach($data as $row) {
+            $sql = sprintf(
+                "INSERT INTO %s ",
+                $this->quoteTableName($table->getName())
+            );
+
+            $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
+            $sql .= " VALUES ";
+
+            $sql .= "(" . implode(', ', array_map(function ($value) {
+                    if (is_numeric($value)) {
+                        return $value;
+                    }
+                    return "'{$value}'";
+                }, $row)) . ")";
+
+            $this->execute($sql);
+        }
+
+        $this->endCommandTimer();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getSqlType($type, $limit = null)
     {
         switch ($type) {
@@ -857,7 +884,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Returns Phinx type by SQL type
      *
-     * @param string $sqlType SQL type
+     * @param string $sqlTypeDef SQL type
      * @returns string Phinx type
      */
     public function getPhinxType($sqlTypeDef)
@@ -956,7 +983,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Get the defintion for a `DEFAULT` statement.
+     * Get the definition for a `DEFAULT` statement.
      *
      * @param  mixed $default
      * @return string
@@ -1025,7 +1052,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      * @param Index $index Index
      * @return string
      */
-    protected function getIndexSqlDefinition(Index $index)
+    protected function getIndexSqlDefinition(Table $table, Index $index)
     {
         if ($index->getType() == Index::UNIQUE) {
             $def = 'UNIQUE INDEX';
@@ -1035,7 +1062,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (is_string($index->getName())) {
             $indexName = $index->getName();
         } else {
-            $indexName = '';
+            $indexName = $table->getName() . '_';
             foreach ($index->getColumns() as $column) {
                 $indexName .= $column . '_';
             }

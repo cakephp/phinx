@@ -13,7 +13,7 @@ This document briefly outlines the requirements to contribute code to Phinx.
 
 Before you submit your pull request take a moment to answer the following questions.
 
-Answering '**YES**' to all questions will increase the likelyhood of your PR being accepted!
+Answering '**YES**' to all questions will increase the likelihood of your PR being accepted!
 
 * Have I implemented my feature for as many database adapters as possible?
 * Does my new feature improve Phinx's performance or keep it consistent?
@@ -30,24 +30,27 @@ Great, so you want to contribute. Let's get started:
 
 1. Start by forking Phinx on GitHub: https://github.com/robmorgan/phinx
 
-
 1. Clone your repository to a local directory on your development box.
 
 1. If you do not have Composer set up already, install it:
 
-    ```    
+    ```
     curl -s https://getcomposer.org/installer | php
     ```
 
 1. Change to your Phinx clone directory and pull the necessary dependencies:
 
-    ```    
-    php composer.phar install --dev
     ```
- 
-1. Copy the `phpunit.xml.dist` template to `phpunit.xml` and change the configuration to suit your environment.
+    php composer.phar install
+    ```
 
-1. Run the unit tests locally to ensure they pass. If you are not using any particular adapter you can disable it in the `phpunit.xml` file.
+1. Copy the `phpunit.xml.dist` template to `phpunit.xml` and change the configuration to suit your environment. If you are not using any particular adapter you can disable it in the `phpunit.xml` file.
+
+1. Run the unit tests locally to ensure they pass:
+
+    ```
+    php vendor/bin/phpunit --config phpunit.xml
+    ```
 
 1. Write the code and unit tests for your bug fix or feature.
 
@@ -55,9 +58,9 @@ Great, so you want to contribute. Let's get started:
 
 1. Run the unit tests again and ensure they pass.
 
-7. Open a pull request on the Github project page. Ensure the code is being merged into the latest development branch and not `master`.
+1. Open a pull request on the Github project page. Ensure the code is being merged into the latest development branch (e.g: `0.5.x-dev`) and not `master`.
 
 ## Documentation
 
 The Phinx documentation is stored in the **docs** directory using the [RestructedText](http://docutils.sourceforge.net/rst.html) format. All documentation merged to `master` is automatically published to the Phinx documentation site available
-at: http://docs.phinx.org.
+at: http://docs.phinx.org. Keep this in mind when submitting your PR, or ask someone to merge the development branch back down to master.
