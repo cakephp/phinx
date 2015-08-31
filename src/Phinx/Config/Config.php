@@ -243,6 +243,35 @@ class Config implements ConfigInterface
     }
 
     /**
+     * Gets the migration template filename, if it has been set.  If it hasn't
+     * been set, will return null.
+     *
+     * If a migration template filename is set in the config, but the file
+     * doesn't exist, a RuntimeException is thrown.
+     *
+     * @throws \RuntimeException
+     * @return string|null
+     */
+    public function getMigrationTemplateFilename()
+    {
+        if (isset($this->values['migration_template_filename'])) {
+            $migrationTemplateFilename = $this->values['migration_template_filename'];
+
+            if (!is_file($migrationTemplateFilename)) {
+                throw new \RuntimeException(sprintf(
+                    "The migration template filename ('%s') does not point to a file that exists.",
+                    $this->values['migration_template_filename']
+                ));
+            }
+
+            return $migrationTemplateFilename;
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
      * Replace tokens in the specified array.
      *
      * @param array $arr Array to replace

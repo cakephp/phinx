@@ -141,6 +141,17 @@ class Create extends AbstractCommand
             ));
         }
 
+        // if an alt template hasn't been provided as a command-line option, try getting it from config
+        if (!$altTemplate) {
+            // this will be set to null if not config value is provided
+            $altTemplate = $this->getConfig()->getMigrationTemplateFilename();
+
+            // make another check to be sure that alt template and creation class options are not both set
+            if ($altTemplate && $creationClassName) {
+                throw new \InvalidArgumentException('Cannot use an alternative template file and a template creation class at the same time');
+            }
+        }
+
         // Verify the static class exists and that it implements the required interface.
         if ($creationClassName) {
             if (!class_exists($creationClassName)) {
