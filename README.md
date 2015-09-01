@@ -112,10 +112,20 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.4.5** (Tuesday, 1st September 2015)
+
+* The rollback command now supports a date argument
+* Fixed DBLIB DSN strings for Microsoft SQL Server
+* Postgres support for `jsonb` columns added
+* The `addTimestamps()` helper method no longer updates the `created_at` column
+* Fix for Postgres named foreign keys
+* Unit test improvements (including strict warnings)
+* Documentation improvements
+
 **0.4.4** (Sunday, 14th June 2015)
 
 * The `change` method is now the default
-* Added a generic adapter insert method. Warning: The implementation will change
+* Added a generic adapter insert method. Warning: The implementation will change!
 * Updated Symfony depdencies to ~2.7
 * Support for MySQL `BLOB` column types
 * SQLite migration fixes
