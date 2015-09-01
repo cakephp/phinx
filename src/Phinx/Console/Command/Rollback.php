@@ -75,7 +75,7 @@ EOT
 
         $environment = $input->getOption('environment');
         $version = $input->getOption('target');
-        $individual = $this->getOption('individual')
+        $individual = $this->getOption('individual');
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
