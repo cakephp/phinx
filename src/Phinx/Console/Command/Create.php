@@ -115,6 +115,13 @@ class Create extends AbstractCommand
             ));
         }
 
+        if (!Util::isUniqueMigrationClassName($className, $path)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The migration class name "%s" already exists',
+                $className
+            ));
+        }
+
         // Compute the file path
         $fileName = Util::mapClassNameToFileName($className);
         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
