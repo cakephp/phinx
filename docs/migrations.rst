@@ -331,6 +331,8 @@ Finally calling ``save()`` commits the changes to the database.
     Phinx automatically creates an auto-incrementing primary key column called ``id`` for every
     table.
 
+The ``id`` option sets the name of the automatically created identity field, while the ``primary_key`` option selects the field or fields used for primary key. The ``primary_key`` option always defaults to the value of ``id``. Both can be disabled setting them to false.
+
 To specify an alternate primary key you can specify the ``primary_key`` option
 when accessing the Table object. Let's disable the automatic ``id`` column and
 create a primary key using two columns instead:
@@ -365,7 +367,7 @@ create a primary key using two columns instead:
         }
 
 Setting a single ``primary_key`` doesn't enable the ``AUTO_INCREMENT`` option.
-To do this, we need to override the default ``id`` field name:
+To simply change the name of the primary key, we need to override the default ``id`` field name:
 
 .. code-block:: php
 
@@ -381,8 +383,7 @@ To do this, we need to override the default ``id`` field name:
             public function up()
             {
                 $table = $this->table('followers', array('id' => 'user_id'));
-                $table->addColumn('user_id', 'integer')
-                      ->addColumn('follower_id', 'integer')
+                $table->addColumn('follower_id', 'integer')
                       ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'))
                       ->save();
             }
