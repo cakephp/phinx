@@ -83,9 +83,11 @@ class Create extends AbstractCommand
      *
      * @param InputInterface $input
      * @param OutputInterface $output
+     *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     * @return void
+     *
+     * @return null|int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -206,5 +208,7 @@ class Create extends AbstractCommand
         }
 
         $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
+
+        return 0;
     }
 }
