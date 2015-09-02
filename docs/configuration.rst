@@ -1,25 +1,54 @@
 .. index::
    single: Configuration
-   
+
 Configuration
 =============
 
-Phinx uses the YAML data serialization format to store it's configuration data.
 When you initialize your project using the :doc:`Init Command<commands>`, Phinx
-creates a file called ``phinx.yml`` in the root of your project directory.
+creates a default file called ``phinx.yml`` in the root of your project directory.
+This file uses the YAML data serialization format.
+
+If a ``--configuration`` command line option is given, Phinx will load the
+specified file. Otherwise, it will attempt to find ``phinx.php``, ``phinx.json`` or
+``phinx.yml`` and load the first file found. See the :doc:`Commands <commands>`
+chapter for more information.
 
 .. warning::
 
-    Remember to store the ``phinx.yml`` file outside of a publicly accessible
+    Remember to store the configuration file outside of a publicly accessible
     directory on your webserver. This file contains your database credentials
     and may be accidentally served as plain text.
 
-If you do not wish to use the default configuration file, you may specify a configuration file (or a file that generates a PHP array) on the command line. See the :doc:`Commands <commands>` chapter for more information.
+Note that while JSON and YAML files are *parsed*, the PHP file is *included*.
+This means that:
+
+* It must `return` an array of configuration items.
+* The variable scope is local, i.e. you would need to explicitly declare
+  any global variables your initialization file reads or modifies.
+* Its standard output is suppressed.
+* Unlike with JSON and YAML, it is possible to omit environment connection details
+  and instead specify ``connection`` which must
+  contain an initialized PDO instance. This is useful when you want
+  your migrations to interact with your application and/or share the same.
+  connection.
+
+.. code-block:: php
+
+   require 'app/init.php';
+
+   global $app;
+   $pdo = $app->getDatabase()->getPdo();
+
+   return array('environments' => array(
+            'default_database' => 'development',
+            'development' => array(
+            'connection' => $pdo
+            )));
 
 Migration Path
 --------------
 
-The first option specifies the path to your migration directory. Phinx uses 
+The first option specifies the path to your migration directory. Phinx uses
 ``%%PHINX_CONFIG_DIR%%/migrations`` by default.
 
 .. note::
@@ -182,7 +211,7 @@ Declaring an SQLite database uses a simplified structure:
 SQL Server
 `````````````````
 
-When using the ``sqlsrv`` adapter and connecting to a named instance of 
+When using the ``sqlsrv`` adapter and connecting to a named instance of
 SQLServer you should omit the ``port`` setting as sqlsrv will negotiate the port
 automatically.
 
@@ -191,7 +220,7 @@ Custom Adapters
 `````````````````
 
 You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface`
-with `AdapterFactory`: 
+with `AdapterFactory`:
 
 .. code-block:: php
 
