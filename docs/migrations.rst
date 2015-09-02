@@ -331,7 +331,9 @@ Finally calling ``save()`` commits the changes to the database.
     Phinx automatically creates an auto-incrementing primary key column called ``id`` for every
     table.
 
-The ``id`` option sets the name of the automatically created identity field, while the ``primary_key`` option selects the field or fields used for primary key. The ``primary_key`` option always defaults to the value of ``id``. Both can be disabled setting them to false.
+The ``id`` option sets the name of the automatically created identity field, while the ``primary_key`` 
+option selects the field or fields used for primary key. The ``primary_key`` option always defaults to
+the value of ``id``. Both can be disabled by setting them to false.
 
 To specify an alternate primary key you can specify the ``primary_key`` option
 when accessing the Table object. Let's disable the automatic ``id`` column and
