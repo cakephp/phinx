@@ -574,7 +574,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function dropIndexByName($tableName, $indexName)
     {
         $this->startCommandTimer();
-
         $this->writeCommand('dropIndexByName', array($tableName, $indexName));
         $indexes = $this->getIndexes($tableName);
 
