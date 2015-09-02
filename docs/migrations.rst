@@ -927,6 +927,7 @@ Option    Description
 ========= ===========
 precision combine with ``scale`` set to set decimial accuracy
 scale     combine with ``precision`` to set decimial accuracy
+signed    enable or disable the ``unsigned`` option *(only applies to MySQL)*
 ========= ===========
 
 For ``enum`` and ``set`` columns:
@@ -954,6 +955,14 @@ Option   Description
 default  set default value (use with ``CURRENT_TIMESTAMP``)
 update   set an action to be triggered when the row is updated (use with ``CURRENT_TIMESTAMP``)
 timezone enable or disable the ``with time zone`` option for ``time`` and ``timestamp`` columns *(only applies to Postgres)*
+======== ===========
+
+For ``boolean``columns:
+
+======== ===========
+Option   Description
+======== ===========
+signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
 ======== ===========
 
 For foreign key definitions:
