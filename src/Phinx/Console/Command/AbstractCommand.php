@@ -88,8 +88,12 @@ abstract class AbstractCommand extends Command
         }
 
         $this->loadManager($output);
-        // report the migrations path
-        $output->writeln('<info>using migration path</info> ' . $this->getConfig()->getMigrationPath());
+        // report migrations paths
+        $paths = $this->getConfig()->getMigrationPath();
+        foreach ($paths as $path) {
+            $output->writeln('<info>using migration path</info> ' . $path);
+        }
+        
     }
 
     /**
