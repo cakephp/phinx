@@ -166,7 +166,8 @@ Executing Queries
 
 Queries can be executed with the ``execute()`` and ``query()`` methods. The
 ``execute()`` method returns the number of affected rows whereas the
-``query()`` method returns the result as an array.
+``query()`` method returns the result as a
+`PDOStatement <http://php.net/manual/en/class.pdostatement.php>`_
 
 .. code-block:: php
 
@@ -331,7 +332,7 @@ Finally calling ``save()`` commits the changes to the database.
     Phinx automatically creates an auto-incrementing primary key column called ``id`` for every
     table.
 
-The ``id`` option sets the name of the automatically created identity field, while the ``primary_key`` 
+The ``id`` option sets the name of the automatically created identity field, while the ``primary_key``
 option selects the field or fields used for primary key. The ``primary_key`` option always defaults to
 the value of ``id``. Both can be disabled by setting them to false.
 
@@ -539,7 +540,8 @@ Working With Columns
 Get a column list
 ~~~~~~~~~~~~~~~~~
 
-To retrieve all table columns, simply create a `table` object and call `getColumns()` method. This method will return an array of Column classes with basic info. Example below:
+To retrieve all table columns, simply create a `table` object and call `getColumns()`
+method. This method will return an array of Column classes with basic info. Example below:
 
 .. code-block:: php
 
@@ -972,7 +974,7 @@ Limit Option and MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
 
 When using the MySQL adapter, additional hinting of database column type can be
-made for ``integer``, ``text`` and ``binary`` columns. Using ``limit`` with 
+made for ``integer``, ``text`` and ``binary`` columns. Using ``limit`` with
 one the following options will modify the column type accordingly:
 
 ============ ==============
