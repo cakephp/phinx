@@ -25,6 +25,13 @@ class UtilTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testGetExistingMigrationClassNamesWithFile()
+    {
+        $file = $this->getCorrectedPath(__DIR__ . '/_files/migrations/20120111235330_test_migration.php');
+        $existingClassNames = Util::getExistingMigrationClassNames($file);
+        $this->assertCount(0, $existingClassNames);
+    }
+
     public function testGetCurrentTimestamp()
     {
         $dt = new \DateTime('now', new \DateTimeZone('UTC'));

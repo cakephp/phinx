@@ -77,6 +77,19 @@ class Util
     }
 
     /**
+     * Get the version from the beginning of a file name.
+     *
+     * @param string $fileName File Name
+     * @return string
+     */
+    public static function getVersionFromFileName($fileName)
+    {
+        $matches = array();
+        preg_match('/^[0-9]+/', basename($fileName), $matches);
+        return $matches[0];
+    }
+
+    /**
      * Turn migration names like 'CreateUserTable' into file names like
      * '12345678901234_create_user_table.php' or 'LimitResourceNamesTo30Chars' into
      * '12345678901234_limit_resource_names_to_30_chars.php'.
@@ -101,12 +114,12 @@ class Util
      */
     public static function mapFileNameToClassName($fileName)
     {
-        $str = $fileName;
-        if (preg_match(static::FILE_NAME_PATTERN, $str, $matches)) {
-            $str = $matches[1];
+        $matches = array();
+        if (preg_match(static::FILE_NAME_PATTERN, $fileName, $matches)) {
+            $fileName = $matches[1];
         }
 
-        return str_replace(' ', '', ucwords(str_replace('_', ' ', $str)));
+        return str_replace(' ', '', ucwords(str_replace('_', ' ', $fileName)));
     }
 
     /**
@@ -143,5 +156,17 @@ class Util
     public static function isValidMigrationClassName($className)
     {
         return (bool) preg_match('/^([A-Z][a-z0-9]+)+$/', $className);
+    }
+
+    /**
+     * Check if a migration file name is valid.
+     *
+     * @param string $fileName File Name
+     * @return boolean
+     */
+    public static function isValidMigrationFileName($fileName)
+    {
+        $matches = array();
+        return preg_match(static::FILE_NAME_PATTERN, $fileName, $matches);
     }
 }
