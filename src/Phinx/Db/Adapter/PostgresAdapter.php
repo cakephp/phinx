@@ -541,6 +541,20 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         return false;
     }
 
+     /**
+      * {@inheritdoc}
+      */
+     public function hasIndexByName($tableName, $indexName)
+     {
+         $indexes = $this->getIndexes($tableName);
+         foreach ($indexes as $name => $index) {
+             if ($name == $indexName) {
+                 return true;
+             }
+         }
+         return false;
+     }
+
     /**
      * {@inheritdoc}
      */

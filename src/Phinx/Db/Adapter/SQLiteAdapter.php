@@ -554,6 +554,22 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function hasIndexByName($tableName, $indexName)
+    {
+        $indexes = $this->getIndexes($tableName);
+
+        foreach ($indexes as $index) {
+            if ($indexName == $index['index']) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function addIndex(Table $table, Index $index)
     {
         $this->startCommandTimer();
