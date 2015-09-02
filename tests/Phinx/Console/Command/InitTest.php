@@ -11,14 +11,9 @@ class InitTest extends \PHPUnit_Framework_TestCase
 {
     protected function setUp()
     {
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $this->markTestSkipped('This method is breaking Appveyor');
-        }
-        $files = glob(sys_get_temp_dir() . '/*');
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                unlink($file);
-            }
+        $file = sys_get_temp_dir() . '/phinx.yml';
+        if (is_file($file)) {
+            unlink($file);
         }
     }
 
