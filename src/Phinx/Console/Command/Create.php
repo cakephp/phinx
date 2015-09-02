@@ -66,6 +66,9 @@ class Create extends AbstractCommand
         // A classname to be used to gain access to the template content as well as the ability to
         // have a callback once the migration file has been created.
         $this->addOption('class', 'l', InputOption::VALUE_REQUIRED, 'Use a class implementing "' . self::CREATION_INTERFACE . '" to generate the template');
+
+        // Allow the migration path to be chosen non-interactively:
+        $this->addOption('path', null, InputOption::VALUE_REQUIRED, 'Specify the path in which to create this migration');
     }
 
     /**
@@ -90,6 +93,33 @@ class Create extends AbstractCommand
         return new ChoiceQuestion('Which migrations path would you like to use?', $paths, 0);
     }
 
+    protected function getMigrationPath(InputInterface $input, OutputInterface $output)
+    {
+        // First, try the non-interactive option:
+        $path = $input->getOption('path');
+
+        if (!empty($path)) {
+            return $path;
+        }
+
+        $paths = $this->getConfig()->getMigrationPaths();
+
+        // No paths? That's a problem.
+        if (count($paths) === 0) {
+            throw new \Exception('No migration paths set in your Phinx configuration file.');
+        }
+
+        // Only one path set, so select that:
+        if (count($paths) === 1) {
+            return array_shift($paths);
+        }
+
+        // Ask the user which of their defined paths they'd like to use:
+        $helper = $this->getHelper('question');
+        $question = $this->getSelectMigrationPathQuestion($paths);
+        return $helper->ask($input, $output, $question);
+    }
+
     /**
      * Migrate the database.
      *
@@ -103,17 +133,7 @@ class Create extends AbstractCommand
     {
         $this->bootstrap($input, $output);
 
-        // get the migration path from the config, allowing the user to select a path if there are more than one.
-        $paths = $this->getConfig()->getMigrationPaths();
-
-        if (count($paths) > 1) {
-            $helper = $this->getHelper('question');
-            $question = $this->getSelectMigrationPathQuestion($paths);
-
-            $path = $helper->ask($input, $output, $question);
-        } else {
-            $path = array_shift($paths);
-        }
+        $path = $this->getMigrationPath($input, $output);
 
         if (!file_exists($path)) {
             $helper   = $this->getHelper('question');
