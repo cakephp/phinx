@@ -196,7 +196,6 @@ abstract class AbstractCommand extends Command
             }
         }
         throw $lastException;
-
     }
 
     /**
