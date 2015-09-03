@@ -231,3 +231,16 @@ with `AdapterFactory`:
 
 Adapters can be registered any time before `$app->run()` is called, which normally
 called by `bin/phinx`.
+
+Aliases
+-------
+
+Template creation class names can be aliased and used with the ``--class`` command line option for the :doc:`Create Command <commands>`.
+
+The aliased classes will still be required to implement the ``Phinx\Migration\CreationInterface`` interface.
+
+.. code-block:: yaml
+
+    aliases:
+        permission: \Namespace\Migrations\PermissionMigrationTemplateGenerator
+        view: \Namespace\Migrations\ViewMigrationTemplateGenerator
