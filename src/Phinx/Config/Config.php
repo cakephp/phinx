@@ -243,6 +243,34 @@ class Config implements ConfigInterface
     }
 
     /**
+     * Get the template file name.
+     *
+     * @return string|false
+     */
+     public function getTemplateFile()
+     {
+        if (!isset($this->values['templates']['file'])) {
+            return false;
+        }
+
+        return $this->values['templates']['file'];
+     }
+
+    /**
+     * Get the template class name.
+     *
+     * @return string|false
+     */
+     public function getTemplateClass()
+     {
+        if (!isset($this->values['templates']['class'])) {
+            return false;
+        }
+
+        return $this->values['templates']['class'];
+     }
+
+    /**
      * Replace tokens in the specified array.
      *
      * @param array $arr Array to replace

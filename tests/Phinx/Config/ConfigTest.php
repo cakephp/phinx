@@ -156,4 +156,15 @@ class ConfigTest extends AbstractConfigTest
         $config = new Config(array('migration_base_class' => 'Phinx\Migration\AlternativeAbstractMigration'));
         $this->assertEquals('Phinx\Migration\AlternativeAbstractMigration', $config->getMigrationBaseClassName(false));
     }
+
+    /**
+     * @covers \Phinx\Config\Config::getTemplateFile();
+     * @covers \Phinx\Config\Config::getTemplateClass();
+     */
+    public function testGetTemplateValuesFalseOnEmpty()
+    {
+        $config = new \Phinx\Config\Config(array());
+        $this->assertFalse($config->getTemplateFile());
+        $this->assertFalse($config->getTemplateClass());
+    }
 }
