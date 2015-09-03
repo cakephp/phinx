@@ -138,7 +138,10 @@ When running Phinx from the command line, you may specify a configuration file u
 
 Phinx auto-detects which language parser to use for files with ``*.yml`` and ``*.php`` extensions. The appropriate parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than ``"php"`` is treated as YAML.
 
-In case with PHP array you can provide ``connection`` key with existing PDO instance to use omitting other parameters:
+In case with PHP array you can provide ``connection`` key set to existing PDO instance. It is important to pass database
+name in ``name`` key along with ``connection`` because there is no way to retrieve database name from PDO
+object and database name is required by methods that query database schema (for example in order to check
+whether a specific table exists in the database or not):
 
 .. code-block:: php
 
@@ -151,6 +154,7 @@ In case with PHP array you can provide ``connection`` key with existing PDO inst
                     "default_migration_table" => "phinxlog",
                     "default_database" => "dev",
                     "dev" => array(
+                        "name" => "dev_db",
                         "connection" => $pdo_instance
                     )
                 )
