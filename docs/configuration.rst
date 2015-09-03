@@ -213,7 +213,7 @@ SQL Server
 
 When using the ``sqlsrv`` adapter and connecting to a named instance of
 SQLServer you should omit the ``port`` setting as sqlsrv will negotiate the port
-automatically.
+automatically. Additionally, omit the ``charset: utf8`` or change to ``charset: 65001`` which corresponds to UTF8 for SQL Server.
 
 
 Custom Adapters
