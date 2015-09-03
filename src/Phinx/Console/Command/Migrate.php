@@ -87,6 +87,10 @@ EOT
             $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         }
 
+        if (isset($envOptions['wrapper'])) {
+            $output->writeln('<info>using wrapper</info> ' . $envOptions['wrapper']);
+        }
+
         if (isset($envOptions['name'])) {
             $output->writeln('<info>using database</info> ' . $envOptions['name']);
         }

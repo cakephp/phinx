@@ -8,6 +8,7 @@ return array(
         'default_database' => 'dev',
         'dev' => array(
             'adapter' => 'mysql',
+            'wrapper' => 'testwrapper',
             'host' => 'localhost',
             'name' => 'testing',
             'user' => 'root',

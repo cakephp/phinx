@@ -41,6 +41,7 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
                 'default_database' => 'testing',
                 'testing' => array(
                     'adapter' => 'sqllite',
+                    'wrapper' => 'testwrapper',
                     'path' => '%%PHINX_CONFIG_PATH%%/testdb/test.db'
                 ),
                 'production' => array(
