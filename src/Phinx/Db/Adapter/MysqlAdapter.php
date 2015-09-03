@@ -451,13 +451,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
+        $after = $newColumn->getAfter() ? ' AFTER ' . $this->quoteColumnName($newColumn->getAfter()) : '';
         $this->execute(
             sprintf(
-                'ALTER TABLE %s CHANGE %s %s %s',
+                'ALTER TABLE %s CHANGE %s %s %s%s',
                 $this->quoteTableName($tableName),
                 $this->quoteColumnName($columnName),
                 $this->quoteColumnName($newColumn->getName()),
-                $this->getColumnSqlDefinition($newColumn)
+                $this->getColumnSqlDefinition($newColumn),
+                $after
             )
         );
         $this->endCommandTimer();
