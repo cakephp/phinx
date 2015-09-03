@@ -314,7 +314,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                    ->setType($this->getPhinxType($columnInfo['data_type']))
                    ->setNull($columnInfo['is_nullable'] == 'YES')
                    ->setDefault($columnInfo['column_default'])
-                   ->setIdentity($columnInfo['is_identity'] == 'YES');
+                   ->setIdentity($columnInfo['is_identity'] == 'YES')
+                   ->setPrecision($columnInfo['numeric_precision'])
+                   ->setScale($columnInfo['numeric_scale']);
 
             if (preg_match('/\bwith time zone$/', $columnInfo['data_type'])) {
                 $column->setTimezone(true);
@@ -724,7 +726,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 }
                 return array('name' => $type);
             case static::PHINX_TYPE_TEXT:
-            case static::PHINX_TYPE_DECIMAL:
             case static::PHINX_TYPE_TIME:
             case static::PHINX_TYPE_DATE:
             case static::PHINX_TYPE_BOOLEAN:
@@ -732,6 +733,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_JSONB:
             case static::PHINX_TYPE_UUID:
                 return array('name' => $type);
+            case static::PHINX_TYPE_DECIMAL:
+                return array('name' => $type, 'precision' => 18, 'scale' => 0);
             case static::PHINX_TYPE_STRING:
                 return array('name' => 'character varying', 'limit' => 255);
             case static::PHINX_TYPE_CHAR:
@@ -900,7 +903,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
             $buffer[] = strtoupper($sqlType['name']);
             // integers cant have limits in postgres
-            if (!in_array($sqlType['name'], array('integer', 'smallint'))) {
+            if (static::PHINX_TYPE_DECIMAL == $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
+                $buffer[] = sprintf(
+                    '(%s, %s)',
+                    $column->getPrecision() ? $column->getPrecision() : $sqlType['precision'],
+                    $column->getScale() ? $column->getScale() : $sqlType['scale']
+                );
+            } elseif (!in_array($sqlType['name'], array('integer', 'smallint'))) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
                 }
@@ -921,7 +930,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
         }
 
-        // TODO - add precision & scale for decimals
         return implode(' ', $buffer);
     }
 
