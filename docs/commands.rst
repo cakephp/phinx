@@ -136,12 +136,11 @@ When running Phinx from the command line, you may specify a configuration file u
                 )
             );
 
-Phinx auto-detects which language parser to use for files with ``*.yml`` and ``*.php`` extensions. The appropriate parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than ``"php"`` is treated as YAML.
+Phinx auto-detects which language parser to use for files with ``*.yml`` and ``*.php`` extensions. The appropriate
+parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than ``"php"`` is treated as YAML.
 
-In case with PHP array you can provide ``connection`` key set to existing PDO instance. It is important to pass database
-name in ``name`` key along with ``connection`` because there is no way to retrieve database name from PDO
-object and database name is required by methods that query database schema (for example in order to check
-whether a specific table exists in the database or not):
+When using a PHP array can you provide a ``connection`` key with an existing PDO instance. It is also important to pass
+the database name too as Phinx requires this for certain methods such as ``hasTable()``:
 
 .. code-block:: php
 
@@ -182,4 +181,3 @@ and to rollback use `<http://localhost:8000/rollback>`__.
         To modify configuration variables at runtime and overrid ``%%PHINX_DBNAME%%``
         or other another dynamic option, set ``$_SERVER['PHINX_DBNAME']`` before
         running commands. Available options are documented in the Configuration page.
-
