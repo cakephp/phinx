@@ -417,12 +417,14 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                          'Type'    => 'int(15)',
                          'Null'    => 'NO',
                          'Default' => '',
+                         'Key'     => 'PRI',
                          'Extra'   => 'auto_increment');
 
         $column2 = array('Field'   => 'column2',
                          'Type'    => 'varchar(32)',
                          'Null'    => '',
                          'Default' => 'NULL',
+                         'Key'     => '',
                          'Extra'   => '');
 
         $this->result->expects($this->at(0))
