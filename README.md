@@ -87,7 +87,7 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
 1. Install Box:
 
     ```
-    curl -s http://box-project.org/installer.php | php
+    curl -LSs https://box-project.github.io/box2/installer.php | php
     ```
 
 1. Create a Phar archive
