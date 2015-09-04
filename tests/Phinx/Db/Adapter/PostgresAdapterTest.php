@@ -91,6 +91,13 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
     }
 
+    public function testSchemaTableIsCreatedWithPrimaryKey()
+    {
+        $this->adapter->connect();
+        $table = new \Phinx\Db\Table($this->adapter->getSchemaTableName(), array(), $this->adapter);
+        $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), array('version')));
+    }
+
     public function testQuoteSchemaName()
     {
         $this->assertEquals('"schema"', $this->adapter->quoteSchemaName('schema'));
