@@ -220,7 +220,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if($this->enumerateColumnsTypes) {
             if ($sqlEnumerate = $this->getEnumerateSqlDefinition()) {
                 $this->execute($sqlEnumerate);
-                $this->writeCommand('createType', array_keys($enumerateColumnsTypes));
+                $this->writeCommand('createType', array_keys($this->enumerateColumnsTypes));
             }
         }
 
@@ -378,7 +378,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if($this->enumerateColumnsTypes) {
             if ($sqlEnumerate = $this->getEnumerateSqlDefinition()) {
                 $this->execute($sqlEnumerate);
-                $this->writeCommand('createType', array_keys($enumerateColumnsTypes));
+                $this->writeCommand('createType', array_keys($this->enumerateColumnsTypes));
             }
         }
         $this->writeCommand('addColumn', array($table->getName(), $column->getName(), $column->getType()));
@@ -434,7 +434,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if($this->enumerateColumnsTypes) {
             if ($sqlEnumerate = $this->getEnumerateSqlDefinition()) {
                 $this->execute($sqlEnumerate);
-                $this->writeCommand('createType', array_keys($enumerateColumnsTypes));
+                $this->writeCommand('createType', array_keys($this->enumerateColumnsTypes));
             }
         }
         //NULL and DEFAULT cannot be set while changing column type
