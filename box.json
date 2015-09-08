@@ -7,7 +7,8 @@
     ],
     "directories": ["src","app"],
     "files": [
-        "LICENSE"
+        "LICENSE",
+        "phinx.yml"
     ],
     "finder": [
         {

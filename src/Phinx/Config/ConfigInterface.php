@@ -93,4 +93,18 @@ interface ConfigInterface extends \ArrayAccess
      * @return string[]
      */
     public function getMigrationPaths();
+
+     /**
+     * Get the template file name.
+     *
+     * @return string|false
+     */
+     public function getTemplateFile();
+
+     /**
+     * Get the template class name.
+     *
+     * @return string|false
+     */
+     public function getTemplateClass();
 }

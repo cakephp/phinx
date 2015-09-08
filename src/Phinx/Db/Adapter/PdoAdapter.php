@@ -416,7 +416,8 @@ abstract class PdoAdapter implements AdapterInterface
     {
         try {
             $options = array(
-                'id' => false
+                'id'          => false,
+                'primary_key' => 'version'
             );
 
             $table = new Table($this->getSchemaTableName(), $options, $this);

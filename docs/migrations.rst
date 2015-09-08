@@ -169,7 +169,8 @@ Executing Queries
 
 Queries can be executed with the ``execute()`` and ``query()`` methods. The
 ``execute()`` method returns the number of affected rows whereas the
-``query()`` method returns the result as an array.
+``query()`` method returns the result as a
+`PDOStatement <http://php.net/manual/en/class.pdostatement.php>`_
 
 .. code-block:: php
 
@@ -334,6 +335,10 @@ Finally calling ``save()`` commits the changes to the database.
     Phinx automatically creates an auto-incrementing primary key column called ``id`` for every
     table.
 
+The ``id`` option sets the name of the automatically created identity field, while the ``primary_key``
+option selects the field or fields used for primary key. The ``primary_key`` option always defaults to
+the value of ``id``. Both can be disabled by setting them to false.
+
 To specify an alternate primary key you can specify the ``primary_key`` option
 when accessing the Table object. Let's disable the automatic ``id`` column and
 create a primary key using two columns instead:
@@ -368,7 +373,7 @@ create a primary key using two columns instead:
         }
 
 Setting a single ``primary_key`` doesn't enable the ``AUTO_INCREMENT`` option.
-To do this, we need to override the default ``id`` field name:
+To simply change the name of the primary key, we need to override the default ``id`` field name:
 
 .. code-block:: php
 
@@ -384,8 +389,7 @@ To do this, we need to override the default ``id`` field name:
             public function up()
             {
                 $table = $this->table('followers', array('id' => 'user_id'));
-                $table->addColumn('user_id', 'integer')
-                      ->addColumn('follower_id', 'integer')
+                $table->addColumn('follower_id', 'integer')
                       ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'))
                       ->save();
             }
@@ -420,7 +424,7 @@ Column types are specified as strings and can be one of:
 
 In addition, the MySQL adapter supports ``enum`` and ``set`` column types.
 
-In addition, the Postgres adapter supports ``json`` and ``jsonb`` column types
+In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb`` and ``uuid`` column types
 (PostgreSQL 9.3 and above).
 
 For valid options, see the `Valid Column Options`_ below.
@@ -539,7 +543,8 @@ Working With Columns
 Get a column list
 ~~~~~~~~~~~~~~~~~
 
-To retrieve all table columns, simply create a `table` object and call `getColumns()` method. This method will return an array of Column classes with basic info. Example below:
+To retrieve all table columns, simply create a `table` object and call `getColumns()`
+method. This method will return an array of Column classes with basic info. Example below:
 
 .. code-block:: php
 
@@ -927,6 +932,7 @@ Option    Description
 ========= ===========
 precision combine with ``scale`` set to set decimial accuracy
 scale     combine with ``precision`` to set decimial accuracy
+signed    enable or disable the ``unsigned`` option *(only applies to MySQL)*
 ========= ===========
 
 For ``enum`` and ``set`` columns:
@@ -956,6 +962,14 @@ update   set an action to be triggered when the row is updated (use with ``CURRE
 timezone enable or disable the ``with time zone`` option for ``time`` and ``timestamp`` columns *(only applies to Postgres)*
 ======== ===========
 
+For ``boolean``columns:
+
+======== ===========
+Option   Description
+======== ===========
+signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
+======== ===========
+
 For foreign key definitions:
 
 ====== ===========
@@ -968,11 +982,35 @@ delete set an action to be triggered when the row is deleted
 You can pass one or more of these options to any column with the optional
 third argument array.
 
+Limit Option and PostgreSQL
+~~~~~~~~~~~~~~~~~~~~~~
+
+When using the PostgreSQL adapter, additional hinting of database column type can be
+made for ``integer`` columns. Using ``limit`` with one the following options will
+modify the column type accordingly:
+
+============ ==============
+Limit        Column Type
+============ ==============
+INT_SMALL    SMALLINT
+============ ==============
+
+.. code-block:: php
+
+         use Phinx\Db\Adapter\PostgresAdapter;
+
+         //...
+
+         $table = $this->table('cart_items');
+         $table->addColumn('user_id', 'integer')
+               ->addColumn('subtype_id', 'integer', array('limit' => PostgresAdapter::INT_SMALL))
+               ->create();
+
 Limit Option and MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
 
 When using the MySQL adapter, additional hinting of database column type can be
-made for ``integer``, ``text`` and ``binary`` columns. Using ``limit`` with 
+made for ``integer``, ``text`` and ``binary`` columns. Using ``limit`` with
 one the following options will modify the column type accordingly:
 
 ============ ==============

@@ -91,6 +91,13 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
     }
 
+    public function testSchemaTableIsCreatedWithPrimaryKey()
+    {
+        $this->adapter->connect();
+        $table = new \Phinx\Db\Table($this->adapter->getSchemaTableName(), array(), $this->adapter);
+        $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), array('version')));
+    }
+
     public function testQuoteSchemaName()
     {
         $this->assertEquals('"schema"', $this->adapter->quoteSchemaName('schema'));
@@ -265,6 +272,28 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testAddDecimalWithPrecisionAndScale()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $table->addColumn('number', 'decimal', array('precision' => 10, 'scale' => 2))
+            ->addColumn('number2', 'decimal', array('limit' => 12))
+            ->addColumn('number3', 'decimal')
+            ->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() == 'number') {
+                $this->assertEquals("10", $column->getPrecision());
+                $this->assertEquals("2", $column->getScale());
+            }
+
+            if ($column->getName() == 'number2') {
+                $this->assertEquals("12", $column->getPrecision());
+                $this->assertEquals("0", $column->getScale());
+            }
+        }
+    }
+
     public function providerArrayType()
     {
         return array(
@@ -350,7 +379,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             if ($column->getName() == 'column2') {
                 $this->assertTrue($column->isNull());
             }
-        }        
+        }
     }
 
     public function testChangeColumnWithDefault() {
@@ -415,18 +444,19 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string')
-              ->addColumn('column2', 'integer')
-              ->addColumn('column3', 'biginteger')
-              ->addColumn('column4', 'text')
-              ->addColumn('column5', 'float')
-              ->addColumn('column6', 'decimal')
-              ->addColumn('column7', 'time')
-              ->addColumn('column8', 'timestamp')
-              ->addColumn('column9', 'date')
-              ->addColumn('column10', 'boolean')
-              ->addColumn('column11', 'datetime')
-              ->addColumn('column12', 'binary')
-              ->addColumn('column13', 'string', array('limit' => 10));
+              ->addColumn('column2', 'integer', array('limit' => PostgresAdapter::INT_SMALL))
+              ->addColumn('column3', 'integer')
+              ->addColumn('column4', 'biginteger')
+              ->addColumn('column5', 'text')
+              ->addColumn('column6', 'float')
+              ->addColumn('column7', 'decimal')
+              ->addColumn('column8', 'time')
+              ->addColumn('column9', 'timestamp')
+              ->addColumn('column10', 'date')
+              ->addColumn('column11', 'boolean')
+              ->addColumn('column12', 'datetime')
+              ->addColumn('column13', 'binary')
+              ->addColumn('column14', 'string', array('limit' => 10));
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');

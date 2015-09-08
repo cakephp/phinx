@@ -11,11 +11,9 @@ class InitTest extends \PHPUnit_Framework_TestCase
 {
     protected function setUp()
     {
-        $files = glob(sys_get_temp_dir() . '/*');
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                unlink($file);
-            }
+        $file = sys_get_temp_dir() . '/phinx.yml';
+        if (is_file($file)) {
+            unlink($file);
         }
     }
 

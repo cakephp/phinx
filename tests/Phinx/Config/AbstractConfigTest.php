@@ -32,11 +32,16 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
             'paths' => array(
                 'migrations' => $this->getMigrationPath(),
             ),
+            'templates' => array(
+                'file' => '%%PHINX_CONFIG_PATH%%/tpl/testtemplate.txt',
+                'class' => '%%PHINX_CONFIG_PATH%%/tpl/testtemplate.php'
+            ),
             'environments' => array(
                 'default_migration_table' => 'phinxlog',
                 'default_database' => 'testing',
                 'testing' => array(
                     'adapter' => 'sqllite',
+                    'wrapper' => 'testwrapper',
                     'path' => '%%PHINX_CONFIG_PATH%%/testdb/test.db'
                 ),
                 'production' => array(
