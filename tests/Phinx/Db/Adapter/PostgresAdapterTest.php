@@ -272,6 +272,16 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testAddEnumColumn()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('enum_column'));
+        $table->addColumn('enum_column', 'enum', array('values' => array('one', 'two'), 'properties' => array('enum_name' => 'enum_type')))
+              ->save();
+        $columns = $this->adapter->getColumns('table1');
+    }
+
     public function testAddDecimalWithPrecisionAndScale()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
