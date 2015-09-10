@@ -900,6 +900,7 @@ ORDER BY T.[name], I.[index_id];";
             case static::PHINX_TYPE_DATE:
                 return array('name' => 'date');
                 break;
+            case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
                 return array('name' => 'varbinary');
                 break;

@@ -743,6 +743,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'text');
                 break;
             case static::PHINX_TYPE_BINARY:
+                return array('name' => 'binary', 'limit' => $limit ? $limit : 255);
+                break;
+            case static::PHINX_TYPE_BLOB:
                 if ($limit) {
                     $sizes = array(
                         // Order matters! Size must always be tested from longest to shortest!

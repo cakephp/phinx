@@ -829,23 +829,28 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
         //blob combinations
         $this->assertEquals(array('name' => 'blob'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB));
+        $this->assertEquals(array('name' => 'tinyblob'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_TINY));
+        $this->assertEquals(array('name' => 'tinyblob'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_TINY+1));
+        $this->assertEquals(array('name' => 'blob'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_REGULAR));
+        $this->assertEquals(array('name' => 'blob'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_REGULAR+1));
+        $this->assertEquals(array('name' => 'mediumblob'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_MEDIUM));
+        $this->assertEquals(array('name' => 'mediumblob'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_MEDIUM+1));
+        $this->assertEquals(array('name' => 'longblob'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_LONG));
+        $this->assertEquals(array('name' => 'longblob'),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_LONG+1));
+
+        $this->assertEquals(array('name' => 'binary', 'limit' => 255),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BINARY));
-        $this->assertEquals(array('name' => 'tinyblob'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BINARY, MysqlAdapter::BLOB_TINY));
-        $this->assertEquals(array('name' => 'tinyblob'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BINARY, MysqlAdapter::BLOB_TINY+1));
-        $this->assertEquals(array('name' => 'blob'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BINARY, MysqlAdapter::BLOB_REGULAR));
-        $this->assertEquals(array('name' => 'blob'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BINARY, MysqlAdapter::BLOB_REGULAR+1));
-        $this->assertEquals(array('name' => 'mediumblob'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BINARY, MysqlAdapter::BLOB_MEDIUM));
-        $this->assertEquals(array('name' => 'mediumblob'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BINARY, MysqlAdapter::BLOB_MEDIUM+1));
-        $this->assertEquals(array('name' => 'longblob'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BINARY, MysqlAdapter::BLOB_LONG));
-        $this->assertEquals(array('name' => 'longblob'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BINARY, MysqlAdapter::BLOB_LONG+1));
+        $this->assertEquals(array('name' => 'binary', 'limit' => 36),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BINARY, 36));
 
         //int combinations
         $this->assertEquals(array('name' => 'int', 'limit' => 11),
@@ -886,7 +891,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('name' => 'time'),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TIME));
         $this->assertEquals(array('name' => 'blob'),
-                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BINARY));
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB));
         $this->assertEquals(array('name' => 'tinyint', 'limit' => 1),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BOOLEAN));
         $this->assertEquals(array('name' => 'geometry'),

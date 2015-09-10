@@ -54,6 +54,7 @@ interface AdapterInterface
     const PHINX_TYPE_TIME           = 'time';
     const PHINX_TYPE_DATE           = 'date';
     const PHINX_TYPE_BINARY         = 'binary';
+    const PHINX_TYPE_BLOB           = 'blob';
     const PHINX_TYPE_BOOLEAN        = 'boolean';
     const PHINX_TYPE_JSON           = 'json';
     const PHINX_TYPE_JSONB          = 'jsonb';
