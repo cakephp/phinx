@@ -421,21 +421,19 @@ abstract class PdoAdapter implements AdapterInterface
             );
 
             $table = new Table($this->getSchemaTableName(), $options, $this);
-            
-            if ($this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME)==='mysql' 
-                    && version_compare($this->getConnection()->getAttribute(\PDO::ATTR_SERVER_VERSION),'5.6.0','>=')){
+
+            if ($this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'mysql'
+                && version_compare($this->getConnection()->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.0', '>=')) {
                 $table->addColumn('version', 'biginteger', array('limit' => 14))
                       ->addColumn('start_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
                       ->addColumn('end_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
                       ->save();
-            }
-            else{
+            } else {
                 $table->addColumn('version', 'biginteger')
                       ->addColumn('start_time', 'timestamp')
                       ->addColumn('end_time', 'timestamp')
-                      ->save();                
+                      ->save();
             }
-
         } catch (\Exception $exception) {
             throw new \InvalidArgumentException('There was a problem creating the schema table: ' . $exception->getMessage());
         }
