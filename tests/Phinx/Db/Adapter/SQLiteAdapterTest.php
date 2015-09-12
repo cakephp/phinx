@@ -501,10 +501,10 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $secondFk->setReferencedTable($refTable)
            ->setColumns(array('ref_table_field'))
            ->setReferencedColumns(array('field1'))
-           ->setOptions([
+           ->setOptions(array(
                'update' => 'CASCADE',
                'delete' => 'CASCADE'
-           ]);
+           ));
 
         $this->adapter->addForeignKey($table, $fk);
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
