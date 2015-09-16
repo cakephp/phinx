@@ -368,4 +368,38 @@ class Config implements ConfigInterface
     {
         unset($this->values[$id]);
     }
+
+    /**
+     * @return string
+     */
+    public function getBootstrapFilename()
+    {
+        if (!isset($this->values['bootstrap']['filename'])) {
+            $this->values['bootstrap']['filename'] = 'bootstrap.sql';
+        }
+        return $this->values['bootstrap']['filename'];
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getBootstrapDirectory()
+    {
+        if (!isset($this->values['bootstrap']['path'])) {
+            $this->values['bootstrap']['path'] = $this->getMigrationPath();
+        }
+        return $this->values['bootstrap']['path'];
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getBootstrapFilePath()
+    {
+        return $this->getBootstrapDirectory() . DIRECTORY_SEPARATOR . $this->getBootstrapFilename();
+    }
+
+
 }
