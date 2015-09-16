@@ -24,7 +24,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",
-        "squizlabs/php_codesniffer": "dev-phpcs-fixer"
+        "squizlabs/php_codesniffer": "dev-phpcs-fixer",
+        "mikey179/vfsStream": "^1.5"
     },
     "autoload": {
         "psr-4": {
