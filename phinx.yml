@@ -14,13 +14,13 @@ environments:
         charset: utf8
 
     development:
-        adapter: mysql
-        host: localhost
-        name: development_db
-        user: root
-        pass: ''
-        port: 3306
-        charset: utf8
+      adapter: mysql
+      host: db
+      name: C0201
+      user: C0201
+      pass: 'af18695fa953e5d54eb4e86e50c06bb8906add34'
+      port: 3306
+      charset: utf8
 
     testing:
         adapter: mysql

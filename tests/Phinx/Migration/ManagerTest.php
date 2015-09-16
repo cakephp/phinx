@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Migration;
 
+use org\bovigo\vfs\vfsStream;
 use Symfony\Component\Console\Output\StreamOutput;
 use Phinx\Config\Config;
 use Phinx\Db\Adapter\MysqlAdapter;
@@ -40,19 +41,19 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function getConfigArray()
     {
         return array(
-            'paths' => array(
+            'paths'        => array(
                 'migrations' => $this->getCorrectedPath(__DIR__ . '/_files/migrations'),
             ),
             'environments' => array(
                 'default_migration_table' => 'phinxlog',
-                'default_database' => 'production',
-                'production' => array(
-                    'adapter'   => 'mysql',
-                    'host'      => TESTS_PHINX_DB_ADAPTER_MYSQL_HOST,
-                    'name'      => TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
-                    'user'      => TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME,
-                    'pass'      => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
-                    'port'      => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT
+                'default_database'        => 'production',
+                'production'              => array(
+                    'adapter' => 'mysql',
+                    'host'    => TESTS_PHINX_DB_ADAPTER_MYSQL_HOST,
+                    'name'    => TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
+                    'user'    => TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME,
+                    'pass'    => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
+                    'port'    => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT
                 )
             )
         );
@@ -68,8 +69,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
-                ->method('getVersions')
-                ->will($this->returnValue(array('20120111235330', '20120116183504')));
+            ->method('getVersions')
+            ->will($this->returnValue(array('20120111235330', '20120116183504')));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->printStatus('mockenv');
@@ -96,7 +97,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/There are no available migrations. Try creating one using the create command./', $outputStr);
+        $this->assertRegExp(
+            '/There are no available migrations. Try creating one using the create command./',
+            $outputStr
+        );
     }
 
     public function testPrintStatusMethodWithMissingMigrations()
@@ -104,8 +108,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
-                ->method('getVersions')
-                ->will($this->returnValue(array('20120103083300', '20120815145812')));
+            ->method('getVersions')
+            ->will($this->returnValue(array('20120103083300', '20120815145812')));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->printStatus('mockenv');
@@ -120,9 +124,13 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             'InvalidArgumentException',
-            'Duplicate migration - "' . $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions/20120111235330_duplicate_migration_2.php') . '" has the same version as "20120111235330"'
+            'Duplicate migration - "' . $this->getCorrectedPath(
+                __DIR__ . '/_files/duplicateversions/20120111235330_duplicate_migration_2.php'
+            ) . '" has the same version as "20120111235330"'
         );
-        $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions'))));
+        $config = new Config(
+            array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions')))
+        );
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $manager = new Manager($config, $output);
         $manager->getMigrations();
@@ -134,7 +142,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             'InvalidArgumentException',
             'Migration "20120111235331_duplicate_migration_name.php" has the same name as "20120111235330_duplicate_migration_name.php"'
         );
-        $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicatenames'))));
+        $config = new Config(
+            array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicatenames')))
+        );
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $manager = new Manager($config, $output);
         $manager->getMigrations();
@@ -144,9 +154,13 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             'InvalidArgumentException',
-            'Could not find class "InvalidClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname/20120111235330_invalid_class.php') . '"'
+            'Could not find class "InvalidClass" in file "' . $this->getCorrectedPath(
+                __DIR__ . '/_files/invalidclassname/20120111235330_invalid_class.php'
+            ) . '"'
         );
-        $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname'))));
+        $config = new Config(
+            array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname')))
+        );
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $manager = new Manager($config, $output);
         $manager->getMigrations();
@@ -156,9 +170,13 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             'InvalidArgumentException',
-            'The class "InvalidSuperClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass/20120111235330_invalid_super_class.php') . '" must extend \Phinx\Migration\AbstractMigration'
+            'The class "InvalidSuperClass" in file "' . $this->getCorrectedPath(
+                __DIR__ . '/_files/invalidsuperclass/20120111235330_invalid_super_class.php'
+            ) . '" must extend \Phinx\Migration\AbstractMigration'
         );
-        $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass'))));
+        $config = new Config(
+            array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass')))
+        );
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $manager = new Manager($config, $output);
         $manager->getMigrations();
@@ -180,8 +198,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
-                ->method('getVersions')
-                ->will($this->returnValue($availableMigrations));
+            ->method('getVersions')
+            ->will($this->returnValue($availableMigrations));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->migrateToDateTime('mockenv', new \DateTime($dateString));
@@ -205,8 +223,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->any())
-                ->method('getVersions')
-                ->will($this->returnValue($availableRollbacks));
+            ->method('getVersions')
+            ->will($this->returnValue($availableRollbacks));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->rollbackToDateTime('mockenv', new \DateTime($dateString));
@@ -304,5 +322,37 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($adapter->hasTable('user_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'bio'));
         $this->assertFalse($adapter->hasForeignKey('user_logins', array('user_id')));
+    }
+
+    public function testExecuteBootstrapThrowsErrorIfBootstrapFileIsNotReadable()
+    {
+        $root = vfsStream::setup('tmp');
+        $file = vfsStream::newFile('bootstrap.sql')->at($root);
+
+        $this->setExpectedException('Phinx\Migration\NonReadableBootstrapFile');
+
+
+        $this->manager->executeBootstrap("noname", false, "vfs://tmp/nofile");
+
+    }
+
+    public function testExecuteBootstrap()
+    {
+
+        $root = vfsStream::setup('tmp');
+        $file = vfsStream::newFile('bootstrap.sql')->at($root);
+        $vfsUrl = 'vfs://tmp/bootstrap.sql';
+
+
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->once())
+            ->method('executeBootstrap')->with($vfsUrl, false);
+
+
+        $this->manager->setEnvironments(['mockenv' => $envStub]);
+
+
+        $this->manager->executeBootstrap("mockenv", false, $vfsUrl);
+
     }
 }

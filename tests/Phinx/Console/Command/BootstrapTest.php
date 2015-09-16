@@ -7,7 +7,7 @@ use Symfony\Component\Console\Output\StreamOutput;
 use Phinx\Config\Config;
 use Phinx\Console\Command\Status;
 
-class Bootstrap extends \PHPUnit_Framework_TestCase
+class BootstrapTest extends \PHPUnit_Framework_TestCase
 {
     protected $config = array();
 
@@ -36,18 +36,18 @@ class Bootstrap extends \PHPUnit_Framework_TestCase
 
     public function testExecute()
     {
-        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application = new \Phinx\Console\PhinxApplication();
         $application->add(new Status());
 
         // setup dependencies
         $output = new StreamOutput(fopen('php://memory', 'a', false));
 
-        $command = $application->find('status');
+        $command = $application->find('bootstrap');
 
         // mock the manager class
         $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
         $managerStub->expects($this->once())
-            ->method('printStatus');
+            ->method('executeBootstrap')->with('development', false, null);
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -58,49 +58,7 @@ class Bootstrap extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
     }
 
-    public function testExecuteWithEnvironmentOption()
-    {
-        $application = new \Phinx\Console\PhinxApplication('testing');
-        $application->add(new Status());
 
-        // setup dependencies
-        $output = new StreamOutput(fopen('php://memory', 'a', false));
 
-        $command = $application->find('status');
 
-        // mock the manager class
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
-        $managerStub->expects($this->once())
-            ->method('printStatus');
-
-        $command->setConfig($this->config);
-        $command->setManager($managerStub);
-
-        $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'));
-        $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
-    }
-
-    public function testFormatSpecified()
-    {
-        $application = new \Phinx\Console\PhinxApplication('testing');
-        $application->add(new Status());
-
-        // setup dependencies
-        $output = new StreamOutput(fopen('php://memory', 'a', false));
-
-        $command = $application->find('status');
-
-        // mock the manager class
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
-        $managerStub->expects($this->once())
-            ->method('printStatus');
-
-        $command->setConfig($this->config);
-        $command->setManager($managerStub);
-
-        $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), '--format' => 'json'));
-        $this->assertRegExp('/using format json/', $commandTester->getDisplay());
-    }
 }
