@@ -3,6 +3,8 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Symfony\Component\Console\Output\NullOutput;
+use Phinx\Db\Table\Column;
+use Phinx\Db\Table\Index;
 use Phinx\Db\Adapter\MysqlAdapter;
 
 class PDOMock extends \PDO
@@ -14,7 +16,7 @@ class PDOMock extends \PDO
 
 class MysqlAdapterTester extends MysqlAdapter
 {
-    public function setConnection($connection)
+    public function setMockConnection($connection)
     {
         $this->connection = $connection;
     }
@@ -30,12 +32,12 @@ class MysqlAdapterTester extends MysqlAdapter
         return parent::getDefaultValueDefinition($default);
     }
 
-    public function getColumnSqlDefinition($column)
+    public function getColumnSqlDefinition(Column $column)
     {
         return parent::getColumnSqlDefinition($column);
     }
 
-    public function getIndexSqlDefinition($index)
+    public function getIndexSqlDefinition(Index $index)
     {
         return parent::getIndexSqlDefinition($index);
     }
@@ -69,7 +71,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                              ->disableOriginalConstructor()
                              ->setMethods(array( 'fetch' ))
                              ->getMock();
-        $this->adapter->setConnection($this->conn);
+        $this->adapter->setMockConnection($this->conn);
     }
 
     // helper methods for easy mocking
@@ -416,12 +418,14 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                          'Type'    => 'int(15)',
                          'Null'    => 'NO',
                          'Default' => '',
+                         'Key'     => 'PRI',
                          'Extra'   => 'auto_increment');
 
         $column2 = array('Field'   => 'column2',
                          'Type'    => 'varchar(32)',
                          'Null'    => '',
                          'Default' => 'NULL',
+                         'Key'     => '',
                          'Extra'   => '');
 
         $this->result->expects($this->at(0))

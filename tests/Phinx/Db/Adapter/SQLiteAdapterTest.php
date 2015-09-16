@@ -187,7 +187,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->save();
-
+        $this->assertFalse($table->hasColumn('email'));
         $table->addColumn('email', 'string')
               ->save();
         $this->assertTrue($table->hasColumn('email'));
@@ -223,10 +223,10 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->save();
-        $table->addColumn('default_zero', 'integer', array('default' => null))
+        $table->addColumn('default_empty', 'string', array('default' => ''))
               ->save();
         $rows = $this->adapter->fetchAll(sprintf('pragma table_info(%s)', 'table1'));
-        $this->assertNull($rows[1]['dflt_value']);
+        $this->assertEquals("''", $rows[1]['dflt_value']);
     }
 
     public function testRenameColumn()
@@ -557,7 +557,6 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table2->hasIndex('email'));
     }
 
-
     public function testInsertData()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
@@ -619,5 +618,44 @@ INSERT INTO `test_seed` (`i`, `v`) VALUES ('3', 'funk');\n",
         // test insert actually works. This will throw exception if not
         $this->adapter->query("create table test_seed2 like test_seed");
         $this->adapter->query(str_replace('test_seed', 'test_seed2', $insert));
+    }
+
+    public function testNullWithoutDefaultValue()
+    {
+        $this->markTestSkipped('Skipping for now. See Github Issue #265.');
+
+        // construct table with default/null combinations
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn("aa", "string", array("null" => true)) // no default value
+              ->addColumn("bb", "string", array("null" => false)) // no default value
+              ->addColumn("cc", "string", array("null" => true, "default" => "some1"))
+              ->addColumn("dd", "string", array("null" => false, "default" => "some2"))
+              ->save();
+
+        // load table info
+        $columns = $this->adapter->getColumns("table1");
+
+        $this->assertEquals(count($columns), 5);
+
+        $aa = $columns[1];
+        $bb = $columns[2];
+        $cc = $columns[3];
+        $dd = $columns[4];
+
+        $this->assertEquals("aa", $aa->getName());
+        $this->assertEquals(true, $aa->isNull());
+        $this->assertEquals(null, $aa->getDefault());
+
+        $this->assertEquals("bb", $bb->getName());
+        $this->assertEquals(false, $bb->isNull());
+        $this->assertEquals(null, $bb->getDefault());
+
+        $this->assertEquals("cc", $cc->getName());
+        $this->assertEquals(true, $cc->isNull());
+        $this->assertEquals("some1", $cc->getDefault());
+
+        $this->assertEquals("dd", $dd->getName());
+        $this->assertEquals(false, $dd->isNull());
+        $this->assertEquals("some2", $dd->getDefault());
     }
 }

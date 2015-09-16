@@ -36,6 +36,11 @@ class Util
     const DATE_FORMAT = 'YmdHis';
 
     /**
+     * @var string
+     */
+    const FILE_NAME_PATTERN = '/^\d+_([\w_]+).php$/i';
+
+    /**
      * Gets the current timestamp string, in UTC.
      *
      * @return string
@@ -44,6 +49,44 @@ class Util
     {
         $dt = new \DateTime('now', new \DateTimeZone('UTC'));
         return $dt->format(static::DATE_FORMAT);
+    }
+
+    /**
+     * Gets an array of all the existing migration class names.
+     *
+     * @return string
+     */
+    public static function getExistingMigrationClassNames($path)
+    {
+        $classNames = array();
+
+        if (!is_dir($path)) {
+            return $classNames;
+        }
+
+        // filter the files to only get the ones that match our naming scheme
+        $phpFiles = glob($path . DIRECTORY_SEPARATOR . '*.php');
+
+        foreach ($phpFiles as $filePath) {
+            if (preg_match('/([0-9]+)_([_a-z0-9]*).php/', basename($filePath))) {
+                $classNames[] = static::mapFileNameToClassName(basename($filePath));
+            }
+        }
+
+        return $classNames;
+    }
+
+    /**
+     * Get the version from the beginning of a file name.
+     *
+     * @param string $fileName File Name
+     * @return string
+     */
+    public static function getVersionFromFileName($fileName)
+    {
+        $matches = array();
+        preg_match('/^[0-9]+/', basename($fileName), $matches);
+        return $matches[0];
     }
 
     /**
@@ -63,6 +106,43 @@ class Util
     }
 
     /**
+     * Turn file names like '12345678901234_create_user_table.php' into class names
+     * like 'CreateUserTable'.
+     *
+     * @param string $fileName File Name
+     * @return string
+     */
+    public static function mapFileNameToClassName($fileName)
+    {
+        $matches = array();
+        if (preg_match(static::FILE_NAME_PATTERN, $fileName, $matches)) {
+            $fileName = $matches[1];
+        }
+
+        return str_replace(' ', '', ucwords(str_replace('_', ' ', $fileName)));
+    }
+
+    /**
+     * Check if a migration class name is unique regardless of the timestamp.
+     *
+     * This method takes a class name and a path to a migrations directory.
+     *
+     * Migration class names must be in CamelCase format.
+     * e.g: CreateUserTable or AddIndexToPostsTable.
+     *
+     * Single words are not allowed on their own.
+     *
+     * @param string $className Class Name
+     * @param string $path Path
+     * @return boolean
+     */
+    public static function isUniqueMigrationClassName($className, $path)
+    {
+        $existingClassNames = static::getExistingMigrationClassNames($path);
+        return !(in_array($className, $existingClassNames));
+    }
+
+    /**
      * Check if a migration class name is valid.
      *
      * Migration class names must be in CamelCase format.
@@ -76,5 +156,17 @@ class Util
     public static function isValidMigrationClassName($className)
     {
         return (bool) preg_match('/^([A-Z][a-z0-9]+)+$/', $className);
+    }
+
+    /**
+     * Check if a migration file name is valid.
+     *
+     * @param string $fileName File Name
+     * @return boolean
+     */
+    public static function isValidMigrationFileName($fileName)
+    {
+        $matches = array();
+        return preg_match(static::FILE_NAME_PATTERN, $fileName, $matches);
     }
 }

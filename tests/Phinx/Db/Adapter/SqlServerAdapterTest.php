@@ -8,7 +8,7 @@ use Phinx\Db\Adapter\SqlServerAdapter;
 class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Phinx\Db\Adapter\SqlServerAdaptor
+     * @var \Phinx\Db\Adapter\SqlServerAdapter
      */
     private $adapter;
 
@@ -86,6 +86,13 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->disconnect();
         $this->adapter->connect();
         $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
+    }
+
+    public function testSchemaTableIsCreatedWithPrimaryKey()
+    {
+        $this->adapter->connect();
+        $table = new \Phinx\Db\Table($this->adapter->getSchemaTableName(), array(), $this->adapter);
+        $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), array('version')));
     }
 
     public function testQuoteTableName()

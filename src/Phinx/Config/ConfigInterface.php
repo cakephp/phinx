@@ -106,4 +106,19 @@ interface ConfigInterface extends \ArrayAccess
      * @return SeedTable[] 
      */
     public function getSeeds($adapter=null);
+
+     /**
+     * Get the template file name.
+     *
+     * @return string|false
+     */
+     public function getTemplateFile();
+
+     /**
+     * Get the template class name.
+     *
+     * @return string|false
+     */
+     public function getTemplateClass();
+
 }

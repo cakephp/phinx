@@ -40,7 +40,7 @@ use Phinx\Db\Table\ForeignKey;
  */
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
-    protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
+    protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true, 'boolean' => true);
 
     const TEXT_TINY    = 255;
     const TEXT_SMALL   = 255; /* deprecated, alias of TEXT_TINY */
@@ -447,13 +447,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
+        $after = $newColumn->getAfter() ? ' AFTER ' . $this->quoteColumnName($newColumn->getAfter()) : '';
         $this->execute(
             sprintf(
-                'ALTER TABLE %s CHANGE %s %s %s',
+                'ALTER TABLE %s CHANGE %s %s %s%s',
                 $this->quoteTableName($tableName),
                 $this->quoteColumnName($columnName),
                 $this->quoteColumnName($newColumn->getName()),
-                $this->getColumnSqlDefinition($newColumn)
+                $this->getColumnSqlDefinition($newColumn),
+                $after
             )
         );
         $this->endCommandTimer();
@@ -570,7 +572,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function dropIndexByName($tableName, $indexName)
     {
         $this->startCommandTimer();
-
         $this->writeCommand('dropIndexByName', array($tableName, $indexName));
         $indexes = $this->getIndexes($tableName);
 
@@ -827,7 +828,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Returns Phinx type by SQL type
      *
-     * @param $sqlTypeDef
+     * @param string $sqlTypeDef
      * @throws \RuntimeException
      * @internal param string $sqlType SQL type
      * @returns string Phinx type
@@ -1072,6 +1073,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
     /**
      * Describes a database table. This is a MySQL adapter specific method.
+     *
+     * @param string $tableName Table name
      * @return array
      */
     public function describeTable($tableName)

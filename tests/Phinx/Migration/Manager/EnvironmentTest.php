@@ -2,8 +2,22 @@
 
 namespace Test\Phinx\Migration\Manager;
 
+use Phinx\Db\Adapter\AdapterFactory;
+use Phinx\Db\Adapter\PdoAdapter;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Migration\MigrationInterface;
+
+class PDOMock extends \PDO
+{
+    public function __construct()
+    {
+    }
+
+    public function getAttribute($attribute)
+    {
+        return 'pdomock';
+    }
+}
 
 class EnvironmentTest extends \PHPUnit_Framework_TestCase
 {
@@ -53,12 +67,31 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     {
         $this->environment->getAdapter();
     }
-    
+
+    public function testGetAdapterWithExistingPdoInstance()
+    {
+        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', array(array('foo' => 'bar')));
+        AdapterFactory::instance()->registerAdapter('pdomock', $adapter);
+        $this->environment->setOptions(array('connection' => new PDOMock()));
+        $options = $this->environment->getAdapter()->getOptions();
+        $this->assertEquals('pdomock', $options['adapter']);
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage The specified connection is not a PDO instance
+     */
+    public function testGetAdapterWithBadExistingPdoInstance()
+    {
+        $this->environment->setOptions(array('connection' => new \stdClass()));
+        $this->environment->getAdapter();
+    }
+
     public function testTablePrefixAdapter()
     {
         $this->environment->setOptions(array('table_prefix' => 'tbl_', 'adapter' => 'mysql'));
         $this->assertInstanceOf('Phinx\Db\Adapter\TablePrefixAdapter', $this->environment->getAdapter());
-        
+
         $tablePrefixAdapter = $this->environment->getAdapter();
         $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $tablePrefixAdapter->getAdapter());
     }

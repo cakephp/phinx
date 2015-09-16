@@ -248,7 +248,8 @@ SQL;
     public function testPrimaryKeys($adapter)
     {
         $pks = $this->sql('primaryKeys', $adapter);
-        $this->assertCount(4, $pks, 'adapters should include primary key data in table creation sql');
+        // 1 pk for schema table, + 4 for the tables defined above
+        $this->assertCount(5, $pks, 'adapters should include primary key data in table creation sql');
     }
 
     /**
