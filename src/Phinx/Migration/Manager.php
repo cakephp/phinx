@@ -503,4 +503,40 @@ class Manager
     {
         return $this->config;
     }
+
+
+    public function executeBootstrap($name, $force, $source = null)
+    {
+        $this->getOutput()->writeln('');
+        $this->getOutput()->writeln(
+            ' =='
+            . ' <info>Running bootstrap</info>'
+
+        );
+        $config = $this->getConfig();
+        $config->getMigrationPath();
+
+
+        $bootstrapFile = $config->getBootstrapFilePath();
+        if ($source !== null) {
+            $bootstrapFile = $source;
+        }
+
+        if (!is_readable($bootstrapFile)) {
+            throw new NonReadableBootstrapFile($bootstrapFile . " is not readable");
+        }
+
+
+        // Execute the migration and log the time elapsed.
+        $start = microtime(true);
+        $this->getEnvironment($name)->executeBootstrap($bootstrapFile, $force);
+        $end = microtime(true);
+
+        $this->getOutput()->writeln(
+            ' =='
+            . ' <info>Bootstrap completed</info>'
+            . ' <comment>' . sprintf('%.4fs', $end - $start) . '</comment>'
+        );
+
+    }
 }
