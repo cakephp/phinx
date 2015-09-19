@@ -209,7 +209,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         $this->columnsWithComments = array();
         foreach ($columns as $column) {
-            $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
+            $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column, $table) . ', ';
 
             // set column comments, if needed
             if ($column->getComment()) {
