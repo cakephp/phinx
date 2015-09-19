@@ -373,7 +373,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             'ALTER TABLE %s ADD %s %s',
             $this->quoteTableName($table->getName()),
             $this->quoteColumnName($column->getName()),
-            $this->getColumnSqlDefinition($column)
+            $this->getColumnSqlDefinition($column, $table)
         );
         if($this->enumerateColumnsTypes) {
             if ($sqlEnumerate = $this->getEnumerateSqlDefinition()) {
@@ -512,6 +512,19 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             )
         );
         $this->endCommandTimer();
+        $this->dropTypeByName($tableName . '_' . $columnName . '_enum');
+    }
+    
+    protected function dropTypeByName($typeName)
+    {
+    	$this->startCommandTimer();
+    	$this->writeCommand('dropTypeByName', array($typeName));
+    	$sql = sprintf(
+    			'DROP TYPE IF EXISTS %s',
+    			$typeName
+    	);
+    	$this->execute($sql);
+    	$this->endCommandTimer();
     }
 
     /**
