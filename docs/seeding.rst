@@ -1,8 +1,44 @@
 .. index::
-   single: Writing Migrations
+   single: Database Seeding
 
-Writing Migrations
-==================
+Database Seeding
+================
+
+Since version 0.5.0 Phinx supports seed classes to seed your database with dummy
+data. Seed classes are stored in your `seeds` directory. This path can be
+changed in your configuration file.
+
+.. note::
+
+    Database seeding is entirely optional and Phinx does not create a `seeds`
+    directory by default.
+
+To use this feature simply uncomment the `seeds` configuration parameter in your
+`phinx.yml` file and create a `seed.php` file in your seeds directory. It should
+contain code similar to the following:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractSeed;
+
+        class MyNewMigration extends AbstractMigration
+        {
+        }
+
+To seed your database simply run the `seed` command:
+
+.. code-block:: bash
+
+        $ phinx seed
+
+By default Phinx will execute the `seed.php` class. If you would like to call
+a specific class simply pass in the name of it as an argument:
+
+.. code-block:: bash
+
+        $ phinx seed PostTableSeeder
 
 Phinx relies on migrations in order to transform your database. Each migration
 is represented by a PHP class in a unique file. It is preferred that you write
@@ -16,7 +52,7 @@ Let's start by creating a new Phinx migration. Run Phinx using the
 
 .. code-block:: bash
 
-        $ php vendor/bin/phinx create MyNewMigration
+        $ phinx create MyNewMigration
 
 This will create a new migration in the format
 ``YYYYMMDDHHMMSS_my_new_migration.php`` where the first 14 characters are
@@ -166,8 +202,7 @@ Executing Queries
 
 Queries can be executed with the ``execute()`` and ``query()`` methods. The
 ``execute()`` method returns the number of affected rows whereas the
-``query()`` method returns the result as a
-`PDOStatement <http://php.net/manual/en/class.pdostatement.php>`_
+``query()`` method returns the result as an array.
 
 .. code-block:: php
 
@@ -207,119 +242,6 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
     DELIMITERs during insertion of stored procedures or triggers which
     don't support DELIMITERs.
 
-Parameterised queries
-~~~~~~~~~~~~~~~~~~~~~
-
-Both the ``execute()`` and ``query()`` methods accept a second argument for an array of values for parameterised queries.
-
-The following example shows queries with positional ? placeholders.
-
-.. code-block:: php
-
-        <?php
-
-        use Phinx\Migration\AbstractMigration;
-
-        class MyNewMigration extends AbstractMigration
-        {
-            /**
-             * Migrate Up.
-             */
-            public function up()
-            {
-                $queryParams = array(10, 15);
-
-                // execute()
-                $count = $this->execute('DELETE FROM users WHERE user_id BETWEEN ? AND ?', $queryParams);
-
-                // query()
-                $rows = $this->query('SELECT * FROM users WHERE user_id BETWEEN ? AND ?', $queryParams);
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
-            }
-        }
-
-The following example show queries with named placeholders.
-
-.. code-block:: php
-
-        <?php
-
-        use Phinx\Migration\AbstractMigration;
-
-        class MyNewMigration extends AbstractMigration
-        {
-            /**
-             * Migrate Up.
-             */
-            public function up()
-            {
-                $queryParams = array(
-                    ':minId' => 10,
-                    ':maxId' => 15
-                    )
-                );
-
-                // execute()
-                $count = $this->execute('DELETE FROM users WHERE user_id BETWEEN :minId AND :maxId', $queryParams);
-
-                // query()
-                $rows = $this->query('SELECT * FROM users WHERE user_id BETWEEN :minId AND :maxId', $queryParams);
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
-            }
-        }
-
-By default, values as bound as the SQL string type (i.e. ``CHAR``). If you want to force the SQL type the value
-should be bound as, you can use the ``QueryBind`` class, as the following example show.
-
-.. code-block:: php
-
-        <?php
-
-        use Phinx\Migration\AbstractMigration;
-
-        class MyNewMigration extends AbstractMigration
-        {
-            /**
-             * Migrate Up.
-             */
-            public function up()
-            {
-                $queryParams = array(
-                    ':minId' => new QueryBind(10, QueryBind::TYPE_INT),
-                    ':maxId' => new QueryBind(15, QueryBind::TYPE_INT)
-                    )
-                );
-
-                // execute()
-                $count = $this->execute('DELETE FROM users WHERE user_id BETWEEN :minId AND :maxId', $queryParams);
-
-                // query()
-                $rows = $this->query('SELECT * FROM users WHERE user_id BETWEEN :minId AND :maxId', $queryParams);
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
-            }
-        }
-        
 Fetching Rows
 -------------
 
@@ -445,10 +367,6 @@ Finally calling ``save()`` commits the changes to the database.
     Phinx automatically creates an auto-incrementing primary key column called ``id`` for every
     table.
 
-The ``id`` option sets the name of the automatically created identity field, while the ``primary_key``
-option selects the field or fields used for primary key. The ``primary_key`` option always defaults to
-the value of ``id``. Both can be disabled by setting them to false.
-
 To specify an alternate primary key you can specify the ``primary_key`` option
 when accessing the Table object. Let's disable the automatic ``id`` column and
 create a primary key using two columns instead:
@@ -483,7 +401,7 @@ create a primary key using two columns instead:
         }
 
 Setting a single ``primary_key`` doesn't enable the ``AUTO_INCREMENT`` option.
-To simply change the name of the primary key, we need to override the default ``id`` field name:
+To do this, we need to override the default ``id`` field name:
 
 .. code-block:: php
 
@@ -499,7 +417,8 @@ To simply change the name of the primary key, we need to override the default ``
             public function up()
             {
                 $table = $this->table('followers', array('id' => 'user_id'));
-                $table->addColumn('follower_id', 'integer')
+                $table->addColumn('user_id', 'integer')
+                      ->addColumn('follower_id', 'integer')
                       ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'))
                       ->save();
             }
@@ -534,7 +453,7 @@ Column types are specified as strings and can be one of:
 
 In addition, the MySQL adapter supports ``enum`` and ``set`` column types.
 
-In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb`` and ``uuid`` column types
+In addition, the Postgres adapter supports ``json`` and ``jsonb`` column types
 (PostgreSQL 9.3 and above).
 
 For valid options, see the `Valid Column Options`_ below.
@@ -653,8 +572,7 @@ Working With Columns
 Get a column list
 ~~~~~~~~~~~~~~~~~
 
-To retrieve all table columns, simply create a `table` object and call `getColumns()`
-method. This method will return an array of Column classes with basic info. Example below:
+To retrieve all table columns, simply create a `table` object and call `getColumns()` method. This method will return an array of Column classes with basic info. Example below:
 
 .. code-block:: php
 
@@ -704,8 +622,9 @@ You can check if a table already has a certain column by using the
                 $table = $this->table('user');
                 $column = $table->hasColumn('username');
 
-                if ($column) {
-                    // do something
+                if ($column)
+                {
+                    ...
                 }
 
             }
@@ -747,7 +666,7 @@ To rename a column access an instance of the Table object then call the
 Adding a Column After Another Column
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When adding a column you can dictate its position using the ``after`` option.
+When adding a column you can dictate it's position using the ``after`` option.
 
 .. code-block:: php
 
@@ -1042,7 +961,6 @@ Option    Description
 ========= ===========
 precision combine with ``scale`` set to set decimial accuracy
 scale     combine with ``precision`` to set decimial accuracy
-signed    enable or disable the ``unsigned`` option *(only applies to MySQL)*
 ========= ===========
 
 For ``enum`` and ``set`` columns:
@@ -1072,14 +990,6 @@ update   set an action to be triggered when the row is updated (use with ``CURRE
 timezone enable or disable the ``with time zone`` option for ``time`` and ``timestamp`` columns *(only applies to Postgres)*
 ======== ===========
 
-For ``boolean``columns:
-
-======== ===========
-Option   Description
-======== ===========
-signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
-======== ===========
-
 For foreign key definitions:
 
 ====== ===========
@@ -1092,35 +1002,11 @@ delete set an action to be triggered when the row is deleted
 You can pass one or more of these options to any column with the optional
 third argument array.
 
-Limit Option and PostgreSQL
-~~~~~~~~~~~~~~~~~~~~~~
-
-When using the PostgreSQL adapter, additional hinting of database column type can be
-made for ``integer`` columns. Using ``limit`` with one the following options will
-modify the column type accordingly:
-
-============ ==============
-Limit        Column Type
-============ ==============
-INT_SMALL    SMALLINT
-============ ==============
-
-.. code-block:: php
-
-         use Phinx\Db\Adapter\PostgresAdapter;
-
-         //...
-
-         $table = $this->table('cart_items');
-         $table->addColumn('user_id', 'integer')
-               ->addColumn('subtype_id', 'integer', array('limit' => PostgresAdapter::INT_SMALL))
-               ->create();
-
 Limit Option and MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
 
 When using the MySQL adapter, additional hinting of database column type can be
-made for ``integer``, ``text`` and ``binary`` columns. Using ``limit`` with
+made for ``integer``, ``text`` and ``binary`` columns. Using ``limit`` with 
 one the following options will modify the column type accordingly:
 
 ============ ==============

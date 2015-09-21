@@ -35,28 +35,28 @@ Phinx natively supports the following database adapters:
 
 ### Composer
 
-The fastest way to install Phinx in your project is using Composer (http://getcomposer.org/).
+The fastest way to install Phinx is to add it to your project using Composer (http://getcomposer.org/).
 
 1. Install Composer:
 
-    ```    
+    ```
     curl -s https://getcomposer.org/installer | php
     ```
-    
-1. Require Phinx as a dependency using Composer: 
+
+1. Require Phinx as a dependency using Composer:
 
     ```
     php composer.phar require robmorgan/phinx
     ```
-    
+
 1. Install Phinx:
-    
+
     ```
     php composer.phar install
     ```
-    
+
 1. Execute Phinx:
-    
+
     ```
     php vendor/bin/phinx
     ```
@@ -74,7 +74,7 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
 
 1. Install Composer
 
-    ```    
+    ```
     curl -s https://getcomposer.org/installer | php
     ```
 
@@ -87,9 +87,9 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
 1. Install Box:
 
     ```
-    curl -s http://box-project.org/installer.php | php
+    curl -LSs https://box-project.github.io/box2/installer.php | php
     ```
-    
+
 1. Create a Phar archive
 
     ```
@@ -107,10 +107,45 @@ Please read the [CONTRIBUTING](CONTRIBUTING.md) document.
 ## News & Updates
 
 Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
-  
+
 ## Misc
 
 ### Version History
+
+**0.4.6** (Friday, 11th September 2015)
+
+* You can now set custom migration templates in the config files
+* Support for MySQL unsigned booleans
+* Support for Postgres `smallint` column types
+* Support for `AFTER` when using `changeColumn()` with MySQL
+* Support for `precision` and `scale` when using the Postgres `decimal` type
+* Fixed a bug where duplicate migration names could be used
+* The schema table is now created with a primary key
+* Fixed issues when using the MySQL `STRICT_TRANS_TABLE` mode
+* Improved the docs in the default migration template
+* Made Box PHAR ignore the bundled `phinx.yml` configuration file
+* Updated Box installer URL
+* Internal code improvements
+* Documentation improvements
+
+**0.4.5** (Tuesday, 1st September 2015)
+
+* The rollback command now supports a date argument
+* Fixed DBLIB DSN strings for Microsoft SQL Server
+* Postgres support for `jsonb` columns added
+* The `addTimestamps()` helper method no longer updates the `created_at` column
+* Fix for Postgres named foreign keys
+* Unit test improvements (including strict warnings)
+* Documentation improvements
+
+**0.4.4** (Sunday, 14th June 2015)
+
+* The `change` method is now the default
+* Added a generic adapter insert method. Warning: The implementation will change!
+* Updated Symfony depdencies to ~2.7
+* Support for MySQL `BLOB` column types
+* SQLite migration fixes
+* Documentation improvements
 
 **0.4.3** (Monday, 23rd Feburary 2015)
 
@@ -175,7 +210,7 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 * Support for Postgres Schemas
 * Fixed charset support for Microsoft SQL Server
 * Fix for Unique indexes in all adapters
-* Improvements for MySQL foreign key migration syntax 
+* Improvements for MySQL foreign key migration syntax
 * Allow MySQL column types with extra info
 * Fixed SQLite autoincrement behaviour
 * PHPDoc improvements
@@ -340,7 +375,7 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 **0.1.0** (Friday, 13th January 2012)
 
 * Initial public release.
-  
+
 ### License
 
 (The MIT license)

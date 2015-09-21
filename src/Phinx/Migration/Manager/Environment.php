@@ -258,7 +258,7 @@ class Environment
         }
         if (isset($this->options['connection'])) {
             if (!($this->options['connection'] instanceof \PDO)) {
-                throw new \RuntimeException('Given connection is not a PDO instance');
+                throw new \RuntimeException('The specified connection is not a PDO instance');
             }
 
             $this->options['adapter'] = $this->options['connection']->getAttribute(\PDO::ATTR_DRIVER_NAME);
@@ -269,6 +269,11 @@ class Environment
 
         $adapter = AdapterFactory::instance()
             ->getAdapter($this->options['adapter'], $this->options);
+
+        if (isset($this->options['wrapper'])) {
+            $adapter = AdapterFactory::instance()
+                ->getWrapper($this->options['wrapper'], $adapter);
+        }
 
         if ($this->getOutput()) {
             $adapter->setOutput($this->getOutput());

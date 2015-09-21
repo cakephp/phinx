@@ -66,7 +66,9 @@ class Config implements ConfigInterface
      */
     public static function fromYaml($configFilePath)
     {
-        $configArray = Yaml::parse(file_get_contents($configFilePath));
+        $configFile = file_get_contents($configFilePath);
+        $configArray = Yaml::parse($configFile);
+
         if (!is_array($configArray)) {
             throw new \RuntimeException(sprintf(
                 'File \'%s\' must be valid YAML',
@@ -164,7 +166,7 @@ class Config implements ConfigInterface
      */
     public function hasEnvironment($name)
     {
-        return (!(null === $this->getEnvironment($name)));
+        return (null !== $this->getEnvironment($name));
     }
 
     /**
@@ -208,6 +210,17 @@ class Config implements ConfigInterface
     }
 
     /**
+     * Get the aliased value from a supplied alias.
+     *
+     * @param string $alias
+     *
+     * @return string|null
+     */
+    public function getAlias($alias){
+        return !empty($this->values['aliases'][$alias]) ? $this->values['aliases'][$alias] : null;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getConfigFilePath()
@@ -241,12 +254,40 @@ class Config implements ConfigInterface
     }
 
     /**
+     * Get the template file name.
+     *
+     * @return string|false
+     */
+     public function getTemplateFile()
+     {
+        if (!isset($this->values['templates']['file'])) {
+            return false;
+        }
+
+        return $this->values['templates']['file'];
+     }
+
+    /**
+     * Get the template class name.
+     *
+     * @return string|false
+     */
+     public function getTemplateClass()
+     {
+        if (!isset($this->values['templates']['class'])) {
+            return false;
+        }
+
+        return $this->values['templates']['class'];
+     }
+
+    /**
      * Replace tokens in the specified array.
      *
      * @param array $arr Array to replace
      * @return array
      */
-    protected function replaceTokens($arr)
+    protected function replaceTokens(array $arr)
     {
         // Get environment variables
         // $_ENV is empty because variables_order does not include it normally
@@ -262,11 +303,7 @@ class Config implements ConfigInterface
         $tokens['%%PHINX_CONFIG_DIR%%'] = dirname($this->getConfigFilePath());
 
         // Recurse the array and replace tokens
-        if (is_array($arr)) {
-            return $this->recurseArrayForTokens($arr, $tokens);
-        }
-
-        return $arr;
+        return $this->recurseArrayForTokens($arr, $tokens);
     }
 
     /**

@@ -41,13 +41,20 @@ use Phinx\Db\Table\ForeignKey;
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
 
-    protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
+    protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true, 'boolean' => true);
 
     const TEXT_TINY    = 255;
     const TEXT_SMALL   = 255; /* deprecated, alias of TEXT_TINY */
     const TEXT_REGULAR = 65535;
     const TEXT_MEDIUM  = 16777215;
     const TEXT_LONG    = 4294967295;
+
+    // According to https://dev.mysql.com/doc/refman/5.0/en/blob.html BLOB sizes are the same as TEXT
+    const BLOB_TINY    = 255;
+    const BLOB_SMALL   = 255; /* deprecated, alias of BLOB_TINY */
+    const BLOB_REGULAR = 65535;
+    const BLOB_MEDIUM  = 16777215;
+    const BLOB_LONG    = 4294967295;
 
     const INT_TINY    = 255;
     const INT_SMALL   = 65535;
@@ -444,13 +451,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
+        $after = $newColumn->getAfter() ? ' AFTER ' . $this->quoteColumnName($newColumn->getAfter()) : '';
         $this->execute(
             sprintf(
-                'ALTER TABLE %s CHANGE %s %s %s',
+                'ALTER TABLE %s CHANGE %s %s %s%s',
                 $this->quoteTableName($tableName),
                 $this->quoteColumnName($columnName),
                 $this->quoteColumnName($newColumn->getName()),
-                $this->getColumnSqlDefinition($newColumn)
+                $this->getColumnSqlDefinition($newColumn),
+                $after
             )
         );
         $this->endCommandTimer();
@@ -567,7 +576,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function dropIndexByName($tableName, $indexName)
     {
         $this->startCommandTimer();
-
         $this->writeCommand('dropIndexByName', array($tableName, $indexName));
         $indexes = $this->getIndexes($tableName);
 
@@ -734,6 +742,23 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 }
                 return array('name' => 'text');
                 break;
+            case static::PHINX_TYPE_BINARY:
+                if ($limit) {
+                    $sizes = array(
+                        // Order matters! Size must always be tested from longest to shortest!
+                        'longblob'   => static::BLOB_LONG,
+                        'mediumblob' => static::BLOB_MEDIUM,
+                        'blob'       => static::BLOB_REGULAR,
+                        'tinyblob'   => static::BLOB_SMALL,
+                    );
+                    foreach ($sizes as $name => $length) {
+                        if ($limit >= $length) {
+                            return array('name' => $name);
+                        }
+                    }
+                }
+                return array('name' => 'blob');
+                break;
             case static::PHINX_TYPE_INTEGER:
                 if ($limit && $limit >= static::INT_TINY) {
                     $sizes = array(
@@ -783,9 +808,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_DATE:
                 return array('name' => 'date');
                 break;
-            case static::PHINX_TYPE_BINARY:
-                return array('name' => 'blob');
-                break;
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'tinyint', 'limit' => 1);
                 break;
@@ -811,7 +833,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Returns Phinx type by SQL type
      *
-     * @param $sqlTypeDef
+     * @param string $sqlTypeDef
      * @throws \RuntimeException
      * @internal param string $sqlType SQL type
      * @returns string Phinx type
@@ -876,6 +898,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     break;
                 case 'blob':
                     $type = static::PHINX_TYPE_BINARY;
+                    break;
+                case 'tinyblob':
+                    $type  = static::PHINX_TYPE_BINARY;
+                    $limit = static::BLOB_TINY;
+                    break;
+                case 'mediumblob':
+                    $type  = static::PHINX_TYPE_BINARY;
+                    $limit = static::BLOB_MEDIUM;
+                    break;
+                case 'longblob':
+                    $type  = static::PHINX_TYPE_BINARY;
+                    $limit = static::BLOB_LONG;
                     break;
                 case 'tinytext':
                     $type  = static::PHINX_TYPE_TEXT;
@@ -1044,6 +1078,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
     /**
      * Describes a database table. This is a MySQL adapter specific method.
+     *
+     * @param string $tableName Table name
      * @return array
      */
     public function describeTable($tableName)

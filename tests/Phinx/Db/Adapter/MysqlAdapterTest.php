@@ -108,6 +108,13 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
     }
 
+    public function testSchemaTableIsCreatedWithPrimaryKey()
+    {
+        $this->adapter->connect();
+        $table = new \Phinx\Db\Table($this->adapter->getSchemaTableName(), array(), $this->adapter);
+        $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), array('version')));
+    }
+
     public function testQuoteTableName()
     {
         $this->assertEquals('`test_table`', $this->adapter->quoteTableName('test_table'));
@@ -372,6 +379,17 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals('int(11) unsigned', $rows[1]['Type']);
+    }
+
+    public function testAddBooleanColumnWithSignedEqualsFalse()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('test_boolean'));
+        $table->addColumn('test_boolean', 'boolean', array('signed' => false))
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('tinyint(1) unsigned', $rows[1]['Type']);
     }
 
     public function testAddStringColumnWithSignedEqualsFalse()
@@ -911,6 +929,28 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($tableQuoted->hasColumn('value'));
     }
 
+    public function testInsertData()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->insert(
+                array("column1", "column2"),
+                array(
+                    array('value1', 1),
+                    array('value2', 2)
+                )
+            )
+            ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+
+        $this->assertEquals('value1', $rows[0]['column1']);
+        $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals(1, $rows[0]['column2']);
+        $this->assertEquals(2, $rows[1]['column2']);
+    }
+
     /**
      * @depends testCreateTable
      * @dataProvider positionalQueryParams
@@ -1032,28 +1072,5 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
                 )
             )
         );
-    }
-
-    public function testInsertData()
-    {
-        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
-        $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
-            ->insert(
-                array("column1", "column2"),
-                array(
-                    array('value1', 1),
-                    array('value2', 2)
-                )
-            )
-            ->save();
-
-
-        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-
-        $this->assertEquals('value1', $rows[0]['column1']);
-        $this->assertEquals('value2', $rows[1]['column1']);
-        $this->assertEquals(1, $rows[0]['column2']);
-        $this->assertEquals(2, $rows[1]['column2']);
     }
 }

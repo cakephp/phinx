@@ -130,6 +130,67 @@ class Manager
     }
 
     /**
+     * Migrate to the version of the database on a given date.
+     *
+     * @param string    $environment Environment
+     * @param \DateTime $dateTime    Date to migrate to
+     *
+     * @return void
+     */
+    public function migrateToDateTime($environment, \DateTime $dateTime)
+    {
+        $env            = $this->getEnvironment($environment);
+        $versions       = array_keys($this->getMigrations());
+        $dateString     = $dateTime->format('Ymdhis');
+        $earlierVersion = null;
+        foreach ($versions as $version) {
+            if ($version > $dateString) {
+                if (!is_null($earlierVersion)) {
+                    $this->getOutput()->writeln(
+                        'Migrating to version ' . $earlierVersion
+                    );
+                }
+                return $this->migrate($environment, $earlierVersion);
+            }
+            $earlierVersion = $version;
+        }
+        //If the date is greater than the latest version, migrate
+        //to the latest version.
+        $this->getOutput()->writeln(
+            'Migrating to version ' . $earlierVersion
+        );
+        return $this->migrate($environment, $earlierVersion);
+    }
+
+    /**
+     * Roll back to the version of the database on a given date.
+     *
+     * @param string    $environment Environment
+     * @param \DateTime $dateTime    Date to roll back to
+     *
+     * @return void
+     */
+    public function rollbackToDateTime($environment, \DateTime $dateTime)
+    {
+        $env        = $this->getEnvironment($environment);
+        $versions   = $env->getVersions();
+        $dateString = $dateTime->format('Ymdhis');
+        sort($versions);
+        $laterVersion = null;
+        foreach (array_reverse($versions) as $version) {
+            if ($version < $dateString) {
+                if (!is_null($laterVersion)) {
+                    $this->getOutput()->writeln('Rolling back to version '.$version);
+                }
+                return $this->rollback($environment, $version);
+            }
+            $laterVersion = $version;
+        }
+        $this->getOutput()->writeln('Rolling back to version ' . $laterVersion);
+        return $this->rollback($environment, $laterVersion);
+    }
+
+    /**
      * Migrate an environment to the specified version.
      *
      * @param string $environment Environment
@@ -367,23 +428,15 @@ class Manager
             $versions = array();
 
             foreach ($phpFiles as $filePath) {
-                if (preg_match('/([0-9]+)_([_a-z0-9]*).php/', basename($filePath))) {
-                    $matches = array();
-                    preg_match('/^[0-9]+/', basename($filePath), $matches); // get the version from the start of the filename
-                    $version = $matches[0];
+                if (Util::isValidMigrationFileName(basename($filePath))) {
+                    $version = Util::getVersionFromFileName(basename($filePath));
 
                     if (isset($versions[$version])) {
                         throw new \InvalidArgumentException(sprintf('Duplicate migration - "%s" has the same version as "%s"', $filePath, $versions[$version]->getVersion()));
                     }
 
                     // convert the filename to a class name
-                    $class = preg_replace('/^[0-9]+_/', '', basename($filePath));
-                    $class = str_replace('_', ' ', $class);
-                    $class = ucwords($class);
-                    $class = str_replace(' ', '', $class);
-                    if (false !== strpos($class, '.')) {
-                        $class = substr($class, 0, strpos($class, '.'));
-                    }
+                    $class = Util::mapFileNameToClassName(basename($filePath));
 
                     if (isset($fileNames[$class])) {
                         throw new \InvalidArgumentException(sprintf(

@@ -1,25 +1,54 @@
 .. index::
    single: Configuration
-   
+
 Configuration
 =============
 
-Phinx uses the YAML data serialization format to store it's configuration data.
 When you initialize your project using the :doc:`Init Command<commands>`, Phinx
-creates a file called ``phinx.yml`` in the root of your project directory.
+creates a default file called ``phinx.yml`` in the root of your project directory.
+This file uses the YAML data serialization format.
+
+If a ``--configuration`` command line option is given, Phinx will load the
+specified file. Otherwise, it will attempt to find ``phinx.php``, ``phinx.json`` or
+``phinx.yml`` and load the first file found. See the :doc:`Commands <commands>`
+chapter for more information.
 
 .. warning::
 
-    Remember to store the ``phinx.yml`` file outside of a publicly accessible
+    Remember to store the configuration file outside of a publicly accessible
     directory on your webserver. This file contains your database credentials
     and may be accidentally served as plain text.
 
-If you do not wish to use the default configuration file, you may specify a configuration file (or a file that generates a PHP array) on the command line. See the :doc:`Commands <commands>` chapter for more information.
+Note that while JSON and YAML files are *parsed*, the PHP file is *included*.
+This means that:
+
+* It must `return` an array of configuration items.
+* The variable scope is local, i.e. you would need to explicitly declare
+  any global variables your initialization file reads or modifies.
+* Its standard output is suppressed.
+* Unlike with JSON and YAML, it is possible to omit environment connection details
+  and instead specify ``connection`` which must
+  contain an initialized PDO instance. This is useful when you want
+  your migrations to interact with your application and/or share the same.
+  connection.
+
+.. code-block:: php
+
+   require 'app/init.php';
+
+   global $app;
+   $pdo = $app->getDatabase()->getPdo();
+
+   return array('environments' => array(
+            'default_database' => 'development',
+            'development' => array(
+            'connection' => $pdo
+            )));
 
 Migration Path
 --------------
 
-The first option specifies the path to your migration directory. Phinx uses 
+The first option specifies the path to your migration directory. Phinx uses
 ``%%PHINX_CONFIG_DIR%%/migrations`` by default.
 
 .. note::
@@ -89,6 +118,25 @@ file:
 
     export PHINX_ENVIRONMENT=dev-`whoami`-`hostname`
 
+
+Table Prefix and Suffix
+------------------
+
+You can define a table prefix and table suffix:
+
+.. code-block:: yaml
+
+    environments:
+        development:
+            ....
+            table_prefix: dev_
+            table_suffix: _v1
+        testing:
+            ....
+            table_prefix: test_
+            table_suffix: _v2
+
+
 Socket Connections
 ------------------
 
@@ -143,6 +191,9 @@ Phinx currently supports the following database adapters natively:
 * `SQLite <http://www.sqlite.org/>`_: specify the ``sqlite`` adapter.
 * `SQL Server <http://www.microsoft.com/sqlserver>`_: specify the ``sqlsrv`` adapter.
 
+SQLite
+`````````````````
+
 Declaring an SQLite database uses a simplified structure:
 
 .. code-block:: yaml
@@ -155,12 +206,19 @@ Declaring an SQLite database uses a simplified structure:
             adapter: sqlite
             memory: true     # Setting memory to *any* value overrides name
 
-When using the ``sqlsrv`` adapter and connecting to a named instance of 
-SQLServer you should omit the ``port`` setting as sqlsrv will negotiate the port
-automatically.
+SQL Server
+`````````````````
+
+When using the ``sqlsrv`` adapter and connecting to a named instance you should
+omit the ``port`` setting as SQL Server will negotiate the port automatically.
+Additionally, omit the ``charset: utf8`` or change to ``charset: 65001`` which
+corresponds to UTF8 for SQL Server.
+
+Custom Adapters
+`````````````````
 
 You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface`
-with `AdapterFactory`: 
+with `AdapterFactory`:
 
 .. code-block:: php
 
@@ -171,3 +229,16 @@ with `AdapterFactory`:
 
 Adapters can be registered any time before `$app->run()` is called, which normally
 called by `bin/phinx`.
+
+Aliases
+-------
+
+Template creation class names can be aliased and used with the ``--class`` command line option for the :doc:`Create Command <commands>`.
+
+The aliased classes will still be required to implement the ``Phinx\Migration\CreationInterface`` interface.
+
+.. code-block:: yaml
+
+    aliases:
+        permission: \Namespace\Migrations\PermissionMigrationTemplateGenerator
+        view: \Namespace\Migrations\ViewMigrationTemplateGenerator
