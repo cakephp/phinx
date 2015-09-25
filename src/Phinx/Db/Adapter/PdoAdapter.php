@@ -464,6 +464,7 @@ abstract class PdoAdapter implements AdapterInterface
             'timestamp',
             'time',
             'date',
+            'blob',
             'binary',
             'boolean',
             'uuid',
