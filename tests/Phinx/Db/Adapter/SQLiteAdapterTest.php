@@ -490,24 +490,35 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('table', array(), $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->save();
+        $table->addColumn('ref_table_id', 'integer')->addColumn('ref_table_field', 'string')->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
            ->setColumns(array('ref_table_id'))
            ->setReferencedColumns(array('id'));
 
+        $secondFk = new \Phinx\Db\Table\ForeignKey();
+        $secondFk->setReferencedTable($refTable)
+           ->setColumns(array('ref_table_field'))
+           ->setReferencedColumns(array('field1'))
+           ->setOptions(array(
+               'update' => 'CASCADE',
+               'delete' => 'CASCADE'
+           ));
+
         $this->adapter->addForeignKey($table, $fk);
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
 
         $this->adapter->dropForeignKey($table->getName(), array('ref_table_id'));
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
 
+        $this->adapter->addForeignKey($table, $secondFk);
         $this->adapter->addForeignKey($table, $fk);
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_field')));
 
-        $this->adapter->dropForeignKey($table->getName(), array('ref_table_id'));
-        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+        $this->adapter->dropForeignKey($table->getName(), array('ref_table_field'));
+        $this->assertTrue($this->adapter->hasTable($table->getName()));
     }
 
     public function testHasDatabase()
