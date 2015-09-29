@@ -76,7 +76,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'));
-        $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
+        $this->assertRegExp('/using environment fakeenv .*/', $commandTester->getDisplay());
     }
 
     public function testDatabaseNameSpecified()
