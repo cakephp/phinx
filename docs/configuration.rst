@@ -27,10 +27,10 @@ This means that:
   any global variables your initialization file reads or modifies.
 * Its standard output is suppressed.
 * Unlike with JSON and YAML, it is possible to omit environment connection details
-  and instead specify ``connection`` which must
-  contain an initialized PDO instance. This is useful when you want
-  your migrations to interact with your application and/or share the same.
-  connection.
+  and instead specify ``connection`` which must contain an initialized PDO instance.
+  This is useful when you want your migrations to interact with your application
+  and/or share the same connection. However remember to also pass the database name
+  as Phinx cannot infer this from the PDO connection.
 
 .. code-block:: php
 
@@ -39,11 +39,15 @@ This means that:
    global $app;
    $pdo = $app->getDatabase()->getPdo();
 
-   return array('environments' => array(
-            'default_database' => 'development',
-            'development' => array(
-            'connection' => $pdo
-            )));
+   return array('environments' =>
+            array(
+              'default_database' => 'development',
+              'development' => array(
+                'name' => 'devdb',
+                'connection' => $pdo
+              )
+            )
+          );
 
 Migration Path
 --------------
