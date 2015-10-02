@@ -68,7 +68,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
-        $managerStub->expects($this->once())
+        $managerStub->expects($this->any())
                     ->method('migrate');
 
         $command->setConfig($this->config);
@@ -76,7 +76,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'));
-        $this->assertRegExp('/using environment fakeenv.*/', $commandTester->getDisplay());
+        $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
     }
 
     public function testDatabaseNameSpecified()
