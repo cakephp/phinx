@@ -225,7 +225,7 @@ SQL
                 'tables' => $table_list
             ),
             'environments' => array(
-                'default_migration_table' => uniqid(),
+                'default_migration_table' => uniqid('migration_'),
                 'default_environment' => 'phpunit',
                 'phpunit' => array(
                     'adapter' => static::$adapter,
