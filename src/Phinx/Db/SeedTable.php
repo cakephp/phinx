@@ -221,9 +221,17 @@ class SeedTable
             $sql = '';
             foreach ($this->getSeedData() as $row) {
                 $sql .= $base . '(';
-                $sql .= '\''.$row[0].'\'';
+                if ($row[0] === null) {
+                    $sql .= 'null';
+                } else { 
+                    $sql .= '\''.$row[0].'\'';
+                }
                 for ($i=1; $i<count($cols); $i++) {
-                    $sql .= ', \''.preg_replace("/'/", '\\\'', $row[$i]).'\'';
+                    if ($row[$i] === null) {
+                        $sql .= ', null';
+                    } else {
+                        $sql .= ', \''.preg_replace("/'/", '\\\'', $row[$i]).'\'';
+                    }
                 }
                 $sql .= ");\n";
             }

@@ -88,7 +88,7 @@ class SeedTableTest extends \PHPUnit_Framework_TestCase
         }
         // create a test seed table for SeedTable tests
         $adapter->query("create table test_seed(i int, v varchar(10))");
-        $adapter->query("insert into test_seed select 1 i,'fizzie' v union select 2,'figgle' union select 3, 'funk'");
+        $adapter->query("insert into test_seed select 1 i,'fizzie' v union select 2,'figgle' union select 3, 'funk' union select 4, null");
         $seed = new SeedTable('test_seed', array(), $adapter);
         $this->assertNull($seed->getWhere());
         $insert = $seed->getInsertSql();
@@ -97,7 +97,8 @@ class SeedTableTest extends \PHPUnit_Framework_TestCase
         $expected = SeedTableTest::quoteExpectedSql($adapter, 'seed_test',
             "INSERT INTO %table_name (%i, %v) VALUES ('1', 'fizzie');
 INSERT INTO %table_name (%i, %v) VALUES ('2', 'figgle');
-INSERT INTO %table_name (%i, %v) VALUES ('3', 'funk')");
+INSERT INTO %table_name (%i, %v) VALUES ('3', 'funk');
+INSERT INTO %table_name (%i, %v) VALUES ('4', null)");
     
         // we can't guarantee ordering so just make sure each insert statement exists
         foreach (explode(";\n", $expected) as $x) {
@@ -110,9 +111,12 @@ INSERT INTO %table_name (%i, %v) VALUES ('3', 'funk')");
         }
         $rows = $adapter->fetchAll("select * from test_seed2");
         $this->assertCount(
-            3,
+            4,
             $rows
         );
+        // make sure null record was put in properly
+        $rows = $adapter->fetchAll("select * from test_seed2 where v is null");
+        $this->assertCount(1, $rows);
     }
 
     /**
