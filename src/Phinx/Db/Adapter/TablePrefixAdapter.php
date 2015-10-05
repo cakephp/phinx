@@ -165,6 +165,15 @@ class TablePrefixAdapter extends AdapterWrapper
     /**
      * {@inheritdoc}
      */
+    public function hasIndexByName($tableName, $indexName)
+    {
+        $adapterTableName = $this->getAdapterTableName($tableName);
+        return parent::hasIndexByName($adapterTableName, $indexName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function addIndex(Table $table, Index $index)
     {
         $adapterTable = clone $table;

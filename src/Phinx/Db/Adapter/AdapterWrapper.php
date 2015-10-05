@@ -369,6 +369,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function hasIndexByName($tableName, $indexName)
+    {
+        return $this->getAdapter()->hasIndexByName($tableName, $indexName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function addIndex(Table $table, Index $index)
     {
         return $this->getAdapter()->addIndex($table, $index);

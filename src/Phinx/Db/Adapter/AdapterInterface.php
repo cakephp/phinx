@@ -355,6 +355,15 @@ interface AdapterInterface
     public function hasIndex($tableName, $columns);
 
     /**
+     * Checks to see if an index specified by name exists.
+     *
+     * @param string $tableName Table Name
+     * @param string $indexName
+     * @return boolean
+     */
+    public function hasIndexByName($tableName, $indexName);
+
+    /**
      * Adds the specified index to a database table.
      *
      * @param Table $table Table

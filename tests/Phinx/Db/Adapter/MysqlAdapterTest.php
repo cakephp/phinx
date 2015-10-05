@@ -263,6 +263,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->save();
         $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
         $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
+        $this->assertTrue($this->adapter->hasIndexByName('table1', 'myemailindex'));
     }
 
     public function testCreateTableWithMultiplePKsAndUniqueIndexes()
