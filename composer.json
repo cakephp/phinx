@@ -1,5 +1,5 @@
 {
-    "name": "cdburgess/phinx-mt",
+    "name": "bamboohr/phinx-mt",
     "type": "library",
     "description": "Phinx makes it ridiculously easy to manage the database migrations for your PHP app.",
     "keywords": ["phinx", "migrations", "database", "db", "database migrations"],
