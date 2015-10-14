@@ -1,6 +1,7 @@
 # [Phinx](https://phinx.org): Simple PHP Database Migrations
 
 [![Build Status](https://api.travis-ci.org/BambooHR/phinx-mt.svg?branch=0.4.x-dev)](https://travis-ci.org/bamboohr/phinx-mt)
+[![Code Coverage](https://scrutinizer-ci.com/g/BambooHR/phinx-mt/badges/coverage.png?b=0.4.x-dev)](https://scrutinizer-ci.com/g/bamboohr/phinx-mt/)
 [![Latest Stable Version](https://poser.pugx.org/bamboohr/phinx-mt/v/stable)](https://packagist.org/packages/bamboohr/phinx-mt)
 [![Total Downloads](https://poser.pugx.org/bamboohr/phinx-mt/downloads)](https://packagist.org/packages/bamboohr/phinx-mt)
 
