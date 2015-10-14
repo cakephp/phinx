@@ -191,6 +191,11 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->method('getVersions')
                 ->will($this->returnValue($availableMigrations));
 
+	    $mockadapter = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')->disableOriginalConstructor()->setMethods(array('disconnect'))->getMock();
+	    $mockadapter->expects($this->any())
+		    ->method('disconnect');
+	    $envStub->setAdapter($mockadapter);
+
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->migrateToDateTime('mockenv', new \DateTime($dateString));
         rewind($this->manager->getOutput()->getStream());
@@ -215,6 +220,11 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $envStub->expects($this->any())
                 ->method('getVersions')
                 ->will($this->returnValue($availableRollbacks));
+
+	    $mockadapter = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')->disableOriginalConstructor()->setMethods(array('disconnect'))->getMock();
+	    $mockadapter->expects($this->any())
+		    ->method('disconnect');
+	    $envStub->setAdapter($mockadapter);
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->rollbackToDateTime('mockenv', new \DateTime($dateString));
