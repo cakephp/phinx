@@ -108,6 +108,7 @@ class Manager
                     . ' <error>** MISSING **</error>'
                 );
             }
+            $env->getAdapter()->disconnect();
         } else {
             // there are no migrations
             $output->writeln('');
@@ -126,7 +127,6 @@ class Manager
                     break;
             }
         }
-
     }
 
     /**
@@ -247,6 +247,7 @@ class Manager
                 $this->executeMigration($environment, $migration, MigrationInterface::UP);
             }
         }
+        $env->getAdapter()->disconnect();
     }
 
     /**
@@ -333,6 +334,7 @@ class Manager
                 $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
             }
         }
+        $env->getAdapter()->disconnect();
     }
 
     /**

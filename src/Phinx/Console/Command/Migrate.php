@@ -75,6 +75,20 @@ EOT
         $environment = $input->getOption('environment');
         $date        = $input->getOption('date');
 
+        if ($environment == 'all') {
+            $startAll = microtime(true);
+            foreach (array_keys($this->config['environments']) as $environmentName) {
+                if ($environmentName == 'default_migration_table' || $environmentName == 'default_database') {
+                    continue;
+                }
+                $input->setOption('environment', $environmentName);
+                $this->execute($input, $output);
+            }
+            $endAll = microtime(true);
+            $output->writeln('<comment>All databases complete. Took ' . sprintf('%.4fs', $endAll - $startAll) . '</comment>');
+            return;
+        }
+
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
@@ -104,10 +118,20 @@ EOT
 
         // run the migrations
         $start = microtime(true);
-        if (null !== $date) {
-            $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
-        } else {
-            $this->getManager()->migrate($environment, $version);
+        try {
+            if (null !== $date) {
+            	$this->getManager()->migrateToDateTime($environment, new \DateTime($date));
+        	} else {
+            	$this->getManager()->migrate($environment, $version);
+        	}
+        } catch (\PDOException $exception) {
+            $message = $exception->getMessage();
+            $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
+            $errors[$environment][] = $message;
+        } catch (\InvalidArgumentException $exception) {
+            $message = $exception->getMessage();
+            $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
+            $errors[$environment][] = $message;
         }
         $end = microtime(true);
 
