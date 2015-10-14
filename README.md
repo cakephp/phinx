@@ -1,10 +1,10 @@
 # [Phinx](https://phinx.org): Simple PHP Database Migrations
 
-[![Build Status](https://travis-ci.org/cdburgess/phinx-mt.svg?branch=0.4.x-dev)](https://travis-ci.org/cdburgess/phinx-mt)
-[![Build status](https://ci.appveyor.com/api/projects/status/f1uya7frcsktoa8i?svg=true)](https://ci.appveyor.com/project/cdburgess/phinx-mt)
-[![Code Coverage](https://scrutinizer-ci.com/g/cdburgess/phinx-mt/badges/coverage.png?b=0.4.x-dev)](https://scrutinizer-ci.com/g/cdburgess/phinx-mt/?branch=0.4.x-dev)
-[![Latest Stable Version](https://poser.pugx.org/cdburgess/phinx-mt/v/stable)](https://packagist.org/packages/cdburgess/phinx-mt)
-[![Total Downloads](https://poser.pugx.org/cdburgess/phinx-mt/downloads)](https://packagist.org/packages/cdburgess/phinx-mt)
+[![Build Status](https://travis-ci.org/cdburgess/phinx-mt.svg?branch=0.4.x-dev)](https://travis-ci.org/bamboohr/phinx-mt)
+[![Build status](https://ci.appveyor.com/api/projects/status/f1uya7frcsktoa8i?svg=true)](https://ci.appveyor.com/project/bamboohr/phinx-mt)
+[![Code Coverage](https://scrutinizer-ci.com/g/cdburgess/phinx-mt/badges/coverage.png?b=0.4.x-dev)](https://scrutinizer-ci.com/g/bamboohr/phinx-mt/?branch=0.4.x-dev)
+[![Latest Stable Version](https://poser.pugx.org/cdburgess/phinx-mt/v/stable)](https://packagist.org/packages/bamboohr/phinx-mt)
+[![Total Downloads](https://poser.pugx.org/cdburgess/phinx-mt/downloads)](https://packagist.org/packages/bamboohr/phinx-mt)
 
 Phinx makes it ridiculously easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or framework.
 
