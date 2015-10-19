@@ -134,7 +134,6 @@ EOT
             $errors[$environment][] = $message;
         }
         $end = microtime(true);
-	// test
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
     }
