@@ -84,33 +84,35 @@ class Manager
 
             $env = $this->getEnvironment($environment);
             $versions = $env->getVersions();
+	    try {
+		foreach ($this->getMigrations() as $migration) {
+		    if (in_array($migration->getVersion(), $versions)) {
+			$status = '     <info>up</info> ';
+			unset($versions[array_search($migration->getVersion(), $versions)]);
+		    } else {
+			$status = '   <error>down</error> ';
+		    }
 
-            foreach ($this->getMigrations() as $migration) {
-                if (in_array($migration->getVersion(), $versions)) {
-                    $status = '     <info>up</info> ';
-                    unset($versions[array_search($migration->getVersion(), $versions)]);
-                } else {
-                    $status = '   <error>down</error> ';
-                }
+		    $output->writeln(
+			$status
+			. sprintf(' %14.0f ', $migration->getVersion())
+			. ' <comment>' . $migration->getName() . '</comment>'
+		    );
+		    $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
+		}
 
-                $output->writeln(
-                    $status
-                    . sprintf(' %14.0f ', $migration->getVersion())
-                    . ' <comment>' . $migration->getName() . '</comment>'
-                );
-                $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
-            }
-
-            foreach ($versions as $missing) {
-                $output->writeln(
-                    '     <error>up</error> '
-                    . sprintf(' %14.0f ', $missing)
-                    . ' <error>** MISSING **</error>'
-                );
-            }
+		foreach ($versions as $missing) {
+		    $output->writeln(
+			'     <error>up</error> '
+			. sprintf(' %14.0f ', $missing)
+			. ' <error>** MISSING **</error>'
+		    );
+		}
+	    } finally {
 	        if ($env->getAdapter() !== null) {
 		        $env->getAdapter()->disconnect();
 	        }
+	    }
         } else {
             // there are no migrations
             $output->writeln('');
@@ -224,34 +226,36 @@ class Manager
 
         // are we migrating up or down?
         $direction = $version > $current ? MigrationInterface::UP : MigrationInterface::DOWN;
+	try {
+		if ($direction == MigrationInterface::DOWN) {
+		    // run downs first
+		    krsort($migrations);
+		    foreach ($migrations as $migration) {
+			if ($migration->getVersion() <= $version) {
+			    break;
+			}
 
-        if ($direction == MigrationInterface::DOWN) {
-            // run downs first
-            krsort($migrations);
-            foreach ($migrations as $migration) {
-                if ($migration->getVersion() <= $version) {
-                    break;
-                }
+			if (in_array($migration->getVersion(), $versions)) {
+			    $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+			}
+		    }
+		}
 
-                if (in_array($migration->getVersion(), $versions)) {
-                    $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
-                }
-            }
-        }
+		ksort($migrations);
+		foreach ($migrations as $migration) {
+		    if ($migration->getVersion() > $version) {
+			break;
+		    }
 
-        ksort($migrations);
-        foreach ($migrations as $migration) {
-            if ($migration->getVersion() > $version) {
-                break;
-            }
-
-            if (!in_array($migration->getVersion(), $versions)) {
-                $this->executeMigration($environment, $migration, MigrationInterface::UP);
-            }
-        }
+		    if (!in_array($migration->getVersion(), $versions)) {
+			$this->executeMigration($environment, $migration, MigrationInterface::UP);
+		    }
+		}
+	} finally {
 	    if ($env->getAdapter() !== null) {
 		    $env->getAdapter()->disconnect();
 	    }
+	}
     }
 
     /**
@@ -327,20 +331,23 @@ class Manager
             return;
         }
 
-        // Revert the migration(s)
-        krsort($migrations);
-        foreach ($migrations as $migration) {
-            if ($migration->getVersion() <= $version) {
-                break;
-            }
+	try {
+		// Revert the migration(s)
+		krsort($migrations);
+		foreach ($migrations as $migration) {
+		    if ($migration->getVersion() <= $version) {
+			break;
+		    }
 
-            if (in_array($migration->getVersion(), $versions)) {
-                $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
-            }
-        }
+		    if (in_array($migration->getVersion(), $versions)) {
+			$this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+		    }
+		}
+	} finally {
 	    if ($env->getAdapter() !== null) {
 		    $env->getAdapter()->disconnect();
 	    }
+	}
     }
 
     /**
