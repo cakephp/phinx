@@ -5,8 +5,6 @@ before_script:
     - psql -c 'create database phinx_testing;' -U postgres
 language: php
 php:
-  - 5.3
-  - 5.4
   - 5.5
   - 5.6
   - hhvm
