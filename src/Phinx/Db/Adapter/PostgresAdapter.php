@@ -1188,6 +1188,7 @@ select table_schema || '.' || table_name table_name
  where table_type = 'BASE TABLE'
    and table_catalog = ?
    and table_schema not in ('pg_catalog','information_schema')
+ order by table_name
  ");
         $stmt->execute(array($name));
         foreach ($stmt->fetchAll() as $row) {
@@ -1222,14 +1223,15 @@ select table_schema || '.' || table_name table_name
         // been tested in pg 9. it does _not_ work for 8.4 and earlier.
         $pg_magic = <<<SQL
 select pg_catalog.pg_get_indexdef(i.indexrelid, 0, true) index_sql, contype, c2.relname index_name
-from pg_catalog.pg_class c, 
-pg_catalog.pg_class c2, 
-pg_catalog.pg_index i 
-left join pg_catalog.pg_constraint con 
-on (conrelid=i.indrelid and conindid = i.indexrelid and contype in ('p','u','x')) 
-where c.oid='{$table->getName(true)}'::regclass 
-and c.oid=i.indrelid 
-and i.indexrelid=c2.oid;
+  from pg_catalog.pg_class c, 
+       pg_catalog.pg_class c2, 
+       pg_catalog.pg_index i 
+  left join pg_catalog.pg_constraint con 
+    on (conrelid=i.indrelid and conindid = i.indexrelid and contype in ('p','u','x')) 
+ where c.oid='{$table->getName(true)}'::regclass 
+   and c.oid=i.indrelid 
+   and i.indexrelid=c2.oid
+ order by c2.relname;
 SQL;
         foreach ($this->fetchAll($pg_magic) as $row) {
             $sql .= $row['index_sql'] . ";\n";
@@ -1253,7 +1255,8 @@ SQL;
 select conname, pg_catalog.pg_get_constraintdef(r.oid, true) as def 
   from pg_catalog.pg_constraint r 
  where r.conrelid = '%s'::regclass 
- and r.contype='f'", $table->getName(true));
+   and r.contype='f'
+ order by conname", $table->getName(true));
         $fk_defs=array();
         foreach ($this->fetchAll($pg_magic) as $fk) {
             $fk_defs[] = sprintf("ALTER TABLE %s ADD CONSTRAINT %s %s;\n",

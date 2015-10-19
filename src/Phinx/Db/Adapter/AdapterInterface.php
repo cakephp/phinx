@@ -257,6 +257,15 @@ interface AdapterInterface
     public function quoteColumnName($columnName);
 
     /**
+     * Quotes a string value for inserting into a table
+     * Basically, a wrapper for PDO::quote()
+     *
+     * @param string to be quoted
+     * @return quoted string
+     */
+    public function quote($string);
+
+    /**
      * Checks to see if a table exists.
      *
      * @param string $tableName Table Name

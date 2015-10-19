@@ -215,7 +215,7 @@ class SeedTable
         }
         $sql = $this->getAdapter()->getInsertSql($this->table, $cols, $this->getSeedData());
         // if getInsertSql returned a prepared statement to run a bunch of times, turn 
-        // that into explicit inserts
+        // that into explicit inserts. make sure to quote special chars appropriately
         if (strpos($sql, '(?')) {
             $base = preg_replace('/\(\?(, *\?)*\)/', '', $sql);
             $sql = '';
@@ -224,13 +224,13 @@ class SeedTable
                 if ($row[0] === null) {
                     $sql .= 'null';
                 } else { 
-                    $sql .= '\''.$row[0].'\'';
+                    $sql .= $this->getAdapter()->quote($row[0]);
                 }
                 for ($i=1; $i<count($cols); $i++) {
                     if ($row[$i] === null) {
                         $sql .= ', null';
                     } else {
-                        $sql .= ', \''.preg_replace("/'/", '\\\'', $row[$i]).'\'';
+                        $sql .= ', ' . $this->getAdapter()->quote($row[$i]);
                     }
                 }
                 $sql .= ");\n";

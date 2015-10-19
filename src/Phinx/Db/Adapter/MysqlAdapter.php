@@ -1129,7 +1129,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 select table_name
   from information_schema.tables
  where table_type = 'BASE TABLE'
-   and table_schema = ?");
+   and table_schema = ?
+ order by table_name");
         $stmt->execute(array($name));
         foreach ($stmt->fetchAll() as $row) {
             $tables[] = new Table($row['table_name'], $this->getOptions(), $this);
@@ -1168,7 +1169,8 @@ select r.constraint_catalog,
        r.referenced_table_name 
   from information_schema.referential_constraints r
  where r.constraint_schema = ?
-   and r.table_name = ?");
+   and r.table_name = ?
+ order by r.constraint_name");
 
         $stmt->execute(array($this->getOption('name'), $table->getName()));
         $rows = $stmt->fetchAll();

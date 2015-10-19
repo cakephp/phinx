@@ -506,4 +506,13 @@ select concat(table_schema,'.',table_name) table_name
         }
         return $tables;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function quote($string)
+    {
+        return $this->connection->quote($string);
+    }
+    
 }

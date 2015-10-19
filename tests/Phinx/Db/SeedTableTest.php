@@ -88,21 +88,21 @@ class SeedTableTest extends \PHPUnit_Framework_TestCase
         }
         // create a test seed table for SeedTable tests
         $adapter->query("create table test_seed(i int, v varchar(10))");
-        $adapter->query("insert into test_seed select 1 i,'fizzie' v union select 2,'figgle' union select 3, 'funk' union select 4, null");
+        $adapter->query("insert into test_seed select 1 i,'fizzie' v union select 2,'figgle''s' union select 3, 'fu\nk' union select 4, null");
         $seed = new SeedTable('test_seed', array(), $adapter);
         $this->assertNull($seed->getWhere());
         $insert = $seed->getInsertSql();
 
         // each adapter quotes the insert statement differently
-        $expected = SeedTableTest::quoteExpectedSql($adapter, 'seed_test',
+        $expected = SeedTableTest::quoteExpectedSql($adapter, 'test_seed',
             "INSERT INTO %table_name (%i, %v) VALUES ('1', 'fizzie');
-INSERT INTO %table_name (%i, %v) VALUES ('2', 'figgle');
-INSERT INTO %table_name (%i, %v) VALUES ('3', 'funk');
+INSERT INTO %table_name (%i, %v) VALUES ('2', " . $adapter->quote('figgle\'s') . ");
+INSERT INTO %table_name (%i, %v) VALUES ('3', " . $adapter->quote("fu\nk") . ");
 INSERT INTO %table_name (%i, %v) VALUES ('4', null)");
     
         // we can't guarantee ordering so just make sure each insert statement exists
         foreach (explode(";\n", $expected) as $x) {
-            $this->assertTrue(strpos($insert, $x) >= 0);
+            $this->assertTrue(strpos($insert, $x)!==false, "insert should contain: $x");
         }
         // test insert actually works. This will throw exception if not
         $adapter->query("create table test_seed2 as select * from test_seed limit 0");
@@ -116,7 +116,11 @@ INSERT INTO %table_name (%i, %v) VALUES ('4', null)");
         );
         // make sure null record was put in properly
         $rows = $adapter->fetchAll("select * from test_seed2 where v is null");
-        $this->assertCount(1, $rows);
+        $this->assertCount(1, $rows, "null should be properly inserted");
+
+        $rows = [];
+        $rows = $adapter->fetchAll("select v from test_seed2 where v like '%\n%'");
+        $this->assertCount(1, $rows, "new line should be properly inserted");
     }
 
     /**
