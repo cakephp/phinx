@@ -90,6 +90,35 @@ class Column
     protected $comment;
 
     /**
+     * @var string
+     */
+    protected $collation;
+
+    /**
+     * Gets the column collation.
+     *
+     * @return string
+     */
+    public function getCollation()
+    {
+        return $this->collation;
+    }
+
+    /**
+     * Sets the column collation.
+     *
+     * @param string $collation
+     *
+     * @return Column
+     */
+    public function setCollation($collation)
+    {
+        $this->collation = $collation;
+
+        return $this;
+    }
+
+    /**
      * @var boolean
      */
     protected $signed = true;
@@ -506,6 +535,7 @@ class Column
             'timezone',
             'properties',
             'values',
+            'collation',
         );
     }
 
