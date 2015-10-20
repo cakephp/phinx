@@ -136,5 +136,10 @@ EOT
         $end = microtime(true);
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+		if (isset($errors) && !empty($errors)) {
+			openlog("[phinx_migration]", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+			syslog(LOG_ERR, '[ '.$environment.' ] '.$errors[$environment][0]);
+			closelog();
+		}
     }
 }
