@@ -10,7 +10,7 @@ class BambooHRMysqlAdapter extends \Phinx\Db\Adapter\MysqlAdapter {
 	 * @return boolean
 	 */
 	public function hasTable($tableName) {
-		$sql = sprintf("DESC %s", $tableName);
+		$sql = sprintf("DESC `%s`", $tableName);
 		try {
 			$this->query($sql);
 		} catch (\PDOException $exc) {
@@ -25,7 +25,8 @@ class BambooHRMysqlAdapter extends \Phinx\Db\Adapter\MysqlAdapter {
 	 * 
 	 */
 	protected function getForeignKeys($tableName) {
-		$results = $this->fetchAll(sprintf("SHOW CREATE TABLE %s", $tableName));
+		$sql = sprintf("SHOW CREATE TABLE `%s`", $tableName);
+		$results = $this->fetchAll($sql);
 		$foreignKeyMatch = '/CONSTRAINT\s+\`([a-z0-9A-Z\_]*)\`\s+FOREIGN KEY\s+\(([^\)]+)\)\s+REFERENCES\s+([^\(^\s]+)\s*\(([^\)]+)\)/mi';
 		preg_match_all($foreignKeyMatch, $results[0]['Create Table'], $rows);
 		
@@ -62,7 +63,7 @@ class BambooHRMysqlAdapter extends \Phinx\Db\Adapter\MysqlAdapter {
 		if ($constraint) {
 			$this->execute(
 				sprintf(
-					'ALTER TABLE %s DROP FOREIGN KEY %s', $this->quoteTableName($tableName), $constraint
+					'ALTER TABLE `%s` DROP FOREIGN KEY %s', $this->quoteTableName($tableName), $constraint
 				)
 			);
 			$this->endCommandTimer();
