@@ -26,8 +26,9 @@ class BambooHRMysqlAdapter extends \Phinx\Db\Adapter\MysqlAdapter {
 	 */
 	protected function getForeignKeys($tableName) {
 		$results = $this->fetchAll(sprintf("SHOW CREATE TABLE %s", $tableName));
-		$foreignKeyMatch = '/CONSTRAINT\s+\`([a-z\_]*)\`\s+FOREIGN KEY\s+\(([^\)]+)\)\s+REFERENCES\s+([^\(^\s]+)\s*\(([^\)]+)\)/mi';
+		$foreignKeyMatch = '/CONSTRAINT\s+\`([a-z0-9A-Z\_]*)\`\s+FOREIGN KEY\s+\(([^\)]+)\)\s+REFERENCES\s+([^\(^\s]+)\s*\(([^\)]+)\)/mi';
 		preg_match_all($foreignKeyMatch, $results[0]['Create Table'], $rows);
+		
 		unset($rows[0]);
 		$count = count($rows[1]) - 1;
 		$tick = 0;
@@ -40,7 +41,6 @@ class BambooHRMysqlAdapter extends \Phinx\Db\Adapter\MysqlAdapter {
 		    $tick++;
 		}
 		return $foreignKeys;
-		//throw new \Exception("uh uh - we aren't going to support getting foreign keys");
 	}
 
 	/**
