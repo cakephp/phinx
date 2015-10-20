@@ -12,6 +12,9 @@ class BamboohrMysqlAdapterTest extends \PHPUnit_Framework_TestCase
      */
     private $adapter;
 
+    /**
+     * 
+     */
     public function setUp()
     {
         if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
@@ -35,24 +38,17 @@ class BamboohrMysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->disconnect();
     }
 
+    /**
+     * 
+     */
     public function tearDown()
     {
         unset($this->adapter);
     }
     
-    public function testCreateTable()
-    {
-        $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
-        $table->addColumn('realname', 'string')
-              ->addColumn('email', 'integer')
-              ->save();
-        $this->assertTrue($this->adapter->hasTable('ntable'));
-        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
-        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
-        $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
-        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
-    }
-    
+    /**
+     * 
+     */
     public function testHasTable()
     {
         $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
@@ -63,6 +59,7 @@ class BamboohrMysqlAdapterTest extends \PHPUnit_Framework_TestCase
         
     }
     /**
+     * should throw an exception
      * @expectedException \Exception
      * @expectedExceptionMessage uh uh - we don't support describe table
      */
@@ -72,7 +69,7 @@ class BamboohrMysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('column1', 'string');
         $table->save();
 
-        $described = $this->adapter->describeTable('t');
+        $this->adapter->describeTable('t');
         
     }
     
@@ -120,6 +117,9 @@ class BamboohrMysqlAdapterTest extends \PHPUnit_Framework_TestCase
     }
 
 
+    /**
+     * 
+     */
     public function testHasDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
