@@ -27,6 +27,7 @@
  * @subpackage Phinx\Db
  */
 namespace Phinx\Db\Table;
+use Phinx\Db\Adapter\AdapterInterface;
 
 /**
  *
@@ -109,10 +110,19 @@ class Column
      *
      * @param string $collation
      *
-     * @return Column
+     * @throws \UnexpectedValueException If collation not allowed for type
+     * @return $this
      */
     public function setCollation($collation)
     {
+        $allowedTypes = [
+            AdapterInterface::PHINX_TYPE_CHAR,
+            AdapterInterface::PHINX_TYPE_STRING,
+            AdapterInterface::PHINX_TYPE_TEXT,
+        ];
+        if (!in_array($this->getType(), $allowedTypes))
+            throw new \UnexpectedValueException("Collation may be set only for types: ". implode(', ', $allowedTypes));
+
         $this->collation = $collation;
 
         return $this;
