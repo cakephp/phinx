@@ -4,20 +4,53 @@ namespace Phinx\Db\Adapter;
 
 class BambooHRMysqlAdapter extends \Phinx\Db\Adapter\MysqlAdapter {
 
+	/**
+	 * 
+	 * @param type $tableName table name
+	 * @return boolean
+	 */
 	public function hasTable($tableName) {
 		$sql = sprintf("DESC %s", $tableName);
 		try {
-			$exists = $this->query($sql);
+			$this->query($sql);
 		} catch (\PDOException $exc) {
 			return false;
 		}
 		return true;
 	}
 
+	/**
+	 * 
+	 * @param type $tableName tablename
+	 * 
+	 */
 	protected function getForeignKeys($tableName) {
-		throw new \Exception("uh uh - we aren't going to support getting foreign keys");
+		$results = $this->fetchAll(sprintf("SHOW CREATE TABLE %s", $tableName));
+		$foreignKeyMatch = '/CONSTRAINT\s+\`([a-z\_]*)\`\s+FOREIGN KEY\s+\(([^\)]+)\)\s+REFERENCES\s+([^\(^\s]+)\s*\(([^\)]+)\)/mi';
+		preg_match_all($foreignKeyMatch, $results[0]['Create Table'], $rows);
+		unset($rows[0]);
+		$count = count($rows[1]) - 1;
+		$tick = 0;
+		$foreignKeys = [];
+		while ($tick <= $count) {
+		    $foreignKeys[$rows[1][$tick]]['table'] = $tableName;
+		    $foreignKeys[$rows[1][$tick]]['columns'][] = str_replace('`', '', $rows[2][$tick]);
+		    $foreignKeys[$rows[1][$tick]]['referenced_table'] = str_replace('`', '', $rows[3][$tick]);
+		    $foreignKeys[$rows[1][$tick]]['referenced_column'] = str_replace('`', '', $rows[4][$tick]);
+		    $tick++;
+		}
+		return $foreignKeys;
+		//throw new \Exception("uh uh - we aren't going to support getting foreign keys");
 	}
 
+	/**
+	 * 
+	 * @param type $tableName
+	 * @param type $columns
+	 * @param type $constraint
+	 * @return type
+	 * @throws \Exception
+	 */
 	public function dropForeignKey($tableName, $columns, $constraint = null) {
 		$this->startCommandTimer();
 		if (is_string($columns)) {
@@ -40,6 +73,11 @@ class BambooHRMysqlAdapter extends \Phinx\Db\Adapter\MysqlAdapter {
 		$this->endCommandTimer();
 	}
 
+	/**
+	 * 
+	 * @param type $name
+	 * @return type
+	 */
 	public function hasDatabase($name) {
 		$sql = sprintf("show databases like '%s'",$name);
 		$ret = $this->query($sql);
@@ -47,6 +85,11 @@ class BambooHRMysqlAdapter extends \Phinx\Db\Adapter\MysqlAdapter {
 		
 	}
 	
+	/**
+	 * 
+	 * @param type $tableName
+	 * @throws \Exception
+	 */
 	public function describeTable($tableName) {
 		throw new \Exception("uh uh - we don't support describe table");
 	}
