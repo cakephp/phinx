@@ -31,6 +31,7 @@ namespace Phinx\Console\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\StreamOutput;
 
 class Migrate extends AbstractCommand
 {
@@ -69,13 +70,16 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+		$outputStream = new StreamOutput(fopen('phinx.log', 'a', false));
+		$outputStream->writeln('');
+		$outputStream->writeln(date('m-d-Y His'));
         $this->bootstrap($input, $output);
 
         $version     = $input->getOption('target');
         $environment = $input->getOption('environment');
         $date        = $input->getOption('date');
-
-        if ($environment == 'all') {
+        
+		if ($environment == 'all') {
             $startAll = microtime(true);
             foreach (array_keys($this->config['environments']) as $environmentName) {
                 if ($environmentName == 'default_migration_table' || $environmentName == 'default_database') {
@@ -86,34 +90,42 @@ EOT
             }
             $endAll = microtime(true);
             $output->writeln('<comment>All databases complete. Took ' . sprintf('%.4fs', $endAll - $startAll) . '</comment>');
-            return;
+            $outputStream->write('All databases complete. Took ' . sprintf('%.4fs', $endAll - $startAll));
+			return;
         }
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
+			$outputStream->writeln('warning no environment specified, defaulting to: ' . $environment);
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
+            $outputStream->writeln('using environment ' . $environment);
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
         if (isset($envOptions['adapter'])) {
             $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
+			$outputStream->writeln('using adapter ' . $envOptions['adapter']);
         }
 
         if (isset($envOptions['wrapper'])) {
             $output->writeln('<info>using wrapper</info> ' . $envOptions['wrapper']);
+			$outputStream->writeln('using wrapper ' . $envOptions['wrapper']);
         }
 
         if (isset($envOptions['name'])) {
             $output->writeln('<info>using database</info> ' . $envOptions['name']);
+			$outputStream->writeln('using database ' . $envOptions['name']);
         }
 
         if (isset($envOptions['table_prefix'])) {
             $output->writeln('<info>using table prefix</info> ' . $envOptions['table_prefix']);
+			$outputStream->writeln('using table prefix ' . $envOptions['table_prefix']);
         }
         if (isset($envOptions['table_suffix'])) {
             $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
+			$outputStream->writeln('using table suffix ' . $envOptions['table_suffix']);
         }
 
         // run the migrations
@@ -127,15 +139,19 @@ EOT
         } catch (\PDOException $exception) {
             $message = $exception->getMessage();
             $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
+			$outputStream->writeln('--== ERROR ==-- skipping :' . $message);
             $errors[$environment][] = $message;
         } catch (\InvalidArgumentException $exception) {
             $message = $exception->getMessage();
             $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
+			$outputStream->writeln('--== ERROR ==-- skipping :' . $message);
             $errors[$environment][] = $message;
         }
         $end = microtime(true);
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+		$outputStream->writeln('');
+		$outputStream->writeln('All Done. Took ' . sprintf('%.4fs', $end - $start));
     }
 }
