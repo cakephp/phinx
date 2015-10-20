@@ -115,11 +115,11 @@ class Column
      */
     public function setCollation($collation)
     {
-        $allowedTypes = [
+        $allowedTypes = array(
             AdapterInterface::PHINX_TYPE_CHAR,
             AdapterInterface::PHINX_TYPE_STRING,
             AdapterInterface::PHINX_TYPE_TEXT,
-        ];
+        );
         if (!in_array($this->getType(), $allowedTypes))
             throw new \UnexpectedValueException("Collation may be set only for types: ". implode(', ', $allowedTypes));
 
