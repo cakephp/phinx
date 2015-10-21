@@ -96,6 +96,11 @@ class Column
     protected $collation;
 
     /**
+     * @var string
+     */
+    protected $encoding;
+
+    /**
      * Gets the column collation.
      *
      * @return string
@@ -124,6 +129,39 @@ class Column
             throw new \UnexpectedValueException("Collation may be set only for types: ". implode(', ', $allowedTypes));
 
         $this->collation = $collation;
+
+        return $this;
+    }
+
+    /**
+     * Gets the column character set.
+     *
+     * @return string
+     */
+    public function getEncoding()
+    {
+        return $this->encoding;
+    }
+
+    /**
+     * Sets the column character set.
+     *
+     * @param string $encoding
+     *
+     * @throws \UnexpectedValueException If character set not allowed for type
+     * @return $this
+     */
+    public function setEncoding($encoding)
+    {
+        $allowedTypes = array(
+            AdapterInterface::PHINX_TYPE_CHAR,
+            AdapterInterface::PHINX_TYPE_STRING,
+            AdapterInterface::PHINX_TYPE_TEXT,
+        );
+        if (!in_array($this->getType(), $allowedTypes))
+            throw new \UnexpectedValueException("Character set may be set only for types: ". implode(', ', $allowedTypes));
+
+        $this->encoding = $encoding;
 
         return $this;
     }
@@ -546,6 +584,7 @@ class Column
             'properties',
             'values',
             'collation',
+            'encoding',
         );
     }
 
