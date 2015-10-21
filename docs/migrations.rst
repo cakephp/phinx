@@ -938,6 +938,7 @@ For ``string`` and ``text`` columns:
 Option    Description
 ========= ===========
 collation set collation that differs from table defaults
+encoding  set character set that differs from table defaults
 ========= ===========
 
 For ``enum`` and ``set`` columns:
