@@ -184,9 +184,9 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function getVersions()
+    public function getVersions($fullRow = false)
     {
-        return $this->getAdapter()->getVersions();
+        return $this->getAdapter()->getVersions($fullRow);
     }
 
     /**

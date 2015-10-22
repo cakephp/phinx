@@ -79,16 +79,16 @@ class Manager
         $migrations = array();
         if (count($this->getMigrations())) {
             $output->writeln('');
-            $output->writeln(' Status  Migration ID    Migration Name ');
-            $output->writeln('-----------------------------------------');
+            $output->writeln(sprintf(' Status  Migration ID    %sMigration Name ', $output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE ? 'Started              Finished             ' : ''));
+            $output->writeln(sprintf('-------------------------%s---------------', $output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE ? '------------------------------------------' : ''));
 
             $env = $this->getEnvironment($environment);
-            $versions = $env->getVersions();
+            $versions = $env->getFullVersions();
 
             foreach ($this->getMigrations() as $migration) {
-                if (in_array($migration->getVersion(), $versions)) {
+                $version = array_key_exists($migration->getVersion(), $versions) ? $versions[$migration->getVersion()] : false;
+                if ($version) {
                     $status = '     <info>up</info> ';
-                    unset($versions[array_search($migration->getVersion(), $versions)]);
                 } else {
                     $status = '   <error>down</error> ';
                 }
@@ -96,15 +96,18 @@ class Manager
                 $output->writeln(
                     $status
                     . sprintf(' %14.0f ', $migration->getVersion())
+                    . ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE ? ($version ? sprintf(' %s  %s ', $version['start_time'], $version['end_time']) : str_repeat(' ', 42)) : '')
                     . ' <comment>' . $migration->getName() . '</comment>'
                 );
                 $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
+                unset($versions[$migration->getVersion()]);
             }
 
-            foreach ($versions as $missing) {
+            foreach ($versions as $missing => $version) {
                 $output->writeln(
                     '     <error>up</error> '
                     . sprintf(' %14.0f ', $missing)
+                    . ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE ? sprintf(' %s  %s ', $version['start_time'], $version['end_time']) : '')
                     . ' <error>** MISSING **</error>'
                 );
             }
