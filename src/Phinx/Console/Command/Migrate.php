@@ -74,8 +74,8 @@ EOT
         $version     = $input->getOption('target');
         $environment = $input->getOption('environment');
         $date        = $input->getOption('date');
-
-        if ($environment == 'all') {
+        
+		if ($environment == 'all') {
             $startAll = microtime(true);
             foreach (array_keys($this->config['environments']) as $environmentName) {
                 if ($environmentName == 'default_migration_table' || $environmentName == 'default_database') {
@@ -86,7 +86,7 @@ EOT
             }
             $endAll = microtime(true);
             $output->writeln('<comment>All databases complete. Took ' . sprintf('%.4fs', $endAll - $startAll) . '</comment>');
-            return;
+			return;
         }
 
         if (null === $environment) {
@@ -136,5 +136,11 @@ EOT
         $end = microtime(true);
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+
+		if (isset($errors) && !empty($errors)) {
+			openlog("[phinx_migration]", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+			syslog(LOG_ERR, '[ '.$environment.' ] '.$errors[$environment][0]);
+			closelog();
+		}
     }
 }
