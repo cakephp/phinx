@@ -419,7 +419,7 @@ Column types are specified as strings and can be one of:
 -  timestamp
 -  uuid
 
-In addition, the MySQL adapter supports ``enum`` and ``set`` column types.
+In addition, the MySQL adapter supports ``enum``, ``set`` and ``blob`` column types.
 
 In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb`` and ``uuid`` column types
 (PostgreSQL 9.3 and above).
@@ -1007,7 +1007,7 @@ Limit Option and MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
 
 When using the MySQL adapter, additional hinting of database column type can be
-made for ``integer``, ``text`` and ``binary`` columns. Using ``limit`` with
+made for ``integer``, ``text`` and ``blob`` columns. Using ``limit`` with
 one the following options will modify the column type accordingly:
 
 ============ ==============
