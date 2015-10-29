@@ -44,7 +44,7 @@ class AdapterFactory
      */
     protected static $instance;
 
-	protected static $adapterInstances = [];
+	protected $adapterInstances = [];
 
     /**
      * Get the factory singleton instance.
