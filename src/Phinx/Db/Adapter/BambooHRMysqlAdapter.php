@@ -4,6 +4,36 @@ namespace Phinx\Db\Adapter;
 
 class BambooHRMysqlAdapter extends \Phinx\Db\Adapter\MysqlAdapter {
 
+	private $dbName = null;
+
+	/**
+	 * Gets the database connection
+	 *
+	 * @return \PDO
+	 */
+	public function getConnection() {
+		$options = $this->getOptions();
+		if (null === $this->connection || $this->dbName !== $options['name']) {
+			$this->connect();
+		}
+		return $this->connection;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function connect() {
+		if (!empty($this->db)) {
+			$options = $this->getOptions();
+			$this->dbName = $options['name'];
+			$this->db->exec('USE ' . $this->dbName);
+			$this->setConnection($this->db);
+		} else {
+			parent::connect();
+		}
+
+	}
+
 	/**
 	 * 
 	 * @param type $tableName table name

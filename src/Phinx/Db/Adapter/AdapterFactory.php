@@ -44,6 +44,8 @@ class AdapterFactory
      */
     protected static $instance;
 
+	protected $adapterInstances = [];
+
     /**
      * Get the factory singleton instance.
      *
@@ -67,7 +69,7 @@ class AdapterFactory
         'pgsql'  => 'Phinx\Db\Adapter\PostgresAdapter',
         'sqlite' => 'Phinx\Db\Adapter\SQLiteAdapter',
         'sqlsrv' => 'Phinx\Db\Adapter\SqlServerAdapter',
-	'bamboohrmysql' => 'Phinx\Db\Adapter\BambooHRMysqlAdapter',
+		'bamboohrmysql' => 'Phinx\Db\Adapter\BambooHRMysqlAdapter',
     );
 
     /**
@@ -125,11 +127,16 @@ class AdapterFactory
      * @param  array  $options
      * @return AdapterInterface
      */
-    public function getAdapter($name, array $options)
-    {
-        $class = $this->getClass($name);
-        return new $class($options);
-    }
+	public function getAdapter($name, array $options)
+	{
+		if (!isset($this->adapterInstances[$name]) || empty($this->adapterInstances[$name])) {
+			$class = $this->getClass($name);
+			$this->adapterInstances[$name] = new $class($options);
+		}
+		$adapter = $this->adapterInstances[$name];
+		$adapter->setOptions($options);
+		return $adapter;
+	}
 
     /**
      * Add or replace a wrapper with a fully qualified class name.
