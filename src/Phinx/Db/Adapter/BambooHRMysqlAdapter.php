@@ -26,7 +26,7 @@ class BambooHRMysqlAdapter extends \Phinx\Db\Adapter\MysqlAdapter {
 		if (!empty($this->db)) {
 			$options = $this->getOptions();
 			$this->dbName = $options['name'];
-			$this->connection->exec('USE ' . $this->dbName);
+			$this->db->exec('USE ' . $this->dbName);
 			$this->setConnection($this->db);
 		} else {
 			parent::connect();
