@@ -62,6 +62,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     const INT_REGULAR = 4294967295;
     const INT_BIG     = 18446744073709551615;
 
+	protected $db = null;
+
     /**
      * {@inheritdoc}
      */
@@ -90,7 +92,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
 
-            $dsn .= ';dbname=' . $options['name'];
+           // $dsn .= ';dbname=' . $options['name'];
 
             // charset support
             if (!empty($options['charset'])) {
@@ -109,13 +111,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
             try {
                 $db = new \PDO($dsn, $options['user'], $options['pass'], $driverOptions);
+	            $db->exec('USE ' . $options['name']);
             } catch (\PDOException $exception) {
                 throw new \InvalidArgumentException(sprintf(
                     'There was a problem connecting to the database: %s',
                     $exception->getMessage()
                 ));
             }
-
+			$this->db = $db;
             $this->setConnection($db);
         }
     }
