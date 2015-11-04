@@ -108,11 +108,10 @@ class Manager
 			. ' <error>** MISSING **</error>'
 		    );
 		}
-	    } catch (\Exception $exception) {
+	    } finally {
 	        if ($env->getAdapter() !== null) {
 		        $env->getAdapter()->disconnect();
 	        }
-		    throw $exception;
 	    }
         } else {
             // there are no migrations
@@ -252,11 +251,10 @@ class Manager
 			$this->executeMigration($environment, $migration, MigrationInterface::UP);
 		    }
 		}
-	} catch (\Exception $exception) {
+	} finally {
 	    if ($env->getAdapter() !== null) {
 		    $env->getAdapter()->disconnect();
 	    }
-		throw $exception;
 	}
     }
 
@@ -345,11 +343,10 @@ class Manager
 			$this->executeMigration($environment, $migration, MigrationInterface::DOWN);
 		    }
 		}
-	} catch (\Exception $exception) {
+	} finally {
 	    if ($env->getAdapter() !== null) {
 		    $env->getAdapter()->disconnect();
 	    }
-		throw $exception;
 	}
     }
 
