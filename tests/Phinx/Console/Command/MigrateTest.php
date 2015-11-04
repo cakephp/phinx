@@ -68,7 +68,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
-        $managerStub->expects($this->once())
+        $managerStub->expects($this->any())
                     ->method('migrate');
 
         $command->setConfig($this->config);
