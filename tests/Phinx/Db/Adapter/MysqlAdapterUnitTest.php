@@ -1081,6 +1081,34 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                         'Comment' => '',
                         'Index_comment'   => '');
 
+        $index3 = array('Table'   => 'table_name',
+                        'Non_unique'    => '0',
+                        'Key_name'    => 'multiple_index_name',
+                        'Seq_in_index' => '1',
+                        'Column_name' => 'column_name',
+                        'Collation' => 'A',
+                        'Cardinality' => '0',
+                        'Sub_part' => 'NULL',
+                        'Packed' => 'NULL',
+                        'Null' => '',
+                        'Index_type' => 'BTREE',
+                        'Comment' => '',
+                        'Index_comment'   => '');
+
+        $index4 = array('Table'   => 'table_name',
+                        'Non_unique'    => '0',
+                        'Key_name'    => 'multiple_index_name',
+                        'Seq_in_index' => '2',
+                        'Column_name' => 'another_column_name',
+                        'Collation' => 'A',
+                        'Cardinality' => '0',
+                        'Sub_part' => 'NULL',
+                        'Packed' => 'NULL',
+                        'Null' => '',
+                        'Index_type' => 'BTREE',
+                        'Comment' => '',
+                        'Index_comment'   => '');
+
         $this->result->expects($this->at(0))
                      ->method('fetch')
                      ->will($this->returnValue($index1));
@@ -1091,21 +1119,30 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
         $this->result->expects($this->at(2))
                      ->method('fetch')
+                     ->will($this->returnValue($index3));
+
+        $this->result->expects($this->at(3))
+                     ->method('fetch')
+                     ->will($this->returnValue($index4));
+
+        $this->result->expects($this->at(4))
+                     ->method('fetch')
                      ->will($this->returnValue(null));
 
         $this->assertQuerySql("SHOW INDEXES FROM `table_name`", $this->result);
-        return array($index1, $index2);
+        return array($index1, $index2, $index3, $index4);
     }
 
     public function testGetIndexes()
     {
-        list($index1, $index2) = $this->prepareCaseIndexes();
+        list($index1, $index2, $index3, $index4) = $this->prepareCaseIndexes();
         $indexes = $this->adapter->getIndexes("table_name");
 
         $this->assertTrue(is_array($indexes));
-        $this->assertEquals(2, count($indexes));
+        $this->assertEquals(3, count($indexes));
         $this->assertEquals(array('columns' => array($index1['Column_name'])), $indexes[$index1['Key_name']]);
         $this->assertEquals(array('columns' => array($index2['Column_name'])), $indexes[$index2['Key_name']]);
+        $this->assertEquals(array('columns' => array($index3['Column_name'], $index4['Column_name'])), $indexes[$index3['Key_name']]);
     }
 
 
@@ -1118,7 +1155,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
     public function testHasIndexNotExistsAsString()
     {
         $this->prepareCaseIndexes();
-        $this->assertFalse($this->adapter->hasIndex("table_name", "column_name_not_exists"));
+        $this->assertFalse($this->adapter->hasIndex("table_name", "another_column_name"));
     }
 
     public function testHasIndexExistsAsArray()
@@ -1130,7 +1167,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
     public function testHasIndexNotExistsAsArray()
     {
         $this->prepareCaseIndexes();
-        $this->assertFalse($this->adapter->hasIndex("table_name", array("column_name_not_exists")));
+        $this->assertFalse($this->adapter->hasIndex("table_name", array("another_column_name")));
     }
 
     public function testAddIndex()
@@ -1184,11 +1221,32 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                     'REFERENCED_TABLE_NAME'   => 'other_table',
                     'REFERENCED_COLUMN_NAME'  => 'id');
 
+
+        $fk1 = array('CONSTRAINT_NAME'         => 'fk2',
+                    'TABLE_NAME'              => 'table_name',
+                    'COLUMN_NAME'             => 'other_table_id',
+                    'REFERENCED_TABLE_NAME'   => 'other_table',
+                    'REFERENCED_COLUMN_NAME'  => 'id');
+
+        $fk2 = array('CONSTRAINT_NAME'         => 'fk2',
+                    'TABLE_NAME'              => 'table_name',
+                    'COLUMN_NAME'             => 'another_table_id',
+                    'REFERENCED_TABLE_NAME'   => 'other_table',
+                    'REFERENCED_COLUMN_NAME'  => 'id');
+
         $this->result->expects($this->at(0))
                      ->method('fetch')
                      ->will($this->returnValue($fk));
 
         $this->result->expects($this->at(1))
+                     ->method('fetch')
+                     ->will($this->returnValue($fk1));
+
+        $this->result->expects($this->at(2))
+                     ->method('fetch')
+                     ->will($this->returnValue($fk2));
+
+        $this->result->expects($this->at(3))
                      ->method('fetch')
                      ->will($this->returnValue(null));
 
@@ -1204,16 +1262,16 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
               AND TABLE_NAME = \'table_name\'
             ORDER BY POSITION_IN_UNIQUE_CONSTRAINT';
         $this->assertQuerySql($expectedSql, $this->result);
-        return array($fk);
+        return array($fk, $fk1, $fk2);
     }
 
     public function testGetForeignKeys()
     {
-        list($fk) = $this->prepareCaseForeignKeys();
+        list($fk, $fk1, $fk2) = $this->prepareCaseForeignKeys();
         $foreignkeys = $this->adapter->getForeignKeys("table_name");
 
         $this->assertTrue(is_array($foreignkeys));
-        $this->assertEquals(1, count($foreignkeys));
+        $this->assertEquals(2, count($foreignkeys));
         $this->assertEquals('table_name', $foreignkeys['fk1']['table']);
         $this->assertEquals(array('other_table_id'), $foreignkeys['fk1']['columns']);
         $this->assertEquals('other_table', $foreignkeys['fk1']['referenced_table']);
@@ -1235,13 +1293,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
     public function testHasForeignKeyNotExistsAsString()
     {
         $this->prepareCaseForeignKeys();
-        $this->assertFalse($this->adapter->hasForeignKey("table_name", "not_table_id"));
+        $this->assertFalse($this->adapter->hasForeignKey("table_name", "another_table_id"));
     }
 
     public function testHasForeignKeyNotExistsAsStringAndConstraint()
     {
         $this->prepareCaseForeignKeys();
-        $this->assertFalse($this->adapter->hasForeignKey("table_name", "not_table_id"), 'fk2');
+        $this->assertFalse($this->adapter->hasForeignKey("table_name", "other_table_id", 'fk3'));
     }
 
     public function testHasForeignKeyExistsAsArray()
@@ -1259,13 +1317,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
     public function testHasForeignKeyNotExistsAsArray()
     {
         $this->prepareCaseForeignKeys();
-        $this->assertFalse($this->adapter->hasForeignKey("table_name", array("not_table_id")));
+        $this->assertFalse($this->adapter->hasForeignKey("table_name", array("another_table_id")));
     }
 
     public function testHasForeignKeyNotExistsAsArrayAndConstraint()
     {
         $this->prepareCaseForeignKeys();
-        $this->assertFalse($this->adapter->hasForeignKey("table_name", array("not_table_id"), 'fk2'));
+        $this->assertFalse($this->adapter->hasForeignKey("table_name", array("other_table_id"), 'fk3'));
     }
 
     public function testAddForeignKeyBasic()
