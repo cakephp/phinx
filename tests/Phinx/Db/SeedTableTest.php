@@ -118,7 +118,7 @@ INSERT INTO %table_name (%i, %v) VALUES ('4', null)");
         $rows = $adapter->fetchAll("select * from test_seed2 where v is null");
         $this->assertCount(1, $rows, "null should be properly inserted");
 
-        $rows = [];
+        $rows = array();
         $rows = $adapter->fetchAll("select v from test_seed2 where v like '%\n%'");
         $this->assertCount(1, $rows, "new line should be properly inserted");
     }
