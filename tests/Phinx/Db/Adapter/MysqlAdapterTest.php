@@ -227,7 +227,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('tag_id', 'integer')
               ->save();
         $this->assertTrue($this->adapter->hasIndex('table1', array('user_id', 'tag_id')));
-        $this->assertTrue($this->adapter->hasIndex('table1', array('tag_id', 'USER_ID')));
+        $this->assertTrue($this->adapter->hasIndex('table1', array('USER_ID', 'tag_id')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('tag_id', 'user_id')));
         $this->assertFalse($this->adapter->hasIndex('table1', array('tag_id', 'user_email')));
     }
 
@@ -716,6 +717,27 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table4->hasIndex(array('fname', 'lname')));
         $this->adapter->dropIndex($table4->getName(), array('fname', 'lname'));
         $this->assertFalse($table4->hasIndex(array('fname', 'lname')));
+
+        // don't drop multiple column index when dropping single column
+        $table2 = new \Phinx\Db\Table('table5', array(), $this->adapter);
+        $table2->addColumn('fname', 'string')
+               ->addColumn('lname', 'string')
+               ->addIndex(array('fname', 'lname'))
+               ->save();
+        $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
+        $this->adapter->dropIndex($table2->getName(), array('fname'));
+        $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
+
+        // don't drop multiple column index with name specified when dropping
+        // single column
+        $table4 = new \Phinx\Db\Table('table6', array(), $this->adapter);
+        $table4->addColumn('fname', 'string')
+               ->addColumn('lname', 'string')
+               ->addIndex(array('fname', 'lname'), array('name' => 'multiname'))
+               ->save();
+        $this->assertTrue($table4->hasIndex(array('fname', 'lname')));
+        $this->adapter->dropIndex($table4->getName(), array('fname'));
+        $this->assertTrue($table4->hasIndex(array('fname', 'lname')));
     }
 
     public function testDropIndexByName()
