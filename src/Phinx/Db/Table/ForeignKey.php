@@ -77,7 +77,7 @@ class ForeignKey
     public function setColumns($columns)
     {
         if (is_string($columns)) {
-            $columns = array($columns);
+            $columns = array(trim($columns));
         }
         $this->columns = $columns;
         return $this;

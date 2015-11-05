@@ -139,7 +139,7 @@ class Column
      */
     public function setType($type)
     {
-        $this->type = $type;
+        $this->type = trim($type);
         return $this;
     }
 
@@ -269,7 +269,7 @@ class Column
      */
     public function setAfter($after)
     {
-        $this->after = $after;
+        $this->after = trim($after);
         return $this;
     }
 
@@ -357,7 +357,7 @@ class Column
      */
     public function setComment($comment)
     {
-        $this->comment = $comment;
+        $this->comment = trim($comment);
         return $this;
     }
 
