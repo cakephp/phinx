@@ -139,7 +139,7 @@ class Column
      */
     public function setType($type)
     {
-        $this->type = trim($type);
+        $this->type = $type;
         return $this;
     }
 
