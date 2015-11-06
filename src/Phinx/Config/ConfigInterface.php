@@ -94,6 +94,19 @@ interface ConfigInterface extends \ArrayAccess
      */
     public function getMigrationPath();
 
+    /**
+     * Gets the path to the schema seed file
+     *
+     * @return string
+     */
+    public function getSchemaPath();
+
+    /**
+     * Gets the configured seed tables
+     * @return SeedTable[] 
+     */
+    public function getSeeds($adapter=null);
+
      /**
      * Get the template file name.
      *

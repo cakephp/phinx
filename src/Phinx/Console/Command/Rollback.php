@@ -46,6 +46,7 @@ class Rollback extends AbstractCommand
         $this->setName('rollback')
              ->setDescription('Rollback the last or to a specific migration')
              ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to rollback to')
+             ->addOption('--no-schema-dump', null, InputOption::VALUE_NONE, 'Do not dump the modified schema into schema.sql.')
              ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to rollback to')
              ->setHelp(
 <<<EOT
@@ -106,5 +107,14 @@ EOT
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+        $output->writeln('');
+        if (!$input->getOption('no-schema-dump')) {
+            $output->writeln('<info>Dumping latest schema</info>');
+            $start = microtime(true);
+            $this->getManager()->dumpSchema($environment);
+            $end = microtime(true);
+            $output->writeln('<comment>Schema dump finished. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+            $output->writeln('');
+        }
     }
 }

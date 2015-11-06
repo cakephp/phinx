@@ -55,7 +55,6 @@ class MysqlAdapterTester extends MysqlAdapter
 
 class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 {
-
     public function setUp()
     {
         if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
@@ -225,7 +224,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                      ->will($this->returnValue(array('somecontent')));
         $expectedSql = 'SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
-            WHERE TABLE_SCHEMA = \'database_name\' AND TABLE_NAME = \'table_name\'';
+            WHERE TABLE_SCHEMA = \'database_name\' AND TABLE_NAME = \'table_name\'
+            AND TABLE_TYPE = \'BASE TABLE\'';
         $this->assertQuerySql($expectedSql, $this->result);
         $this->assertTrue($this->adapter->hasTable("table_name"));
     }
@@ -238,7 +238,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                      ->will($this->returnValue(array()));
         $expectedSql = 'SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
-            WHERE TABLE_SCHEMA = \'database_name\' AND TABLE_NAME = \'table_name\'';
+            WHERE TABLE_SCHEMA = \'database_name\' AND TABLE_NAME = \'table_name\'
+            AND TABLE_TYPE = \'BASE TABLE\'';
         $this->assertQuerySql($expectedSql, $this->result);
         $this->assertFalse($this->adapter->hasTable("table_name"));
     }
@@ -270,7 +271,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(array('getName', 'getOptions', 'getPendingColumns', 'getIndexes', 'getForeignKeys'))
                       ->getMock();
 
-        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue(array($column1,$column2)));
+        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue(array($column1, $column2)));
         $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
         $table->expects($this->any())->method('getOptions')->will($this->returnValue(array()));
         $table->expects($this->any())->method('getIndexes')->will($this->returnValue(array()));
@@ -309,7 +310,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->getMock();
 
         $tableOptions = array('id' => 'column_name2');
-        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue(array($column1,$column2)));
+        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue(array($column1, $column2)));
         $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
         $table->expects($this->any())->method('getOptions')->will($this->returnValue($tableOptions));
         $table->expects($this->any())->method('getIndexes')->will($this->returnValue(array()));

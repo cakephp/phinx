@@ -168,6 +168,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function getInsertSql(Table $table, $columns, $data)
+    {
+        return $this->getAdapter()->getInsertSql($table, $columns, $data);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function fetchRow($sql)
     {
         return $this->getAdapter()->fetchRow($sql);
@@ -276,6 +284,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function quoteColumnName($columnName)
     {
         return $this->getAdapter()->quoteColumnName($columnName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function quote($string)
+    {
+        return $this->getAdapter()->quote($string);
     }
 
     /**
@@ -444,5 +460,29 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function dropDatabase($name)
     {
         return $this->getAdapter()->dropDatabase($name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTableDefinition(Table $table)
+    {
+        return $this->getAdapter()->getTableDefinition($table);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listTables($name)
+    {
+        return $this->getAdapter()->listTables($name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listForeignKeyDefinitions(Table $table)
+    {
+        return $this->getAdapter()->listForeignKeys($table);
     }
 }

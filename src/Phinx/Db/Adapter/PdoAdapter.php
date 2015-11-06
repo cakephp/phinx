@@ -178,11 +178,6 @@ abstract class PdoAdapter implements AdapterInterface
     {
         $this->connection = $connection;
 
-        // Create the schema table if it doesn't already exist
-        if (!$this->hasSchemaTable()) {
-            $this->createSchemaTable();
-        }
-
         return $this;
     }
 
@@ -330,10 +325,8 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function insert(Table $table, $columns, $data)
+    public function getInsertSql(Table $table, $columns, $data)
     {
-        $this->startCommandTimer();
-
         $sql = sprintf(
             "INSERT INTO %s ",
             $this->quoteTableName($table->getName())
@@ -342,6 +335,16 @@ abstract class PdoAdapter implements AdapterInterface
         $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
         $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
 
+        return $sql;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function insert(Table $table, $columns, $data)
+    {
+        $this->startCommandTimer();
+        $sql = $this->getInsertSql($table, $columns, $data);
         $stmt = $this->getConnection()->prepare($sql);
 
         foreach ($data as $row) {
@@ -479,7 +482,38 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function isValidColumnType(Column $column) {
+    public function isValidColumnType(Column $column)
+    {
         return in_array($column->getType(), $this->getColumnTypes());
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listTables($name)
+    {
+        // all recent versions of MySQL, PostgreSQL, and MS SQL Server should
+        // support information_schema, though they all use it slightly differently.
+        // this should work for postgres and sqlserver. Override as necessary
+        $tables = array();
+        $stmt = $this->getConnection()->prepare("
+select concat(table_schema,'.',table_name) table_name
+  from information_schema.tables
+ where table_type = 'BASE TABLE'
+   and table_catalog = ?");
+        $stmt->execute(array($name));
+        foreach ($stmt->fetchAll() as $row) {
+            $tables[] = new Table($row['table_name'], $this->getOptions(), $this);
+        }
+        return $tables;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function quote($string)
+    {
+        return $this->connection->quote($string);
+    }
+    
 }

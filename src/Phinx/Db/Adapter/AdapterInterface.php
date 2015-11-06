@@ -67,7 +67,7 @@ interface AdapterInterface
     const PHINX_TYPE_LINESTRING     = 'linestring';
     const PHINX_TYPE_POLYGON        = 'polygon';
 
-	// only for mysql so far
+    // only for mysql so far
     const PHINX_TYPE_ENUM           = 'enum';
     const PHINX_TYPE_SET            = 'set';
 
@@ -256,6 +256,15 @@ interface AdapterInterface
      * @return string
      */
     public function quoteColumnName($columnName);
+
+    /**
+     * Quotes a string value for inserting into a table
+     * Basically, a wrapper for PDO::quote()
+     *
+     * @param string to be quoted
+     * @return quoted string
+     */
+    public function quote($string);
 
     /**
      * Checks to see if a table exists.
@@ -458,4 +467,52 @@ interface AdapterInterface
      * @return void
      */
     public function dropDatabase($name);
+
+    # -----------------------------------------------------
+    #    the following four methods were added for 
+    #    seed data dumping and schema resetting
+    #    via the `dump` and `reset` commands
+    # -----------------------------------------------------
+
+    /**
+     * gives the create sql for a specific table
+     * NOTE: this should NOT include foreign key definitions.
+     * The reason for this is that this method is used primarily 
+     * for re-creating the table. If a foreign key refers to another
+     * table that has not yet been created yet, the create statement
+     * will die. 
+     *
+     * Don't worry though, Migration\Manager::reset() will add the 
+     * foreign keys back in later.
+     *
+     * @param Table $table
+     * @return string
+     */
+    public function getTableDefinition(Table $table);
+
+    /**
+     * gets the insert sql to insert data to a table.
+     *
+     * @param Table $table
+     * @param string[] $columns
+     * @param string[] $data
+     */
+    public function getInsertSql(Table $table, $columns, $data);
+
+    /**
+     * return a list of tables in a database
+     *
+     * @param string $name Database Name
+     * @return Table[]
+     */
+    public function listTables($name);
+
+    /**
+     * return a list of existing foreign keys for a table
+     *
+     * @param Table $table
+     * @return string[] array of alter taable statements that define a table's foreign 
+     *                  keys
+     */
+    public function listForeignKeyDefinitions(Table $table);
 }

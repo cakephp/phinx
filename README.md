@@ -17,6 +17,7 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 * Write database migrations using database agnostic PHP code.
 * Migrate up and down.
 * Migrate on deployment.
+* Configure seed data for fresh db creation
 * Get going in less than 5 minutes.
 * Stop worrying about the state of your database.
 * Take advantage of SCM features such as branching.

@@ -101,7 +101,9 @@ class Init extends Command
                 $path
             ));
         }
-
-        $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
+        if (strpos($filePath, getcwd().DIRECTORY_SEPARATOR)===0) {
+            $filePath=".".substr($filePath, strlen(getcwd()));
+        }
+        $output->writeln('<info>created</info> ' . $filePath);
     }
 }

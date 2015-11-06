@@ -76,6 +76,23 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 ));
             }
 
+            // create the new schema if it doesn't exist yet.
+            // don't use the $this->has* functions because they will
+            // try to automaticalaly re-connect, resulting in infinite
+            // recursion
+            $schemaName = $this->getSchemaName();
+            $sth = $db->prepare(
+                "SELECT count(*)
+                FROM pg_namespace
+                WHERE nspname = ?");
+            $sth->execute(array($schemaName));
+            $res=$sth->fetch();
+            if ($res['count'] == 0) {
+                $db->query(sprintf("create schema %s", $this->quoteColumnName($schemaName)));
+            }
+
+            $db->query(sprintf('SET search_path TO %s', $this->getSchemaName()));
+
             $this->setConnection($db);
         }
     }
@@ -184,7 +201,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
             array_unshift($columns, $column);
             $options['primary_key'] = 'id';
-
         } elseif (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
@@ -303,7 +319,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             "SELECT column_name, data_type, is_identity, is_nullable,
              column_default, character_maximum_length, numeric_precision, numeric_scale
              FROM information_schema.columns
-             WHERE table_name ='%s'",
+             WHERE table_name ='%s'
+             order by ordinal_position",
             $tableName
         );
         $columnsInfo = $this->fetchAll($sql);
@@ -437,8 +454,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     $this->getDefaultValueDefinition($newColumn->getDefault())
                 )
             );
-        }
-        else {
+        } else {
             //drop default
             $this->execute(
                 sprintf(
@@ -653,6 +669,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
         return $foreignKeys;
     }
+
 
     /**
      * {@inheritdoc}
@@ -1005,21 +1022,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         return $def;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function createSchemaTable()
-    {
-        // Create the public/custom schema if it doesn't already exist
-        if (false === $this->hasSchema($this->getSchemaName())) {
-            $this->createSchema($this->getSchemaName());
-        }
-
-        $this->fetchAll(sprintf('SET search_path TO %s', $this->getSchemaName()));
-
-        return parent::createSchemaTable();
-    }
-
      /**
       * {@inheritdoc}
       */
@@ -1172,5 +1174,97 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $options = $this->getOptions();
         return empty($options['schema']) ? 'public' : $options['schema'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listTables($name)
+    {
+        $tables=array();
+
+        $stmt = $this->getConnection()->prepare("
+select table_schema || '.' || table_name table_name
+  from information_schema.tables
+ where table_type = 'BASE TABLE'
+   and table_catalog = ?
+   and table_schema not in ('pg_catalog','information_schema')
+ order by table_name
+ ");
+        $stmt->execute(array($name));
+        foreach ($stmt->fetchAll() as $row) {
+            $tables[] = new Table($row['table_name'], $this->getOptions(), $this);
+        }
+        return $tables;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTableDefinition(Table $table)
+    {
+        // TODO - process table options like collation etc
+        $sql = 'CREATE TABLE ';
+        $sql .= $this->quoteTableName($table->getName()) . ' (';
+        $col_list = array();
+        $i=0;
+        foreach ($table->getColumns() as $c) {
+            if ($i++ > 0) {
+                $sql .= ',';
+            }
+            $sql .= $this->quoteColumnName($c->getName())
+                 . ' '
+                 .  $this->getColumnSqlDefinition($c);
+        }
+        $sql .= ");\n";
+
+        // set the indexes
+        // NOTE: pg_catalog unfortuantely changes a lot between pg versions.
+        // while this *should* be fine in newer versions of pgsql, it has only
+        // been tested in pg 9. it does _not_ work for 8.4 and earlier.
+        $pg_magic = <<<SQL
+select pg_catalog.pg_get_indexdef(i.indexrelid, 0, true) index_sql, contype, c2.relname index_name
+  from pg_catalog.pg_class c, 
+       pg_catalog.pg_class c2, 
+       pg_catalog.pg_index i 
+  left join pg_catalog.pg_constraint con 
+    on (conrelid=i.indrelid and conindid = i.indexrelid and contype in ('p','u','x')) 
+ where c.oid='{$table->getName(true)}'::regclass 
+   and c.oid=i.indrelid 
+   and i.indexrelid=c2.oid
+ order by c2.relname;
+SQL;
+        foreach ($this->fetchAll($pg_magic) as $row) {
+            $sql .= $row['index_sql'] . ";\n";
+
+            if ($row['contype'] == 'p') {
+                $sql .= sprintf("ALTER TABLE %s ADD PRIMARY KEY USING INDEX %s;\n",
+                    $this->quoteTableName($table->getName()),
+                    $row['index_name']);
+            }
+        }
+        return $sql;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listForeignKeyDefinitions(Table $table)
+    {
+        // as above, query based on pgsql 9.
+        $pg_magic = sprintf("
+select conname, pg_catalog.pg_get_constraintdef(r.oid, true) as def 
+  from pg_catalog.pg_constraint r 
+ where r.conrelid = '%s'::regclass 
+   and r.contype='f'
+ order by conname", $table->getName(true));
+        $fk_defs=array();
+        foreach ($this->fetchAll($pg_magic) as $fk) {
+            $fk_defs[] = sprintf("ALTER TABLE %s ADD CONSTRAINT %s %s;\n",
+                $this->quoteTableName($table->getName()),
+                $this->quoteColumnName($fk['conname']),
+                $fk['def']);
+        }
+        return $fk_defs;
     }
 }

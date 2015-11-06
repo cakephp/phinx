@@ -14,17 +14,17 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        if (!TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED) {
-            $this->markTestSkipped('Postgres tests disabled.  See TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED constant.');
+        if (!TESTS_PHINX_DB_ADAPTER_PGSQL_ENABLED) {
+            $this->markTestSkipped('Postgres tests disabled.  See TESTS_PHINX_DB_ADAPTER_PGSQL_ENABLED constant.');
         }
 
         $options = array(
-            'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
-            'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
-            'user' => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
-            'pass' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
-            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
-            'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA
+            'host' => TESTS_PHINX_DB_ADAPTER_PGSQL_HOST,
+            'name' => TESTS_PHINX_DB_ADAPTER_PGSQL_DATABASE,
+            'user' => TESTS_PHINX_DB_ADAPTER_PGSQL_USERNAME,
+            'pass' => TESTS_PHINX_DB_ADAPTER_PGSQL_PASSWORD,
+            'port' => TESTS_PHINX_DB_ADAPTER_PGSQL_PORT,
+            'schema' => TESTS_PHINX_DB_ADAPTER_PGSQL_DATABASE_SCHEMA
         );
         $this->adapter = new PostgresAdapter($options, new NullOutput());
 
@@ -59,9 +59,9 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     public function testConnectionWithInvalidCredentials()
     {
         $options = array(
-            'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
-            'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
-            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
+            'host' => TESTS_PHINX_DB_ADAPTER_PGSQL_HOST,
+            'name' => TESTS_PHINX_DB_ADAPTER_PGSQL_DATABASE,
+            'port' => TESTS_PHINX_DB_ADAPTER_PGSQL_PORT,
             'user' => 'invaliduser',
             'pass' => 'invalidpass'
         );
@@ -80,24 +80,6 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testCreatingTheSchemaTableOnConnect()
-    {
-        $this->adapter->connect();
-        $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
-        $this->adapter->dropTable($this->adapter->getSchemaTableName());
-        $this->assertFalse($this->adapter->hasTable($this->adapter->getSchemaTableName()));
-        $this->adapter->disconnect();
-        $this->adapter->connect();
-        $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
-    }
-
-    public function testSchemaTableIsCreatedWithPrimaryKey()
-    {
-        $this->adapter->connect();
-        $table = new \Phinx\Db\Table($this->adapter->getSchemaTableName(), array(), $this->adapter);
-        $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), array('version')));
-    }
-
     public function testQuoteSchemaName()
     {
         $this->assertEquals('"schema"', $this->adapter->quoteSchemaName('schema'));
@@ -106,8 +88,9 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testQuoteTableName()
     {
-        $this->assertEquals('"public"."table"', $this->adapter->quoteTableName('table'));
-        $this->assertEquals('"public"."table.table"', $this->adapter->quoteTableName('table.table'));
+        $schema = '"'.TESTS_PHINX_DB_ADAPTER_PGSQL_DATABASE_SCHEMA.'"';
+        $this->assertEquals($schema.'."table"', $this->adapter->quoteTableName('table'));
+        $this->assertEquals($schema.'."table.table"', $this->adapter->quoteTableName('table.table'));
     }
 
     public function testQuoteColumnName()
@@ -382,7 +365,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testChangeColumnWithDefault() {
+    public function testChangeColumnWithDefault()
+    {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string')
               ->save();
@@ -404,7 +388,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testChangeColumnWithDropDefault() {
+    public function testChangeColumnWithDropDefault()
+    {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string', array('default' => 'Test'))
               ->save();
@@ -479,7 +464,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testDropIndex()
     {
-         // single column index
+        // single column index
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('email', 'string')
               ->addIndex('email')
@@ -580,7 +565,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     public function testHasDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
-        $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE));
+        $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_PGSQL_DATABASE));
     }
 
     public function testDropDatabase()
@@ -660,7 +645,6 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp without time zone'));
 
         $this->assertEquals('uuid', $this->adapter->getPhinxType('uuid'));
-
     }
 
     public function testCanAddColumnComment()
@@ -675,7 +659,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_PGSQL_DATABASE .'\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'field1\''
         );
@@ -701,7 +685,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_PGSQL_DATABASE .'\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'field1\''
         );
@@ -727,7 +711,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_PGSQL_DATABASE .'\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'field1\''
         );
@@ -755,7 +739,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_PGSQL_DATABASE .'\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'comment1\''
         );
@@ -768,7 +752,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_PGSQL_DATABASE .'\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'comment2\''
         );
@@ -797,7 +781,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_PGSQL_DATABASE .'\'
             AND cols.table_name=\'widgets\'
             AND cols.column_name = \'transport\''
         );

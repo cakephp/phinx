@@ -52,8 +52,10 @@ This means that:
 Migration Path
 --------------
 
-The first option specifies the path to your migration directory. Phinx uses
-``%%PHINX_CONFIG_DIR%%/migrations`` by default.
+The first option specifies the path to your migration directory. Phinx uses 
+``%%PHINX_CONFIG_DIR%%/migrations`` by default. The second path option defines
+the path to the schema.sql file which is used to recreate a clean database.
+By default, phinx uses ``%%PHINX_CONFIG_DIR%%/schema.sql``.
 
 .. note::
 
@@ -74,6 +76,7 @@ You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 
     paths:
         migrations: %%PHINX_CONFIG_DIR%%/your/relative/path
+        schema: %%PHINX_CONFIG_DIR%%/path/to/schema.sql
 
 Custom Migration Base
 ---------------------
@@ -122,6 +125,32 @@ file:
 
     export PHINX_ENVIRONMENT=dev-`whoami`-`hostname`
 
+Seeds
+-----
+
+As of version 0.y.z, Phinx now supports a very simple database seeding mechanism by
+configuring seed tables. Phinx will dump data in any seed table specified under the seed
+tables section. For example:
+
+.. code-block:: yaml
+
+    paths:
+        schema: %%PHINX_CONFIG_DIR%%/schema.sql
+    seeds:
+        tables:
+            - table_one
+            - table_two
+            - name: table_three
+              where: i < 10
+
+The above seed configuration would cause Phinx to store all the data stored in table_one
+and table_two, as well as any record in table_three where i<10, in Phinx's schema.sql
+file.
+
+Since Phinx is a lightweight database migration tool, with no heavy ORM layer, Phinx has
+no real concept of creating seed data from php objects. Any seed data is expected to be
+added by you (either via a migration, or manually) and then explicitly added in phinx's
+seed configuration section.
 
 Table Prefix and Suffix
 ------------------

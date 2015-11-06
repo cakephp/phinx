@@ -40,7 +40,6 @@ use Phinx\Db\Table\ForeignKey;
  */
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
-
     protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true, 'boolean' => true);
 
     const TEXT_TINY    = 255;
@@ -186,7 +185,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $exists = $this->fetchRow(sprintf(
             "SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
-            WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'",
+            WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'
+            AND TABLE_TYPE = 'BASE TABLE'",
             $options['name'], $tableName
         ));
 
@@ -199,7 +199,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function createTable(Table $table)
     {
         $this->startCommandTimer();
-
         // This method is based on the MySQL docs here: http://dev.mysql.com/doc/refman/5.1/en/create-index.html
         $defaultOptions = array(
             'engine' => 'InnoDB',
@@ -217,7 +216,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
             array_unshift($columns, $column);
             $options['primary_key'] = 'id';
-
         } elseif (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
@@ -298,7 +296,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $sql .= ') ' . $optionsStr;
         $sql = rtrim($sql) . ';';
 
-        // execute the sql
         $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
         $this->endCommandTimer();
@@ -334,7 +331,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $columns = array();
         $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $columnInfo) {
-
             $phinxType = $this->getPhinxType($columnInfo['Type']);
 
             $column = new Column();
@@ -813,7 +809,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 break;
             case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'tinyint', 'limit' => 1);
-                break;
             case static::PHINX_TYPE_UUID:
                 return array('name' => 'char', 'limit' => 36);
             // Geospatial database types
@@ -1108,6 +1103,112 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array ('enum', 'set'));
+        return array_merge(parent::getColumnTypes(), array('enum', 'set'));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTableDefinition(Table $table)
+    {
+        list(, $sql) = $this->fetchRow(sprintf("show create table %s", $table->getName()));
+        // remove foreign keys because this sql is for re-creating the table. if we 
+        // re-create the table and refer to a non-existent table, the load will die.
+        if (preg_match_all('/^(.*\bFOREIGN KEY \(.*$)/im', $sql, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $m) {
+                $sql = preg_replace('/,?\s*'.preg_quote($m[0]).'/sm', "", $sql);
+            }
+        }
+        return $sql .";\n";
+    }
+
+    /**
+     * {@iheritdoc}
+     */
+    public function listTables($name)
+    {
+        $tables = array();
+        $stmt = $this->getConnection()->prepare("
+select table_name
+  from information_schema.tables
+ where table_type = 'BASE TABLE'
+   and table_schema = ?
+ order by table_name");
+        $stmt->execute(array($name));
+        foreach ($stmt->fetchAll() as $row) {
+            $tables[] = new Table($row['table_name'], $this->getOptions(), $this);
+        }
+        return $tables;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listForeignKeyDefinitions(Table $table)
+    {
+        $fks=array();
+
+        // information_schema.key_column_usage is super slow.
+        //
+        // To speed it up a bit, first see if the fk exists, and then 
+        // get columns if necessary
+        // 
+        // To speed it up to reasonable speeds, you'll need to set
+        //
+        //   set global innodb_stats_on_metadata=0;
+        //
+        // or set it in your db's my.cnf
+        //
+        // TODO: find a faster way that doesn't require folks to turn off
+        // innodb metadata? It's *real* slow for big schema with lots of 
+        // innodb tables otherwise.
+
+        $stmt = $this->getConnection()->prepare("
+select r.constraint_catalog, 
+       r.constraint_schema, 
+       r.constraint_name, 
+       r.update_rule, 
+       r.delete_rule, 
+       r.referenced_table_name 
+  from information_schema.referential_constraints r
+ where r.constraint_schema = ?
+   and r.table_name = ?
+ order by r.constraint_name");
+
+        $stmt->execute(array($this->getOption('name'), $table->getName()));
+        $rows = $stmt->fetchAll();
+
+        foreach ($rows as $row) {
+            $fk = new ForeignKey();
+            $fk->setConstraint($row['constraint_name']);
+            $fk->setReferencedTable(new Table($row['referenced_table_name']));
+            $fk->setOnUpdate($row['update_rule']);
+            $fk->setOnDelete($row['delete_rule']);
+
+            $stmt = $this->connection->prepare("
+select c.column_name, 
+       c.ordinal_position, 
+       c.referenced_column_name
+  from information_schema.key_column_usage c 
+ where c.constraint_schema = ?
+   and c.constraint_name = ?
+ order by c.constraint_name, c.ordinal_position");
+
+            $stmt->execute(array($this->getOption('name'), $row['constraint_name']));
+            $cols=array();
+            $ref_cols=array();
+            foreach ($stmt->fetchAll() as $colinfo) {
+                $cols[] = $colinfo['column_name'];
+                $ref_cols[] = $colinfo['referenced_column_name'];
+            }
+            $fk->setColumns($cols);
+            $fk->setReferencedColumns($ref_cols);
+
+            $fks[] = sprintf("ALTER TABLE %s ADD %s;\n",
+                $this->quoteTableName($table->getName()),
+                $this->getForeignKeySqlDefinition($fk));
+        }
+
+        return $fks;
     }
 }

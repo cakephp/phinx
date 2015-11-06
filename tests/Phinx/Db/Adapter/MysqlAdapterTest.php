@@ -96,24 +96,6 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\PDO', $this->adapter->getConnection());
     }
 
-    public function testCreatingTheSchemaTableOnConnect()
-    {
-        $this->adapter->connect();
-        $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
-        $this->adapter->dropTable($this->adapter->getSchemaTableName());
-        $this->assertFalse($this->adapter->hasTable($this->adapter->getSchemaTableName()));
-        $this->adapter->disconnect();
-        $this->adapter->connect();
-        $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
-    }
-
-    public function testSchemaTableIsCreatedWithPrimaryKey()
-    {
-        $this->adapter->connect();
-        $table = new \Phinx\Db\Table($this->adapter->getSchemaTableName(), array(), $this->adapter);
-        $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), array('version')));
-    }
-
     public function testQuoteTableName()
     {
         $this->assertEquals('`test_table`', $this->adapter->quoteTableName('test_table'));
@@ -157,7 +139,6 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateTableWithForeignKeys()
     {
-
         $tag_table = new \Phinx\Db\Table('ntable_tag', array(), $this->adapter);
         $tag_table->addColumn('realname', 'string')
                   ->save();
@@ -625,7 +606,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $described = $this->adapter->describeTable('t');
 
-        $this->assertTrue(in_array($described['TABLE_TYPE'], array('VIEW','BASE TABLE')));
+        $this->assertTrue(in_array($described['TABLE_TYPE'], array('VIEW', 'BASE TABLE')));
         $this->assertEquals($described['TABLE_NAME'], 't');
         $this->assertEquals($described['TABLE_SCHEMA'], TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
         $this->assertEquals($described['TABLE_ROWS'], 0);
