@@ -51,21 +51,25 @@ class PhinxApplication extends Application
     {
         parent::__construct('Phinx by Rob Morgan - https://phinx.org.', $version);
 
-        $this->addCommands(array(
-            new Command\Init(),
-            new Command\Create(),
-            new Command\Migrate(),
-            new Command\Rollback(),
-            new Command\Status(),
-            new Command\Test(),
-        ));
+        $this->addCommands(
+            array(
+                new Command\Init(),
+                new Command\Create(),
+                new Command\Migrate(),
+                new Command\Rollback(),
+                new Command\Status(),
+                new Command\Test(),
+                new Command\Bootstrap(),
+            )
+        );
     }
 
     /**
      * Runs the current application.
      *
-     * @param InputInterface $input An Input instance
+     * @param InputInterface  $input  An Input instance
      * @param OutputInterface $output An Output instance
+     *
      * @return integer 0 if everything went fine, or an error code
      */
     public function doRun(InputInterface $input, OutputInterface $output)
@@ -76,6 +80,7 @@ class PhinxApplication extends Application
             $output->writeln($this->getLongVersion());
             $output->writeln('');
         }
+
 
         return parent::doRun($input, $output);
     }

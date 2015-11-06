@@ -311,4 +311,37 @@ class Environment
     {
         return $this->schemaTableName;
     }
+
+    /**
+     * Executes the specified bootstrap on this environment.
+     *
+     *
+     * @return void
+     */
+    public function executeBootstrap($bootstrapFile, $force = false)
+    {
+
+
+        // begin the transaction if the adapter supports it
+        if ($this->getAdapter()->hasTransactions()) {
+            $this->getAdapter()->beginTransaction();
+        }
+
+        // Run the migration
+        if (count($this->getAdapter()->getVersions()) > 0 && !$force) {
+            $this->getOutput()->write('Migrations exist cannot continue without --force');
+            return;
+        }
+
+        $sql = file_get_contents($bootstrapFile);
+        $this->getAdapter()->execute($sql);
+
+
+        // commit the transaction if the adapter supports it
+        if ($this->getAdapter()->hasTransactions()) {
+            $this->getAdapter()->commitTransaction();
+        }
+
+
+    }
 }

@@ -2,10 +2,12 @@
 
 namespace Test\Phinx\Migration\Manager;
 
+use org\bovigo\vfs\vfsStream;
 use Phinx\Db\Adapter\AdapterFactory;
 use Phinx\Db\Adapter\PdoAdapter;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Migration\MigrationInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class PDOMock extends \PDO
 {
@@ -108,8 +110,8 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     {
         $stub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
         $stub->expects($this->any())
-             ->method('getVersions')
-             ->will($this->returnValue(array('20110301080000')));
+            ->method('getVersions')
+            ->will($this->returnValue(array('20110301080000')));
 
         $this->environment->setAdapter($stub);
 
@@ -121,15 +123,15 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         // stub adapter
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
         $adapterStub->expects($this->once())
-                    ->method('migrated')
-                    ->will($this->returnArgument(0));
+            ->method('migrated')
+            ->will($this->returnArgument(0));
 
         $this->environment->setAdapter($adapterStub);
 
         // up
         $upMigration = $this->getMock('\Phinx\Migration\AbstractMigration', array('up'), array('20110301080000'));
         $upMigration->expects($this->once())
-                    ->method('up');
+            ->method('up');
 
         $this->environment->executeMigration($upMigration, MigrationInterface::UP);
     }
@@ -139,15 +141,15 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         // stub adapter
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
         $adapterStub->expects($this->once())
-                    ->method('migrated')
-                    ->will($this->returnArgument(0));
+            ->method('migrated')
+            ->will($this->returnArgument(0));
 
         $this->environment->setAdapter($adapterStub);
 
         // down
         $downMigration = $this->getMock('\Phinx\Migration\AbstractMigration', array('down'), array('20110301080000'));
         $downMigration->expects($this->once())
-                      ->method('down');
+            ->method('down');
 
         $this->environment->executeMigration($downMigration, MigrationInterface::DOWN);
     }
@@ -157,21 +159,21 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         // stub adapter
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
         $adapterStub->expects($this->once())
-                    ->method('beginTransaction');
+            ->method('beginTransaction');
 
         $adapterStub->expects($this->once())
-                    ->method('commitTransaction');
+            ->method('commitTransaction');
 
         $adapterStub->expects($this->exactly(2))
-                    ->method('hasTransactions')
-                    ->will($this->returnValue(true));
+            ->method('hasTransactions')
+            ->will($this->returnValue(true));
 
         $this->environment->setAdapter($adapterStub);
 
         // migrate
         $migration = $this->getMock('\Phinx\Migration\AbstractMigration', array('up'), array('20110301080000'));
         $migration->expects($this->once())
-                  ->method('up');
+            ->method('up');
 
         $this->environment->executeMigration($migration, MigrationInterface::UP);
     }
@@ -181,15 +183,15 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         // stub adapter
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
         $adapterStub->expects($this->once())
-                    ->method('migrated')
-                    ->will($this->returnArgument(0));
+            ->method('migrated')
+            ->will($this->returnArgument(0));
 
         $this->environment->setAdapter($adapterStub);
 
         // migration
         $migration = $this->getMock('\Phinx\Migration\AbstractMigration', array('change'), array('20130301080000'));
         $migration->expects($this->once())
-                  ->method('change');
+            ->method('change');
 
         $this->environment->executeMigration($migration, MigrationInterface::UP);
     }
@@ -199,16 +201,58 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         // stub adapter
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
         $adapterStub->expects($this->once())
-                    ->method('migrated')
-                    ->will($this->returnArgument(0));
+            ->method('migrated')
+            ->will($this->returnArgument(0));
 
         $this->environment->setAdapter($adapterStub);
 
         // migration
         $migration = $this->getMock('\Phinx\Migration\AbstractMigration', array('change'), array('20130301080000'));
         $migration->expects($this->once())
-                  ->method('change');
+            ->method('change');
 
         $this->environment->executeMigration($migration, MigrationInterface::DOWN);
     }
+
+    public function testExecutingBootstrapPromptForceWhenMigrationsExists()
+    {
+
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())->method('getVersions')->will(
+            $this->returnValue(['more', 'than', 'zero'])
+        );
+
+        $outputStub = $this->getMock('\Symfony\Component\Console\Output\ConsoleOutput');
+        $outputStub->expects($this->once())->method('write')->with('Migrations exist cannot continue without --force');
+
+
+        $this->environment->setAdapter($adapterStub);
+        $this->environment->setOutput($outputStub);
+        $this->environment->executeBootstrap('no file');
+
+    }
+
+    public function testExecutingBootstrap()
+    {
+
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())->method('getVersions')->will(
+            $this->returnValue([])
+        );
+        $adapterStub->expects($this->once())->method('execute')->with(
+            'CREATE TABLE TESTME ( id INTEGER PRIMARY KEY))'
+        );
+
+
+        $root = vfsStream::setup('tmp');
+        $file = vfsStream::newFile('bootstrap.sql')->at($root)->setContent(
+            'CREATE TABLE TESTME ( id INTEGER PRIMARY KEY))'
+        );
+
+        $this->environment->setAdapter($adapterStub);
+        $this->environment->executeBootstrap('vfs://tmp/bootstrap.sql');
+
+    }
+
+
 }
