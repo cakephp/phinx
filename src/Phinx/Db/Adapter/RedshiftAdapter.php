@@ -142,6 +142,99 @@ class RedshiftAdapter extends AbstractPostgresAdapter implements AdapterInterfac
     }
 
     /**
+     * Get the table's `diststyle`
+     *
+     * @param  string $tableName
+     * @return string
+     */
+    public function getDistStyle($tableName)
+    {
+        $styles = [
+            0 => self::DISTSTYLE_EVEN,
+            1 => self::DISTSTYLE_KEY,
+            8 => self::DISTSTYLE_ALL,
+        ];
+
+        $query = "SELECT reldiststyle FROM pg_class WHERE relname = '$tableName'";
+
+        $result = $this->fetchRow($query);
+        if ($result) {
+            return $styles[$result['reldiststyle']];
+        }
+    }
+
+    /**
+     * Get the table's `distkey`
+     *
+     * @param  string $tableName
+     * @return string
+     */
+    public function getDistKey($tableName)
+    {
+        $query = "SELECT \"column\" FROM pg_table_def WHERE tablename = '$tableName' AND distkey = 1";
+
+        $result = $this->fetchRow($query);
+        if ($result) {
+            return $result['column'];
+        }
+    }
+
+    /**
+     * Check if a column is part of the table's `sortkey`
+     *
+     * @param  string $tableName
+     * @param  string $columnName
+     * @return bool
+     */
+    public function hasSortKey($tableName, $columnName)
+    {
+        $query = "SELECT sortkey
+            FROM pg_table_def
+            WHERE tablename = '$tableName'
+            AND \"column\" = '$columnName'";
+
+        $result = $this->fetchRow($query);
+        if ($result) {
+            return $result['sortkey'] != 0;
+        }
+        return false;
+    }
+
+    /**
+     * Get the table's `sortkey` columns with positions
+     *
+     * @param  string $tableName
+     * @return bool
+     */
+    public function getSortKey($tableName)
+    {
+        $sortkey = array();
+
+        $query = "SELECT \"column\", sortkey
+            FROM pg_table_def
+            WHERE tablename = '$tableName'
+            AND sortkey != 0
+            ORDER BY ABS(sortkey) ASC";
+
+        $result = $this->fetchAll($query);
+        if ($result) {
+            $first = true;
+            foreach ($result as $row) {
+                if ($first) {
+                    $sortkey = array(
+                        'type'    => $row['sortkey'] < 0 ? self::SORTKEY_INTERLEAVED : self::SORTKEY_COMPOUND,
+                        'columns' => array()
+                    );
+                    $first = false;
+                }
+                $sortkey['columns'][] = $row['column'];
+            }
+        }
+
+        return $sortkey;
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function getTimezoneDefinition()
@@ -251,7 +344,7 @@ class RedshiftAdapter extends AbstractPostgresAdapter implements AdapterInterfac
     {
         $validStyles = array(self::DISTSTYLE_KEY, self::DISTSTYLE_ALL, self::DISTSTYLE_EVEN);
 
-        if (!is_string($options['diststyle']) || !in_array(strtolower($options['diststyle']), $valid)) {
+        if (!is_string($options['diststyle']) || !in_array(strtolower($options['diststyle']), $validStyles)) {
             throw new \RuntimeException(sprintf(
                 "Invalid DISTSTYLE '%s'. Must be one of: %s",
                 $options['diststyle'],

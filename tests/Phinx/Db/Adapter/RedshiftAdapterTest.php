@@ -134,6 +134,102 @@ class RedshiftAdapterTest extends PostgresAdapterTestCase
             ->save();
     }
 
+    public function testCompoundSortKey()
+    {
+        $table = new \Phinx\Db\Table('sort_table', array('sortkey' => array('sort_column')), $this->adapter);
+        $table
+            ->addColumn('sort_column', 'integer')
+            ->addColumn('nonsort_column', 'integer')
+            ->save();
+
+        $key = $this->adapter->getSortKey('sort_table');
+
+        $this->assertTrue($this->adapter->hasSortKey('sort_table', 'sort_column'), '`sort_column` should be a sortkey column');
+        $this->assertArrayHasKey('type', $key);
+        $this->assertArrayHasKey('columns', $key);
+        $this->assertCount(1, $key['columns']);
+        $this->assertEquals(RedshiftAdapter::SORTKEY_COMPOUND, $key['type'], '`sortkey` should be compound');
+
+    }
+
+    public function testInterleavedSortKey()
+    {
+        $table = new \Phinx\Db\Table('sort_table', array('sortkey' => array(
+            'type' => 'interleaved',
+            'columns' => array('column1', 'column2', 'column3'),
+        )), $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'integer')
+            ->addColumn('nonsort_column', 'integer')
+            ->save();
+
+        $key = $this->adapter->getSortKey('sort_table');
+
+        $this->assertArrayHasKey('type', $key);
+        $this->assertArrayHasKey('columns', $key);
+        $this->assertCount(3, $key['columns']);
+        $this->assertEquals(RedshiftAdapter::SORTKEY_INTERLEAVED, $key['type'], '`sortkey` should be interleaved');
+        $this->assertEquals('column1', $key['columns'][0], '`column1` should be position 1');
+        $this->assertEquals('column2', $key['columns'][1], '`column2` should be position 2');
+        $this->assertEquals('column3', $key['columns'][2], '`column3` should be position 3');
+    }
+
+    public function testDistKey()
+    {
+        $table = new \Phinx\Db\Table('dist_table', array('distkey' => 'dist_column'), $this->adapter);
+        $table
+            ->addColumn('dist_column', 'integer')
+            ->addColumn('nondist_column', 'integer')
+            ->save();
+
+        $this->assertEquals('dist_column', $this->adapter->getDistKey('dist_table'), '`dist_column` should be the distkey column');
+    }
+
+    public function testDistStyle()
+    {
+        $table = new \Phinx\Db\Table('dist_key_table', array(
+            'diststyle' => RedshiftAdapter::DISTSTYLE_KEY,
+            'distkey' => 'dist_column'
+        ), $this->adapter);
+        $table
+            ->addColumn('dist_column', 'integer')
+            ->save();
+
+        $table = new \Phinx\Db\Table('dist_even_table', array(
+            'diststyle' => RedshiftAdapter::DISTSTYLE_EVEN,
+        ), $this->adapter);
+        $table
+            ->addColumn('some_column', 'integer')
+            ->save();
+
+        $table = new \Phinx\Db\Table('dist_all_table', array(
+            'diststyle' => RedshiftAdapter::DISTSTYLE_ALL,
+        ), $this->adapter);
+        $table
+            ->addColumn('some_column', 'integer')
+            ->save();
+
+        $this->assertEquals(RedshiftAdapter::DISTSTYLE_KEY, $this->adapter->getDistStyle('dist_key_table'), '`diststyle` should be the key distribution');
+        $this->assertEquals(RedshiftAdapter::DISTSTYLE_EVEN, $this->adapter->getDistStyle('dist_even_table'), '`diststyle` should be the even distribution');
+        $this->assertEquals(RedshiftAdapter::DISTSTYLE_ALL, $this->adapter->getDistStyle('dist_all_table'), '`diststyle` should be the all distribution');
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Must set a DISTKEY when using DISTSTYLE KEY
+     */
+    public function testDistStyleKeyWithoutDistKeyThrowException()
+    {
+        $table = new \Phinx\Db\Table('dist_key_table', array(
+            'diststyle' => RedshiftAdapter::DISTSTYLE_KEY,
+        ), $this->adapter);
+        $table
+            ->addColumn('nondist_column', 'integer')
+            ->save();
+    }
+
     /**
      * {@inheritdoc}
      */
