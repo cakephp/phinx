@@ -479,6 +479,8 @@ In addition, the MySQL adapter supports ``enum``, ``set`` and ``blob`` column ty
 In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb`` and ``uuid`` column types
 (PostgreSQL 9.3 and above).
 
+The Redshift adapter supports all but the ``binary``, ``time`` and ``uuid`` column types.
+
 For valid options, see the `Valid Column Options`_ below.
 
 Determining Whether a Table Exists
@@ -1165,6 +1167,73 @@ INT_BIG      BIGINT
                ->addColumn('subtype_id', 'integer', array('limit' => MysqlAdapter::INT_SMALL))
                ->addColumn('quantity', 'integer', array('limit' => MysqlAdapter::INT_TINY))
                ->create();
+
+The ``diststyle``, ``distkey`` and ``sortkey`` Options for Redshift
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When using the Redshift adapter, additional options can be specified in the 
+table definition for distribution and sorting. These can only be set when creating the table.
+
+For ``diststyle``:
+
+====== ===========
+Option Description
+====== ===========
+all    distribute all rows to all nodes in the cluster
+even   evenly distribute rows across nodes in the cluster
+key    distribute rows across nodes based on ``distkey``, requires setting a ``distkey`` as well
+====== ===========
+
+.. code-block:: php
+
+        use Phinx\Db\Adapter\RedshiftAdapter;
+
+        //...
+
+        $table = $this->table('dist_all_table', array('diststyle' => 'all'))
+            ->addColumn('some_column', 'integer')
+            ->create();
+
+        $table = $this->table('dist_even_table', array('diststyle' => 'even'))
+            ->addColumn('some_column', 'integer')
+            ->create();
+
+        $table = $this->table('dist_key_table', array(
+                'diststyle' => 'even',
+                'distkey'   => 'dist_column',
+            ))
+            ->addColumn('dist_column', 'integer')
+            ->addColumn('some_column', 'integer')
+            ->create();
+
+For ``sortkey``:
+
+======= ===========
+Option  Description
+======= ===========
+type    the type of sortkey, can be one of: 'interleaved', 'compound' (default)
+columns the columns in the sortkey. You can define 8 interleaved or 400 compound sortkey columns  
+======= ===========
+
+.. code-block:: php
+
+        $table = $this->table('jobs', array('sortkey' => array(
+                'columns' => array('site_id', 'date'),
+            )))
+            ->addColumn('site_id', 'integer')
+            ->addColumn('date', 'timestamp')
+            ->addColumn('description', 'integer')
+            ->create();
+
+        $table = $this->table('reports', array('sortkey' => array(
+                'type'    => 'interleaved',
+                'columns' => array('site_id', 'name', 'label'),
+            )))
+            ->addColumn('site_id', 'integer')
+            ->addColumn('name', 'string')
+            ->addColumn('label', 'string')
+            ->addColumn('description', 'string')
+            ->create();
 
 The Save Method
 ~~~~~~~~~~~~~~~
