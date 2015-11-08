@@ -36,8 +36,8 @@ use Phinx\Migration\MigrationInterface;
 
 abstract class AbstractPostgresAdapter extends PdoAdapter implements AdapterInterface
 {
-
     const INT_SMALL   = 65535;
+
     /**
      * Columns with comments
      *
