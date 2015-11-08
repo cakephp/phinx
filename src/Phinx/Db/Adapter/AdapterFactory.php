@@ -63,10 +63,11 @@ class AdapterFactory
      * @var array
      */
     protected $adapters = array(
-        'mysql'  => 'Phinx\Db\Adapter\MysqlAdapter',
-        'pgsql'  => 'Phinx\Db\Adapter\PostgresAdapter',
-        'sqlite' => 'Phinx\Db\Adapter\SQLiteAdapter',
-        'sqlsrv' => 'Phinx\Db\Adapter\SqlServerAdapter',
+        'mysql'    => 'Phinx\Db\Adapter\MysqlAdapter',
+        'pgsql'    => 'Phinx\Db\Adapter\PostgresAdapter',
+        'redshift' => 'Phinx\Db\Adapter\RedshiftAdapter',
+        'sqlite'   => 'Phinx\Db\Adapter\SQLiteAdapter',
+        'sqlsrv'   => 'Phinx\Db\Adapter\SqlServerAdapter',
     );
 
     /**
