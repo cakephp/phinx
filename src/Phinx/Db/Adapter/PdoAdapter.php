@@ -185,7 +185,7 @@ abstract class PdoAdapter implements AdapterInterface
             $table = new Table($this->getSchemaTableName(), array(), $this);
             if (!$table->hasColumn('breakpoint')) {
                 $table
-                    ->addColumn('breakpoint', 'boolean')
+                    ->addColumn('breakpoint', 'boolean', array('default' => 0))
                     ->save();
             }
         }
@@ -442,7 +442,7 @@ abstract class PdoAdapter implements AdapterInterface
                 $table->addColumn('version', 'biginteger', array('limit' => 14))
                       ->addColumn('start_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
                       ->addColumn('end_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
-                      ->addColumn('breakpoint', 'boolean')
+                      ->addColumn('breakpoint', 'boolean', array('default' => 0))
                       ->save();
             } else {
                 $table->addColumn('version', 'biginteger')
