@@ -63,7 +63,7 @@ class BambooHRMysqlAdapter extends \Phinx\Db\Adapter\MysqlAdapter {
 		if ($constraint) {
 			$this->execute(
 				sprintf(
-					'ALTER TABLE `%s` DROP FOREIGN KEY %s', $this->quoteTableName($tableName), $constraint
+					'ALTER TABLE %s DROP FOREIGN KEY %s', $this->quoteTableName($tableName), $constraint
 				)
 			);
 			$this->endCommandTimer();
