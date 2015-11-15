@@ -90,8 +90,8 @@ a:hover {
 textarea {
 	resize:none;
 }
-input:focus { 
-    outline: none; 
+input:focus {
+    outline: none;
 }
 img {
 	max-width:100%;
@@ -263,7 +263,7 @@ header .label-info .btn-success:hover{
 	text-transform:uppercase;
 	text-shadow:1px 1px 1px #ef8e0e;
 	padding:13px 25px;
-	
+
 	border-bottom:3px solid #f2c054;}
 .btn-primary:hover{
 	background-color:#00ac8e;
@@ -280,7 +280,7 @@ header .label-info .btn-success:hover{
 }
 .label-primary p{
 	color: #FFF;
-	
+
 }
 address {
 	font-size: 30px;
@@ -341,14 +341,14 @@ footer p{
 }
 
 @media (max-width: 1200px) {
-	
+
 }
 
 
 
 
 @media (max-width: 992px) {
-	
+
 }
 
 
@@ -399,3 +399,5 @@ header .label-info{
 .navbar-brand{
 	margin-top:10px;}
 }
+.github-corner { position: absolute; top: 0; right: 0; }
+.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}
