@@ -218,6 +218,10 @@ $$ language sql;
                     }
                     $col->setType('varchar('.$maxval.')[]');
                     $this->addSet([$col->getName()=>'varchar('.$maxval.')[]']);
+                    $default = $col->getDefault();
+                    if($default){
+                        $col->setDefault('{'.$default.'}');
+                    }
                     break;
                 default:
                     break;
@@ -837,6 +841,9 @@ $$ language sql;
                 if($colname = array_search($type, $this->sets)){
                     return array('name' => $colname.' '.$type);
                 }
+                if($type == 'double'){
+                    return array('name' => 'DOUBLE PRECISION');
+                }
                 // Return array type
                 throw new \RuntimeException('The type: "' . $type . '" is not supported');
         }
@@ -858,6 +865,7 @@ $$ language sql;
             case 'char':
                 return static::PHINX_TYPE_CHAR;
             case 'text':
+            case 'mediumtext':
                 return static::PHINX_TYPE_TEXT;
             case 'json':
                 return static::PHINX_TYPE_JSON;
@@ -970,7 +978,7 @@ $$ language sql;
             $buffer[] = 'SERIAL';
         } else {
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
-            
+
             if(array_search($column->getType(), $this->sets)){
                 $buffer[] = $column->getType(); //"Set" 
             } else {
@@ -984,7 +992,7 @@ $$ language sql;
                     $column->getPrecision() ? $column->getPrecision() : $sqlType['precision'],
                     $column->getScale() ? $column->getScale() : $sqlType['scale']
                 );
-            } elseif (!in_array($sqlType['name'], array('integer', 'smallint'))) {
+            } elseif (!in_array($sqlType['name'], array('integer', 'smallint','bytea'))) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
                 }
@@ -1216,7 +1224,7 @@ $$ language sql;
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('json', 'jsonb','enum','set'));
+        return array_merge(parent::getColumnTypes(), array('json', 'jsonb','enum','set','double'));
     }
 
     /**
