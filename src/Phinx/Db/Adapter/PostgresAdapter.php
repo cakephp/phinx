@@ -44,6 +44,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * @var array
      */
     protected $columnsWithComments = array();
+    /**
+     * Custom enums list
+     * 
+     * @var array 
+     */
+    private $enums;
 
     /**
      * {@inheritdoc}
@@ -171,11 +177,27 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createTable(Table $table)
     {
+        $sql = '';
         $this->startCommandTimer();
         $options = $table->getOptions();
 
          // Add the default primary key
         $columns = $table->getPendingColumns();
+        
+        // Create Enum Types
+        foreach ($columns as $col){
+            if($col->getType() == 'enum'){
+                $typename = strtoupper($table->getName().'_'.$col->getName());
+                $sql .= 'CREATE TYPE ' . $typename . ' AS ENUM (';
+                $sql .= implode(',', array_map(function($a) {
+                                            return "'".$a."'";
+                                     }, $col->getValues()));
+                $sql .= ");\n";
+                $this->addEnumType($typename);
+                $col->setType($typename);
+            }
+        }
+        
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
             $column = new Column();
             $column->setName('id')
@@ -197,7 +219,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
 
         // TODO - process table options like collation etc
-        $sql = 'CREATE TABLE ';
+        $sql .= 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
 
         $this->columnsWithComments = array();
@@ -783,6 +805,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 if ($this->isArrayType($type)) {
                     return array('name' => $type);
                 }
+                if(array_key_exists($type, $this->enums)){
+                    return array('name' => $type);
+                }
                 // Return array type
                 throw new \RuntimeException('The type: "' . $type . '" is not supported');
         }
@@ -1149,7 +1174,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('json', 'jsonb'));
+        return array_merge(parent::getColumnTypes(), array('json', 'jsonb','enum'));
     }
 
     /**
@@ -1187,4 +1212,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $options = $this->getOptions();
         return empty($options['schema']) ? 'public' : $options['schema'];
     }
+
+    /**
+     * Add definiton of new custom enum
+     * 
+     * @param string $typename
+     */
+    public function addEnumType($typename) {
+        $this->enums[$typename] = $typename;
+    }
+
 }
