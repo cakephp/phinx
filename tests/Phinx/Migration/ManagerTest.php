@@ -243,19 +243,44 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
      *
      * @dataProvider rollbackDateDataProvider
      */
-    public function testRollbacksByDate($availableRollbacks, $availableRollbacksFullRow, $dateString, $expectedRollback)
+    public function testRollbacksByDate($availableRollbacksFullRow, $dateString, $expectedRollback)
     {
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->any())
-            ->method('getVersions')
-            ->will($this->returnValue($availableRollbacks));
+            ->method('getFullVersions')
+            ->will($this->returnValue($availableRollbacksFullRow));
+        
+        // stub manager
+        $config = new Config($this->getConfigArray());
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array('rollback'), array($config, $output));
+
+        $managerStub->expects($this->once())
+            ->method('rollback')
+            ->with($this->equalTo('mockenv'), $expectedRollback)
+            ->will($this->returnValue($availableRollbacksFullRow));
+
+        $managerStub->setEnvironments(array('mockenv' => $envStub));
+        $managerStub->rollbackToDateTime('mockenv', new \DateTime($dateString));
+    }
+
+    /**
+     * Test that migrating by version chooses the correct
+     * migration to point to.
+     *
+     * @dataProvider rollbackVersionDataProvider
+     */
+    public function testRollbacksByVersion($availableRollbacksFullRow, $version, $expectedRollback)
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->any())
             ->method('getFullVersions')
             ->will($this->returnValue($availableRollbacksFullRow));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
-        $this->manager->rollbackToDateTime('mockenv', new \DateTime($dateString));
+        $this->manager->rollback('mockenv', $version);
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedRollback)) {
@@ -312,33 +337,74 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array(
-                array('20120111235330', '20120116183504', '20120120183504'),
                 array(
-                    array('version' => '20120111235330'),
-                    array('version' => '20120116183504'),
-                    array('version' => '20120120183504')
+                    '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-11 23:53:30'),
+                    '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04'),
+                    '20120120183504' => array('version' => '20120120183504', 'start_time' => '2012-01-20 18:35:04')
                 ),
                 '20120118',
                 '20120116183504'
             ),
             array(
-                array('20120111235330', '20120116183504'),
                 array(
-                    array('version' => '20120111235330'),
-                    array('version' => '20120116183504')
+                    '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-11 23:53:30'),
+                    '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04'),
                 ),
                 '20120115',
                 '20120111235330'
             ),
             array(
-                array('20120111235330', '20120116183504'),
                 array(
-                    array('version' => '20120111235330'),
-                    array('version' => '20120116183504')
+                    '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-11 23:53:30'),
+                    '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04')
                 ),
                 '20110115',
-                '20120111235330'
+                '0'
             ),
+            array(
+                array(
+                    '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-22 23:53:30'),
+                    '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04'),
+                ),
+                '20120121',
+                '20120116183504'
+            )
+        );
+    }
+
+    /**
+     * Migration lists (versionOnly and fullRow), dates, and expected migrations to point to.
+     *
+     * @return array
+     */
+    public function rollbackVersionDataProvider()
+    {
+        return array(
+            array(
+                array(
+                    '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-11 23:53:30'),
+                    '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04'),
+                    '20120120183504' => array('version' => '20120120183504', 'start_time' => '2012-01-20 18:35:04')
+                ),
+                '20120111235330',
+                '20120116183504'
+            ),
+            array(
+                array(
+                    '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-11 23:53:30'),
+                    '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04'),
+                ),
+                '20120116183504',
+                null
+            ),
+            array(
+                array(
+                    '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-11 23:53:30'),
+                    '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04')
+                ),
+                '0',
+                '20120111235330'
+            )
         );
     }
 
@@ -397,6 +463,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($adapter->hasTable('info'));
         $this->assertFalse($adapter->hasTable('statuses'));
         $this->assertFalse($adapter->hasTable('user_logins'));
+        $this->assertTrue($adapter->hasTable('users'));
         $this->assertTrue($adapter->hasColumn('users', 'bio'));
         $this->assertFalse($adapter->hasForeignKey('user_logins', array('user_id')));
     }
