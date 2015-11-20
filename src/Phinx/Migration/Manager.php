@@ -85,7 +85,7 @@ class Manager
             $env = $this->getEnvironment($environment);
             $versions = $env->getFullVersions();
 
-            foreach ( $this->getMigrations() as $migration) {
+            foreach ($this->getMigrations() as $migration) {
                 $version = array_key_exists($migration->getVersion(), $versions) ? $versions[$migration->getVersion()] : false;
                 if ($version) {
                     $status = '     <info>up</info> ';
@@ -331,7 +331,7 @@ class Manager
         }
 
         // Sort the migration(s) by descending start time (ie. the opposite order of the version names, which
-        // where sorted by ascending start time earlier)
+        // were sorted by ascending start time earlier)
         $sortedMigrations = array();
 
         while ($versionName = array_pop($versionNames)) {
