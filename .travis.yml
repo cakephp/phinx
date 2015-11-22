@@ -1,3 +1,4 @@
+sudo: false
 before_script:
     - composer self-update
     - composer install
