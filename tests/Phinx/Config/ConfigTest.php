@@ -158,8 +158,8 @@ class ConfigTest extends AbstractConfigTest
     }
 
     /**
-     * @covers \Phinx\Config\Config::getTemplateFile();
-     * @covers \Phinx\Config\Config::getTemplateClass();
+     * @covers \Phinx\Config\Config::getTemplateFile
+     * @covers \Phinx\Config\Config::getTemplateClass
      */
     public function testGetTemplateValuesFalseOnEmpty()
     {
