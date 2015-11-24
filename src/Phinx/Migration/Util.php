@@ -38,7 +38,12 @@ class Util
     /**
      * @var string
      */
-    const FILE_NAME_PATTERN = '/^\d+_([\w_]+).php$/i';
+    const MIGRATION_FILE_NAME_PATTERN = '/^\d+_([\w_]+).php$/i';
+
+    /**
+     * @var string
+     */
+    const SEED_FILE_NAME_PATTERN = '/^([\w_]+).php$/i';
 
     /**
      * Gets the current timestamp string, in UTC.
@@ -77,6 +82,31 @@ class Util
     }
 
     /**
+     * Gets an array of all the existing seed class names.
+     *
+     * @return string
+     */
+    public static function getExistingSeedClassNames($path)
+    {
+        $classNames = array();
+
+        if (!is_dir($path)) {
+            return $classNames;
+        }
+
+        // filter the files to only get the ones that match our naming scheme
+        $phpFiles = glob($path . DIRECTORY_SEPARATOR . '*.php');
+
+        foreach ($phpFiles as $filePath) {
+            if (preg_match('/([_a-z0-9]*).php/', basename($filePath))) {
+                $classNames[] = static::mapFileNameToClassName(basename($filePath));
+            }
+        }
+
+        return $classNames;
+    }
+
+    /**
      * Get the version from the beginning of a file name.
      *
      * @param string $fileName File Name
@@ -106,8 +136,8 @@ class Util
     }
 
     /**
-     * Turn file names like '12345678901234_create_user_table.php' into class names
-     * like 'CreateUserTable'.
+     * Turn file names like '12345678901234_create_user_table.php' into class
+     * names like 'CreateUserTable'.
      *
      * @param string $fileName File Name
      * @return string
@@ -115,7 +145,7 @@ class Util
     public static function mapFileNameToClassName($fileName)
     {
         $matches = array();
-        if (preg_match(static::FILE_NAME_PATTERN, $fileName, $matches)) {
+        if (preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName, $matches)) {
             $fileName = $matches[1];
         }
 
@@ -123,7 +153,8 @@ class Util
     }
 
     /**
-     * Check if a migration class name is unique regardless of the timestamp.
+     * Check if a migration class name is unique regardless of the
+     * timestamp.
      *
      * This method takes a class name and a path to a migrations directory.
      *
@@ -138,22 +169,22 @@ class Util
      */
     public static function isUniqueMigrationClassName($className, $path)
     {
-        $existingClassNames = static::getExistingMigrationClassNames($path);
+        $existingClassNames = static::getExistingPhinxClassNames($path);
         return !(in_array($className, $existingClassNames));
     }
 
     /**
-     * Check if a migration class name is valid.
+     * Check if a migration/seed class name is valid.
      *
-     * Migration class names must be in CamelCase format.
-     * e.g: CreateUserTable or AddIndexToPostsTable.
+     * Migration & Seed class names must be in CamelCase format.
+     * e.g: CreateUserTable, AddIndexToPostsTable or UserSeeder.
      *
      * Single words are not allowed on their own.
      *
      * @param string $className Class Name
      * @return boolean
      */
-    public static function isValidMigrationClassName($className)
+    public static function isValidPhinxClassName($className)
     {
         return (bool) preg_match('/^([A-Z][a-z0-9]+)+$/', $className);
     }
@@ -167,6 +198,18 @@ class Util
     public static function isValidMigrationFileName($fileName)
     {
         $matches = array();
-        return preg_match(static::FILE_NAME_PATTERN, $fileName, $matches);
+        return preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName, $matches);
+    }
+
+    /**
+     * Check if a seed file name is valid.
+     *
+     * @param string $fileName File Name
+     * @return boolean
+     */
+    public static function isValidSeedFileName($fileName)
+    {
+        $matches = array();
+        return preg_match(static::SEED_FILE_NAME_PATTERN, $fileName, $matches);
     }
 }
