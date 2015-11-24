@@ -24,9 +24,9 @@
  * IN THE SOFTWARE.
  *
  * @package    Phinx
- * @subpackage Phinx\Migration
+ * @subpackage Phinx\Util
  */
-namespace Phinx\Migration;
+namespace Phinx\Util;
 
 class Util
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Test\Phinx\Migration;
+namespace Test\Phinx\Util;
 
-use Phinx\Migration\Util;
+use Phinx\Util\Util;
 
 class UtilTest extends \PHPUnit_Framework_TestCase
 {
