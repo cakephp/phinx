@@ -49,14 +49,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * 
      * @var array 
      */
-    private $enums = [];
+    private $enums = array();
     
     /**
      * Custom sets emulation list
      * 
      * @var array 
      */
-    private $sets = [];
+    private $sets = array();
 
     /**
      * {@inheritdoc}
