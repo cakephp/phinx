@@ -217,7 +217,7 @@ $$ language sql;
                         }
                     }
                     $col->setType('varchar('.$maxval.')[]');
-                    $this->addSet([$col->getName()=>'varchar('.$maxval.')[]']);
+                    $this->addSet(array($col->getName()=>'varchar('.$maxval.')[]'));
                     $default = $col->getDefault();
                     if($default){
                         $col->setDefault('{'.$default.'}');
