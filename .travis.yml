@@ -28,5 +28,4 @@ matrix:
         - php: hhvm
           env: TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED=false
     allow_failures:
-        - php: 7
         - php: hhvm
