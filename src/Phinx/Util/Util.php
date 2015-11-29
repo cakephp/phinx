@@ -82,31 +82,6 @@ class Util
     }
 
     /**
-     * Gets an array of all the existing seed class names.
-     *
-     * @return string
-     */
-    public static function getExistingSeedClassNames($path)
-    {
-        $classNames = array();
-
-        if (!is_dir($path)) {
-            return $classNames;
-        }
-
-        // filter the files to only get the ones that match our naming scheme
-        $phpFiles = glob($path . DIRECTORY_SEPARATOR . '*.php');
-
-        foreach ($phpFiles as $filePath) {
-            if (preg_match('/([_a-z0-9]*).php/', basename($filePath))) {
-                $classNames[] = static::mapFileNameToClassName(basename($filePath));
-            }
-        }
-
-        return $classNames;
-    }
-
-    /**
      * Get the version from the beginning of a file name.
      *
      * @param string $fileName File Name
