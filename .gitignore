@@ -19,8 +19,8 @@ dist
 tests/log
 
 # ignore core development artifacts
-db
-migrations
+./db
+./migrations
 
 # sphinx generates HTML files for the documentation here
 docs/_build
