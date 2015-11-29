@@ -204,11 +204,13 @@ class TableTest extends \PHPUnit_Framework_TestCase
     {
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
-        $columns = array("column1", "column2");
-        $data = array( array("value1", "value2") );
-        $table->insert($columns, $data);
+        $data = array(
+            'column1' => 'value1',
+            'column2' => 'value2',
+        );
+        $table->insert($data);
         $expectedData = array(
-            array("columns" => $columns, "data" => $data)
+            $data
         );
         $this->assertEquals($expectedData, $table->getData());
     }
@@ -216,25 +218,32 @@ class TableTest extends \PHPUnit_Framework_TestCase
     public function testInsertSaveData()
     {
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
-
         $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
-        $columns = array("column1");
         $data = array(
-            array("value1"),
-            array("value2")
+            array(
+                'column1' => 'value1'
+            ),
+            array(
+                'column1' => 'value2'
+            )
         );
+
         $moreData = array(
-            array("value3"),
-            array("value4")
+            array(
+                'column1' => 'value3'
+            ),
+            array(
+                'column1' => 'value4'
+            )
         );
 
-        $adapterStub->expects($this->exactly(2))
+        $adapterStub->expects($this->exactly(4))
             ->method('insert')
-            ->with($table, $columns, $this->logicalOr($data, $moreData));
+            ->with($table, $this->logicalOr($data[0], $data[1], $moreData[0], $moreData[1]));
 
-        $table->insert($columns, $data)
-            ->insert($columns, $moreData)
-            ->save();
+        $table->insert($data)
+              ->insert($moreData)
+              ->save();
     }
 
     public function testResetAfterAddingData()

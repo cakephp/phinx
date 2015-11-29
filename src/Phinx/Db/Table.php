@@ -569,18 +569,27 @@ class Table
     }
 
     /**
-     * @param array $columns column names
-     * @param $data array of data in the form :
+     * Insert data into the table.
+     *
+     * @param $data array of data in the form:
      *              array(
-     *                  array("value1", "anotherValue1"),
-     *                  array("value2", "anotherValue2"),
+     *                  array("col1" => "value1", "col2" => "anotherValue1"),
+     *                  array("col2" => "value2", "col2" => "anotherValue2"),
      *              )
+     *              or array("col1" => "value1", "col2" => "anotherValue1")
      *
      * @return Table
      */
-    public function insert($columns, $data)
+    public function insert($data)
     {
-        $this->data[] = array("columns" => $columns, "data" => $data);
+        // handle array of array situations
+        if (isset($data[0]) && is_array($data[0])) {
+            foreach ($data as $row) {
+                $this->data[] = $row;
+            }
+            return $this;
+        }
+        $this->data[] = $data;
         return $this;
     }
 
@@ -622,17 +631,18 @@ class Table
         }
 
         $this->saveData();
-
         $this->reset(); // reset pending changes
     }
 
     /**
-     * Does the actual insertion of pending data
+     * Commit the pending data waiting for insertion.
+     *
+     * @return void
      */
     public function saveData()
     {
-        foreach ($this->getData() as $data) {
-            $this->getAdapter()->insert($this, $data["columns"], $data["data"]);
+        foreach ($this->getData() as $row) {
+            $this->getAdapter()->insert($this, $row);
         }
     }
 

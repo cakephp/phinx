@@ -811,29 +811,26 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function insert(Table $table, $columns, $data)
+    public function insert(Table $table, $row)
     {
         $this->startCommandTimer();
+        $sql = sprintf(
+            "INSERT INTO %s ",
+            $this->quoteTableName($table->getName())
+        );
 
-        foreach($data as $row) {
-            $sql = sprintf(
-                "INSERT INTO %s ",
-                $this->quoteTableName($table->getName())
-            );
+        $columns = array_keys($row);
+        $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
+        $sql .= " VALUES ";
 
-            $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
-            $sql .= " VALUES ";
+        $sql .= "(" . implode(', ', array_map(function ($value) {
+                if (is_numeric($value)) {
+                    return $value;
+                }
+                return "'{$value}'";
+            }, $row)) . ")";
 
-            $sql .= "(" . implode(', ', array_map(function ($value) {
-                    if (is_numeric($value)) {
-                        return $value;
-                    }
-                    return "'{$value}'";
-                }, $row)) . ")";
-
-            $this->execute($sql);
-        }
-
+        $this->execute($sql);
         $this->endCommandTimer();
     }
 
