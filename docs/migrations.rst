@@ -22,6 +22,9 @@ This will create a new migration in the format
 ``YYYYMMDDHHMMSS_my_new_migration.php`` where the first 14 characters are
 replaced with the current timestamp down to the second.
 
+If you have specified multiple migration paths, you will be asked to select
+which path to create the new migration in.
+
 Phinx automatically creates a skeleton migration file with two empty methods
 and a commented out one:
 

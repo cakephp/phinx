@@ -88,11 +88,11 @@ interface ConfigInterface extends \ArrayAccess
     public function getConfigFilePath();
 
     /**
-     * Gets the path of the migration files.
+     * Gets the paths to search for migration files.
      *
-     * @return string
+     * @return string[]
      */
-    public function getMigrationPath();
+    public function getMigrationPaths();
 
      /**
      * Get the template file name.
@@ -107,5 +107,4 @@ interface ConfigInterface extends \ArrayAccess
      * @return string|false
      */
      public function getTemplateClass();
-
 }

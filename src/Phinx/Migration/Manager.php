@@ -419,8 +419,7 @@ class Manager
     public function getMigrations()
     {
         if (null === $this->migrations) {
-            $config = $this->getConfig();
-            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php');
+            $phpFiles = $this->getMigrationFiles();
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
@@ -480,6 +479,24 @@ class Manager
         }
 
         return $this->migrations;
+    }
+
+    /**
+     * Return a list of migration files found in the provided migration paths.
+     *
+     * @return string[]
+     */
+    protected function getMigrationFiles()
+    {
+        $config = $this->getConfig();
+        $paths = $config->getMigrationPaths();
+        $files = array();
+
+        foreach ($paths as $path) {
+            $files = array_merge($files, glob($path . DIRECTORY_SEPARATOR . '*.php'));
+        }
+
+        return $files;
     }
 
     /**
