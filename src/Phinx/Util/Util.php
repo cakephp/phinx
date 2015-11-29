@@ -169,7 +169,7 @@ class Util
      */
     public static function isUniqueMigrationClassName($className, $path)
     {
-        $existingClassNames = static::getExistingPhinxClassNames($path);
+        $existingClassNames = static::getExistingMigrationClassNames($path);
         return !(in_array($className, $existingClassNames));
     }
 

@@ -51,6 +51,11 @@ abstract class AbstractCommand extends Command
     const DEFAULT_MIGRATION_TEMPLATE = '/../../Migration/Migration.template.php.dist';
 
     /**
+     * The location of the default seed template.
+     */
+    const DEFAULT_SEED_TEMPLATE = '/../../Seed/Seed.template.php.dist';
+
+    /**
      * @var ConfigInterface
      */
     protected $config;
@@ -288,6 +293,29 @@ abstract class AbstractCommand extends Command
     }
 
     /**
+     * Verify that the seed directory exists and is writable.
+     *
+     * @throws InvalidArgumentException
+     * @return void
+     */
+    protected function verifySeedDirectory($path)
+    {
+        if (!is_dir($path)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Seed directory "%s" does not exist',
+                $path
+            ));
+        }
+
+        if (!is_writeable($path)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Seed directory "%s" is not writeable',
+                $path
+            ));
+        }
+    }
+
+    /**
      * Returns the migration template filename.
      *
      * @return string
@@ -295,5 +323,15 @@ abstract class AbstractCommand extends Command
     protected function getMigrationTemplateFilename()
     {
         return __DIR__ . self::DEFAULT_MIGRATION_TEMPLATE;
+    }
+
+    /**
+     * Returns the seed template filename.
+     *
+     * @return string
+     */
+    protected function getSeedTemplateFilename()
+    {
+        return __DIR__ . self::DEFAULT_SEED_TEMPLATE;
     }
 }

@@ -24,31 +24,26 @@
  * IN THE SOFTWARE.
  *
  * @package    Phinx
- * @subpackage Phinx\Migration
+ * @subpackage Phinx\Seed
  */
-namespace Phinx\Migration;
+namespace Phinx\Seed;
 
 use Phinx\Db\Table;
 use Phinx\Db\Adapter\AdapterInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Abstract Migration Class.
+ * Abstract Seed Class.
  *
- * It is expected that the migrations you write extend from this class.
+ * It is expected that the seeds you write extend from this class.
  *
  * This abstract class proxies the various database methods to your specified
  * adapter.
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-abstract class AbstractMigration implements MigrationInterface
+abstract class AbstractSeed implements SeedInterface
 {
-    /**
-     * @var float
-     */
-    protected $version;
-
     /**
      * @var AdapterInterface
      */
@@ -62,11 +57,10 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * Class Constructor.
      *
-     * @param int $version Migration Version
+     * @return void
      */
-    final public function __construct($version)
+    final public function __construct()
     {
-        $this->version = $version;
         $this->init();
     }
 
@@ -82,14 +76,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
-    public function up()
-    {
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function down()
+    public function run()
     {
     }
 
@@ -138,23 +125,6 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
-    public function setVersion($version)
-    {
-        $this->version = $version;
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getVersion()
-    {
-        return $this->version;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function execute($sql)
     {
         return $this->getAdapter()->execute($sql);
@@ -187,17 +157,13 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
-    public function createDatabase($name, $options)
+    public function insert($table, $data)
     {
-        $this->getAdapter()->createDatabase($name, $options);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function dropDatabase($name)
-    {
-        $this->getAdapter()->dropDatabase($name);
+        // convert to table object
+        if (is_string($table)) {
+            $table = new Table($tableName, array(), $this->getAdapter());
+        }
+        return $this->getAdapter()->insert($table, $data);
     }
 
     /**
@@ -214,16 +180,5 @@ abstract class AbstractMigration implements MigrationInterface
     public function table($tableName, $options = array())
     {
         return new Table($tableName, $options, $this->getAdapter());
-    }
-
-    /**
-     * A short-hand method to drop the given database table.
-     *
-     * @param string $tableName Table Name
-     * @return void
-     */
-    public function dropTable($tableName)
-    {
-        $this->table($tableName)->drop();
     }
 }

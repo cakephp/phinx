@@ -24,49 +24,32 @@
  * IN THE SOFTWARE.
  *
  * @package    Phinx
- * @subpackage Phinx\Migration
+ * @subpackage Phinx\Seed
  */
-namespace Phinx\Migration;
+namespace Phinx\Seed;
 
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Migration interface
+ * Seed interface
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-interface MigrationInterface
+interface SeedInterface
 {
     /**
      * @var string
      */
-    const CHANGE = 'change';
+    const RUN = 'run';
 
     /**
-     * @var string
-     */
-    const UP = 'up';
-
-    /**
-     * @var string
-     */
-    const DOWN = 'down';
-
-    /**
-     * Migrate Up
+     * Run the seeder.
      *
      * @return void
      */
-    public function up();
-
-    /**
-     * Migrate Down
-     *
-     * @return void
-     */
-    public function down();
+    public function run();
 
     /**
      * Sets the database adapter.
@@ -106,21 +89,6 @@ interface MigrationInterface
     public function getName();
 
     /**
-     * Sets the migration version number.
-     *
-     * @param float $version Version
-     * @return MigrationInterface
-     */
-    public function setVersion($version);
-
-    /**
-     * Gets the migration version number.
-     *
-     * @return float
-     */
-    public function getVersion();
-
-    /**
      * Executes a SQL statement and returns the number of affected rows.
      *
      * @param string $sql SQL
@@ -153,21 +121,13 @@ interface MigrationInterface
     public function fetchAll($sql);
 
     /**
-     * Create a new database.
+     * Insert data into a table.
      *
-     * @param string $name Database Name
-     * @param array $options Options
+     * @param string $tableName
+     * @param array $data
      * @return void
      */
-    public function createDatabase($name, $options);
-
-    /**
-     * Drop a database.
-     *
-     * @param string $name Database Name
-     * @return void
-     */
-    public function dropDatabase($name);
+    public function insert($tableName, $data);
 
     /**
      * Checks to see if a table exists.
