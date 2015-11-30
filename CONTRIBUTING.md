@@ -35,7 +35,7 @@ Great, so you want to contribute. Let's get started:
 1. If you do not have Composer set up already, install it:
 
     ```
-    curl -s https://getcomposer.org/installer | php
+    curl -sS https://getcomposer.org/installer | php
     ```
 
 1. Change to your Phinx clone directory and pull the necessary dependencies:

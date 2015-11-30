@@ -1,6 +1,6 @@
 paths:
-    migrations: %%PHINX_CONFIG_DIR%%/migrations
-        
+    migrations: %%PHINX_CONFIG_DIR%%/db/migrations
+
 environments:
     default_migration_table: phinxlog
     default_database: staging
@@ -11,7 +11,7 @@ environments:
         user: root
         pass: ''
         port: 3306
-                
+
     development:
         adapter: mysql
         host: localhost
@@ -19,7 +19,7 @@ environments:
         user: root
         pass: ''
         port: 3306
-                    
+
     testing:
         adapter: mysql
         host: localhost
@@ -27,4 +27,3 @@ environments:
         user: root
         pass: ''
         port: 3306
-                 

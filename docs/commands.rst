@@ -110,10 +110,43 @@ status. You can use this command to determine which migrations have been run.
 
         $ phinx status -e development
 
+The Seed Create Command
+-----------------------
+
+The Seed Create command can be used to create new database seed classes. It
+requires one argument and that is the name of the class. The class name should
+be specified in CamelCase format.
+
+.. code-block:: bash
+
+        $ phinx seed:create MyNewSeeder
+
+Open the new seed file in your text editor to add your database seed commands.
+Phinx creates seed files using the path specified in your ``phinx.yml`` file.
+Please see the :doc:`Configuration <configuration>` chapter for more information.
+
+The Seed Run Command
+-----------------------
+
+The Seed Run command runs all of the available seed classes or optionally just
+one.
+
+.. code-block:: bash
+
+        $ phinx seed:run -e development
+
+To run only one seed class use the ``--seed`` parameter or ``-s`` for short.
+
+.. code-block:: bash
+
+        $ phinx seed:run -e development -s MyNewSeeder
+
 Configuration File Parameter
 ----------------------------
 
-When running Phinx from the command line, you may specify a configuration file using the ``--configuration`` or ``-c`` parameter. In addition to YAML, the configuration file may be the computed output of a PHP file as a PHP array:
+When running Phinx from the command line, you may specify a configuration file
+using the ``--configuration`` or ``-c`` parameter. In addition to YAML, the
+configuration file may be the computed output of a PHP file as a PHP array:
 
 .. code-block:: php
 

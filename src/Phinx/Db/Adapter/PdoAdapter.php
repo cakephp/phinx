@@ -330,24 +330,22 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function insert(Table $table, $columns, $data)
+    public function insert(Table $table, $row)
     {
         $this->startCommandTimer();
+        $this->writeCommand('insert', array($table->getName()));
 
         $sql = sprintf(
             "INSERT INTO %s ",
             $this->quoteTableName($table->getName())
         );
 
+        $columns = array_keys($row);
         $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
         $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
 
         $stmt = $this->getConnection()->prepare($sql);
-
-        foreach ($data as $row) {
-            $stmt->execute($row);
-        }
-
+        $stmt->execute(array_values($row));
         $this->endCommandTimer();
     }
 
