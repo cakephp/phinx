@@ -97,7 +97,7 @@ class SeedCreate extends AbstractCommand
 
         if (!Util::isValidPhinxClassName($className)) {
             throw new \InvalidArgumentException(sprintf(
-                'The seed class name "%s" is invalid. Please use CamelCase format.',
+                'The seed class name "%s" is invalid. Please use CamelCase format',
                 $className
             ));
         }
@@ -108,7 +108,7 @@ class SeedCreate extends AbstractCommand
         if (is_file($filePath)) {
             throw new \InvalidArgumentException(sprintf(
                 'The file "%s" already exists',
-                $filePath
+                basename($filePath)
             ));
         }
 

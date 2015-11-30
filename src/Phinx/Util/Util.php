@@ -43,7 +43,7 @@ class Util
     /**
      * @var string
      */
-    const SEED_FILE_NAME_PATTERN = '/^([\w_]+).php$/i';
+    const SEED_FILE_NAME_PATTERN = '/^([A-Z][a-z0-9]+).php$/i';
 
     /**
      * Gets the current timestamp string, in UTC.
