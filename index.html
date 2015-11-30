@@ -113,9 +113,6 @@
 </div>
 </section>
 
-
-
-
 <section id="screencast" class="well-sm">
 <div class="container">
  <div class="row">
@@ -126,8 +123,6 @@
  </div>
  </div>
  </section>
-
-
 
 <section>
 <div class="container help-block">
@@ -140,7 +135,6 @@
  </div>
 </div>
 </section>
-
 
 <section id="support" class="label-primary">
  <div class="container help-block">
@@ -156,8 +150,6 @@
  </div>
 </section>
 
-
-
 <section>
 <div class="container help-block">
  <div class="row">
@@ -169,7 +161,6 @@
       If you use Phinx regulary then I encourage you to submit issues, write code/documentation
       or provide financial support.<br><br>Thanks for spreading the word!
   </h3>
-
 
   <div class="row">
   <div class="col-xs-12 col-sm-4 col-md-2"><p><a href="https://twitter.com/_rjm_" class="twitter-follow-button" data-show-count="false">Follow @_rjm_</a></p></div>
@@ -232,7 +223,7 @@ php composer.phar install --no-dev
           <p>Now write your first migration:</p>
 
 <pre><code>$ php vendor/bin/phinx init .
-$ vim phinx.yml
+$ $EDITOR phinx.yml
 $ mkdir migrations
 $ php vendor/bin/phinx create MyFirstMigration
 $ php vendor/bin/phinx migrate -e development
