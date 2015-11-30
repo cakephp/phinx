@@ -199,7 +199,7 @@ class ConfigTest extends AbstractConfigTest
     }
 
     /**
-     * @covers \Phinx\Config\Config::getSeedPath();
+     * @covers \Phinx\Config\Config::getSeedPath
      * @expectedException \UnexpectedValueException
      * @expectedExceptionMessage Seeds path missing from config file
      */
