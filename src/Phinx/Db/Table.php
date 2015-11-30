@@ -401,7 +401,7 @@ class Table
         }
 
         // if the name was omitted use the existing column name
-        if (null === $newColumn->getName() || strlen($newColumn->getName()) == 0) {
+        if (null === $newColumn->getName() || strlen($newColumn->getName()) === 0) {
             $newColumn->setName($columnName);
         }
 
