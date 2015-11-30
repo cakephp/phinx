@@ -161,9 +161,9 @@ abstract class AbstractSeed implements SeedInterface
     {
         // convert to table object
         if (is_string($table)) {
-            $table = new Table($tableName, array(), $this->getAdapter());
+            $table = new Table($table, array(), $this->getAdapter());
         }
-        return $this->getAdapter()->insert($table, $data);
+        return $table->insert($data)->save();
     }
 
     /**
