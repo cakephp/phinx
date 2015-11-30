@@ -94,6 +94,13 @@ interface ConfigInterface extends \ArrayAccess
      */
     public function getMigrationPath();
 
+    /**
+     * Gets the path of the seed files.
+     *
+     * @return string
+     */
+    public function getSeedPath();
+
      /**
      * Get the template file name.
      *

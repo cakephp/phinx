@@ -29,7 +29,7 @@
 namespace Phinx\Console\Command;
 
 use Phinx\Migration\CreationInterface;
-use Phinx\Migration\Util;
+use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -79,7 +79,7 @@ class Create extends AbstractCommand
     }
 
     /**
-     * Migrate the database.
+     * Create the new migration.
      *
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -108,7 +108,7 @@ class Create extends AbstractCommand
         $path = realpath($path);
         $className = $input->getArgument('name');
 
-        if (!Util::isValidMigrationClassName($className)) {
+        if (!Util::isValidPhinxClassName($className)) {
             throw new \InvalidArgumentException(sprintf(
                 'The migration class name "%s" is invalid. Please use CamelCase format.',
                 $className

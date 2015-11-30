@@ -26,7 +26,7 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
             'default' => array(
                 'paths' => array(
                     'migrations' => '%%PHINX_CONFIG_PATH%%/testmigrations2',
-                    'schema' => '%%PHINX_CONFIG_PATH%%/testmigrations2/schema.sql',
+                    'seeds' => '%%PHINX_CONFIG_PATH%%/db/seeds',
                 )
             ),
             'paths' => array(
