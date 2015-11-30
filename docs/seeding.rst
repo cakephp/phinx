@@ -969,6 +969,7 @@ For ``enum`` and ``set`` columns:
 Option    Description
 ========= ===========
 values    Can be a comma separated list or an array of values
+enum_name Name of enum type, if dont defined, the default name is <table_name>_<field_name>_enum *(only applies to PostgreSQL)*
 ========= ===========
 
 For ``integer`` and ``biginteger`` columns:

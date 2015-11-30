@@ -46,6 +46,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     protected $columnsWithComments = array();
 
     /**
+     * Enumerate types
+     *
+     * @var array
+     */
+    protected $enumerateColumnsTypes = array();
+
+    /**
      * {@inheritdoc}
      */
     public function connect()
@@ -202,11 +209,18 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         $this->columnsWithComments = array();
         foreach ($columns as $column) {
-            $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
+            $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column, $table) . ', ';
 
             // set column comments, if needed
             if ($column->getComment()) {
                 $this->columnsWithComments[] = $column;
+            }
+        }
+
+        if($this->enumerateColumnsTypes) {
+            if ($sqlEnumerate = $this->getEnumerateSqlDefinition()) {
+                $this->execute($sqlEnumerate);
+                $this->writeCommand('createType', array_keys($this->enumerateColumnsTypes));
             }
         }
 
@@ -300,8 +314,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $columns = array();
         $sql = sprintf(
-            "SELECT column_name, data_type, is_identity, is_nullable,
-             column_default, character_maximum_length, numeric_precision, numeric_scale
+            "SELECT column_name,
+             CASE WHEN udt_name = 'enum_type' THEN 'enum' ELSE data_type END as data_type,
+             is_identity, is_nullable, column_default, character_maximum_length,
+             numeric_precision, numeric_scale
              FROM information_schema.columns
              WHERE table_name ='%s'",
             $tableName
@@ -353,13 +369,19 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function addColumn(Table $table, Column $column)
     {
         $this->startCommandTimer();
-        $this->writeCommand('addColumn', array($table->getName(), $column->getName(), $column->getType()));
         $sql = sprintf(
             'ALTER TABLE %s ADD %s %s',
             $this->quoteTableName($table->getName()),
             $this->quoteColumnName($column->getName()),
-            $this->getColumnSqlDefinition($column)
+            $this->getColumnSqlDefinition($column, $table)
         );
+        if($this->enumerateColumnsTypes) {
+            if ($sqlEnumerate = $this->getEnumerateSqlDefinition()) {
+                $this->execute($sqlEnumerate);
+                $this->writeCommand('createType', array_keys($this->enumerateColumnsTypes));
+            }
+        }
+        $this->writeCommand('addColumn', array($table->getName(), $column->getName(), $column->getType()));
 
         $this->execute($sql);
         $this->endCommandTimer();
@@ -409,6 +431,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $this->quoteColumnName($columnName),
             $this->getColumnSqlDefinition($newColumn)
         );
+        if($this->enumerateColumnsTypes) {
+            if ($sqlEnumerate = $this->getEnumerateSqlDefinition()) {
+                $this->execute($sqlEnumerate);
+                $this->writeCommand('createType', array_keys($this->enumerateColumnsTypes));
+            }
+        }
         //NULL and DEFAULT cannot be set while changing column type
         $sql = preg_replace('/ NOT NULL/', '', $sql);
         $sql = preg_replace('/ NULL/', '', $sql);
@@ -484,6 +512,19 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             )
         );
         $this->endCommandTimer();
+        $this->dropTypeByName($tableName . '_' . $columnName . '_enum');
+    }
+    
+    protected function dropTypeByName($typeName)
+    {
+    	$this->startCommandTimer();
+    	$this->writeCommand('dropTypeByName', array($typeName));
+    	$sql = sprintf(
+    			'DROP TYPE IF EXISTS %s',
+    			$typeName
+    	);
+    	$this->execute($sql);
+    	$this->endCommandTimer();
     }
 
     /**
@@ -779,6 +820,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_POLYGON:
                 return array('name' => 'geography', 'polygon', 4326);
                 break;
+            case static::PHINX_TYPE_ENUM:
+                return array('name' => 'enum');
+                break;
             default:
                 if ($this->isArrayType($type)) {
                     return array('name' => $type);
@@ -845,6 +889,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'bool':
             case 'boolean':
                 return static::PHINX_TYPE_BOOLEAN;
+            case 'enum':
+                return static::PHINX_TYPE_ENUM;
             case 'uuid':
                 return static::PHINX_TYPE_UUID;
             default:
@@ -907,15 +953,26 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * Gets the PostgreSQL Column Definition for a Column object.
      *
      * @param Column $column Column
+     * @param Table $table Table
      * @return string
      */
-    protected function getColumnSqlDefinition(Column $column)
+    protected function getColumnSqlDefinition(Column $column, $table = null)
     {
         $buffer = array();
         if ($column->isIdentity()) {
             $buffer[] = 'SERIAL';
         } else {
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
+            if ($sqlType['name'] == 'enum') {
+                $properties = $column->getProperties();
+                if (isset($properties['enum_name'])) {
+                    $sqlType['name'] = $properties['enum_name'];
+                } else {
+                    $sqlType['name'] = $table->getName() . '_' . $column->getName() . '_enum';
+                }
+                $this->enumerateColumnsTypes[$sqlType['name']] = $column->getValues();
+            }
+
             $buffer[] = strtoupper($sqlType['name']);
             // integers cant have limits in postgres
             if (static::PHINX_TYPE_DECIMAL == $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
@@ -968,6 +1025,28 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $column->getName(),
             $comment
         );
+    }
+
+    /**
+     * Gets the PostgreSQL enumerate column definition for a current transaction
+     *
+     * @return string
+     */
+    protected function getEnumerateSqlDefinition()
+    {
+        $sql = "select typname as exists from pg_type where typname IN('" . implode("', '", array_keys($this->enumerateColumnsTypes)) . "');";
+        $items = $this->fetchAll($sql);
+        foreach ($items as $key => $item) {
+            if (isset($this->enumerateColumnsTypes[$item['type']])) {
+                unset($this->enumerateColumnsTypes[$item['type']]);
+            }
+        }
+        $sql = '';
+        foreach ($this->enumerateColumnsTypes as $type => $values) {
+            unset($this->enumerateColumnsTypes[$type]);
+            $sql .= 'CREATE TYPE ' . $type . " AS ENUM ('" . implode("', '", $values) . "');";
+        }
+        return $sql;
     }
 
     /**
@@ -1149,7 +1228,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('json', 'jsonb'));
+        return array_merge(parent::getColumnTypes(), array('json', 'jsonb', 'enum'));
     }
 
     /**
