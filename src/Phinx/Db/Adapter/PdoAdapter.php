@@ -333,6 +333,7 @@ abstract class PdoAdapter implements AdapterInterface
     public function insert(Table $table, $row)
     {
         $this->startCommandTimer();
+        $this->writeCommand('insert', array($table->getName()));
 
         $sql = sprintf(
             "INSERT INTO %s ",
