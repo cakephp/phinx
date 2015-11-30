@@ -93,8 +93,13 @@ abstract class AbstractCommand extends Command
         }
 
         $this->loadManager($output);
-        // report the migrations path
+        // report the paths
         $output->writeln('<info>using migration path</info> ' . $this->getConfig()->getMigrationPath());
+        try {
+            $output->writeln('<info>using seed path</info> ' . $this->getConfig()->getSeedPath());
+        } catch (\UnexpectedValueException $e) {
+            // do nothing as seeds are optional
+        }
     }
 
     /**
