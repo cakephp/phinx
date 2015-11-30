@@ -236,7 +236,8 @@ interface AdapterInterface
      * Inserts data into a table.
      *
      * @param Table $table where to insert data
-     * @param $row
+     * @param array $row
+     * @return void
      */
     public function insert(Table $table, $row);
 
