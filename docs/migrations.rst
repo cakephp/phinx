@@ -11,8 +11,8 @@ your migrations using the Phinx PHP API, but raw SQL is also supported.
 Creating a New Migration
 ------------------------
 
-Let's start by creating a new Phinx migration. Run Phinx using the
-``create`` command:
+Let's start by creating a new Phinx migration. Run Phinx using the ``create``
+command:
 
 .. code-block:: bash
 
@@ -22,8 +22,7 @@ This will create a new migration in the format
 ``YYYYMMDDHHMMSS_my_new_migration.php`` where the first 14 characters are
 replaced with the current timestamp down to the second.
 
-Phinx automatically creates a skeleton migration file with two empty methods
-and a commented out one:
+Phinx automatically creates a skeleton migration file with a single method:
 
 .. code-block:: php
 
@@ -36,28 +35,25 @@ and a commented out one:
             /**
              * Change Method.
              *
-             * More information on this method is available here:
-             * http://docs.phinx.org/en/latest/migrations.html#the-change-method
+             * Write your reversible migrations using this method.
              *
-             * Uncomment this method if you would like to use it.
+             * More information on writing migrations is available here:
+             * http://docs.phinx.org/en/latest/migrations.html#the-abstractmigration-class
              *
+             * The following commands can be used in this method and Phinx will
+             * automatically reverse them when rolling back:
+             *
+             *    createTable
+             *    renameTable
+             *    addColumn
+             *    renameColumn
+             *    addIndex
+             *    addForeignKey
+             *
+             * Remember to call "create()" or "update()" and NOT "save()" when working
+             * with the Table class.
+             */
             public function change()
-            {
-            }
-            */
-
-            /**
-             * Migrate Up.
-             */
-            public function up()
-            {
-
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
             {
 
             }
@@ -71,28 +67,13 @@ provides the necessary support to create your database migrations. Database
 migrations can transform your database in many ways such as creating new
 tables, inserting rows, adding indexes and modifying columns.
 
-The Up Method
-~~~~~~~~~~~~~
-
-The up method is automatically run by Phinx when you are migrating up and it
-detects the given migration hasn't been executed previously. You should use the
-up method to transform the database with your intended changes.
-
-The Down Method
-~~~~~~~~~~~~~~~
-
-The down method is automatically run by Phinx when you are migrating down and
-it detects the given migration has been executed in the past. You should use
-the down method to reverse/undo the transformations described in the up method.
-
 The Change Method
 ~~~~~~~~~~~~~~~~~
 
-Phinx 0.2.0 introduced a new feature called reversible migrations. With
-reversible migrations you only need to define the ``up`` logic and Phinx can
-figure out how to migrate down automatically for you. To define a reversible
-migration you must uncomment the ``change`` method in your migration file. For
-example:
+Phinx 0.2.0 introduced a new feature called reversible migrations. This feature
+has now become the default migration method. With reversible migrations you only
+need to define the ``up`` logic and Phinx can figure out how to migrate down
+automatically for you. For example:
 
 .. code-block:: php
 
@@ -160,6 +141,20 @@ Phinx can only reverse the following commands:
 
 If a command cannot be reversed then Phinx will throw a
 ``IrreversibleMigrationException`` exception when it's migrating down.
+
+The Up Method
+~~~~~~~~~~~~~
+
+The up method is automatically run by Phinx when you are migrating up and it
+detects the given migration hasn't been executed previously. You should use the
+up method to transform the database with your intended changes.
+
+The Down Method
+~~~~~~~~~~~~~~~
+
+The down method is automatically run by Phinx when you are migrating down and
+it detects the given migration has been executed in the past. You should use
+the down method to reverse/undo the transformations described in the up method.
 
 Executing Queries
 -----------------

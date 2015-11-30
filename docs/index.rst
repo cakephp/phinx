@@ -13,6 +13,7 @@ Contents
    goals
    install
    migrations
+   seeding
    commands
    configuration
    copyright
@@ -23,4 +24,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
