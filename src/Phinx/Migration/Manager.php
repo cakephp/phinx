@@ -124,7 +124,7 @@ class Manager
 
         // write an empty line
         $output->writeln('');
-        if ($format != null) {
+        if ($format !== null) {
             switch ($format) {
                 case 'json':
                     $output->writeln(json_encode(
@@ -136,7 +136,6 @@ class Manager
                     break;
                 default:
                     $output->writeln('<info>Unsupported format: '.$format.'</info>');
-                    break;
             }
         }
 
@@ -163,7 +162,8 @@ class Manager
                         'Migrating to version ' . $earlierVersion
                     );
                 }
-                return $this->migrate($environment, $earlierVersion);
+                $this->migrate($environment, $earlierVersion);
+                return;
             }
             $earlierVersion = $version;
         }
@@ -172,7 +172,7 @@ class Manager
         $this->getOutput()->writeln(
             'Migrating to version ' . $earlierVersion
         );
-        return $this->migrate($environment, $earlierVersion);
+        $this->migrate($environment, $earlierVersion);
     }
 
     /**
@@ -195,12 +195,13 @@ class Manager
                 if (!is_null($laterVersion)) {
                     $this->getOutput()->writeln('Rolling back to version '.$version);
                 }
-                return $this->rollback($environment, $version);
+                $this->rollback($environment, $version);
+                return;
             }
             $laterVersion = $version;
         }
         $this->getOutput()->writeln('Rolling back to version ' . $laterVersion);
-        return $this->rollback($environment, $laterVersion);
+        $this->rollback($environment, $laterVersion);
     }
 
     /**
@@ -236,7 +237,7 @@ class Manager
         // are we migrating up or down?
         $direction = $version > $current ? MigrationInterface::UP : MigrationInterface::DOWN;
 
-        if ($direction == MigrationInterface::DOWN) {
+        if ($direction === MigrationInterface::DOWN) {
             // run downs first
             krsort($migrations);
             foreach ($migrations as $migration) {
@@ -276,7 +277,7 @@ class Manager
         $this->getOutput()->writeln(
             ' =='
             . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
-            . ' <comment>' . ($direction == 'up' ? 'migrating' : 'reverting') . '</comment>'
+            . ' <comment>' . ($direction === MigrationInterface::UP ? 'migrating' : 'reverting') . '</comment>'
         );
 
         // Execute the migration and log the time elapsed.
@@ -287,7 +288,7 @@ class Manager
         $this->getOutput()->writeln(
             ' =='
             . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
-            . ' <comment>' . ($direction == 'up' ? 'migrated' : 'reverted')
+            . ' <comment>' . ($direction === MigrationInterface::UP ? 'migrated' : 'reverted')
             . ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
         );
     }
