@@ -45,14 +45,16 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         // mock the manager class
         $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
         $managerStub->expects($this->once())
-                    ->method('printStatus');
+                    ->method('printStatus')
+                    ->will($this->returnValue(0));
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName()));
+        $return = $commandTester->execute(array('command' => $command->getName()));
 
+        $this->assertEquals(0, $return);
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
     }
 
@@ -69,13 +71,15 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         // mock the manager class
         $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
         $managerStub->expects($this->once())
-                    ->method('printStatus');
+                    ->method('printStatus')
+                    ->will($this->returnValue(0));
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'));
+        $return = $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'));
+        $this->assertEquals(0, $return);
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
     }
 
@@ -92,13 +96,15 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         // mock the manager class
         $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
         $managerStub->expects($this->once())
-                    ->method('printStatus');
+                    ->method('printStatus')
+                    ->will($this->returnValue(0));
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), '--format' => 'json'));
+        $return = $commandTester->execute(array('command' => $command->getName(), '--format' => 'json'));
+        $this->assertEquals(0, $return);
         $this->assertRegExp('/using format json/', $commandTester->getDisplay());
     }
 }

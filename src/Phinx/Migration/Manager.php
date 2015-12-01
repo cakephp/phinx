@@ -63,6 +63,16 @@ class Manager
     protected $seeds;
 
     /**
+     * @var integer
+     */
+    const EXIT_STATUS_DOWN = 1;
+    
+    /**
+     * @var integer
+     */
+    const EXIT_STATUS_MISSING = 2;
+    
+    /**
      * Class Constructor.
      *
      * @param ConfigInterface $config Configuration Object
@@ -79,12 +89,14 @@ class Manager
      *
      * @param string $environment
      * @param null $format
-     * @return void
+     * @return integer 0 if all migrations are up, or an error code
      */
     public function printStatus($environment, $format = null)
     {
         $output = $this->getOutput();
         $migrations = array();
+        $hasDownMigration = false;
+        $hasMissingMigration = false;
         if (count($this->getMigrations())) {
             $output->writeln('');
             $output->writeln(' Status  Migration ID    Migration Name ');
@@ -98,6 +110,7 @@ class Manager
                     $status = '     <info>up</info> ';
                     unset($versions[array_search($migration->getVersion(), $versions)]);
                 } else {
+                    $hasDownMigration = true;
                     $status = '   <error>down</error> ';
                 }
 
@@ -109,12 +122,15 @@ class Manager
                 $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
             }
 
-            foreach ($versions as $missing) {
-                $output->writeln(
-                    '     <error>up</error> '
-                    . sprintf(' %14.0f ', $missing)
-                    . ' <error>** MISSING **</error>'
-                );
+            if (count($versions)) {
+                $hasMissingMigration = true;
+                foreach ($versions as $missing) {
+                    $output->writeln(
+                        '     <error>up</error> '
+                        . sprintf(' %14.0f ', $missing)
+                        . ' <error>** MISSING **</error>'
+                    );
+                }
             }
         } else {
             // there are no migrations
@@ -139,6 +155,13 @@ class Manager
             }
         }
 
+        if ($hasMissingMigration) {
+            return self::EXIT_STATUS_MISSING;
+        } else if ($hasDownMigration) {
+            return self::EXIT_STATUS_DOWN;
+        } else {
+            return 0;
+        }
     }
 
     /**
