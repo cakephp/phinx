@@ -63,6 +63,16 @@ class Manager
     protected $seeds;
 
     /**
+     * @var integer
+     */
+    const EXIT_STATUS_DOWN = 1;
+    
+    /**
+     * @var integer
+     */
+    const EXIT_STATUS_MISSING = 2;
+    
+    /**
      * Class Constructor.
      *
      * @param ConfigInterface $config Configuration Object
@@ -79,12 +89,14 @@ class Manager
      *
      * @param string $environment
      * @param null $format
-     * @return void
+     * @return integer 0 if all migrations are up, or an error code
      */
     public function printStatus($environment, $format = null)
     {
         $output = $this->getOutput();
         $migrations = array();
+        $hasDownMigration = false;
+        $hasMissingMigration = false;
         if (count($this->getMigrations())) {
             $output->writeln('');
             $output->writeln(' Status  Migration ID    Migration Name ');
@@ -98,6 +110,7 @@ class Manager
                     $status = '     <info>up</info> ';
                     unset($versions[array_search($migration->getVersion(), $versions)]);
                 } else {
+                    $hasDownMigration = true;
                     $status = '   <error>down</error> ';
                 }
 
@@ -109,12 +122,15 @@ class Manager
                 $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
             }
 
-            foreach ($versions as $missing) {
-                $output->writeln(
-                    '     <error>up</error> '
-                    . sprintf(' %14.0f ', $missing)
-                    . ' <error>** MISSING **</error>'
-                );
+            if (count($versions)) {
+                $hasMissingMigration = true;
+                foreach ($versions as $missing) {
+                    $output->writeln(
+                        '     <error>up</error> '
+                        . sprintf(' %14.0f ', $missing)
+                        . ' <error>** MISSING **</error>'
+                    );
+                }
             }
         } else {
             // there are no migrations
@@ -124,7 +140,7 @@ class Manager
 
         // write an empty line
         $output->writeln('');
-        if ($format != null) {
+        if ($format !== null) {
             switch ($format) {
                 case 'json':
                     $output->writeln(json_encode(
@@ -136,10 +152,16 @@ class Manager
                     break;
                 default:
                     $output->writeln('<info>Unsupported format: '.$format.'</info>');
-                    break;
             }
         }
 
+        if ($hasMissingMigration) {
+            return self::EXIT_STATUS_MISSING;
+        } else if ($hasDownMigration) {
+            return self::EXIT_STATUS_DOWN;
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -163,7 +185,8 @@ class Manager
                         'Migrating to version ' . $earlierVersion
                     );
                 }
-                return $this->migrate($environment, $earlierVersion);
+                $this->migrate($environment, $earlierVersion);
+                return;
             }
             $earlierVersion = $version;
         }
@@ -172,7 +195,7 @@ class Manager
         $this->getOutput()->writeln(
             'Migrating to version ' . $earlierVersion
         );
-        return $this->migrate($environment, $earlierVersion);
+        $this->migrate($environment, $earlierVersion);
     }
 
     /**
@@ -195,12 +218,13 @@ class Manager
                 if (!is_null($laterVersion)) {
                     $this->getOutput()->writeln('Rolling back to version '.$version);
                 }
-                return $this->rollback($environment, $version);
+                $this->rollback($environment, $version);
+                return;
             }
             $laterVersion = $version;
         }
         $this->getOutput()->writeln('Rolling back to version ' . $laterVersion);
-        return $this->rollback($environment, $laterVersion);
+        $this->rollback($environment, $laterVersion);
     }
 
     /**
@@ -236,7 +260,7 @@ class Manager
         // are we migrating up or down?
         $direction = $version > $current ? MigrationInterface::UP : MigrationInterface::DOWN;
 
-        if ($direction == MigrationInterface::DOWN) {
+        if ($direction === MigrationInterface::DOWN) {
             // run downs first
             krsort($migrations);
             foreach ($migrations as $migration) {
@@ -276,7 +300,7 @@ class Manager
         $this->getOutput()->writeln(
             ' =='
             . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
-            . ' <comment>' . ($direction == 'up' ? 'migrating' : 'reverting') . '</comment>'
+            . ' <comment>' . ($direction === MigrationInterface::UP ? 'migrating' : 'reverting') . '</comment>'
         );
 
         // Execute the migration and log the time elapsed.
@@ -287,7 +311,7 @@ class Manager
         $this->getOutput()->writeln(
             ' =='
             . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
-            . ' <comment>' . ($direction == 'up' ? 'migrated' : 'reverted')
+            . ' <comment>' . ($direction === MigrationInterface::UP ? 'migrated' : 'reverted')
             . ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
         );
     }

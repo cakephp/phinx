@@ -221,9 +221,9 @@ class ForeignKey
             }
 
             // handle $options['delete'] as $options['update']
-            if ('delete' == $option) {
+            if ('delete' === $option) {
                 $this->setOnDelete($value);
-            } elseif ('update' == $option) {
+            } elseif ('update' === $option) {
                 $this->setOnUpdate($value);
             } else {
                 $method = 'set' . ucfirst($option);
