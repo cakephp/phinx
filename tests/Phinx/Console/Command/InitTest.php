@@ -4,7 +4,6 @@ namespace Test\Phinx\Console\Command;
 
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\StreamOutput;
-use Phinx\Config\Config;
 use Phinx\Console\Command\Init;
 
 class InitTest extends \PHPUnit_Framework_TestCase
@@ -31,7 +30,7 @@ class InitTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute(array(
             'command' => $command->getName(),
             'path' => sys_get_temp_dir()
-        ));
+        ), array('decorated' => false));
 
         $this->assertRegExp(
             '/created (.*)phinx.yml(.*)/',
@@ -63,6 +62,6 @@ class InitTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute(array(
             'command' => $command->getName(),
             'path' => sys_get_temp_dir()
-        ));
+        ), array('decorated' => false));
     }
 }

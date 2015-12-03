@@ -73,6 +73,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->will($this->returnValue(array('20120111235330', '20120116183504')));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
         $this->assertEquals(0, $return);
 
@@ -94,6 +95,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->manager->setConfig($config);
         $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
         $this->assertEquals(0, $return);
 
@@ -111,6 +113,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->will($this->returnValue(array('20120103083300', '20120815145812')));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
         $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
 
@@ -129,6 +132,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->will($this->returnValue(array('20120111235330')));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
         $this->assertEquals(Manager::EXIT_STATUS_DOWN, $return);
 
@@ -146,6 +150,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions'))));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $output->setDecorated(false);
         $manager = new Manager($config, $output);
         $manager->getMigrations();
     }
@@ -158,6 +163,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicatenames'))));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $output->setDecorated(false);
         $manager = new Manager($config, $output);
         $manager->getMigrations();
     }
@@ -170,6 +176,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname'))));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $output->setDecorated(false);
         $manager = new Manager($config, $output);
         $manager->getMigrations();
     }
@@ -182,6 +189,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass'))));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $output->setDecorated(false);
         $manager = new Manager($config, $output);
         $manager->getMigrations();
     }
