@@ -340,7 +340,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Migration lists (versionOnly and fullRow), dates, and expected migrations to point to.
+     * Migration lists, dates, and expected migrations to point to.
      *
      * @return array
      */
