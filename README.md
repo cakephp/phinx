@@ -64,7 +64,7 @@ The fastest way to install Phinx is to add it to your project using Composer (ht
 
 ### As a Phar
 
-You can also use the Box application to build Phinx as a Phar archive (http://box-project.org/).
+You can also use the Box application to build Phinx as a Phar archive (https://github.com/box-project/box2).
 
 1. Clone Phinx from GitHub
 
