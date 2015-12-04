@@ -62,6 +62,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     const INT_REGULAR = 4294967295;
     const INT_BIG     = 18446744073709551615;
 
+    const TYPE_YEAR   = 'year';
+
     /**
      * {@inheritdoc}
      */
@@ -842,6 +844,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_SET:
                 return array('name' => 'set');
                 break;
+            case static::TYPE_YEAR:
+                if (!$limit || in_array($limit, array(2,4)))
+                    $limit = 4;
+                return array('name' => 'year','limit' => $limit);
+                break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
         }
@@ -1122,6 +1129,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array ('enum', 'set'));
+        return array_merge(parent::getColumnTypes(), array ('enum', 'set', 'year'));
     }
 }
