@@ -845,9 +845,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'set');
                 break;
             case static::TYPE_YEAR:
-                if (!$limit || in_array($limit, array(2,4)))
+                if (!$limit || in_array($limit, array(2, 4)))
                     $limit = 4;
-                return array('name' => 'year','limit' => $limit);
+                return array('name' => 'year', 'limit' => $limit);
                 break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
