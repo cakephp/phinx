@@ -61,8 +61,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     const INT_MEDIUM  = 16777215;
     const INT_REGULAR = 4294967295;
     const INT_BIG     = 18446744073709551615;
-    
-    const TYPE_YEAR = 'year';
+
+    const TYPE_YEAR   = 'year';
 
     /**
      * {@inheritdoc}
@@ -341,12 +341,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
             $column = new Column();
             $column->setName($columnInfo['Field'])
-                   ->setNull($columnInfo['Null'] !== 'NO')
+                   ->setNull($columnInfo['Null'] != 'NO')
                    ->setDefault($columnInfo['Default'])
                    ->setType($phinxType['name'])
                    ->setLimit($phinxType['limit']);
 
-            if ($columnInfo['Extra'] === 'auto_increment') {
+            if ($columnInfo['Extra'] == 'auto_increment') {
                 $column->setIdentity(true);
             }
 
@@ -827,7 +827,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_DATE:
                 return array('name' => 'date');
                 break;
-            case static::PHINX_TYPE_BOOLEAN:ye
+            case static::PHINX_TYPE_BOOLEAN:
                 return array('name' => 'tinyint', 'limit' => 1);
                 break;
             case static::PHINX_TYPE_UUID:
@@ -845,7 +845,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'set');
                 break;
             case static::TYPE_YEAR:
-                return array('name' => 'year', 'limit' => $limit ? $limit : 4);
+                if (!$limit || in_array($limit, array(2,4)))
+                    $limit = 4;
+                return array('name' => 'year','limit' => $limit);
                 break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
