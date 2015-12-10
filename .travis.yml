@@ -26,7 +26,7 @@ matrix:
         - php: hhvm
           env: TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED=true
     include:
-        - php: 5.3.3
+        - php: 5.3
           env: SYMFONY_VERSION='~2.8'
         - php: hhvm
           env: TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED=false
