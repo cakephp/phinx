@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9f628899d80c3e9298413b0d008b8d30",
-    "content-hash": "6ee21c313f7036e13a19b28a6d54f829",
+    "hash": "537e6bd007feb7e1ddb92c97fc28a8f8",
+    "content-hash": "16ceac8b3eed713ef96493226890c2ad",
     "packages": [
         {
             "name": "symfony/config",
@@ -59,16 +59,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "dev-master",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "8b7b23b8d6e46a83abd34ea489535c416ccc6d59"
+                "reference": "175871ca8d1ef16ff8d8cac395a1c73afa8d0e63"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/8b7b23b8d6e46a83abd34ea489535c416ccc6d59",
-                "reference": "8b7b23b8d6e46a83abd34ea489535c416ccc6d59",
+                "url": "https://api.github.com/repos/symfony/console/zipball/175871ca8d1ef16ff8d8cac395a1c73afa8d0e63",
+                "reference": "175871ca8d1ef16ff8d8cac395a1c73afa8d0e63",
                 "shasum": ""
             },
             "require": {
@@ -88,7 +88,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.1-dev"
+                    "dev-master": "3.0-dev"
                 }
             },
             "autoload": {
@@ -115,7 +115,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2015-12-05 17:45:25"
+            "time": "2015-11-30 12:36:17"
         },
         {
             "name": "symfony/filesystem",
@@ -712,7 +712,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "symfony/console": 20,
         "squizlabs/php_codesniffer": 20
     },
     "prefer-stable": false,
