@@ -52,7 +52,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $return = $commandTester->execute(array('command' => $command->getName()));
+        $return = $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
 
         $this->assertEquals(0, $return);
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
@@ -78,7 +78,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $return = $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'));
+        $return = $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'), array('decorated' => false));
         $this->assertEquals(0, $return);
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
     }
@@ -103,7 +103,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $return = $commandTester->execute(array('command' => $command->getName(), '--format' => 'json'));
+        $return = $commandTester->execute(array('command' => $command->getName(), '--format' => 'json'), array('decorated' => false));
         $this->assertEquals(0, $return);
         $this->assertRegExp('/using format json/', $commandTester->getDisplay());
     }
