@@ -29,6 +29,7 @@
 namespace Phinx\Migration;
 
 use Symfony\Component\Console\Output\OutputInterface;
+use Phinx\Util\MigrationIterator;
 use Phinx\Config\ConfigInterface;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Seed\AbstractSeed;
@@ -90,6 +91,7 @@ class Manager
      * @param string $environment
      * @param null $format
      * @return integer 0 if all migrations are up, or an error code
+     * @throws \InvalidArgumentException
      */
     public function printStatus($environment, $format = null)
     {
@@ -514,66 +516,67 @@ class Manager
      */
     public function getMigrations()
     {
-        if (null === $this->migrations) {
-            $config = $this->getConfig();
-            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php', defined('GLOB_BRACE') ? GLOB_BRACE : 0);
+        // early exit
+        if (null !== $this->migrations) {
+            return $this->migrations;
+        }
 
-            // filter the files to only get the ones that match our naming scheme
-            $fileNames = array();
-            /** @var AbstractMigration[] $versions */
-            $versions = array();
+        $config = $this->getConfig();
+        $phpFiles = new MigrationIterator($config->getMigrationPath());
 
-            foreach ($phpFiles as $filePath) {
-                if (Util::isValidMigrationFileName(basename($filePath))) {
-                    $version = Util::getVersionFromFileName(basename($filePath));
+        // filter the files to only get the ones that match our naming scheme
+        $fileNames = array();
+        /** @var AbstractMigration[] $versions */
+        $versions = array();
 
-                    if (isset($versions[$version])) {
-                        throw new \InvalidArgumentException(sprintf('Duplicate migration - "%s" has the same version as "%s"', $filePath, $versions[$version]->getVersion()));
-                    }
+        foreach ($phpFiles as $filePath) {
+            $version = Util::getVersionFromFileName(basename($filePath));
 
-                    // convert the filename to a class name
-                    $class = Util::mapFileNameToClassName(basename($filePath));
-
-                    if (isset($fileNames[$class])) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'Migration "%s" has the same name as "%s"',
-                            basename($filePath),
-                            $fileNames[$class]
-                        ));
-                    }
-
-                    $fileNames[$class] = basename($filePath);
-
-                    // load the migration file
-                    /** @noinspection PhpIncludeInspection */
-                    require_once $filePath;
-                    if (!class_exists($class)) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'Could not find class "%s" in file "%s"',
-                            $class,
-                            $filePath
-                        ));
-                    }
-
-                    // instantiate it
-                    $migration = new $class($version);
-
-                    if (!($migration instanceof AbstractMigration)) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'The class "%s" in file "%s" must extend \Phinx\Migration\AbstractMigration',
-                            $class,
-                            $filePath
-                        ));
-                    }
-
-                    $migration->setOutput($this->getOutput());
-                    $versions[$version] = $migration;
-                }
+            if (isset($versions[$version])) {
+                throw new \InvalidArgumentException(sprintf('Duplicate migration - "%s" has the same version as "%s"', $filePath, $versions[$version]->getVersion()));
             }
 
-            ksort($versions);
-            $this->setMigrations($versions);
+            // convert the filename to a class name
+            $class = Util::mapFileNameToClassName(basename($filePath));
+
+            if (isset($fileNames[$class])) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Migration "%s" has the same name as "%s"',
+                    basename($filePath),
+                    $fileNames[$class]
+                ));
+            }
+
+            $fileNames[$class] = basename($filePath);
+
+            // load the migration file
+            /** @noinspection PhpIncludeInspection */
+            require_once $filePath;
+            if (!class_exists($class)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Could not find class "%s" in file "%s"',
+                    $class,
+                    $filePath
+                ));
+            }
+
+            // instantiate it
+            $migration = new $class($version);
+
+            if (!($migration instanceof AbstractMigration)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'The class "%s" in file "%s" must extend \Phinx\Migration\AbstractMigration',
+                    $class,
+                    $filePath
+                ));
+            }
+
+            $migration->setOutput($this->getOutput());
+            $versions[$version] = $migration;
         }
+
+        ksort($versions);
+        $this->setMigrations($versions);
 
         return $this->migrations;
     }
