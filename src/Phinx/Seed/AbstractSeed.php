@@ -45,6 +45,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class AbstractSeed implements SeedInterface
 {
     /**
+     * @var integer
+     */
+    public $priority = 0;
+
+    /**
      * @var AdapterInterface
      */
     protected $adapter;
