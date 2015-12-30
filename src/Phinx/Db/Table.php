@@ -559,10 +559,11 @@ class Table
         $this->addColumn('created_at', 'timestamp', array(
                 'default' => 'CURRENT_TIMESTAMP',
                 'update' => ''
-            ))
+             ))
              ->addColumn('updated_at', 'timestamp', array(
                 'null'    => true,
-                'default' => null
+                'default' => null,
+                'update' => 'CURRENT_TIMESTAMP'
              ));
 
         return $this;
