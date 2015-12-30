@@ -759,6 +759,39 @@ You can limit the maximum length of a column by using the ``limit`` option.
             }
         }
 
+Changing Column Attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To change column type or options on an existing column, use the ``changeColumn()`` method.
+See `Valid Column Types`_ and `Valid Column Options`_ for allowed values.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $users = $this->table('users');
+                $users->changeColumn('email', 'string', array('limit' => 255))
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
 Working with Indexes
 ~~~~~~~~~~~~~~~~~~~~
 
