@@ -23,8 +23,7 @@
         "symfony/yaml": "~2.8|~3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~3.7",
-        "squizlabs/php_codesniffer": "dev-phpcs-fixer"
+        "phpunit/phpunit": "^3.7|^4.0|^5.0"
     },
     "autoload": {
         "psr-4": {

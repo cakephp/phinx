@@ -8,6 +8,22 @@ use Phinx\Db\Adapter\PostgresAdapter;
 class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * Check if Postgres is enabled in the current PHP
+     *
+     * @return boolean
+     */
+    private static function isPostgresAvailable()
+    {
+        static $available;
+
+        if (is_null($available)) {
+            $available = in_array('pgsql', \PDO::getAvailableDrivers());
+        }
+
+        return $available;
+    }
+
+    /**
      * @var \Phinx\Db\Adapter\PostgresqlAdapter
      */
     private $adapter;
@@ -16,6 +32,10 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     {
         if (!TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED) {
             $this->markTestSkipped('Postgres tests disabled.  See TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED constant.');
+        }
+
+        if (!self::isPostgresAvailable()) {
+            $this->markTestSkipped('Postgres is not available.  Please install php-pdo-pgsql or equivalent package.');
         }
 
         $options = array(
