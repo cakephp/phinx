@@ -933,6 +933,42 @@ Let's add a foreign key to an example table:
 
 "On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possibles values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.
 
+It is also possible to pass ``addForeignKey()`` an array of columns.
+This allows us to establish a foreign key relationship to a table which uses a combined key.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('follower_events');
+                $table->addColumn('user_id', 'integer')
+                      ->addColumn('follower_id', 'integer')
+                      ->addColumn('event_id', 'integer')
+                      ->addForeignKey(array('user_id', 'follower_id'),
+                                      'followers',
+                                      array('user_id', 'follower_id'),
+                                      array('delete'=> 'NO_ACTION', 'update'=> 'NO_ACTION'))
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
 We can also easily check if a foreign key exists:
 
 .. code-block:: php
