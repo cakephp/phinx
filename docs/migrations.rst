@@ -442,7 +442,7 @@ To simply change the name of the primary key, we need to override the default ``
             {
                 $table = $this->table('followers', array('id' => 'user_id'));
                 $table->addColumn('follower_id', 'integer')
-                      ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'))
+                      ->addColumn('created', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
                       ->save();
             }
 
