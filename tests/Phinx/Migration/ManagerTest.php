@@ -73,6 +73,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->will($this->returnValue(array('20120111235330', '20120116183504')));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
         $this->assertEquals(0, $return);
 
@@ -94,6 +95,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->manager->setConfig($config);
         $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
         $this->assertEquals(0, $return);
 
@@ -111,6 +113,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->will($this->returnValue(array('20120103083300', '20120815145812')));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
         $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
 
@@ -119,7 +122,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/up  20120103083300  \*\* MISSING \*\*/', $outputStr);
         $this->assertRegExp('/up  20120815145812  \*\* MISSING \*\*/', $outputStr);
     }
-    
+
     public function testPrintStatusMethodWithDownMigrations()
     {
         // stub environment

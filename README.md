@@ -113,6 +113,15 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.5.1** (Wednesday, 30th December 2015)
+
+* **PHP 5.3 is no longer supported!**
+* Add support for Symfony 3.0 components
+* Ensure that the `status` command returns the correct exit code
+* Allow `$version` to be passed into templates
+* Support for MySQL `YEAR` column type
+* Multiple documentation updates and corrections
+
 **0.5.0** (Monday, 30th November 2015)
 
 * Support for seeding data after database creation

@@ -17,14 +17,13 @@
         "role": "Developer"
     }],
     "require": {
-        "php": ">=5.3.2",
-        "symfony/console": "~2.7",
-        "symfony/config": "~2.7",
-        "symfony/yaml": "~2.7"
+        "php": ">=5.4",
+        "symfony/console": "~2.8|~3.0",
+        "symfony/config": "~2.8|~3.0",
+        "symfony/yaml": "~2.8|~3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "3.7.*",
-        "squizlabs/php_codesniffer": "dev-phpcs-fixer"
+        "phpunit/phpunit": "^3.7|^4.0|^5.0"
     },
     "autoload": {
         "psr-4": {
