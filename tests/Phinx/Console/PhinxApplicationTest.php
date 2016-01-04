@@ -24,10 +24,14 @@ class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp($result, stream_get_contents($stream));
     }
 
+    /**
+     * @link https://regex101.com/r/bU6vN7/1
+     * @return array
+     */
     public function provider()
     {
         return array(
-            array('help', '/help \[options\] \[--\] \[<command_name>\]/')
+            array('help', '/help (\[--(.*)\]){0,3} \[command_name\]/')
         );
     }
 }

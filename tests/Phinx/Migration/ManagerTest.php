@@ -8,6 +8,11 @@ use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Migration\Manager;
 use Phinx\Migration\Manager\Environment;
 
+/**
+ * Class ManagerTest
+ * @package Test\Phinx\Migration
+ * @group migration-manager
+ */
 class ManagerTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -195,11 +200,15 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $manager->getMigrations();
     }
 
+    /**
+     * Order of files changed as MigrationIterator introduced.
+     * @see \Phinx\Util\MigrationIterator
+     */
     public function testGetMigrationsWithDuplicateMigrationNames()
     {
         $this->setExpectedException(
             'InvalidArgumentException',
-            'Migration "20120111235331_duplicate_migration_name.php" has the same name as "20120111235330_duplicate_migration_name.php"'
+            'Migration "20120111235330_duplicate_migration_name.php" has the same name as "20120111235331_duplicate_migration_name.php"'
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicatenames'))));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
