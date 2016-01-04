@@ -132,6 +132,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->will($this->returnValue(array('20120111235330')));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
         $this->assertEquals(Manager::EXIT_STATUS_DOWN, $return);
 
