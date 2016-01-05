@@ -515,7 +515,7 @@ class Manager
     {
         if (null === $this->migrations) {
             $config = $this->getConfig();
-            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php');
+            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php', GLOB_BRACE);
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
