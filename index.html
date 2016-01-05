@@ -218,15 +218,15 @@ php composer.phar install --no-dev
 
           <p>Then Phinx can be executed using:</p>
 
-          <pre><code>php vendor/bin/phinx</code></pre>
+          <pre><code>vendor/bin/phinx</code></pre>
 
           <p>Now write your first migration:</p>
 
-<pre><code>$ php vendor/bin/phinx init .
+<pre><code>$ vendor/bin/phinx init .
 $ $EDITOR phinx.yml
 $ mkdir migrations
-$ php vendor/bin/phinx create MyFirstMigration
-$ php vendor/bin/phinx migrate -e development
+$ vendor/bin/phinx create MyFirstMigration
+$ vendor/bin/phinx migrate -e development
 </code></pre>
 
           <p>And that's it! Phinx will connect to your development database and execute your first migration.</p>
