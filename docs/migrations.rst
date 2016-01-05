@@ -1083,7 +1083,7 @@ update   set an action to be triggered when the row is updated (use with ``CURRE
 timezone enable or disable the ``with time zone`` option for ``time`` and ``timestamp`` columns *(only applies to Postgres)*
 ======== ===========
 
-For ``boolean``columns:
+For ``boolean`` columns:
 
 ======== ===========
 Option   Description
@@ -1104,7 +1104,7 @@ You can pass one or more of these options to any column with the optional
 third argument array.
 
 Limit Option and PostgreSQL
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When using the PostgreSQL adapter, additional hinting of database column type can be
 made for ``integer`` columns. Using ``limit`` with one the following options will
