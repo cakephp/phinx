@@ -49,8 +49,8 @@ This means that:
             )
           );
 
-Migration Path
---------------
+Migration Paths
+---------------
 
 The first option specifies the path to your migration directory. Phinx uses
 ``%%PHINX_CONFIG_DIR%%/db/migrations`` by default.
@@ -67,6 +67,15 @@ need to add the following to the yaml configuration.
 
     paths:
         migrations: /your/full/path
+
+You can also provide multiple migration paths by using an array in your configuration:
+
+.. code-block:: yaml
+
+    paths:
+        migrations:
+            - application/module1/migrations
+            - application/module2/migrations
 
 You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 

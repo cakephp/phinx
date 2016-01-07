@@ -74,7 +74,11 @@ EOT
         $this->loadConfig($input, $output);
         $this->loadManager($output);
 
-        $this->verifyMigrationDirectory($this->getConfig()->getMigrationPath());
+        $paths = $this->getConfig()->getMigrationPaths();
+
+        foreach ($paths as $path) {
+            $this->verifyMigrationDirectory($path);
+        }
 
         $envName = $input->getOption('environment');
         if ($envName) {

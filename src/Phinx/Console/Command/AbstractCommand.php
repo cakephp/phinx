@@ -93,8 +93,12 @@ abstract class AbstractCommand extends Command
         }
 
         $this->loadManager($output);
-        // report the paths
-        $output->writeln('<info>using migration path</info> ' . $this->getConfig()->getMigrationPath());
+
+        $output->writeln('<info>using migration paths</info> ');
+
+        foreach ($this->getConfig()->getMigrationPaths() as $path) {
+            $output->writeln('<info> - ' . $path . '</info>');
+        }
         try {
             $output->writeln('<info>using seed path</info> ' . $this->getConfig()->getSeedPath());
         } catch (\UnexpectedValueException $e) {
@@ -276,7 +280,8 @@ abstract class AbstractCommand extends Command
     /**
      * Verify that the migration directory exists and is writable.
      *
-     * @throws InvalidArgumentException
+     * @param string $path
+     * @throws \InvalidArgumentException
      * @return void
      */
     protected function verifyMigrationDirectory($path)
