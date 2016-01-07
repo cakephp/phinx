@@ -486,7 +486,7 @@ Column types are specified as strings and can be one of:
 In addition, the MySQL adapter supports ``enum``, ``set``, ``blob`` and ``json`` column types.
 (``json`` in MySQL 5.7 and above)
 
-In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb`` and ``uuid`` column types
+In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
 
 For valid options, see the `Valid Column Options`_ below.
@@ -624,7 +624,7 @@ Column types are specified as strings and can be one of:
 
 In addition, the MySQL adapter supports ``enum``, ``set`` and ``blob`` column types.
 
-In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb`` and ``uuid`` column types
+In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
 
 Valid Column Options
@@ -1091,7 +1091,7 @@ call this method for each index.
             {
                 $table = $this->table('users');
                 $table->removeIndex(array('email'));
-                
+
                 // alternatively, you can delete an index by its name, ie:
                 $table->removeIndexByName('idx_users_email');
             }
