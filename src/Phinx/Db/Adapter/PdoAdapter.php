@@ -181,6 +181,13 @@ abstract class PdoAdapter implements AdapterInterface
         // Create the schema table if it doesn't already exist
         if (!$this->hasSchemaTable()) {
             $this->createSchemaTable();
+        } else {
+            $table = new Table($this->getSchemaTableName(), array(), $this);
+            if (!$table->hasColumn('name')) {
+                $table
+                    ->addColumn('name', 'string', array('limit' => 100))
+                    ->save();
+            }
         }
 
         return $this;
