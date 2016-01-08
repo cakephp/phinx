@@ -243,7 +243,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
               ->save();
         $this->assertTrue($table->hasColumn('email'));
         
-        $table->addColumn('enumtest', 'enum', array('default' => 'unknown','values' => array('one', 'two', 'unknown')));
+        $table->addColumn('enumtest', 'enum', array('default' => 'unknown','values' => array('one', 'two', 'unknown')))
+              ->save();
         $this->assertTrue($table->hasColumn('enumtest'));
     }
 
@@ -896,4 +897,36 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $rows[0]['column2']);
         $this->assertEquals(2, $rows[1]['column2']);
     }
+    
+    /**
+     * Add definiton of new custom enum
+     */
+    public function testaddEnumType() {
+        $this->assertTrue($this->adapter->addEnumType('ENUM_MAYBE'));
+    }
+
+    /**
+     * Add definiton of new "custom set emulation"
+     * 
+    public function testaddSet() {
+        $this->adapter->addSet(array('set'=> array('set1','set2')));
+        $this->assertArrayHasKey($this->adapter->sets,'set');
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
+    */
+
+    /**
+     * Is given Enum known ?
+     * 
+     * @param string $typename
+     * @return boolean
+     */
+    public function testisKnownEnum() {
+        $this->adapter->addEnumType('ENUM_MAYBE');
+        $this->assertTrue($this->adapter->isKnownEnum('ENUM_MAYBE'));
+    }
+
+    
 }
