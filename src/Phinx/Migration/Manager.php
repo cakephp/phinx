@@ -132,7 +132,7 @@ class Manager
                     $output->writeln(
                         '     <error>up</error> '
                         . sprintf(' %14.0f ', $missing['version'])
-                        . ' <comment>'.str_pad($missing['migration_name'], $maxNameLength, ' ').'</comment> '
+                        . ' <comment>' . str_pad($missing['migration_name'], $maxNameLength, ' ') . '</comment> '
                         . ' <error>** MISSING **</error>'
                     );
                 }
