@@ -390,7 +390,7 @@ abstract class PdoAdapter implements AdapterInterface
                 $migration->getVersion(),
                 $startTime,
                 $endTime,
-                $migration->getName()
+                substr($migration->getName(), 0, 100)
             );
 
             $this->query($sql);
