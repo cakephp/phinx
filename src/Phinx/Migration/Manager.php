@@ -103,16 +103,20 @@ class Manager
             $output->writeln('-----------------------------------------');
 
             $env = $this->getEnvironment($environment);
-            $versions = $env->getVersions();
+            $versions = $env->getVersionLog();
+            $maxNameLength = max(array_map(function($version) {
+                return strlen($version['migration_name']);
+            }, $versions));
 
             foreach ($this->getMigrations() as $migration) {
-                if (in_array($migration->getVersion(), $versions)) {
+                if (array_key_exists($migration->getVersion(), $versions)) {
                     $status = '     <info>up</info> ';
-                    unset($versions[array_search($migration->getVersion(), $versions)]);
+                    unset($versions[$migration->getVersion()]);
                 } else {
                     $hasDownMigration = true;
                     $status = '   <error>down</error> ';
                 }
+                $maxNameLength = max($maxNameLength, strlen($migration->getName()));
 
                 $output->writeln(
                     $status
@@ -127,7 +131,8 @@ class Manager
                 foreach ($versions as $missing) {
                     $output->writeln(
                         '     <error>up</error> '
-                        . sprintf(' %14.0f ', $missing)
+                        . sprintf(' %14.0f ', $missing['version'])
+                        . ' <comment>'.str_pad($missing['migration_name'], $maxNameLength, ' ').'</comment> '
                         . ' <error>** MISSING **</error>'
                     );
                 }
