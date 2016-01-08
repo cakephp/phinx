@@ -242,6 +242,9 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('email', 'string')
               ->save();
         $this->assertTrue($table->hasColumn('email'));
+        
+        $table->addColumn('enumtest', 'enum', array('default' => 'unknown','values' => array('one', 'two', 'unknown')));
+        $this->assertTrue($table->hasColumn('enumtest'));
     }
 
     public function testAddColumnWithDefaultValue()
