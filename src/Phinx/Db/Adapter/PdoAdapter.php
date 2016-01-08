@@ -361,13 +361,23 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function getVersions()
     {
+        $rows = $this->getVersionLog();
+
+        return array_keys($rows);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getVersionLog()
+    {
+        $result = array();
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY version ASC', $this->getSchemaTableName()));
-        return array_map(
-            function ($v) {
-                return $v['version'];
-            },
-            $rows
-        );
+        foreach($rows as $version) {
+            $result[$version['version']] = $version;
+        }
+
+        return $result;
     }
 
     /**

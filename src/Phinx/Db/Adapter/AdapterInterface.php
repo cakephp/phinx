@@ -79,6 +79,13 @@ interface AdapterInterface
     public function getVersions();
 
     /**
+     * Get all migration log entries, indexed by version number.
+     *
+     * @return array
+     */
+    public function getVersionLog();
+
+    /**
      * Set adapter configuration options.
      *
      * @param  array $options
