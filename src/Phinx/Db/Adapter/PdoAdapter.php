@@ -379,8 +379,9 @@ abstract class PdoAdapter implements AdapterInterface
             // up
             $sql = sprintf(
                 'INSERT INTO %s ('
-                . 'version, start_time, end_time'
+                . 'version, start_time, end_time, migration_name'
                 . ') VALUES ('
+                . '\'%s\','
                 . '\'%s\','
                 . '\'%s\','
                 . '\'%s\''
@@ -388,7 +389,8 @@ abstract class PdoAdapter implements AdapterInterface
                 $this->getSchemaTableName(),
                 $migration->getVersion(),
                 $startTime,
-                $endTime
+                $endTime,
+                $migration->getName()
             );
 
             $this->query($sql);
