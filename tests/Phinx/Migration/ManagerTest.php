@@ -69,8 +69,11 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
-                ->method('getVersions')
-                ->will($this->returnValue(array('20120111235330', '20120116183504')));
+                ->method('getVersionLog')
+                ->will($this->returnValue([
+                    '20120111235330' => ['version' => '20120111235330', 'migration_name' => ''],
+                    '20120116183504' => ['version' => '20120815145812', 'migration_name' => '']
+                ]));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->getOutput()->setDecorated(false);
@@ -109,8 +112,11 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
-                ->method('getVersions')
-                ->will($this->returnValue(array('20120103083300', '20120815145812')));
+                ->method('getVersionLog')
+                ->will($this->returnValue([
+                     '20120103083300' => ['version' => '20120103083300', 'migration_name' => ''],
+                     '20120815145812' => ['version' => '20120815145812', 'migration_name' => 'Example']
+                 ]));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->getOutput()->setDecorated(false);
@@ -119,8 +125,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20120103083300  \*\* MISSING \*\*/', $outputStr);
-        $this->assertRegExp('/up  20120815145812  \*\* MISSING \*\*/', $outputStr);
+        $this->assertRegExp('/up  20120103083300  *\*\* MISSING \*\*/', $outputStr);
+        $this->assertRegExp('/up  20120815145812  Example *\*\* MISSING \*\*/', $outputStr);
     }
 
     public function testPrintStatusMethodWithDownMigrations()
@@ -128,8 +134,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
-                ->method('getVersions')
-                ->will($this->returnValue(array('20120111235330')));
+                ->method('getVersionLog')
+                ->will($this->returnValue([
+                    '20120111235330' => ['version' => '20120111235330', 'migration_name' => '']
+                ]));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->getOutput()->setDecorated(false);
