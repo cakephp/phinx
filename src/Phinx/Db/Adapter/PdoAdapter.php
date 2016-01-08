@@ -183,9 +183,9 @@ abstract class PdoAdapter implements AdapterInterface
             $this->createSchemaTable();
         } else {
             $table = new Table($this->getSchemaTableName(), array(), $this);
-            if (!$table->hasColumn('name')) {
+            if (!$table->hasColumn('migration_name')) {
                 $table
-                    ->addColumn('name', 'string', array('limit' => 100))
+                    ->addColumn('migration_name', 'string', array('limit' => 100))
                     ->save();
             }
         }
@@ -432,13 +432,13 @@ abstract class PdoAdapter implements AdapterInterface
                 $table->addColumn('version', 'biginteger', array('limit' => 14))
                       ->addColumn('start_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
                       ->addColumn('end_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
-                      ->addColumn('name', 'string', array('limit' => 100))
+                      ->addColumn('migration_name', 'string', array('limit' => 100))
                       ->save();
             } else {
                 $table->addColumn('version', 'biginteger')
                       ->addColumn('start_time', 'timestamp')
                       ->addColumn('end_time', 'timestamp')
-                      ->addColumn('name', 'string', array('limit' => 100))
+                      ->addColumn('migration_name', 'string', array('limit' => 100))
                       ->save();
             }
         } catch (\Exception $exception) {
