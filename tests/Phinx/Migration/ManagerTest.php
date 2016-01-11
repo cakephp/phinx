@@ -320,10 +320,11 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function rollbackDateDataProvider()
     {
         return array(
-            array(array('20120111235330', '20120116183504', '20120126183504'), '20130118', null, 'Failed to rollback 0 migrations when rollback to date is later than all migrations'),
-            array(array('20120111235330', '20120116183504'), '20120115', '20120111235330', 'Failed to rollback 1 migration when rollback date is between 2 migrations'),
-            array(array('20120111235330', '20120116183504', '20120126183504'), '20120116183504', '20120116183504', 'Failed to rollback 1 migration when rollback datetime is the one of the migrations'),
-            array(array('20120111235330', '20120116183504'), '20110115', 'Rolling back all migrations', 'Failed to rollback all the migrations when the rollback date is before all the migrations'),
+            array(array('20120111235330', '20120116183504'), '20130118', null, 'Failed to rollback 0 migrations when rollback to date is later than all migrations'),
+            array(array('20120111235330', '20120116183504'), '20120116183504', 'No migrations to rollback', 'Failed to rollback 0 migrations when rollback to date is the most recent migration'),
+            array(array('20120111235330', '20120116183504'), '20120115', '20120116183504', 'Failed to rollback 1 migration when rollback date is between 2 migrations'),
+            array(array('20120111235330', '20120116183504'), '20120111235330', '20120116183504', 'Failed to rollback 1 migration when rollback datetime is the one of the migrations'),
+            array(array('20120111235330', '20120116183504'), '20110115', '20120111235330', 'Failed to rollback all the migrations when the rollback date is before all the migrations'),
         );
     }
 

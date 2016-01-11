@@ -217,11 +217,12 @@ class Manager
         });
 
         if (count($availableMigrations) > 0) {
-            $migration = min($availableMigrations);
             if (is_null($earlierVersion)) {
                 $this->getOutput()->writeln('Rolling back all migrations');
+                $migration = 0;
             } else {
                 $this->getOutput()->writeln('Rolling back to version ' . $earlierVersion);
+                $migration = $earlierVersion;
             }
             $this->rollback($environment, $migration);
         }
