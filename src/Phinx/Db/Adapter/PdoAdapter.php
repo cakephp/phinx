@@ -408,8 +408,18 @@ abstract class PdoAdapter implements AdapterInterface
     public function getVersionLog()
     {
         $result = array();
-        $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY version ASC', $this->getSchemaTableName()));
-        foreach ($rows as $version) {
+
+        switch ($this->options['version_order']) {
+            case \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME:
+                $orderBy = 'version ASC';
+                break;
+            case \Phinx\Config\Config::VERSION_ORDER_START_TIME:
+                $orderBy = 'start_time ASC, version ASC';
+                break;
+        }
+
+        $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s', $this->getSchemaTableName(), $orderBy));
+        foreach($rows as $version) {
             $result[$version['version']] = $version;
         }
 

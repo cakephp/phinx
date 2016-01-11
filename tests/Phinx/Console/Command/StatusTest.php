@@ -31,6 +31,11 @@ class StatusTest extends \PHPUnit_Framework_TestCase
      */
     protected $output;
 
+    /**
+     * Default Test Environment
+     */
+    const DEFAULT_TEST_ENVIRONMENT = 'development';
+
     protected function setUp()
     {
         $this->config = new Config(array(
@@ -70,6 +75,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('printStatus')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null)
                     ->will($this->returnValue(0));
 
         $command->setConfig($this->config);
@@ -97,6 +103,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('printStatus')
+                    ->with('fakeenv', null)
                     ->will($this->returnValue(0));
 
         $command->setConfig($this->config);
@@ -123,6 +130,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('printStatus')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, 'json')
                     ->will($this->returnValue(0));
 
         $command->setConfig($this->config);

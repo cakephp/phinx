@@ -18,6 +18,8 @@ class ConfigTest extends AbstractConfigTest
     public function testConstructEmptyArguments()
     {
         $config = new Config(array());
+        // this option is set to its default value when not being passed in the constructor, so we can ignore it
+        unset($config['version_order']);
         $this->assertAttributeEmpty('values', $config);
         $this->assertAttributeEquals(null, 'configFilePath', $config);
         $this->assertNull($config->getConfigFilePath());
@@ -235,4 +237,79 @@ class ConfigTest extends AbstractConfigTest
         $config = new Config(array('migration_base_class' => 'BaseMigration'));
         $this->assertEquals('BaseMigration', $config->getMigrationBaseClassName(false));
     }
+
+    /**
+     * @covers \Phinx\Config\Config::getVersionOrder
+     */
+    public function testGetVersionOrder()
+    {
+        $config = new \Phinx\Config\Config(array());
+        $config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_START_TIME;
+        $this->assertEquals(\Phinx\Config\Config::VERSION_ORDER_START_TIME, $config->getVersionOrder());
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::setVersionOrder
+     */
+    public function testSetVersionOrder()
+    {
+        $config = new \Phinx\Config\Config(array());
+        $config->setVersionOrder(\Phinx\Config\Config::VERSION_ORDER_START_TIME);
+        $this->assertEquals(\Phinx\Config\Config::VERSION_ORDER_START_TIME, $config['version_order']);
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::setVersionOrder
+     */
+    public function testSetVersionOrderDefault()
+    {
+        $config = new \Phinx\Config\Config(array());
+        $config->setVersionOrder();
+        $this->assertEquals(\Phinx\Config\Config::VERSION_ORDER_CREATION_TIME, $config['version_order']);
+    }
+    
+    /**
+     * @covers \Phinx\Config\Config::setVersionOrder
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Invalid version_order configuration option: bad-order. Valid values: creation-time or start-time
+     */
+    public function testSetVersionOrderThrowsException()
+    {
+        $config = new \Phinx\Config\Config(array());
+        $config->setVersionOrder('bad-order');
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::isVersionOrderCreationTime
+     * @dataProvider isVersionOrderCreationTimeDataProvider
+     */
+    public function testIsVersionOrderCreationTime($versionOrder, $expected)
+    {
+        // get config stub
+        $configStub = $this->getMock('\Phinx\Config\Config', array('getVersionOrder'), array(array()));
+
+        $configStub->expects($this->once())
+            ->method('getVersionOrder')
+            ->will($this->returnValue($versionOrder));
+
+        $this->assertEquals($expected, $configStub->isVersionOrderCreationTime());
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::isVersionOrderCreationTime
+     */
+    public function isVersionOrderCreationTimeDataProvider()
+    {
+        return [
+            'With Creation Time Version Order' =>
+            [
+                \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME, true
+            ],
+            'With Start Time Version Order' =>
+            [
+                \Phinx\Config\Config::VERSION_ORDER_START_TIME, false
+            ],
+        ];
+    }
+
 }
