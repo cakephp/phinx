@@ -403,11 +403,11 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getVersionLog()
+    public function getVersionLog($orderCol = 'version', $orderDirection = 'ASC')
     {
         $result = array();
-        $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY version ASC', $this->getSchemaTableName()));
-        foreach ($rows as $version) {
+        $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s %s', $this->getSchemaTableName(), $orderCol, $orderDirection));
+        foreach($rows as $version) {
             $result[$version['version']] = $version;
         }
 

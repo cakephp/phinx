@@ -233,11 +233,13 @@ class Environment
     /**
      * Get all migration log entries, indexed by version number.
      *
+     * @param string $orderCol Column to order the versions by.
+     * @param string $orderDirection Order direction.
      * @return array
      */
-    public function getVersionLog()
+    public function getVersionLog($orderCol = 'version', $orderDirection = 'ASC')
     {
-        return $this->getAdapter()->getVersionLog();
+        return $this->getAdapter()->getVersionLog($orderCol, $orderDirection);
     }
 
     /**

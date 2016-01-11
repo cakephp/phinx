@@ -210,9 +210,9 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function getVersionLog()
+    public function getVersionLog($orderCol = 'version', $orderDirection = 'ASC')
     {
-        return $this->getAdapter()->getVersionLog();
+        return $this->getAdapter()->getVersionLog($orderCol, $orderDirection);
     }
 
     /**

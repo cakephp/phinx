@@ -83,9 +83,11 @@ interface AdapterInterface
     /**
      * Get all migration log entries, indexed by version number.
      *
+     * @param  string $orderCol
+     * @param  string $orderDirection
      * @return array
      */
-    public function getVersionLog();
+    public function getVersionLog($orderCol = 'version', $orderDirection = 'ASC');
 
     /**
      * Set adapter configuration options.
