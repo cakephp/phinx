@@ -39,6 +39,16 @@ use Symfony\Component\Yaml\Yaml;
 class Config implements ConfigInterface
 {
     /**
+     * The value that identifies a version order by creation time.
+     */
+    const VERSION_ORDER_CREATION_TIME = 'creation-time';
+
+    /**
+     * The value that identifies a version order by start time.
+     */
+    const VERSION_ORDER_START_TIME = 'start-time';
+
+    /**
      * @var array
      */
     private $values = array();
@@ -55,6 +65,8 @@ class Config implements ConfigInterface
     {
         $this->configFilePath = $configFilePath;
         $this->values = $this->replaceTokens($configArray);
+
+        $this->setVersionOrder();
     }
 
     /**
@@ -292,6 +304,58 @@ class Config implements ConfigInterface
 
         return $this->values['templates']['class'];
      }
+
+    /**
+     * Get the version order.
+     *
+     * @return string
+     */
+    public function getVersionOrder()
+    {
+        return $this->values['version_order'];
+    }
+
+    /**
+     * Set the version order.
+     * @param string $versionOrder The Version Order to set.
+     */
+    public function setVersionOrder($versionOrder = null)
+    {
+        if (!isset($versionOrder)) {
+            $versionOrder = isset ( $this->values['version_order'] ) ? $this->values['version_order'] : null;
+        }
+
+        if (!isset($versionOrder)) {
+            // if the configuration value is missing we use the default version order (creation time)
+            $this->values['version_order'] = self::VERSION_ORDER_CREATION_TIME;
+            return;
+        }
+
+        $validVersionOrders = array(self::VERSION_ORDER_CREATION_TIME, self::VERSION_ORDER_START_TIME);
+
+        if (!in_array($versionOrder, $validVersionOrders)) {
+            throw new \RuntimeException(sprintf(
+                'Invalid version_order configuration option: %s. Valid values: %s',
+                $versionOrder, implode (' or ', $validVersionOrders)
+            ));
+        }
+
+        $this->values['version_order'] = $versionOrder;
+    }
+    
+    /**
+     * Is version order creation time?
+     *
+     * @return boolean
+     */
+    public function isVersionOrderCreationTime()
+    {
+        $versionOrder = $this->getVersionOrder();
+
+        return $versionOrder == self::VERSION_ORDER_CREATION_TIME;
+    }
+
+    
 
     /**
      * Replace tokens in the specified array.
