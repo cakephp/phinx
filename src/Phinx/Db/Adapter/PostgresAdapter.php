@@ -1025,6 +1025,11 @@ $$ language sql;
 
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
 
+        $properties = $column->getProperties();
+        if(isset($properties['references'])){
+            $buffer[] = ' REFERENCES '.$properties['references'];
+        }
+        
         if (!is_null($column->getDefault())) {
             $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
         }
