@@ -67,6 +67,10 @@ The <info>version_order</info> configuration option is used to determine the ord
 This can be used to allow the rolling back of the last executed migration instead of the last created one, or combined 
 with the <info>-d|--date</info> option to rollback to a certain date using the migration start times to order them.
 
+The <info>--dry-run</info> option will output the SQL code of the migration(s) which would be rollbacked:
+
+<info>phinx rollback -e development --dry-run</info>
+
 EOT
              );
     }

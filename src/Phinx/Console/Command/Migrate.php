@@ -57,6 +57,10 @@ The <info>migrate</info> command runs all available migrations, optionally up to
 <info>phinx migrate -e development -d 20110103</info>
 <info>phinx migrate -e development -v</info>
 
+The <info>--dry-run</info> option will output the SQL code of the migration(s) which would be executed:
+
+<info>phinx migrate -e development --dry-run</info>
+
 EOT
              );
     }
