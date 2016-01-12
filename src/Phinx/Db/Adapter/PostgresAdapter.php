@@ -860,6 +860,9 @@ $$ language sql;
                 if($type == 'double'){
                     return array('name' => 'DOUBLE PRECISION');
                 }
+                if($type == 'tsrange'){
+                    return array('name' => 'tsrange');
+                }
                 // Return array type
                 throw new \RuntimeException('The type: "' . $type . '" is not supported');
         }
@@ -1245,7 +1248,7 @@ $$ language sql;
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('json', 'jsonb','enum','set','double'));
+        return array_merge(parent::getColumnTypes(), array('json', 'jsonb','enum','set','double','tsrange'));
     }
 
     /**
