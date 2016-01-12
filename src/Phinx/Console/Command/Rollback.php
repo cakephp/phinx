@@ -49,7 +49,7 @@ class Rollback extends AbstractCommand
              ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to rollback to')
              ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to rollback to')
              ->addOption('--force', '-f', InputOption::VALUE_NONE, 'Force rollback to ignore breakpoints')
-             ->addOption('--dry-run', '-r', InputOption::VALUE_NONE, 'Output SQL rather than executing it')
+             ->addOption('--dry-run', null, InputOption::VALUE_NONE, 'Output SQL rather than executing it')
              ->setHelp(
 <<<EOT
 The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
