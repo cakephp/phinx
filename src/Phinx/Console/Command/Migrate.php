@@ -47,6 +47,7 @@ class Migrate extends AbstractCommand
              ->setDescription('Migrate the database')
              ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
              ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to migrate to')
+             ->addOption('--dry-run', '-r', InputOption::VALUE_NONE, 'Output SQL rather than executing it')
              ->setHelp(
 <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
@@ -74,6 +75,7 @@ EOT
         $version     = $input->getOption('target');
         $environment = $input->getOption('environment');
         $date        = $input->getOption('date');
+        $dryRun      = $input->getOption('dry-run');
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -104,13 +106,17 @@ EOT
         if (isset($envOptions['table_suffix'])) {
             $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
         }
+        
+        if ($dryRun) {
+            $output->writeln('<info>Doing dry run</info>');
+        }
 
         // run the migrations
         $start = microtime(true);
         if (null !== $date) {
-            $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
+            $this->getManager()->migrateToDateTime($environment, new \DateTime($date), $dryRun);
         } else {
-            $this->getManager()->migrate($environment, $version);
+            $this->getManager()->migrate($environment, $version, $dryRun);
         }
         $end = microtime(true);
 
