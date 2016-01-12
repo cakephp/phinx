@@ -212,4 +212,11 @@ interface MigrationInterface
      * @return Table
      */
     public function table($tableName, $options);
+    
+    /**
+     * Returns whether the Migration Adapter is in Dry Run mode
+     *
+     * @return boolean
+     */
+    public function isDryRun();
 }

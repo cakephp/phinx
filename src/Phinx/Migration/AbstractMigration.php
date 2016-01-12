@@ -270,4 +270,12 @@ abstract class AbstractMigration implements MigrationInterface
     {
         $this->table($tableName)->drop();
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isDryRun()
+    {
+        return $this->getAdapter()->isDryRun();
+    }
 }
