@@ -112,6 +112,16 @@ EOT
         if (isset($envOptions['name'])) {
             $output->writeln('<info>using database</info> ' . $envOptions['name']);
         }
+        
+        if (isset($config['rollback_order'])) {
+            if ('start-time' === $config['rollback_order']) {
+                $startTime = true;
+            }
+            else if ('creation' !== $config['rollback_order']) {
+                $output->writeln('<error>Invalid rollback_order environment option: ' 
+                    . $config['rollback_order'] . '. Valid values: creation or start-time</error>');
+            }
+        }
 
         if ($startTime) {
             $output->writeln('<info>ordering by </info>start time');
