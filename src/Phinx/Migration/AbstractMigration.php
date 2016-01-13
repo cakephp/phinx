@@ -62,11 +62,14 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * Class Constructor.
      *
-     * @param int $version Migration Version
+     * @param int                  $version Migration Version
+     * @param OutputInterface|null $output
      */
-    final public function __construct($version)
+    final public function __construct($version, OutputInterface $output = null)
     {
         $this->version = $version;
+        $this->output = $output;
+
         $this->init();
     }
 

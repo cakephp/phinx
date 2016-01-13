@@ -49,6 +49,19 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $migrationStub->getOutput());
     }
 
+    public function testGetOutputMethodWithInjectedOutput()
+    {
+        // stub output
+        $outputStub = $this->getMock('\Symfony\Component\Console\Output\OutputInterface', array(), array(array()));
+
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0, $outputStub));
+
+        // test methods
+        $this->assertNotNull($migrationStub->getOutput());
+        $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $migrationStub->getOutput());
+    }
+
     public function testGetName()
     {
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
