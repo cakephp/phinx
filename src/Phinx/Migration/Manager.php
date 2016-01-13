@@ -556,7 +556,7 @@ class Manager
                     }
 
                     // instantiate it
-                    $migration = new $class($version);
+                    $migration = new $class($version, $this->getOutput());
 
                     if (!($migration instanceof AbstractMigration)) {
                         throw new \InvalidArgumentException(sprintf(
@@ -566,7 +566,6 @@ class Manager
                         ));
                     }
 
-                    $migration->setOutput($this->getOutput());
                     $versions[$version] = $migration;
                 }
             }
