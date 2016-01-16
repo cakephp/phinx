@@ -54,8 +54,8 @@ class SeedCreateTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), 'name' => 'MyDuplicateSeeder'));
-        $commandTester->execute(array('command' => $command->getName(), 'name' => 'MyDuplicateSeeder'));
+        $commandTester->execute(array('command' => $command->getName(), 'name' => 'MyDuplicateSeeder'), array('decorated' => false));
+        $commandTester->execute(array('command' => $command->getName(), 'name' => 'MyDuplicateSeeder'), array('decorated' => false));
     }
 
     /**
@@ -79,6 +79,6 @@ class SeedCreateTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), 'name' => 'badseedname'));
+        $commandTester->execute(array('command' => $command->getName(), 'name' => 'badseedname'), array('decorated' => false));
     }
 }

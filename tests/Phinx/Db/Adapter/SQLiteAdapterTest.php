@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\Adapter\QueryBindInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\SQLiteAdapter;
 
@@ -565,23 +566,22 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->getPhinxType('?int?');
     }
 
-
     public function testAddIndexTwoTablesSameIndex()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('email', 'string')
-              ->save();
+            ->save();
         $table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
         $table2->addColumn('email', 'string')
-               ->save();
+            ->save();
 
         $this->assertFalse($table->hasIndex('email'));
         $this->assertFalse($table2->hasIndex('email'));
 
         $table->addIndex('email')
-              ->save();
+            ->save();
         $table2->addIndex('email')
-               ->save();
+            ->save();
 
         $this->assertTrue($table->hasIndex('email'));
         $this->assertTrue($table2->hasIndex('email'));
@@ -627,10 +627,10 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         // construct table with default/null combinations
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn("aa", "string", array("null" => true)) // no default value
-              ->addColumn("bb", "string", array("null" => false)) // no default value
-              ->addColumn("cc", "string", array("null" => true, "default" => "some1"))
-              ->addColumn("dd", "string", array("null" => false, "default" => "some2"))
-              ->save();
+        ->addColumn("bb", "string", array("null" => false)) // no default value
+        ->addColumn("cc", "string", array("null" => true, "default" => "some1"))
+            ->addColumn("dd", "string", array("null" => false, "default" => "some2"))
+            ->save();
 
         // load table info
         $columns = $this->adapter->getColumns("table1");
@@ -657,5 +657,128 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("dd", $dd->getName());
         $this->assertEquals(false, $dd->isNull());
         $this->assertEquals("some2", $dd->getDefault());
+    }
+
+    /**
+     * @depends testCreateTable
+     * @dataProvider positionalQueryParams
+     */
+    public function testSqlPositionalParams($params)
+    {
+        $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
+        $table->addColumn('realname', 'string')
+            ->addColumn('email', 'string')
+            ->addColumn('yob', 'integer')
+            ->save();
+
+        $this->assertEquals(true, $this->adapter->execute('DELETE FROM ntable WHERE 1=1'));
+        $this->assertEquals(1, $this->adapter->execute('INSERT INTO ntable (realname, email, yob) VALUES (?, ?, ?)', $params));
+        $pdoStmt = $this->adapter->query('SELECT * FROM ntable WHERE realname = ? AND email = ? AND yob = ?', $params);
+        $this->assertInstanceOf('PDOStatement', $pdoStmt);
+        $this->assertCount(1, $pdoStmt->fetchAll());
+    }
+
+    /**
+     * @depends testCreateTable
+     * @dataProvider namedQueryParams
+     */
+    public function testSqlNamedParams($params)
+    {
+        $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
+        $table->addColumn('realname', 'string')
+            ->addColumn('email', 'string')
+            ->addColumn('yob', 'integer')
+            ->save();
+
+        $this->assertEquals(true, $this->adapter->execute('DELETE FROM ntable WHERE 1=1'));
+        $this->assertEquals(1, $this->adapter->execute('INSERT INTO ntable (realname, email, yob) VALUES (:val1, :val2, :val3)', $params));
+        $pdoStmt = $this->adapter->query('SELECT * FROM ntable WHERE realname = :val1 AND email = :val2 AND yob = :val3', $params);
+        $this->assertInstanceOf('PDOStatement', $pdoStmt);
+        $this->assertCount(1, $pdoStmt->fetchAll());
+    }
+
+    /**
+     * Provides a positional input parameters in a variety of formats for parameterised queries.
+     * @return array
+     */
+    public function positionalQueryParams()
+    {
+        /** @var \Phinx\Db\Adapter\QueryBind|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind1 */
+        $mockQueryBind1 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind1->expects($this->any())->method('getValue')->will($this->returnValue('Joey Jo-jo'));
+        $mockQueryBind1->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_STR));
+
+        /** @var \Phinx\Db\Adapter\QueryBind|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind2 */
+        $mockQueryBind2 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind2->expects($this->any())->method('getValue')->will($this->returnValue('email@example.com'));
+        $mockQueryBind2->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_STR));
+
+        /** @var \Phinx\Db\Adapter\QueryBind|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind3 */
+        $mockQueryBind3 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind3->expects($this->any())->method('getValue')->will($this->returnValue(1980));
+        $mockQueryBind3->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_INT));
+
+        return array(
+            array(
+                array(
+                    'Joey Jo-jo',
+                    'email@example.com',
+                    1980
+                )
+            ),
+            array(
+                array(
+                    4 => 'Joey Jo-jo',
+                    1 => 'email@example.com',
+                    0 => 1980
+                )
+            ),
+            array(
+                array(
+                    $mockQueryBind1,
+                    $mockQueryBind2,
+                    $mockQueryBind3,
+                )
+            )
+        );
+    }
+
+    /**
+     * Provides a named input parameters in a variety of formats for parameterised queries.
+     * @return array
+     */
+    public function namedQueryParams()
+    {
+        /** @var \Phinx\Db\Adapter\QueryBindInterface|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind1 */
+        $mockQueryBind1 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind1->expects($this->any())->method('getValue')->will($this->returnValue('Joey Jo-jo'));
+        $mockQueryBind1->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_STR));
+
+        /** @var \Phinx\Db\Adapter\QueryBindInterface|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind2 */
+        $mockQueryBind2 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind2->expects($this->any())->method('getValue')->will($this->returnValue('email@example.com'));
+        $mockQueryBind2->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_STR));
+
+        /** @var \Phinx\Db\Adapter\QueryBindInterface|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind3 */
+        $mockQueryBind3 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind3->expects($this->any())->method('getValue')->will($this->returnValue(1980));
+        $mockQueryBind3->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_INT));
+
+        return array(
+            array(
+                array(
+                    ':val1' => 'Joey Jo-jo',
+                    ':val2' => 'email@example.com',
+                    ':val3' => 1980,
+                )
+            ),
+            array(
+                array(
+                    ':val1' => $mockQueryBind1,
+                    ':val2' => $mockQueryBind2,
+                    ':val3' => $mockQueryBind3,
+                )
+            )
+        );
     }
 }

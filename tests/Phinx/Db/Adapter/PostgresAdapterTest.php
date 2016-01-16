@@ -2,11 +2,28 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\Adapter\QueryBindInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\PostgresAdapter;
 
 class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * Check if Postgres is enabled in the current PHP
+     *
+     * @return boolean
+     */
+    private static function isPostgresAvailable()
+    {
+        static $available;
+
+        if (is_null($available)) {
+            $available = in_array('pgsql', \PDO::getAvailableDrivers());
+        }
+
+        return $available;
+    }
+
     /**
      * @var \Phinx\Db\Adapter\PostgresqlAdapter
      */
@@ -16,6 +33,10 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     {
         if (!TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED) {
             $this->markTestSkipped('Postgres tests disabled.  See TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED constant.');
+        }
+
+        if (!self::isPostgresAvailable()) {
+            $this->markTestSkipped('Postgres is not available.  Please install php-pdo-pgsql or equivalent package.');
         }
 
         $options = array(
@@ -848,6 +869,129 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
                 $this->assertTrue($column->isTimezone(), 'column: ' . $column->getName());
             }
         }
+    }
+
+    /**
+     * @depends testCreateTable
+     * @dataProvider positionalQueryParams
+     */
+    public function testSqlPositionalParams($params)
+    {
+        $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
+        $table->addColumn('realname', 'string')
+            ->addColumn('email', 'string')
+            ->addColumn('yob', 'integer')
+            ->save();
+
+        $this->assertEquals(true, $this->adapter->execute('DELETE FROM ntable WHERE 1=1'));
+        $this->assertEquals(1, $this->adapter->execute('INSERT INTO ntable (realname, email, yob) VALUES (?, ?, ?)', $params));
+        $pdoStmt = $this->adapter->query('SELECT * FROM ntable WHERE realname = ? AND email = ? AND yob = ?', $params);
+        $this->assertInstanceOf('PDOStatement', $pdoStmt);
+        $this->assertCount(1, $pdoStmt->fetchAll());
+    }
+
+    /**
+     * @depends testCreateTable
+     * @dataProvider namedQueryParams
+     */
+    public function testSqlNamedParams($params)
+    {
+        $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
+        $table->addColumn('realname', 'string')
+            ->addColumn('email', 'string')
+            ->addColumn('yob', 'integer')
+            ->save();
+
+        $this->assertEquals(true, $this->adapter->execute('DELETE FROM ntable WHERE 1=1'));
+        $this->assertEquals(1, $this->adapter->execute('INSERT INTO ntable (realname, email, yob) VALUES (:val1, :val2, :val3)', $params));
+        $pdoStmt = $this->adapter->query('SELECT * FROM ntable WHERE realname = :val1 AND email = :val2 AND yob = :val3', $params);
+        $this->assertInstanceOf('PDOStatement', $pdoStmt);
+        $this->assertCount(1, $pdoStmt->fetchAll());
+    }
+
+    /**
+     * Provides a positional input parameters in a variety of formats for parameterised queries.
+     * @return array
+     */
+    public function positionalQueryParams()
+    {
+        /** @var \Phinx\Db\Adapter\QueryBind|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind1 */
+        $mockQueryBind1 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind1->expects($this->any())->method('getValue')->will($this->returnValue('Joey Jo-jo'));
+        $mockQueryBind1->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_STR));
+
+        /** @var \Phinx\Db\Adapter\QueryBind|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind2 */
+        $mockQueryBind2 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind2->expects($this->any())->method('getValue')->will($this->returnValue('email@example.com'));
+        $mockQueryBind2->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_STR));
+
+        /** @var \Phinx\Db\Adapter\QueryBind|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind3 */
+        $mockQueryBind3 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind3->expects($this->any())->method('getValue')->will($this->returnValue(1980));
+        $mockQueryBind3->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_INT));
+
+        return array(
+            array(
+                array(
+                    'Joey Jo-jo',
+                    'email@example.com',
+                    1980
+                )
+            ),
+            array(
+                array(
+                    4 => 'Joey Jo-jo',
+                    1 => 'email@example.com',
+                    0 => 1980
+                )
+            ),
+            array(
+                array(
+                    $mockQueryBind1,
+                    $mockQueryBind2,
+                    $mockQueryBind3,
+                )
+            )
+        );
+    }
+
+    /**
+     * Provides a named input parameters in a variety of formats for parameterised queries.
+     * @return array
+     */
+    public function namedQueryParams()
+    {
+        /** @var \Phinx\Db\Adapter\QueryBindInterface|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind1 */
+        $mockQueryBind1 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind1->expects($this->any())->method('getValue')->will($this->returnValue('Joey Jo-jo'));
+        $mockQueryBind1->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_STR));
+
+        /** @var \Phinx\Db\Adapter\QueryBindInterface|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind2 */
+        $mockQueryBind2 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind2->expects($this->any())->method('getValue')->will($this->returnValue('email@example.com'));
+        $mockQueryBind2->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_STR));
+
+        /** @var \Phinx\Db\Adapter\QueryBindInterface|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject $mockQueryBind3 */
+        $mockQueryBind3 = $this->getMock('Phinx\Db\Adapter\QueryBindInterface');
+        $mockQueryBind3->expects($this->any())->method('getValue')->will($this->returnValue(1980));
+        $mockQueryBind3->expects($this->any())->method('getBindType')->will($this->returnValue(QueryBindInterface::TYPE_INT));
+
+        return array(
+            array(
+                array(
+                    ':val1' => 'Joey Jo-jo',
+                    ':val2' => 'email@example.com',
+                    ':val3' => 1980,
+                )
+            ),
+            array(
+                array(
+                    ':val1' => $mockQueryBind1,
+                    ':val2' => $mockQueryBind2,
+                    ':val3' => $mockQueryBind3,
+                )
+            )
+        );
     }
 
     public function testInsertData()

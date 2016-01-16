@@ -78,6 +78,25 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $migrationStub->execute('SELECT FOO FROM BAR'));
     }
 
+    public function testExecuteParams()
+    {
+        $query = 'SELECT foo FROM bar WHERE foo = ? OR foo = ?';
+        $params = array (1,2);
+
+        /** @var $migrationStub \Phinx\Migration\AbstractMigration|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject */
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
+
+        /** @var $adapterStub \Phinx\Db\Adapter\PdoAdapter|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject */
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())
+            ->method('execute')
+            ->with($this->equalTo($query), $this->equalTo($params))
+            ->will($this->returnValue(2));
+
+        $migrationStub->setAdapter($adapterStub);
+        $this->assertEquals(2, $migrationStub->execute($query, $params));
+    }
+
     public function testQuery()
     {
         // stub migration
@@ -91,6 +110,26 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
 
         $migrationStub->setAdapter($adapterStub);
         $this->assertEquals(array(array('0' => 'bar', 'foo' => 'bar')), $migrationStub->query('SELECT FOO FROM BAR'));
+    }
+
+    public function testQueryParams()
+    {
+        $returnValue = array(array('0' => 'bar', 'foo' => 'bar'));
+        $query = 'SELECT foo FROM bar WHERE foo = ? OR foo = ?';
+        $params = array (1,2);
+
+        /** @var $migrationStub \Phinx\Migration\AbstractMigration|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject */
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
+
+        /** @var $adapterStub \Phinx\Db\Adapter\PdoAdapter|\PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject */
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())
+            ->method('query')
+            ->with($this->equalTo($query), $this->equalTo($params))
+            ->will($this->returnValue($returnValue));
+
+        $migrationStub->setAdapter($adapterStub);
+        $this->assertEquals($returnValue, $migrationStub->query($query, $params));
     }
 
     public function testFetchRow()

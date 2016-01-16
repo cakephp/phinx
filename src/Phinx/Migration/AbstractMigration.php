@@ -155,17 +155,17 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
-    public function execute($sql)
+    public function execute($sql, array $bindValues = null)
     {
-        return $this->getAdapter()->execute($sql);
+        return $this->getAdapter()->execute($sql, $bindValues);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function query($sql)
+    public function query($sql, array $bindValues = null)
     {
-        return $this->getAdapter()->query($sql);
+        return $this->getAdapter()->query($sql, $bindValues);
     }
 
     /**

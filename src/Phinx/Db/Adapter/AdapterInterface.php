@@ -67,7 +67,7 @@ interface AdapterInterface
     const PHINX_TYPE_LINESTRING     = 'linestring';
     const PHINX_TYPE_POLYGON        = 'polygon';
 
-	// only for mysql so far
+    // only for mysql so far
     const PHINX_TYPE_ENUM           = 'enum';
     const PHINX_TYPE_SET            = 'set';
 
@@ -204,17 +204,19 @@ interface AdapterInterface
      * Executes a SQL statement and returns the number of affected rows.
      *
      * @param string $sql SQL
+     * @param array|QueryBindInterface[] $bindValues Values to be bound the the query
      * @return int
      */
-    public function execute($sql);
+    public function execute($sql, array $bindValues = null);
 
     /**
      * Executes a SQL statement and returns the result as an array.
      *
      * @param string $sql SQL
+     * @param array|QueryBindInterface[] $bindValues Values to be bound the the query
      * @return array
      */
-    public function query($sql);
+    public function query($sql, array $bindValues = null);
 
     /**
      * Executes a query and returns only one row as an array.
@@ -467,4 +469,12 @@ interface AdapterInterface
      * @return void
      */
     public function dropDatabase($name);
+
+    /**
+     * Gets the adapter-specific bind param type from the QueryBind::TYPE_* type.
+     *
+     * @param $phinxBindParamType
+     * @return int The \PDO equivalent of the Phinx param type.
+     */
+    public function getAdapterBindParamType($phinxBindParamType);
 }

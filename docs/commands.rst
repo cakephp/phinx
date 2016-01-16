@@ -110,6 +110,11 @@ status. You can use this command to determine which migrations have been run.
 
         $ phinx status -e development
 
+This command exits with code 0 if the database is up-to-date (ie. all migrations are up) or one of the following codes otherwise:
+
+* 1: There is at least one down migration.
+* 2: There is at least one missing migration.
+
 The Seed Create Command
 -----------------------
 

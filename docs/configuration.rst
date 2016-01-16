@@ -150,7 +150,7 @@ file:
 
 
 Table Prefix and Suffix
-------------------
+-----------------------
 
 You can define a table prefix and table suffix:
 
