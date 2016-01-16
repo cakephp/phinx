@@ -160,9 +160,9 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function insert(Table $table, $columns, $data)
+    public function insert(Table $table, $row)
     {
-        return $this->getAdapter()->insert($table, $columns, $data);
+        return $this->getAdapter()->insert($table, $row);
     }
 
     /**
@@ -364,6 +364,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function hasIndex($tableName, $columns)
     {
         return $this->getAdapter()->hasIndex($tableName, $columns);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasIndexByName($tableName, $indexName)
+    {
+        return $this->getAdapter()->hasIndexByName($tableName, $indexName);
     }
 
     /**

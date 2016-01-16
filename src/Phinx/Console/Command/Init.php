@@ -70,9 +70,9 @@ class Init extends Command
 
         $path = realpath($path);
 
-        if (!is_writeable($path)) {
+        if (!is_writable($path)) {
             throw new \InvalidArgumentException(sprintf(
-                'The directory "%s" is not writeable',
+                'The directory "%s" is not writable',
                 $path
             ));
         }

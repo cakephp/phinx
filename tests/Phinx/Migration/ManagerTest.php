@@ -42,6 +42,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         return array(
             'paths' => array(
                 'migrations' => $this->getCorrectedPath(__DIR__ . '/_files/migrations'),
+                'seeds' => $this->getCorrectedPath(__DIR__ . '/_files/seeds'),
             ),
             'environments' => array(
                 'default_migration_table' => 'phinxlog',
@@ -72,7 +73,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->will($this->returnValue(array('20120111235330', '20120116183504')));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
-        $this->manager->printStatus('mockenv');
+        $this->manager->getOutput()->setDecorated(false);
+        $return = $this->manager->printStatus('mockenv');
+        $this->assertEquals(0, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -92,7 +95,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->manager->setConfig($config);
         $this->manager->setEnvironments(array('mockenv' => $envStub));
-        $this->manager->printStatus('mockenv');
+        $this->manager->getOutput()->setDecorated(false);
+        $return = $this->manager->printStatus('mockenv');
+        $this->assertEquals(0, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -108,12 +113,33 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->will($this->returnValue(array('20120103083300', '20120815145812')));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
-        $this->manager->printStatus('mockenv');
+        $this->manager->getOutput()->setDecorated(false);
+        $return = $this->manager->printStatus('mockenv');
+        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
         $this->assertRegExp('/up  20120103083300  \*\* MISSING \*\*/', $outputStr);
         $this->assertRegExp('/up  20120815145812  \*\* MISSING \*\*/', $outputStr);
+    }
+
+    public function testPrintStatusMethodWithDownMigrations()
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->once())
+                ->method('getVersions')
+                ->will($this->returnValue(array('20120111235330')));
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->getOutput()->setDecorated(false);
+        $return = $this->manager->printStatus('mockenv');
+        $this->assertEquals(Manager::EXIT_STATUS_DOWN, $return);
+
+        rewind($this->manager->getOutput()->getStream());
+        $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
+        $this->assertRegExp('/up  20120111235330  TestMigration/', $outputStr);
+        $this->assertRegExp('/down  20120116183504  TestMigration2/', $outputStr);
     }
 
     public function testGetMigrationsWithDuplicateMigrationVersions()
@@ -195,8 +221,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that migrating by date chooses the correct
-     * migration to point to.
+     * Test that migrating by date chooses the correct migration to point to.
      *
      * @dataProvider rollbackDateDataProvider
      */
@@ -247,13 +272,57 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testExecuteSeedWorksAsExpected()
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->seed('mockenv');
+        rewind($this->manager->getOutput()->getStream());
+        $output = stream_get_contents($this->manager->getOutput()->getStream());
+        $this->assertContains('GSeeder', $output);
+        $this->assertContains('PostSeeder', $output);
+        $this->assertContains('UserSeeder', $output);
+    }
+
+    public function testExecuteASingleSeedWorksAsExpected()
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->seed('mockenv', 'UserSeeder');
+        rewind($this->manager->getOutput()->getStream());
+        $output = stream_get_contents($this->manager->getOutput()->getStream());
+        $this->assertContains('UserSeeder', $output);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage The seed class "NonExistentSeeder" does not exist
+     */
+    public function testExecuteANonExistentSeedWorksAsExpected()
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->seed('mockenv', 'NonExistentSeeder');
+        rewind($this->manager->getOutput()->getStream());
+        $output = stream_get_contents($this->manager->getOutput()->getStream());
+        $this->assertContains('UserSeeder', $output);
+    }
+
     public function testGettingOutputObject()
     {
         $migrations = $this->manager->getMigrations();
+        $seeds = $this->manager->getSeeds();
         $outputObject = $this->manager->getOutput();
         $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $outputObject);
+
         foreach ($migrations as $migration) {
             $this->assertEquals($outputObject, $migration->getOutput());
+        }
+        foreach ($seeds as $seed) {
+            $this->assertEquals($outputObject, $seed->getOutput());
         }
     }
 

@@ -31,6 +31,9 @@ namespace Phinx\Migration;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Config\ConfigInterface;
 use Phinx\Migration\Manager\Environment;
+use Phinx\Seed\AbstractSeed;
+use Phinx\Seed\SeedInterface;
+use Phinx\Util\Util;
 
 class Manager
 {
@@ -55,6 +58,21 @@ class Manager
     protected $migrations;
 
     /**
+     * @var array
+     */
+    protected $seeds;
+
+    /**
+     * @var integer
+     */
+    const EXIT_STATUS_DOWN = 1;
+    
+    /**
+     * @var integer
+     */
+    const EXIT_STATUS_MISSING = 2;
+    
+    /**
      * Class Constructor.
      *
      * @param ConfigInterface $config Configuration Object
@@ -71,12 +89,14 @@ class Manager
      *
      * @param string $environment
      * @param null $format
-     * @return void
+     * @return integer 0 if all migrations are up, or an error code
      */
     public function printStatus($environment, $format = null)
     {
         $output = $this->getOutput();
         $migrations = array();
+        $hasDownMigration = false;
+        $hasMissingMigration = false;
         if (count($this->getMigrations())) {
             $output->writeln('');
             $output->writeln(' Status  Migration ID    Migration Name ');
@@ -90,6 +110,7 @@ class Manager
                     $status = '     <info>up</info> ';
                     unset($versions[array_search($migration->getVersion(), $versions)]);
                 } else {
+                    $hasDownMigration = true;
                     $status = '   <error>down</error> ';
                 }
 
@@ -101,12 +122,15 @@ class Manager
                 $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
             }
 
-            foreach ($versions as $missing) {
-                $output->writeln(
-                    '     <error>up</error> '
-                    . sprintf(' %14.0f ', $missing)
-                    . ' <error>** MISSING **</error>'
-                );
+            if (count($versions)) {
+                $hasMissingMigration = true;
+                foreach ($versions as $missing) {
+                    $output->writeln(
+                        '     <error>up</error> '
+                        . sprintf(' %14.0f ', $missing)
+                        . ' <error>** MISSING **</error>'
+                    );
+                }
             }
         } else {
             // there are no migrations
@@ -116,17 +140,28 @@ class Manager
 
         // write an empty line
         $output->writeln('');
-        if ($format != null) {
+        if ($format !== null) {
             switch ($format) {
                 case 'json':
-                    $output->writeln(json_encode($migrations));
+                    $output->writeln(json_encode(
+                        array(
+                            'pending_count' => count($this->getMigrations()),
+                            'migrations' => $migrations
+                        )
+                    ));
                     break;
                 default:
                     $output->writeln('<info>Unsupported format: '.$format.'</info>');
-                    break;
             }
         }
 
+        if ($hasMissingMigration) {
+            return self::EXIT_STATUS_MISSING;
+        } else if ($hasDownMigration) {
+            return self::EXIT_STATUS_DOWN;
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -150,7 +185,8 @@ class Manager
                         'Migrating to version ' . $earlierVersion
                     );
                 }
-                return $this->migrate($environment, $earlierVersion);
+                $this->migrate($environment, $earlierVersion);
+                return;
             }
             $earlierVersion = $version;
         }
@@ -159,7 +195,7 @@ class Manager
         $this->getOutput()->writeln(
             'Migrating to version ' . $earlierVersion
         );
-        return $this->migrate($environment, $earlierVersion);
+        $this->migrate($environment, $earlierVersion);
     }
 
     /**
@@ -182,12 +218,13 @@ class Manager
                 if (!is_null($laterVersion)) {
                     $this->getOutput()->writeln('Rolling back to version '.$version);
                 }
-                return $this->rollback($environment, $version);
+                $this->rollback($environment, $version);
+                return;
             }
             $laterVersion = $version;
         }
         $this->getOutput()->writeln('Rolling back to version ' . $laterVersion);
-        return $this->rollback($environment, $laterVersion);
+        $this->rollback($environment, $laterVersion);
     }
 
     /**
@@ -223,7 +260,7 @@ class Manager
         // are we migrating up or down?
         $direction = $version > $current ? MigrationInterface::UP : MigrationInterface::DOWN;
 
-        if ($direction == MigrationInterface::DOWN) {
+        if ($direction === MigrationInterface::DOWN) {
             // run downs first
             krsort($migrations);
             foreach ($migrations as $migration) {
@@ -250,7 +287,7 @@ class Manager
     }
 
     /**
-     * Execute a migration against the specified Environment.
+     * Execute a migration against the specified environment.
      *
      * @param string $name Environment Name
      * @param MigrationInterface $migration Migration
@@ -263,7 +300,7 @@ class Manager
         $this->getOutput()->writeln(
             ' =='
             . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
-            . ' <comment>' . ($direction == 'up' ? 'migrating' : 'reverting') . '</comment>'
+            . ' <comment>' . ($direction === MigrationInterface::UP ? 'migrating' : 'reverting') . '</comment>'
         );
 
         // Execute the migration and log the time elapsed.
@@ -274,7 +311,36 @@ class Manager
         $this->getOutput()->writeln(
             ' =='
             . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
-            . ' <comment>' . ($direction == 'up' ? 'migrated' : 'reverted')
+            . ' <comment>' . ($direction === MigrationInterface::UP ? 'migrated' : 'reverted')
+            . ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
+        );
+    }
+
+    /**
+     * Execute a seeder against the specified environment.
+     *
+     * @param string $name Environment Name
+     * @param SeedInterface $seed Seed
+     * @return void
+     */
+    public function executeSeed($name, SeedInterface $seed)
+    {
+        $this->getOutput()->writeln('');
+        $this->getOutput()->writeln(
+            ' =='
+            . ' <info>' . $seed->getName() . ':</info>'
+            . ' <comment>seeding</comment>'
+        );
+
+        // Execute the seeder and log the time elapsed.
+        $start = microtime(true);
+        $this->getEnvironment($name)->executeSeed($seed);
+        $end = microtime(true);
+
+        $this->getOutput()->writeln(
+            ' =='
+            . ' <info>' . $seed->getName() . ':</info>'
+            . ' <comment>seeded'
             . ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
         );
     }
@@ -331,6 +397,35 @@ class Manager
 
             if (in_array($migration->getVersion(), $versions)) {
                 $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+            }
+        }
+    }
+
+    /**
+     * Run database seeders against an environment.
+     *
+     * @param string $environment Environment
+     * @param string $seed Seeder
+     * @return void
+     */
+    public function seed($environment, $seed = null)
+    {
+        $seeds = $this->getSeeds();
+        $env = $this->getEnvironment($environment);
+
+        if (null === $seed) {
+            // run all seeders
+            foreach ($seeds as $seeder) {
+                if (array_key_exists($seeder->getName(), $seeds)) {
+                    $this->executeSeed($environment, $seeder);
+                }
+            }
+        } else {
+            // run only one seeder
+            if (array_key_exists($seed, $seeds)) {
+                $this->executeSeed($environment, $seeds[$seed]);
+            } else {
+                throw new \InvalidArgumentException(sprintf('The seed class "%s" does not exist', $seed));
             }
         }
     }
@@ -480,6 +575,75 @@ class Manager
         }
 
         return $this->migrations;
+    }
+
+    /**
+     * Sets the database seeders.
+     *
+     * @param array $seeds Seeders
+     * @return Manager
+     */
+    public function setSeeds(array $seeds)
+    {
+        $this->seeds = $seeds;
+        return $this;
+    }
+
+    /**
+     * Gets an array of database seeders.
+     *
+     * @throws \InvalidArgumentException
+     * @return AbstractSeed[]
+     */
+    public function getSeeds()
+    {
+        if (null === $this->seeds) {
+            $config = $this->getConfig();
+            $phpFiles = glob($config->getSeedPath() . DIRECTORY_SEPARATOR . '*.php');
+
+            // filter the files to only get the ones that match our naming scheme
+            $fileNames = array();
+            /** @var AbstractSeed[] $seeds */
+            $seeds = array();
+
+            foreach ($phpFiles as $filePath) {
+                if (Util::isValidSeedFileName(basename($filePath))) {
+                    // convert the filename to a class name
+                    $class = pathinfo($filePath, PATHINFO_FILENAME);
+                    $fileNames[$class] = basename($filePath);
+
+                    // load the seed file
+                    /** @noinspection PhpIncludeInspection */
+                    require_once $filePath;
+                    if (!class_exists($class)) {
+                        throw new \InvalidArgumentException(sprintf(
+                            'Could not find class "%s" in file "%s"',
+                            $class,
+                            $filePath
+                        ));
+                    }
+
+                    // instantiate it
+                    $seed = new $class();
+
+                    if (!($seed instanceof AbstractSeed)) {
+                        throw new \InvalidArgumentException(sprintf(
+                            'The class "%s" in file "%s" must extend \Phinx\Seed\AbstractSeed',
+                            $class,
+                            $filePath
+                        ));
+                    }
+
+                    $seed->setOutput($this->getOutput());
+                    $seeds[$class] = $seed;
+                }
+            }
+
+            ksort($seeds);
+            $this->setSeeds($seeds);
+        }
+
+        return $this->seeds;
     }
 
     /**

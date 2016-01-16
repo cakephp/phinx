@@ -31,6 +31,7 @@ namespace Phinx\Migration\Manager;
 use Phinx\Db\Adapter\AdapterFactory;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Migration\MigrationInterface;
+use Phinx\Seed\SeedInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Environment
@@ -88,7 +89,7 @@ class Environment
     public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP)
     {
         $startTime = time();
-        $direction = ($direction == MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
+        $direction = ($direction === MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
         $migration->setAdapter($this->getAdapter());
 
         // begin the transaction if the adapter supports it
@@ -98,7 +99,7 @@ class Environment
 
         // Run the migration
         if (method_exists($migration, MigrationInterface::CHANGE)) {
-            if ($direction == MigrationInterface::DOWN) {
+            if ($direction === MigrationInterface::DOWN) {
                 // Create an instance of the ProxyAdapter so we can record all
                 // of the migration commands for reverse playback
                 $proxyAdapter = AdapterFactory::instance()
@@ -123,6 +124,34 @@ class Environment
 
         // Record it in the database
         $this->getAdapter()->migrated($migration, $direction, date('Y-m-d H:i:s', $startTime), date('Y-m-d H:i:s', time()));
+    }
+
+    /**
+     * Executes the specified seeder on this environment.
+     *
+     * @param MigrationInterface $migration Migration
+     * @param string $direction Direction
+     * @return void
+     */
+    public function executeSeed(SeedInterface $seed)
+    {
+        $startTime = time();
+        $seed->setAdapter($this->getAdapter());
+
+        // begin the transaction if the adapter supports it
+        if ($this->getAdapter()->hasTransactions()) {
+            $this->getAdapter()->beginTransaction();
+        }
+
+        // Run the seeder
+        if (method_exists($seed, SeedInterface::RUN)) {
+            $seed->run();
+        }
+
+        // commit the transaction if the adapter supports it
+        if ($this->getAdapter()->hasTransactions()) {
+            $this->getAdapter()->commitTransaction();
+        }
     }
 
     /**

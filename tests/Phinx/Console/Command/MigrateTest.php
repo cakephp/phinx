@@ -51,7 +51,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName()));
+        $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
 
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
     }
@@ -68,14 +68,14 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
-        $managerStub->expects($this->once())
+        $managerStub->expects($this->any())
                     ->method('migrate');
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'));
+        $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'), array('decorated' => false));
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
     }
 
@@ -98,7 +98,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName()));
+        $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
     }
 }

@@ -36,8 +36,8 @@ use Phinx\Migration\MigrationInterface;
 
 class PostgresAdapter extends PdoAdapter implements AdapterInterface
 {
+    const INT_SMALL = 65535;
 
-    const INT_SMALL   = 65535;
     /**
      * Columns with comments
      *
@@ -71,8 +71,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $db = new \PDO($dsn, $options['user'], $options['pass'], array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
             } catch (\PDOException $exception) {
                 throw new \InvalidArgumentException(sprintf(
-                    'There was a problem connecting to the database: '
-                    . $exception->getMessage()
+                    'There was a problem connecting to the database: %s'
+                    , $exception->getMessage()
                 ));
             }
 
@@ -312,9 +312,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $column = new Column();
             $column->setName($columnInfo['column_name'])
                    ->setType($this->getPhinxType($columnInfo['data_type']))
-                   ->setNull($columnInfo['is_nullable'] == 'YES')
+                   ->setNull($columnInfo['is_nullable'] === 'YES')
                    ->setDefault($columnInfo['column_default'])
-                   ->setIdentity($columnInfo['is_identity'] == 'YES')
+                   ->setIdentity($columnInfo['is_identity'] === 'YES')
                    ->setPrecision($columnInfo['numeric_precision'])
                    ->setScale($columnInfo['numeric_scale']);
 
@@ -541,6 +541,20 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         return false;
     }
 
+     /**
+      * {@inheritdoc}
+      */
+     public function hasIndexByName($tableName, $indexName)
+     {
+         $indexes = $this->getIndexes($tableName);
+         foreach ($indexes as $name => $index) {
+             if ($name === $indexName) {
+                 return true;
+             }
+         }
+         return false;
+     }
+
     /**
      * {@inheritdoc}
      */
@@ -746,6 +760,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIMESTAMP:
                 return array('name' => 'timestamp');
+            case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
                 return array('name' => 'bytea');
             // Geospatial database types
@@ -903,7 +918,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
             $buffer[] = strtoupper($sqlType['name']);
             // integers cant have limits in postgres
-            if (static::PHINX_TYPE_DECIMAL == $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
+            if (static::PHINX_TYPE_DECIMAL === $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
                 $buffer[] = sprintf(
                     '(%s, %s)',
                     $column->getPrecision() ? $column->getPrecision() : $sqlType['precision'],
@@ -975,7 +990,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
         $def = sprintf(
             "CREATE %s INDEX %s ON %s (%s);",
-            ($index->getType() == Index::UNIQUE ? 'UNIQUE' : ''),
+            ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
             $this->quoteTableName($tableName),
             implode(',', $index->getColumns())

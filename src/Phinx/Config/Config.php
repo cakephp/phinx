@@ -254,6 +254,18 @@ class Config implements ConfigInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getSeedPath()
+    {
+        if (!isset($this->values['paths']['seeds'])) {
+            throw new \UnexpectedValueException('Seeds path missing from config file');
+        }
+
+        return $this->values['paths']['seeds'];
+    }
+
+    /**
      * Get the template file name.
      *
      * @return string|false

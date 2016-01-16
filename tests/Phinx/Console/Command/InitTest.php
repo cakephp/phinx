@@ -31,6 +31,8 @@ class InitTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute(array(
             'command' => $command->getName(),
             'path' => sys_get_temp_dir()
+        ), array(
+            'decorated' => false
         ));
 
         $this->assertRegExp(
@@ -63,6 +65,8 @@ class InitTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute(array(
             'command' => $command->getName(),
             'path' => sys_get_temp_dir()
+        ), array(
+            'decorated' => false
         ));
     }
 }

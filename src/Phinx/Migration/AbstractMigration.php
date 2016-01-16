@@ -59,7 +59,6 @@ abstract class AbstractMigration implements MigrationInterface
      */
     protected $output;
 
-
     /**
      * Class Constructor.
      *

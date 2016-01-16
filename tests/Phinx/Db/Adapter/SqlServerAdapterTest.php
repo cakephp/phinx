@@ -190,6 +190,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
               ->save();
         $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
         $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
+        $this->assertTrue($this->adapter->hasIndexByName('table1', 'myemailindex'));
     }
 
     public function testRenameTable()
@@ -663,6 +664,39 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
                 ->create();
 
         $this->assertTrue($foreign->hasForeignKey('user'));
+    }
+
+    public function testInsertData()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->addColumn('column2', 'integer')
+              ->insert(array(
+                  array(
+                      'column1' => 'value1',
+                      'column2' => 1,
+                  ),
+                  array(
+                      'column1' => 'value2',
+                      'column2' => 2,
+                  )
+              ))
+              ->insert(
+                  array(
+                      'column1' => 'value3',
+                      'column2' => 3,
+                  )
+              )
+              ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+
+        $this->assertEquals('value1', $rows[0]['column1']);
+        $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals('value3', $rows[2]['column1']);
+        $this->assertEquals(1, $rows[0]['column2']);
+        $this->assertEquals(2, $rows[1]['column2']);
+        $this->assertEquals(3, $rows[2]['column2']);
     }
 
     /**
