@@ -196,6 +196,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('updated_at', $columns[1]->getName());
         $this->assertEquals('timestamp', $columns[1]->getType());
+        $this->assertEquals('CURRENT_TIMESTAMP', $columns[1]->getUpdate());
         $this->assertTrue($columns[1]->isNull());
         $this->assertNull($columns[1]->getDefault());
     }
