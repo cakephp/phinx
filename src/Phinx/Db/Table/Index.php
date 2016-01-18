@@ -101,8 +101,9 @@ class Index
 
     /**
      * Sets the index name.
-     *
-     * @return string
+     * 
+     * @param string $name
+     * @return Index
      */
     public function setName($name)
     {
