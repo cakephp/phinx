@@ -337,6 +337,15 @@ your database migration.
 You can then manipulate this table using the methods provided by the Table
 object.
 
+The Save Method
+~~~~~~~~~~~~~~~
+
+When working with the Table object Phinx stores certain operations in a
+pending changes cache.
+
+When in doubt it is recommended you call this method. It will commit any
+pending changes to the database.
+
 Creating a Table
 ~~~~~~~~~~~~~~~~
 
@@ -455,31 +464,6 @@ To simply change the name of the primary key, we need to override the default ``
             }
         }
 
-Valid Column Types
-~~~~~~~~~~~~~~~~~~
-
-Column types are specified as strings and can be one of:
-
--  biginteger
--  binary
--  boolean
--  date
--  datetime
--  decimal
--  float
--  integer
--  string
--  text
--  time
--  timestamp
--  uuid
-
-In addition, the MySQL adapter supports ``enum``, ``set`` and ``blob`` column types.
-
-In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb`` and ``uuid`` column types
-(PostgreSQL 9.3 and above).
-
-For valid options, see the `Valid Column Options`_ below.
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -590,7 +574,169 @@ To rename a table access an instance of the Table object then call the
         }
 
 Working With Columns
+--------------------
+
+Valid Column Types
+~~~~~~~~~~~~~~~~~~
+
+Column types are specified as strings and can be one of:
+
+-  biginteger
+-  binary
+-  boolean
+-  date
+-  datetime
+-  decimal
+-  float
+-  integer
+-  string
+-  text
+-  time
+-  timestamp
+-  uuid
+
+In addition, the MySQL adapter supports ``enum``, ``set`` and ``blob`` column types.
+
+In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb`` and ``uuid`` column types
+(PostgreSQL 9.3 and above).
+
+Valid Column Options
 ~~~~~~~~~~~~~~~~~~~~
+
+The following are valid column options:
+
+For any column type:
+
+======= ===========
+Option  Description
+======= ===========
+limit   set maximum length for strings, also hints column types in adapters (see note below)
+length  alias for ``limit``
+default set default value or action
+null    allow ``NULL`` values (should not be used with primary keys!)
+after   specify the column that a new column should be placed after
+comment set a text comment on the column
+======= ===========
+
+For ``decimal`` columns:
+
+========= ===========
+Option    Description
+========= ===========
+precision combine with ``scale`` set to set decimal accuracy
+scale     combine with ``precision`` to set decimal accuracy
+signed    enable or disable the ``unsigned`` option *(only applies to MySQL)*
+========= ===========
+
+For ``enum`` and ``set`` columns:
+
+========= ===========
+Option    Description
+========= ===========
+values    Can be a comma separated list or an array of values
+========= ===========
+
+For ``integer`` and ``biginteger`` columns:
+
+======== ===========
+Option   Description
+======== ===========
+identity enable or disable automatic incrementing
+signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
+======== ===========
+
+For ``timestamp`` columns:
+
+======== ===========
+Option   Description
+======== ===========
+default  set default value (use with ``CURRENT_TIMESTAMP``)
+update   set an action to be triggered when the row is updated (use with ``CURRENT_TIMESTAMP``)
+timezone enable or disable the ``with time zone`` option for ``time`` and ``timestamp`` columns *(only applies to Postgres)*
+======== ===========
+
+For ``boolean`` columns:
+
+======== ===========
+Option   Description
+======== ===========
+signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
+======== ===========
+
+For foreign key definitions:
+
+====== ===========
+Option Description
+====== ===========
+update set an action to be triggered when the row is updated
+delete set an action to be triggered when the row is deleted
+====== ===========
+
+You can pass one or more of these options to any column with the optional
+third argument array.
+
+Limit Option and PostgreSQL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When using the PostgreSQL adapter, additional hinting of database column type can be
+made for ``integer`` columns. Using ``limit`` with one the following options will
+modify the column type accordingly:
+
+============ ==============
+Limit        Column Type
+============ ==============
+INT_SMALL    SMALLINT
+============ ==============
+
+.. code-block:: php
+
+         use Phinx\Db\Adapter\PostgresAdapter;
+
+         //...
+
+         $table = $this->table('cart_items');
+         $table->addColumn('user_id', 'integer')
+               ->addColumn('subtype_id', 'integer', array('limit' => PostgresAdapter::INT_SMALL))
+               ->create();
+
+Limit Option and MySQL
+~~~~~~~~~~~~~~~~~~~~~~
+
+When using the MySQL adapter, additional hinting of database column type can be
+made for ``integer``, ``text`` and ``blob`` columns. Using ``limit`` with
+one the following options will modify the column type accordingly:
+
+============ ==============
+Limit        Column Type
+============ ==============
+BLOB_TINY    TINYBLOB
+BLOB_REGULAR BLOB
+BLOB_MEDIUM  MEDIUMBLOB
+BLOB_LONG    LONGBLOB
+TEXT_TINY    TINYTEXT
+TEXT_REGULAR TEXT
+TEXT_MEDIUM  MEDIUMTEXT
+TEXT_LONG    LONGTEXT
+INT_TINY     TINYINT
+INT_SMALL    SMALLINT
+INT_MEDIUM   MEDIUMINT
+INT_REGULAR  INT
+INT_BIG      BIGINT
+============ ==============
+
+.. code-block:: php
+
+         use Phinx\Db\Adapter\MysqlAdapter;
+
+         //...
+
+         $table = $this->table('cart_items');
+         $table->addColumn('user_id', 'integer')
+               ->addColumn('product_id', 'integer', array('limit' => MysqlAdapter::INT_BIG))
+               ->addColumn('subtype_id', 'integer', array('limit' => MysqlAdapter::INT_SMALL))
+               ->addColumn('quantity', 'integer', array('limit' => MysqlAdapter::INT_TINY))
+               ->create();
+
 
 Get a column list
 ~~~~~~~~~~~~~~~~~
@@ -793,7 +939,7 @@ See `Valid Column Types`_ and `Valid Column Options`_ for allowed values.
         }
 
 Working with Indexes
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 To add an index to a table you can simply call the ``addIndex()`` method on the
 table object.
@@ -893,7 +1039,7 @@ call this method for each index.
     ``removeIndex()``. The index will be removed immediately.
 
 Working With Foreign Keys
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 Phinx has support for creating foreign key constraints on your database tables.
 Let's add a foreign key to an example table:
@@ -1027,149 +1173,3 @@ Finally to delete a foreign key use the ``dropForeignKey`` method.
 
             }
         }
-
-Valid Column Options
-~~~~~~~~~~~~~~~~~~~~
-
-The following are valid column options:
-
-For any column type:
-
-======= ===========
-Option  Description
-======= ===========
-limit   set maximum length for strings, also hints column types in adapters (see note below)
-length  alias for ``limit``
-default set default value or action
-null    allow ``NULL`` values (should not be used with primary keys!)
-after   specify the column that a new column should be placed after
-comment set a text comment on the column
-======= ===========
-
-For ``decimal`` columns:
-
-========= ===========
-Option    Description
-========= ===========
-precision combine with ``scale`` set to set decimal accuracy
-scale     combine with ``precision`` to set decimal accuracy
-signed    enable or disable the ``unsigned`` option *(only applies to MySQL)*
-========= ===========
-
-For ``enum`` and ``set`` columns:
-
-========= ===========
-Option    Description
-========= ===========
-values    Can be a comma separated list or an array of values
-========= ===========
-
-For ``integer`` and ``biginteger`` columns:
-
-======== ===========
-Option   Description
-======== ===========
-identity enable or disable automatic incrementing
-signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
-======== ===========
-
-For ``timestamp`` columns:
-
-======== ===========
-Option   Description
-======== ===========
-default  set default value (use with ``CURRENT_TIMESTAMP``)
-update   set an action to be triggered when the row is updated (use with ``CURRENT_TIMESTAMP``)
-timezone enable or disable the ``with time zone`` option for ``time`` and ``timestamp`` columns *(only applies to Postgres)*
-======== ===========
-
-For ``boolean`` columns:
-
-======== ===========
-Option   Description
-======== ===========
-signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
-======== ===========
-
-For foreign key definitions:
-
-====== ===========
-Option Description
-====== ===========
-update set an action to be triggered when the row is updated
-delete set an action to be triggered when the row is deleted
-====== ===========
-
-You can pass one or more of these options to any column with the optional
-third argument array.
-
-Limit Option and PostgreSQL
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When using the PostgreSQL adapter, additional hinting of database column type can be
-made for ``integer`` columns. Using ``limit`` with one the following options will
-modify the column type accordingly:
-
-============ ==============
-Limit        Column Type
-============ ==============
-INT_SMALL    SMALLINT
-============ ==============
-
-.. code-block:: php
-
-         use Phinx\Db\Adapter\PostgresAdapter;
-
-         //...
-
-         $table = $this->table('cart_items');
-         $table->addColumn('user_id', 'integer')
-               ->addColumn('subtype_id', 'integer', array('limit' => PostgresAdapter::INT_SMALL))
-               ->create();
-
-Limit Option and MySQL
-~~~~~~~~~~~~~~~~~~~~~~
-
-When using the MySQL adapter, additional hinting of database column type can be
-made for ``integer``, ``text`` and ``blob`` columns. Using ``limit`` with
-one the following options will modify the column type accordingly:
-
-============ ==============
-Limit        Column Type
-============ ==============
-BLOB_TINY    TINYBLOB
-BLOB_REGULAR BLOB
-BLOB_MEDIUM  MEDIUMBLOB
-BLOB_LONG    LONGBLOB
-TEXT_TINY    TINYTEXT
-TEXT_REGULAR TEXT
-TEXT_MEDIUM  MEDIUMTEXT
-TEXT_LONG    LONGTEXT
-INT_TINY     TINYINT
-INT_SMALL    SMALLINT
-INT_MEDIUM   MEDIUMINT
-INT_REGULAR  INT
-INT_BIG      BIGINT
-============ ==============
-
-.. code-block:: php
-
-         use Phinx\Db\Adapter\MysqlAdapter;
-
-         //...
-
-         $table = $this->table('cart_items');
-         $table->addColumn('user_id', 'integer')
-               ->addColumn('product_id', 'integer', array('limit' => MysqlAdapter::INT_BIG))
-               ->addColumn('subtype_id', 'integer', array('limit' => MysqlAdapter::INT_SMALL))
-               ->addColumn('quantity', 'integer', array('limit' => MysqlAdapter::INT_TINY))
-               ->create();
-
-The Save Method
-~~~~~~~~~~~~~~~
-
-When working with the Table object Phinx stores certain operations in a
-pending changes cache.
-
-When in doubt it is recommended you call this method. It will commit any
-pending changes to the database.
