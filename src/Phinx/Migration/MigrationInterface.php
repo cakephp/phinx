@@ -153,6 +153,15 @@ interface MigrationInterface
     public function fetchAll($sql);
 
     /**
+     * Insert data into a table.
+     *
+     * @param string $tableName
+     * @param array $data
+     * @return void
+     */
+    public function insert($tableName, $data);
+
+    /**
      * Create a new database.
      *
      * @param string $name Database Name

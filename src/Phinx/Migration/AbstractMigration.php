@@ -187,6 +187,18 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
+    public function insert($table, $data)
+    {
+        // convert to table object
+        if (is_string($table)) {
+            $table = new Table($table, array(), $this->getAdapter());
+        }
+        return $table->insert($data)->save();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function createDatabase($name, $options)
     {
         $this->getAdapter()->createDatabase($name, $options);
