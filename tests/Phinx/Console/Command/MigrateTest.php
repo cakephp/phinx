@@ -51,9 +51,10 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+        $exitCode = $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
 
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
+        $this->assertSame(0, $exitCode);
     }
 
     public function testExecuteWithEnvironmentOption()
@@ -75,8 +76,10 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'), array('decorated' => false));
+        $exitCode = $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'), array('decorated' => false));
+
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
+        $this->assertSame(1, $exitCode);
     }
 
     public function testDatabaseNameSpecified()
@@ -98,7 +101,9 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+        $exitCode = $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
+        $this->assertSame(0, $exitCode);
     }
 }
