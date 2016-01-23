@@ -827,8 +827,9 @@ table object.
         }
 
 By default Phinx instructs the database adapter to create a normal index. We
-can pass an additional parameter to the ``addIndex()`` method to specify a
-unique index.
+can pass an additional parameter ``unique`` to the ``addIndex()`` method to
+specify a unique index. We can also explicitly specify a name for the index
+using the ``name`` parameter.
 
 .. code-block:: php
 
@@ -845,7 +846,7 @@ unique index.
             {
                 $table = $this->table('users');
                 $table->addColumn('email', 'string')
-                      ->addIndex(array('email'), array('unique' => true))
+                      ->addIndex(array('email'), array('unique' => true, 'name' => 'idx_users_email'))
                       ->save();
             }
 
