@@ -10,6 +10,8 @@ your migrations using the Phinx PHP API, but raw SQL is also supported.
 
 Creating a New Migration
 ------------------------
+Generating a skeleton migration file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Let's start by creating a new Phinx migration. Run Phinx using the ``create``
 command:
@@ -58,9 +60,6 @@ Phinx automatically creates a skeleton migration file with a single method:
 
             }
         }
-
-The AbstractMigration Class
----------------------------
 
 All Phinx migrations extend from the ``AbstractMigration`` class. This class
 provides the necessary support to create your database migrations. Database
