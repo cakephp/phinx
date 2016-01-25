@@ -230,6 +230,17 @@ class TablePrefixAdapter extends AdapterWrapper
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function insert(Table $table, $row)
+    {
+        $adapterTable = clone $table;
+        $adapterTableName = $this->getAdapterTableName($table->getName());
+        $adapterTable->setName($adapterTableName);
+        return parent::insert($adapterTable, $row);
+    }
+    
+    /**
      * Gets the table prefix.
      *
      * @return string
