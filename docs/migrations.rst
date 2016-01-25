@@ -938,7 +938,7 @@ See `Valid Column Types`_ and `Valid Column Options`_ for allowed values.
             }
         }
 
-Working with Indexes
+Working With Indexes
 --------------------
 
 To add an index to a table you can simply call the ``addIndex()`` method on the
