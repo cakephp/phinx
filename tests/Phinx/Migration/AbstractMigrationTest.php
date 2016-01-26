@@ -123,6 +123,22 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(array('0' => 'bar', 'foo' => 'bar')), $migrationStub->fetchAll('SELECT FOO FROM BAR'));
     }
 
+    public function testInsert()
+    {
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
+
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())
+                    ->method('insert');
+
+        $table = new Table('testdb', [], $adapterStub);
+
+        $migrationStub->setAdapter($adapterStub);
+        $migrationStub->insert($table, ['row' => 'value']);
+    }
+
     public function testCreateDatabase()
     {
         // stub migration
