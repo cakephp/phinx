@@ -104,9 +104,9 @@ class Manager
 
             $env = $this->getEnvironment($environment);
             $versions = $env->getVersionLog();
-            $maxNameLength = max(array_map(function($version) {
+            $maxNameLength = $versions ? max(array_map(function($version) {
                 return strlen($version['migration_name']);
-            }, $versions));
+            }, $versions)) : 0;
 
             foreach ($this->getMigrations() as $migration) {
                 if (array_key_exists($migration->getVersion(), $versions)) {
