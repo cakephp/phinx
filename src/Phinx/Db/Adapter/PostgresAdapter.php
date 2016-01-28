@@ -1042,12 +1042,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if (strcasecmp($direction, MigrationInterface::UP) === 0) {
             // up
             $sql = sprintf(
-                "INSERT INTO %s (version, start_time, end_time, migration_name) VALUES ('%s', '%s', '%s', '%s');",
+                "INSERT INTO %s (version, migration_name, start_time, end_time) VALUES ('%s', '%s', '%s', '%s');",
                 $this->getSchemaTableName(),
                 $migration->getVersion(),
+                substr($migration->getName(), 0, 100),
                 $startTime,
-                $endTime,
-                substr($migration->getName(), 0, 100)
+                $endTime
             );
 
             $this->query($sql);

@@ -185,7 +185,7 @@ abstract class PdoAdapter implements AdapterInterface
             $table = new Table($this->getSchemaTableName(), array(), $this);
             if (!$table->hasColumn('migration_name')) {
                 $table
-                    ->addColumn('migration_name', 'string', array('limit' => 100))
+                    ->addColumn('migration_name', 'string', array('limit' => 100, 'after' => 'version'))
                     ->save();
             }
         }
@@ -389,7 +389,7 @@ abstract class PdoAdapter implements AdapterInterface
             // up
             $sql = sprintf(
                 'INSERT INTO %s ('
-                . 'version, start_time, end_time, migration_name'
+                . 'version, migration_name, start_time, end_time'
                 . ') VALUES ('
                 . '\'%s\','
                 . '\'%s\','
@@ -398,9 +398,9 @@ abstract class PdoAdapter implements AdapterInterface
                 . ');',
                 $this->getSchemaTableName(),
                 $migration->getVersion(),
+                substr($migration->getName(), 0, 100),
                 $startTime,
-                $endTime,
-                substr($migration->getName(), 0, 100)
+                $endTime
             );
 
             $this->query($sql);
@@ -442,15 +442,15 @@ abstract class PdoAdapter implements AdapterInterface
             if ($this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'mysql'
                 && version_compare($this->getConnection()->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.0', '>=')) {
                 $table->addColumn('version', 'biginteger', array('limit' => 14))
+                      ->addColumn('migration_name', 'string', array('limit' => 100))
                       ->addColumn('start_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
                       ->addColumn('end_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
-                      ->addColumn('migration_name', 'string', array('limit' => 100))
                       ->save();
             } else {
                 $table->addColumn('version', 'biginteger')
+                      ->addColumn('migration_name', 'string', array('limit' => 100))
                       ->addColumn('start_time', 'timestamp')
                       ->addColumn('end_time', 'timestamp')
-                      ->addColumn('migration_name', 'string', array('limit' => 100))
                       ->save();
             }
         } catch (\Exception $exception) {
