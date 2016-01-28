@@ -240,7 +240,7 @@ abstract class PdoAdapter implements AdapterInterface
     public function endCommandTimer()
     {
         $end = microtime(true);
-        if (OutputInterface::VERBOSITY_VERBOSE & $this->getOutput()->getVerbosity()) {
+        if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
             $this->getOutput()->writeln('    -> ' . sprintf('%.4fs', $end - $this->getCommandStartTime()));
         }
     }
@@ -254,7 +254,7 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function writeCommand($command, $args = array())
     {
-        if (OutputInterface::VERBOSITY_VERBOSE & $this->getOutput()->getVerbosity()) {
+        if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
             if (count($args)) {
                 $outArr = array();
                 foreach ($args as $arg) {
