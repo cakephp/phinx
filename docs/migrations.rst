@@ -366,7 +366,7 @@ store a collection of users.
                       ->addColumn('created', 'datetime')
                       ->addColumn('updated', 'datetime', array('null' => true))
                       ->addIndex(array('username', 'email'), array('unique' => true))
-                      ->save();
+                      ->create();
             }
 
             /**
@@ -380,7 +380,7 @@ store a collection of users.
 
 Columns are added using the ``addColumn()`` method. We create a unique index
 for both the username and email columns using the ``addIndex()`` method.
-Finally calling ``save()`` commits the changes to the database.
+Finally calling ``create()`` commits the changes to the database.
 
 .. note::
 
@@ -780,7 +780,7 @@ See `Valid Column Types`_ and `Valid Column Options`_ for allowed values.
             {
                 $users = $this->table('users');
                 $users->changeColumn('email', 'string', array('limit' => 255))
-                      ->save();
+                      ->update();
             }
 
             /**
@@ -814,7 +814,7 @@ table object.
                 $table = $this->table('users');
                 $table->addColumn('city', 'string')
                       ->addIndex(array('city'))
-                      ->save();
+                      ->update();
             }
 
             /**
@@ -847,7 +847,7 @@ using the ``name`` parameter.
                 $table = $this->table('users');
                 $table->addColumn('email', 'string')
                       ->addIndex(array('email'), array('unique' => true, 'name' => 'idx_users_email'))
-                      ->save();
+                      ->update();
             }
 
             /**
@@ -914,12 +914,12 @@ Let's add a foreign key to an example table:
             {
                 $table = $this->table('tags');
                 $table->addColumn('tag_name', 'string')
-                      ->save();
+                      ->update();
 
                 $refTable = $this->table('tag_relationships');
                 $refTable->addColumn('tag_id', 'integer')
                          ->addForeignKey('tag_id', 'tags', 'id', array('delete'=> 'SET_NULL', 'update'=> 'NO_ACTION'))
-                         ->save();
+                         ->update();
 
             }
 
@@ -958,7 +958,7 @@ This allows us to establish a foreign key relationship to a table which uses a c
                                       'followers',
                                       array('user_id', 'follower_id'),
                                       array('delete'=> 'NO_ACTION', 'update'=> 'NO_ACTION'))
-                      ->save();
+                      ->update();
             }
 
             /**
