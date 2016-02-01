@@ -320,6 +320,44 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->adapter->createTable($table);
     }
 
+    public function testCreateTableUnsignedPK()
+    {
+        $column1 = $this->getMockBuilder('Phinx\Db\Table\Column')
+                        ->disableOriginalConstructor()
+                        ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit', 'setLimit'))
+                        ->getMock();
+
+        $column1->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column1->expects($this->any())->method('getType')->will($this->returnValue('string'));
+        $column1->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column1->expects($this->at(0))->method('getLimit')->will($this->returnValue('64'));
+
+        $column2 = $this->getMockBuilder('Phinx\Db\Table\Column')
+                        ->disableOriginalConstructor()
+                        ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit', 'setLimit'))
+                        ->getMock();
+
+        $column2->expects($this->any())->method('getName')->will($this->returnValue('column_name2'));
+        $column2->expects($this->any())->method('getType')->will($this->returnValue('integer'));
+        $column2->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column2->expects($this->at(0))->method('getLimit')->will($this->returnValue('4'));
+
+        $table = $this->getMockBuilder('Phinx\Db\Table')
+                      ->disableOriginalConstructor()
+                      ->setMethods(array('getName', 'getOptions', 'getPendingColumns', 'getIndexes', 'getForeignKeys'))
+                      ->getMock();
+
+        $tableOptions = array('signed' => false);
+        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue(array($column1,$column2)));
+        $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
+        $table->expects($this->any())->method('getOptions')->will($this->returnValue($tableOptions));
+        $table->expects($this->any())->method('getIndexes')->will($this->returnValue(array()));
+        $table->expects($this->any())->method('getForeignKeys')->will($this->returnValue(array()));
+
+        $expectedSql = 'CREATE TABLE `table_name` (`id` INT(11) unsigned NOT NULL AUTO_INCREMENT, `column_name` VARCHAR(255) NOT NULL, `column_name2` INT(11) NOT NULL, PRIMARY KEY (`id`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;';
+        $this->assertExecuteSql($expectedSql);
+        $this->adapter->createTable($table);
+    }
 
     public function testCreateTableAdvanced()
     {

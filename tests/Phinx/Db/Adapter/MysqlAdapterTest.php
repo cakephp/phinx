@@ -292,6 +292,19 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('latin1_general_ci', $row['Collation']);
     }
 
+    public function testCreateTableWithUnsignedPK()
+    {
+        $table = new \Phinx\Db\Table('ntable', array('signed' => false), $this->adapter);
+        $table->addColumn('realname', 'string')
+              ->addColumn('email', 'integer')
+              ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+    }
+
     public function testRenameTable()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
@@ -779,6 +792,23 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
     }
 
+    public function testAddForeignKeyForTableWithUnsignedPK()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array('signed' => false), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer', array('signed' => false))->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+           ->setColumns(array('ref_table_id'))
+           ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+    }
+
     public function testDropForeignKey()
     {
         $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
@@ -786,6 +816,24 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $table = new \Phinx\Db\Table('table', array(), $this->adapter);
         $table->addColumn('ref_table_id', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+           ->setColumns(array('ref_table_id'))
+           ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->adapter->dropForeignKey($table->getName(), array('ref_table_id'));
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+    }
+
+    public function testDropForeignKeyForTableWithUnsignedPK()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array('signed' => false), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer', array('signed' => false))->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
@@ -833,6 +881,24 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id2')));
     }
 
+    public function testHasForeignKeyForTableWithUnsignedPK()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array('signed' => false), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer', array('signed' => false))->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+           ->setColumns(array('ref_table_id'))
+           ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id2')));
+    }
+
     public function testHasForeignKeyAsString()
     {
         $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
@@ -858,6 +924,25 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $table = new \Phinx\Db\Table('table', array(), $this->adapter);
         $table->addColumn('ref_table_id', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+           ->setColumns(array('ref_table_id'))
+           ->setConstraint("my_constraint")
+           ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id'), 'my_constraint'));
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), array('ref_table_id'), 'my_constraint2'));
+    }
+
+    public function testHasForeignKeyWithConstraintForTableWithUnsignedPK()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array('signed' => false), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer', array('signed' => false))->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
