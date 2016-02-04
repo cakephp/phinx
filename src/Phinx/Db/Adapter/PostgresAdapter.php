@@ -114,43 +114,6 @@ class PostgresAdapter extends AbstractPostgresAdapter implements AdapterInterfac
     /**
      * {@inheritdoc}
      */
-    /**
-     * Get an array of indexes from a particular table.
-     *
-     * @param string $tableName Table Name
-     * @return array
-     */
-    protected function getIndexes($tableName)
-    {
-        $indexes = array();
-        $sql = "SELECT
-            i.relname AS index_name,
-            a.attname AS column_name
-        FROM
-            pg_class t,
-            pg_class i,
-            pg_index ix,
-            pg_attribute a
-        WHERE
-            t.oid = ix.indrelid
-            AND i.oid = ix.indexrelid
-            AND a.attrelid = t.oid
-            AND a.attnum = ANY(ix.indkey)
-            AND t.relkind = 'r'
-            AND t.relname = '$tableName'
-        ORDER BY
-            t.relname,
-            i.relname;";
-        $rows = $this->fetchAll($sql);
-        foreach ($rows as $row) {
-            if (!isset($indexes[$row['index_name']])) {
-                $indexes[$row['index_name']] = array('columns' => array());
-            }
-            $indexes[$row['index_name']]['columns'][] = strtolower($row['column_name']);
-        }
-        return $indexes;
-    }
-
     public function addIndex(Table $table, Index $index)
     {
         $this->startCommandTimer();
