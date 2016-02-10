@@ -63,6 +63,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     const INT_BIG     = 18446744073709551615;
 
     const TYPE_YEAR   = 'year';
+    const TYPE_BIT    = 'bit';
 
     /**
      * {@inheritdoc}
@@ -848,6 +849,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 if (!$limit || in_array($limit, array(2, 4)))
                     $limit = 4;
                 return array('name' => 'year', 'limit' => $limit);
+                break;
+            case static::TYPE_BIT:
+                return array('name' => 'bit');
                 break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
