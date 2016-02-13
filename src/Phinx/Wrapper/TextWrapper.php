@@ -151,15 +151,14 @@ class TextWrapper
     * @param string $env environment name (optional)
     * @param string $seed seed file to run (optional)
     **/
-    public function getSeed($env = null, $seed){
+    public function getSeed($env = null, $seed = null){
 
         $command = array(
             'seed:run',
             '-e' => $env ?: $this->getOption('environment'),
         );
 
-
-        if(isset($seed)) {
+        if(!is_null($seed)) {
             $command += array('-s' => $seed);
         }
 
