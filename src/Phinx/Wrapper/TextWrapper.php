@@ -163,7 +163,7 @@ class TextWrapper
             $command += array('-s' => $seed);
         }
 
-        return this->executeRun($command);
+        return $this->executeRun($command);
     }
 
 
