@@ -1053,6 +1053,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     protected function getIndexSqlDefinition(Index $index)
     {
         $def = '';
+        $limit = '';
+        $index_limit = $index->getLimit();
+        if (!empty($index_limit)) {
+            $limit = '(' . $index_limit . ')';
+        }
 
         if ($index->getType() == Index::UNIQUE) {
             $def .= ' UNIQUE';
@@ -1064,7 +1069,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= ' `' . $index->getName() . '`';
         }
 
-        $def .= ' (`' . implode('`,`', $index->getColumns()) . '`)';
+        $def .= ' (`' . implode('`,`', $index->getColumns()) . '`' . $limit . ')';
 
         return $def;
     }
