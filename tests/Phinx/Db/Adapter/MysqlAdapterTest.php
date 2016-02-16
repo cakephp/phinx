@@ -678,6 +678,19 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table->hasIndex('email'));
     }
 
+    public function testAddIndexWithLimit()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+            ->save();
+        $this->assertFa§lse($table->hasIndex('email'));
+        $table->addIndex('email', array('limit' => 50))
+            ->save();
+        $this->assertTrue($table->hasIndex('email'));
+        $expected_limit = ($this->adapter->query('SELECT SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = "phinx_testing" AND TABLE_NAME = "table1" AND INDEX_NAME = "email"')->fetch(\PDO::FETCH_ASSOC))['SUB_PART'];
+        $this->assertEquals($expected_limit, 50);
+    }
+
     public function testDropIndex()
     {
         // single column index
