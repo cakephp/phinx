@@ -400,12 +400,42 @@ abstract class PdoAdapter implements AdapterInterface
 
         $columns = array_keys($row);
         $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
-        $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
+        
+        $values = array_values($row);
 
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->execute(array_values($row));
+        if ($this->dryRun) {
+
+            $this->quoteValues($values);
+            $sql .= " VALUES (" . implode(', ', $values) . ")";
+            $this->getOutput()->writeln($sql);
+        }
+        else {
+            $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute($values);
+        }
+
         $this->endCommandTimer();
     }
+    /**
+     * Quotes a query's values for use when dry-running.
+     *
+     * Note: we take the array values' types as the indication of their types.
+     * This doesn't have to be 100% accurate as this is only used to encase 
+     * strings in quotes for easier readability when dry-running.
+     *
+     * @param array &$values The values to quote.
+     * @return void
+     */
+    private function quoteValues(&$values)
+    {
+        array_walk($values, function(&$v, $k) {
+            if (gettype($v) === "string") {
+                $v = "'".$v."'";
+            }
+        });
+    }
+
     /**
      * {@inheritdoc}
      */

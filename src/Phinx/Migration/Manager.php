@@ -394,9 +394,10 @@ class Manager
      *
      * @param string $name Environment Name
      * @param SeedInterface $seed Seed
+     * @param bool $dryRun Do dry run?
      * @return void
      */
-    public function executeSeed($name, SeedInterface $seed)
+    public function executeSeed($name, SeedInterface $seed, $dryRun = false)
     {
         $this->getOutput()->writeln('');
         $this->getOutput()->writeln(
@@ -407,7 +408,7 @@ class Manager
 
         // Execute the seeder and log the time elapsed.
         $start = microtime(true);
-        $this->getEnvironment($name)->executeSeed($seed);
+        $this->getEnvironment($name)->executeSeed($seed, $dryRun);
         $end = microtime(true);
 
         $this->getOutput()->writeln(
@@ -517,9 +518,10 @@ class Manager
      *
      * @param string $environment Environment
      * @param string $seed Seeder
+     * @param bool $dryRun Do dry run?
      * @return void
      */
-    public function seed($environment, $seed = null)
+    public function seed($environment, $seed = null, $dryRun = false)
     {
         $seeds = $this->getSeeds();
 
@@ -527,13 +529,13 @@ class Manager
             // run all seeders
             foreach ($seeds as $seeder) {
                 if (array_key_exists($seeder->getName(), $seeds)) {
-                    $this->executeSeed($environment, $seeder);
+                    $this->executeSeed($environment, $seeder, $dryRun);
                 }
             }
         } else {
             // run only one seeder
             if (array_key_exists($seed, $seeds)) {
-                $this->executeSeed($environment, $seeds[$seed]);
+                $this->executeSeed($environment, $seeds[$seed], $dryRun);
             } else {
                 throw new \InvalidArgumentException(sprintf('The seed class "%s" does not exist', $seed));
             }

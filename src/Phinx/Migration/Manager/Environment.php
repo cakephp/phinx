@@ -143,15 +143,20 @@ class Environment
      * Executes the specified seeder on this environment.
      *
      * @param SeedInterface $seed
+     * @param bool $dryRun Do dry run?
      * @return void
      */
-    public function executeSeed(SeedInterface $seed)
+    public function executeSeed(SeedInterface $seed, $dryRun = false)
     {
         $seed->setAdapter($this->getAdapter());
 
         // begin the transaction if the adapter supports it
         if ($this->getAdapter()->hasTransactions()) {
             $this->getAdapter()->beginTransaction();
+        }
+
+        if ($dryRun) {
+            $this->getAdapter()->enableDryRun();   
         }
 
         // Run the seeder
