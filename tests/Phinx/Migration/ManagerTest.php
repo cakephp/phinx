@@ -2068,7 +2068,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ];
     }
 
-    public function testExecuteSeedWorksAsExpected()
+    public function testSeed()
     {
         // stub environment
         $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
@@ -2083,7 +2083,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('UserSeeder', $output);
     }
 
-    public function testExecuteASingleSeedWorksAsExpected()
+    public function testSeedSingle()
     {
         // stub environment
         $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
@@ -2100,7 +2100,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The seed class "NonExistentSeeder" does not exist
      */
-    public function testExecuteANonExistentSeedWorksAsExpected()
+    public function testSeedNonExistent()
     {
         // stub environment
         $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
