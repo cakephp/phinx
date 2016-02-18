@@ -455,6 +455,37 @@ To simply change the name of the primary key, we need to override the default ``
             }
         }
 
+By default ``primary_key`` is ``signed``.
+To simply set it to unsigned just pass ``signed`` option with ``false`` value:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('followers', array('signed' => false));
+                $table->addColumn('follower_id', 'integer')
+                      ->addColumn('created', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
 Valid Column Types
 ~~~~~~~~~~~~~~~~~~
 
