@@ -2078,9 +2078,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager->seed('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('GSeeder', $output);
-        $this->assertContains('PostSeeder', $output);
-        $this->assertContains('UserSeeder', $output);
+        $this->assertContains('GSeeder: seeded', $output);
+        $this->assertContains('PostSeeder: seeded', $output);
+        $this->assertContains('UserSeeder: seeded', $output);
     }
 
     public function testSeedSingle()
@@ -2093,7 +2093,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager->seed('mockenv', 'UserSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('UserSeeder', $output);
+        $this->assertContains('UserSeeder: seeded', $output);
     }
 
     /**
@@ -2108,9 +2108,6 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->seed('mockenv', 'NonExistentSeeder');
-        rewind($this->manager->getOutput()->getStream());
-        $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('UserSeeder', $output);
     }
 
     public function testGettingInputObject()
