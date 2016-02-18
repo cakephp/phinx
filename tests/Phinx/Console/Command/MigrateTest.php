@@ -132,4 +132,27 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
         $this->assertSame(0, $exitCode);
     }
+    
+    public function testDryRun()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Migrate());
+
+        // setup dependencies
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+
+        $command = $application->find('migrate');
+
+        // mock the manager class
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub->expects($this->once())
+                    ->method('migrate');
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName(), '--dry-run' => true), array('decorated' => false));
+        $this->assertRegExp('/Doing dry run/', $commandTester->getDisplay());
+    }
 }
