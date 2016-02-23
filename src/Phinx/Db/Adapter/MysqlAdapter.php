@@ -1132,6 +1132,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array ('enum', 'set', 'year'));
+        return array_merge(parent::getColumnTypes(), array ('enum', 'set', 'year', 'json'));
     }
 }
