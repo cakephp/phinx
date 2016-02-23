@@ -849,6 +849,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     $limit = 4;
                 return array('name' => 'year', 'limit' => $limit);
                 break;
+            case static::PHINX_TYPE_JSON:
+                return array('name' => 'json');
+                break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
         }
