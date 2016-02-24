@@ -342,7 +342,7 @@ abstract class PdoAdapter implements AdapterInterface
     {
         if ($this->dryRun) {
             // let's hide the transaction mechanism from the user
-            if ($sql != "COMMIT") {
+            if ($sql != "COMMIT" && $sql != "START TRANSACTION") {
                 $this->getOutput()->writeln($sql);
             }
             return;
