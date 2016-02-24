@@ -343,13 +343,28 @@ abstract class PdoAdapter implements AdapterInterface
         if ($this->dryRun) {
             // let's hide the transaction mechanism from the user
             if ($sql != "COMMIT" && $sql != "START TRANSACTION") {
-                $this->getOutput()->writeln($sql);
+                $this->writeSqlToOutput($sql);
             }
             return;
         }
         else {
             return $this->getConnection()->exec($sql);
         }
+    }
+
+    /**
+     * Write SQL Code to Output
+     *
+     * @param string $sql the SQL Code to output.
+     * @return void
+     */
+    private function writeSqlToOutput($sql)
+    {
+        // some SQL code will come with the ending ; while some other won't, so 
+        // we just make sure we print it for the sake of presentation
+        $sql = rtrim($sql, ';').';';
+
+        $this->getOutput()->writeln($sql);
     }
 
     /**
@@ -404,10 +419,9 @@ abstract class PdoAdapter implements AdapterInterface
         $values = array_values($row);
 
         if ($this->dryRun) {
-
             $this->quoteValues($values);
             $sql .= " VALUES (" . implode(', ', $values) . ")";
-            $this->getOutput()->writeln($sql);
+            $this->writeSqlToOutput($sql);
         }
         else {
             $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
