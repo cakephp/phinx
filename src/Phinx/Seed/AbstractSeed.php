@@ -55,6 +55,11 @@ abstract class AbstractSeed implements SeedInterface
     protected $output;
 
     /**
+     * @var SeedInterface
+     */
+    protected $parent;
+
+    /**
      * Class Constructor.
      *
      * @return void
@@ -180,5 +185,21 @@ abstract class AbstractSeed implements SeedInterface
     public function table($tableName, $options = array())
     {
         return new Table($tableName, $options, $this->getAdapter());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dependsOn(SeedInterface $parent)
+    {
+        $this->parent = $parent;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParentSeed()
+    {
+        return $this->parent;
     }
 }
