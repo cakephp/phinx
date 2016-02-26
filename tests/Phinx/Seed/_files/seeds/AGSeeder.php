@@ -2,7 +2,7 @@
 
 use Phinx\Seed\AbstractSeed;
 
-class GSeeder extends AbstractSeed
+class AGSeeder extends AbstractSeed
 {
     public function run()
     {

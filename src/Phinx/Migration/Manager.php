@@ -28,11 +28,11 @@
  */
 namespace Phinx\Migration;
 
+use Phinx\Seed\SeedFetcher;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Config\ConfigInterface;
 use Phinx\Migration\Manager\Environment;
-use Phinx\Seed\AbstractSeed;
 use Phinx\Seed\SeedInterface;
 use Phinx\Util\Util;
 
@@ -147,7 +147,7 @@ class Manager
             }
 
             if (empty($sortedMigrations) && !empty($missingVersions)) {
-                // this means we have no up migrations, so we write all the missing versions already so they show up 
+                // this means we have no up migrations, so we write all the missing versions already so they show up
                 // before any possible down migration
                 foreach ($missingVersions as $missingVersionCreationTime => $missingVersion) {
                     $this->printMissingVersion($missingVersion, $maxNameLength);
@@ -156,7 +156,7 @@ class Manager
                 }
             }
 
-            // any migration left in the migrations (ie. not unset when sorting the migrations by the version order) is 
+            // any migration left in the migrations (ie. not unset when sorting the migrations by the version order) is
             // a migration that is down, so we add them to the end of the sorted migrations list
             if (!empty($migrations)) {
                 $sortedMigrations = array_merge($sortedMigrations, $migrations);
@@ -174,7 +174,7 @@ class Manager
                         } else {
                             if ($missingVersion['start_time'] > $version['start_time']) {
                                 break;
-                            } elseif ($missingVersion['start_time'] == $version['start_time'] && 
+                            } elseif ($missingVersion['start_time'] == $version['start_time'] &&
                                 $missingVersion['version'] > $version['version']) {
                                 break;
                             }
@@ -438,7 +438,7 @@ class Manager
             if (isset($migrations[$versionCreationTime])) {
                 array_unshift($sortedMigrations, $migrations[$versionCreationTime]);
             } else {
-                // this means the version is missing so we unset it so that we don't consider it when rolling back 
+                // this means the version is missing so we unset it so that we don't consider it when rolling back
                 // migrations (or choosing the last up version as target)
                 unset($executedVersions[$versionCreationTime]);
             }
@@ -505,7 +505,7 @@ class Manager
      */
     public function seed($environment, $seed = null)
     {
-        $seeds = $this->getSeeds();
+        $seeds = $this->getSeeds($seed);
 
         if (null === $seed) {
             // run all seeders
@@ -626,7 +626,7 @@ class Manager
     }
 
     /**
-     * Gets an array of the database migrations, indexed by migration name (aka creation time) and sorted in ascending 
+     * Gets an array of the database migrations, indexed by migration name (aka creation time) and sorted in ascending
      * order
      *
      * @throws \InvalidArgumentException
@@ -732,52 +732,15 @@ class Manager
     /**
      * Gets an array of database seeders.
      *
-     * @throws \InvalidArgumentException
-     * @return AbstractSeed[]
+     * @param string|null $seed
+     * @return \Phinx\Seed\AbstractSeed[]
      */
-    public function getSeeds()
+    public function getSeeds($seed = null)
     {
         if (null === $this->seeds) {
-            $phpFiles = $this->getSeedFiles();
-
-            // filter the files to only get the ones that match our naming scheme
-            $fileNames = array();
-            /** @var AbstractSeed[] $seeds */
-            $seeds = array();
-
-            foreach ($phpFiles as $filePath) {
-                if (Util::isValidSeedFileName(basename($filePath))) {
-                    // convert the filename to a class name
-                    $class = pathinfo($filePath, PATHINFO_FILENAME);
-                    $fileNames[$class] = basename($filePath);
-
-                    // load the seed file
-                    /** @noinspection PhpIncludeInspection */
-                    require_once $filePath;
-                    if (!class_exists($class)) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'Could not find class "%s" in file "%s"',
-                            $class,
-                            $filePath
-                        ));
-                    }
-
-                    // instantiate it
-                    $seed = new $class($this->getInput(), $this->getOutput());
-
-                    if (!($seed instanceof AbstractSeed)) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'The class "%s" in file "%s" must extend \Phinx\Seed\AbstractSeed',
-                            $class,
-                            $filePath
-                        ));
-                    }
-
-                    $seeds[$class] = $seed;
-                }
-            }
-
-            ksort($seeds);
+            $config = $this->getConfig();
+            $fetcher = new SeedFetcher($config, $this->getOutput());
+            $seeds = $fetcher->fetch($seed);
             $this->setSeeds($seeds);
         }
 
