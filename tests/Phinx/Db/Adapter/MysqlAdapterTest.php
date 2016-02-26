@@ -286,10 +286,17 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('latin1_table', array('collation' => 'latin1_general_ci'), $this->adapter);
         $table->addColumn('name', 'string')
+              ->addColumn('collate', 'string', ['collation'=>'latin1_bin'])
               ->save();
         $this->assertTrue($this->adapter->hasTable('latin1_table'));
         $row = $this->adapter->fetchRow(sprintf("SHOW TABLE STATUS WHERE Name = '%s'", 'latin1_table'));
         $this->assertEquals('latin1_general_ci', $row['Collation']);
+        $row = $this->adapter->fetchRow(sprintf("SELECT CHARACTER_SET_NAME,COLLATION_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '%s' AND COLUMN_NAME = '%s'", 'LATIN1_TABLE', 'NAME'));
+        $this->assertEquals('latin1', $row['CHARACTER_SET_NAME']);
+        $this->assertEquals('latin1_general_ci', $row['COLLATION_NAME']);
+        $row = $this->adapter->fetchRow(sprintf("SELECT CHARACTER_SET_NAME,COLLATION_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '%s' AND COLUMN_NAME = '%s'", 'LATIN1_TABLE', 'COLLATE'));
+        $this->assertEquals('latin1', $row['CHARACTER_SET_NAME']);
+        $this->assertEquals('latin1_bin', $row['COLLATION_NAME']);
     }
 
     public function testRenameTable()

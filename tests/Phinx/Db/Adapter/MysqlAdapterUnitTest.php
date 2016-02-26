@@ -544,6 +544,23 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getColumnSqlDefinition($column));
     }
 
+    public function testGetColumnSqlDefinitionTextWithCollation()
+    {
+        $column = $this->getMockBuilder('Phinx\Db\Table\Column')
+                      ->disableOriginalConstructor()
+                      ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit', 'getCollation'))
+                      ->getMock();
+
+        $column->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column->expects($this->any())->method('getType')->will($this->returnValue('text'));
+        $column->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column->expects($this->any())->method('getLimit')->will($this->returnValue(null));
+        $column->expects($this->any())->method('getCollation')->will($this->returnValue('utf8_bin'));
+
+        $this->assertEquals("TEXT CHARACTER SET utf8 COLLATE utf8_bin NOT NULL",
+                            $this->adapter->getColumnSqlDefinition($column));
+    }
+
     public function testGetColumnSqlDefinitionComplete()
     {
         $this->conn->expects($this->once())

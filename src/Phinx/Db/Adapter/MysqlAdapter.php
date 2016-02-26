@@ -1029,6 +1029,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= "('" . implode("', '", $values) . "')";
         }
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
+
+        if ($column->getCollation()) {
+            $charset = explode('_', $column->getCollation());
+            $def .= sprintf(' CHARACTER SET %s', $charset[0]);
+            $def .= sprintf(' COLLATE %s', $column->getCollation());
+        }
+
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
         $def .= $this->getDefaultValueDefinition($column->getDefault());
