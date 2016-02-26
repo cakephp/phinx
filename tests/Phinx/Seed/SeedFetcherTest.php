@@ -2,10 +2,18 @@
 namespace Test\Phinx\Seed;
 
 use Phinx\Config\Config;
+use Phinx\Seed\AbstractSeed;
 use Phinx\Seed\SeedFetcher;
 
 class SeedFetcherTest extends \PHPUnit_Framework_TestCase
 {
+    private $output;
+
+    public function setUp()
+    {
+        $this->output = $this->prophesize('Symfony\Component\Console\Output\OutputInterface')->reveal();
+        parent::setUp();
+    }
     /**
      * method fetch
      * when calledWithoutASeed
@@ -16,14 +24,14 @@ class SeedFetcherTest extends \PHPUnit_Framework_TestCase
         $sut = $this->getSut();
 
         $expected = array(
-            'GrandpaSeeder'            => new \GrandpaSeeder(),
-            'DependsOnGrandpaSeeder'   => new \DependsOnGrandpaSeeder(),
-            'ParentSeeder'             => new \ParentSeeder(),
-            'DependsOnParentSeeder'    => new \DependsOnParentSeeder(),
-            'DependsOnParentTooSeeder' => new \DependsOnParentTooSeeder(),
-            'GSeeder'                  => new \GSeeder(),
-            'PostSeeder'               => new \PostSeeder(),
-            'UserSeeder'               => new \UserSeeder(),
+            'GrandpaSeeder'            => $this->getSeedInstance('\GrandpaSeeder'),
+            'DependsOnGrandpaSeeder'   => $this->getSeedInstance('\DependsOnGrandpaSeeder'),
+            'ParentSeeder'             => $this->getSeedInstance('\ParentSeeder'),
+            'DependsOnParentSeeder'    => $this->getSeedInstance('\DependsOnParentSeeder'),
+            'DependsOnParentTooSeeder' => $this->getSeedInstance('\DependsOnParentTooSeeder'),
+            'AGSeeder'                  => $this->getSeedInstance('\AGSeeder'),
+            'APostSeeder'               => $this->getSeedInstance('\APostSeeder'),
+            'AUserSeeder'               => $this->getSeedInstance('\AUserSeeder'),
         );
 
         $actual = $sut->fetch();
@@ -40,9 +48,9 @@ class SeedFetcherTest extends \PHPUnit_Framework_TestCase
         $sut = $this->getSut();
 
         $expected = array(
-            'GrandpaSeeder'         => new \GrandpaSeeder(),
-            'ParentSeeder'          => new \ParentSeeder(),
-            'DependsOnParentSeeder' => new \DependsOnParentSeeder(),
+            'GrandpaSeeder'         => $this->getSeedInstance('\GrandpaSeeder'),
+            'ParentSeeder'          => $this->getSeedInstance('\ParentSeeder'),
+            'DependsOnParentSeeder' => $this->getSeedInstance('\DependsOnParentSeeder'),
         );
         $actual = $sut->fetch('DependsOnParentSeeder');
         self::assertEquals($expected, $actual);
@@ -57,10 +65,19 @@ class SeedFetcherTest extends \PHPUnit_Framework_TestCase
     {
         $sut = $this->getSut();
         $expected = array(
-            'PostSeeder' => new \PostSeeder(),
+            'APostSeeder' => $this->getSeedInstance('\APostSeeder'),
         );
-        $actual = $sut->fetch('PostSeeder');
+        $actual = $sut->fetch('APostSeeder');
         self::assertEquals($expected, $actual);
+    }
+
+    /**
+     * @param string $class
+     * @return AbstractSeed
+     */
+    private function getSeedInstance($class)
+    {
+        return (new $class())->setOutput($this->output);
     }
 
     private function getConfigArray()
@@ -79,10 +96,10 @@ class SeedFetcherTest extends \PHPUnit_Framework_TestCase
             'DependsOnParentSeeder',
             'DependsOnParentTooSeeder',
             'GrandpaSeeder',
-            'GSeeder',
+            'AGSeeder',
             'ParentSeeder',
-            'PostSeeder',
-            'UserSeeder'
+            'APostSeeder',
+            'AUserSeeder'
         );
         foreach ($seed_files as $seed_file) {
             /** @noinspection PhpIncludeInspection */
@@ -101,7 +118,7 @@ class SeedFetcherTest extends \PHPUnit_Framework_TestCase
     private function getSut()
     {
         $config = new Config($this->getConfigArray());
-        $sut = new SeedFetcher($config);
+        $sut = new SeedFetcher($config, $this->output);
         $this->includeSeedFiles($config);
         return $sut;
     }

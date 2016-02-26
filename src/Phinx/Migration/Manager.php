@@ -28,10 +28,10 @@
  */
 namespace Phinx\Migration;
 
+use Phinx\Seed\SeedFetcher;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Config\ConfigInterface;
 use Phinx\Migration\Manager\Environment;
-use Phinx\Seed\AbstractSeed;
 use Phinx\Seed\SeedInterface;
 use Phinx\Util\Util;
 
@@ -410,7 +410,7 @@ class Manager
      */
     public function seed($environment, $seed = null)
     {
-        $seeds = $this->getSeeds();
+        $seeds = $this->getSeeds($seed);
         $env = $this->getEnvironment($environment);
 
         if (null === $seed) {
@@ -592,54 +592,15 @@ class Manager
     /**
      * Gets an array of database seeders.
      *
-     * @throws \InvalidArgumentException
-     * @return AbstractSeed[]
+     * @param string|null $seed
+     * @return \Phinx\Seed\AbstractSeed[]
      */
-    public function getSeeds()
+    public function getSeeds($seed = null)
     {
         if (null === $this->seeds) {
             $config = $this->getConfig();
-            $phpFiles = glob($config->getSeedPath() . DIRECTORY_SEPARATOR . '*.php');
-
-            // filter the files to only get the ones that match our naming scheme
-            $fileNames = array();
-            /** @var AbstractSeed[] $seeds */
-            $seeds = array();
-
-            foreach ($phpFiles as $filePath) {
-                if (Util::isValidSeedFileName(basename($filePath))) {
-                    // convert the filename to a class name
-                    $class = pathinfo($filePath, PATHINFO_FILENAME);
-                    $fileNames[$class] = basename($filePath);
-
-                    // load the seed file
-                    /** @noinspection PhpIncludeInspection */
-                    require_once $filePath;
-                    if (!class_exists($class)) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'Could not find class "%s" in file "%s"',
-                            $class,
-                            $filePath
-                        ));
-                    }
-
-                    // instantiate it
-                    $seed = new $class();
-
-                    if (!($seed instanceof AbstractSeed)) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'The class "%s" in file "%s" must extend \Phinx\Seed\AbstractSeed',
-                            $class,
-                            $filePath
-                        ));
-                    }
-
-                    $seed->setOutput($this->getOutput());
-                    $seeds[$class] = $seed;
-                }
-            }
-
-            ksort($seeds);
+            $fetcher = new SeedFetcher($config, $this->getOutput());
+            $seeds = $fetcher->fetch($seed);
             $this->setSeeds($seeds);
         }
 

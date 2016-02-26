@@ -1,16 +1,19 @@
 <?php
 namespace Phinx\Seed;
 
-use Phinx\Config\Config;
+use Phinx\Config\ConfigInterface;
 use Phinx\Util\Util;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class SeedFetcher
 {
     private $config;
+    private $outputInterface;
 
-    public function __construct(Config $config)
+    public function __construct(ConfigInterface $config, OutputInterface $output)
     {
         $this->config = $config;
+        $this->outputInterface = $output;
     }
 
     /**
@@ -22,8 +25,11 @@ class SeedFetcher
      * @param string|null $seed
      * @return AbstractSeed[]
      */
-    public function fetch($seed = '*')
+    public function fetch($seed = null)
     {
+        if(null === $seed) {
+            $seed = '*';
+        }
         $files = glob($this->config->getSeedPath() . DIRECTORY_SEPARATOR . $seed . '.php');
 
         $queue = array();
@@ -71,6 +77,7 @@ class SeedFetcher
                 $filePath
             ));
         }
+        $seed->setOutput($this->outputInterface);
         return $seed;
     }
 

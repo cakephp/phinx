@@ -2,7 +2,7 @@
 
 use Phinx\Seed\AbstractSeed;
 
-class PostSeeder extends AbstractSeed
+class APostSeeder extends AbstractSeed
 {
     public function run()
     {
