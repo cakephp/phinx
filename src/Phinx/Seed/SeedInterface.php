@@ -171,9 +171,9 @@ interface SeedInterface
      * This class is called the parent Seed, and when running the current Seed the parent has
      * to run first.
      *
-     * @param SeedInterface $parent
+     * @param string $parent
      */
-    public function dependsOn(SeedInterface $parent);
+    public function dependsOn($parent);
 
     /**
      * Returns an instance of the <code>\Seed</code> class on which the current class depends.
@@ -181,7 +181,7 @@ interface SeedInterface
      * This class is called the parent Seed, and when running the current Seed the parent has
      * to run first.
      *
-     * @return SeedInterface
+     * @return string
      */
     public function getParentSeed();
 }
