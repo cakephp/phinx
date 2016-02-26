@@ -190,7 +190,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * {@inheritdoc}
      */
-    public function dependsOn(SeedInterface $parent)
+    public function dependsOn($parent)
     {
         $this->parent = $parent;
     }
