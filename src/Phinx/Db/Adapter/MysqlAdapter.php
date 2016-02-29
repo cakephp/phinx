@@ -1057,9 +1057,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $def = '';
         $limit = '';
-        $index_limit = $index->getLimit();
-        if (!empty($index_limit)) {
-            $limit = '(' . $index_limit . ')';
+        if ($index->getLimit()) {
+            $limit = '(' . $index->getLimit() . ')';
         }
 
         if ($index->getType() == Index::UNIQUE) {

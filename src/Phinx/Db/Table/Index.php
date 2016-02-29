@@ -56,7 +56,7 @@ class Index
     protected $name = null;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $limit = null;
 
@@ -106,7 +106,7 @@ class Index
 
     /**
      * Sets the index name.
-     * 
+     *
      * @param string $name
      * @return Index
      */
@@ -129,7 +129,7 @@ class Index
     /**
      * Sets the index limit.
      *
-     * @param int $limit
+     * @param integer $limit
      * @return Index
      */
     public function setLimit($limit)
@@ -141,13 +141,12 @@ class Index
     /**
      * Gets the index limit.
      *
-     * @return Index
+     * @return integer
      */
     public function getLimit()
     {
         return $this->limit;
     }
-
 
     /**
      * Utility method that maps an array of index options to this objects methods.

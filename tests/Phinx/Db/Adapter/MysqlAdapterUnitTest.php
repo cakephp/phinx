@@ -1216,6 +1216,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $index->expects($this->any())->method('getColumns')->will($this->returnValue(array('column_name')));
         return array($table, $index);
     }
+
     public function testDropIndexAsString()
     {
         $this->prepareCaseIndexes();
