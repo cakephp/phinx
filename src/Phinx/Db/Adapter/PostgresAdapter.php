@@ -913,7 +913,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $buffer = array();
         if ($column->isIdentity()) {
-            $buffer[] = 'SERIAL';
+            $buffer[] = $column->getType() == 'biginteger' ? 'BIGSERIAL' : 'SERIAL';
         } else {
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
             $buffer[] = strtoupper($sqlType['name']);
