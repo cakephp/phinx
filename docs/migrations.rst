@@ -1245,3 +1245,23 @@ Finally to delete a foreign key use the ``dropForeignKey`` method.
 
             }
         }
+
+Creating Environment-Dependent Migrations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When creating a migration, you might have different requirements for each
+environment. You can get the environment information from the current adapter:
+
+.. code-block:: php
+
+         use Phinx\Db\Adapter\MysqlAdapter;
+
+         //...
+
+         $environment = $this->getAdapter()->getEnvironment()->getName();
+
+         if ($environment == 'production') {
+             // do something
+         } else {
+             // do something else
+         }
