@@ -96,6 +96,15 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $tablePrefixAdapter->getAdapter());
     }
 
+    public function testGetEnvironmentFromAdapter()
+    {
+        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', array(array('foo' => 'bar')));
+        AdapterFactory::instance()->registerAdapter('pdomock', $adapter);
+        $this->environment->setOptions(array('connection' => new PDOMock()));
+        $environment = $this->environment->getAdapter()->getEnvironment();
+        $this->assertEquals($this->environment, $environment);
+    }
+
     public function testSchemaName()
     {
         $this->assertEquals('phinxlog', $this->environment->getSchemaTableName());

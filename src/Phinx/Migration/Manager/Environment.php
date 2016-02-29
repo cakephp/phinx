@@ -312,6 +312,8 @@ class Environment
                 ->getWrapper($this->options['wrapper'], $adapter);
         }
 
+        $adapter->setEnvironment($this);
+
         if ($this->getOutput()) {
             $adapter->setOutput($this->getOutput());
         }
