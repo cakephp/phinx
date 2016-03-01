@@ -41,6 +41,11 @@ class Index
     const INDEX = 'index';
 
     /**
+     * @var string
+     */
+    const FULLTEXT = 'fulltext';
+
+    /**
      * @var array
      */
     protected $columns;

@@ -1065,6 +1065,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= ' UNIQUE';
         }
 
+        if ($index->getType() == Index::FULLTEXT) {
+            $def .= ' FULLTEXT';
+        }
+
         $def .= ' KEY';
 
         if (is_string($index->getName())) {
