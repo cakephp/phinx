@@ -263,6 +263,17 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         // execute the sql
         $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
+
+        // process table comments
+        if (isset($options['comment'])) {
+            $sql = sprintf(
+                'COMMENT ON TABLE %s IS %s',
+                $this->quoteTableName($table->getName()),
+                $this->getConnection()->quote($options['comment'])
+            );
+            $this->execute($sql);
+        }
+
         $this->endCommandTimer();
     }
 
