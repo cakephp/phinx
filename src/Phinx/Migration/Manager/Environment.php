@@ -231,6 +231,16 @@ class Environment
     }
 
     /**
+     * Get all migration log entries, indexed by version number.
+     *
+     * @return array
+     */
+    public function getVersionLog()
+    {
+        return $this->getAdapter()->getVersionLog();
+    }
+
+    /**
      * Sets the current version of the environment.
      *
      * @param int $version Environment Version

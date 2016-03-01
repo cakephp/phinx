@@ -181,6 +181,13 @@ abstract class PdoAdapter implements AdapterInterface
         // Create the schema table if it doesn't already exist
         if (!$this->hasSchemaTable()) {
             $this->createSchemaTable();
+        } else {
+            $table = new Table($this->getSchemaTableName(), array(), $this);
+            if (!$table->hasColumn('migration_name')) {
+                $table
+                    ->addColumn('migration_name', 'string', array('limit' => 100, 'after' => 'version'))
+                    ->save();
+            }
         }
 
         return $this;
@@ -354,13 +361,23 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function getVersions()
     {
+        $rows = $this->getVersionLog();
+
+        return array_keys($rows);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getVersionLog()
+    {
+        $result = array();
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY version ASC', $this->getSchemaTableName()));
-        return array_map(
-            function ($v) {
-                return $v['version'];
-            },
-            $rows
-        );
+        foreach ($rows as $version) {
+            $result[$version['version']] = $version;
+        }
+
+        return $result;
     }
 
     /**
@@ -372,14 +389,16 @@ abstract class PdoAdapter implements AdapterInterface
             // up
             $sql = sprintf(
                 'INSERT INTO %s ('
-                . 'version, start_time, end_time'
+                . 'version, migration_name, start_time, end_time'
                 . ') VALUES ('
+                . '\'%s\','
                 . '\'%s\','
                 . '\'%s\','
                 . '\'%s\''
                 . ');',
                 $this->getSchemaTableName(),
                 $migration->getVersion(),
+                substr($migration->getName(), 0, 100),
                 $startTime,
                 $endTime
             );
@@ -423,11 +442,13 @@ abstract class PdoAdapter implements AdapterInterface
             if ($this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'mysql'
                 && version_compare($this->getConnection()->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.0', '>=')) {
                 $table->addColumn('version', 'biginteger', array('limit' => 14))
+                      ->addColumn('migration_name', 'string', array('limit' => 100))
                       ->addColumn('start_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
                       ->addColumn('end_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
                       ->save();
             } else {
                 $table->addColumn('version', 'biginteger')
+                      ->addColumn('migration_name', 'string', array('limit' => 100))
                       ->addColumn('start_time', 'timestamp')
                       ->addColumn('end_time', 'timestamp')
                       ->save();
