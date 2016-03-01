@@ -256,6 +256,16 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
     }
 
+    public function testCreateTableWithFullTextIndex()
+    {
+        $table = new \Phinx\Db\Table('table1', array('engine' => 'MyISAM'), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addIndex('email', array('type' => 'fulltext'))
+              ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
+    }
+
     public function testCreateTableWithNamedIndex()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
