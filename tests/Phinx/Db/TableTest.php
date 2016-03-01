@@ -200,6 +200,14 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($columns[1]->getDefault());
     }
 
+    public function testAddComment()
+    {
+        $adapter = new MysqlAdapter([]);
+        $table = new \Phinx\Db\Table('ntable', ['comment' => 'test comment'], $adapter);
+        $options = $table->getOptions();
+        $this->assertEquals('test comment', $options['comment']);
+    }
+
     public function testInsert()
     {
         $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));

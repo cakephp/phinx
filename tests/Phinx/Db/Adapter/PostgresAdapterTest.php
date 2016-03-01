@@ -684,6 +684,25 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     }
 
+    public function testCreateTableWithComment()
+    {
+        $tableComment = 'Table comment';
+        $table = new \Phinx\Db\Table('ntable', ['comment' => $tableComment], $this->adapter);
+        $table->addColumn('realname', 'string')
+              ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+
+        $rows = $this->adapter->fetchAll(sprintf(
+            "SELECT description FROM pg_description JOIN pg_class ON pg_description.objoid = pg_class.oid WHERE relname = '%s'",
+            'ntable'
+        ));
+
+        $this->assertEquals($tableComment, $rows[0]['description'], 'Dont set table comment correctly');
+    }
+
     public function testCanAddColumnComment()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);

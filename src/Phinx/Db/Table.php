@@ -280,7 +280,9 @@ class Table
     }
 
     /**
-     * @param $data array of data to be inserted
+     * Sets an array of data to be inserted.
+     *
+     * @param array $data Data
      * @return Table
      */
     public function setData($data)
@@ -290,7 +292,8 @@ class Table
     }
 
     /**
-     * Gets the data waiting to be inserted
+     * Gets the data waiting to be inserted.
+     *
      * @return array
      */
     public function getData()
