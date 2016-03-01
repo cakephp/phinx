@@ -860,6 +860,26 @@ using the ``name`` parameter.
             }
         }
 
+The MySQL adapter also supports ``fulltext`` indexes. If you are using a version before 5.6 you must
+ensure the table uses the ``MyISAM`` engine.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            public function change()
+            {
+                $table = $this->table('users', ['engine' => 'MyISAM']);
+                $table->addColumn('email', 'string')
+                      ->addIndex('email', ['type' => 'fulltext'])
+                      ->create();
+            }
+        }
+
 Removing indexes is as easy as calling the ``removeIndex()`` method. You must
 call this method for each index.
 
