@@ -66,12 +66,12 @@ class Manager
      * @var integer
      */
     const EXIT_STATUS_DOWN = 1;
-    
+
     /**
      * @var integer
      */
     const EXIT_STATUS_MISSING = 2;
-    
+
     /**
      * Class Constructor.
      *
@@ -98,6 +98,8 @@ class Manager
         $hasDownMigration = false;
         $hasMissingMigration = false;
         if (count($this->getMigrations())) {
+            // TODO - rewrite using Symfony Table Helper as we already have this library
+            // included and it will fix formatting issues (e.g drawing the lines)
             $output->writeln('');
             $output->writeln(' Status  Migration ID    Migration Name ');
             $output->writeln('-----------------------------------------');
