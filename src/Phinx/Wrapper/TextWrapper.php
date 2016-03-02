@@ -147,6 +147,25 @@ class TextWrapper
     }
 
     /**
+     * Returns the output from running the "seed:run" command.
+     * @param  string $env environment name (optional)
+     * @param  string $seed single seed to run (optional)
+     * @return string
+     */
+    public function getSeedRun($env = null, $seed = null)
+    {
+        $command = array(
+            'seed:run',
+            '-e' => $env ?: $this->getOption('environment'),
+            '-c' => $this->getOption('configuration'),
+        );
+        if ($seed) {
+            $command += array('-s' => $seed);
+        }
+        return $this->executeRun($command);
+    }
+
+    /**
      * Get option from options array
      *
      * @param  string $key
