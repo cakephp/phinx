@@ -32,7 +32,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
 /**
- * Phinx text wrapper: a way to run `status`, `migrate`, and `rollback` commands
+ * Phinx text wrapper: a way to run `status`, `migrate`, `rollback` and `seed:run` commands
  * and get the output of the command back as plain text.
  *
  * @author Woody Gilk <woody.gilk@gmail.com>
