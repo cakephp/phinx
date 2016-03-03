@@ -610,6 +610,7 @@ Column types are specified as strings and can be one of:
 -  biginteger
 -  binary
 -  boolean
+-  char
 -  date
 -  datetime
 -  decimal
