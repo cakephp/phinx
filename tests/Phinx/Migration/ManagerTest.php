@@ -69,11 +69,25 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
-                ->method('getVersionLog')
-                ->will($this->returnValue([
-                    '20120111235330' => ['version' => '20120111235330', 'migration_name' => ''],
-                    '20120116183504' => ['version' => '20120815145812', 'migration_name' => '']
-                ]));
+            ->method('getVersionLog')
+            ->will($this->returnValue(
+                array (
+                    '20120111235330' =>
+                        array (
+                            'version' => '20120111235330',
+                            'start_time' => '2012-01-11 23:53:36',
+                            'end_time' => '2012-01-11 23:53:37',
+                            'migration_name' => '',
+                        ),
+                    '20120116183504' =>
+                        array (
+                            'version' => '20120116183504',
+                            'start_time' => '2012-01-16 18:35:40',
+                            'end_time' => '2012-01-16 18:35:41',
+                            'migration_name' => '',
+                        ),
+                )
+            ));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->getOutput()->setDecorated(false);
@@ -82,8 +96,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20120111235330  TestMigration/', $outputStr);
-        $this->assertRegExp('/up  20120116183504  TestMigration2/', $outputStr);
+        $this->assertRegExp('/up  20120111235330  2012-01-11 23:53:36  2012-01-11 23:53:37  TestMigration/', $outputStr);
+        $this->assertRegExp('/up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2/', $outputStr);
     }
 
     public function testPrintStatusMethodWithNoMigrations()
@@ -112,11 +126,25 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
-                ->method('getVersionLog')
-                ->will($this->returnValue([
-                     '20120103083300' => ['version' => '20120103083300', 'migration_name' => ''],
-                     '20120815145812' => ['version' => '20120815145812', 'migration_name' => 'Example']
-                 ]));
+            ->method('getVersionLog')
+            ->will($this->returnValue(
+                array (
+                    '20120103083300' =>
+                        array (
+                            'version' => '20120103083300',
+                            'start_time' => '2012-01-11 23:53:36',
+                            'end_time' => '2012-01-11 23:53:37',
+                            'migration_name' => '',
+                        ),
+                    '20120815145812' =>
+                        array (
+                            'version' => '20120815145812',
+                            'start_time' => '2012-01-16 18:35:40',
+                            'end_time' => '2012-01-16 18:35:41',
+                            'migration_name' => 'Example',
+                        ),
+                )
+            ));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->getOutput()->setDecorated(false);
@@ -125,8 +153,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20120103083300  *\*\* MISSING \*\*/', $outputStr);
-        $this->assertRegExp('/up  20120815145812  Example *\*\* MISSING \*\*/', $outputStr);
+        $this->assertRegExp('/up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*/', $outputStr);
+        $this->assertRegExp('/up  20120815145812  2012-01-16 18:35:40  2012-01-16 18:35:41  Example   *\*\* MISSING \*\*/', $outputStr);
     }
 
     public function testPrintStatusMethodWithDownMigrations()
@@ -135,9 +163,13 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
                 ->method('getVersionLog')
-                ->will($this->returnValue([
-                    '20120111235330' => ['version' => '20120111235330', 'migration_name' => '']
-                ]));
+                ->will($this->returnValue(array(
+                    '20120111235330'=> array(
+                        'version' => '20120111235330',
+                        'start_time' => '2012-01-16 18:35:40',
+                        'end_time' => '2012-01-16 18:35:41',
+                        'migration_name' => '',
+                    ))));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->getOutput()->setDecorated(false);
@@ -146,8 +178,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20120111235330  TestMigration/', $outputStr);
-        $this->assertRegExp('/down  20120116183504  TestMigration2/', $outputStr);
+        $this->assertRegExp('/up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration/', $outputStr);
+        $this->assertRegExp('/down  20120116183504                                            TestMigration2/', $outputStr);
     }
 
     public function testGetMigrationsWithDuplicateMigrationVersions()
@@ -158,6 +190,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions'))));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $output->setDecorated(false);
         $manager = new Manager($config, $output);
         $manager->getMigrations();
     }
@@ -170,6 +203,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicatenames'))));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $output->setDecorated(false);
         $manager = new Manager($config, $output);
         $manager->getMigrations();
     }
@@ -182,6 +216,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname'))));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $output->setDecorated(false);
         $manager = new Manager($config, $output);
         $manager->getMigrations();
     }
@@ -194,6 +229,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass'))));
         $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $output->setDecorated(false);
         $manager = new Manager($config, $output);
         $manager->getMigrations();
     }
@@ -208,23 +244,32 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
      * migration to point to.
      *
      * @dataProvider migrateDateDataProvider
+     *
+     * @param array  $availableMigrations
+     * @param string $dateString
+     * @param string $expectedMigration
+     * @param string $message
      */
-    public function testMigrationsByDate($availableMigrations, $dateString, $expectedMigration)
+    public function testMigrationsByDate($availableMigrations, $dateString, $expectedMigration, $message)
     {
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
-        $envStub->expects($this->once())
-                ->method('getVersions')
-                ->will($this->returnValue($availableMigrations));
-
+        if (is_null($expectedMigration)) {
+            $envStub->expects($this->never())
+                    ->method('getVersions');
+        } else {
+            $envStub->expects($this->once())
+                    ->method('getVersions')
+                    ->will($this->returnValue($availableMigrations));
+        }
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->migrateToDateTime('mockenv', new \DateTime($dateString));
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedMigration)) {
-            $this->assertEmpty($output);
+            $this->assertEmpty($output, $message);
         } else {
-            $this->assertContains($expectedMigration, $output);
+            $this->assertContains($expectedMigration, $output, $message);
         }
     }
 
@@ -233,22 +278,22 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
      *
      * @dataProvider rollbackDateDataProvider
      */
-    public function testRollbacksByDate($availableRollbacks, $dateString, $expectedRollback)
+    public function testRollbacksByDate($availableRollbacks, $dateString, $expectedRollback, $message)
     {
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->any())
-                ->method('getVersions')
-                ->will($this->returnValue($availableRollbacks));
+            ->method('getVersions')
+            ->will($this->returnValue($availableRollbacks));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->rollbackToDateTime('mockenv', new \DateTime($dateString));
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedRollback)) {
-            $this->assertEmpty($output);
+            $this->assertEmpty($output, $message);
         } else {
-            $this->assertContains($expectedRollback, $output);
+            $this->assertContains($expectedRollback, $output, $message);
         }
     }
 
@@ -260,9 +305,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function migrateDateDataProvider()
     {
         return array(
-            array(array('20120111235330', '20120116183504'), '20120118', '20120116183504'),
-            array(array('20120111235330', '20120116183504'), '20120115', '20120111235330'),
-            array(array('20120111235330', '20120116183504'), '20110115', null),
+            array(array('20120111235330', '20120116183504'), '20120118', '20120116183504', 'Failed to migrate all migrations when migrate to date is later than all the migrations'),
+            array(array('20120111235330', '20120116183504'), '20120115', '20120111235330', 'Failed to migrate 1 migration when the migrate to date is between 2 migrations'),
+            array(array('20120111235330', '20120116183504'), '20120111235330', '20120111235330', 'Failed to migrate 1 migration when the migrate to date is one of the migrations'),
+            array(array('20120111235330', '20120116183504'), '20110115', null, 'Failed to migrate 0 migrations when the migrate to date is before all the migrations'),
         );
     }
 
@@ -274,9 +320,11 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function rollbackDateDataProvider()
     {
         return array(
-            array(array('20120111235330', '20120116183504', '20120120183504'), '20120118', '20120116183504'),
-            array(array('20120111235330', '20120116183504'), '20120115', '20120111235330'),
-            array(array('20120111235330', '20120116183504'), '20110115', '20120111235330'),
+            array(array('20120111235330', '20120116183504'), '20130118', null, 'Failed to rollback 0 migrations when rollback to date is later than all migrations'),
+            array(array('20120111235330', '20120116183504'), '20120116183504', 'No migrations to rollback', 'Failed to rollback 0 migrations when rollback to date is the most recent migration'),
+            array(array('20120111235330', '20120116183504'), '20120115', '20120116183504', 'Failed to rollback 1 migration when rollback date is between 2 migrations'),
+            array(array('20120111235330', '20120116183504'), '20120111235330', '20120116183504', 'Failed to rollback 1 migration when rollback datetime is the one of the migrations'),
+            array(array('20120111235330', '20120116183504'), '20110115', '20120111235330', 'Failed to rollback all the migrations when the rollback date is before all the migrations'),
         );
     }
 
