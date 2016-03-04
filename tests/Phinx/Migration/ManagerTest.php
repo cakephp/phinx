@@ -375,31 +375,68 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that migrating by date chooses the correct migration to point to.
+     * Test that migrating to date chooses the correct migration to point to.
      *
-     * @dataProvider rollbackDateDataProvider
+     * @dataProvider rollbackToDateTimeDataProvider
      */
-    public function testRollbacksByDate(array $availableRollbacks, $dateString, $expectedRollback, $message)
+    public function testRollbackToDateTime($availableRollbacks, $dateString, $expectedRollback)
     {
         // stub environment
         $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
             ->setConstructorArgs(['mockenv', []])
             ->getMock();
         $envStub->expects($this->any())
-            ->method('getVersionLog')
-            ->will($this->returnValue($availableRollbacks));
-        $envStub->expects($this->any())
                 ->method('getVersions')
                 ->will($this->returnValue(array_keys($availableRollbacks)));
 
+        // stub manager
+        $config = new Config($this->getConfigArray());
+        $input = new ArrayInput([]);
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array('rollback'), array($config, $input, $output));
+ 
+        if (is_null($expectedRollback)) {
+            $managerStub->expects($this->never())
+                ->method('rollback');
+        } else {
+            $managerStub->expects($this->once())
+                ->method('rollback')
+                ->with($this->equalTo('mockenv'), $expectedRollback)
+                ->will($this->returnValue($availableRollbacks));
+        }
+ 
+        $managerStub->setEnvironments(array('mockenv' => $envStub));
+        $managerStub->rollbackToDateTime('mockenv', new \DateTime($dateString));
+    }
+
+    /**
+     * Test that rollbacking to version chooses the correct
+     * migration to point to.
+     *
+     * @dataProvider rollbackDataProvider
+     */
+    public function testRollback($availableRollbacks, $version, $expectedOutput)
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->any())
+            ->method('getVersionLog')
+            ->will($this->returnValue($availableRollbacks));
+
         $this->manager->setEnvironments(array('mockenv' => $envStub));
-        $this->manager->rollbackToDateTime('mockenv', new \DateTime($dateString));
+        $this->manager->rollback('mockenv', $version);
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        if (is_null($expectedRollback)) {
-            $this->assertEmpty($output, $message);
+        if (is_null($expectedOutput)) {
+            $this->assertEquals("No migrations to rollback\n", $output);
         } else {
-            $this->assertRegExp($expectedRollback, $output, $message);
+            if (is_string($expectedOutput)) {
+                $expectedOutput = [$expectedOutput];
+            }
+            
+            foreach ($expectedOutput as $expectedLine) {
+                $this->assertContains($expectedLine, $output);
+            }
         }
     }
 
@@ -475,205 +512,448 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Migration lists, dates, and expected migrations to point to.
+     * Migration lists, dates, and expected migration version to rollback to.
      *
      * @return array
      */
-    public function rollbackDateDataProvider()
+    public function rollbackToDateTimeDataProvider()
     {
         return [
 
             // No breakpoints set
 
-            [
+            'Rollback to date which is later than all migrations - no breakpoints set' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20130118', 
+                    null
                 ],
-                '20130118',
-                null,
-                'Failed to rollback 0 migrations when rollback to date is later than all migrations - no breakpoints set',
-            ],
-            [
+            'Rollback to date of the most recent migration - no breakpoints set' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20120116183504', 
+                    20120116183504
                 ],
-                '20120116183504',
-                '`No migrations to rollback`',
-                'Failed to rollback 0 migrations when rollback to date is the most recent migration - no breakpoints set',
-            ],
-            [
+            'Rollback to date between 2 migrations - no breakpoints set' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20120115', 
+                    20120111235330
                 ],
-                '20120115',
-                '`20120116183504`',
-                'Failed to rollback 1 migration when rollback date is between 2 migrations - no breakpoints set',
-            ],
-            [
+            'Rollback to date of the oldest migration - no breakpoints set' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20120111235330', 
+                    20120111235330
                 ],
-                '20120111235330',
-                '`20120116183504`',
-                'Failed to rollback 1 migration when rollback datetime is the one of the migrations - no breakpoints set',
-            ],
-            [
+            'Rollback to date before all the migrations - no breakpoints set' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20110115', 
+                    0
                 ],
-                '20110115',
-                '`20120111235330`',
-                'Failed to rollback all the migrations when the rollback date is before all the migrations - no breakpoints set',
-            ],
 
             // Breakpoint set on first migration
 
-            [
+            'Rollback to date which is later than all migrations - breakpoint set on first migration' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20130118', 
+                    null
                 ],
-                '20130118',
-                null,
-                'Failed to rollback 0 migrations when rollback to date is later than all migrations - breakpoint set on first migration',
-            ],
-            [
+            'Rollback to date of the most recent migration - breakpoint set on first migration' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20120116183504', 
+                    20120116183504
                 ],
-                '20120116183504',
-                '`No migrations to rollback`',
-                'Failed to rollback 0 migrations when rollback to date is the most recent migration - breakpoint set on first migration',
-            ],
-            [
+            'Rollback to date between 2 migrations - breakpoint set on first migration' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20120115', 
+                    20120111235330
                 ],
-                '20120115',
-                '`20120116183504`',
-                'Failed to rollback 1 migration when rollback date is between 2 migrations - breakpoint set on first migration',
-            ],
-            [
+            'Rollback to date of the oldest migration - breakpoint set on first migration' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20120111235330', 
+                    20120111235330
                 ],
-                '20120111235330',
-                '`20120116183504`',
-                'Failed to rollback 1 migration when rollback datetime is the one of the migrations - breakpoint set on first migration',
-            ],
-            [
+            'Rollback to date before all the migrations - breakpoint set on first migration' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20110115', 
+                    0
                 ],
-                '20110115',
-                '`(?!.*20120111235330.*)20120116183504.*Breakpoint reached.*`s',
-                'Failed to rollback 1 migration when the rollback date is before all the migrations and breakpoint set on first migration',
-            ],
 
             // Breakpoint set on last migration
 
-            [
+            'Rollback to date which is later than all migrations - breakpoint set on last migration' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20130118', 
+                    null
                 ],
-                '20130118',
-                null,
-                'Failed to rollback 0 migrations when rollback to date is later than all migrations - breakpoint set on last migration',
-            ],
-            [
+            'Rollback to date of the most recent migration - breakpoint set on last migration' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20120116183504', 
+                    20120116183504
                 ],
-                '20120116183504',
-                '`No migrations to rollback`',
-                'Failed to rollback 0 migrations when rollback to date is the most recent migration - breakpoint set on last migration',
-            ],
-            [
+            'Rollback to date between 2 migrations - breakpoint set on last migration' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20120115', 
+                    20120111235330
                 ],
-                '20120115',
-                '`(?!.*20120116183504.*).*Breakpoint reached.*`s',
-                'Failed to rollback 0 migrations when rollback date is between 2 migrations and breakpoint set on last migration',
-            ],
-            [
+            'Rollback to date of the oldest migration - breakpoint set on last migration' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20120111235330', 
+                    20120111235330
                 ],
-                '20120111235330',
-                '`(?!.*20120116183504.*).*Breakpoint reached.*`s',
-                'Failed to rollback 0 migrations when rollback datetime is the one of the migrations and breakpoint set on last migration',
-            ],
-            [
+            'Rollback to date before all the migrations - breakpoint set on last migration' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20110115', 
+                    0
                 ],
-                '20110115',
-                '`(?!.*20120116183504.*).*Breakpoint reached.*`s',
-                'Failed to rollback 0 migrations when the rollback date is before all the migrations and breakpoint set on last migration',
-            ],
+            
+            // Breakpoint set on all migrations
 
-            // Breakpoint set on all migration
+            'Rollback to date which is later than all migrations - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20130118', 
+                    null
+                ],
+            'Rollback to date of the most recent migration - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20120116183504', 
+                    20120116183504
+                ],
+            'Rollback to date between 2 migrations - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20120115', 
+                    20120111235330
+                ],
+            'Rollback to date of the oldest migration - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20120111235330', 
+                    20120111235330
+                ],
+            'Rollback to date before all the migrations - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20110115', 
+                    0
+                ],
+        ];
+    }
 
-            [
+    /**
+     * Migration lists, dates, and expected output.
+     *
+     * @return array
+     */
+    public function rollbackDataProvider()
+    {
+        return [
+
+            // No breakpoints set
+
+            'Rollback to one of the versions - no breakpoints set' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20120111235330', 
+                    '== 20120116183504 TestMigration2: reverted'
                 ],
-                '20130118',
-                null,
-                'Failed to rollback 0 migrations when rollback to date is later than all migrations - breakpoint set on all migrations',
-            ],
-            [
+            'Rollback to the latest version - no breakpoints set' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20120116183504', 
+                    null
                 ],
-                '20120116183504',
-                '`No migrations to rollback`',
-                'Failed to rollback 0 migrations when rollback to date is the most recent migration - breakpoint set on all migrations',
-            ],
-            [
+            'Rollback all versions (ie. rollback to version 0) - no breakpoints set' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '0',
+                    ['== 20120111235330 TestMigration: reverted', '== 20120116183504 TestMigration2: reverted']
                 ],
-                '20120115',
-                '`(?!.*20120116183504.*).*Breakpoint reached.*`s',
-                'Failed to rollback 0 migrations when rollback date is between 2 migrations and breakpoint set on all migrations',
-            ],
-            [
+            'Rollback last version - no breakpoints set' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    null, 
+                    '== 20120116183504 TestMigration2: reverted',
                 ],
-                '20120111235330',
-                '`(?!.*20120116183504.*).*Breakpoint reached.*`s',
-                'Failed to rollback 0 migrations when rollback datetime is the one of the migrations and breakpoint set on all migrations',
-            ],
-            [
+            'Rollback to non-existing version - no breakpoints set' => 
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20121225000000', 
+                    'Target version (20121225000000) not found',
                 ],
-                '20110115',
-                '`(?!.*20120116183504.*).*Breakpoint reached.*`s',
-                'Failed to rollback 0 migrations when the rollback date is before all the migrations and breakpoint set on all migrations',
-            ],
+            'Rollback to missing version - no breakpoints set' => 
+                [
+                    [
+                        '20111225000000' => ['version' => '20111225000000', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20111225000000', 
+                    'Target version (20111225000000) not found',
+                ],
+            
+            // Breakpoint set on first migration
+
+            'Rollback to one of the versions - breakpoint set on first migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20120111235330', 
+                    '== 20120116183504 TestMigration2: reverted'
+                ],
+            'Rollback to the latest version - breakpoint set on first migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20120116183504', 
+                    null
+                ],
+            'Rollback all versions (ie. rollback to version 0) - breakpoint set on first migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '0',
+                    '== 20120116183504 TestMigration2: reverted'
+                ],
+            'Rollback last version - breakpoint set on first migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    null, 
+                    '== 20120116183504 TestMigration2: reverted',
+                ],
+            'Rollback to non-existing version - breakpoint set on first migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20121225000000', 
+                    'Target version (20121225000000) not found',
+                ],
+            'Rollback to missing version - breakpoint set on first migration' => 
+                [
+                    [
+                        '20111225000000' => ['version' => '20111225000000', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 0],
+                    ],
+                    '20111225000000', 
+                    'Target version (20111225000000) not found',
+                ],
+            
+            // Breakpoint set on last migration
+
+            'Rollback to one of the versions - breakpoint set on last migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20120111235330', 
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback to the latest version - breakpoint set on last migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20120116183504', 
+                    null
+                ],
+            'Rollback all versions (ie. rollback to version 0) - breakpoint set on last migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '0',
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback last version - breakpoint set on last migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    null, 
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback to non-existing version - breakpoint set on last migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20121225000000', 
+                    'Target version (20121225000000) not found',
+                ],
+            'Rollback to missing version - breakpoint set on last migration' => 
+                [
+                    [
+                        '20111225000000' => ['version' => '20111225000000', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 0],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20111225000000', 
+                    'Target version (20111225000000) not found',
+                ],
+            
+            // Breakpoint set on all migrations
+
+            'Rollback to one of the versions - breakpoint set on last migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20120111235330', 
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback to the latest version - breakpoint set on last migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20120116183504', 
+                    null
+                ],
+            'Rollback all versions (ie. rollback to version 0) - breakpoint set on last migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '0',
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback last version - breakpoint set on last migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    null, 
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback to non-existing version - breakpoint set on last migration' => 
+                [
+                    [
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20121225000000', 
+                    'Target version (20121225000000) not found',
+                ],
+            'Rollback to missing version - breakpoint set on last migration' => 
+                [
+                    [
+                        '20111225000000' => ['version' => '20111225000000', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120111235330' => ['version' => '20120111235330', 'migration_name' => '', 'breakpoint' => 1],
+                        '20120116183504' => ['version' => '20120116183504', 'migration_name' => '', 'breakpoint' => 1],
+                    ],
+                    '20111225000000', 
+                    'Target version (20111225000000) not found',
+                ]
         ];
     }
 
