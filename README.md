@@ -113,6 +113,13 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.5.3** (Monday, 7th March 2016)
+
+* Critical fix: allow `migration_name` to be `null`. Introduced in 0.5.2
+* Status command now shows migration start and end times
+* Bug fix for rolling back by date
+* Documentation improvements
+
 **0.5.2** (Tuesday, 1st March 2016)
 
 * Status command now includes missing migration names
