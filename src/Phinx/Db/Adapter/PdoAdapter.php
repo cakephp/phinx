@@ -185,7 +185,9 @@ abstract class PdoAdapter implements AdapterInterface
             $table = new Table($this->getSchemaTableName(), array(), $this);
             if (!$table->hasColumn('migration_name')) {
                 $table
-                    ->addColumn('migration_name', 'string', array('limit' => 100, 'after' => 'version'))
+                    ->addColumn('migration_name', 'string', 
+                        array('limit' => 100, 'after' => 'version', 'default' => null, 'null' => true)
+                    )
                     ->save();
             }
         }
@@ -442,13 +444,13 @@ abstract class PdoAdapter implements AdapterInterface
             if ($this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'mysql'
                 && version_compare($this->getConnection()->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.0', '>=')) {
                 $table->addColumn('version', 'biginteger', array('limit' => 14))
-                      ->addColumn('migration_name', 'string', array('limit' => 100))
+                      ->addColumn('migration_name', 'string', array('limit' => 100, 'default' => null, 'null' => true))
                       ->addColumn('start_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
                       ->addColumn('end_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
                       ->save();
             } else {
                 $table->addColumn('version', 'biginteger')
-                      ->addColumn('migration_name', 'string', array('limit' => 100))
+                      ->addColumn('migration_name', 'string', array('limit' => 100, 'default' => null, 'null' => true))
                       ->addColumn('start_time', 'timestamp')
                       ->addColumn('end_time', 'timestamp')
                       ->save();
