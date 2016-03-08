@@ -1172,7 +1172,7 @@ SQL;
         if (strcasecmp($direction, MigrationInterface::UP) === 0) {
             // up
             $sql = sprintf(
-                "INSERT INTO %s ([version], [migration_name], [start_time], [end_time]) VALUES ('%s', '%s', '%s', '%s');",
+                "INSERT INTO %s ([version], [migration_name], [start_time], [end_time], [breakpoint]) VALUES ('%s', '%s', '%s', '%s', 0);",
                 $this->getSchemaTableName(),
                 $migration->getVersion(),
                 substr($migration->getName(), 0, 100),
