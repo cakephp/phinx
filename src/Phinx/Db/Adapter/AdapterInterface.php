@@ -160,6 +160,22 @@ interface AdapterInterface
     public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime);
 
     /**
+     * Toggle a migration breakpoint.
+     *
+     * @param MigrationInterface $migration
+     *
+     * @return AdapterInterface
+     */
+    public function toggleBreakpoint(MigrationInterface $migration);
+
+    /**
+     * Reset all migration breakpoints.
+     *
+     * @return int The number of breakpoints reset
+     */
+    public function resetAllBreakpoints();
+
+    /**
      * Does the schema table exist?
      *
      * @deprecated use hasTable instead.

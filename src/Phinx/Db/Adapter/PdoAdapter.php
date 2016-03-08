@@ -217,6 +217,11 @@ abstract class PdoAdapter implements AdapterInterface
                     )
                     ->save();
             }
+            if (!$table->hasColumn('breakpoint')) {
+                $table
+                    ->addColumn('breakpoint', 'boolean', array('default' => 0))
+                    ->save();
+            }
         }
 
         return $this;
@@ -418,12 +423,13 @@ abstract class PdoAdapter implements AdapterInterface
             // up
             $sql = sprintf(
                 'INSERT INTO %s ('
-                . 'version, migration_name, start_time, end_time'
+                . 'version, migration_name, start_time, end_time, breakpoint'
                 . ') VALUES ('
                 . '\'%s\','
                 . '\'%s\','
                 . '\'%s\','
-                . '\'%s\''
+                . '\'%s\','
+                . '0'
                 . ');',
                 $this->getSchemaTableName(),
                 $migration->getVersion(),
@@ -445,6 +451,35 @@ abstract class PdoAdapter implements AdapterInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function toggleBreakpoint(MigrationInterface $migration)
+    {
+        $this->query(
+            sprintf(
+                'UPDATE %s SET breakpoint = CASE breakpoint WHEN 1 THEN 0 ELSE 1 END WHERE version = \'%s\';',
+                $this->getSchemaTableName(),
+                $migration->getversion()
+            )
+        );
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function resetAllBreakpoints()
+    {
+        return $this->execute(
+            sprintf(
+                'UPDATE %s SET breakpoint = 0 WHERE breakpoint <> 0;',
+                $this->getSchemaTableName()
+            )
+        );
     }
 
     /**
@@ -474,12 +509,14 @@ abstract class PdoAdapter implements AdapterInterface
                       ->addColumn('migration_name', 'string', array('limit' => 100, 'default' => null, 'null' => true))
                       ->addColumn('start_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
                       ->addColumn('end_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
+                      ->addColumn('breakpoint', 'boolean', array('default' => 0))
                       ->save();
             } else {
                 $table->addColumn('version', 'biginteger')
                       ->addColumn('migration_name', 'string', array('limit' => 100, 'default' => null, 'null' => true))
                       ->addColumn('start_time', 'timestamp')
                       ->addColumn('end_time', 'timestamp')
+                      ->addColumn('breakpoint', 'boolean')
                       ->save();
             }
         } catch (\Exception $exception) {
