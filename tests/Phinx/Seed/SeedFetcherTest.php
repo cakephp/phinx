@@ -14,6 +14,7 @@ class SeedFetcherTest extends \PHPUnit_Framework_TestCase
         $this->output = $this->prophesize('Symfony\Component\Console\Output\OutputInterface')->reveal();
         parent::setUp();
     }
+
     /**
      * method fetch
      * when calledWithoutASeed
@@ -24,18 +25,21 @@ class SeedFetcherTest extends \PHPUnit_Framework_TestCase
         $sut = $this->getSut();
 
         $expected = array(
+            'AGSeeder'                 => $this->getSeedInstance('\AGSeeder'),
+            'APostSeeder'              => $this->getSeedInstance('\APostSeeder'),
+            'AUserSeeder'              => $this->getSeedInstance('\AUserSeeder'),
             'GrandpaSeeder'            => $this->getSeedInstance('\GrandpaSeeder'),
             'DependsOnGrandpaSeeder'   => $this->getSeedInstance('\DependsOnGrandpaSeeder'),
             'ParentSeeder'             => $this->getSeedInstance('\ParentSeeder'),
             'DependsOnParentSeeder'    => $this->getSeedInstance('\DependsOnParentSeeder'),
             'DependsOnParentTooSeeder' => $this->getSeedInstance('\DependsOnParentTooSeeder'),
-            'AGSeeder'                  => $this->getSeedInstance('\AGSeeder'),
-            'APostSeeder'               => $this->getSeedInstance('\APostSeeder'),
-            'AUserSeeder'               => $this->getSeedInstance('\AUserSeeder'),
+            'UncleSeeder'              => $this->getSeedInstance('\UncleSeeder'),
+            'DependsOnUncleSeeder'     => $this->getSeedInstance('\DependsOnUncleSeeder'),
+            'LowerLeaveSeeder'         => $this->getSeedInstance('\LowerLeaveSeeder'),
         );
 
         $actual = $sut->fetch();
-        self::assertEquals($expected, $actual);
+        self::assertEquals(array_keys($expected), array_keys($actual));
     }
 
     /**
@@ -53,7 +57,7 @@ class SeedFetcherTest extends \PHPUnit_Framework_TestCase
             'DependsOnParentSeeder' => $this->getSeedInstance('\DependsOnParentSeeder'),
         );
         $actual = $sut->fetch('DependsOnParentSeeder');
-        self::assertEquals($expected, $actual);
+        self::assertEquals(array_keys($expected), array_keys($actual));
     }
 
     /**
@@ -68,7 +72,7 @@ class SeedFetcherTest extends \PHPUnit_Framework_TestCase
             'APostSeeder' => $this->getSeedInstance('\APostSeeder'),
         );
         $actual = $sut->fetch('APostSeeder');
-        self::assertEquals($expected, $actual);
+        self::assertEquals(array_keys($expected), array_keys($actual));
     }
 
     /**
@@ -99,7 +103,10 @@ class SeedFetcherTest extends \PHPUnit_Framework_TestCase
             'AGSeeder',
             'ParentSeeder',
             'APostSeeder',
-            'AUserSeeder'
+            'AUserSeeder',
+            'DependsOnUncleSeeder',
+            'LowerLeaveSeeder',
+            'UncleSeeder'
         );
         foreach ($seed_files as $seed_file) {
             /** @noinspection PhpIncludeInspection */
