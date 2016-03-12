@@ -374,6 +374,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         $this->execute($sql);
         $this->endCommandTimer();
+
+        // process column comment
+        if (!empty($column->getComment())) {
+            $this->startCommandTimer();
+            $this->writeCommand('commentColumn', array($table->getName(), $column->getName(), $column->getComment()));
+            $this->execute($this->getColumnCommentSqlDefinition($column, $table->getName()));
+            $this->endCommandTimer();
+        }
     }
 
     /**
