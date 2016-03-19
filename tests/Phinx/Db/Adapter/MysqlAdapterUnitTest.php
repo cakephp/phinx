@@ -852,6 +852,11 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('name' => 'binary', 'limit' => 36),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BINARY, 36));
 
+        $this->assertEquals(array('name' => 'varbinary', 'limit' => 255),
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_VARBINARY));
+        $this->assertEquals(array('name' => 'varbinary', 'limit' => 16),
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_VARBINARY, 16));
+
         //int combinations
         $this->assertEquals(array('name' => 'int', 'limit' => 11),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER));
@@ -932,6 +937,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getPhinxType('bigint'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_BINARY, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('blob'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_VARBINARY, 'limit' => null, 'precision' => null),
+                            $this->adapter->getPhinxType('varbinary'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_FLOAT, 'limit' => null, 'precision' => null),
                             $this->adapter->getPhinxType('float'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_DECIMAL, 'limit' => null, 'precision' => null),
@@ -982,6 +989,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getPhinxType('bigint(21)'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_BINARY, 'limit' => 1024, 'precision' => null),
                             $this->adapter->getPhinxType('blob(1024)'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_VARBINARY, 'limit' => 16, 'precision' => null),
+                            $this->adapter->getPhinxType('varbinary(16)'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_FLOAT, 'limit' => 8, 'precision' => 2),
                             $this->adapter->getPhinxType('float(8,2)'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_DECIMAL, 'limit' => 8, 'precision' => 2),
