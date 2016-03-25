@@ -1,7 +1,7 @@
 # How to contribute to Phinx
 
 Phinx relies heavily on external contributions in order to make it the best database migration
-tool possible. Without the support of our 70+ contributors we wouldn't be where we are today!
+tool possible. Without the support of our 115+ contributors we wouldn't be where we are today!
 We encourage anyone to submit documentation enhancements and code.
 
 Issues, feature requests and bugs should be submitted using the Github issue tool:
