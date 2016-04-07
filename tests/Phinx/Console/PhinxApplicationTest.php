@@ -25,13 +25,13 @@ class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @link https://regex101.com/r/bU6vN7/1
+     * @link https://regex101.com/r/aW2qW0/1
      * @return array
      */
     public function provider()
     {
         return array(
-            array('help', '/help (\[--(.*)\]){0,3} \[command_name\]/')
+            array('help', '/help (\[(.*)\]){0,3} \[\<command_name\>\]/')
         );
     }
 }
