@@ -71,8 +71,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $db = new \PDO($dsn, $options['user'], $options['pass'], array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
             } catch (\PDOException $exception) {
                 throw new \InvalidArgumentException(sprintf(
-                    'There was a problem connecting to the database: %s'
-                    , $exception->getMessage()
+                    'There was a problem connecting to the database: %s',
+                    $exception->getMessage()
                 ));
             }
 
