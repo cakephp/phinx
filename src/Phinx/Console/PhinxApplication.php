@@ -61,6 +61,8 @@ class PhinxApplication extends Application
             new Command\Test(),
             new Command\SeedCreate(),
             new Command\SeedRun(),
+            new Command\SchemaDump(),
+            new Command\SchemaLoad(),
         ));
     }
 

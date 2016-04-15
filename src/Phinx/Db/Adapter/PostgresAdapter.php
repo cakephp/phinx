@@ -149,6 +149,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function getTables()
+    {
+        throw new Exception('Not implemented yet.');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasTable($tableName)
     {
         $result = $this->getConnection()->query(
@@ -1179,5 +1187,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function castToBool($value)
     {
         return (bool) $value ? 'TRUE' : 'FALSE';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setForeignKeyChecks($enabled)
+    {
+        throw new Exception('Not implemented yet.');
     }
 }

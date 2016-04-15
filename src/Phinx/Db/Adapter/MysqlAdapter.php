@@ -181,6 +181,23 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function getTables()
+    {
+        $options = $this->getOptions();
+
+        $tables = array();
+        $rows = $this->fetchAll(sprintf('SHOW TABLES IN `%s`', $options['name']));
+        foreach ($rows as $row) {
+            $tableOptions = $this->getTableOptions($row[0]);
+            $tables[] = new Table($row[0], $tableOptions, $this);
+        }
+
+        return $tables;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasTable($tableName)
     {
         $options = $this->getOptions();
@@ -761,9 +778,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_BINARY:
                 return array('name' => 'binary', 'limit' => $limit ? $limit : 255);
                 break;
-            case static::PHINX_TYPE_VARBINARY:
-                return array('name' => 'varbinary', 'limit' => $limit ? $limit : 255);
-                break;
             case static::PHINX_TYPE_BLOB:
                 if ($limit) {
                     $sizes = array(
@@ -1115,6 +1129,43 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * @param string $tableName
+     *
+     * @return array
+     */
+    protected function getTableOptions($tableName)
+    {
+        $rows = $this->fetchAll(sprintf('SHOW COLUMNS IN `%s`', $tableName));
+        $pkFieldNames = array();
+        $isPkAutoIncrement = false;
+        foreach ($rows as $row) {
+            if ($row['Key'] == 'PRI') {
+                $pkFieldNames[] = $row['Field'];
+                if ($row['Extra'] == 'auto_increment') {
+                    $isPkAutoIncrement = true;
+                }
+            }
+        }
+
+        // new Table('user');
+        $isAutoId = count($pkFieldNames) == 1 && $pkFieldNames[0] == 'id';
+        $isNoPk = count($pkFieldNames) == 0;
+        if ($isAutoId || $isNoPk) {
+            return array();
+        }
+
+        // new Table('user', array('id'=>'user_id'));
+        if (count($pkFieldNames) == 1 && $pkFieldNames[0] != 'id' && $isPkAutoIncrement) {
+            return array('id'=>$pkFieldNames[0]);
+        }
+
+        // Everything else ...
+        // new Table('user_followers', array('id'=>false, 'primary_key'=>array('user_id')));
+        // new Table('user_followers', array('id'=>false, 'primary_key'=>array('user_id', 'follower_id')));
+        return array('id'=>false, 'primary_key'=>$pkFieldNames);
+    }
+
+    /**
      * Describes a database table. This is a MySQL adapter specific method.
      *
      * @param string $tableName Table name
@@ -1144,5 +1195,17 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function getColumnTypes()
     {
         return array_merge(parent::getColumnTypes(), array ('enum', 'set', 'year', 'json'));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setForeignKeyChecks($enabled)
+    {
+        if ($enabled) {
+            $this->execute('SET FOREIGN_KEY_CHECKS=1');
+        } else {
+            $this->execute('SET FOREIGN_KEY_CHECKS=0');
+        }
     }
 }

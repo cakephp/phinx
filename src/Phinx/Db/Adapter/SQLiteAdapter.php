@@ -147,6 +147,21 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function getTables()
+    {
+        $tables = array();
+        $rows = $this->fetchAll('SELECT name FROM sqlite_master WHERE type=\'table\'');
+        foreach ($rows as $row) {
+            $tableOptions = $this->getTableOptions($row[0]);
+            $tables[] = new Table($row[0], $tableOptions, $this);
+        }
+
+        return $tables;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasTable($tableName)
     {
         $tables = array();
@@ -1135,5 +1150,56 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
         return $def;
+    }
+
+    /**
+     * @param string $tableName
+     *
+     * @return array
+     */
+    protected function getTableOptions($tableName)
+    {
+        $rows = $this->fetchAll(sprintf('PRAGMA table_info(`%s`)', $tableName));
+        $pkFieldNames = array();
+
+        foreach ($rows as $row) {
+            if ($row['pk']) {
+                $pkFieldNames[] = $row['name'];
+            }
+        }
+
+        $rows = $this->fetchAll(sprintf('SELECT 1 FROM sqlite_master WHERE type = \'table\' AND name = \'%s\' AND sql LIKE \'%%AUTOINCREMENT%%\'', $tableName));
+        $isPkAutoIncrement = isset($rows[0]);
+
+        // new Table('user');
+        $isAutoId = count($pkFieldNames) == 1 && $pkFieldNames[0] == 'id';
+        $isNoPk = count($pkFieldNames) == 0;
+        if ($isAutoId || $isNoPk) {
+            return array();
+        }
+
+        // new Table('user', array('id'=>'user_id'));
+        if (count($pkFieldNames) == 1 && $pkFieldNames[0] != 'id' && $isPkAutoIncrement) {
+            return array('id'=>$pkFieldNames[0]);
+        }
+
+        // Everything else ...
+        // new Table('user_followers', array('id'=>false, 'primary_key'=>array('user_id')));
+        // new Table('user_followers', array('id'=>false, 'primary_key'=>array('user_id', 'follower_id')));
+        return array('id'=>false, 'primary_key'=>$pkFieldNames);
+    }
+
+    /**
+     * Disable or enable foreign key checks.
+     *
+     * @param bool $enabled If true, enable foreign key checks.
+     */
+    public function setForeignKeyChecks($enabled)
+    {
+        if ($enabled) {
+            $this->execute('PRAGMA foreign_keys = ON');
+        } else {
+            $this->execute('PRAGMA foreign_keys = OFF');
+        }
     }
 }

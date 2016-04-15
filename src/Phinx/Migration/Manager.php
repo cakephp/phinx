@@ -30,6 +30,8 @@ namespace Phinx\Migration;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Filesystem\Filesystem;
 use Phinx\Config\ConfigInterface;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Seed\AbstractSeed;
@@ -587,29 +589,9 @@ class Manager
                         ));
                     }
 
-                    $fileNames[$class] = basename($filePath);
+                    $fileNames[$class] = ($filePath);
 
-                    // load the migration file
-                    /** @noinspection PhpIncludeInspection */
-                    require_once $filePath;
-                    if (!class_exists($class)) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'Could not find class "%s" in file "%s"',
-                            $class,
-                            $filePath
-                        ));
-                    }
-
-                    // instantiate it
-                    $migration = new $class($version, $this->getInput(), $this->getOutput());
-
-                    if (!($migration instanceof AbstractMigration)) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'The class "%s" in file "%s" must extend \Phinx\Migration\AbstractMigration',
-                            $class,
-                            $filePath
-                        ));
-                    }
+                    $migration = $this->instantiateMigration($filePath, $class, $version);
 
                     $versions[$version] = $migration;
                 }
@@ -764,5 +746,127 @@ class Manager
             ' %d breakpoints cleared.',
             $this->getEnvironment($environment)->getAdapter()->resetAllBreakpoints()
         ));
+    }
+
+    /**
+     * @param $filePath
+     * @param $class
+     * @param $version
+     *
+     * @return AbstractMigration
+     * @throws \InvalidArgumentException
+     */
+    protected function instantiateMigration($filePath, $class, $version)
+    {
+        // load the migration file
+        /** @noinspection PhpIncludeInspection */
+        require_once $filePath;
+        if (!class_exists($class)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Could not find class "%s" in file "%s"',
+                $class,
+                $filePath
+            ));
+        }
+
+        // instantiate it
+        $migration = new $class($version, $this->getInput(), $this->getOutput());
+
+        if (!($migration instanceof AbstractMigration)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The class "%s" in file "%s" must extend \Phinx\Migration\AbstractMigration',
+                $class,
+                $filePath
+            ));
+        }
+        return $migration;
+    }
+
+    /**
+     * @param $environment
+     *
+     * @return string
+     *
+     * @throws \RuntimeException
+     */
+    public function schemaDump($environment)
+    {
+        $envOptions = $this->getConfig()->getEnvironment($environment);
+        $schemaName = isset($envOptions["schema_name"]) ? $envOptions["schema_name"] : '';
+        $filePath = $this->loadSchemaFilePath($schemaName);
+        $dump = $this->getEnvironment($environment)->schemaDump();
+        if (!$dump) {
+            $this->getOutput()->writeln('<comment>Database is empty. Nothing to dump!</comment>');
+            return;
+        }
+        if (false === file_put_contents($filePath, $dump)) {
+            throw new \RuntimeException(
+                sprintf('The file "%s" could not be written to', $filePath)
+            );
+        }
+        return $dump;
+    }
+    /**
+     * @param string $environment
+     * @param string $filePath
+     */
+    public function schemaLoad($environment, $filePath)
+    {
+        $this->getEnvironment($environment)->getAdapter()->setForeignKeyChecks(false);
+        $this->resetDatabase($environment);
+        $class = Util::mapFileNameToClassName(basename($filePath));
+        $pos = strpos($class, '.php');
+        if ($pos !== false) {
+            $class = substr($class, 0, $pos);
+        }
+        $migration = $this->instantiateMigration($filePath, $class, 0);
+        $this->executeMigration($environment, $migration, MigrationInterface::UP);
+        $this->getEnvironment($environment)->getAdapter()->setForeignKeyChecks(true);
+    }
+    /**
+     * @param string $environment
+     */
+    public function resetDatabase($environment)
+    {
+        $this->getOutput()->writeln(" == <comment>Resetting database</comment>");
+        $tables = $this->getEnvironment($environment)->getAdapter()->getTables();
+        if (count($tables) > 0) {
+            foreach ($tables as $table) {
+                $this->getEnvironment($environment)->getAdapter()->dropTable($table->getName());
+            }
+        }
+        $this->getOutput()->writeln(" == <comment>Done</comment>");
+    }
+    /**
+     * @return string
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function loadSchemaFilePath($schemaName)
+    {
+        $migrationPath = $this->getConfig()->getMigrationPath();
+        $schemaPath = $migrationPath.DIRECTORY_SEPARATOR.'schema';
+        $fs = new Filesystem();
+        if (!$fs->exists($schemaPath)) {
+            if (!is_writeable($migrationPath)) {
+                throw new \InvalidArgumentException(
+                    sprintf('The directory "%s" is not writeable', $migrationPath)
+                );
+            }
+            $fs->mkdir($schemaPath);
+        }
+        if (!is_writeable($schemaPath)) {
+            throw new \InvalidArgumentException(
+                sprintf('The directory "%s" is not writeable', $schemaPath)
+            );
+        }
+        $schemaPath = realpath($schemaPath);
+        if ($schemaName != '') {
+            $fileName = $schemaName . '_schema.php';
+        } else {
+            $fileName = 'schema.php';
+        }
+
+        return $schemaPath . DIRECTORY_SEPARATOR . $fileName;
     }
 }
