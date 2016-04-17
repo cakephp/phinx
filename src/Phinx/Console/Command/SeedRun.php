@@ -71,6 +71,7 @@ EOT
 
         $seed        = $input->getOption('seed');
         $environment = $input->getOption('environment');
+        $seedSet     = (strstr($seed, ',') !== false) ? explode(',', $seed) : [$seed];
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -104,7 +105,9 @@ EOT
 
         // run the seed(ers)
         $start = microtime(true);
-        $this->getManager()->seed($environment, $seed);
+        foreach($seedSet as $seed) {
+            $this->getManager()->seed($environment, trim($seed));
+        }
         $end = microtime(true);
 
         $output->writeln('');
