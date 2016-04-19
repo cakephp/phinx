@@ -56,6 +56,11 @@ abstract class AbstractCommand extends Command
     const DEFAULT_SEED_TEMPLATE = '/../../Seed/Seed.template.php.dist';
 
     /**
+     * The location of the default database seeder template.
+     */
+    const DEFAULT_DATABASE_SEEDER_TEMPLATE = '/../../Seed/DatabaseSeeder.template.php.dist';
+
+    /**
      * @var ConfigInterface
      */
     protected $config;
@@ -337,5 +342,15 @@ abstract class AbstractCommand extends Command
     protected function getSeedTemplateFilename()
     {
         return __DIR__ . self::DEFAULT_SEED_TEMPLATE;
+    }
+
+    /**
+     * Returns the database seeder template filename.
+     *
+     * @return string
+     */
+    protected function getDatabaseSeederTemplateFilename()
+    {
+        return __DIR__ . self::DEFAULT_DATABASE_SEEDER_TEMPLATE;
     }
 }

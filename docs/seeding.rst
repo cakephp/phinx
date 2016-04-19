@@ -150,6 +150,32 @@ Then use it in your seed classes:
             }
         }
 
+Database Seeder
+----------------------
+A database seeder class will be created if you execute the setup command from the console. 
+
+.. code-block:: bash
+
+        $ php bin/phinx setup
+
+Inside you can call additional seeders and organize their execution order, like this:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Seed\AbstractSeed;
+
+        class DatabaseSeeder extends AbstractSeed
+        {
+            public function run()
+            {
+              $this->call('UserSeeder');
+              $this->call('ProfileSeeder');
+              $this->call('PostSeeder');
+            }
+        }
+
 Executing Seed Classes
 ----------------------
 
@@ -159,8 +185,8 @@ This is the easy part. To seed your database simply use the `seed:run` command:
 
         $ php bin/phinx seed:run
 
-By default Phinx will execute all available seed classes. If you would like to
-run a specific class simply pass in the name of it using the `-s` parameter:
+By default Phinx will call the DatabaseSeeder class if it exists, otherwise it will execute all available seed classes. 
+If you would like to run a specific class simply pass in the name of it using the `-s` parameter:
 
 .. code-block:: bash
 

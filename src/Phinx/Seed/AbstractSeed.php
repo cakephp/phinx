@@ -181,4 +181,22 @@ abstract class AbstractSeed implements SeedInterface
     {
         return new Table($tableName, $options, $this->getAdapter());
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function call($class)
+    {
+        if (! class_exists($class)) {
+            return false;
+        }
+        
+        $instance = new $class;
+
+        $instance->setAdapter($this->getAdapter());
+
+        if (method_exists($instance, SeedInterface::RUN)) {
+            $instance->run();
+        }
+    }
 }

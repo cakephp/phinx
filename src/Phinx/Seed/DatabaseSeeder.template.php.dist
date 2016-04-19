@@ -1,0 +1,19 @@
+<?php
+
+use $useClassName;
+
+class $className extends $baseClassName
+{
+    /**
+     * Run Method.
+     *
+     * Call the name of the seed class you wish to call.
+     *
+     * More information on writing seeders is available here:
+     * http://docs.phinx.org/en/latest/seeding.html
+     */
+    public function run()
+    {
+        // $this->call('UsersTableSeeder');
+    }
+}
