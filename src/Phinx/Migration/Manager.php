@@ -417,19 +417,27 @@ class Manager
     public function seed($environment, $seed = null)
     {
         $seeds = $this->getSeeds();
-
         $env = $this->getEnvironment($environment);
+
+        // run only one seeder
+        if (isset($seed)) {
+            if (! array_key_exists($seed, $seeds)) {
+                throw new \InvalidArgumentException(sprintf('The seed class "%s" does not exist', $seed));
+            }
+            $this->executeSeed($environment, $seeds[$seed]);
+        }
 
         if (! $seed) {
             $seed = self::DEFAULT_DATABASE_SEEDER;
-        }
-
-        if (array_key_exists($seed, $seeds)) {
-            $this->executeSeed($environment, $seeds[$seed]);
-        } else {
-            foreach ($seeds as $seeder) {
-                if (array_key_exists($seeder->getName(), $seeds)) {
-                    $this->executeSeed($environment, $seeder);
+            // run database seeder
+            if (array_key_exists($seed, $seeds)) {
+                $this->executeSeed($environment, $seeds[$seed]);
+            } else {
+                // run all seeders
+                foreach ($seeds as $seeder) {
+                    if (array_key_exists($seeder->getName(), $seeds)) {
+                        $this->executeSeed($environment, $seeder);
+                    }
                 }
             }
         }
