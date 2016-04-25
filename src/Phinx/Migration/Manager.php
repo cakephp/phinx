@@ -516,7 +516,7 @@ class Manager
     {
         if (null === $this->migrations) {
             $config = $this->getConfig();
-            $phpFiles = getPhpFiles( $config->getMigrationPath() );
+            $phpFiles = $this->getPhpFiles( $config->getMigrationPath() );
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
@@ -633,7 +633,7 @@ class Manager
     {
         if (null === $this->seeds) {
             $config = $this->getConfig();
-            $phpFiles = getPhpFiles( $config->getSeedPath() );
+            $phpFiles = $this->getPhpFiles( $config->getSeedPath() );
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
