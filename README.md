@@ -113,6 +113,13 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 ### Version History
 
+**0.5.4** (Monday, 25th April 2016)
+
+* Added support for running multiple seeders
+* Use `GLOB_BRACE` when finding migrations only if its available
+* Added support for MySQL `VARBINARY` column type
+* Minor bug fixes
+
 **0.5.3** (Monday, 7th March 2016)
 
 * Critical fix: allow `migration_name` to be `null`. Introduced in 0.5.2
