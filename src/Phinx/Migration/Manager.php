@@ -516,7 +516,7 @@ class Manager
     {
         if (null === $this->migrations) {
             $config = $this->getConfig();
-            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php', defined('GLOB_BRACE') ? GLOB_BRACE : 0);
+            $phpFiles = $this->getMigrationFiles();
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
@@ -576,6 +576,39 @@ class Manager
         }
 
         return $this->migrations;
+    }
+
+    /**
+     * Gets an array of migration files (*.php)
+     *
+     * @return String[] - Paths to migration files
+     */
+    public function getMigrationFiles() {
+
+      $config = $this->getConfig();
+
+      // Some systems like alpine linux and solaris don't have GLOB_BRACE
+      // source: http://php.net/manual/en/function.glob.php
+      if (defined('GLOB_BRACE')) {
+        return glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php', GLOB_BRACE);
+      } else {
+
+        $migration_path = $config->getMigrationPath();
+        $files = scandir($migration_path);
+
+        foreach ($files as $index => $file) {
+
+          # Remove all filenames with length under '.php' and files which don't end in *.php
+          if ( strlen($file) < 5 || ! substr($file, -4) == ".php" ) {
+            unset($files[$index]);
+          } else {
+            # Use full path for php files
+            $files[$index] = $migration_path.DIRECTORY_SEPARATOR.$file;
+          }
+        }
+
+        return $files;
+      }
     }
 
     /**
