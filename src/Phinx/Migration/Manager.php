@@ -516,7 +516,7 @@ class Manager
     {
         if (null === $this->migrations) {
             $config = $this->getConfig();
-            $phpFiles = $this->getMigrationFiles();
+            $phpFiles = getPhpFiles( $config->getMigrationPath() );
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
@@ -579,31 +579,31 @@ class Manager
     }
 
     /**
-     * Gets an array of migration files (*.php)
+     * Gets an array of php files (*.php)
      *
-     * @return String[] - Paths to migration files
+     * @param $path - Absolute path to a directory
+     * @return String[] - Absolute paths to migration/seed files
      */
-    public function getMigrationFiles() {
-
-      $config = $this->getConfig();
+    public function getPhpFiles($path) {
 
       // Some systems like alpine linux and solaris don't have GLOB_BRACE
       // source: http://php.net/manual/en/function.glob.php
       if (defined('GLOB_BRACE')) {
-        return glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php', GLOB_BRACE);
+        return glob($path . DIRECTORY_SEPARATOR . '*.php', GLOB_BRACE);
       } else {
 
-        $migration_path = $config->getMigrationPath();
-        $files = scandir($migration_path);
+        $files = scandir($path);
 
         foreach ($files as $index => $file) {
 
-          # Remove all filenames with length under '.php' and files which don't end in *.php
           if ( strlen($file) < 5 || ! substr($file, -4) == ".php" ) {
+
+            // Remove all filenames with length under '.php' and files which don't end in *.php
             unset($files[$index]);
           } else {
-            # Use full path for php files
-            $files[$index] = $migration_path.DIRECTORY_SEPARATOR.$file;
+
+            // Use full path for php files
+            $files[$index] = $migration_path . DIRECTORY_SEPARATOR . $file;
           }
         }
 
@@ -633,7 +633,7 @@ class Manager
     {
         if (null === $this->seeds) {
             $config = $this->getConfig();
-            $phpFiles = glob($config->getSeedPath() . DIRECTORY_SEPARATOR . '*.php');
+            $phpFiles = getPhpFiles( $config->getSeedPath() );
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
