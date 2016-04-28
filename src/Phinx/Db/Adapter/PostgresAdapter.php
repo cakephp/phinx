@@ -155,6 +155,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
+
         $info = $this->getTableNameCompound($tableName);
         $result = $this->getConnection()->query(
             sprintf(
@@ -386,12 +387,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function renameColumn($tableName, $columnName, $newColumnName)
     {
         $this->startCommandTimer();
+        $info = $this->getTableNameCompound($tableName);
         $sql = sprintf(
             "SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS column_exists
              FROM information_schema.columns
-             WHERE table_name ='%s' AND column_name = '%s'",
-            $tableName,
-            $columnName
+             WHERE table_name ='%s' AND column_name = '%s' AND table_schema = '%s'",
+            $info[1],
+            $columnName,
+            $info[0]
         );
         $result = $this->fetchRow($sql);
         if (!(bool) $result['column_exists']) {
@@ -1216,12 +1219,18 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         return (count($compoundName) == 1)?$name:$compoundName[1];
     }
 
+    /**
+     * Compound the table name if the schema is another than the default (config file)
+     * and return a array with [schema, table]
+     *
+     * @return array
+     */
     private function getTableNameCompound($name)
     {
         $compoundName = explode('.', $name);
         $schema = (count($compoundName) == 1)?$this->getSchemaName():$compoundName[0];
         $table = (count($compoundName) == 1)?$name:$compoundName[1];
-        return array($schema, $name);
+        return array($schema, $table);
     }
 
 
