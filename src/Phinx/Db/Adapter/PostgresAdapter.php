@@ -136,7 +136,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function quoteTableName($tableName)
     {
-        return $this->quoteSchemaName($this->getSchemaName()) . '.' . $this->quoteColumnName($tableName);
+        $compoundName = explode('.' $tableName);
+        if (count($compoundName) == 1)
+          return $this->quoteSchemaName($this->getSchemaName()) . '.' . $this->quoteColumnName($tableName);
+        return $this->quoteSchemaName($compoundName[0]) . '.' . $this->quoteColumnName($compoundName[1]);
     }
 
     /**
@@ -213,7 +216,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
          // set the primary key(s)
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
-            $sql .= sprintf(' CONSTRAINT %s_pkey PRIMARY KEY (', $table->getName());
+            $sql .= sprintf(' CONSTRAINT %s_pkey PRIMARY KEY (', $this->getTableName($table->getName()));
             if (is_string($options['primary_key'])) {       // handle primary_key => 'id'
                 $sql .= $this->quoteColumnName($options['primary_key']);
             } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
@@ -238,7 +241,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $foreignKeys = $table->getForeignKeys();
         if (!empty($foreignKeys)) {
             foreach ($foreignKeys as $foreignKey) {
-                $sql .= ', ' . $this->getForeignKeySqlDefinition($foreignKey, $table->getName());
+                $sql .= ', ' . $this->getForeignKeySqlDefinition($foreignKey, $this->getTableName($table->getName()));
             }
         }
 
@@ -247,7 +250,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         // process column comments
         if (!empty($this->columnsWithComments)) {
             foreach ($this->columnsWithComments as $column) {
-                $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
+                $sql .= $this->getColumnCommentSqlDefinition($column, $this->getTableName($table->getName()));
             }
         }
 
@@ -256,7 +259,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $indexes = $table->getIndexes();
         if (!empty($indexes)) {
             foreach ($indexes as $index) {
-                $sql .= $this->getIndexSqlDefinition($index, $table->getName());
+                $sql .= $this->getIndexSqlDefinition($index, $this->getTableName($table->getName()));
             }
         }
 
@@ -573,7 +576,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('addIndex', array($table->getName(), $index->getColumns()));
-        $sql = $this->getIndexSqlDefinition($index, $table->getName());
+        $sql = $this->getIndexSqlDefinition($index, $this->getTableName($table->getName()));
         $this->execute($sql);
         $this->endCommandTimer();
     }
@@ -689,7 +692,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $sql = sprintf(
             'ALTER TABLE %s ADD %s',
             $this->quoteTableName($table->getName()),
-            $this->getForeignKeySqlDefinition($foreignKey, $table->getName())
+            $this->getForeignKeySqlDefinition($foreignKey, $this->getTableName($table->getName()))
         );
         $this->execute($sql);
         $this->endCommandTimer();
@@ -1199,4 +1202,18 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $options = $this->getOptions();
         return empty($options['schema']) ? 'public' : $options['schema'];
     }
+
+    /**
+     * Compound the table name if the schema is another than the default (config file)
+     * and return just the name.
+     *
+     * @return string
+     */
+    private function getTableName($name)
+    {
+        $compoundName = explode('.', $name);
+        return (count($compoundName) == 1)?$name:$compoundName[1];
+    }
+
+
 }
