@@ -136,7 +136,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function quoteTableName($tableName)
     {
-        $compoundName = explode('.' $tableName);
+        $compoundName = explode('.', $tableName);
         if (count($compoundName) == 1)
           return $this->quoteSchemaName($this->getSchemaName()) . '.' . $this->quoteColumnName($tableName);
         return $this->quoteSchemaName($compoundName[0]) . '.' . $this->quoteColumnName($compoundName[1]);
