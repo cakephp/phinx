@@ -155,14 +155,15 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
+        $info = $this->getTableNameCompound($tableName);
         $result = $this->getConnection()->query(
             sprintf(
                 'SELECT *
                 FROM information_schema.tables
                 WHERE table_schema = %s
                 AND lower(table_name) = lower(%s)',
-                $this->getConnection()->quote($this->getSchemaName()),
-                $this->getConnection()->quote($tableName)
+                $this->getConnection()->quote($info[0]),
+                $this->getConnection()->quote($info[1])
             )
         );
 
@@ -1213,6 +1214,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $compoundName = explode('.', $name);
         return (count($compoundName) == 1)?$name:$compoundName[1];
+    }
+
+    private function getTableNameCompound($name)
+    {
+        $compoundName = explode('.', $name);
+        $schema = (count($compoundName) == 1)?$this->getSchemaName():$compoundName[0];
+        $table = (count($compoundName) == 1)?$name:$compoundName[1];
+        return array($schema, $name);
     }
 
 
