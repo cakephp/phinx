@@ -34,6 +34,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class Create extends AbstractCommand
@@ -68,6 +69,17 @@ class Create extends AbstractCommand
     }
 
     /**
+     * Get the choice question asking the user for one of multiple valid
+     * migration directories
+     *
+     * @return ChoiceQuestion
+     */
+    protected function getMigrationDirectorySelectionQuestion(array $choices)
+    {
+        return new ChoiceQuestion('Select target migration directory', $choices);
+    }
+
+    /**
      * Get the confirmation question asking if the user wants to create the
      * migrations directory.
      *
@@ -92,7 +104,16 @@ class Create extends AbstractCommand
         $this->bootstrap($input, $output);
 
         // get the migration path from the config
-        $path = $this->getConfig()->getMigrationPath();
+        $paths = glob($this->getConfig()->getMigrationPath(), defined('GLOB_BRACE') ? GLOB_BRACE : 0);
+
+        if (count($paths) > 1) {
+
+          $helper = $this->getHelper('question');
+          $question = $this->getMigrationDirectorySelectionQuestion($paths);
+          $path = $helper->ask($input, $output, $question);
+        } else {
+          $path = $paths[0];
+        }
 
         if (!file_exists($path)) {
             $helper   = $this->getHelper('question');
