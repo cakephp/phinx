@@ -72,6 +72,7 @@ class Create extends AbstractCommand
      * Get the choice question asking the user for one of multiple valid
      * migration directories
      *
+     * @param array $choices Question choices
      * @return ChoiceQuestion
      */
     protected function getMigrationDirectorySelectionQuestion(array $choices)
