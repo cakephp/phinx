@@ -107,7 +107,6 @@ class Create extends AbstractCommand
         $paths = glob($this->getConfig()->getMigrationPath(), defined('GLOB_BRACE') ? GLOB_BRACE : 0);
 
         if (count($paths) > 1) {
-
           $helper = $this->getHelper('question');
           $question = $this->getMigrationDirectorySelectionQuestion($paths);
           $path = $helper->ask($input, $output, $question);
