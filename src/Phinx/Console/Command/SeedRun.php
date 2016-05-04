@@ -71,7 +71,6 @@ EOT
 
         $seed        = $input->getOption('seed');
         $environment = $input->getOption('environment');
-        $seedSet     = (strstr($seed, ',') !== false) ? explode(',', $seed) : [$seed];
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -103,11 +102,18 @@ EOT
             $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
         }
 
-        // run the seed(ers)
         $start = microtime(true);
-        foreach($seedSet as $seed) {
-            $this->getManager()->seed($environment, trim($seed));
+
+        if (null === $seed) {
+            // run all the seed(ers)
+            $this->getManager()->seed($environment);
+        } else {
+            // run seed(ers) specified in a comma-separated list of classes
+            foreach (explode(',', $seed) as $seed) {
+                $this->getManager()->seed($environment, trim($seed));
+            }
         }
+
         $end = microtime(true);
 
         $output->writeln('');
