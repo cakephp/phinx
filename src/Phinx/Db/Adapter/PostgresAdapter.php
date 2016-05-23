@@ -580,7 +580,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->startCommandTimer();
         $this->writeCommand('addIndex', array($table->getName(), $index->getColumns()));
-        $sql = $this->getIndexSqlDefinition($index, $this->getTableName($table->getName()));
+        $sql = $this->getIndexSqlDefinition($index, $table->getName());
         $this->execute($sql);
         $this->endCommandTimer();
     }
