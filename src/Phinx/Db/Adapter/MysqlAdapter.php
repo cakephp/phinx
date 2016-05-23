@@ -41,8 +41,26 @@ use Phinx\Db\Table\ForeignKey;
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
 
-    protected $signedColumnTypes   = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true, 'boolean' => true);
-    protected $zerofillColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
+    /**
+     * @var array
+     */
+    protected $signedColumnTypes = [
+        'integer'    => true, 
+        'biginteger' => true, 
+        'float'      => true, 
+        'decimal'    => true, 
+        'boolean'    => true,
+    ];
+
+    /**
+     * @var array
+     */
+    protected $zerofillColumnTypes = [
+        'integer'    => true,
+        'biginteger' => true, 
+        'float'      => true, 
+        'decimal'    => true,
+    ];
 
     const TEXT_TINY    = 255;
     const TEXT_SMALL   = 255; /* deprecated, alias of TEXT_TINY */
