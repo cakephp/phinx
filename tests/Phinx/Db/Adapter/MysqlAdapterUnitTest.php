@@ -393,8 +393,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $foreignkey->expects($this->any())->method('getConstraint')->will($this->returnValue('fk1'));
         $foreignkey->expects($this->any())->method('getReferencedColumns')->will($this->returnValue(array('id')));
         $foreignkey->expects($this->any())->method('getReferencedTable')->will($this->returnValue($refTable));
-        $foreignkey->expects($this->any())->method('onDelete')->will($this->returnValue(null));
-        $foreignkey->expects($this->any())->method('onUpdate')->will($this->returnValue(null));
+        $foreignkey->expects($this->any())->method('getOnDelete')->will($this->returnValue(null));
+        $foreignkey->expects($this->any())->method('getOnUpdate')->will($this->returnValue(null));
 
         $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue(array($column1, $column2, $column3)));
         $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
@@ -1390,8 +1390,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $foreignkey->expects($this->any())->method('getConstraint')->will($this->returnValue('fk1'));
         $foreignkey->expects($this->any())->method('getReferencedColumns')->will($this->returnValue(array('id')));
         $foreignkey->expects($this->any())->method('getReferencedTable')->will($this->returnValue($refTable));
-        $foreignkey->expects($this->any())->method('onDelete')->will($this->returnValue(null));
-        $foreignkey->expects($this->any())->method('onUpdate')->will($this->returnValue(null));
+        $foreignkey->expects($this->any())->method('getOnDelete')->will($this->returnValue(null));
+        $foreignkey->expects($this->any())->method('getOnUpdate')->will($this->returnValue(null));
 
         $this->assertExecuteSql('ALTER TABLE `table_name` ADD  CONSTRAINT `fk1` FOREIGN KEY (`other_table_id`) REFERENCES `other_table` (`id`)');
         $this->adapter->addForeignKey($table, $foreignkey);
