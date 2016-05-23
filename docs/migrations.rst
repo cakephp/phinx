@@ -653,6 +653,7 @@ Option    Description
 precision combine with ``scale`` set to set decimal accuracy
 scale     combine with ``precision`` to set decimal accuracy
 signed    enable or disable the ``unsigned`` option *(only applies to MySQL)*
+zerofill  enable or disable the ``zerofill`` option *(only applies to MySQL)*
 ========= ===========
 
 For ``enum`` and ``set`` columns:
@@ -670,6 +671,7 @@ Option   Description
 ======== ===========
 identity enable or disable automatic incrementing
 signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
+zerofill enable or disable the ``zerofill`` option *(only applies to MySQL)*
 ======== ===========
 
 For ``timestamp`` columns:
