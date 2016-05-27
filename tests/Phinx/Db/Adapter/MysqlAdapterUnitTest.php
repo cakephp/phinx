@@ -997,6 +997,12 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getPhinxType('decimal(8,2)'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TEXT, 'limit' => 1024, 'precision' => null),
                             $this->adapter->getPhinxType('text(1024)'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_DATETIME, 'limit' => 6, 'precision' => null),
+                            $this->adapter->getPhinxType('datetime(6)'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TIMESTAMP, 'limit' => 6, 'precision' => null),
+                            $this->adapter->getPhinxType('timestamp(6)'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_DATE, 'limit' => 6, 'precision' => null),
+                            $this->adapter->getPhinxType('date(6)'));
     }
 
 

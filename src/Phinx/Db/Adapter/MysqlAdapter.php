@@ -819,13 +819,16 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'decimal');
                 break;
             case static::PHINX_TYPE_DATETIME:
-                return array('name' => 'datetime');
+                $limits = isset($limit) ? array('limit' => $limit) : array();
+                return array('name' => 'datetime') + $limits;
                 break;
             case static::PHINX_TYPE_TIMESTAMP:
-                return array('name' => 'timestamp');
+                $limits = isset($limit) ? array('limit' => $limit) : array();
+                return array('name' => 'timestamp') + $limits;
                 break;
             case static::PHINX_TYPE_TIME:
-                return array('name' => 'time');
+                $limits = isset($limit) ? array('limit' => $limit) : array();
+                return array('name' => 'time') + $limits;
                 break;
             case static::PHINX_TYPE_DATE:
                 return array('name' => 'date');
