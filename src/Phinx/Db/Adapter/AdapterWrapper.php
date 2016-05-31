@@ -144,17 +144,17 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function execute($sql)
+    public function execute($sql, array $bindValues = null)
     {
-        return $this->getAdapter()->execute($sql);
+        return $this->getAdapter()->execute($sql, $bindValues);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function query($sql)
+    public function query($sql, array $bindValues = null)
     {
-        return $this->getAdapter()->query($sql);
+        return $this->getAdapter()->query($sql, $bindValues);
     }
 
     /**
@@ -460,5 +460,16 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function dropDatabase($name)
     {
         return $this->getAdapter()->dropDatabase($name);
+    }
+
+    /**
+     * Gets the adapter-specific bind param type from the abstracted MigrationInterface::PHINX_PARAM_* type.
+     *
+     * @param int $phinxBindParamType
+     * @return int The \PDO equivalent of the Phinx param type.
+     */
+    public function getAdapterBindParamType($phinxBindParamType)
+    {
+        return $this->adapter->getAdapterBindParamType($phinxBindParamType);
     }
 }
