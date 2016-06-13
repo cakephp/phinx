@@ -12,7 +12,7 @@ class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRun($command, $result)
     {
-        $app = new \Phinx\Console\PhinxApplication('testing');
+        $app = new PhinxApplication('testing');
         $app->setAutoExit(false); // Set autoExit to false when testing
         $app->setCatchExceptions(false);
 

@@ -2,11 +2,11 @@
 
 namespace Test\Phinx\Migration;
 
-use Symfony\Component\Console\Output\StreamOutput;
 use Phinx\Config\Config;
-use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Migration\Manager;
 use Phinx\Migration\Manager\Environment;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\StreamOutput;
 
 class ManagerTest extends \PHPUnit_Framework_TestCase
 {
@@ -18,8 +18,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $config = new Config($this->getConfigArray());
+        $input = new ArrayInput([]);
         $output = new StreamOutput(fopen('php://memory', 'a', false));
-        $this->manager = new Manager($config, $output);
+        $this->manager = new Manager($config, $input, $output);
     }
 
     protected function tearDown()
@@ -189,9 +190,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             'Duplicate migration - "' . $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions/20120111235330_duplicate_migration_2.php') . '" has the same version as "20120111235330"'
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions'))));
+        $input = new ArrayInput([]);
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $output->setDecorated(false);
-        $manager = new Manager($config, $output);
+        $manager = new Manager($config, $input, $output);
         $manager->getMigrations();
     }
 
@@ -202,9 +204,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             'Migration "20120111235331_duplicate_migration_name.php" has the same name as "20120111235330_duplicate_migration_name.php"'
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicatenames'))));
+        $input = new ArrayInput([]);
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $output->setDecorated(false);
-        $manager = new Manager($config, $output);
+        $manager = new Manager($config, $input, $output);
         $manager->getMigrations();
     }
 
@@ -215,9 +218,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             'Could not find class "InvalidClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname/20120111235330_invalid_class.php') . '"'
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname'))));
+        $input = new ArrayInput([]);
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $output->setDecorated(false);
-        $manager = new Manager($config, $output);
+        $manager = new Manager($config, $input, $output);
         $manager->getMigrations();
     }
 
@@ -228,9 +232,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             'The class "InvalidSuperClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass/20120111235330_invalid_super_class.php') . '" must extend \Phinx\Migration\AbstractMigration'
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass'))));
+        $input = new ArrayInput([]);
         $output = new StreamOutput(fopen('php://memory', 'a', false));
         $output->setDecorated(false);
-        $manager = new Manager($config, $output);
+        $manager = new Manager($config, $input, $output);
         $manager->getMigrations();
     }
 
@@ -365,6 +370,21 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         $this->assertContains('UserSeeder', $output);
+    }
+
+    public function testGettingInputObject()
+    {
+        $migrations = $this->manager->getMigrations();
+        $seeds = $this->manager->getSeeds();
+        $inputObject = $this->manager->getInput();
+        $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $inputObject);
+
+        foreach ($migrations as $migration) {
+            $this->assertEquals($inputObject, $migration->getInput());
+        }
+        foreach ($seeds as $seed) {
+            $this->assertEquals($inputObject, $seed->getInput());
+        }
     }
 
     public function testGettingOutputObject()

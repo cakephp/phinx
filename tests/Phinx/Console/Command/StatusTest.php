@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Console\Command;
 
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\StreamOutput;
 use Phinx\Config\Config;
@@ -38,12 +39,13 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $application->add(new Status());
 
         // setup dependencies
+        $input = new ArrayInput([]);
         $output = new StreamOutput(fopen('php://memory', 'a', false));
 
         $command = $application->find('status');
 
         // mock the manager class
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $input, $output));
         $managerStub->expects($this->once())
                     ->method('printStatus')
                     ->will($this->returnValue(0));
@@ -64,12 +66,13 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $application->add(new Status());
 
         // setup dependencies
+        $input = new ArrayInput([]);
         $output = new StreamOutput(fopen('php://memory', 'a', false));
 
         $command = $application->find('status');
 
         // mock the manager class
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $input, $output));
         $managerStub->expects($this->once())
                     ->method('printStatus')
                     ->will($this->returnValue(0));
@@ -89,12 +92,13 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $application->add(new Status());
 
         // setup dependencies
+        $input = new ArrayInput([]);
         $output = new StreamOutput(fopen('php://memory', 'a', false));
 
         $command = $application->find('status');
 
         // mock the manager class
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $input, $output));
         $managerStub->expects($this->once())
                     ->method('printStatus')
                     ->will($this->returnValue(0));

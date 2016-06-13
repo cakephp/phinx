@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
@@ -62,7 +63,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED constant.');
         }
 
-        $this->adapter = new MysqlAdapterTester(array(), new NullOutput());
+        $this->adapter = new MysqlAdapterTester(array(), new ArrayInput([]), new NullOutput());
 
         $this->conn = $this->getMockBuilder('PDOMock')
                            ->disableOriginalConstructor()

@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Console\Command;
 
+use Phinx\Console\PhinxApplication;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\StreamOutput;
 use Phinx\Console\Command\Init;
@@ -18,7 +19,7 @@ class InitTest extends \PHPUnit_Framework_TestCase
 
     public function testConfigIsWritten()
     {
-        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application = new PhinxApplication('testing');
         $application->add(new Init());
 
         // setup dependencies
@@ -52,7 +53,7 @@ class InitTest extends \PHPUnit_Framework_TestCase
     public function testThrowsExceptionWhenConfigFilePresent()
     {
         touch(sys_get_temp_dir() . '/phinx.yml');
-        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application = new PhinxApplication('testing');
         $application->add(new Init());
 
         // setup dependencies
