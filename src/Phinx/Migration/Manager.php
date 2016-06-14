@@ -124,6 +124,11 @@ class Manager
                     '%s %14.0f  %19s  %19s  <comment>%s</comment>',
                     $status, $migration->getVersion(), $version['start_time'], $version['end_time'], $migration->getName()
                 ));
+
+                if ($version && $version['breakpoint']){
+                    $output->writeln('         <error>BREAKPOINT SET</error>');
+                }
+
                 $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
                 unset($versions[$migration->getVersion()]);
             }
@@ -135,6 +140,10 @@ class Manager
                         '     <error>up</error>  %14.0f  %19s  %19s  <comment>%s</comment>  <error>** MISSING **</error>',
                         $missing, $version['start_time'], $version['end_time'], str_pad($version['migration_name'], $maxNameLength, ' ')
                     ));
+
+                    if ($version && $version['breakpoint']){
+                        $output->writeln('         <error>BREAKPOINT SET</error>');
+                    }
                 }
             }
         } else {
@@ -198,10 +207,11 @@ class Manager
      *
      * @param string    $environment Environment
      * @param \DateTime $dateTime    Date to roll back to
+     * @param bool $force
      *
      * @return void
      */
-    public function rollbackToDateTime($environment, \DateTime $dateTime)
+    public function rollbackToDateTime($environment, \DateTime $dateTime, $force = false)
     {
         $env        = $this->getEnvironment($environment);
         $versions   = $env->getVersions();
@@ -224,7 +234,7 @@ class Manager
                 $this->getOutput()->writeln('Rolling back to version ' . $earlierVersion);
                 $migration = $earlierVersion;
             }
-            $this->rollback($environment, $migration);
+            $this->rollback($environment, $migration, $force);
         }
     }
 
@@ -351,13 +361,14 @@ class Manager
      *
      * @param string $environment Environment
      * @param int $version
+     * @param bool $force
      * @return void
      */
-    public function rollback($environment, $version = null)
+    public function rollback($environment, $version = null, $force = false)
     {
         $migrations = $this->getMigrations();
-        $env = $this->getEnvironment($environment);
-        $versions = $env->getVersions();
+        $versionLog = $this->getEnvironment($environment)->getVersionLog();
+        $versions = array_keys($versionLog);
 
         ksort($migrations);
         sort($versions);
@@ -372,10 +383,10 @@ class Manager
         if (null === $version) {
             // Get the migration before the last run migration
             $prev = count($versions) - 2;
-            $version = $prev >= 0 ? $versions[$prev] : 0;
+            $version =  0 == $prev ? 0 : $versions[$prev];
         } else {
             // Get the first migration number
-            $first = reset($versions);
+            $first = $versions[0];
 
             // If the target version is before the first migration, revert all migrations
             if ($version < $first) {
@@ -397,6 +408,10 @@ class Manager
             }
 
             if (in_array($migration->getVersion(), $versions)) {
+                if (isset($versionLog[$migration->getVersion()]) && 0 != $versionLog[$migration->getVersion()]['breakpoint'] && !$force){
+                    $this->getOutput()->writeln('<error>Breakpoint reached. Further rollbacks inhibited.</error>');
+                    break;
+                }
                 $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
             }
         }
@@ -556,7 +571,7 @@ class Manager
                     }
 
                     // instantiate it
-                    $migration = new $class($version);
+                    $migration = new $class($version, $this->getOutput());
 
                     if (!($migration instanceof AbstractMigration)) {
                         throw new \InvalidArgumentException(sprintf(
@@ -566,7 +581,6 @@ class Manager
                         ));
                     }
 
-                    $migration->setOutput($this->getOutput());
                     $versions[$version] = $migration;
                 }
             }
@@ -667,5 +681,59 @@ class Manager
     public function getConfig()
     {
         return $this->config;
+    }
+
+    /**
+     * Toggles the breakpoint for a specific version.
+     *
+     * @param string $environment
+     * @param int $version
+     * @return void
+     */
+    public function toggleBreakpoint($environment, $version){
+        $migrations = $this->getMigrations();
+        $this->getMigrations();
+        $env = $this->getEnvironment($environment);
+        $versions = $env->getVersionLog();
+
+        if (empty($versions) || empty($migrations)) {
+            return;
+        }
+
+        if (null === $version) {
+            $lastVersion = end($versions);
+            $version = $lastVersion['version'];
+        }
+
+        if (0 != $version && !isset($migrations[$version])) {
+            $this->output->writeln(sprintf(
+                '<comment>warning</comment> %s is not a valid version',
+                $version
+            ));
+            return;
+        }
+
+        $env->getAdapter()->toggleBreakpoint($migrations[$version]);
+
+        $versions = $env->getVersionLog();
+
+        $this->getOutput()->writeln(
+            ' Breakpoint ' . ($versions[$version]['breakpoint'] ? 'set' : 'cleared') .
+            ' for <info>' . $version . '</info>' .
+            ' <comment>' . $migrations[$version]->getName() . '</comment>'
+        );
+    }
+
+    /**
+     * Remove all breakpoints
+     *
+     * @param string $environment
+     * @return void
+     */
+    public function removeBreakpoints($environment){
+        $this->getOutput()->writeln(sprintf(
+            ' %d breakpoints cleared.',
+            $this->getEnvironment($environment)->getAdapter()->resetAllBreakpoints()
+        ));
     }
 }

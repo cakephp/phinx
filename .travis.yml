@@ -13,15 +13,12 @@ php:
   - hhvm
 
 matrix:
-    include:
-        - php: 5.4
-          env: 'COMPOSER_FLAGS="--prefer-stable --prefer-lowest"'
     allow_failures:
         - php: hhvm
 
 before_script:
     - travis_retry composer self-update
-    - travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source
+    - travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-stable --prefer-lowest --prefer-source
     - mysql -e 'create database phinx_testing;'
     - psql -c 'create database phinx_testing;' -U postgres
 

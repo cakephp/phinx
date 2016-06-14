@@ -23,6 +23,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
+ * @author     Richard Quadling
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -32,7 +33,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Rollback extends AbstractCommand
+class Breakpoint extends AbstractCommand
 {
     /**
      * {@inheritdoc}
@@ -41,32 +42,27 @@ class Rollback extends AbstractCommand
     {
         parent::configure();
 
-        $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
+        $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment.');
 
-        $this->setName('rollback')
-             ->setDescription('Rollback the last or to a specific migration')
-             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to rollback to')
-             ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to rollback to')
-             ->addOption('--force', '-f', InputOption::VALUE_NONE, 'Force rollback to ignore breakpoints')
+        $this->setName('breakpoint')
+             ->setDescription('Manage breakpoints')
+             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to set or clear a breakpoint against')
+             ->addOption('--remove-all', '-r', InputOption::VALUE_NONE, 'Remove all breakpoints')
              ->setHelp(
 <<<EOT
-The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
+The <info>breakpoint</info> command allows you to set or clear a breakpoint against a specific target to inhibit rollbacks beyond a certain target.
+If no target is supplied then the most recent migration will be used.
+You cannot specify un-migrated targets
 
-<info>phinx rollback -e development</info>
-<info>phinx rollback -e development -t 20111018185412</info>
-<info>phinx rollback -e development -d 20111018</info>
-<info>phinx rollback -e development -v</info>
-<info>phinx rollback -e development -t 20111018185412 -f</info>
-
-If you have a breakpoint set, then you can rollback to target 0 and the rollbacks will stop at the breakpoint.
-<info>phinx rollback -e development -t 0 </info>
-
+<info>phinx breakpoint -e development</info>
+<info>phinx breakpoint -e development -t 20110103081132</info>
+<info>phinx breakpoint -e development -r</info>
 EOT
              );
     }
 
     /**
-     * Rollback the migration.
+     * Toggle the breakpoint.
      *
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -77,9 +73,8 @@ EOT
         $this->bootstrap($input, $output);
 
         $environment = $input->getOption('environment');
-        $version     = $input->getOption('target');
-        $date        = $input->getOption('date');
-        $force       = !!$input->getOption('force');
+        $version = $input->getOption('target');
+        $removeAll = $input->getOption('remove-all');
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -88,29 +83,16 @@ EOT
             $output->writeln('<info>using environment</info> ' . $environment);
         }
 
-        $envOptions = $this->getConfig()->getEnvironment($environment);
-        if (isset($envOptions['adapter'])) {
-            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
+        if ($version && $removeAll){
+            throw new \InvalidArgumentException('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
         }
 
-        if (isset($envOptions['wrapper'])) {
-            $output->writeln('<info>using wrapper</info> ' . $envOptions['wrapper']);
-        }
-
-        if (isset($envOptions['name'])) {
-            $output->writeln('<info>using database</info> ' . $envOptions['name']);
-        }
-
-        // rollback the specified environment
-        $start = microtime(true);
-        if (null !== $date) {
-            $this->getManager()->rollbackToDateTime($environment, new \DateTime($date), $force);
+        // Remove all breakpoints
+        if ($removeAll){
+            $this->getManager()->removeBreakpoints($environment);
         } else {
-            $this->getManager()->rollback($environment, $version, $force);
+            // Toggle the breakpoint.
+            $this->getManager()->toggleBreakpoint($environment, $version);
         }
-        $end = microtime(true);
-
-        $output->writeln('');
-        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
     }
 }
