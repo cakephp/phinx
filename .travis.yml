@@ -18,7 +18,7 @@ matrix:
 
 before_script:
     - travis_retry composer self-update
-    - travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-stable --prefer-lowest
+    - travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-stable
     - mysql -e 'create database phinx_testing;'
     - psql -c 'create database phinx_testing;' -U postgres
 
