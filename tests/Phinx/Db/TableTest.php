@@ -263,4 +263,40 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table->insert($columns, $data)->save();
         $this->assertEquals(array(), $table->getData());
     }
+
+    public function testSetUpdateDataAndDataIsCleared()
+    {
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', array(), array(array()));
+        $table = new \Phinx\Db\Table('ntable', array(), $adapterStub);
+        $data = array(
+            array(
+                'column1' => 'value1'
+            ),
+            array(
+                'column2' => 'value2'
+            )
+        );
+
+        $updateData = array(
+            array(
+                'column1' => 'value3'
+            ),
+            array(
+                'column2' => 'value4'
+            )
+        );
+
+        $adapterStub->expects($this->exactly(2))
+            ->method('insert')
+            ->with($table, $this->logicalOr($data[0], $data[1]));
+        $table->insert($data)->save();
+
+        $adapterStub->expects($this->exactly(2))
+            ->method('update')
+            ->with($table, $this->logicalOr($updateData[0], $updateData[1]));
+        $table->setData($updateData);
+        $table->updateData('K');
+        
+        $this->assertEmpty($table->getData());
+    }
 }

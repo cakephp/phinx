@@ -298,6 +298,70 @@ insert methods in your migrations.
     You cannot use the insert methods inside a `change()` method. Please use the
     `up()` and `down()` methods.
 
+Updating Data
+-------------
+
+Phinx makes it easy to update data in your tables. Whilst this feature is
+intended for the :doc:`seed feature <seeding>`, you are also free to use the
+update methods in your migrations. Using this in migrations is especially useful when you are working with
+an existing database.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class UpdateStatus extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                // updating only one row
+                $singleRow = [
+                    'id'    => 1,
+                    'name'  => 'In Progression'
+                ]
+
+                $table = $this->table('status');
+                $table->setData([$singleRow]); // setData expects an array of rows (a row is an array of fields)
+                $table->updateData('id');
+
+                // updating multiple rows
+                $rows = [
+                    [
+                      'id'    => 2,
+                      'name'  => 'Stopping'
+                    ],
+                    [
+                      'id'    => 3,
+                      'name'  => 'Queueing'
+                    ]
+                ];
+
+                // this is a handy shortcut
+                $this->update('status', $rows, ['id']);
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+                $this->execute('DELETE FROM status');
+            }
+        }
+
+.. note::
+
+    1. The `$whereColumns` **cannot** be updated. However, they **must** be included
+    in the `$row` to properly update.
+
+    2. You cannot use the update methods inside a `change()` method. Please use the
+    `up()` and `down()` methods.
+
 Working With Tables
 -------------------
 

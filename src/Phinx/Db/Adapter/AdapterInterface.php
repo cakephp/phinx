@@ -282,6 +282,16 @@ interface AdapterInterface
     public function insert(Table $table, $row);
 
     /**
+     * Updates data into a table.
+     * 
+     * @param Table $table where to update data
+     * @param array $row of data to be updated
+     * @param array|string $whereColumns specifying which row to update
+     * @return void
+     */
+    public function update(Table $table, $row, $whereColumns);
+
+    /**
      * Quotes a table name for use in a query.
      *
      * @param string $tableName Table Name

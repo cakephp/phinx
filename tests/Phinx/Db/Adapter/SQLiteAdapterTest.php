@@ -678,4 +678,201 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(false, $dd->isNull());
         $this->assertEquals("some2", $dd->getDefault());
     }
+
+    public function testUpdateData()
+    {
+        $data = array(
+            array(
+                'column1' => 'value1',
+                'column2' => 1,
+            ),
+            array(
+                'column1' => 'value2',
+                'column2' => 2,
+            ),
+            array(
+                'column1' => 'value3',
+                'column2' => 3,
+                'column3' => 'foo',
+            )
+        );
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', array('default' => 'test'))
+            ->insert($data)
+            ->save();
+
+        $updateData = array(
+            array(
+                'column1' => 'value1',
+                'column2' => 4,
+                'column3' => 'nottest',
+            ),
+            array(
+                'column1' => 'value2',
+                'column2' => 5,
+                'column3' => 'istest',
+            ),
+        );
+        $table->setData($updateData);
+        $table->updateData(['column1']);
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1 ORDER BY column1');
+        $this->assertEquals('value1', $rows[0]['column1']);
+        $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals('value3', $rows[2]['column1']);
+        $this->assertEquals(4, $rows[0]['column2']);
+        $this->assertEquals(5, $rows[1]['column2']);
+        $this->assertEquals(3, $rows[2]['column2']);
+        $this->assertEquals('nottest', $rows[0]['column3']);
+        $this->assertEquals('istest', $rows[1]['column3']);
+        $this->assertEquals('foo', $rows[2]['column3']);
+    }
+
+    public function testUpdateDataStringWhereColumn()
+    {
+        $data = array(
+            array(
+                'column1' => 'value1',
+                'column2' => 1,
+            ),
+            array(
+                'column1' => 'value2',
+                'column2' => 2,
+            ),
+            array(
+                'column1' => 'value3',
+                'column2' => 3,
+                'column3' => 'foo',
+            )
+        );
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', array('default' => 'test'))
+            ->insert($data)
+            ->save();
+
+        $updateData = array(
+            array(
+                'column1' => 'value1',
+                'column2' => 4,
+                'column3' => 'nottest',
+            ),
+            array(
+                'column1' => 'value2',
+                'column2' => 5,
+                'column3' => 'istest',
+            ),
+        );
+        $table->setData($updateData);
+        $table->updateData('column1');
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1 ORDER BY column1');
+        $this->assertEquals('value1', $rows[0]['column1']);
+        $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals('value3', $rows[2]['column1']);
+        $this->assertEquals(4, $rows[0]['column2']);
+        $this->assertEquals(5, $rows[1]['column2']);
+        $this->assertEquals(3, $rows[2]['column2']);
+        $this->assertEquals('nottest', $rows[0]['column3']);
+        $this->assertEquals('istest', $rows[1]['column3']);
+        $this->assertEquals('foo', $rows[2]['column3']);
+    }
+
+    public function testUpdateDataMultipleWhereColumns()
+    {
+        $data = array(
+            array(
+                'column1' => 'value1',
+                'column2' => 1,
+            ),
+            array(
+                'column1' => 'value2',
+                'column2' => 2,
+            ),
+            array(
+                'column1' => 'value3',
+                'column2' => 3,
+                'column3' => 'foo',
+            )
+        );
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', array('default' => 'test'))
+            ->insert($data)
+            ->save();
+
+        $updateData = array(
+            array(
+                'column1' => 'value1',
+                'column2' => 4,
+                'column3' => 'test',
+            ),
+            array(
+                'column1' => 'value2',
+                'column2' => 5,
+                'column3' => 'test',
+            ),
+        );
+        $table->setData($updateData);
+        $table->updateData(['column1', 'column3']);
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1 ORDER BY column1');
+        $this->assertEquals('value1', $rows[0]['column1']);
+        $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals('value3', $rows[2]['column1']);
+        $this->assertEquals(4, $rows[0]['column2']);
+        $this->assertEquals(5, $rows[1]['column2']);
+        $this->assertEquals(3, $rows[2]['column2']);
+        $this->assertEquals('test', $rows[0]['column3']);
+        $this->assertEquals('test', $rows[1]['column3']);
+        $this->assertEquals('foo', $rows[2]['column3']);;
+    }
+
+    public function testUpdateDataWhereColumnsException()
+    {
+        $data = array(
+            array(
+                'column1' => 'value1',
+                'column2' => 1,
+            ),
+            array(
+                'column1' => 'value2',
+                'column2' => 2,
+            ),
+            array(
+                'column1' => 'value3',
+                'column2' => 3,
+                'column3' => 'foo',
+            )
+        );
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', array('default' => 'test'))
+            ->insert($data)
+            ->save();
+
+        $updateData = array(
+            array(
+                'column1' => 'value1',
+                'column2' => 4,
+                'column3' => 'nottest',
+            ),
+            array(
+                'column1' => 'value2',
+                'column2' => 5,
+                'column3' => 'istest',
+            ),
+        );
+        $table->setData($updateData);
+        $this->setExpectedException('InvalidArgumentException');
+        $table->updateData(null);
+
+        $this->setExpectedException('InvalidArgumentException');
+        $table->updateData(1);
+    }
 }

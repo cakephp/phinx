@@ -650,6 +650,21 @@ class Table
     }
 
     /**
+     * Commit the pending data waiting for update.
+     * 
+     * @param  $whereColumns
+     * @return void
+     */
+    public function updateData($whereColumns)
+    {
+        foreach ($this->getData() as $row) {
+            $this->getAdapter()->update($this, $row, $whereColumns);
+        }
+
+        $this->setData(array()); // reset data as all has been updated
+    }
+
+    /**
      * Commits the table changes.
      *
      * If the table doesn't exist it is created otherwise it is updated.

@@ -186,6 +186,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function update(Table $table, $row, $whereColumns)
+    {
+        return $this->getAdapter()->update($table, $row, $whereColumns);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function fetchRow($sql)
     {
         return $this->getAdapter()->fetchRow($sql);
