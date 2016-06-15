@@ -116,6 +116,7 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 **0.5.x-dev** (****)
 
 * Bug fix for migration template source - defaults and command line
+* Bug fixes
 
 **0.5.4** (Monday, 25th April 2016)
 
