@@ -47,10 +47,11 @@ class CodeGenerator
     {
         $stringParts = array();
         $options = $table->getOptions();
-        foreach ($options as $option => $value) {
 
-            //TODO: move common code or probably replace with something cooler
+        foreach ($options as $option => $value) {
+            // TODO: move common code or probably replace with something cooler
             // like var_export() but with friendly output
+
             if (is_numeric($value)) {
                 $string = "'{$option}'=>$value";
             } elseif (is_bool($value)) {
@@ -80,7 +81,7 @@ class CodeGenerator
      */
     public static function buildColumnOptionsString(Column $column)
     {
-        $options = array('length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment');
+        $options = array('length', 'default', 'null', 'precision', 'scale', 'after', 'update', 'comment', 'values');
         $stringParts = array();
         foreach ($options as $option) {
             if ($option === 'length') {
@@ -91,11 +92,9 @@ class CodeGenerator
 
             $value = $column->$method();
             if ($value === null) {
-
                 continue;
             }
             if ($option === 'null' && $value === false) {
-
                 continue;
             }
 
@@ -104,6 +103,11 @@ class CodeGenerator
                 $string = "'{$option}'=>$value";
             } elseif (is_bool($value)) {
                 $string = $value ? "'{$option}'=>true" : "'{$option}'=>false";
+            } elseif (is_array($value)) {
+                // var_export is a bit verbose, but it is safe for strings
+                // that conflict with PHP code.
+                $value = str_replace("\n", "", var_export($value, true));
+                $string = "'{$option}'=>$value";
             } else {
                 $string = "'{$option}'=>'$value'";
             }
