@@ -935,7 +935,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     $column->getPrecision() ? $column->getPrecision() : $sqlType['precision'],
                     $column->getScale() ? $column->getScale() : $sqlType['scale']
                 );
-            } elseif (in_array($sqlType['name'], array('geometry', 'polygon', 'linestring', 'point'))) {
+            } elseif (in_array($sqlType['name'], array('geography'))) {
                 // geography type must be written with geometry type and srid, like this: geography(POLYGON,4326)
                 $buffer[] = sprintf(
                     '(%s,%s)',
