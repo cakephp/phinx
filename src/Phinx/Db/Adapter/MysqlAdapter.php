@@ -363,6 +363,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                    ->setType($phinxType['name'])
                    ->setLimit($phinxType['limit']);
 
+            if ($phinxType['values'] !== null) {
+                $column->setValues($phinxType['values']);
+            }
+
             if ($columnInfo['Extra'] === 'auto_increment') {
                 $column->setIdentity(true);
             }
@@ -889,6 +893,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } else {
             $limit = null;
             $precision = null;
+            $values = null;
             $type = $matches[1];
             if (count($matches) > 2) {
                 $limit = $matches[3] ? (int) $matches[3] : null;
@@ -967,6 +972,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     $type  = static::PHINX_TYPE_TEXT;
                     $limit = static::TEXT_LONG;
                     break;
+                case 'enum':
+                    $type  = static::PHINX_TYPE_ENUM;
+                    $values = str_getcsv(substr($matches[6], 1, -1), ',', '\'');
+                    break;
             }
 
             $this->getSqlType($type, $limit);
@@ -974,7 +983,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             return array(
                 'name' => $type,
                 'limit' => $limit,
-                'precision' => $precision
+                'precision' => $precision,
+                'values' => $values,
             );
         }
     }
