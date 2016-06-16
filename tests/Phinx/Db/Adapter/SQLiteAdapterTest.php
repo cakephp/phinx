@@ -363,7 +363,8 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column11', 'binary')
               ->addColumn('column12', 'boolean')
               ->addColumn('column13', 'string', array('limit' => 10))
-              ->addColumn('column15', 'integer', array('limit' => 10));
+              ->addColumn('column15', 'integer', array('limit' => 10))
+              ->addColumn('column16', 'enum', array('values' => array('a', 'b', 'c')));
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -618,6 +619,24 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $rows[0]['column2']);
         $this->assertEquals(2, $rows[1]['column2']);
         $this->assertEquals(3, $rows[2]['column2']);
+    }
+
+    public function testInserDataEnum()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'enum', array('values' => ['a', 'b', 'c']))
+              ->addColumn('column2', 'enum', array('values' => ['a', 'b', 'c'], 'null' => true))
+              ->addColumn('column3', 'enum', array('values' => ['a', 'b', 'c'], 'default' => 'c'))
+              ->insert(array(
+                  'column1' => 'a',
+              ))
+              ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+
+        $this->assertEquals('a', $rows[0]['column1']);
+        $this->assertEquals(null, $rows[0]['column2']);
+        $this->assertEquals('c', $rows[0]['column3']);
     }
 
     public function testNullWithoutDefaultValue()
