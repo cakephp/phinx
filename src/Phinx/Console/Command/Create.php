@@ -242,6 +242,6 @@ class Create extends AbstractCommand
             $output->writeln('<info>using default template</info>');
         }
 
-        $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
+        $output->writeln('<info>created</info> ' . str_replace(getcwd(), '', $filePath));
     }
 }
