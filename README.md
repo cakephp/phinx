@@ -113,7 +113,7 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 ### Version History
 
-**0.5.x-dev** (****)
+**0.5.5** (Friday, 17th May 2016)
 
 * Fix support for running multiple seeders 
 * Bug fix for migration template source - defaults and command line
