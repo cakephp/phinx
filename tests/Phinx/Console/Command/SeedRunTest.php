@@ -129,7 +129,7 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute(
             array(
                 'command' => $command->getName(),
-                '--seed' => 'One,Two,Three'
+                '--seed' => ['One', 'Two', 'Three'],
             ),
             array('decorated' => false)
         );

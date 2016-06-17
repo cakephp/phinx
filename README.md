@@ -115,6 +115,7 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 
 **0.5.x-dev** (****)
 
+* Fix support for running multiple seeders 
 * Bug fix for migration template source - defaults and command line
 * Bug fixes
 

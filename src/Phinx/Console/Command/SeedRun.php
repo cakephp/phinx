@@ -45,13 +45,14 @@ class SeedRun extends AbstractCommand
 
         $this->setName('seed:run')
              ->setDescription('Run database seeders')
-             ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED, 'What is the name of the seeder?')
+             ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
              ->setHelp(
 <<<EOT
 The <info>seed:run</info> command runs all available or individual seeders
 
 <info>phinx seed:run -e development</info>
 <info>phinx seed:run -e development -s UserSeeder</info>
+<info>phinx seed:run -e development -s UserSeeder -s PermissionSeeder -s LogSeeder</info>
 <info>phinx seed:run -e development -v</info>
 
 EOT
@@ -69,7 +70,7 @@ EOT
     {
         $this->bootstrap($input, $output);
 
-        $seed        = $input->getOption('seed');
+        $seedSet     = $input->getOption('seed');
         $environment = $input->getOption('environment');
 
         if (null === $environment) {
@@ -104,12 +105,12 @@ EOT
 
         $start = microtime(true);
 
-        if (null === $seed) {
+        if (empty($seedSet)) {
             // run all the seed(ers)
             $this->getManager()->seed($environment);
         } else {
             // run seed(ers) specified in a comma-separated list of classes
-            foreach (explode(',', $seed) as $seed) {
+            foreach ($seedSet as $seed) {
                 $this->getManager()->seed($environment, trim($seed));
             }
         }
