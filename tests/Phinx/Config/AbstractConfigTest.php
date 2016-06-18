@@ -16,6 +16,11 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
     protected $migrationPath = null;
 
     /**
+     * @var string
+     */
+    protected $seedPath = null;
+
+    /**
      * Returns a sample configuration array for use with the unit tests.
      *
      * @return array
@@ -30,7 +35,8 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
                 )
             ),
             'paths' => array(
-                'migrations' => $this->getMigrationPath(),
+                'migrations' => $this->getMigrationPaths(),
+                'seeds' => $this->getSeedPaths()
             ),
             'templates' => array(
                 'file' => '%%PHINX_CONFIG_PATH%%/tpl/testtemplate.txt',
@@ -52,14 +58,30 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Generate dummy migration path
-     * @return string
+     * Generate dummy migration paths
+     *
+     * @return string[]
      */
-    protected function getMigrationPath()
+    protected function getMigrationPaths()
     {
         if (null === $this->migrationPath) {
             $this->migrationPath = uniqid('phinx', true);
         }
-        return $this->migrationPath;
+
+        return array($this->migrationPath);
+    }
+
+    /**
+     * Generate dummy seed paths
+     *
+     * @return string[]
+     */
+    protected function getSeedPaths()
+    {
+        if (null === $this->seedPath) {
+            $this->seedPath = uniqid('phinx', true);
+        }
+
+        return array($this->seedPath);
     }
 }

@@ -58,8 +58,10 @@ class CreateTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        foreach (glob($this->config->getMigrationPath().'/*.*') as $migration) {
-            unlink($migration);
+        foreach ($this->config->getMigrationPaths() as $path) {
+            foreach (glob($path.'/*.*') as $migration) {
+                unlink($migration);
+            }
         }
 
         $this->input = new ArrayInput([]);
