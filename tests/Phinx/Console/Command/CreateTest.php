@@ -45,8 +45,10 @@ class CreateTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        foreach (glob($this->config->getMigrationPath().'/*.*') as $migration) {
-            unlink($migration);
+        foreach ($this->config->getMigrationPaths() as $path) {
+            foreach (glob($path.'/*.*') as $migration) {
+                unlink($migration);
+            }
         }
     }
 
@@ -325,17 +327,27 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $commandLine = array_merge(array('command' => $command->getName()), $commandLine);
         $commandTester->execute($commandLine, array('decorated' => false));
 
-        // Get output.
-        preg_match('`^using migration path (.*?)\s+using migration base class (.*?)\s+using template creation class (.*?)\s+created (\1.(\d++)(.*?))\s+`', $commandTester->getDisplay(), $match);
+        // Get the created file path from the output.
+        preg_match('`created (.+)\s+`', $commandTester->getDisplay(), $match);
+
+        if (!isset($match[1])) {
+            $this->fail(
+                'Something went wrong, couldn\'t find created file in the output: ' . PHP_EOL . $commandTester->getDisplay()
+            );
+        }
 
         // Was migration created?
-        $this->assertFileExists($match[4], 'Failed to create migration file from template generator');
+        $this->assertFileExists($match[1], 'Failed to create migration file from template generator');
 
         // Get migration.
-        $actualMigration = file_get_contents($match[4]);
+        $actualMigration = file_get_contents($match[1]);
+
+        // Get the version from the filename.
+        preg_match('`^\d+`', basename($match[1]), $match);
+        $version = array_shift($match);
 
         // Does the migration match our expectation?
-        $expectedMigration = "useClassName Phinx\\Migration\\AbstractMigration / className {$commandLine['name']} / version {$match[5]} / baseClassName AbstractMigration";
+        $expectedMigration = "useClassName Phinx\\Migration\\AbstractMigration / className {$commandLine['name']} / version {$version} / baseClassName AbstractMigration";
         $this->assertSame($expectedMigration, $actualMigration, 'Failed to create migration file from template generator correctly.');
     }
 }
