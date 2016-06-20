@@ -328,7 +328,7 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute($commandLine, array('decorated' => false));
 
         // Get output.
-        preg_match('`^using migration paths\s+(.*?)\s+using migration base class (.*?)\s+using template creation class (.*?)\s+created (\1.(\d++)(.*?))\s+`', $commandTester->getDisplay(), $match);
+        preg_match('`^using migration paths\s+ \- (.*?)\s+using migration base class (.*?)\s+using template creation class (.*?)\s+created (\1.(\d++)(.*?))\s+`', $commandTester->getDisplay(), $match);
 
         // Was migration created?
         $this->assertFileExists($match[4], 'Failed to create migration file from template generator');
