@@ -339,8 +339,11 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         // Was migration created?
         $this->assertFileExists(
             $match[1],
-            'Failed to create migration file from template generator, the existing files are ' . PHP_EOL .
-            implode(PHP_EOL, scandir(dirname($match[1])))
+            sprintf(
+                'Failed to create migration file from template generator. In directory %s the existing files are: %s',
+                dirname($match[1]),
+                PHP_EOL . ' - ' . implode(PHP_EOL . ' - ', array_diff(array('.', '..'), scandir(dirname($match[1]))))
+            )
         );
 
         // Get migration.
