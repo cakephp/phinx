@@ -327,34 +327,17 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $commandLine = array_merge(array('command' => $command->getName()), $commandLine);
         $commandTester->execute($commandLine, array('decorated' => false));
 
-        // Get the created file path from the output.
-        preg_match('`created (.+)\s+`', $commandTester->getDisplay(), $match);
-
-        if (!isset($match[1])) {
-            $this->fail(
-                'Something went wrong, couldn\'t find created file in the output: ' . PHP_EOL . $commandTester->getDisplay()
-            );
-        }
+        // Get output.
+        preg_match('`^using migration paths\s+(.*?)\s+using migration base class (.*?)\s+using template creation class (.*?)\s+created (\1.(\d++)(.*?))\s+`', $commandTester->getDisplay(), $match);
 
         // Was migration created?
-//        $this->assertFileExists(
-//            $match[1],
-//            sprintf(
-//                'Failed to create migration file from template generator. In directory %s the existing files are: %s',
-//                dirname($match[1]),
-//                PHP_EOL . ' - ' . implode(PHP_EOL . ' - ', array_diff(scandir(dirname($match[1])), array('.', '..'))) . PHP_EOL
-//            )
-//        );
+        $this->assertFileExists($match[4], 'Failed to create migration file from template generator');
 
         // Get migration.
-        $actualMigration = file_get_contents($match[1]);
-
-        // Get the version from the filename.
-        preg_match('`^\d+`', basename($match[1]), $match);
-        $version = array_shift($match);
+        $actualMigration = file_get_contents($match[4]);
 
         // Does the migration match our expectation?
-        $expectedMigration = "useClassName Phinx\\Migration\\AbstractMigration / className {$commandLine['name']} / version {$version} / baseClassName AbstractMigration";
+        $expectedMigration = "useClassName Phinx\\Migration\\AbstractMigration / className {$commandLine['name']} / version {$match[5]} / baseClassName AbstractMigration";
         $this->assertSame($expectedMigration, $actualMigration, 'Failed to create migration file from template generator correctly.');
     }
 }
