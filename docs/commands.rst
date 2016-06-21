@@ -127,6 +127,13 @@ Specifying 0 as the target version will revert all migrations.
 
         $ phinx rollback -e development -t 0
 
+If a breakpoint is set, blocking further rollbacks, you can override the
+breakpoint using the ``--force`` parameter or ``-f`` for short.
+
+.. code-block:: bash
+
+        $ phinx rollback -e development -t 0 -f
+
 The Status Command
 ------------------
 
