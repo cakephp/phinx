@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\PostgresAdapter;
 
@@ -46,7 +47,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
             'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA
         );
-        $this->adapter = new PostgresAdapter($options, new NullOutput());
+        $this->adapter = new PostgresAdapter($options, new ArrayInput([]), new NullOutput());
 
         $this->adapter->dropAllSchemas();
         $this->adapter->createSchema($options['schema']);
@@ -87,7 +88,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         );
 
         try {
-            $adapter = new PostgresAdapter($options, new NullOutput());
+            $adapter = new PostgresAdapter($options, new ArrayInput([]), new NullOutput());
             $adapter->connect();
             $this->fail('Expected the adapter to throw an exception');
         } catch (\InvalidArgumentException $e) {

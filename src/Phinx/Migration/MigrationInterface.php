@@ -30,6 +30,7 @@ namespace Phinx\Migration;
 
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Table;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -82,6 +83,21 @@ interface MigrationInterface
      * @return AdapterInterface
      */
     public function getAdapter();
+
+    /**
+     * Sets the input object to be used in migration object
+     *
+     * @param InputInterface $input
+     * @return MigrationInterface
+     */
+    public function setInput(InputInterface $input);
+
+    /**
+     * Gets the input object to be used in migration object
+     *
+     * @return InputInterface
+     */
+    public function getInput();
 
     /**
      * Sets the output object to be used in migration object

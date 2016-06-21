@@ -28,6 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Table;
@@ -45,6 +46,11 @@ abstract class PdoAdapter implements AdapterInterface
      * @var array
      */
     protected $options = array();
+
+    /**
+     * @var InputInterface
+     */
+    protected $input;
 
     /**
      * @var OutputInterface
@@ -70,11 +76,15 @@ abstract class PdoAdapter implements AdapterInterface
      * Class Constructor.
      *
      * @param array $options Options
+     * @param InputInterface $input Input Interface
      * @param OutputInterface $output Output Interface
      */
-    public function __construct(array $options, OutputInterface $output = null)
+    public function __construct(array $options, InputInterface $input = null, OutputInterface $output = null)
     {
         $this->setOptions($options);
+        if (null !== $input) {
+            $this->setInput($input);
+        }
         if (null !== $output) {
             $this->setOutput($output);
         }
@@ -123,6 +133,23 @@ abstract class PdoAdapter implements AdapterInterface
             return null;
         }
         return $this->options[$name];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setInput(InputInterface $input)
+    {
+        $this->input = $input;
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getInput()
+    {
+        return $this->input;
     }
 
     /**
@@ -185,7 +212,7 @@ abstract class PdoAdapter implements AdapterInterface
             $table = new Table($this->getSchemaTableName(), array(), $this);
             if (!$table->hasColumn('migration_name')) {
                 $table
-                    ->addColumn('migration_name', 'string', 
+                    ->addColumn('migration_name', 'string',
                         array('limit' => 100, 'after' => 'version', 'default' => null, 'null' => true)
                     )
                     ->save();
