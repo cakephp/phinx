@@ -49,8 +49,8 @@ This means that:
             )
           );
 
-Migration Path
---------------
+Migration Paths
+---------------
 
 The first option specifies the path to your migration directory. Phinx uses
 ``%%PHINX_CONFIG_DIR%%/db/migrations`` by default.
@@ -67,6 +67,16 @@ need to add the following to the yaml configuration.
 
     paths:
         migrations: /your/full/path
+
+You can also provide multiple migration paths by using an array in your configuration:
+
+.. code-block:: yaml
+
+    paths:
+        migrations:
+            - application/module1/migrations
+            - application/module2/migrations
+
 
 You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 
@@ -94,8 +104,8 @@ setting ``migration_base_class`` in your config:
 
     migration_base_class: MyMagicalMigration
 
-Seed Path
----------
+Seed Paths
+----------
 
 The second option specifies the path to your seed directory. Phinx uses
 ``%%PHINX_CONFIG_DIR%%/db/seeds`` by default.
@@ -112,6 +122,16 @@ need to add the following to the yaml configuration.
 
     paths:
         seeds: /your/full/path
+
+You can also provide multiple seed paths by using an array in your configuration:
+
+.. code-block:: yaml
+
+    paths:
+        seeds:
+            - /your/full/path1
+            - /your/full/path2
+
 
 You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 

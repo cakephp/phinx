@@ -1,7 +1,14 @@
 # Version History
 
-**0.5.x-dev** (****)
+**0.6.1** (Tuesday, 21th June 2016)
 
+* Fix rollback when only 1 migration
+
+**0.6.0** (Tuesday, 21th June 2016)
+
+* Backward incompatibility - see [UPGRADE_0.6](UPGRADE_0.6.md) document
+* Introduce Input and Output access to migrations and template creation
+* New breakpoint command
 * Moved version history to this CHANGELOG.md document
 * More tests
 

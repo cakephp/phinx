@@ -1,9 +1,9 @@
 <?php
 namespace Test\Phinx\Console\Command\TemplateGenerators;
 
-use Phinx\Migration\CreationInterface;
+use Phinx\Migration\AbstractTemplateCreation;
 
-class NullGenerator implements CreationInterface
+class NullGenerator extends AbstractTemplateCreation
 {
     /**
      * Get the migration template.

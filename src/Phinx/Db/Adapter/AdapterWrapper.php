@@ -33,6 +33,7 @@ use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Migration\MigrationInterface;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -106,6 +107,23 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function getOption($name)
     {
         return $this->adapter->getOption($name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setInput(InputInterface $input)
+    {
+        $this->adapter->setInput($input);
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getInput()
+    {
+        return $this->adapter->getInput();
     }
 
     /**
@@ -204,6 +222,23 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     {
         $this->getAdapter()->migrated($migration, $direction, $startTime, $endTime);
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function toggleBreakpoint(MigrationInterface $migration)
+    {
+        $this->getAdapter()->toggleBreakpoint($migration);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function resetAllBreakpoints()
+    {
+        return $this->getAdapter()->resetAllBreakpoints();
     }
 
     /**
