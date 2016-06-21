@@ -1,12 +1,10 @@
 # Version History
 
-**0.6-x-dev** (****)
+**0.6.0** (Tuesday, 21th June 2016)
 
+* Backward incompatibility - see [UPGRADE_0.6](UPGRADE_0.6.md) document
 * Introduce Input and Output access to migrations and template creation
-* Backward incompatibility - see [UPGRADE_0.6](UPGRADE_0.6.md) document.
-
-**0.5.x-dev** (****)
-
+* New breakpoint command
 * Moved version history to this CHANGELOG.md document
 * More tests
 
