@@ -1,5 +1,7 @@
 # Version History
 
+**0.6.x-dev** (****)
+
 **0.5.x-dev** (****)
 
 * Moved version history to this CHANGELOG.md document
