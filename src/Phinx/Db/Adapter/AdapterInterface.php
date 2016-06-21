@@ -28,6 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
@@ -116,6 +117,21 @@ interface AdapterInterface
      * @return mixed
      */
     public function getOption($name);
+
+    /**
+     * Sets the console input.
+     *
+     * @param InputInterface $input Input
+     * @return AdapterInterface
+     */
+    public function setInput(InputInterface $input);
+
+    /**
+     * Gets the console input.
+     *
+     * @return InputInterface
+     */
+    public function getInput();
 
     /**
      * Sets the console output.

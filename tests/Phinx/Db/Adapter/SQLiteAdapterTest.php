@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\SQLiteAdapter;
 
@@ -21,7 +22,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $options = array(
             'name' => TESTS_PHINX_DB_ADAPTER_SQLITE_DATABASE
         );
-        $this->adapter = new SQLiteAdapter($options, new NullOutput());
+        $this->adapter = new SQLiteAdapter($options, new ArrayInput([]), new NullOutput());
 
         // ensure the database is empty for each test
         $this->adapter->dropDatabase($options['name']);
