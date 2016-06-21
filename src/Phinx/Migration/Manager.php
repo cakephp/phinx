@@ -559,8 +559,7 @@ class Manager
     public function getMigrations()
     {
         if (null === $this->migrations) {
-            $config = $this->getConfig();
-            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php', defined('GLOB_BRACE') ? GLOB_BRACE : 0);
+            $phpFiles = $this->getMigrationFiles();
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
@@ -622,6 +621,27 @@ class Manager
     }
 
     /**
+     * Returns a list of migration files found in the provided migration paths.
+     *
+     * @return string[]
+     */
+    protected function getMigrationFiles()
+    {
+        $config = $this->getConfig();
+        $paths = $config->getMigrationPaths();
+        $files = array();
+
+        foreach ($paths as $path) {
+            $files = array_merge(
+                $files,
+                Util::glob($path . DIRECTORY_SEPARATOR . '*.php')
+            );
+        }
+
+        return $files;
+    }
+
+    /**
      * Sets the database seeders.
      *
      * @param array $seeds Seeders
@@ -642,8 +662,7 @@ class Manager
     public function getSeeds()
     {
         if (null === $this->seeds) {
-            $config = $this->getConfig();
-            $phpFiles = glob($config->getSeedPath() . DIRECTORY_SEPARATOR . '*.php');
+            $phpFiles = $this->getSeedFiles();
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
@@ -687,6 +706,27 @@ class Manager
         }
 
         return $this->seeds;
+    }
+
+    /**
+     * Returns a list of seed files found in the provided seed paths.
+     *
+     * @return string[]
+     */
+    protected function getSeedFiles()
+    {
+        $config = $this->getConfig();
+        $paths = $config->getSeedPaths();
+        $files = array();
+
+        foreach ($paths as $path) {
+            $files = array_merge(
+                $files,
+                Util::glob($path . DIRECTORY_SEPARATOR . '*.php')
+            );
+        }
+
+        return $files;
     }
 
     /**
