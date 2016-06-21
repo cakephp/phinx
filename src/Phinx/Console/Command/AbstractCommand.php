@@ -93,6 +93,7 @@ abstract class AbstractCommand extends Command
         }
 
         $this->loadManager($input, $output);
+        
         // report the paths
         $output->writeln('<info>using migration paths</info> ');
         
