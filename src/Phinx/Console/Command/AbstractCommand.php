@@ -218,13 +218,13 @@ abstract class AbstractCommand extends Command
      */
     protected function loadConfig(InputInterface $input, OutputInterface $output)
     {
-        $configFilePath = $this->locateConfigFile($input);
-        $output->writeln('<info>using config file</info> .' . str_replace(getcwd(), '', realpath($configFilePath)));
-
         $parser = $input->getOption('parser');
 
         // If no parser is specified try to determine the correct one from the file extension.  Defaults to YAML
         if (null === $parser) {
+            $configFilePath = $this->locateConfigFile($input);
+            $output->writeln('<info>using config file</info> .' . str_replace(getcwd(), '', realpath($configFilePath)));
+
             $extension = pathinfo($configFilePath, PATHINFO_EXTENSION);
 
             switch (strtolower($extension)) {
@@ -241,14 +241,17 @@ abstract class AbstractCommand extends Command
         }
 
         switch (strtolower($parser)) {
+            case 'env':
+                $config = Config::fromEnv();
+                break;
             case 'json':
-                $config = Config::fromJson($configFilePath);
+                $config = Config::fromJson($configFilePath ?: $this->locateConfigFile($input));
                 break;
             case 'php':
-                $config = Config::fromPhp($configFilePath);
+                $config = Config::fromPhp($configFilePath ?: $this->locateConfigFile($input));
                 break;
             case 'yaml':
-                $config = Config::fromYaml($configFilePath);
+                $config = Config::fromYaml($configFilePath ?: $this->locateConfigFile($input));
                 break;
             default:
                 throw new \InvalidArgumentException(sprintf('\'%s\' is not a valid parser.', $parser));

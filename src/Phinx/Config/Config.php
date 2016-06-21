@@ -79,6 +79,43 @@ class Config implements ConfigInterface
     }
 
     /**
+     * Create a new instance of the config class using environment variables.
+     *
+     * @throws \RuntimeException
+     * @return Config
+     */
+    public static function fromEnv()
+    {
+        /** Database name is required */
+        if(getenv('PHINX_DB_NAME') === false) {
+            throw new \RuntimeException('Cannot get database name from PHINX_DB_NAME environment variable');
+        }
+
+        /** @noinspection PhpIncludeInspection */
+        $configArray = array(
+            'paths' => array(
+                'migrations' => getenv('PHINX_PATHS_MIGRATIONS') ? : getcwd(),
+                'seeds' => getenv('PHINX_PATHS_SEEDS') ? : getcwd()
+            ),
+            'environments' => array(
+                'default_migration_table' => 'phinxlog',
+                'default_database' => 'environment',
+                'environment' => array(
+                    'adapter' => getenv('PHINX_DB_ADAPTER') ? : 'mysql',
+                    'host' => getenv('PHINX_DB_HOST') ? : 'localhost',
+                    'name' => getenv('PHINX_DB_NAME'),
+                    'user' => getenv('PHINX_DB_USER') ? : 'root',
+                    'pass' => getenv('PHINX_DB_PASS') ? : '',
+                    'port' => getenv('PHINX_DB_PORT') ? : '3306',
+                    'charset' => getenv('PHINX_DB_CHARSET') ? : 'utf8'
+                )
+            )
+        );
+
+        return new static($configArray);
+    }
+
+    /**
      * Create a new instance of the config class using a JSON file path.
      *
      * @param  string $configFilePath Path to the JSON File
