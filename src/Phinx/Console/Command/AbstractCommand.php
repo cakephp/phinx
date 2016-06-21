@@ -92,7 +92,7 @@ abstract class AbstractCommand extends Command
             $this->loadConfig($input, $output);
         }
 
-        $this->loadManager($output);
+        $this->loadManager($input, $output);
         // report the paths
         $output->writeln('<info>using migration path</info> ' . $this->getConfig()->getMigrationPath());
         try {
@@ -262,13 +262,13 @@ abstract class AbstractCommand extends Command
     /**
      * Load the migrations manager and inject the config
      *
+     * @param InputInterface $input
      * @param OutputInterface $output
-     * @return void
      */
-    protected function loadManager(OutputInterface $output)
+    protected function loadManager(InputInterface $input, OutputInterface $output)
     {
         if (null === $this->getManager()) {
-            $manager = new Manager($this->getConfig(), $output);
+            $manager = new Manager($this->getConfig(), $input, $output);
             $this->setManager($manager);
         }
     }

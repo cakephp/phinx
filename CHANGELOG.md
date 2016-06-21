@@ -1,5 +1,10 @@
 # Version History
 
+**0.6-x-dev** (****)
+
+* Introduce Input and Output access to migrations and template creation
+* Backward incompatibility - see [UPGRADE_0.6](UPGRADE_0.6.md) document.
+
 **0.5.x-dev** (****)
 
 * Moved version history to this CHANGELOG.md document

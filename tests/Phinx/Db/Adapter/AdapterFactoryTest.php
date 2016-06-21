@@ -7,7 +7,7 @@ use Phinx\Db\Adapter\AdapterFactory;
 class AdapterFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Phinx\Db\Adapter\AdapterFactory
+     * @var \Phinx\Db\Adapter\AdapterFactory
      */
     private $factory;
 
