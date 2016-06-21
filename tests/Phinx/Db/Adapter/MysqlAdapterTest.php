@@ -297,10 +297,27 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('latin1_table', array('collation' => 'latin1_general_ci'), $this->adapter);
         $table->addColumn('name', 'string')
+              ->addColumn('collate', 'string', ['collation'=>'latin1_bin'])
               ->save();
         $this->assertTrue($this->adapter->hasTable('latin1_table'));
         $row = $this->adapter->fetchRow(sprintf("SHOW TABLE STATUS WHERE Name = '%s'", 'latin1_table'));
         $this->assertEquals('latin1_general_ci', $row['Collation']);
+        $sql = "SELECT character_set_name,collation_name FROM INFORMATION_SCHEMA.COLUMNS".
+               " WHERE table_schema='%s' AND table_name = '%s' AND column_name = '%s'";
+        $row = $this->adapter->fetchRow(sprintf($sql, TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE, 'latin1_table', 'name'));
+        if($row){
+            if($row['character_set_name'] != null){
+                $this->assertEquals('latin1', $row['character_set_name']);
+            }
+            if($row['collation_name'] != null){
+                $this->assertEquals('latin1_general_ci', $row['collation_name']);
+            }
+        }
+        $row = $this->adapter->fetchRow(sprintf($sql, TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE, 'latin1_table', 'collate'));
+        if($row){
+            $this->assertEquals('latin1', $row['character_set_name']);
+            $this->assertEquals('latin1_bin', $row['collation_name']);
+        }
     }
 
     public function testRenameTable()
