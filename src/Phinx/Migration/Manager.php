@@ -391,7 +391,7 @@ class Manager
         if (null === $version) {
             // Get the migration before the last run migration
             $prev = count($versions) - 2;
-            $version =  0 == $prev ? 0 : $versions[$prev];
+            $version =  $prev <= 0 ? 0 : $versions[$prev];
         } else {
             // Get the first migration number
             $first = $versions[0];

@@ -364,7 +364,6 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
      * Test that migrating by date chooses the correct migration to point to.
      *
      * @dataProvider rollbackDateDataProvider
-     * @group bp
      */
     public function testRollbacksByDate(array $availableRollbacks, $dateString, $expectedRollback, $message)
     {
@@ -386,6 +385,26 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         } else {
             $this->assertRegExp($expectedRollback, $output, $message);
         }
+    }
+
+    public function testRollbackWithSingleMigrationDoesNotFail()
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->any())
+                ->method('getVersionLog')
+                ->will($this->returnValue([
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
+                ]));
+        $envStub->expects($this->any())
+                ->method('getVersions')
+                ->will($this->returnValue([20120111235330]));
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->rollback('mockenv');
+        rewind($this->manager->getOutput()->getStream());
+        $output = stream_get_contents($this->manager->getOutput()->getStream());
+        $this->assertNotContains('Undefined offset: -1', $output);
     }
 
     /**
