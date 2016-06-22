@@ -516,7 +516,7 @@ class Manager
     {
         if (null === $this->migrations) {
             $config = $this->getConfig();
-            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php', defined('GLOB_BRACE') ? GLOB_BRACE : 0);
+            $phpFiles = $this->getPhpFiles( $config->getMigrationPath() );
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
@@ -579,6 +579,39 @@ class Manager
     }
 
     /**
+     * Gets an array of php files (*.php)
+     *
+     * @param $path - Absolute path to a directory
+     * @return String[] - Absolute paths to migration/seed files
+     */
+    public function getPhpFiles($path) {
+
+      // Some systems like alpine linux and solaris don't have GLOB_BRACE
+      // source: http://php.net/manual/en/function.glob.php
+      if (defined('GLOB_BRACE')) {
+        return glob($path . DIRECTORY_SEPARATOR . '*.php', GLOB_BRACE);
+      } else {
+
+        $files = scandir($path);
+
+        foreach ($files as $index => $file) {
+
+          if ( strlen($file) < 5 || ! substr($file, -4) == ".php" ) {
+
+            // Remove all filenames with length under '.php' and files which don't end in *.php
+            unset($files[$index]);
+          } else {
+
+            // Use full path for php files
+            $files[$index] = $migration_path . DIRECTORY_SEPARATOR . $file;
+          }
+        }
+
+        return $files;
+      }
+    }
+
+    /**
      * Sets the database seeders.
      *
      * @param array $seeds Seeders
@@ -600,7 +633,7 @@ class Manager
     {
         if (null === $this->seeds) {
             $config = $this->getConfig();
-            $phpFiles = glob($config->getSeedPath() . DIRECTORY_SEPARATOR . '*.php');
+            $phpFiles = $this->getPhpFiles( $config->getSeedPath() );
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
