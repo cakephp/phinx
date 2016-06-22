@@ -460,7 +460,7 @@ abstract class PdoAdapter implements AdapterInterface
     {
         $this->query(
             sprintf(
-                'UPDATE %s SET breakpoint = CASE breakpoint WHEN 1 THEN 0 ELSE 1 END WHERE version = \'%s\';',
+                'UPDATE %s SET breakpoint = CASE breakpoint WHEN true THEN false ELSE true END WHERE version = \'%s\';',
                 $this->getSchemaTableName(),
                 $migration->getversion()
             )
