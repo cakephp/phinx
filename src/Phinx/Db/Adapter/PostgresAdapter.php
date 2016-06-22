@@ -32,7 +32,6 @@ use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
-use Phinx\Migration\MigrationInterface;
 
 class PostgresAdapter extends PdoAdapter implements AdapterInterface
 {
@@ -909,7 +908,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
-            $default = $default ? 'TRUE' : 'FALSE';
+            $default = $this->castToBool($default);
         }
         return isset($default) ? 'DEFAULT ' . $default : '';
     }
@@ -1045,36 +1044,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         return parent::createSchemaTable();
     }
 
-     /**
-      * {@inheritdoc}
-      */
-    public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
-    {
-        if (strcasecmp($direction, MigrationInterface::UP) === 0) {
-            // up
-            $sql = sprintf(
-                "INSERT INTO %s (version, migration_name, start_time, end_time, breakpoint) VALUES ('%s', '%s', '%s', '%s', 0);",
-                $this->getSchemaTableName(),
-                $migration->getVersion(),
-                substr($migration->getName(), 0, 100),
-                $startTime,
-                $endTime
-            );
-
-            $this->query($sql);
-        } else {
-            // down
-            $sql = sprintf(
-                "DELETE FROM %s WHERE version = '%s'",
-                $this->getSchemaTableName(),
-                $migration->getVersion()
-            );
-
-            $this->query($sql);
-        }
-        return $this;
-    }
-
     /**
      * Creates the specified schema.
      *
@@ -1198,5 +1167,17 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $options = $this->getOptions();
         return empty($options['schema']) ? 'public' : $options['schema'];
+    }
+
+    /**
+     * Cast a value to a boolean appropriate for the adapter.
+     *
+     * @param mixed $value The value to be cast
+     *
+     * @return mixed
+     */
+    public function castToBool($value)
+    {
+        return (bool) $value ? 'TRUE' : 'FALSE';
     }
 }
