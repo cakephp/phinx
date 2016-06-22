@@ -496,4 +496,12 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     {
         return $this->getAdapter()->dropDatabase($name);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function castToBool($value)
+    {
+        return $this->getAdapter()->castToBool($value);
+    }
 }

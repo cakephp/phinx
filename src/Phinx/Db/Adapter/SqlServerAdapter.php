@@ -32,7 +32,6 @@ use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
-use Phinx\Migration\MigrationInterface;
 
 /**
  * Phinx SqlServer Adapter.
@@ -1056,7 +1055,7 @@ SQL;
         if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
-            $default = (int) $default;
+            $default = $this->castToBool($default);
         }
         return isset($default) ? ' DEFAULT ' . $default : '';
     }
@@ -1163,35 +1162,5 @@ SQL;
     public function getColumnTypes()
     {
         return array_merge(parent::getColumnTypes(), array('filestream'));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime) {
-        if (strcasecmp($direction, MigrationInterface::UP) === 0) {
-            // up
-            $sql = sprintf(
-                "INSERT INTO %s ([version], [migration_name], [start_time], [end_time], [breakpoint]) VALUES ('%s', '%s', '%s', '%s', 0);",
-                $this->getSchemaTableName(),
-                $migration->getVersion(),
-                substr($migration->getName(), 0, 100),
-                $startTime,
-                $endTime
-            );
-
-            $this->query($sql);
-        } else {
-            // down
-            $sql = sprintf(
-                "DELETE FROM %s WHERE [version] = '%s'",
-                $this->getSchemaTableName(),
-                $migration->getVersion()
-            );
-
-            $this->query($sql);
-        }
-
-        return $this;
     }
 }
