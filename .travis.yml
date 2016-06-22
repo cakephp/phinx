@@ -12,18 +12,14 @@ php:
   - 7
   - hhvm
 
-matrix:
-    allow_failures:
-        - php: hhvm
-
 before_script:
     - travis_retry composer self-update
-    - travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source --prefer-stable --prefer-lowest
+    - travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source --prefer-stable
     - mysql -e 'create database phinx_testing;'
     - psql -c 'create database phinx_testing;' -U postgres
 
 script:
-    - phpunit --coverage-text --coverage-clover=coverage.clover
+    - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
 
 after_script:
     - wget https://scrutinizer-ci.com/ocular.phar
