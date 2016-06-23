@@ -1,5 +1,10 @@
 # Version History
 
+**0.6.2** (Thursday, 23rd June 2016)
+
+* Fix breakpoint support for Postgres
+* HHVM now passes all tests
+
 **0.6.1** (Tuesday, 21st June 2016)
 
 * Fix rollback when only 1 migration
