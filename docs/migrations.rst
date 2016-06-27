@@ -897,13 +897,13 @@ To drop a column, use the ``removeColumn()`` method.
         class MyNewMigration extends AbstractMigration
         {
             /**
-             * Change Method.
+             * Migrate up.
              */
-            public function change()
+            public function up()
             {
                 $table = $this->table('users');
                 $table->removeColumn('short_name')
-                      ->update();
+                      ->save();
             }
         }
 
