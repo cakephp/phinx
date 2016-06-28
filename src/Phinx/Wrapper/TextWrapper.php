@@ -144,8 +144,6 @@ class TextWrapper
         return $this->executeRun($command);
     }
 
-
-
     /**
      * Returns the output from running the "rollback" command.
      * @param  string $env environment name (optional)
