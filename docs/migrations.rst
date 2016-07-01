@@ -202,6 +202,120 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
     DELIMITERs during insertion of stored procedures or triggers which
     don't support DELIMITERs.
 
+Parameterised queries
+~~~~~~~~~~~~~~~~~~~~~
+
+Both the ``execute()`` and ``query()`` methods accept an array of values, as a second parameter, to bind to a parameterised query.
+
+The following example shows queries with question mark placeholders.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $queryParams = array(10, 15);
+
+                // execute()
+                $count = $this->execute('DELETE FROM users WHERE user_id BETWEEN ? AND ?', $queryParams);
+
+                // query()
+                $rows = $this->query('SELECT * FROM users WHERE user_id BETWEEN ? AND ?', $queryParams);
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
+The following example show queries with named placeholders.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $queryParams = array(
+                    ':minId' => 10,
+                    ':maxId' => 15
+                    )
+                );
+
+                // execute()
+                $count = $this->execute('DELETE FROM users WHERE user_id BETWEEN :minId AND :maxId', $queryParams);
+
+                // query()
+                $rows = $this->query('SELECT * FROM users WHERE user_id BETWEEN :minId AND :maxId', $queryParams);
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
+By default, values as bound as the SQL string type (i.e. ``CHAR``). If you want to force the SQL type the value
+should be bound as, you can use the ``QueryBind`` class, as the following example show.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $queryParams = array(
+                    ':minId' => new QueryBind(10, QueryBind::TYPE_INT),
+                    ':maxId' => new QueryBind(15, QueryBind::TYPE_INT)
+                    )
+                );
+
+                // execute()
+                $count = $this->execute('DELETE FROM users WHERE user_id BETWEEN :minId AND :maxId', $queryParams);
+
+                // query()
+                $rows = $this->query('SELECT * FROM users WHERE user_id BETWEEN :minId AND :maxId', $queryParams);
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
+
 Fetching Rows
 -------------
 

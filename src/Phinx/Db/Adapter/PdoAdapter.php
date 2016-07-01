@@ -301,17 +301,60 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function execute($sql)
+    public function execute($sql, array $bindValues = null)
     {
-        return $this->getConnection()->exec($sql);
+        if (empty($bindValues)) {
+            $rowCount = $this->getConnection()->exec($sql);
+        } else {
+            $rowCount = $this->executeParameterisedQuery($sql, $bindValues)->rowCount();
+        }
+
+        return $rowCount !== false;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function query($sql)
+    public function query($sql, array $bindValues = null)
     {
-        return $this->getConnection()->query($sql);
+        if (empty($bindValues)) {
+            $statement = $this->getConnection()->query($sql);
+        } else {
+            $statement = $this->executeParameterisedQuery($sql, $bindValues);
+        }
+
+        return $statement;
+    }
+
+    /**
+     * @param $sql
+     * @param array|QueryBindInterface[] $bindValues
+     * @return \PDOStatement
+     */
+    protected function executeParameterisedQuery($sql, array $bindValues)
+    {
+        $statement = $this->getConnection()->prepare($sql);
+
+        $position = 1;
+        foreach ($bindValues as $key => $bind) {
+            $parameter = is_int($key) ? $position : $key;
+
+            if ($bind instanceof QueryBindInterface) {
+                $value = $bind->getValue();
+                $type = $this->getAdapterBindParamType($bind->getBindType());
+            } else {
+                $value = $bind;
+                $type = \PDO::PARAM_STR;
+            }
+
+            $statement->bindValue($parameter, $value, $type);
+
+            $position++;
+        }
+
+        $statement->execute();
+
+        return $statement;
     }
 
     /**
@@ -503,5 +546,14 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function isValidColumnType(Column $column) {
         return in_array($column->getType(), $this->getColumnTypes());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAdapterBindParamType($phinxBindParamType)
+    {
+        // The QueryBind::TYPE_* constants are identical to the \PDO::PARAM_*, so no conversion needs to happen.
+        return $phinxBindParamType;
     }
 }
