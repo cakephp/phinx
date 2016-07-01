@@ -46,7 +46,7 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         // mock the manager class
         $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
         $managerStub->expects($this->once())
-                    ->method('seed');
+                    ->method('seed')->with($this->identicalTo('development'), $this->identicalTo(null));
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -101,5 +101,39 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
+    }
+
+    public function testExecuteMultipleSeeders()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new SeedRun());
+
+        // setup dependencies
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+
+        $command = $application->find('seed:run');
+
+        // mock the manager class
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub->expects($this->exactly(3))
+                    ->method('seed')->withConsecutive(
+                        array($this->identicalTo('development'), $this->identicalTo('One')),
+                        array($this->identicalTo('development'), $this->identicalTo('Two')),
+                        array($this->identicalTo('development'), $this->identicalTo('Three'))
+                    );
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(
+            array(
+                'command' => $command->getName(),
+                '--seed' => ['One', 'Two', 'Three'],
+            ),
+            array('decorated' => false)
+        );
+
+        $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
     }
 }

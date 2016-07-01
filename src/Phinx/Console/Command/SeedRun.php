@@ -45,13 +45,14 @@ class SeedRun extends AbstractCommand
 
         $this->setName('seed:run')
              ->setDescription('Run database seeders')
-             ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED, 'What is the name of the seeder?')
+             ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
              ->setHelp(
 <<<EOT
 The <info>seed:run</info> command runs all available or individual seeders
 
 <info>phinx seed:run -e development</info>
 <info>phinx seed:run -e development -s UserSeeder</info>
+<info>phinx seed:run -e development -s UserSeeder -s PermissionSeeder -s LogSeeder</info>
 <info>phinx seed:run -e development -v</info>
 
 EOT
@@ -69,9 +70,8 @@ EOT
     {
         $this->bootstrap($input, $output);
 
-        $seed        = $input->getOption('seed');
+        $seedSet     = $input->getOption('seed');
         $environment = $input->getOption('environment');
-        $seedSet     = (strstr($seed, ',') !== false) ? explode(',', $seed) : [$seed];
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -103,11 +103,18 @@ EOT
             $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
         }
 
-        // run the seed(ers)
         $start = microtime(true);
-        foreach($seedSet as $seed) {
-            $this->getManager()->seed($environment, trim($seed));
+
+        if (empty($seedSet)) {
+            // run all the seed(ers)
+            $this->getManager()->seed($environment);
+        } else {
+            // run seed(ers) specified in a comma-separated list of classes
+            foreach ($seedSet as $seed) {
+                $this->getManager()->seed($environment, trim($seed));
+            }
         }
+
         $end = microtime(true);
 
         $output->writeln('');

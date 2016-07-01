@@ -47,7 +47,7 @@ class PhinxApplication extends Application
      *
      * @param string $version The Application Version
      */
-    public function __construct($version = '0.5.4')
+    public function __construct($version = '0.5.5')
     {
         parent::__construct('Phinx by Rob Morgan - https://phinx.org.', $version);
 

@@ -884,6 +884,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 break;
             case static::PHINX_TYPE_UUID:
                 return array('name' => 'char', 'limit' => 36);
+            case static::PHINX_TYPE_ENUM:
+                return array('name' => 'enum');
             // Geospatial database types
             // No specific data types exist in SQLite, instead all geospatial
             // functionality is handled in the client. See also: SpatiaLite.
@@ -1036,6 +1038,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
             $def .= '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')';
         }
+        if (($values = $column->getValues()) && is_array($values)) {
+            $def .= " CHECK({$column->getName()} IN ('" . implode("', '", $values) . "'))";
+        }
 
         $default = $column->getDefault();
 
@@ -1090,6 +1095,14 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
         $def .= ' `' . $indexName . '`';
         return $def;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getColumnTypes()
+    {
+        return array_merge(parent::getColumnTypes(), array('enum'));
     }
 
     /**

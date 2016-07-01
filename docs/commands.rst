@@ -131,7 +131,7 @@ Phinx creates seed files using the path specified in your ``phinx.yml`` file.
 Please see the :doc:`Configuration <configuration>` chapter for more information.
 
 The Seed Run Command
------------------------
+--------------------
 
 The Seed Run command runs all of the available seed classes or optionally just
 one.

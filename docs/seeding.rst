@@ -166,6 +166,12 @@ run a specific class simply pass in the name of it using the `-s` parameter:
 
         $ php bin/phinx seed:run -s UserSeeder
 
+You can also run multiple seeders:
+
+.. code-block:: bash
+
+        $ php bin/phinx seed:run -s UserSeeder -s PermissionSeeder -s LogSeeder
+
 You can also use the `-v` parameter for more output verbosity:
 
 .. code-block:: bash
