@@ -418,15 +418,15 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testAddStringColumnWithCustomCollation()
     {
-        $table = new \Phinx\Db\Table('table1', array('collation' => 'utf8_general_ci'), $this->adapter);
+        $table = new \Phinx\Db\Table('table_custom_collation', array('collation' => 'utf8_general_ci'), $this->adapter);
         $table->save();
         $this->assertFalse($table->hasColumn('string_collation_default'));
         $this->assertFalse($table->hasColumn('string_collation_custom'));
         $table->addColumn('string_collation_default', 'string', array())->save();
         $table->addColumn('string_collation_custom', 'string', array('collation' => 'utf8mb4_unicode_ci'))->save();
-        $rows = $this->adapter->fetchAll('SHOW FULL COLUMNS FROM table1');
-        $this->assertEquals('utf8_general_ci', $rows[2]['Collation']);
-        $this->assertEquals('utf8mb4_unicode_ci', $rows[3]['Collation']);
+        $rows = $this->adapter->fetchAll('SHOW FULL COLUMNS FROM table_custom_collation');
+        $this->assertEquals('utf8_general_ci', $rows[1]['Collation']);
+        $this->assertEquals('utf8mb4_unicode_ci', $rows[2]['Collation']);
     }
 
 public function testRenameColumn()
