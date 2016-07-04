@@ -1,5 +1,11 @@
 # Version History
 
+**0.6.x-dev** (***)
+
+* Documentation cleanup
+* Bug fixes
+  [#884](https://github.com/robmorgan/phinx/pull/884) Only rollback 1 migration when only 2 migrations exist
+
 **0.6.2** (Thursday, 23rd June 2016)
 
 * Fix breakpoint support for Postgres
