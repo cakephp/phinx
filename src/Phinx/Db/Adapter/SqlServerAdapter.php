@@ -1169,6 +1169,10 @@ SQL;
      * {@inheritdoc}
      */
     public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime) {
+	    // Fix date format so it works when mssql is not configured in us-english.
+        $startTime = \DateTime::createFromFormat('Y-m-d H:i:s', $startTime)->format('Y-m-d\TH:i:s');
+        $endTime = \DateTime::createFromFormat('Y-m-d H:i:s', $endTime)->format('Y-m-d\TH:i:s');
+		
         if (strcasecmp($direction, MigrationInterface::UP) === 0) {
             // up
             $sql = sprintf(
