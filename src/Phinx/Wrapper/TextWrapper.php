@@ -130,7 +130,7 @@ class TextWrapper
      * @param  string $target target version (optional)
      * @return string
      */
-    public function getSeed($env = null, $target = null)
+    public function getSeed($env = null, $target = null, $seed = null)
     {
         $command = array (
             'seed:run',
@@ -140,6 +140,9 @@ class TextWrapper
         );
         if ($target) {
             $command += array('-t' => $target);
+        }
+        if ($seed) {
+            $command += array('-s' => $seed);
         }
         return $this->executeRun($command);
     }
