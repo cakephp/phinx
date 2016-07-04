@@ -12,9 +12,20 @@ php:
   - 7
   - hhvm
 
+env:
+  - COMPOSER_FLAGS=--prefer-lowest
+
+matrix:
+  exclude:
+    - php: hhvm
+      env: COMPOSER_FLAGS=--prefer-lowest
+  include:
+    - php: hhvm
+      env: COMPOSER_FLAGS=
+
 before_script:
     - travis_retry composer self-update
-    - travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source --prefer-stable
+    - travis_retry composer update --no-interaction --prefer-source --prefer-stable ${COMPOSER_FLAGS}
     - mysql -e 'create database phinx_testing;'
     - psql -c 'create database phinx_testing;' -U postgres
 
