@@ -690,6 +690,15 @@ Option   Description
 signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
 ======== ===========
 
+For ``string`` and ``text`` columns:
+
+========= ===========
+Option    Description
+========= ===========
+collation set collation that differs from table defaults
+encoding  set character set that differs from table defaults
+========= ===========
+
 For foreign key definitions:
 
 ====== ===========
