@@ -324,6 +324,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function quoteStringValue($stringValue)
+    {
+        return $this->getAdapter()->quoteStringValue($stringValue);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasTable($tableName)
     {
         return $this->getAdapter()->hasTable($tableName);

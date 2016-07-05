@@ -333,6 +333,16 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function quoteStringValue($stringValue)
+    {
+        // Note: for example with postgres and mysql, correctly quoting
+        // a string value depends on server and/or connection settings.
+        return $this->getConnection()->quote($stringValue);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function execute($sql)
     {
         return $this->getConnection()->exec($sql);
