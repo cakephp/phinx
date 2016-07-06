@@ -41,7 +41,7 @@ class AdapterFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Adapter class "Test\Phinx\Db\Adapter\AdapterFactoryTest" must be implement Phinx\Db\Adapter\AdapterInterface
+     * @expectedExceptionMessage Adapter class "Test\Phinx\Db\Adapter\AdapterFactoryTest" must implement Phinx\Db\Adapter\AdapterInterface
      */
     public function testRegisterAdapterFailure()
     {
