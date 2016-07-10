@@ -115,9 +115,9 @@ class SeedCreate extends AbstractCommand
         // inject the class names appropriate to this seeder
         $contents = file_get_contents($this->getSeedTemplateFilename());
         $classes = array(
-            '$useClassName'  => 'Phinx\Seed\AbstractSeed',
+            '$useClassName'  => $this->getConfig()->getSeedBaseClassName(false),
             '$className'     => $className,
-            '$baseClassName' => 'AbstractSeed',
+            '$baseClassName' => $this->getConfig()->getSeedBaseClassName(true),
         );
         $contents = strtr($contents, $classes);
 
