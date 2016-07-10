@@ -174,9 +174,9 @@ class SeedCreate extends AbstractCommand
         $classes = [
             '$namespaceDefinition' => $namespace !== null ? ('namespace ' . $namespace . ';') : '',
             '$namespace' => $namespace,
-            '$useClassName' => 'Phinx\Seed\AbstractSeed',
+            '$useClassName' => $config->getSeedBaseClassName(false),
             '$className' => $className,
-            '$baseClassName' => 'AbstractSeed',
+            '$baseClassName' => $config->getSeedBaseClassName(true),
         ];
         $contents = strtr($contents, $classes);
 

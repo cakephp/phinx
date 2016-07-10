@@ -139,6 +139,17 @@ You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
     paths:
         seeds: '%%PHINX_CONFIG_DIR%%/your/relative/path'
 
+Custom Seeder Base
+---------------------
+
+By default all seeders will extend from Phinx's `AbstractSeed` class.
+This can be set to a custom class that extends from `AbstractSeed` by
+setting ``seeder_base_class`` in your config:
+
+.. code-block:: yaml
+
+    seeder_base_class: MyMagicalSeeder
+
 Environments
 ------------
 
