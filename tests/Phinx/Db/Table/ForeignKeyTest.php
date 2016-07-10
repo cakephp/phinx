@@ -61,7 +61,7 @@ class ForeignKeyTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testUnknownActionsNotAlowedThroughSetter()
+    public function testUnknownActionsNotAllowedThroughSetter()
     {
         $this->fk->setOnDelete('i m dump');
     }
@@ -69,7 +69,7 @@ class ForeignKeyTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testUnknownActionsNotAlowedThroughOptions()
+    public function testUnknownActionsNotAllowedThroughOptions()
     {
         $this->fk->setOptions(array('update' => 'no yu a dumb'));
     }
