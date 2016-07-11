@@ -1039,6 +1039,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $def .= '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')';
         }
         if (($values = $column->getValues()) && is_array($values)) {
+            $connection = $this->getConnection();
+            foreach ($values as $key => $value) {
+                $values[$key] = $connection->quote($value);
+            }
             $def .= " CHECK({$column->getName()} IN ('" . implode("', '", $values) . "'))";
         }
 
