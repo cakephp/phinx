@@ -699,7 +699,10 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addIndex('email', array('limit' => 50))
             ->save();
         $this->assertTrue($table->hasIndex('email'));
-        $index_data = $this->adapter->query('SELECT SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = "phinx_testing" AND TABLE_NAME = "table1" AND INDEX_NAME = "email"')->fetch(\PDO::FETCH_ASSOC);
+        $index_data = $this->adapter->query(sprintf(
+            'SELECT SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = "%s" AND TABLE_NAME = "table1" AND INDEX_NAME = "email"',
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
+            ))->fetch(\PDO::FETCH_ASSOC);
         $expected_limit = $index_data['SUB_PART'];
         $this->assertEquals($expected_limit, 50);
     }
