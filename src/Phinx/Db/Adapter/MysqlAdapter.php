@@ -1032,9 +1032,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= '(' . $sqlType['limit'] . ')';
         }
         if (($values = $column->getValues()) && is_array($values)) {
-            $connection = $this->getConnection();
             foreach ($values as $key => $value) {
-                $values[$key] = $connection->quote($value);
+                $values[$key] = $this->esc($value);
             }
             $def .= "('" . implode("', '", $values) . "')";
         }
@@ -1052,6 +1051,21 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
 
         return $def;
+    }
+
+    /**
+     * Escape value.
+     *
+     * @param string $string Value
+     * @return string
+     */
+    protected function esc($string)
+    {
+        if ($string === null) {
+            return 'NULL';
+        }
+        $string = substr($this->getConnection()->quote($string), 1, -1);
+        return $string;
     }
 
     /**
