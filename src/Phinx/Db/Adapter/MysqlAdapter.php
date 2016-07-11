@@ -1032,7 +1032,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= '(' . $sqlType['limit'] . ')';
         }
         if (($values = $column->getValues()) && is_array($values)) {
-            $def .= "('" . implode("', '", $values) . "')";
+            $def .= "('" . implode("', '", $this->getConnection()->quote($values)) . "')";
         }
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
