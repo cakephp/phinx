@@ -366,11 +366,21 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
                     return $table->getName() == 'pre_table_suf';
                 }),
                 $this->equalTo($row),
-                $this->equalTo(['column1'])
+                $this->equalTo(['column1' => 'value3'])
             );
 
         $table = new Table('table', array(), $this->adapter);
         $table->setData([$row]);
-        $table->updateData(['column1']);
+        $table->updateData(['column1' => 'value3']);
+    }
+
+    public function testGetColumnNames()
+    {
+        $this->mock
+            ->expects($this->once())
+            ->method('getColumnNames')
+            ->with($this->equalTo('pre_table_suf'));
+
+        $this->adapter->getColumnNames('table');
     }
 }

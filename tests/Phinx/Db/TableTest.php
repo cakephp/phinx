@@ -293,9 +293,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
 
         $adapterStub->expects($this->exactly(2))
             ->method('update')
-            ->with($table, $this->logicalOr($updateData[0], $updateData[1]));
+            ->with($table, $this->logicalOr($updateData[0], $updateData[1]), ['column1' => 'value1']);
         $table->setData($updateData);
-        $table->updateData('K');
+        $table->updateData(['column1' => 'value1']);
         
         $this->assertEmpty($table->getData());
     }

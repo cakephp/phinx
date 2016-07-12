@@ -231,7 +231,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
-    public function update($table, $data, $whereColumns)
+    public function update($table, $data, $whereParams)
     {
         // convert to table object
         if (is_string($table)) {
@@ -239,7 +239,7 @@ abstract class AbstractMigration implements MigrationInterface
         }
  
         $table->setData($data);
-        return $table->updateData($whereColumns);
+        return $table->updateData($whereParams);
     }
 
     /**

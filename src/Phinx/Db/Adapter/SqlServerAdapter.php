@@ -403,6 +403,27 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         return $columns;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getColumnNames($tableName)
+    {
+        $columns = array();
+        $sql = sprintf(
+            "SELECT DISTINCT TABLE_SCHEMA AS [schema], TABLE_NAME as [table_name], COLUMN_NAME AS [name],
+             FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_NAME = '%s'
+             ORDER BY ordinal_position",
+            $tableName
+        );
+        $rows = $this->fetchAll($sql);
+        foreach ($rows as $columnInfo) {
+            $columns[] = $columnInfo['name'];
+        }
+
+        return $columns;
+    }
+
     protected function parseDefault($default)
     {
         $default = preg_replace(array("/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"), '$1', $default);

@@ -214,6 +214,16 @@ class Table
     }
 
     /**
+     * Gets an array of the table column names.
+     * 
+     * @return array
+     */
+    public function getColumnNames()
+    {
+        return $this->getAdapter()->getColumnNames($this->getName());
+    }
+
+    /**
      * Sets an array of columns waiting to be committed.
      *
      * @param array $columns Columns
@@ -652,13 +662,13 @@ class Table
     /**
      * Commit the pending data waiting for update.
      * 
-     * @param  $whereColumns
+     * @param  $whereParams
      * @return void
      */
-    public function updateData($whereColumns)
+    public function updateData($whereParams)
     {
         foreach ($this->getData() as $row) {
-            $this->getAdapter()->update($this, $row, $whereColumns);
+            $this->getAdapter()->update($this, $row, $whereParams);
         }
 
         $this->setData(array()); // reset data as all has been updated

@@ -359,6 +359,20 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function getColumnNames($tableName)
+    {
+        $columns = array();
+        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
+        foreach ($rows as $columnInfo) {
+            $columns[] = $columnInfo['Field'];
+        }
+
+        return $columns;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasColumn($tableName, $columnName)
     {
         $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));

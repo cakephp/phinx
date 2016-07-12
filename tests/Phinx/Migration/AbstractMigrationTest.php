@@ -178,7 +178,7 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $table = new Table('testdb', [], $adapterStub);
 
         $migrationStub->setAdapter($adapterStub);
-        $migrationStub->update($table, ['row' => ['K' => 1, 'column' => 'value']], 'K');
+        $migrationStub->update($table, ['row' => ['K' => 1, 'column' => 'value']], ['K' => 1]);
     }
 
     public function testCreateDatabase()

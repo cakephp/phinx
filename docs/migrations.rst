@@ -303,8 +303,8 @@ Updating Data
 
 Phinx makes it easy to update data in your tables. Whilst this feature is
 intended for the :doc:`seed feature <seeding>`, you are also free to use the
-update methods in your migrations. Using this in migrations is especially useful when you are working with
-an existing database.
+update methods in your migrations. Using this in migrations is especially useful
+when you are working with an existing database.
 
 .. code-block:: php
 
@@ -327,7 +327,7 @@ an existing database.
 
                 $table = $this->table('status');
                 $table->setData([$singleRow]); // setData expects an array of rows (a row is an array of fields)
-                $table->updateData('id');
+                $table->updateData(['id' => 1]);
 
                 // updating multiple rows
                 $rows = [
@@ -342,7 +342,7 @@ an existing database.
                 ];
 
                 // this is a handy shortcut
-                $this->update('status', $rows, ['id']);
+                $this->update('status', $rows, ['id' => 1]);
             }
 
             /**
@@ -356,8 +356,8 @@ an existing database.
 
 .. note::
 
-    1. The `$whereColumns` **cannot** be updated. However, they **must** be included
-    in the `$row` to properly update.
+    1. The `$whereParams` is an associative array. Ex. `$whereParams = ['columnName' => 'filterValue'];`.
+    This provides the ability to update a value that you are also filtering by.
 
     2. You cannot use the update methods inside a `change()` method. Please use the
     `up()` and `down()` methods.

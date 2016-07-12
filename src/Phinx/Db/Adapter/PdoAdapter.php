@@ -394,27 +394,25 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function update(Table $table, $row, $whereColumns)
+    public function update(Table $table, $row, $whereParams)
     {
         $this->startCommandTimer();
         $this->writeCommand('update', array($table->getName()));
 
-        if (is_string($whereColumns)) {
-            $whereColumns = [$whereColumns];
+        if (!is_array($whereParams)) {
+            throw new InvalidArgumentException('$whereParams must be an array type, "' . gettype($whereParams) . '" was given.');
         }
-        if (!is_array($whereColumns)) {
-            throw new InvalidArgumentException;
-        }
+        // Get column names to validate $whereParams
+        $tableColumns = $table->getColumnNames();
 
-        $whereValues = [];
-        $whereParams = [];
-        foreach ($whereColumns as $column) {
-            // Store value for where clause
-            $whereValues[$column] = $row[$column];
-            // Set param name and quote column
-            $whereParams[] = $this->quoteColumnName($column) . "=?";
-            // Remove where values as they shouldn't be updated
-            unset($row[$column]);
+        $whereColumns = [];
+        foreach ($whereParams as $column => $value) {
+            // Validate column name is valid for this table
+            if (!in_array($column, $tableColumns)) {
+                throw new InvalidArgumentException('$whereParams keys must contain valid column names for this table: ' . $table->getName());
+            }
+            // Quote column and prep unnamed param
+            $whereColumns[] = $this->quoteColumnName($column) . "=?";
         }
 
         $columns = array_keys($row);
@@ -428,10 +426,10 @@ abstract class PdoAdapter implements AdapterInterface
         }
         $sql .= implode(', ', $setColumns);
 
-        $sql .= " WHERE " . implode(' AND ', $whereParams);
+        $sql .= " WHERE " . implode(' AND ', $whereColumns);
 
         $stmt = $this->getConnection()->prepare($sql);
-        $stmt->execute(array_merge(array_values($row), array_values($whereValues)));
+        $stmt->execute(array_merge(array_values($row), array_values($whereParams)));
         $this->endCommandTimer();
     }
 

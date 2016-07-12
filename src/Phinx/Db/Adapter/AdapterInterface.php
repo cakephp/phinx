@@ -286,10 +286,10 @@ interface AdapterInterface
      * 
      * @param Table $table where to update data
      * @param array $row of data to be updated
-     * @param array|string $whereColumns specifying which row to update
+     * @param array $whereParams filtering which row to update
      * @return void
      */
-    public function update(Table $table, $row, $whereColumns);
+    public function update(Table $table, $row, $whereParams);
 
     /**
      * Quotes a table name for use in a query.
@@ -347,6 +347,14 @@ interface AdapterInterface
      * @return Column[]
      */
     public function getColumns($tableName);
+
+    /**
+     * Returns table column names
+     * 
+     * @param string $tableName Table Name
+     * @return array
+     */
+    public function getColumnNames($tableName);
 
     /**
      * Checks to see if a column exists.

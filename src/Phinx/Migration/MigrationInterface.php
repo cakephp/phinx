@@ -182,10 +182,10 @@ interface MigrationInterface
      * 
      * @param string $tableName
      * @param array $data
-     * @param string $primaryKey
+     * @param string $whereParams
      * @return void
      */
-    public function update($tableName, $data, $primaryKeyName);
+    public function update($tableName, $data, $whereParams);
 
     /**
      * Create a new database.
