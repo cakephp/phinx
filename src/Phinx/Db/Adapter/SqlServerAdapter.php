@@ -410,7 +410,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     {
         $columns = array();
         $sql = sprintf(
-            "SELECT DISTINCT TABLE_SCHEMA AS [schema], TABLE_NAME as [table_name], COLUMN_NAME AS [name],
+            "SELECT DISTINCT TABLE_SCHEMA AS [schema], TABLE_NAME as [table_name], COLUMN_NAME AS [name]
              FROM INFORMATION_SCHEMA.COLUMNS
              WHERE TABLE_NAME = '%s'
              ORDER BY ordinal_position",
