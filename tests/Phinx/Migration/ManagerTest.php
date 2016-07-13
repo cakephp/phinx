@@ -394,6 +394,39 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that migrating to date by start time chooses the correct migration to point to.
+     *
+     * @dataProvider rollbackToDateTimeByStartTimeDataProvider
+     */
+    public function testRollbackToDateTimeByStarTime($availableRollbacks, $dateString, $expectedRollback)
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->any())
+            ->method('getVersionLog')
+            ->will($this->returnValue($availableRollbacks));
+
+        // stub manager
+        $config = new Config($this->getConfigArray());
+        $input = new ArrayInput([]);
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array('rollbackByStartTime'), array($config, $input, $output));
+ 
+        if (is_null($expectedRollback)) {
+            $managerStub->expects($this->never())
+                ->method('rollbackByStartTime');
+        } else {
+            $managerStub->expects($this->once())
+                ->method('rollbackByStartTime')
+                ->with($this->equalTo('mockenv'), $expectedRollback)
+                ->will($this->returnValue($availableRollbacks));
+        }
+ 
+        $managerStub->setEnvironments(array('mockenv' => $envStub));
+        $managerStub->rollbackToDateTimeByStartTime('mockenv', new \DateTime($dateString));
+    }
+
+    /**
      * Test that rollbacking to version chooses the correct
      * migration to point to.
      *
@@ -413,6 +446,38 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
             $this->assertEquals("No migrations to rollback\n", $output);
+        } else {
+            if (is_string($expectedOutput)) {
+                $expectedOutput = [$expectedOutput];
+            }
+            
+            foreach ($expectedOutput as $expectedLine) {
+                $this->assertContains($expectedLine, $output);
+            }
+        }
+    }
+    
+    /**
+     * Test that rollbacking to version by start time chooses the correct
+     * migration to point to.
+     *
+     * @dataProvider rollbackByStartTimeDataProvider
+     */
+    public function testRollbackByStartTime($availableRollbacks, $version, $expectedOutput)
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->any())
+            ->method('getVersionLog')
+            ->will($this->returnValue($availableRollbacks));
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->rollbackByStartTime('mockenv', $version);
+        rewind($this->manager->getOutput()->getStream());
+        $output = stream_get_contents($this->manager->getOutput()->getStream());
+
+        if (is_null($expectedOutput)) {
+            $this->assertEmpty($output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -695,6 +760,71 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Migration lists, dates, and expected migration version to rollback to.
+     *
+     * @return array
+     */
+    public function rollbackToDateTimeByStartTimeDataProvider()
+    {
+        return array(
+            'Rollback to date later than all migration start times when they were created in a different order than they were executed' => 
+                array(
+                    array(
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-12 23:53:30'),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04'),
+                    ),
+                    '20131212',
+                    '20120111235330'
+                ),
+            'Rollback to date earlier than all migration start times when they were created in a different order than they were executed' => 
+                array(
+                    array(
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-12 23:53:30'),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04'),
+                    ),
+                    '20111212',
+                    '0'
+                ),
+            'Rollback to start time of first created version which was the last to be executed' => 
+                array(
+                    array(
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-12 23:53:30'),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04'),
+                    ),
+                    '20120120235330',
+                    '20120111235330'
+                ),
+            'Rollback to start time of second created version which was the first to be executed' => 
+                array(
+                    array(
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-12 23:53:30'),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04'),
+                    ),
+                    '20120117183504',
+                    '20120116183504'
+                ),
+            'Rollback to date between the 2 migrations when they were created in a different order than they were executed' => 
+                array(
+                    array(
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-12 23:53:30'),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04'),
+                    ),
+                    '20120118',
+                    '20120116183504'
+                ),
+            'Rollback the last executed migration when the migrations were created in a different order than they were executed' => 
+                array(
+                    array(
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-12 23:53:30'),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04'),
+                    ),
+                    '20120118',
+                    '20120116183504'
+                ),
+        );
+    }
+
+    /**
      * Migration lists, dates, and expected output.
      *
      * @return array
@@ -934,6 +1064,406 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                     '20111225000000', 
                     'Target version (20111225000000) not found',
                 ]
+        ];
+    }
+
+    public function rollbackByStartTimeDataProvider()
+    {
+        return [
+
+            // No breakpoints set
+
+            'Rollback to first created version with was also the first to be executed - no breakpoints set' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 0),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                    ],
+                    '20120111235330',
+                    '== 20120116183504 TestMigration2: reverted'
+                ],
+            'Rollback to last created version which was also the last to be executed - no breakpoints set' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 0),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                    ],
+                    '20120116183504',
+                    'No migrations to rollback'
+                ],
+            'Rollback all versions (ie. rollback to version 0) - no breakpoints set' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 0),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                    ],
+                    '0',
+                    ['== 20120111235330 TestMigration: reverted', '== 20120116183504 TestMigration2: reverted']
+                ],
+            'Rollback to second created version which was the first to be executed - no breakpoints set' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-10 18:35:04', 'end_time' => '2012-01-10 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 0),
+                    ],
+                    '20120116183504',
+                    '== 20120111235330 TestMigration: reverted'
+                ],
+            'Rollback to first created version which was the second to be executed - no breakpoints set' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 0),
+                    ],
+                    '20120111235330',
+                    'No migrations to rollback'
+                ],
+            'Rollback last executed version which was also the last created version - no breakpoints set' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 0),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                    ],
+                    null,
+                    '== 20120116183504 TestMigration2: reverted'
+                ],
+            'Rollback last executed version which was the first created version - no breakpoints set' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 0),
+                    ],
+                    null,
+                    '== 20120111235330 TestMigration: reverted'
+                ],
+            'Rollback to non-existing version - no breakpoints set' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 0),
+                    ],
+                    '20121225000000', 
+                    'Target version (20121225000000) not found',
+                ],
+            'Rollback to missing version - no breakpoints set' => 
+                [
+                    [
+                        '20111225000000' => array('version' => '20111225000000', 'start_time' => '2011-12-25 00:00:00', 'end_time' => '2011-12-25 00:00:00', 'breakpoint' => 0),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 0),
+                    ],
+                    '20121225000000', 
+                    'Target version (20121225000000) not found',
+                ],
+
+            // Breakpoint set on first migration
+
+            'Rollback to first created version with was also the first to be executed - breakpoint set on first (executed and created) migration' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 1),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                    ],
+                    '20120111235330',
+                    '== 20120116183504 TestMigration2: reverted'
+                ],
+            'Rollback to last created version which was also the last to be executed - breakpoint set on first (executed and created) migration' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 1),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                    ],
+                    '20120116183504',
+                    'No migrations to rollback'
+                ],
+            'Rollback all versions (ie. rollback to version 0) - breakpoint set on first (executed and created) migration' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 1),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                    ],
+                    '0',
+                    ['== 20120116183504 TestMigration2: reverted', 'Breakpoint reached. Further rollbacks inhibited.']
+                ],
+            'Rollback to second created version which was the first to be executed - breakpoint set on first executed migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-10 18:35:04', 'end_time' => '2012-01-10 18:35:04', 'breakpoint' => 1),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 0),
+                    ],
+                    '20120116183504',
+                    '== 20120111235330 TestMigration: reverted'
+                ],
+            'Rollback to second created version which was the first to be executed - breakpoint set on first created migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-10 18:35:04', 'end_time' => '2012-01-10 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 1),
+                    ],
+                    '20120116183504',
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback to first created version which was the second to be executed - breakpoint set on first executed migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 0),
+                    ],
+                    '20120111235330',
+                    'No migrations to rollback'
+                ],
+            'Rollback to first created version which was the second to be executed - breakpoint set on first created migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 1),
+                    ],
+                    '20120111235330',
+                    'No migrations to rollback'
+                ],
+            'Rollback last executed version which was also the last created version - breakpoint set on first (executed and created) migration' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 1),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                    ],
+                    null,
+                    '== 20120116183504 TestMigration2: reverted'
+                ],
+            'Rollback last executed version which was the first created version - breakpoint set on first executed migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 0),
+                    ],
+                    null,
+                    '== 20120111235330 TestMigration: reverted'
+                ],
+            'Rollback last executed version which was the first created version - breakpoint set on first created migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 1),
+                    ],
+                    null,
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback to non-existing version - breakpoint set on first executed migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 0),
+                    ],
+                    '20121225000000', 
+                    'Target version (20121225000000) not found',
+                ],
+            'Rollback to missing version - breakpoint set on first executed migration' => 
+                [
+                    [
+                        '20111225000000' => array('version' => '20111225000000', 'start_time' => '2011-12-25 00:00:00', 'end_time' => '2011-12-25 00:00:00', 'breakpoint' => 1),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 0),
+                    ],
+                    '20121225000000', 
+                    'Target version (20121225000000) not found',
+                ],
+
+            // Breakpoint set on last migration
+
+            'Rollback to first created version with was also the first to be executed - breakpoint set on last (executed and created) migration' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 0),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                    ],
+                    '20120111235330',
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback to last created version which was also the last to be executed - breakpoint set on last (executed and created) migration' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 0),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                    ],
+                    '20120116183504',
+                    'No migrations to rollback'
+                ],
+            'Rollback all versions (ie. rollback to version 0) - breakpoint set on last (executed and created) migration' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 0),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                    ],
+                    '0',
+                    ['Breakpoint reached. Further rollbacks inhibited.']
+                ],
+            'Rollback to second created version which was the first to be executed - breakpoint set on last executed migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-10 18:35:04', 'end_time' => '2012-01-10 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 1),
+                    ],
+                    '20120116183504',
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback to second created version which was the first to be executed - breakpoint set on last created migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-10 18:35:04', 'end_time' => '2012-01-10 18:35:04', 'breakpoint' => 1),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 0),
+                    ],
+                    '20120116183504',
+                    '== 20120111235330 TestMigration: reverted'
+                ],
+            'Rollback to first created version which was the second to be executed - breakpoint set on last executed migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 1),
+                    ],
+                    '20120111235330',
+                    'No migrations to rollback'
+                ],
+            'Rollback to first created version which was the second to be executed - breakpoint set on last created migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 0),
+                    ],
+                    '20120111235330',
+                    'No migrations to rollback'
+                ],
+            'Rollback last executed version which was also the last created version - breakpoint set on last (executed and created) migration' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 0),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                    ],
+                    null,
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback last executed version which was the first created version - breakpoint set on last executed migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 1),
+                    ],
+                    null,
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback last executed version which was the first created version - breakpoint set on last created migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 0),
+                    ],
+                    null,
+                    '== 20120111235330 TestMigration: reverted'
+                ],
+            'Rollback to non-existing version - breakpoint set on last executed migration' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 1),
+                    ],
+                    '20121225000000', 
+                    'Target version (20121225000000) not found',
+                ],
+            'Rollback to missing version - breakpoint set on last executed migration' => 
+                [
+                    [
+                        '20111225000000' => array('version' => '20111225000000', 'start_time' => '2011-12-25 00:00:00', 'end_time' => '2011-12-25 00:00:00', 'breakpoint' => 0),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 0),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 1),
+                    ],
+                    '20121225000000', 
+                    'Target version (20121225000000) not found',
+                ],
+
+            // Breakpoint set on all migrations
+
+            'Rollback to first created version with was also the first to be executed - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 1),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                    ],
+                    '20120111235330',
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback to last created version which was also the last to be executed - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 1),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                    ],
+                    '20120116183504',
+                    'No migrations to rollback'
+                ],
+            'Rollback all versions (ie. rollback to version 0) - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 1),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                    ],
+                    '0',
+                    ['Breakpoint reached. Further rollbacks inhibited.']
+                ],
+            'Rollback to second created version which was the first to be executed - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-10 18:35:04', 'end_time' => '2012-01-10 18:35:04', 'breakpoint' => 1),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 1),
+                    ],
+                    '20120116183504',
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback to first created version which was the second to be executed - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 1),
+                    ],
+                    '20120111235330',
+                    'No migrations to rollback'
+                ],
+            'Rollback last executed version which was also the last created version - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'end_time' => '2012-01-12 23:53:30', 'breakpoint' => 1),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                    ],
+                    null,
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback last executed version which was the first created version - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 1),
+                    ],
+                    null,
+                    'Breakpoint reached. Further rollbacks inhibited.'
+                ],
+            'Rollback to non-existing version - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 1),
+                    ],
+                    '20121225000000', 
+                    'Target version (20121225000000) not found',
+                ],
+            'Rollback to missing version - breakpoint set on all migrations' => 
+                [
+                    [
+                        '20111225000000' => array('version' => '20111225000000', 'start_time' => '2011-12-25 00:00:00', 'end_time' => '2011-12-25 00:00:00', 'breakpoint' => 1),
+                        '20120116183504' => array('version' => '20120116183504', 'start_time' => '2012-01-17 18:35:04', 'end_time' => '2012-01-17 18:35:04', 'breakpoint' => 1),
+                        '20120111235330' => array('version' => '20120111235330', 'start_time' => '2012-01-20 23:53:30', 'end_time' => '2012-01-20 23:53:30', 'breakpoint' => 1),
+                    ],
+                    '20121225000000', 
+                    'Target version (20121225000000) not found',
+                ],
         ];
     }
 

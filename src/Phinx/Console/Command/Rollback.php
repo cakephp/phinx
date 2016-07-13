@@ -48,6 +48,7 @@ class Rollback extends AbstractCommand
              ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to rollback to')
              ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to rollback to')
              ->addOption('--force', '-f', InputOption::VALUE_NONE, 'Force rollback to ignore breakpoints')
+             ->addOption('--start-time', '-s', InputOption::VALUE_NONE, 'Order the migrations by their start time (ie. execution time)')
              ->setHelp(
 <<<EOT
 The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
@@ -60,6 +61,14 @@ The <info>rollback</info> command reverts the last migration, or optionally up t
 
 If you have a breakpoint set, then you can rollback to target 0 and the rollbacks will stop at the breakpoint.
 <info>phinx rollback -e development -t 0 </info>
+
+The <info>-s|--start-time</info> option can be used to allow rollbacking the last executed migration (as opposed to the last created one):
+
+<info>phinx rollback -s</info>
+
+It can also be combined with the <info>-d|--date</info> option to rollback to a certain date using the migration start times to order them:
+
+<info>phinx rollback -s -d 20111018</info>
 
 EOT
              );
@@ -80,15 +89,18 @@ EOT
         $version     = $input->getOption('target');
         $date        = $input->getOption('date');
         $force       = !!$input->getOption('force');
+        $startTime   = $input->getOption('start-time');
+
+        $config = $this->getConfig();
 
         if (null === $environment) {
-            $environment = $this->getConfig()->getDefaultEnvironment();
+            $environment = $config->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
 
-        $envOptions = $this->getConfig()->getEnvironment($environment);
+        $envOptions = $config->getEnvironment($environment);
         if (isset($envOptions['adapter'])) {
             $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         }
@@ -101,12 +113,24 @@ EOT
             $output->writeln('<info>using database</info> ' . $envOptions['name']);
         }
 
+        if ($startTime) {
+            $output->writeln('<info>ordering by </info>start time');
+        }
+
         // rollback the specified environment
         $start = microtime(true);
         if (null !== $date) {
-            $this->getManager()->rollbackToDateTime($environment, new \DateTime($date), $force);
+            if (true === $startTime) {
+                $this->getManager()->rollbackToDateTimeByStartTime($environment, new \DateTime($date), $force);
+            } else {
+                $this->getManager()->rollbackToDateTime($environment, new \DateTime($date), $force);
+            }
         } else {
-            $this->getManager()->rollback($environment, $version, $force);
+            if (true === $startTime) {
+                $this->getManager()->rollbackByStartTime($environment, $version, $force);
+            } else {
+                $this->getManager()->rollback($environment, $version, $force);
+            }
         }
         $end = microtime(true);
 

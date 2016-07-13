@@ -121,4 +121,75 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
     }
+    
+    public function testOrderByStartTime()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        // setup dependencies
+        $input = new ArrayInput([]);
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $input, $output));
+        $managerStub->expects($this->once())
+                    ->method('rollbackByStartTime');
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName(), '--start-time' => true), array('decorated' => false));
+        $this->assertRegExp('/ordering by start time/', $commandTester->getDisplay());
+    }
+    
+    public function testWithDateTime()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        // setup dependencies
+        $input = new ArrayInput([]);
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $input, $output));
+        $managerStub->expects($this->once())
+                    ->method('rollbackToDateTime');
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName(), '-d' => '20150101'), array('decorated' => false));
+    }
+    
+    public function testWithDateTimeByStartTime()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        // setup dependencies
+        $input = new ArrayInput([]);
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $input, $output));
+        $managerStub->expects($this->once())
+                    ->method('rollbackToDateTimeByStartTime');
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName(), '-d' => '20150101', '--start-time' => true), array('decorated' => false));
+        $this->assertRegExp('/ordering by start time/', $commandTester->getDisplay());
+    }
 }

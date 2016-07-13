@@ -247,6 +247,34 @@ class Manager
     }
 
     /**
+     * Roll back to the version of the database on a given date while ordering by start time
+     *
+     * @param string    $environment Environment
+     * @param \DateTime $dateTime    Date to roll back to
+     * @param bool $force
+     *
+     * @return void
+     */
+    public function rollbackToDateTimeByStartTime($environment, \DateTime $dateTime, $force = false)
+    {
+        $env        = $this->getEnvironment($environment);
+        $versions   = $env->getVersionLog('start_time', 'DESC');
+        $dateString = $dateTime->format('U');
+
+        // Find first version whose start time is before the wanted rollback date
+        foreach ($versions as $version) {
+            if (strtotime($version['start_time']) <= $dateString) {
+                $this->getOutput()->writeln('Rolling back to version '.$version['version']);
+                return $this->rollbackByStartTime($environment, $version['version'], $force);
+            }
+        }
+
+        // Otherwise, rollback all migrations
+        $this->getOutput()->writeln('Rolling back all migrations');
+        return $this->rollbackByStartTime($environment, 0, $force);
+    }
+
+    /**
      * Migrate an environment to the specified version.
      *
      * @param string $environment Environment
@@ -422,6 +450,81 @@ class Manager
                 }
                 $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
             }
+        }
+    }
+
+    /**
+     * Rollback an environment to the specified version while ordering by migration start time.
+     *
+     * @param string $environment Environment
+     * @param int $version
+     * @param bool $force
+     * @return void
+     */
+    public function rollbackByStartTime($environment, $version = null, $force = false)
+    {
+        $migrations = $this->getMigrations();
+        $env = $this->getEnvironment($environment);
+        $versions = $env->getVersionLog('start_time'); 
+
+        // Check we have at least 1 migration to revert
+        if (empty($versions) || $version == end($versions)) {
+            $this->getOutput()->writeln('<error>No migrations to rollback</error>');
+            return;
+        }
+
+        if ($version === "0") {
+            $version = 0;
+        }
+        
+        $versionNames = array_keys($versions);
+
+        // If no target version was supplied, revert the last migration
+        if (null === $version) {
+            // Get the migration before the last run migration
+            $prev = count($versions) - 2;
+
+            $version = $prev >= 0 ? $versionNames[$prev] : $versionNames[0];
+        }
+
+        // Check the target version exists
+        if (0 !== $version && !isset($migrations[$version])) {
+            $this->getOutput()->writeln("<error>Target version ($version) not found</error>");
+            return;
+        }
+
+        // Sort the migration(s) by descending start time (ie. the opposite order of the version names, which
+        // were sorted by ascending start time earlier)
+        $sortedMigrations = array();
+
+        while ($versionName = array_pop($versionNames)) {
+            if (isset($migrations[$versionName])) {
+                $sortedMigrations[$versionName] = $migrations[$versionName];
+            }
+        }
+
+        // Rollback all versions until we find the wanted rollback version
+        $rollbacked = false;
+
+        foreach ($sortedMigrations as $migration) {
+            
+            if ($migration->getVersion() == $version) {
+                break;
+            }
+
+            if (isset($versions[$migration->getVersion()])) {
+                if (0 != $versions[$migration->getVersion()]['breakpoint'] && !$force){
+                    $this->getOutput()->writeln('<error>Breakpoint reached. Further rollbacks inhibited.</error>');
+                    break;
+                }
+
+                $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                $rollbacked = true;
+            }
+        }
+
+        if (!$rollbacked) {
+            $this->getOutput()->writeln('<error>No migrations to rollback</error>');
         }
     }
 
