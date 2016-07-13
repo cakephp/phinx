@@ -7,7 +7,7 @@ use Phinx\Db\Adapter\AdapterFactory;
 class AdapterFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Phinx\Db\Adapter\AdapterFactory
+     * @var \Phinx\Db\Adapter\AdapterFactory
      */
     private $factory;
 
@@ -41,7 +41,7 @@ class AdapterFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Adapter class "Test\Phinx\Db\Adapter\AdapterFactoryTest" must be implement Phinx\Db\Adapter\AdapterInterface
+     * @expectedExceptionMessage Adapter class "Test\Phinx\Db\Adapter\AdapterFactoryTest" must implement Phinx\Db\Adapter\AdapterInterface
      */
     public function testRegisterAdapterFailure()
     {

@@ -6,6 +6,33 @@ Commands
 
 Phinx is run using a number of commands.
 
+The Breakpoint Command
+----------------------
+
+The Breakpoint command is used to set breakpoints, allowing you to limit
+rollbacks. You can toggle the breakpoint of the most recent migration by
+not supplying any parameters.
+
+.. code-block:: bash
+
+        $ phinx breakpoint -e development
+
+To toggle a breakpoint on a specific version then use the ``--target``
+parameter or ``-t`` for short.
+
+.. code-block:: bash
+
+        $ phinx breakpoint -e development -t 20120103083322
+
+You can remove all the breakpoints by using the ``--remove-all`` parameter
+or ``-r`` for short.
+
+.. code-block:: bash
+
+        $ phinx breakpoint -e development -r
+
+Breakpoints are visible when you run the ``status`` command.
+
 The Create Command
 ------------------
 
@@ -99,6 +126,13 @@ Specifying 0 as the target version will revert all migrations.
 .. code-block:: bash
 
         $ phinx rollback -e development -t 0
+
+If a breakpoint is set, blocking further rollbacks, you can override the
+breakpoint using the ``--force`` parameter or ``-f`` for short.
+
+.. code-block:: bash
+
+        $ phinx rollback -e development -t 0 -f
 
 The Status Command
 ------------------

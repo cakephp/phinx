@@ -28,6 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Table;
@@ -45,6 +46,11 @@ abstract class PdoAdapter implements AdapterInterface
      * @var array
      */
     protected $options = array();
+
+    /**
+     * @var InputInterface
+     */
+    protected $input;
 
     /**
      * @var OutputInterface
@@ -70,11 +76,15 @@ abstract class PdoAdapter implements AdapterInterface
      * Class Constructor.
      *
      * @param array $options Options
+     * @param InputInterface $input Input Interface
      * @param OutputInterface $output Output Interface
      */
-    public function __construct(array $options, OutputInterface $output = null)
+    public function __construct(array $options, InputInterface $input = null, OutputInterface $output = null)
     {
         $this->setOptions($options);
+        if (null !== $input) {
+            $this->setInput($input);
+        }
         if (null !== $output) {
             $this->setOutput($output);
         }
@@ -123,6 +133,23 @@ abstract class PdoAdapter implements AdapterInterface
             return null;
         }
         return $this->options[$name];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setInput(InputInterface $input)
+    {
+        $this->input = $input;
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getInput()
+    {
+        return $this->input;
     }
 
     /**
@@ -185,9 +212,14 @@ abstract class PdoAdapter implements AdapterInterface
             $table = new Table($this->getSchemaTableName(), array(), $this);
             if (!$table->hasColumn('migration_name')) {
                 $table
-                    ->addColumn('migration_name', 'string', 
+                    ->addColumn('migration_name', 'string',
                         array('limit' => 100, 'after' => 'version', 'default' => null, 'null' => true)
                     )
+                    ->save();
+            }
+            if (!$table->hasColumn('breakpoint')) {
+                $table
+                    ->addColumn('breakpoint', 'boolean', array('default' => false))
                     ->save();
             }
         }
@@ -371,11 +403,11 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getVersionLog()
+    public function getVersionLog($orderCol = 'version', $orderDirection = 'ASC')
     {
         $result = array();
-        $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY version ASC', $this->getSchemaTableName()));
-        foreach ($rows as $version) {
+        $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s %s', $this->getSchemaTableName(), $orderCol, $orderDirection));
+        foreach($rows as $version) {
             $result[$version['version']] = $version;
         }
 
@@ -390,27 +422,27 @@ abstract class PdoAdapter implements AdapterInterface
         if (strcasecmp($direction, MigrationInterface::UP) === 0) {
             // up
             $sql = sprintf(
-                'INSERT INTO %s ('
-                . 'version, migration_name, start_time, end_time'
-                . ') VALUES ('
-                . '\'%s\','
-                . '\'%s\','
-                . '\'%s\','
-                . '\'%s\''
-                . ');',
+                "INSERT INTO %s (%s, %s, %s, %s, %s) VALUES ('%s', '%s', '%s', '%s', %s);",
                 $this->getSchemaTableName(),
+                $this->quoteColumnName('version'),
+                $this->quoteColumnName('migration_name'),
+                $this->quoteColumnName('start_time'),
+                $this->quoteColumnName('end_time'),
+                $this->quoteColumnName('breakpoint'),
                 $migration->getVersion(),
                 substr($migration->getName(), 0, 100),
                 $startTime,
-                $endTime
+                $endTime,
+                $this->castToBool(false)
             );
 
             $this->query($sql);
         } else {
             // down
             $sql = sprintf(
-                "DELETE FROM %s WHERE version = '%s'",
+                "DELETE FROM %s WHERE %s = '%s'",
                 $this->getSchemaTableName(),
+                $this->quoteColumnName('version'),
                 $migration->getVersion()
             );
 
@@ -418,6 +450,41 @@ abstract class PdoAdapter implements AdapterInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function toggleBreakpoint(MigrationInterface $migration)
+    {
+        $this->query(
+            sprintf(
+                'UPDATE %1$s SET %2$s = CASE %2$s WHEN %3$s THEN %4$s ELSE %3$s END WHERE %5$s = \'%6$s\';',
+                $this->getSchemaTableName(),
+                $this->quoteColumnName('breakpoint'),
+                $this->castToBool(true),
+                $this->castToBool(false),
+                $this->quoteColumnName('version'),
+                $migration->getVersion()
+            )
+        );
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function resetAllBreakpoints()
+    {
+        return $this->execute(
+            sprintf(
+                'UPDATE %1$s SET %2$s = %3$s WHERE %2$s <> %3$s;',
+                $this->getSchemaTableName(),
+                $this->quoteColumnName('breakpoint'),
+                $this->castToBool(false)
+            )
+        );
     }
 
     /**
@@ -447,12 +514,14 @@ abstract class PdoAdapter implements AdapterInterface
                       ->addColumn('migration_name', 'string', array('limit' => 100, 'default' => null, 'null' => true))
                       ->addColumn('start_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
                       ->addColumn('end_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
+                      ->addColumn('breakpoint', 'boolean', array('default' => false))
                       ->save();
             } else {
                 $table->addColumn('version', 'biginteger')
                       ->addColumn('migration_name', 'string', array('limit' => 100, 'default' => null, 'null' => true))
                       ->addColumn('start_time', 'timestamp')
                       ->addColumn('end_time', 'timestamp')
+                      ->addColumn('breakpoint', 'boolean', array('default' => false))
                       ->save();
             }
         } catch (\Exception $exception) {
@@ -503,5 +572,17 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function isValidColumnType(Column $column) {
         return in_array($column->getType(), $this->getColumnTypes());
+    }
+
+    /**
+     * Cast a value to a boolean appropriate for the adapter.
+     *
+     * @param mixed $value The value to be cast
+     *
+     * @return mixed
+     */
+    public function castToBool($value)
+    {
+        return (bool) $value ? 1 : 0;
     }
 }

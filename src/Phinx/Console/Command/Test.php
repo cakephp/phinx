@@ -72,7 +72,7 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->loadConfig($input, $output);
-        $this->loadManager($output);
+        $this->loadManager($input, $output);
 
         $this->verifyMigrationDirectory($this->getConfig()->getMigrationPath());
 

@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
@@ -62,7 +63,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED constant.');
         }
 
-        $this->adapter = new MysqlAdapterTester(array(), new NullOutput());
+        $this->adapter = new MysqlAdapterTester(array(), new ArrayInput([]), new NullOutput());
 
         $this->conn = $this->getMockBuilder('PDOMock')
                            ->disableOriginalConstructor()
@@ -393,8 +394,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $foreignkey->expects($this->any())->method('getConstraint')->will($this->returnValue('fk1'));
         $foreignkey->expects($this->any())->method('getReferencedColumns')->will($this->returnValue(array('id')));
         $foreignkey->expects($this->any())->method('getReferencedTable')->will($this->returnValue($refTable));
-        $foreignkey->expects($this->any())->method('onDelete')->will($this->returnValue(null));
-        $foreignkey->expects($this->any())->method('onUpdate')->will($this->returnValue(null));
+        $foreignkey->expects($this->any())->method('getOnDelete')->will($this->returnValue(null));
+        $foreignkey->expects($this->any())->method('getOnUpdate')->will($this->returnValue(null));
 
         $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue(array($column1, $column2, $column3)));
         $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
@@ -1390,8 +1391,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $foreignkey->expects($this->any())->method('getConstraint')->will($this->returnValue('fk1'));
         $foreignkey->expects($this->any())->method('getReferencedColumns')->will($this->returnValue(array('id')));
         $foreignkey->expects($this->any())->method('getReferencedTable')->will($this->returnValue($refTable));
-        $foreignkey->expects($this->any())->method('onDelete')->will($this->returnValue(null));
-        $foreignkey->expects($this->any())->method('onUpdate')->will($this->returnValue(null));
+        $foreignkey->expects($this->any())->method('getOnDelete')->will($this->returnValue(null));
+        $foreignkey->expects($this->any())->method('getOnUpdate')->will($this->returnValue(null));
 
         $this->assertExecuteSql('ALTER TABLE `table_name` ADD  CONSTRAINT `fk1` FOREIGN KEY (`other_table_id`) REFERENCES `other_table` (`id`)');
         $this->adapter->addForeignKey($table, $foreignkey);

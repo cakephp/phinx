@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\MysqlAdapter;
 
@@ -25,7 +26,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             'pass' => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
             'port' => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT
         );
-        $this->adapter = new MysqlAdapter($options, new NullOutput());
+        $this->adapter = new MysqlAdapter($options, new ArrayInput([]), new NullOutput());
 
         // ensure the database is empty for each test
         $this->adapter->dropDatabase($options['name']);
@@ -64,7 +65,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         );
 
         try {
-            $adapter = new MysqlAdapter($options, new NullOutput());
+            $adapter = new MysqlAdapter($options, new ArrayInput([]), new NullOutput());
             $adapter->connect();
             $this->fail('Expected the adapter to throw an exception');
         } catch (\InvalidArgumentException $e) {
@@ -90,7 +91,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             'unix_socket' => TESTS_PHINX_DB_ADAPTER_MYSQL_UNIX_SOCKET,
         );
 
-        $adapter = new MysqlAdapter($options, new NullOutput());
+        $adapter = new MysqlAdapter($options, new ArrayInput([]), new NullOutput());
         $adapter->connect();
 
         $this->assertInstanceOf('\PDO', $this->adapter->getConnection());
@@ -698,7 +699,10 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addIndex('email', array('limit' => 50))
             ->save();
         $this->assertTrue($table->hasIndex('email'));
-        $index_data = $this->adapter->query('SELECT SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = "phinx_testing" AND TABLE_NAME = "table1" AND INDEX_NAME = "email"')->fetch(\PDO::FETCH_ASSOC);
+        $index_data = $this->adapter->query(sprintf(
+            'SELECT SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = "%s" AND TABLE_NAME = "table1" AND INDEX_NAME = "email"',
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
+            ))->fetch(\PDO::FETCH_ASSOC);
         $expected_limit = $index_data['SUB_PART'];
         $this->assertEquals($expected_limit, 50);
     }

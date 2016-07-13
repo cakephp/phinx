@@ -7,6 +7,9 @@ use Phinx\Config\ConfigInterface;
 use Phinx\Console\Command\Create;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -21,6 +24,16 @@ class CreateTest extends \PHPUnit_Framework_TestCase
      * @var ConfigInterface|array
      */
     protected $config = array();
+
+    /**
+     * @var InputInterface $input
+     */
+    protected $input;
+
+    /**
+     * @var OutputInterface $output
+     */
+    protected $output;
 
     protected function setUp()
     {
@@ -48,6 +61,9 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         foreach (glob($this->config->getMigrationPath().'/*.*') as $migration) {
             unlink($migration);
         }
+
+        $this->input = new ArrayInput([]);
+        $this->output = new StreamOutput(fopen('php://memory', 'a', false));
     }
 
     /**
@@ -59,14 +75,11 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $application = new PhinxApplication('testing');
         $application->add(new Create());
 
-        // setup dependencies
-        $output = new StreamOutput(fopen('php://memory', 'a', false));
-
         /** @var Create $command $command */
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -87,14 +100,11 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $application = new PhinxApplication('testing');
         $application->add(new Create());
 
-        // setup dependencies
-        $output = new StreamOutput(fopen('php://memory', 'a', false));
-
         /** @var Create $command $command */
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -112,14 +122,11 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $application = new PhinxApplication('testing');
         $application->add(new Create());
 
-        // setup dependencies
-        $output = new StreamOutput(fopen('php://memory', 'a', false));
-
         /** @var Create $command $command */
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
 
         $this->config['templates'] = array(
             'file' => 'MyTemplate',
@@ -175,14 +182,11 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $application = new PhinxApplication('testing');
         $application->add(new Create());
 
-        // setup dependencies
-        $output = new StreamOutput(fopen('php://memory', 'a', false));
-
         /** @var Create $command $command */
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
 
         foreach ($config as $key => $value) {
             $this->config[$key] = $value;
@@ -240,14 +244,11 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $application = new PhinxApplication('testing');
         $application->add(new Create());
 
-        // setup dependencies
-        $output = new StreamOutput(fopen('php://memory', 'a', false));
-
         /** @var Create $command $command */
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
 
         foreach ($config as $key => $value) {
             $this->config[$key] = $value;
@@ -304,14 +305,11 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $application = new PhinxApplication('testing');
         $application->add(new Create());
 
-        // setup dependencies
-        $output = new StreamOutput(fopen('php://memory', 'a', false));
-
         /** @var Create $command $command */
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
 
         foreach ($config as $key => $value) {
             $this->config[$key] = $value;
