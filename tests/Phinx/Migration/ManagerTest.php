@@ -208,8 +208,61 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*/', $outputStr);
-        $this->assertRegExp('/up  20120815145812  2012-01-16 18:35:40  2012-01-16 18:35:41  Example   *\*\* MISSING \*\*/', $outputStr);
+
+        // note that the order is important: missing migrations should appear before down migrations
+        $this->assertRegExp('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*'.PHP_EOL.
+            '\s*up  20120815145812  2012-01-16 18:35:40  2012-01-16 18:35:41  Example   *\*\* MISSING \*\*'.PHP_EOL. 
+            '\s*down  20120111235330                                            TestMigration'.PHP_EOL.
+            '\s*down  20120116183504                                            TestMigration2/', $outputStr);
+    }
+    
+    public function testPrintStatusMethodWithMissingLastMigration()
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->once())
+                ->method('getVersionLog')
+                ->will($this->returnValue(
+                    array (
+                        '20120111235330' => 
+                            array (
+                                'version' => '20120111235330',
+                                'start_time' => '2012-01-16 18:35:40',
+                                'end_time' => '2012-01-16 18:35:41',
+                                'migration_name' => '',
+                                'breakpoint' => 0
+                            ),
+                        '20120116183504' =>
+                            array (
+                                'version' => '20120116183504',
+                                'start_time' => '2012-01-16 18:35:40',
+                                'end_time' => '2012-01-16 18:35:41',
+                                'migration_name' => '',
+                                'breakpoint' => '0',
+                            ),
+                        '20120120145114' =>
+                            array (
+                                'version' => '20120120145114',
+                                'start_time' => '2012-01-20 14:51:14',
+                                'end_time' => '2012-01-20 14:51:14',
+                                'migration_name' => 'Example',
+                                'breakpoint' => '0',
+                            ),
+                    )
+                ));
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->getOutput()->setDecorated(false);
+        $return = $this->manager->printStatus('mockenv');
+        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+
+        rewind($this->manager->getOutput()->getStream());
+        $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
+
+        // note that the order is important: missing migrations should appear before down migrations
+        $this->assertRegExp('/\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration'.PHP_EOL.
+            '\s*up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2'.PHP_EOL.
+            '\s*up  20120120145114  2012-01-20 14:51:14  2012-01-20 14:51:14  Example   *\*\* MISSING \*\*/', $outputStr);
     }
 
     public function testPrintStatusMethodWithMissingMigrationsAndBreakpointSet()
@@ -275,6 +328,109 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
         $this->assertRegExp('/up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration/', $outputStr);
         $this->assertRegExp('/down  20120116183504                                            TestMigration2/', $outputStr);
+    }
+    
+    public function testPrintStatusMethodWithMissingAndDownMigrations()
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->once())
+                ->method('getVersionLog')
+                ->will($this->returnValue(array(
+                    '20120111235330' => 
+                        array (
+                            'version' => '20120111235330',
+                            'start_time' => '2012-01-16 18:35:40',
+                            'end_time' => '2012-01-16 18:35:41',
+                            'migration_name' => '',
+                            'breakpoint' => 0
+                        ),
+                    '20120103083300' =>
+                        array (
+                            'version' => '20120103083300',
+                            'start_time' => '2012-01-11 23:53:36',
+                            'end_time' => '2012-01-11 23:53:37',
+                            'migration_name' => '',
+                            'breakpoint' => 0,
+                        ),
+                    '20120815145812' =>
+                        array (
+                            'version' => '20120815145812',
+                            'start_time' => '2012-01-16 18:35:40',
+                            'end_time' => '2012-01-16 18:35:41',
+                            'migration_name' => 'Example',
+                            'breakpoint' => 0,
+                        ))));
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->getOutput()->setDecorated(false);
+        $return = $this->manager->printStatus('mockenv');
+        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+
+        rewind($this->manager->getOutput()->getStream());
+        $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
+        
+        // note that the order is important: missing migrations should appear before down migrations (and in the right 
+        // place with regard to other up non-missing migrations)
+        $this->assertRegExp('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*'.PHP_EOL.
+            '\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration'.PHP_EOL. 
+            '\s*down  20120116183504                                            TestMigration2/', $outputStr);
+    }
+    
+    /**
+     * Test that ensures the status header is correctly printed with regards to the version order
+     *
+     * @dataProvider statusVersionOrderProvider
+     *
+     * @param array  $config
+     * @param string $expectedStatusHeader
+     */
+    public function testPrintStatusMethodVersionOrderHeader($config, $expectedStatusHeader)
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->once())
+                ->method('getVersionLog')
+                ->will($this->returnValue(array()));
+
+        $output = new RawBufferedOutput();
+        $this->manager = new Manager($config, $this->input, $output);
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $return = $this->manager->printStatus('mockenv');
+        $this->assertEquals(Manager::EXIT_STATUS_DOWN, $return);
+
+        $outputStr = $this->manager->getOutput()->fetch();
+        $this->assertContains($expectedStatusHeader, $outputStr);
+    }
+
+    public function statusVersionOrderProvider()
+    {
+        // create the necessary configuration objects
+        $configArray = $this->getConfigArray();
+
+        $configWithNoVersionOrder = new Config($configArray);
+
+        $configArray['version_order'] = Config::VERSION_ORDER_CREATION_TIME;
+        $configWithCreationTimeVersionOrder = new Config($configArray);
+
+        $configArray['version_order'] = Config::VERSION_ORDER_START_TIME;
+        $configWithStartTimeVersionOrder = new Config($configArray);
+
+        return [
+            'With the default version order' => [
+                $configWithNoVersionOrder,
+                ' Status  <info>[Migration ID]</info>  Started              Finished             Migration Name '
+            ],
+            'With the creation-time version order' => [
+                $configWithCreationTimeVersionOrder,
+                ' Status  <info>[Migration ID]</info>  Started              Finished             Migration Name '
+            ],
+            'With the start-time version order' => [
+                $configWithStartTimeVersionOrder,
+                ' Status  Migration ID    <info>[Started          ]</info>  Finished             Migration Name '
+            ]
+        ];
     }
 
     public function testGetMigrationsWithDuplicateMigrationVersions()
@@ -2015,5 +2171,17 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $output = stream_get_contents($this->manager->getOutput()->getStream());
 
         $this->assertContains('is not a valid version', $output);
+    }
+}
+
+/**
+ * RawBufferedOutput is a specialized BufferedOutput that outputs raw "writeln" calls (ie. it doesn't replace the
+ * tags like <info>message</info>.
+ */
+class RawBufferedOutput extends \Symfony\Component\Console\Output\BufferedOutput
+{
+    public function writeln($messages, $options = self::OUTPUT_RAW)
+    {
+        $this->write($messages, true, $options);
     }
 }
