@@ -2,6 +2,7 @@
 
 **0.6.x-dev** (***)
 
+* [#707](https://github.com/robmorgan/phinx/pull/707/files) Add arguments for timestamps columns names
 * Documentation cleanup
 * Bug fixes
   [#884](https://github.com/robmorgan/phinx/pull/884) Only rollback 1 migration when only 2 migrations exist
