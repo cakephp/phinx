@@ -645,13 +645,23 @@ class Table
     /**
      * Commit the pending data waiting for insertion.
      *
-     * @return void
+     * @param bool $populateIds If true then the returned object will contain the database assigned id field
+     * @param string $idFieldIndex Field to use as id
+     * @return array
      */
-    public function saveData()
+    public function saveData($populateIds = false, $idFieldIndex = 'id')
     {
-        foreach ($this->getData() as $row) {
+        $curId = 0;
+        $rows = $this->getData();
+        foreach ($rows as $row) {
             $this->getAdapter()->insert($this, $row);
+            if ($populateIds) {
+                $rows[$curId][$idFieldIndex] = $this->adapter->getConnection()->lastInsertId();
+            }
+            $curId++;
         }
+
+        return $rows;
     }
 
     /**
