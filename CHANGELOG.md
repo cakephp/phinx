@@ -2,11 +2,14 @@
 
 **0.6.x-dev** (***)
 
+**0.6.3** (Monday, 18th July 2016)
+
 * New features
   * [#707](https://github.com/robmorgan/phinx/pull/707/files) Add arguments for timestamps columns names
 * Documentation cleanup
 * Bug fixes
   * [#884](https://github.com/robmorgan/phinx/pull/884) Only rollback 1 migration when only 2 migrations exist
+  * Input and Output are now correctly supplied to migration template creation classes
 
 **0.6.2** (Thursday, 23rd June 2016)
 
