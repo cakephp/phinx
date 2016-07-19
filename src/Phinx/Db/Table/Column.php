@@ -538,7 +538,7 @@ class Column
                 $option = $aliasOptions[$option];
             }
 
-            if (!in_array($option, $validOptions)) {
+            if (!in_array($option, $validOptions, true)) {
                 throw new \RuntimeException(sprintf('"%s" is not a valid column option.', $option));
             }
 

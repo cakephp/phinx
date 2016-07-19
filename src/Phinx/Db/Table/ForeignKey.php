@@ -216,8 +216,8 @@ class ForeignKey
         // Valid Options
         $validOptions = array('delete', 'update', 'constraint');
         foreach ($options as $option => $value) {
-            if (!in_array($option, $validOptions)) {
-                throw new \RuntimeException('\'' . $option . '\' is not a valid foreign key option.');
+            if (!in_array($option, $validOptions, true)) {
+                throw new \RuntimeException(sprintf('"%s" is not a valid foreign key option.', $option));
             }
 
             // handle $options['delete'] as $options['update']
