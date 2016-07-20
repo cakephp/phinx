@@ -137,8 +137,7 @@ EOT
     public function getTargetFromDate($date)
     {
         if (!preg_match('/^\d{4,14}$/', $date)) {
-            throw new \InvalidArgumentException('Invalid date. Format is YYYYmmddHHiiss (with no mandatory '.
-                'part, but the missing part(s) must all be in the end of the date string)');
+            throw new \InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
         }
 
         // what we need to append to the date according to the possible date string lengths
@@ -156,15 +155,13 @@ EOT
         }
 
         if ($target === null) {
-            throw new \InvalidArgumentException('Invalid date. Format is YYYYmmddHHiiss (with no mandatory '.
-                'part, but the missing part(s) must all be in the end of the date string)');
+            throw new \InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
         }
 
         $dateTime = \DateTime::createFromFormat('YmdHis', $target);
 
         if ($dateTime === false) {
-            throw new \InvalidArgumentException('Invalid date. Format is YYYYmmddHHiiss (with no mandatory '.
-                'part, but the missing part(s) must all be in the end of the date string)');
+            throw new \InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
         }
 
         return $dateTime->format('YmdHis');

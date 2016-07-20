@@ -232,7 +232,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider getTargetFromDateThrowsExceptionDataProvider
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Invalid date. Format is YYYYmmddHHiiss (with no mandatory part, but the missing part(s) must all be in the end of the date string)
+     * @expectedExceptionMessage Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].
      */
     public function testGetTargetFromDateThrowsException($invalidDate)
     {
