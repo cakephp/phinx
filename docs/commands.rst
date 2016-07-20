@@ -127,12 +127,31 @@ Specifying 0 as the target version will revert all migrations.
 
         $ phinx rollback -e development -t 0
 
+To rollback all migrations to a specific date then use the ``--date``
+parameter or ``-d`` for short.
+
+.. code-block:: bash
+
+        $ phinx rollback -e development -d 2012
+        $ phinx rollback -e development -d 201201
+        $ phinx rollback -e development -d 20120103
+        $ phinx rollback -e development -d 2012010312
+        $ phinx rollback -e development -d 201201031205
+        $ phinx rollback -e development -d 20120103120530
+
 If a breakpoint is set, blocking further rollbacks, you can override the
 breakpoint using the ``--force`` parameter or ``-f`` for short.
 
 .. code-block:: bash
 
         $ phinx rollback -e development -t 0 -f
+
+.. note::
+
+        When rolling back, Phinx orders the executed migrations using 
+        the order specified in the ``version_order`` option of your 
+        ``phinx.yml`` file.
+        Please see the :doc:`Configuration <configuration>` chapter for more information.
 
 The Status Command
 ------------------
