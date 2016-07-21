@@ -2,6 +2,8 @@
 
 **0.6.x-dev** (***)
 
+* Minor bug fixes
+
 **0.6.3** (Monday, 18th July 2016)
 
 * New features

@@ -69,7 +69,7 @@ class Index
      * Sets the index columns.
      *
      * @param array $columns
-     * @return Column
+     * @return Index
      */
     public function setColumns($columns)
     {

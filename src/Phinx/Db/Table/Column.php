@@ -545,5 +545,6 @@ class Column
             $method = 'set' . ucfirst($option);
             $this->$method($value);
         }
+        return $this;
     }
 }
