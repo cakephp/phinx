@@ -180,5 +180,6 @@ class Index
             $method = 'set' . ucfirst($option);
             $this->$method($value);
         }
+        return $this;
     }
 }
