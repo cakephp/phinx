@@ -10,7 +10,7 @@ website for more information.
 
 .. note::
 
-    Phinx requires at least PHP 5.3.2 (or later).
+    Phinx requires at least PHP 5.4 (or later).
 
 To install Phinx, simply require it using Composer:
 
@@ -31,4 +31,4 @@ Phinx can now be executed from within your project:
 
 .. code-block:: bash
 
-    php vendor/bin/phinx init
+    vendor/bin/phinx init
