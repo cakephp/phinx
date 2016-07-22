@@ -249,37 +249,6 @@ class ConfigTest extends AbstractConfigTest
     }
 
     /**
-     * @covers \Phinx\Config\Config::setVersionOrder
-     */
-    public function testSetVersionOrder()
-    {
-        $config = new \Phinx\Config\Config(array());
-        $config->setVersionOrder(\Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME);
-        $this->assertEquals(\Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, $config['version_order']);
-    }
-
-    /**
-     * @covers \Phinx\Config\Config::setVersionOrder
-     */
-    public function testSetVersionOrderDefault()
-    {
-        $config = new \Phinx\Config\Config(array());
-        $config->setVersionOrder();
-        $this->assertEquals(\Phinx\Config\Config::VERSION_ORDER_CREATION_TIME, $config['version_order']);
-    }
-    
-    /**
-     * @covers \Phinx\Config\Config::setVersionOrder
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Invalid version_order configuration option: bad-order. Valid values: creation or execution
-     */
-    public function testSetVersionOrderThrowsException()
-    {
-        $config = new \Phinx\Config\Config(array());
-        $config->setVersionOrder('bad-order');
-    }
-
-    /**
      * @covers \Phinx\Config\Config::isVersionOrderCreationTime
      * @dataProvider isVersionOrderCreationTimeDataProvider
      */
