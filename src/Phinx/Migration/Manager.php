@@ -118,6 +118,8 @@ class Manager
                 case \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME:
                     $migrationIdAndStartedHeader = "Migration ID    <info>[Started          ]</info>";
                     break;
+                default:
+                    throw new \RuntimeException('Invalid version_order configuration option');
             }
 
             $output->writeln(" Status  $migrationIdAndStartedHeader  Finished             Migration Name ");

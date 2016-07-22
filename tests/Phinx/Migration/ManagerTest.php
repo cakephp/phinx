@@ -592,8 +592,15 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->method('getVersionLog')
             ->will($this->returnValue($availableRollbacks));
 
-        // set the manager's config version order to execution time
-        $this->manager->getConfig()->setVersionOrder(\Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME);
+        // get a manager with a config whose version order is set to execution time
+        $configArray = $this->getConfigArray();
+        $configArray['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $config = new Config($configArray);
+        $this->input = new ArrayInput([]);
+        $this->output = new StreamOutput(fopen('php://memory', 'a', false));
+        $this->output->setDecorated(false);
+        
+        $this->manager = new Manager($config, $this->input, $this->output);
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->rollback('mockenv', $version);
         rewind($this->manager->getOutput()->getStream());
@@ -626,8 +633,15 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->method('getVersionLog')
             ->will($this->returnValue($availableRollbacks));
 
-        // set the manager's config version order to execution time
-        $this->manager->getConfig()->setVersionOrder(\Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME);
+        // get a manager with a config whose version order is set to execution time
+        $configArray = $this->getConfigArray();
+        $configArray['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $config = new Config($configArray);
+        $this->input = new ArrayInput([]);
+        $this->output = new StreamOutput(fopen('php://memory', 'a', false));
+        $this->output->setDecorated(false);
+        
+        $this->manager = new Manager($config, $this->input, $this->output);
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->rollback('mockenv', $date, false, false);
         rewind($this->manager->getOutput()->getStream());
@@ -711,7 +725,14 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->method('getVersionLog')
             ->will($this->returnValue($availableRolbacks));
 
-        $this->manager->getConfig()->setVersionOrder($versionOrder);
+        // get a manager with a config whose version order is set to execution time
+        $configArray = $this->getConfigArray();
+        $configArray['version_order'] = $versionOrder;
+        $config = new Config($configArray);
+        $this->input = new ArrayInput([]);
+        $this->output = new StreamOutput(fopen('php://memory', 'a', false));
+        $this->output->setDecorated(false);
+        $this->manager = new Manager($config, $this->input, $this->output);
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->rollback('mockenv', null);
         rewind($this->manager->getOutput()->getStream());

@@ -65,8 +65,6 @@ class Config implements ConfigInterface
     {
         $this->configFilePath = $configFilePath;
         $this->values = $this->replaceTokens($configArray);
-
-        $this->setVersionOrder();
     }
 
     /**
@@ -312,37 +310,13 @@ class Config implements ConfigInterface
      */
     public function getVersionOrder()
     {
+        if (!isset($this->values['version_order'])) {
+            return self::VERSION_ORDER_CREATION_TIME;
+        }
+
         return $this->values['version_order'];
     }
 
-    /**
-     * Set the version order.
-     * @param string $versionOrder The Version Order to set.
-     */
-    public function setVersionOrder($versionOrder = null)
-    {
-        if (!isset($versionOrder)) {
-            $versionOrder = isset ( $this->values['version_order'] ) ? $this->values['version_order'] : null;
-        }
-
-        if (!isset($versionOrder)) {
-            // if the configuration value is missing we use the default version order (creation time)
-            $this->values['version_order'] = self::VERSION_ORDER_CREATION_TIME;
-            return;
-        }
-
-        $validVersionOrders = array(self::VERSION_ORDER_CREATION_TIME, self::VERSION_ORDER_EXECUTION_TIME);
-
-        if (!in_array($versionOrder, $validVersionOrders)) {
-            throw new \RuntimeException(sprintf(
-                'Invalid version_order configuration option: %s. Valid values: %s',
-                $versionOrder, implode (' or ', $validVersionOrders)
-            ));
-        }
-
-        $this->values['version_order'] = $versionOrder;
-    }
-    
     /**
      * Is version order creation time?
      *

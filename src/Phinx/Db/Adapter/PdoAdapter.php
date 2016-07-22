@@ -414,6 +414,8 @@ abstract class PdoAdapter implements AdapterInterface
             case \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME:
                 $orderBy = 'start_time ASC, version ASC';
                 break;
+            default:
+                throw new \RuntimeException('Invalid version_order configuration option');
         }
 
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s', $this->getSchemaTableName(), $orderBy));
