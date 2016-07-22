@@ -244,8 +244,8 @@ class ConfigTest extends AbstractConfigTest
     public function testGetVersionOrder()
     {
         $config = new \Phinx\Config\Config(array());
-        $config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_START_TIME;
-        $this->assertEquals(\Phinx\Config\Config::VERSION_ORDER_START_TIME, $config->getVersionOrder());
+        $config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $this->assertEquals(\Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, $config->getVersionOrder());
     }
 
     /**
@@ -254,8 +254,8 @@ class ConfigTest extends AbstractConfigTest
     public function testSetVersionOrder()
     {
         $config = new \Phinx\Config\Config(array());
-        $config->setVersionOrder(\Phinx\Config\Config::VERSION_ORDER_START_TIME);
-        $this->assertEquals(\Phinx\Config\Config::VERSION_ORDER_START_TIME, $config['version_order']);
+        $config->setVersionOrder(\Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME);
+        $this->assertEquals(\Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, $config['version_order']);
     }
 
     /**
@@ -271,7 +271,7 @@ class ConfigTest extends AbstractConfigTest
     /**
      * @covers \Phinx\Config\Config::setVersionOrder
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Invalid version_order configuration option: bad-order. Valid values: creation-time or start-time
+     * @expectedExceptionMessage Invalid version_order configuration option: bad-order. Valid values: creation or execution
      */
     public function testSetVersionOrderThrowsException()
     {
@@ -305,9 +305,9 @@ class ConfigTest extends AbstractConfigTest
             [
                 \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME, true
             ],
-            'With Start Time Version Order' =>
+            'With Execution Time Version Order' =>
             [
-                \Phinx\Config\Config::VERSION_ORDER_START_TIME, false
+                \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, false
             ],
         ];
     }

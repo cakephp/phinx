@@ -41,12 +41,12 @@ class Config implements ConfigInterface
     /**
      * The value that identifies a version order by creation time.
      */
-    const VERSION_ORDER_CREATION_TIME = 'creation-time';
+    const VERSION_ORDER_CREATION_TIME = 'creation';
 
     /**
-     * The value that identifies a version order by start time.
+     * The value that identifies a version order by execution time.
      */
-    const VERSION_ORDER_START_TIME = 'start-time';
+    const VERSION_ORDER_EXECUTION_TIME = 'execution';
 
     /**
      * @var array
@@ -335,7 +335,7 @@ class Config implements ConfigInterface
             return;
         }
 
-        $validVersionOrders = array(self::VERSION_ORDER_CREATION_TIME, self::VERSION_ORDER_START_TIME);
+        $validVersionOrders = array(self::VERSION_ORDER_CREATION_TIME, self::VERSION_ORDER_EXECUTION_TIME);
 
         if (!in_array($versionOrder, $validVersionOrders)) {
             throw new \RuntimeException(sprintf(

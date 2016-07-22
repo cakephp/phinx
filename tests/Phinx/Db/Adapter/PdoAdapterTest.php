@@ -82,8 +82,8 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
             'With Creation Time Version Order' => array(
                 \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME, 'version ASC'
             ),
-            'With Start Time Version Order' => array(
-                \Phinx\Config\Config::VERSION_ORDER_START_TIME, 'start_time ASC, version ASC'
+            'With Execution Time Version Order' => array(
+                \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, 'start_time ASC, version ASC'
             ),
         );
     }

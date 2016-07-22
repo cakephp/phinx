@@ -109,7 +109,7 @@ EOT
         }
         
         $versionOrder = $this->getConfig()->getVersionOrder();
-        $output->writeln('<info>ordering by </info>' . $versionOrder);
+        $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
 
         // rollback the specified environment
         if (null === $date) {

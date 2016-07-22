@@ -413,7 +413,7 @@ abstract class PdoAdapter implements AdapterInterface
             case \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME:
                 $orderBy = 'version ASC';
                 break;
-            case \Phinx\Config\Config::VERSION_ORDER_START_TIME:
+            case \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME:
                 $orderBy = 'start_time ASC, version ASC';
                 break;
         }

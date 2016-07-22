@@ -89,8 +89,8 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $display = $commandTester->getDisplay();
         $this->assertRegExp('/no environment specified/', $display);
         
-        // note that the default order is by creation-time
-        $this->assertRegExp('/ordering by creation-time/', $display);
+        // note that the default order is by creation time
+        $this->assertRegExp('/ordering by creation time/', $display);
     }
 
     public function testExecuteWithEnvironmentOption()
@@ -147,7 +147,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/using format json/', $commandTester->getDisplay());
     }
 
-    public function testExecuteVersionOrderByStartTime()
+    public function testExecuteVersionOrderByExecutionTime()
     {
         $application = new PhinxApplication('testing');
         $application->add(new Status());
@@ -163,7 +163,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, null)
                     ->will($this->returnValue(0));
 
-        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_START_TIME;
+        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -175,6 +175,6 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 
         $display = $commandTester->getDisplay();
         $this->assertRegExp('/no environment specified/', $display);
-        $this->assertRegExp('/ordering by start-time/', $display);
+        $this->assertRegExp('/ordering by execution time/', $display);
     }
 }

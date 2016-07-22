@@ -307,5 +307,5 @@ Version Order
 When rolling back or printing the status of migrations, Phinx orders the executed migrations according to the 
 ``version_order`` option, which can have the following values:
 
-* ``creation-time`` (the default): migrations are ordered by their creation time, which is also part of their filename.
-* ``start-time``: migrations are ordered by their start time, also known as execution time.
+* ``creation`` (the default): migrations are ordered by their creation time, which is also part of their filename.
+* ``execution``: migrations are ordered by their execution time, also known as start time.

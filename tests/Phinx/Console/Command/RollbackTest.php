@@ -87,8 +87,8 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
 
         $this->assertRegExp('/no environment specified/', $display);
 
-        // note that the default order is by creation-time
-        $this->assertRegExp('/ordering by creation-time/', $display);
+        // note that the default order is by creation time
+        $this->assertRegExp('/ordering by creation time/', $display);
     }
 
     public function testExecuteWithEnvironmentOption()
@@ -147,7 +147,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $application->add(new Rollback());
 
         // setup dependencies
-        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_START_TIME;
+        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
 
         $command = $application->find('rollback');
 
@@ -162,7 +162,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
-        $this->assertRegExp('/ordering by start-time/', $commandTester->getDisplay());
+        $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
     }
     
     public function testWithDate()
@@ -255,7 +255,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $application->add(new Rollback());
 
         // setup dependencies
-        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_START_TIME;
+        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
 
         $command = $application->find('rollback');
 
@@ -271,6 +271,6 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName(), '-d' => $targetDate), array('decorated' => false));
-        $this->assertRegExp('/ordering by start-time/', $commandTester->getDisplay());
+        $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
     }
 }
