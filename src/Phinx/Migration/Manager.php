@@ -115,7 +115,7 @@ class Manager
                 case \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME:
                     $migrationIdAndStartedHeader = "<info>[Migration ID]</info>  Started            ";
                     break;
-                case \Phinx\Config\Config::VERSION_ORDER_START_TIME:
+                case \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME:
                     $migrationIdAndStartedHeader = "Migration ID    <info>[Started          ]</info>";
                     break;
             }
@@ -426,7 +426,7 @@ class Manager
         $sortedMigrations = array();
 
         foreach ($executedVersions as $versionCreationTime => &$executedVersion) {
-            // if we have a date (ie. the target must not match a version) and we are sorting by start time, we
+            // if we have a date (ie. the target must not match a version) and we are sorting by execution time, we
             // convert the version start time so we can compare directly with the target date
             if (!$this->getConfig()->isVersionOrderCreationTime() && !$targetMustMatchVersion) {
                 $dateTime = \DateTime::createFromFormat('Y-m-d H:i:s', $executedVersion['start_time']);

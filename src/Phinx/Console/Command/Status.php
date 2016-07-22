@@ -82,7 +82,7 @@ EOT
             $output->writeln('<info>using format</info> ' . $format);
         }
 
-        $output->writeln('<info>ordering by </info>' . $this->getConfig()->getVersionOrder());
+        $output->writeln('<info>ordering by </info>' . $this->getConfig()->getVersionOrder() . " time");
 
         // print the status
         return $this->getManager()->printStatus($environment, $format);

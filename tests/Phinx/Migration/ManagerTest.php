@@ -412,22 +412,22 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $configWithNoVersionOrder = new Config($configArray);
 
         $configArray['version_order'] = Config::VERSION_ORDER_CREATION_TIME;
-        $configWithCreationTimeVersionOrder = new Config($configArray);
+        $configWithCreationVersionOrder = new Config($configArray);
 
-        $configArray['version_order'] = Config::VERSION_ORDER_START_TIME;
-        $configWithStartTimeVersionOrder = new Config($configArray);
+        $configArray['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
+        $configWithExecutionVersionOrder = new Config($configArray);
 
         return [
             'With the default version order' => [
                 $configWithNoVersionOrder,
                 ' Status  <info>[Migration ID]</info>  Started              Finished             Migration Name '
             ],
-            'With the creation-time version order' => [
-                $configWithCreationTimeVersionOrder,
+            'With the creation version order' => [
+                $configWithCreationVersionOrder,
                 ' Status  <info>[Migration ID]</info>  Started              Finished             Migration Name '
             ],
-            'With the start-time version order' => [
-                $configWithStartTimeVersionOrder,
+            'With the execution version order' => [
+                $configWithExecutionVersionOrder,
                 ' Status  Migration ID    <info>[Started          ]</info>  Finished             Migration Name '
             ]
         ];
@@ -579,12 +579,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     }
     
     /**
-     * Test that rollbacking to version by start time chooses the correct
+     * Test that rollbacking to version by execution time chooses the correct
      * migration to point to.
      *
-     * @dataProvider rollbackToVersionByStartTimeDataProvider
+     * @dataProvider rollbackToVersionByExecutionTimeDataProvider
      */
-    public function testRollbackToVersionByStartTime($availableRollbacks, $version, $expectedOutput)
+    public function testRollbackToVersionByExecutionTime($availableRollbacks, $version, $expectedOutput)
     {
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
@@ -592,8 +592,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->method('getVersionLog')
             ->will($this->returnValue($availableRollbacks));
 
-        // set the manager's config version order to start-time
-        $this->manager->getConfig()->setVersionOrder(\Phinx\Config\Config::VERSION_ORDER_START_TIME);
+        // set the manager's config version order to execution time
+        $this->manager->getConfig()->setVersionOrder(\Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME);
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->rollback('mockenv', $version);
         rewind($this->manager->getOutput()->getStream());
@@ -613,12 +613,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     }
     
     /**
-     * Test that rollbacking to date by start time chooses the correct
+     * Test that rollbacking to date by execution time chooses the correct
      * migration to point to.
      *
-     * @dataProvider rollbackToDateByStartTimeDataProvider
+     * @dataProvider rollbackToDateByExecutionTimeDataProvider
      */
-    public function testRollbackToDateByStartTime($availableRollbacks, $date, $expectedOutput)
+    public function testRollbackToDateByExecutionTime($availableRollbacks, $date, $expectedOutput)
     {
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
@@ -626,8 +626,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->method('getVersionLog')
             ->will($this->returnValue($availableRollbacks));
 
-        // set the manager's config version order to start-time
-        $this->manager->getConfig()->setVersionOrder(\Phinx\Config\Config::VERSION_ORDER_START_TIME);
+        // set the manager's config version order to execution time
+        $this->manager->getConfig()->setVersionOrder(\Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME);
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->rollback('mockenv', $date, false, false);
         rewind($this->manager->getOutput()->getStream());
@@ -952,7 +952,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
      *
      * @return array
      */
-    public function rollbackToDateByStartTimeDataProvider()
+    public function rollbackToDateByExecutionTimeDataProvider()
     {
         return array(
 
@@ -1427,7 +1427,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    public function rollbackToVersionByStartTimeDataProvider()
+    public function rollbackToVersionByExecutionTimeDataProvider()
     {
         return [
 
@@ -1848,13 +1848,13 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                     '== 20120116183504 TestMigration2: reverted'
                 ],
             
-            'Rollback to last migration with start time version ordering - no breakpoints set' => 
+            'Rollback to last migration with execution time version ordering - no breakpoints set' => 
                 [
                     [
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-10 18:35:04', 'breakpoint' => 0],
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_START_TIME,
+                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
                     '== 20120111235330 TestMigration: reverted'
                 ],
             
@@ -1869,14 +1869,14 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                     '== 20120116183504 TestMigration2: reverted'
                 ],
             
-            'Rollback to last migration with missing last migration and start time version ordering - no breakpoints set' => 
+            'Rollback to last migration with missing last migration and execution time version ordering - no breakpoints set' => 
                 [
                     [
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-10 18:35:04', 'breakpoint' => 0],
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 0],
                         '20130101225232' => ['version' => '20130101225232', 'start_time' => '2013-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_START_TIME,
+                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
                     '== 20120111235330 TestMigration: reverted'
                 ],
             
@@ -1913,14 +1913,14 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                     'Breakpoint reached. Further rollbacks inhibited.'
                 ],
             
-            'Rollback to last migration with missing last migration and start time version ordering - breakpoint set on last non-missing executed migration' => 
+            'Rollback to last migration with missing last migration and execution time version ordering - breakpoint set on last non-missing executed migration' => 
                 [
                     [
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-10 18:35:04', 'breakpoint' => 0],
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 1],
                         '20130101225232' => ['version' => '20130101225232', 'start_time' => '2013-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_START_TIME,
+                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.'
                 ],
             
@@ -1935,14 +1935,14 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                     '== 20120116183504 TestMigration2: reverted'
                 ],
             
-            'Rollback to last migration with missing last migration and start time version ordering - breakpoint set on missing migration' => 
+            'Rollback to last migration with missing last migration and execution time version ordering - breakpoint set on missing migration' => 
                 [
                     [
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-10 18:35:04', 'breakpoint' => 0],
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 0],
                         '20130101225232' => ['version' => '20130101225232', 'start_time' => '2013-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_START_TIME,
+                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
                     '== 20120111235330 TestMigration: reverted'
                 ],
             
@@ -1979,14 +1979,14 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                     'Breakpoint reached. Further rollbacks inhibited.'
                 ],
             
-            'Rollback to last migration with missing last migration and start time version ordering - breakpoint set on all migrations' => 
+            'Rollback to last migration with missing last migration and execution time version ordering - breakpoint set on all migrations' => 
                 [
                     [
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-10 18:35:04', 'breakpoint' => 1],
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 1],
                         '20130101225232' => ['version' => '20130101225232', 'start_time' => '2013-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_START_TIME,
+                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.'
                 ],
             ];
