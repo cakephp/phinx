@@ -129,8 +129,7 @@ class Environment
     /**
      * Executes the specified seeder on this environment.
      *
-     * @param MigrationInterface $migration Migration
-     * @param string $direction Direction
+     * @param SeedInterface $seed
      * @return void
      */
     public function executeSeed(SeedInterface $seed)
