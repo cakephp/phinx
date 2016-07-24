@@ -135,7 +135,6 @@ class Environment
      */
     public function executeSeed(SeedInterface $seed)
     {
-        $startTime = time();
         $seed->setAdapter($this->getAdapter());
 
         // begin the transaction if the adapter supports it
