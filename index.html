@@ -224,7 +224,7 @@ php composer.phar install --no-dev
 
 <pre><code>$ vendor/bin/phinx init .
 $ $EDITOR phinx.yml
-$ mkdir migrations
+$ mkdir -p db/migrations db/seeds
 $ vendor/bin/phinx create MyFirstMigration
 $ vendor/bin/phinx migrate -e development
 </code></pre>
