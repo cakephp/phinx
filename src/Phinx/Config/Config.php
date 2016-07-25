@@ -233,7 +233,7 @@ class Config implements ConfigInterface
      */
     public function getMigrationPath()
     {
-        if (!isset($this->values['paths']['migrations'])) {
+        if (empty($this->values['paths']['migrations'])) {
             throw new \UnexpectedValueException('Migrations path missing from config file');
         }
 
@@ -248,7 +248,7 @@ class Config implements ConfigInterface
      */
     public function getMigrationBaseClassName($dropNamespace = true)
     {
-        $className = !isset($this->values['migration_base_class']) ? 'Phinx\Migration\AbstractMigration' : $this->values['migration_base_class'];
+        $className = empty($this->values['migration_base_class']) ? 'Phinx\Migration\AbstractMigration' : $this->values['migration_base_class'];
 
         return $dropNamespace ? substr(strrchr($className, '\\'), 1) : $className;
     }
@@ -258,7 +258,7 @@ class Config implements ConfigInterface
      */
     public function getSeedPath()
     {
-        if (!isset($this->values['paths']['seeds'])) {
+        if (empty($this->values['paths']['seeds'])) {
             throw new \UnexpectedValueException('Seeds path missing from config file');
         }
 
@@ -272,7 +272,7 @@ class Config implements ConfigInterface
      */
      public function getTemplateFile()
      {
-        if (!isset($this->values['templates']['file'])) {
+        if (empty($this->values['templates']['file'])) {
             return false;
         }
 
@@ -286,7 +286,7 @@ class Config implements ConfigInterface
      */
      public function getTemplateClass()
      {
-        if (!isset($this->values['templates']['class'])) {
+        if (empty($this->values['templates']['class'])) {
             return false;
         }
 
