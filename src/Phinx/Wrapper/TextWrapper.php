@@ -126,9 +126,9 @@ class TextWrapper
 
     /**
      * Returns the output from running the "seed:run" command.
-     * @param  string $env environment name (optional)
-     * @param  string $target target version (optional)
-     * @param  string $seed seed name (optional)
+     * @param  string|null $env environment name
+     * @param  string|null $target target version
+     * @param  string|null $seed seed name
      * @return string
      */
     public function getSeed($env = null, $target = null, $seed = null)
