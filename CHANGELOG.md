@@ -1,6 +1,18 @@
 # Version History
 
-**0.6.x-dev** (***)
+**0.6.4** (Wednesday, 27th July 2016)
+
+* Documentation updates
+* Pull requests
+  * [#909](https://github.com/robmorgan/phinx/pull/909) Declare test class properties
+  * [#910](https://github.com/robmorgan/phinx/pull/910), [#916](https://github.com/robmorgan/phinx/pull/916) Remove unused variables
+  * [#912](https://github.com/robmorgan/phinx/pull/912) ConfigInterface usage consistency
+  * [#914](https://github.com/robmorgan/phinx/pull/914) Set return values and @return documentation
+  * [#918](https://github.com/robmorgan/phinx/pull/918) Docblock correction for Phinx\Migration\Manager::executeSeed()
+  * [#921](https://github.com/robmorgan/phinx/pull/921) Add Phinx\Wrapper\TextWrapper::getSeed()
+* Bug fixes
+  * [#908](https://github.com/robmorgan/phinx/pull/908) Fix setting options for Column, ForeignKey and Index
+  * [#922](https://github.com/robmorgan/phinx/pull/922) SQLite adapter drops table on changeColumn if there's a foreign key
 
 **0.6.3** (Monday, 18th July 2016)
 

@@ -435,7 +435,6 @@ class Manager
     public function seed($environment, $seed = null)
     {
         $seeds = $this->getSeeds();
-        $env = $this->getEnvironment($environment);
 
         if (null === $seed) {
             // run all seeders

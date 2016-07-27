@@ -1,8 +1,8 @@
 # [Phinx](https://phinx.org): Simple PHP Database Migrations
 
-[![Build Status](https://travis-ci.org/robmorgan/phinx.png?branch=0.5.x-dev)](https://travis-ci.org/robmorgan/phinx)
+[![Build Status](https://travis-ci.org/robmorgan/phinx.png?branch=master)](https://travis-ci.org/robmorgan/phinx)
 [![Build status](https://ci.appveyor.com/api/projects/status/9vag4892hfq6effr)](https://ci.appveyor.com/project/robmorgan/phinx)
-[![Code Coverage](https://scrutinizer-ci.com/g/robmorgan/phinx/badges/coverage.png?s=9776e35b967f5adb0f4958bd72b617e0a9519f7d)](https://scrutinizer-ci.com/g/robmorgan/phinx/)
+[![Code Coverage](https://scrutinizer-ci.com/g/robmorgan/phinx/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/robmorgan/phinx/)
 [![Latest Stable Version](https://poser.pugx.org/robmorgan/phinx/version.png)](https://packagist.org/packages/robmorgan/phinx)
 [![Total Downloads](https://poser.pugx.org/robmorgan/phinx/d/total.png)](https://packagist.org/packages/robmorgan/phinx)
 
@@ -119,7 +119,7 @@ Please read the [CHANGELOG](CHANGELOG.md) document.
 
 (The MIT license)
 
-Copyright (c) 2015 Rob Morgan
+Copyright (c) 2016 Rob Morgan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

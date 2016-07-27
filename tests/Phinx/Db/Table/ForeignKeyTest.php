@@ -87,4 +87,13 @@ class ForeignKeyTest extends \PHPUnit_Framework_TestCase
             array('Set_nuLL',            ForeignKey::SET_NULL),
         );
     }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage "0" is not a valid foreign key option.
+     */
+    public function testSetOptionThrowsExceptionIfOptionIsNotString()
+    {
+        $this->fk->setOptions(['update']);
+    }
 }
