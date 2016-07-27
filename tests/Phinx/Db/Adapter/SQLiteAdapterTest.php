@@ -311,6 +311,30 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("'test1'", $rows[1]['dflt_value']);
     }
 
+    /**
+     * @group bug922
+     */
+    public function testChangeColumnWithForeignKey()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+           ->setColumns(array('ref_table_id'))
+           ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+
+        $table->changeColumn('ref_table_id', 'float');
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+    }
 
     public function testChangeColumnDefaultToZero()
     {
