@@ -1091,6 +1091,9 @@ call this method for each index.
             {
                 $table = $this->table('users');
                 $table->removeIndex(array('email'));
+                
+                // alternatively, you can delete an index by its name, ie:
+                $table->removeIndexByName('idx_users_email');
             }
 
             /**
