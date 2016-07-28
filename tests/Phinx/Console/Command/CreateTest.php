@@ -79,7 +79,9 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+             ->setConstructorArgs(array($this->config, $this->input, $this->output))
+             ->getMock();
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -104,7 +106,9 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+             ->setConstructorArgs(array($this->config, $this->input, $this->output))
+             ->getMock();
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -126,7 +130,9 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+             ->setConstructorArgs(array($this->config, $this->input, $this->output))
+             ->getMock();
 
         $this->config['templates'] = array(
             'file' => 'MyTemplate',
@@ -186,7 +192,9 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+             ->setConstructorArgs(array($this->config, $this->input, $this->output))
+             ->getMock();
 
         foreach ($config as $key => $value) {
             $this->config[$key] = $value;
@@ -248,7 +256,9 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+             ->setConstructorArgs(array($this->config, $this->input, $this->output))
+             ->getMock();
 
         foreach ($config as $key => $value) {
             $this->config[$key] = $value;
@@ -309,7 +319,9 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+             ->setConstructorArgs(array($this->config, $this->input, $this->output))
+             ->getMock();
 
         foreach ($config as $key => $value) {
             $this->config[$key] = $value;
