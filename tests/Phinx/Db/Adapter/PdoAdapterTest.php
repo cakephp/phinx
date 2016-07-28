@@ -87,4 +87,16 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
             ),
         );
     }
+    
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Invalid version_order configuration option
+     */
+    public function testGetVersionLogInvalidVersionOrderKO()
+    {
+        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', 
+            array(array('version_order' => 'invalid')));
+
+        $adapter->getVersionLog();
+    }
 }

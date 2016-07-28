@@ -445,6 +445,25 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Invalid version_order configuration option
+     */
+    public function testPrintStatusInvalidVersionOrderKO()
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+
+        $configArray = $this->getConfigArray();
+        $configArray['version_order'] ='invalid';
+        $config = new Config($configArray);
+
+        $this->manager = new Manager($config, $this->input, $this->output);
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->printStatus('mockenv');
+    }
+
     public function testGetMigrationsWithDuplicateMigrationVersions()
     {
         $this->setExpectedException(
