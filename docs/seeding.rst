@@ -23,7 +23,9 @@ Phinx includes a command to easily generate a new seed class:
 
         $ php bin/phinx seed:create UserSeeder
 
-The new class will be created in your seeds directory using CamelCase format.
+If you have specified multiple seed paths, you will be asked to select which
+path to create the new seed class in.
+
 It is based on a skeleton template:
 
 .. code-block:: php

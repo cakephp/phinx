@@ -22,6 +22,9 @@ This will create a new migration in the format
 ``YYYYMMDDHHMMSS_my_new_migration.php`` where the first 14 characters are
 replaced with the current timestamp down to the second.
 
+If you have specified multiple migration paths, you will be asked to select
+which path to create the new migration in.
+
 Phinx automatically creates a skeleton migration file with a single method:
 
 .. code-block:: php
@@ -710,6 +713,15 @@ Option   Description
 ======== ===========
 signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
 ======== ===========
+
+For ``string`` and ``text`` columns:
+
+========= ===========
+Option    Description
+========= ===========
+collation set collation that differs from table defaults *(only applies to MySQL)*
+encoding  set character set that differs from table defaults *(only applies to MySQL)*
+========= ===========
 
 For foreign key definitions:
 
