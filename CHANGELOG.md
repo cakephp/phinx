@@ -3,6 +3,8 @@
 **0.6.x-dev** (***)
 
 * Documentation updates
+* Pull requests
+  * [#831](https://github.com/robmorgan/phinx/pull/831) Typos
 
 **0.6.4** (Wednesday, 27th July 2016)
 
