@@ -28,6 +28,8 @@
  */
 namespace Phinx\Db\Table;
 
+use Phinx\Db\Adapter\AdapterInterface;
+
 /**
  *
  * This object is based loosely on: http://api.rubyonrails.org/classes/ActiveRecord/ConnectionAdapters/Table.html.
@@ -103,6 +105,16 @@ class Column
      * @var array
      */
     protected $properties = array();
+
+    /**
+     * @var string
+     */
+    protected $collation;
+
+    /**
+     * @var string
+     */
+    protected $encoding;
 
     /**
      * @var array
@@ -486,6 +498,72 @@ class Column
     }
 
     /**
+     * Sets the column collation.
+     *
+     * @param string $collation
+     *
+     * @throws \UnexpectedValueException If collation not allowed for type
+     * @return $this
+     */
+    public function setCollation($collation)
+    {
+        $allowedTypes = array(
+            AdapterInterface::PHINX_TYPE_CHAR,
+            AdapterInterface::PHINX_TYPE_STRING,
+            AdapterInterface::PHINX_TYPE_TEXT,
+        );
+        if (!in_array($this->getType(), $allowedTypes))
+            throw new \UnexpectedValueException('Collation may be set only for types: ' . implode(', ', $allowedTypes));
+
+        $this->collation = $collation;
+
+        return $this;
+    }
+
+    /**
+     * Gets the column collation.
+     *
+     * @return string
+     */
+    public function getCollation()
+    {
+        return $this->collation;
+    }
+
+    /**
+     * Sets the column character set.
+     *
+     * @param string $encoding
+     *
+     * @throws \UnexpectedValueException If character set not allowed for type
+     * @return $this
+     */
+    public function setEncoding($encoding)
+    {
+        $allowedTypes = array(
+            AdapterInterface::PHINX_TYPE_CHAR,
+            AdapterInterface::PHINX_TYPE_STRING,
+            AdapterInterface::PHINX_TYPE_TEXT,
+        );
+        if (!in_array($this->getType(), $allowedTypes))
+            throw new \UnexpectedValueException('Character set may be set only for types: ' . implode(', ', $allowedTypes));
+
+        $this->encoding = $encoding;
+
+        return $this;
+    }
+
+    /**
+     * Gets the column character set.
+     *
+     * @return string
+     */
+    public function getEncoding()
+    {
+        return $this->encoding;
+    }
+
+    /**
      * Gets all allowed options. Each option must have a corresponding `setFoo` method.
      *
      * @return array
@@ -506,6 +584,8 @@ class Column
             'timezone',
             'properties',
             'values',
+            'collation',
+            'encoding',
         );
     }
 
