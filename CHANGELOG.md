@@ -1,5 +1,9 @@
 # Version History
 
+**0.6.x-dev** (***)
+
+* Documentation updates
+
 **0.6.4** (Wednesday, 27th July 2016)
 
 * Documentation updates
