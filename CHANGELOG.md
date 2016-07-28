@@ -1,5 +1,10 @@
 # Version History
 
+**0.7.x-dev** (***)
+
+* New features
+  * [#885](https://github.com/robmorgan/phinx/pull/885) Add `collation` and `encoding` options for MySQL text and char columns
+
 **0.6.x-dev** (***)
 
 * Documentation updates
