@@ -29,6 +29,7 @@
 namespace Phinx\Console\Command;
 
 use Phinx\Migration\Manager\Environment;
+use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -74,7 +75,17 @@ EOT
         $this->loadConfig($input, $output);
         $this->loadManager($input, $output);
 
-        $this->verifyMigrationDirectory($this->getConfig()->getMigrationPath());
+        // Verify the migrations path(s)
+        array_map(
+            [$this, 'verifyMigrationDirectory'],
+            Util::globAll($this->getConfig()->getMigrationPaths())
+        );
+
+        // Verify the seed path(s)
+        array_map(
+            [$this, 'verifySeedDirectory'],
+            Util::globAll($this->getConfig()->getSeedPaths())
+        );
 
         $envName = $input->getOption('environment');
         if ($envName) {

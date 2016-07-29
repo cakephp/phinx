@@ -195,17 +195,20 @@ class ConfigTest extends AbstractConfigTest
     public function testGetSeedPath()
     {
         $config = new \Phinx\Config\Config(array('paths' => array('seeds' => 'db/seeds')));
-        $this->assertEquals('db/seeds', $config->getSeedPath());
+        $this->assertEquals(array('db/seeds'), $config->getSeedPaths());
+
+        $config = new \Phinx\Config\Config(array('paths' => array('seeds' => array('db/seeds1', 'db/seeds2'))));
+        $this->assertEquals(array('db/seeds1', 'db/seeds2'), $config->getSeedPaths());
     }
 
     /**
-     * @covers \Phinx\Config\Config::getSeedPath
+     * @covers \Phinx\Config\Config::getSeedPaths
      * @expectedException \UnexpectedValueException
      * @expectedExceptionMessage Seeds path missing from config file
      */
     public function testGetSeedPathThrowsException()
     {
         $config = new \Phinx\Config\Config(array());
-        $this->assertEquals('db/seeds', $config->getSeedPath());
+        $this->assertEquals('db/seeds', $config->getSeedPaths());
     }
 }
