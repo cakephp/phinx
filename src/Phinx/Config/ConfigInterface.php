@@ -37,14 +37,6 @@ namespace Phinx\Config;
 interface ConfigInterface extends \ArrayAccess
 {
     /**
-     * Class Constructor
-     *
-     * @param array $configArray Config Array
-     * @param string $configFilePath Optional File Path
-     */
-    public function __construct(array $configArray, $configFilePath = null);
-
-    /**
      * Returns the configuration for each environment.
      *
      * This method returns <code>null</code> if no environments exist.
