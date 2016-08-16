@@ -226,7 +226,7 @@ class Manager
         }
         $migrations = $this->getMigrations($version);
         $env = $this->getEnvironment($environment);
-        $versions = in_array($env->getversions(),$version)? array($version):array();
+        $versions = in_array($version,$env->getversions())? array($version):array();
 
         if (empty($versions) && empty($migrations)) {
             return;
