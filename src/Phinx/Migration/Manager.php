@@ -368,7 +368,7 @@ class Manager
      * Rollback an environment to the specified version.
      *
      * @param string $environment Environment
-     * @param int $version
+     * @param int|string $version
      * @param bool $force
      * @return void
      */
@@ -392,13 +392,16 @@ class Manager
             // Get the migration before the last run migration
             $prev = count($versions) - 2;
             $version =  $prev < 0 ? 0 : $versions[$prev];
+        } elseif ($version === 'all' || $version === '0') {
+            $version = 0;
         } else {
-            // Get the first migration number
-            $first = $versions[0];
+            // Array of migration names
+            $migrationNames = array_map(function ($item) { return $item['migration_name']; }, $versionLog);
 
-            // If the target version is before the first migration, revert all migrations
-            if ($version < $first) {
-                $version = 0;
+            // Try to find a migration id with the supplied version name
+            $found = array_search($version, $migrationNames);
+            if ($found !== false) {
+                $version = $found;
             }
         }
 
