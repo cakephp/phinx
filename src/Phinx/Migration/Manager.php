@@ -187,6 +187,67 @@ class Manager
     }
 
     /**
+     * Migrate only this version of the database on a given date.
+     *
+     * @param string    $environment Environment
+     * @param int       $version
+     *
+     * @return void
+     */
+    public function rollbackOnlyThisVersion($environment, $version = null)
+    {
+      return $this->migrateOnlyThisVersion($environment,$version,MigrationInterface::DOWN);
+    }
+
+    /**
+     * Migrate only this version of the database on a given date.
+     *
+     * @param string    $environment Environment
+     * @param int       $version
+     * @param string    $direction
+     *
+     * @return void
+     */
+    public function migrateOnlyThisVersion($environment, $version = null,$direction = MigrationInterface::UP)
+    {
+        if (is_numeric($version) && $version == 0) {
+            $this->output->writeln(sprintf(
+                '<comment>warning</comment> %s is not a valid version',
+                $version
+            ));
+            return;
+        }
+        if (!in_array($direction,array(MigrationInterface::UP,MigrationInterface::DOWN))) {
+            $this->output->writeln(sprintf(
+                '<comment>warning</comment> %s is not a valid direction',
+                $version
+            ));
+            return;
+        }
+        $migrations = $this->getMigrations($version);
+        $env = $this->getEnvironment($environment);
+        $versions = in_array($env->getversions(),$version)? array($version):array();
+
+        if (empty($versions) && empty($migrations)) {
+            return;
+        }
+
+        if (null === $version) {
+            $version = max(array_merge($versions, array_keys($migrations)));
+        } else {
+            if (0 != $version && !isset($migrations[$version])) {
+                $this->output->writeln(sprintf(
+                    '<comment>warning</comment> %s is not a valid version',
+                    $version
+                ));
+                return;
+            }
+        }
+
+        $migration = current($migrations);
+        $this->executeMigration($environment, $migration, $direction);
+    }
+    /**
      * Migrate to the version of the database on a given date.
      *
      * @param string    $environment Environment
@@ -552,15 +613,15 @@ class Manager
 
     /**
      * Gets an array of the database migrations.
-     *
+     * @param string $filter
      * @throws \InvalidArgumentException
      * @return AbstractMigration[]
      */
-    public function getMigrations()
+    public function getMigrations($filter='')
     {
         if (null === $this->migrations) {
             $config = $this->getConfig();
-            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php', defined('GLOB_BRACE') ? GLOB_BRACE : 0);
+            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . $filter.'*.php', defined('GLOB_BRACE') ? GLOB_BRACE : 0);
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
