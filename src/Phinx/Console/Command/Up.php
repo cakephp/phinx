@@ -101,15 +101,21 @@ EOT
             $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
         }
 
+
+
         // run the migrations
         $start = microtime(true);
-        $this->getManager()->migrateOnlyThisVersion($environment, $version);
+        if ($this->getManager()->migrateOnlyThisVersion($environment, $version)) {
 
-        $end = microtime(true);
 
-        $output->writeln('');
-        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+            $end = microtime(true);
 
-        return 0;
+            $output->writeln('');
+            $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+
+            return 0;
+        }else{
+            return 1;
+        }
     }
 }

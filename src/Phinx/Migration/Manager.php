@@ -206,22 +206,16 @@ class Manager
      * @param int       $version
      * @param string    $direction
      *
-     * @return void
+     * @return boolean
      */
     public function migrateOnlyThisVersion($environment, $version = null,$direction = MigrationInterface::UP)
     {
-        if (is_numeric($version) && $version == 0) {
-            $this->output->writeln(sprintf(
-                '<comment>warning</comment> %s is not a valid version',
-                $version
-            ));
+        if (!$version || !is_numeric($version) || $version == 0) {
+            throw new \InvalidArgumentException(sprintf('Must give a valid version %s',$version));
             return;
         }
         if (!in_array($direction,array(MigrationInterface::UP,MigrationInterface::DOWN))) {
-            $this->output->writeln(sprintf(
-                '<comment>warning</comment> %s is not a valid direction',
-                $version
-            ));
+            throw new \InvalidArgumentException(sprintf('Direction must be up or down only',$version));
             return;
         }
         $migrations = $this->getMigrations($version);
@@ -229,23 +223,18 @@ class Manager
         $versions = in_array($version,$env->getversions())? array($version):array();
 
         if (empty($versions) && empty($migrations)) {
+            $this->output->writeln(sprintf('<error>nothing to do</error>'));
             return;
         }
 
-        if (null === $version) {
-            $version = max(array_merge($versions, array_keys($migrations)));
-        } else {
-            if (0 != $version && !isset($migrations[$version])) {
-                $this->output->writeln(sprintf(
-                    '<comment>warning</comment> %s is not a valid version',
-                    $version
-                ));
-                return;
-            }
+        if (!isset($migrations[$version])) {
+            throw new \InvalidArgumentException(sprintf('%s is not a valid version',$version));
+            return;
         }
 
         $migration = current($migrations);
         $this->executeMigration($environment, $migration, $direction);
+        return true;
     }
     /**
      * Migrate to the version of the database on a given date.
