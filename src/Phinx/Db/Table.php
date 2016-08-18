@@ -416,12 +416,11 @@ class Table
      * Checks to see if a column exists.
      *
      * @param string $columnName Column Name
-     * @param array $options Options
      * @return boolean
      */
-    public function hasColumn($columnName, $options = array())
+    public function hasColumn($columnName)
     {
-        return $this->getAdapter()->hasColumn($this->getName(), $columnName, $options);
+        return $this->getAdapter()->hasColumn($this->getName(), $columnName);
     }
 
     /**
