@@ -119,21 +119,21 @@ parameter or ``-t`` for short.
 
 .. code-block:: bash
 
-        $ phinx rollback -e development -t MyNewMigration
+        $ phinx rollback -e development -t 20120103083322
 
-Specifying all as the target version will revert all migrations. This also
-works if specifying 0.
+Specifying 0 as the target version will revert all migrations. This also
+works if specifying all.
 
 .. code-block:: bash
 
-        $ phinx rollback -e development -t all
+        $ phinx rollback -e development -t 0
 
 If a breakpoint is set, blocking further rollbacks, you can override the
 breakpoint using the ``--force`` parameter or ``-f`` for short.
 
 .. code-block:: bash
 
-        $ phinx rollback -e development -t all -f
+        $ phinx rollback -e development -t 0 -f
 
 The Status Command
 ------------------
