@@ -96,15 +96,6 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $tablePrefixAdapter->getAdapter());
     }
 
-    public function testGetEnvironmentFromAdapter()
-    {
-        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', array(array('foo' => 'bar')));
-        AdapterFactory::instance()->registerAdapter('pdomock', $adapter);
-        $this->environment->setOptions(array('connection' => new PDOMock()));
-        $environment = $this->environment->getAdapter()->getEnvironment();
-        $this->assertEquals($this->environment, $environment);
-    }
-
     public function testSchemaName()
     {
         $this->assertEquals('phinxlog', $this->environment->getSchemaTableName());
@@ -219,5 +210,25 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
                   ->method('change');
 
         $this->environment->executeMigration($migration, MigrationInterface::DOWN);
+    }
+
+    public function testGetEnvironmentFromMigration()
+    {
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())
+            ->method('migrated')
+            ->will($this->returnArgument(0));
+
+        $this->environment->setAdapter($adapterStub);
+
+        // up
+        $upMigration = $this->getMock('\Phinx\Migration\AbstractMigration', array('up'), array('20110301080000'));
+        $upMigration->expects($this->once())
+            ->method('up');
+
+        $this->environment->executeMigration($upMigration, MigrationInterface::UP);
+
+        $this->assertEquals($this->environment, $upMigration->getEnvironment());
     }
 }

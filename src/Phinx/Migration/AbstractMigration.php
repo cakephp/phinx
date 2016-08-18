@@ -30,6 +30,7 @@ namespace Phinx\Migration;
 
 use Phinx\Db\Table;
 use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Migration\Manager\Environment;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -64,6 +65,11 @@ abstract class AbstractMigration implements MigrationInterface
      * @var InputInterface
      */
     protected $input;
+
+    /**
+     * @var Environment
+     */
+    protected $environment;
 
     /**
      * Class Constructor.
@@ -123,6 +129,23 @@ abstract class AbstractMigration implements MigrationInterface
     public function getAdapter()
     {
         return $this->adapter;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setEnvironment(Environment $environment)
+    {
+        $this->environment = $environment;
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEnvironment()
+    {
+        return $this->environment;
     }
 
     /**
