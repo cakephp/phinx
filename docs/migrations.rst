@@ -1250,7 +1250,7 @@ Creating Environment-Dependent Migrations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When creating a migration, you might have different requirements for each
-environment. You can get the environment information from the current adapter:
+environment. You can get the environment information from the migration object:
 
 .. code-block:: php
 
@@ -1258,7 +1258,7 @@ environment. You can get the environment information from the current adapter:
 
          //...
 
-         $environment = $this->getAdapter()->getEnvironment()->getName();
+         $environment = $this->getEnvironment()->getName();
 
          if ($environment == 'production') {
              // do something
