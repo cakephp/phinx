@@ -73,7 +73,7 @@ class Manager
      * @param null $format
      * @return void
      */
-    public function printStatus($environment, $format = null)
+    public function printStatus($environment, $format = null, $showOnlyDownMigrations = false)
     {
         $output = $this->getOutput();
         $migrations = array();
@@ -84,35 +84,38 @@ class Manager
 
             $env = $this->getEnvironment($environment);
             $versions = $env->getVersions();
-	    try {
-		foreach ($this->getMigrations() as $migration) {
-		    if (in_array($migration->getVersion(), $versions)) {
-			$status = '     <info>up</info> ';
-			unset($versions[array_search($migration->getVersion(), $versions)]);
-		    } else {
-			$status = '   <error>down</error> ';
-		    }
+            try {
+                foreach ($this->getMigrations() as $migration) {
+                    $isDown = false;
+                    if (in_array($migration->getVersion(), $versions)) {
+                        $status = '     <info>up</info> ';
+                        unset($versions[array_search($migration->getVersion(), $versions)]);
+                    } else {
+                        $isDown = true;
+                        $status = '   <error>down</error> ';
+                    }
+                    if ($showOnlyDownMigrations === false || ($showOnlyDownMigrations === true && $isDown === true)) {
+                        $output->writeln(
+                        $status
+                        . sprintf(' %14.0f ', $migration->getVersion())
+                        . ' <comment>' . $migration->getName() . '</comment>'
+                        );
+                        $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
+                    }
+                }
 
-		    $output->writeln(
-			$status
-			. sprintf(' %14.0f ', $migration->getVersion())
-			. ' <comment>' . $migration->getName() . '</comment>'
-		    );
-		    $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
-		}
-
-		foreach ($versions as $missing) {
-		    $output->writeln(
-			'     <error>up</error> '
-			. sprintf(' %14.0f ', $missing)
-			. ' <error>** MISSING **</error>'
-		    );
-		}
-	    } finally {
-	        if ($env->getAdapter() !== null) {
-		        $env->getAdapter()->disconnect();
-	        }
-	    }
+                foreach ($versions as $missing) {
+                    $output->writeln(
+                    '     <error>up</error> '
+                    . sprintf(' %14.0f ', $missing)
+                    . ' <error>** MISSING **</error>'
+                    );
+                }
+            } finally {
+                if ($env->getAdapter() !== null) {
+                    $env->getAdapter()->disconnect();
+                }
+            }
         } else {
             // there are no migrations
             $output->writeln('');
