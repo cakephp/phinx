@@ -42,7 +42,7 @@ class Status extends AbstractCommand
         parent::configure();
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment.');
-        $this->addOption('--showOnlyDownMigrations', '-d', InputOption::VALUE_NONE, 'Show Only Down and Missing Migratinos.');
+        $this->addOption('--showOnlyDownMigrations', '-d', InputOption::VALUE_NONE, 'Show Only Down and Missing Migrations.');
 
         $this->setName('status')
              ->setDescription('Show migration status')
