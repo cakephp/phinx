@@ -67,6 +67,17 @@ class CreateTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @test
+     */
+    public function testCreateCommandOverrideName()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Create("test:CREATE"));
+        $command = $application->find('test:CREATE');
+        self::assertTrue($command instanceof Create);
+    }
+
+    /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The migration class name "MyDuplicateMigration" already exists
      */

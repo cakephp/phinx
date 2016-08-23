@@ -44,8 +44,10 @@ class SeedCreate extends AbstractCommand
     {
         parent::configure();
 
-        $this->setName('seed:create')
-            ->setDescription('Create a new database seeder')
+        if ($this->getName() === null) {
+            $this->setName('seed:create');
+        }
+        $this->setDescription('Create a new database seeder')
             ->addArgument('name', InputArgument::REQUIRED, 'What is the name of the seeder?')
             ->setHelp(sprintf(
                 '%sCreates a new database seeder%s',

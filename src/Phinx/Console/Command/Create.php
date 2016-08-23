@@ -50,8 +50,10 @@ class Create extends AbstractCommand
     {
         parent::configure();
 
-        $this->setName('create')
-            ->setDescription('Create a new migration')
+        if ($this->getName() === null) {
+            $this->setName('create');
+        }
+        $this->setDescription('Create a new migration')
             ->addArgument('name', InputArgument::REQUIRED, 'What is the name of the migration?')
             ->setHelp(sprintf(
                 '%sCreates a new database migration%s',

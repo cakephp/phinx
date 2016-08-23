@@ -43,6 +43,17 @@ class InitTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @test
+     */
+    public function testCreateCommandOverrideName()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Init("test:INIT"));
+        $command = $application->find('test:INIT');
+        self::assertTrue($command instanceof Init);
+    }
+
+    /**
      * @expectedException              \InvalidArgumentException
      * @expectedExceptionMessageRegExp /The file "(.*)" already exists/
      */

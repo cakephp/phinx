@@ -43,8 +43,10 @@ class Status extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment.');
 
-        $this->setName('status')
-             ->setDescription('Show migration status')
+        if ($this->getName() === null) {
+            $this->setName('status');
+        }
+        $this->setDescription('Show migration status')
              ->addOption('--format', '-f', InputOption::VALUE_REQUIRED, 'The output format: text or json. Defaults to text.')
              ->setHelp(
 <<<EOT

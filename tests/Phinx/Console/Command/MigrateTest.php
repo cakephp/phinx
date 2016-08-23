@@ -55,6 +55,17 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
     }
 
+    /**
+     * @test
+     */
+    public function testCreateCommandOverrideName()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Migrate("test:Migrate"));
+        $command = $application->find('test:Migrate');
+        self::assertTrue($command instanceof Migrate);
+    }
+
     public function testExecute()
     {
         $application = new PhinxApplication('testing');

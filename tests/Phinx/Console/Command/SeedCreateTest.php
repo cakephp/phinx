@@ -57,6 +57,17 @@ class SeedCreateTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @test
+     */
+    public function testCreateCommandOverrideName()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new SeedCreate("test:SeedCreate"));
+        $command = $application->find('test:SeedCreate');
+        self::assertTrue($command instanceof SeedCreate);
+    }
+
+    /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The file "MyDuplicateSeeder.php" already exists
      */

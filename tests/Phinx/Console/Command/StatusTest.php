@@ -55,6 +55,17 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
     }
 
+    /**
+     * @test
+     */
+    public function testCreateCommandOverrideName()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Status("test:Status"));
+        $command = $application->find('test:Status');
+        self::assertTrue($command instanceof Status);
+    }
+
     public function testExecute()
     {
         $application = new PhinxApplication('testing');

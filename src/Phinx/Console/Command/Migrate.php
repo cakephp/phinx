@@ -43,8 +43,10 @@ class Migrate extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName('migrate')
-             ->setDescription('Migrate the database')
+        if ($this->getName() === null) {
+            $this->setName('migrate');
+        }
+        $this->setDescription('Migrate the database')
              ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
              ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to migrate to')
              ->setHelp(

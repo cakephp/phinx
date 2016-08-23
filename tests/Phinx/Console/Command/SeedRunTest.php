@@ -56,6 +56,17 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
     }
 
+    /**
+     * @test
+     */
+    public function testCreateCommandOverrideName()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new SeedRun("test:SeedRun"));
+        $command = $application->find('test:SeedRun');
+        self::assertTrue($command instanceof SeedRun);
+    }
+
     public function testExecute()
     {
         $application = new PhinxApplication('testing');

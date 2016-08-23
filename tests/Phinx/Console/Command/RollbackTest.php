@@ -78,6 +78,17 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
     }
 
+    /**
+     * @test
+     */
+    public function testCreateCommandOverrideName()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Rollback("test:Rollback"));
+        $command = $application->find('test:Rollback');
+        self::assertTrue($command instanceof Rollback);
+    }
+
     public function testExecuteWithEnvironmentOption()
     {
         $application = new PhinxApplication('testing');
