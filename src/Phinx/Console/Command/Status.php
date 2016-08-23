@@ -42,6 +42,7 @@ class Status extends AbstractCommand
         parent::configure();
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment.');
+        $this->addOption('--showOnlyDownMigrations', '-d', InputOption::VALUE_NONE, 'Show Only Down and Missing Migrations.');
 
         $this->setName('status')
              ->setDescription('Show migration status')
@@ -52,6 +53,7 @@ The <info>status</info> command prints a list of all migrations, along with thei
 
 <info>phinx status -e development</info>
 <info>phinx status -e development -f json</info>
+<info>phinx status -e development -f json -d</info>
 EOT
              );
     }
@@ -68,6 +70,7 @@ EOT
         $this->bootstrap($input, $output);
 
         $environment = $input->getOption('environment');
+        $showOnlyDownMigrations = $input->getOption('showOnlyDownMigrations');
         $format = $input->getOption('format');
 
         if ($environment == 'all') {
@@ -96,7 +99,7 @@ EOT
 
         // print the status
         try {
-            $this->getManager()->printStatus($environment, $format);
+            $this->getManager()->printStatus($environment, $format, $showOnlyDownMigrations);
         } catch (\PDOException $exception) {
             $message = $exception->getMessage();
             $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);
