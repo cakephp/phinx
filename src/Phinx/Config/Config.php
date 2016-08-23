@@ -157,12 +157,19 @@ class Config implements ConfigInterface
      */
     public function getEnvironment($name)
     {
+        $defaultPrefix = 'default_';
         $environments = $this->getEnvironments();
 
         if (isset($environments[$name])) {
-            if (isset($this->values['environments']['default_migration_table'])) {
-                $environments[$name]['default_migration_table'] =
-                    $this->values['environments']['default_migration_table'];
+            // find the default global settings keys
+            $defaults = preg_grep('/' . $defaultPrefix . '/', array_keys($this->values['environments']));
+
+            // populate local settings with defaults (if they aren't already overridden)
+            foreach ($defaults as $default) {
+                $property = substr($default, strlen($defaultPrefix));
+                if (!isset($environments[$name][$property])) {
+                    $environments[$name][$property] = $this->values['environments'][$default];
+                }
             }
 
             return $environments[$name];
