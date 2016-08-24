@@ -49,6 +49,25 @@ This means that:
             )
           );
 
+Default Keys
+------------
+
+You can add a default value for every property in the environments array by
+simply prefixing the property name with ``default_``. This allows you to
+provide some default values for adapters, schemas and any other configuration
+that might be identical between environments. To override a default for an
+environment, just provide a another value.
+
+.. code-block:: yaml
+
+    environments:
+        default_adapter: mysql
+        default_host: 10.0.0.1
+        production:
+            #adapter: inherits mysql
+        testing:
+            host: localhost # overrides default 10.0.0.1
+
 Migration Paths
 ---------------
 
