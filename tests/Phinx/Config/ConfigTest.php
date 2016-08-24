@@ -88,6 +88,16 @@ class ConfigTest extends AbstractConfigTest
     /**
      * @covers \Phinx\Config\Config::getEnvironment
      */
+    public function testGetDefaultEnvironmentMethod()
+    {
+        $config = new Config($this->getConfigArray());
+        $db = $config->getEnvironment('testing');
+        $this->assertEquals('localhost', $db['host']);
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::getEnvironment
+     */
     public function testHasEnvironmentMethod()
     {
         $configArray = $this->getConfigArray();

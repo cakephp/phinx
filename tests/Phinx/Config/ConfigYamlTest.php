@@ -58,4 +58,26 @@ class ConfigYamlTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('externally-specified-environment', $config->getDefaultEnvironment());
         putenv('PHINX_ENVIRONMENT=');
     }
+
+    /**
+     * @covers \Phinx\Config\Config::getDefaultEnvironment
+     */
+    public function testDefaultReplacementValues()
+    {
+        $path = __DIR__ . '/_files';
+        $config = Config::fromYaml($path . '/default_replacement.yml');
+        $this->assertEquals('global_test_schema', $config->getEnvironment('production')['schema']);
+        $this->assertEquals('global_test_user_name', $config->getEnvironment('production')['user']);
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::getDefaultEnvironment
+     */
+    public function testDefaultNotReplaceIfExists()
+    {
+        $path = __DIR__ . '/_files';
+        $config = Config::fromYaml($path . '/default_replacement.yml');
+        $this->assertNotEquals('global_test_schema', $config->getEnvironment('testing')['schema']);
+        $this->assertNotEquals('global_test_user_name', $config->getEnvironment('testing')['user']);
+    }
 }
