@@ -23,6 +23,11 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     protected $output;
 
     /**
+     * @var Environment $environment
+     */
+    protected $environment;
+
+    /**
      * @var Manager
      */
     private $manager;
@@ -34,6 +39,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
         $this->output->setDecorated(false);
         $this->manager = new Manager($config, $this->input, $this->output);
+        $this->environment = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $this->manager->setEnvironments(array('mockenv' => $this->environment));
     }
 
     protected function tearDown()
@@ -279,46 +286,54 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetMigrationsWithDuplicateMigrationVersions()
     {
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $this->setExpectedException(
             'InvalidArgumentException',
             'Duplicate migration - "' . $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions/20120111235330_duplicate_migration_2.php') . '" has the same version as "20120111235330"'
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions'))));
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->setEnvironments(array('mockenv' => $envStub));
+        $manager->getMigrations($envStub);
     }
 
     public function testGetMigrationsWithDuplicateMigrationNames()
     {
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $this->setExpectedException(
             'InvalidArgumentException',
             'Migration "20120111235331_duplicate_migration_name.php" has the same name as "20120111235330_duplicate_migration_name.php"'
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicatenames'))));
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->setEnvironments(array('mockenv' => $envStub));
+        $manager->getMigrations($envStub);
     }
 
     public function testGetMigrationsWithInvalidMigrationClassName()
     {
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $this->setExpectedException(
             'InvalidArgumentException',
             'Could not find class "InvalidClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname/20120111235330_invalid_class.php') . '"'
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname'))));
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->setEnvironments(array('mockenv' => $envStub));
+        $manager->getMigrations($envStub);
     }
 
     public function testGetMigrationsWithClassThatDoesntExtendAbstractMigration()
     {
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $this->setExpectedException(
             'InvalidArgumentException',
             'The class "InvalidSuperClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass/20120111235330_invalid_super_class.php') . '" must extend \Phinx\Migration\AbstractMigration'
         );
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass'))));
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->setEnvironments(array('mockenv' => $envStub));
+        $manager->getMigrations($envStub);
     }
 
     public function testGettingAValidEnvironment()
@@ -698,7 +713,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGettingInputObject()
     {
-        $migrations = $this->manager->getMigrations();
+        $migrations = $this->manager->getMigrations($this->environment);
         $seeds = $this->manager->getSeeds();
         $inputObject = $this->manager->getInput();
         $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $inputObject);
@@ -713,7 +728,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGettingOutputObject()
     {
-        $migrations = $this->manager->getMigrations();
+        $migrations = $this->manager->getMigrations($this->environment);
         $seeds = $this->manager->getSeeds();
         $outputObject = $this->manager->getOutput();
         $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $outputObject);
@@ -723,6 +738,16 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         }
         foreach ($seeds as $seed) {
             $this->assertEquals($outputObject, $seed->getOutput());
+        }
+    }
+
+    public function testGettingEnvironmentObject()
+    {
+        $migrations = $this->manager->getMigrations($this->environment);
+        $environmentObject = $this->manager->getEnvironment('mockenv');
+
+        foreach ($migrations as $migration) {
+            $this->assertEquals($environmentObject, $migration->getEnvironment());
         }
     }
 

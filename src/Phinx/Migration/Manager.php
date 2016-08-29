@@ -105,20 +105,21 @@ class Manager
         $migrations = array();
         $hasDownMigration = false;
         $hasMissingMigration = false;
-        if (count($this->getMigrations())) {
+        $env = $this->getEnvironment($environment);
+
+        if (count($this->getMigrations($env))) {
             // TODO - rewrite using Symfony Table Helper as we already have this library
             // included and it will fix formatting issues (e.g drawing the lines)
             $output->writeln('');
             $output->writeln(' Status  Migration ID    Started              Finished             Migration Name ');
             $output->writeln('----------------------------------------------------------------------------------');
 
-            $env = $this->getEnvironment($environment);
             $versions = $env->getVersionLog();
             $maxNameLength = $versions ? max(array_map(function($version) {
                 return strlen($version['migration_name']);
             }, $versions)) : 0;
 
-            foreach ($this->getMigrations() as $migration) {
+            foreach ($this->getMigrations($env) as $migration) {
                 $version = array_key_exists($migration->getVersion(), $versions) ? $versions[$migration->getVersion()] : false;
                 if ($version) {
                     $status = '     <info>up</info> ';
@@ -167,7 +168,7 @@ class Manager
                 case 'json':
                     $output->writeln(json_encode(
                         array(
-                            'pending_count' => count($this->getMigrations()),
+                            'pending_count' => count($this->getMigrations($env)),
                             'migrations' => $migrations
                         )
                     ));
@@ -196,7 +197,8 @@ class Manager
      */
     public function migrateToDateTime($environment, \DateTime $dateTime)
     {
-        $versions   = array_keys($this->getMigrations());
+        $env = $this->getEnvironment($environment);
+        $versions   = array_keys($this->getMigrations($env));
         $dateString = $dateTime->format('YmdHis');
 
         $outstandingMigrations = array_filter($versions, function($version) use($dateString) {
@@ -255,8 +257,8 @@ class Manager
      */
     public function migrate($environment, $version = null)
     {
-        $migrations = $this->getMigrations();
         $env = $this->getEnvironment($environment);
+        $migrations = $this->getMigrations($env);
         $versions = $env->getVersions();
         $current = $env->getCurrentVersion();
 
@@ -374,8 +376,9 @@ class Manager
      */
     public function rollback($environment, $version = null, $force = false)
     {
-        $migrations = $this->getMigrations();
-        $versionLog = $this->getEnvironment($environment)->getVersionLog();
+        $env = $this->getEnvironment($environment);
+        $migrations = $this->getMigrations($env);
+        $versionLog = $env->getVersionLog();
         $versions = array_keys($versionLog);
 
         ksort($migrations);
@@ -553,10 +556,11 @@ class Manager
     /**
      * Gets an array of the database migrations.
      *
+     * @param Environment $environment
      * @throws \InvalidArgumentException
      * @return AbstractMigration[]
      */
-    public function getMigrations()
+    public function getMigrations(Environment $environment)
     {
         if (null === $this->migrations) {
             $config = $this->getConfig();
@@ -600,7 +604,7 @@ class Manager
                     }
 
                     // instantiate it
-                    $migration = new $class($version, $this->getInput(), $this->getOutput());
+                    $migration = new $class($version, $this->getInput(), $this->getOutput(), $environment);
 
                     if (!($migration instanceof AbstractMigration)) {
                         throw new \InvalidArgumentException(sprintf(
@@ -719,9 +723,9 @@ class Manager
      * @return void
      */
     public function toggleBreakpoint($environment, $version){
-        $migrations = $this->getMigrations();
-        $this->getMigrations();
         $env = $this->getEnvironment($environment);
+        $migrations = $this->getMigrations($env);
+        $this->getMigrations($env);
         $versions = $env->getVersionLog();
 
         if (empty($versions) || empty($migrations)) {

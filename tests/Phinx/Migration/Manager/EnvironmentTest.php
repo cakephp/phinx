@@ -211,24 +211,4 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         $this->environment->executeMigration($migration, MigrationInterface::DOWN);
     }
-
-    public function testGetEnvironmentFromMigration()
-    {
-        // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
-        $adapterStub->expects($this->once())
-            ->method('migrated')
-            ->will($this->returnArgument(0));
-
-        $this->environment->setAdapter($adapterStub);
-
-        // up
-        $upMigration = $this->getMock('\Phinx\Migration\AbstractMigration', array('up'), array('20110301080000'));
-        $upMigration->expects($this->once())
-            ->method('up');
-
-        $this->environment->executeMigration($upMigration, MigrationInterface::UP);
-
-        $this->assertEquals($this->environment, $upMigration->getEnvironment());
-    }
 }
