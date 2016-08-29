@@ -208,4 +208,28 @@ class ConfigTest extends AbstractConfigTest
         $config = new \Phinx\Config\Config(array());
         $this->assertEquals('db/seeds', $config->getSeedPath());
     }
+
+    /**
+     * Checks if base class is returned correctly when specified without
+     * a namespace.
+     *
+     * @covers \Phinx\Config\Config::getMigrationBaseClassName
+     */
+    public function testGetMigrationBaseClassNameNoNamespace()
+    {
+        $config = new Config(array('migration_base_class' => 'BaseMigration'));
+        $this->assertEquals('BaseMigration', $config->getMigrationBaseClassName());
+    }
+
+    /**
+     * Checks if base class is returned correctly when specified without
+     * a namespace.
+     *
+     * @covers \Phinx\Config\Config::getMigrationBaseClassName
+     */
+    public function testGetMigrationBaseClassNameNoNamespaceNoDrop()
+    {
+        $config = new Config(array('migration_base_class' => 'BaseMigration'));
+        $this->assertEquals('BaseMigration', $config->getMigrationBaseClassName(false));
+    }
 }
