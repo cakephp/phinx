@@ -407,6 +407,38 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertNotContains('Undefined offset: -1', $output);
     }
 
+    public function testRollbackWithTwoMigrationsDoesNotRollbackBothMigrations()
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->any())
+                ->method('getVersionLog')
+                ->will(
+                    $this->returnValue(
+                        [
+                            '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
+                            '20120116183504' => ['version' => '20120815145812', 'migration' => '', 'breakpoint' => 0],
+                        ]
+                    )
+                );
+        $envStub->expects($this->any())
+                ->method('getVersions')
+                ->will(
+                    $this->returnValue(
+                        [
+                            20120111235330,
+                            20120116183504,
+                        ]
+                    )
+                );
+
+        $this->manager->setEnvironments(['mockenv' => $envStub]);
+        $this->manager->rollback('mockenv');
+        rewind($this->manager->getOutput()->getStream());
+        $output = stream_get_contents($this->manager->getOutput()->getStream());
+        $this->assertNotContains('== 20120111235330 TestMigration: reverting', $output);
+    }
+
     /**
      * Migration lists, dates, and expected migrations to point to.
      *

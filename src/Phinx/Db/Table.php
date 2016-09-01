@@ -555,15 +555,20 @@ class Table
     /**
      * Add timestamp columns created_at and updated_at to the table.
      *
+     * @param string $createdAtColumnName
+     * @param string $updatedAtColumnName
+     *
      * @return Table
      */
-    public function addTimestamps()
+    public function addTimestamps($createdAtColumnName = 'created_at', $updatedAtColumnName = 'updated_at')
     {
-        $this->addColumn('created_at', 'timestamp', array(
+        $createdAtColumnName = is_null($createdAtColumnName) ? 'created_at' : $createdAtColumnName;
+        $updatedAtColumnName = is_null($updatedAtColumnName) ? 'updated_at' : $updatedAtColumnName;
+        $this->addColumn($createdAtColumnName, 'timestamp', array(
                 'default' => 'CURRENT_TIMESTAMP',
                 'update' => ''
             ))
-             ->addColumn('updated_at', 'timestamp', array(
+             ->addColumn($updatedAtColumnName, 'timestamp', array(
                 'null'    => true,
                 'default' => null
              ));

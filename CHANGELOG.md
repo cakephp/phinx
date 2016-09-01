@@ -1,5 +1,39 @@
 # Version History
 
+**0.6.x-dev** (***)
+
+* Documentation updates
+* Pull requests
+  * [#831](https://github.com/robmorgan/phinx/pull/831) Typos
+
+**0.6.4** (Wednesday, 27th July 2016)
+
+* Documentation updates
+* Pull requests
+  * [#909](https://github.com/robmorgan/phinx/pull/909) Declare test class properties
+  * [#910](https://github.com/robmorgan/phinx/pull/910), [#916](https://github.com/robmorgan/phinx/pull/916) Remove unused variables
+  * [#912](https://github.com/robmorgan/phinx/pull/912) ConfigInterface usage consistency
+  * [#914](https://github.com/robmorgan/phinx/pull/914) Set return values and @return documentation
+  * [#918](https://github.com/robmorgan/phinx/pull/918) Docblock correction for Phinx\Migration\Manager::executeSeed()
+  * [#921](https://github.com/robmorgan/phinx/pull/921) Add Phinx\Wrapper\TextWrapper::getSeed()
+* Bug fixes
+  * [#908](https://github.com/robmorgan/phinx/pull/908) Fix setting options for Column, ForeignKey and Index
+  * [#922](https://github.com/robmorgan/phinx/pull/922) SQLite adapter drops table on changeColumn if there's a foreign key
+
+**0.6.3** (Monday, 18th July 2016)
+
+* New features
+  * [#707](https://github.com/robmorgan/phinx/pull/707/files) Add arguments for timestamps columns names
+* Documentation cleanup
+* Bug fixes
+  * [#884](https://github.com/robmorgan/phinx/pull/884) Only rollback 1 migration when only 2 migrations exist
+  * Input and Output are now correctly supplied to migration template creation classes
+
+**0.6.2** (Thursday, 23rd June 2016)
+
+* Fix breakpoint support for Postgres
+* HHVM now passes all tests
+
 **0.6.1** (Tuesday, 21st June 2016)
 
 * Fix rollback when only 1 migration

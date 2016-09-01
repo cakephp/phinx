@@ -393,7 +393,7 @@ class Manager
         if (null === $version) {
             // Get the migration before the last run migration
             $prev = count($versions) - 2;
-            $version =  $prev <= 0 ? 0 : $versions[$prev];
+            $version =  $prev < 0 ? 0 : $versions[$prev];
         } else {
             // Get the first migration number
             $first = $versions[0];
@@ -437,7 +437,6 @@ class Manager
     public function seed($environment, $seed = null)
     {
         $seeds = $this->getSeeds();
-        $env = $this->getEnvironment($environment);
 
         if (null === $seed) {
             // run all seeders
@@ -589,9 +588,29 @@ class Manager
                         ));
                     }
 
-                    $fileNames[$class] = ($filePath);
+                    $fileNames[$class] = basename($filePath);
 
-                    $migration = $this->instantiateMigration($filePath, $class, $version);
+                    // load the migration file
+                    /** @noinspection PhpIncludeInspection */
+                    require_once $filePath;
+                    if (!class_exists($class)) {
+                        throw new \InvalidArgumentException(sprintf(
+                            'Could not find class "%s" in file "%s"',
+                            $class,
+                            $filePath
+                        ));
+                    }
+
+                    // instantiate it
+                    $migration = new $class($version, $this->getInput(), $this->getOutput());
+
+                    if (!($migration instanceof AbstractMigration)) {
+                        throw new \InvalidArgumentException(sprintf(
+                            'The class "%s" in file "%s" must extend \Phinx\Migration\AbstractMigration',
+                            $class,
+                            $filePath
+                        ));
+                    }
 
                     $versions[$version] = $migration;
                 }
@@ -626,7 +645,7 @@ class Manager
     {
         if (null === $this->seeds) {
             $config = $this->getConfig();
-            $phpFiles = glob($config->getSeedPath() . DIRECTORY_SEPARATOR . '*.php');
+            $phpFiles = glob($config->getSeedPath() . DIRECTORY_SEPARATOR . '*.php', defined('GLOB_BRACE') ? GLOB_BRACE : 0);
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
