@@ -151,7 +151,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getTables()
     {
-        throw new Exception('Not implemented yet.');
+        throw new \Exception('Not implemented yet.');
     }
 
     /**
@@ -1194,6 +1194,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function setForeignKeyChecks($enabled)
     {
-        throw new Exception('Not implemented yet.');
+        throw new \Exception('Not implemented yet.');
     }
 }
