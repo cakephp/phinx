@@ -151,7 +151,60 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getTables()
     {
-        throw new \Exception('Not implemented yet.');
+//        throw new \Exception('Not implemented yet.');
+        $options = $this->getOptions();
+
+        $tables = array();
+        $rows = $this->fetchAll(sprintf("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = '%s'", 'public'));
+        foreach ($rows as $row) {
+            $tableOptions = $this->getTableOptions($row[0]);
+            $tables[] = new Table($row[0], $tableOptions, $this);
+        }
+        return $tables;
+    }
+
+    /**
+     * @param string $tableName
+     *
+     * @return array
+     */
+    protected function getTableOptions($tableName)
+    {
+        $rows = $this->fetchAll(
+            sprintf(
+                "SELECT a.attname
+                FROM   pg_index i
+                JOIN   pg_attribute a 
+                    ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
+                WHERE  i.indrelid = '%s'::regclass
+                AND    i.indisprimary;",
+                $tableName
+            )
+        );
+//        $rows = $this->fetchAll(sprintf('SHOW COLUMNS IN `%s`', $tableName));
+        $pkFieldNames = array();
+        $isPkAutoIncrement = false;
+        foreach ($rows as $row) {
+            $pkFieldNames[] = $row['attname'];
+            $isPkAutoIncrement = true;
+        }
+
+        // new Table('user');
+        $isAutoId = count($pkFieldNames) == 1 && $pkFieldNames[0] == 'id';
+        $isNoPk = count($pkFieldNames) == 0;
+        if ($isAutoId || $isNoPk) {
+            return array();
+        }
+
+        // new Table('user', array('id'=>'user_id'));
+        if (count($pkFieldNames) == 1 && $pkFieldNames[0] != 'id' && $isPkAutoIncrement) {
+            return array('id'=>$pkFieldNames[0]);
+        }
+
+        // Everything else ...
+        // new Table('user_followers', array('id'=>false, 'primary_key'=>array('user_id')));
+        // new Table('user_followers', array('id'=>false, 'primary_key'=>array('user_id', 'follower_id')));
+        return array('id'=>false, 'primary_key'=>$pkFieldNames);
     }
 
     /**
