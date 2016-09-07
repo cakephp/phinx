@@ -152,7 +152,8 @@ class CodeGenerator
         } else {
             $refColumnsDef = "'{$refColumns[0]}'";
         }
+        $constraintName = $fk->getConstraint();
 
-        return "->addForeignKey({$columnsDef}, '{$fk->getReferencedTable()->getName()}', {$refColumnsDef})";
+        return "->addForeignKey({$columnsDef}, '{$fk->getReferencedTable()->getName()}', {$refColumnsDef}, array('constraint' => '{$constraintName}'))";
     }
 }

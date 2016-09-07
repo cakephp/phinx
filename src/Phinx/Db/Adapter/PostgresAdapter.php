@@ -579,17 +579,19 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * @param string $tableName Table Name
      * @return array
      */
-    protected function getIndexes($tableName)
+    public function getIndexes($tableName)
     {
         $indexes = array();
         $sql = "SELECT
             i.relname AS index_name,
-            a.attname AS column_name
+            a.attname AS column_name,
+            pi.indexdef
         FROM
             pg_class t,
             pg_class i,
             pg_index ix,
-            pg_attribute a
+            pg_attribute a,
+            pg_indexes pi
         WHERE
             t.oid = ix.indrelid
             AND i.oid = ix.indexrelid
@@ -597,6 +599,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             AND a.attnum = ANY(ix.indkey)
             AND t.relkind = 'r'
             AND t.relname = '$tableName'
+            AND i.relname NOT LIKE '%pkey'
+            AND pi.indexname = i.relname
         ORDER BY
             t.relname,
             i.relname;";
@@ -606,6 +610,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $indexes[$row['index_name']] = array('columns' => array());
             }
             $indexes[$row['index_name']]['columns'][] = strtolower($row['column_name']);
+            $indexes[$row['index_name']]['unique'] = false !== strpos($row['indexdef'], 'UNIQUE');
         }
         return $indexes;
     }
@@ -753,7 +758,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $foreignKey->setConstraint($row['constraint_name'])
                 ->setReferencedTable($referencedTable)
                 ->setReferencedColumns([$row['referenced_column_name']])
-                ->setColumns($row['column_name']);
+                ->setColumns($row['column_name'])
+                ->setOptions([
+                    'constraint' => $row['constraint_name']
+                ]);
             $foreignKeys[] = $foreignKey;
 //            $foreignKeys[$row['constraint_name']]['table'] = $row['table_name'];
 //            $foreignKeys[$row['constraint_name']]['columns'][] = $row['column_name'];
@@ -1102,7 +1110,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
     {
-        $constraintName = $foreignKey->getConstraint() ?: $tableName . '_' . implode('_', $foreignKey->getColumns());
+        $constraintName = $foreignKey->getConstraint() ?: $tableName . '_' . implode('_', $foreignKey->getColumns()) . '_fkey';
         $def = ' CONSTRAINT "' . $constraintName . '" FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
         $def .= " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
         if ($foreignKey->getOnDelete()) {
