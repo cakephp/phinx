@@ -157,7 +157,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $tables = array();
 //        $rows = $this->fetchAll(sprintf("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = '%s' AND tablename <> '%s'", 'public', $options['default_migration_table']));
         $rows = $this->fetchAll(sprintf(
-            "SELECT pt.table_name as tablename, string_agg(DISTINCT ccu.table_name, ',') AS reftable
+            "SELECT pt.table_name as tablename, string_agg(DISTINCT ccu.table_name, ',') AS reftable, COUNT(DISTINCT ccu.table_name) as size
             FROM information_schema.tables pt
             LEFT JOIN information_schema.columns c
               ON c.table_name = pt.table_name
@@ -169,133 +169,72 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 			  ON ccu.constraint_name = tc.constraint_name
             WHERE pt.table_schema = '%s' AND pt.table_name <> '%s'
             GROUP BY pt.table_name,pt.table_type
-            ORDER BY pt.table_type DESC, COUNT(TRUE) ASC;",
+            ORDER BY size ASC, pt.table_type DESC, COUNT(TRUE) ASC;",
             'public',
             $options['default_migration_table']
         ));
-        $order = [];
-        $ord = $this->sortTablesByFk($rows, $order);
-        var_dump([
-            $ord,
-            $order
-        ]);
-        die;
+        $rows = $this->sortTablesByFk($rows);
         foreach ($rows as $row) {
-            $tableOptions = $this->getTableOptions($row[0]);
-            $tables[] = new Table($row[0], $tableOptions, $this);
+            $tableOptions = $this->getTableOptions($row);
+            $tables[] = new Table($row, $tableOptions, $this);
         }
         return $tables;
     }
 
-    private function sortTablesByFk($rows, &$order)
+    private function sortTablesByFk($rows)
     {
-        $originalRows = $rows;
-        $i = 100;
-        $step = 1;
-        $currentOrder = $order;
-        if (0 === count($currentOrder)) {
-            foreach ($rows as $key => $row) {
-                $currentOrder[$row['tablename']] = ($i + (++$step * $i));
-                $row['reftable'] = null !== $row['reftable'] ? explode(',', $row['reftable']) : $row['reftable'];
-                $rows[$row['tablename']] = is_string($row['reftable']) ? [$row['reftable']] : $row['reftable'];
-                unset($rows[$key]);
-            }
-        }
+        $currentOrder = [];
         foreach ($rows as $key => $row) {
-            $currentPos = $currentOrder[$key];
-            if (null !== $row)  {
-                $amount = count($row);
-                $control = 1;
-                $majorPos = 0;
-                foreach ($row as $ref) {
-                    $pos = $currentOrder[$ref];
-                    $keys = $currentOrder;
-                    asort($keys);
-                    if (false !== $pos) {
-                        if ($pos >= $currentPos) {
-//                            $yMax = end($keys);
-                            for ($y = $pos; ; $y++) {
-                                if (!in_array($y, $keys, true)) {
-                                    $pos = $y;
-                                    break;
-                                }
-                            }
-                        } else {
-                            for ($y = $pos; ; $y--) {
-                                if (!in_array($y, $keys, true)) {
-                                    $pos = $y;
-                                    break;
-                                }
-                            }
+            $currentOrder[$row['tablename']] = ($key * 1000);
+            $row['reftable'] = null !== $row['reftable'] ? explode(',', $row['reftable']) : $row['reftable'];
+            $rows[$row['tablename']] = is_string($row['reftable']) ? [$row['reftable']] : $row['reftable'];
+            unset($rows[$key]);
+        }
+        $currentOrder = $this->orderTables($rows, $currentOrder);
+        asort($currentOrder);
+        return array_keys($currentOrder);
+    }
+
+    private function orderTables($rows, &$currentOrder)
+    {
+        $oldOrder = $currentOrder;
+        foreach ($rows as $key => $row) {
+            $currentPosition = $currentOrder[$key];
+            $newPosition = $currentPosition;
+            $minPosition = min($currentOrder);
+            if (null !== $row) {
+                $amountRefTables = count($row);
+                if (0 !== $amountRefTables) {
+                    $refOrder = [];
+                    foreach ($row as $refTable) {
+                        $refOrder[$refTable] = $currentOrder[$refTable];
+                    }
+                    $maxRefPosition = max($refOrder);
+                    if ($currentPosition !== $maxRefPosition && $currentPosition < $maxRefPosition) {
+                        $newPosition = $maxRefPosition;
+                        while (in_array($newPosition, $currentOrder, true)) {
+                            $newPosition += 100;
                         }
                     }
-                    if ($pos >= $majorPos) {
-                        $majorPos = $pos;
-                    } else {
-                        $pos = $majorPos;
-                    }
-                    if ($control === $amount) {
-                        $currentOrder[$key] = $pos;
-                    }
-                    $control++;
-
-                    $tst = $currentOrder;
-                    asort($tst);
-                    print_r([
-                        'key' => $key,
-                        'ref' => $ref,
-                        'amount' => $amount,
-                        'control' => $control,
-                        'majorPos' => $majorPos,
-                        'keys' => $keys,
-                        'pos' => $pos,
-//                        'yMax' => $yMax,
-                        'currentPos' => $currentPos,
-                        'currentOrder' => $tst
-                    ]);
                 }
-//                die;
             } else {
-                $keys = $currentOrder;
-                asort($keys);
-                $pos = reset($keys);
-                if ($pos !== $currentPos) {
-                    --$pos;
+                if ($currentPosition !== $minPosition) {
+                    $newPosition = $minPosition;
+                    while (in_array($newPosition, $currentOrder, true)) {
+                        $newPosition -= 100;
+                    }
                 }
-                $currentOrder[$key] = $pos;
             }
-            if ($pos ==298) {
-//                die;
-            }
+            $currentOrder[$key] = $newPosition;
         }
-//        die;
-//        ksort($currentOrder);
-//        var_dump($currentOrder);
-//        $currentOrder = array_flip($currentOrder);
-//        var_dump($currentOrder);
-//        ksort($currentOrder);
-        print_r($currentOrder);
-        print_r($order);
-        $teste2 = $currentOrder;
-        asort($teste2);
-        $teste = array_flip($currentOrder);
-        ksort($teste);
-        print_r($teste);
-        print_r($teste2);
-
-
-//        die;
-        if ($currentOrder === $order) {
-            return $order;
+        $asortCurrentOrder = $currentOrder;
+        asort($asortCurrentOrder);
+        asort($oldOrder);
+        if (array_keys($asortCurrentOrder) === array_keys($oldOrder)) {
+            return $currentOrder;
         } else {
-            $this->sortTablesByFk($rows, $currentOrder);
+            return $this->orderTables($rows, $currentOrder);
         }
-
-
-        /*$res = array_slice($array, 0, 3, true) +
-    array("my_key" => "my_value") +
-    array_slice($array, 3, count($array) - 1, true) ;*/
-        //return $currentOrder;
     }
 
     /**
