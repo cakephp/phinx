@@ -151,11 +151,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getTables()
     {
-//        throw new \Exception('Not implemented yet.');
         $options = $this->getOptions();
 
         $tables = array();
-//        $rows = $this->fetchAll(sprintf("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = '%s' AND tablename <> '%s'", 'public', $options['default_migration_table']));
         $rows = $this->fetchAll(sprintf(
             "SELECT pt.table_name as tablename, string_agg(DISTINCT ccu.table_name, ',') AS reftable, COUNT(DISTINCT ccu.table_name) as size
             FROM information_schema.tables pt
@@ -255,7 +253,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $tableName
             )
         );
-//        $rows = $this->fetchAll(sprintf('SHOW COLUMNS IN `%s`', $tableName));
         $pkFieldNames = array();
         $isPkAutoIncrement = false;
         foreach ($rows as $row) {
@@ -840,10 +837,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     'constraint' => $row['constraint_name']
                 ]);
             $foreignKeys[] = $foreignKey;
-//            $foreignKeys[$row['constraint_name']]['table'] = $row['table_name'];
-//            $foreignKeys[$row['constraint_name']]['columns'][] = $row['column_name'];
-//            $foreignKeys[$row['constraint_name']]['referenced_table'] = $row['referenced_table_name'];
-//            $foreignKeys[$row['constraint_name']]['referenced_columns'][] = $row['referenced_column_name'];
         }
         return $foreignKeys;
     }
