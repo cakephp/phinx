@@ -155,12 +155,147 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $options = $this->getOptions();
 
         $tables = array();
-        $rows = $this->fetchAll(sprintf("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = '%s'", 'public'));
+//        $rows = $this->fetchAll(sprintf("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = '%s' AND tablename <> '%s'", 'public', $options['default_migration_table']));
+        $rows = $this->fetchAll(sprintf(
+            "SELECT pt.table_name as tablename, string_agg(DISTINCT ccu.table_name, ',') AS reftable
+            FROM information_schema.tables pt
+            LEFT JOIN information_schema.columns c
+              ON c.table_name = pt.table_name
+		    LEFT JOIN information_schema.table_constraints tc
+			  ON tc.table_name = pt.table_name AND tc.constraint_type = 'FOREIGN KEY'
+		    LEFT JOIN information_schema.key_column_usage AS kcu
+			  ON tc.constraint_name = kcu.constraint_name AND kcu.column_name = c.column_name
+		    LEFT JOIN information_schema.constraint_column_usage AS ccu
+			  ON ccu.constraint_name = tc.constraint_name
+            WHERE pt.table_schema = '%s' AND pt.table_name <> '%s'
+            GROUP BY pt.table_name,pt.table_type
+            ORDER BY pt.table_type DESC, COUNT(TRUE) ASC;",
+            'public',
+            $options['default_migration_table']
+        ));
+        $order = [];
+        $ord = $this->sortTablesByFk($rows, $order);
+        var_dump([
+            $ord,
+            $order
+        ]);
+        die;
         foreach ($rows as $row) {
             $tableOptions = $this->getTableOptions($row[0]);
             $tables[] = new Table($row[0], $tableOptions, $this);
         }
         return $tables;
+    }
+
+    private function sortTablesByFk($rows, &$order)
+    {
+        $originalRows = $rows;
+        $i = 100;
+        $step = 1;
+        $currentOrder = $order;
+        if (0 === count($currentOrder)) {
+            foreach ($rows as $key => $row) {
+                $currentOrder[$row['tablename']] = ($i + (++$step * $i));
+                $row['reftable'] = null !== $row['reftable'] ? explode(',', $row['reftable']) : $row['reftable'];
+                $rows[$row['tablename']] = is_string($row['reftable']) ? [$row['reftable']] : $row['reftable'];
+                unset($rows[$key]);
+            }
+        }
+        foreach ($rows as $key => $row) {
+            $currentPos = $currentOrder[$key];
+            if (null !== $row)  {
+                $amount = count($row);
+                $control = 1;
+                $majorPos = 0;
+                foreach ($row as $ref) {
+                    $pos = $currentOrder[$ref];
+                    $keys = $currentOrder;
+                    asort($keys);
+                    if (false !== $pos) {
+                        if ($pos >= $currentPos) {
+//                            $yMax = end($keys);
+                            for ($y = $pos; ; $y++) {
+                                if (!in_array($y, $keys, true)) {
+                                    $pos = $y;
+                                    break;
+                                }
+                            }
+                        } else {
+                            for ($y = $pos; ; $y--) {
+                                if (!in_array($y, $keys, true)) {
+                                    $pos = $y;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if ($pos >= $majorPos) {
+                        $majorPos = $pos;
+                    } else {
+                        $pos = $majorPos;
+                    }
+                    if ($control === $amount) {
+                        $currentOrder[$key] = $pos;
+                    }
+                    $control++;
+
+                    $tst = $currentOrder;
+                    asort($tst);
+                    print_r([
+                        'key' => $key,
+                        'ref' => $ref,
+                        'amount' => $amount,
+                        'control' => $control,
+                        'majorPos' => $majorPos,
+                        'keys' => $keys,
+                        'pos' => $pos,
+//                        'yMax' => $yMax,
+                        'currentPos' => $currentPos,
+                        'currentOrder' => $tst
+                    ]);
+                }
+//                die;
+            } else {
+                $keys = $currentOrder;
+                asort($keys);
+                $pos = reset($keys);
+                if ($pos !== $currentPos) {
+                    --$pos;
+                }
+                $currentOrder[$key] = $pos;
+            }
+            if ($pos ==298) {
+//                die;
+            }
+        }
+//        die;
+//        ksort($currentOrder);
+//        var_dump($currentOrder);
+//        $currentOrder = array_flip($currentOrder);
+//        var_dump($currentOrder);
+//        ksort($currentOrder);
+        print_r($currentOrder);
+        print_r($order);
+        $teste2 = $currentOrder;
+        asort($teste2);
+        $teste = array_flip($currentOrder);
+        ksort($teste);
+        print_r($teste);
+        print_r($teste2);
+
+
+//        die;
+        if ($currentOrder === $order) {
+            return $order;
+        } else {
+            $this->sortTablesByFk($rows, $currentOrder);
+        }
+
+
+        /*$res = array_slice($array, 0, 3, true) +
+    array("my_key" => "my_value") +
+    array_slice($array, 3, count($array) - 1, true) ;*/
+        //return $currentOrder;
     }
 
     /**
@@ -373,7 +508,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $columns = array();
         $sql = sprintf(
             "SELECT column_name, data_type, is_identity, is_nullable,
-             column_default, character_maximum_length, numeric_precision, numeric_scale
+             column_default, character_maximum_length, numeric_precision, numeric_scale, datetime_precision
              FROM information_schema.columns
              WHERE table_name ='%s'",
             $tableName
@@ -404,6 +539,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
             if (preg_match('/\bwith time zone$/', $columnInfo['data_type'])) {
                 $column->setTimezone(true);
+            }
+            if (null !== $columnInfo['datetime_precision'] && preg_match('/\btime/', $columnInfo['data_type'])) {
+                $column->setPrecision($columnInfo['datetime_precision']);
             }
             if (isset($columnInfo['character_maximum_length'])) {
                 $column->setLimit($columnInfo['character_maximum_length']);
@@ -862,7 +1000,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'real');
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIMESTAMP:
-                return array('name' => 'timestamp');
+                return array('name' => 'timestamp', 'precision' => 0);
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
                 return array('name' => 'bytea');
@@ -1018,8 +1156,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if ($column->isIdentity()) {
             $buffer[] = $column->getType() == 'biginteger' ? 'BIGSERIAL' : 'SERIAL';
         } else {
+            $timeTypes = array(
+                'time',
+                'timestamp',
+            );
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
-            $buffer[] = strtoupper($sqlType['name']);
+            if (array_key_exists('limit', $sqlType) && !empty($sqlType['limit']) && in_array($sqlType['name'], $timeTypes)) {
+                $buffer[] = strtoupper($sqlType['name']) . '(' . $sqlType['limit'] . ')';
+            } else {
+                $buffer[] = strtoupper($sqlType['name']);
+            }
             // integers cant have limits in postgres
             if (static::PHINX_TYPE_DECIMAL === $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
                 $buffer[] = sprintf(
@@ -1033,10 +1179,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
 
-            $timeTypes = array(
-                'time',
-                'timestamp',
-            );
             if (in_array($sqlType['name'], $timeTypes) && $column->isTimezone()) {
                 $buffer[] = strtoupper('with time zone');
             }

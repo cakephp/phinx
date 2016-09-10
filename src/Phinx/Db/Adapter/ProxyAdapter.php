@@ -322,4 +322,16 @@ class ProxyAdapter extends AdapterWrapper
     {
         return array('name' => 'dropForeignKey', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
     }
+
+    public function getTables()
+    {
+        // TODO: Implement getTables() method.
+    }
+
+    public function setForeignKeyChecks($enabled)
+    {
+        // TODO: Implement setForeignKeyChecks() method.
+    }
+
+
 }

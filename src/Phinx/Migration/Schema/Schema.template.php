@@ -25,7 +25,7 @@ class Schema extends AbstractMigration
         <?php endif; ?>
         <?php if (count($indexes) > 0) : ?>
             <?php foreach ($indexes as $key => $index) : ?>
-                ->addIndex(array('<?php echo implode("', '", $index['columns']);?>'), array('unique' => <?php echo $index['unique']; ?>, 'name' => '<?php echo $key; ?>'))
+                ->addIndex(array('<?php echo implode("', '", $index['columns']);?>'), array('unique' => <?php echo $index['unique'] ? 'true' : 'false'; ?>, 'name' => '<?php echo $key; ?>'))
             <?php endforeach; ?>
         <?php endif; ?>
         ->create();
