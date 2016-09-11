@@ -913,7 +913,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 }
                 return array('name' => $type);
             case static::PHINX_TYPE_TEXT:
-            case static::PHINX_TYPE_TIME:
             case static::PHINX_TYPE_DATE:
             case static::PHINX_TYPE_BOOLEAN:
             case static::PHINX_TYPE_JSON:
@@ -933,6 +932,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIMESTAMP:
                 return array('name' => 'timestamp', 'precision' => 0);
+            case static::PHINX_TYPE_TIME:
+                return array('name' => $type, 'precision' => 0);
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
                 return array('name' => 'bytea');
@@ -1089,14 +1090,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $buffer[] = $column->getType() == 'biginteger' ? 'BIGSERIAL' : 'SERIAL';
         } else {
             $timeTypes = array(
-                'time',
-                'timestamp',
+                static::PHINX_TYPE_TIME,
+                static::PHINX_TYPE_TIMESTAMP,
             );
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
-            if (array_key_exists('limit', $sqlType) && !empty($sqlType['limit']) && in_array($sqlType['name'], $timeTypes)) {
-                $buffer[] = strtoupper($sqlType['name']) . '(' . $sqlType['limit'] . ')';
-            } else {
-                $buffer[] = strtoupper($sqlType['name']);
+            $buffer[] = strtoupper($sqlType['name']);
+            if (null !== $column->getPrecision() && in_array($sqlType['name'], $timeTypes, true)) {
+                $buffer[] = sprintf(
+                    '(%s)',
+                    $column->getPrecision() ? $column->getPrecision() : $sqlType['precision']
+                );
             }
             // integers cant have limits in postgres
             if (static::PHINX_TYPE_DECIMAL === $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
