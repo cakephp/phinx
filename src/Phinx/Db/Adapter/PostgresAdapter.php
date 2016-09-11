@@ -1356,6 +1356,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function setForeignKeyChecks($enabled)
     {
-        throw new \Exception('Not implemented yet.');
+        //Doesn't have a way to "SET FOREIGN_KEY_CHECKS=1" in Postgresql
     }
 }
