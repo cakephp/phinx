@@ -489,6 +489,7 @@ class Manager
         // create an environment instance and cache it
         $environment = new Environment($name, $this->getConfig()->getEnvironment($name));
         $this->environments[$name] = $environment;
+        $environment->setInput($this->getInput());
         $environment->setOutput($this->getOutput());
 
         return $environment;
