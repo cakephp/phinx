@@ -211,4 +211,11 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         $this->environment->executeMigration($migration, MigrationInterface::DOWN);
     }
+
+    public function testGettingInputObject()
+    {
+        $this->environment->setInput($this->getMock('\Symfony\Component\Console\Input\InputInterface'));
+        $inputObject = $this->environment->getInput();
+        $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $inputObject);
+    }
 }
