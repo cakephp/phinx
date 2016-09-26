@@ -250,7 +250,7 @@ class Config implements ConfigInterface
     {
         $className = !isset($this->values['migration_base_class']) ? 'Phinx\Migration\AbstractMigration' : $this->values['migration_base_class'];
 
-        return $dropNamespace ? substr(strrchr($className, '\\'), 1) : $className;
+        return $dropNamespace ? substr(strrchr($className, '\\'), 1) ?: $className : $className;
     }
 
     /**
