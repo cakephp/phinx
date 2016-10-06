@@ -627,7 +627,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             return false;
         } else {
             foreach ($foreignKeys as $key) {
-                $a = array_diff($columns, $key['columns']);
                 if ($columns == $key['columns']) {
                     return true;
                 }
