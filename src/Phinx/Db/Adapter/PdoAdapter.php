@@ -480,6 +480,7 @@ abstract class PdoAdapter implements AdapterInterface
             'integer',
             'biginteger',
             'float',
+            'double',
             'decimal',
             'datetime',
             'timestamp',

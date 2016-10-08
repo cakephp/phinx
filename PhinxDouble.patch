@@ -1,0 +1,41 @@
+--- src/Phinx/Db/Adapter/AdapterInterface.php1	2015-12-16 21:56:25.000000000 +0200
++++ src/Phinx/Db/Adapter/AdapterInterface.php	2015-12-16 21:33:26.000000000 +0200
+@@ -48,6 +48,7 @@
+     const PHINX_TYPE_INTEGER        = 'integer';
+     const PHINX_TYPE_BIG_INTEGER    = 'biginteger';
+     const PHINX_TYPE_FLOAT          = 'float';
++    const PHINX_TYPE_DOUBLE         = 'double';
+     const PHINX_TYPE_DECIMAL        = 'decimal';
+     const PHINX_TYPE_DATETIME       = 'datetime';
+     const PHINX_TYPE_TIMESTAMP      = 'timestamp';
+--- src/Phinx/Db/Adapter/PdoAdapter.php1	2015-12-16 21:57:04.000000000 +0200
++++ src/Phinx/Db/Adapter/PdoAdapter.php	2015-12-16 21:41:23.000000000 +0200
+@@ -457,6 +457,7 @@
+             'integer',
+             'biginteger',
+             'float',
++            'double',
+             'decimal',
+             'datetime',
+             'timestamp',
+--- src/Phinx/Db/Adapter/PostgresAdapter.php1	2015-12-16 21:57:43.000000000 +0200
++++ src/Phinx/Db/Adapter/PostgresAdapter.php	2015-12-16 21:37:49.000000000 +0200
+@@ -757,6 +757,8 @@
+                 return array('name' => 'bigint');
+             case static::PHINX_TYPE_FLOAT:
+                 return array('name' => 'real');
++            case static::PHINX_TYPE_DOUBLE:
++                return array('name' => 'double precision');
+             case static::PHINX_TYPE_DATETIME:
+             case static::PHINX_TYPE_TIMESTAMP:
+                 return array('name' => 'timestamp');
+@@ -827,6 +829,9 @@
+             case 'real':
+             case 'float4':
+                 return static::PHINX_TYPE_FLOAT;
++            case 'double precision':
++            case 'float8':
++                return static::PHINX_TYPE_DOUBLE;
+             case 'bytea':
+                 return static::PHINX_TYPE_BINARY;
+                 break;
