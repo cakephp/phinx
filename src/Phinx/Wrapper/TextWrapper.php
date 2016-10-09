@@ -143,7 +143,7 @@ class TextWrapper
             $command += array('-t' => $target);
         }
         if ($seed) {
-            $seed = is_array($seed) ? $seed : [$seed];
+            $seed = (array) $seed;
             $command += array('-s' => $seed);
         }
         return $this->executeRun($command);
