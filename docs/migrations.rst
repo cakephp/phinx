@@ -464,6 +464,38 @@ To simply change the name of the primary key, we need to override the default ``
             }
         }
 
+Valid Table Options
+~~~~~~~~~~~~~~~~~~~~
+
+The following are valid table options:
+
+For all adapters:
+
+=========== ===========
+Option      Description
+=========== ===========
+id          set name of automatically created identity field
+primary_key set field to use for primary key (defaults to value of id)
+=========== ===========
+
+For the MySQL adapter:
+
+========= ===========
+Option    Description
+========= ===========
+collation set collation of table (defaults to utf8_general_ci)
+comment   set a text comment on table
+engine    set engine (defaults to InnoDB)
+========= ===========
+
+For the PostgreSQL adapter:
+
+======= ===========
+Option    Description
+======= ===========
+comment set a text comment on table
+======= ===========
+
 Valid Column Types
 ~~~~~~~~~~~~~~~~~~
 
