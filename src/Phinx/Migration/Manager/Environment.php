@@ -28,6 +28,7 @@
  */
 namespace Phinx\Migration\Manager;
 
+use Phinx\Migration\Schema\Dumper;
 use Phinx\Db\Adapter\AdapterFactory;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Migration\MigrationInterface;
@@ -379,5 +380,16 @@ class Environment
     public function getSchemaTableName()
     {
         return $this->schemaTableName;
+    }
+
+    /**
+     * @return string
+     */
+    public function schemaDump()
+    {
+        $dumper = new Dumper();
+        $dumper->setAdapter($this->getAdapter());
+
+        return $dumper->dump();
     }
 }

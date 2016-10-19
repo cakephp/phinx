@@ -143,7 +143,139 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function quoteColumnName($columnName)
     {
-        return '"'. $columnName . '"';
+        return '"' . $columnName . '"';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTables()
+    {
+        $options = $this->getOptions();
+
+        $tables = array();
+        $rows = $this->fetchAll(sprintf(
+            "SELECT pt.table_name as tablename, string_agg(DISTINCT ccu.table_name, ',') AS reftable, COUNT(DISTINCT ccu.table_name) as size
+            FROM information_schema.tables pt
+            LEFT JOIN information_schema.columns c
+              ON c.table_name = pt.table_name
+		    LEFT JOIN information_schema.table_constraints tc
+			  ON tc.table_name = pt.table_name AND tc.constraint_type = 'FOREIGN KEY'
+		    LEFT JOIN information_schema.key_column_usage AS kcu
+			  ON tc.constraint_name = kcu.constraint_name AND kcu.column_name = c.column_name
+		    LEFT JOIN information_schema.constraint_column_usage AS ccu
+			  ON ccu.constraint_name = tc.constraint_name
+            WHERE pt.table_schema = '%s' AND pt.table_name <> '%s'
+            GROUP BY pt.table_name,pt.table_type
+            ORDER BY size ASC, pt.table_type DESC, COUNT(TRUE) ASC;",
+            'public',
+            $options['default_migration_table']
+        ));
+        $rows = $this->sortTablesByFk($rows);
+        foreach ($rows as $row) {
+            $tableOptions = $this->getTableOptions($row);
+            $tables[] = new Table($row, $tableOptions, $this);
+        }
+        return $tables;
+    }
+
+    private function sortTablesByFk($rows)
+    {
+        $currentOrder = [];
+        foreach ($rows as $key => $row) {
+            $currentOrder[$row['tablename']] = ($key * 1000);
+            $row['reftable'] = null !== $row['reftable'] ? explode(',', $row['reftable']) : $row['reftable'];
+            $rows[$row['tablename']] = is_string($row['reftable']) ? [$row['reftable']] : $row['reftable'];
+            unset($rows[$key]);
+        }
+        $currentOrder = $this->orderTables($rows, $currentOrder);
+        asort($currentOrder);
+        return array_keys($currentOrder);
+    }
+
+    private function orderTables($rows, &$currentOrder)
+    {
+        $oldOrder = $currentOrder;
+        foreach ($rows as $key => $row) {
+            $currentPosition = $currentOrder[$key];
+            $newPosition = $currentPosition;
+            $minPosition = min($currentOrder);
+            if (null !== $row) {
+                $amountRefTables = count($row);
+                if (0 !== $amountRefTables) {
+                    $refOrder = [];
+                    foreach ($row as $refTable) {
+                        $refOrder[$refTable] = $currentOrder[$refTable];
+                    }
+                    $maxRefPosition = max($refOrder);
+                    if ($currentPosition !== $maxRefPosition && $currentPosition < $maxRefPosition) {
+                        $newPosition = $maxRefPosition;
+                        while (in_array($newPosition, $currentOrder, true)) {
+                            $newPosition += 100;
+                        }
+                    }
+                }
+            } else {
+                if ($currentPosition !== $minPosition) {
+                    $newPosition = $minPosition;
+                    while (in_array($newPosition, $currentOrder, true)) {
+                        $newPosition -= 100;
+                    }
+                }
+            }
+            $currentOrder[$key] = $newPosition;
+        }
+        $asortCurrentOrder = $currentOrder;
+        asort($asortCurrentOrder);
+        asort($oldOrder);
+        if (array_keys($asortCurrentOrder) === array_keys($oldOrder)) {
+            return $currentOrder;
+        } else {
+            return $this->orderTables($rows, $currentOrder);
+        }
+    }
+
+    /**
+     * @param string $tableName
+     *
+     * @return array
+     */
+    protected function getTableOptions($tableName)
+    {
+        $rows = $this->fetchAll(
+            sprintf(
+                "SELECT a.attname
+                FROM   pg_index i
+                JOIN   pg_attribute a 
+                    ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
+                WHERE  i.indrelid = '%s'::regclass
+                AND    i.indisprimary;",
+                $tableName
+            )
+        );
+        $pkFieldNames = array();
+        $isPkAutoIncrement = false;
+        foreach ($rows as $row) {
+            $pkFieldNames[] = $row['attname'];
+            $isPkAutoIncrement = true;
+        }
+
+        // new Table('user');
+        $isAutoId = count($pkFieldNames) == 1 && $pkFieldNames[0] == 'id';
+        $isNoPk = count($pkFieldNames) == 0;
+        if ($isAutoId || $isNoPk) {
+            return array();
+        }
+
+        // new Table('user', array('id'=>'user_id'));
+        if (count($pkFieldNames) == 1 && $pkFieldNames[0] != 'id' && $isPkAutoIncrement) {
+            return array('id' => $pkFieldNames[0]);
+        }
+
+        // Everything else ...
+        // new Table('user_followers', array('id'=>false, 'primary_key'=>array('user_id')));
+        // new Table('user_followers', array('id'=>false, 'primary_key'=>array('user_id', 'follower_id')));
+        return array('id' => false, 'primary_key' => $pkFieldNames);
     }
 
     /**
@@ -173,13 +305,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $this->startCommandTimer();
         $options = $table->getOptions();
 
-         // Add the default primary key
+        // Add the default primary key
         $columns = $table->getPendingColumns();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
             $column = new Column();
             $column->setName('id')
-                   ->setType('integer')
-                   ->setIdentity(true);
+                ->setType('integer')
+                ->setIdentity(true);
 
             array_unshift($columns, $column);
             $options['primary_key'] = 'id';
@@ -188,8 +320,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
             $column->setName($options['id'])
-                   ->setType('integer')
-                   ->setIdentity(true);
+                ->setType('integer')
+                ->setIdentity(true);
 
             array_unshift($columns, $column);
             $options['primary_key'] = $options['id'];
@@ -209,7 +341,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-         // set the primary key(s)
+        // set the primary key(s)
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
             $sql .= sprintf(' CONSTRAINT %s_pkey PRIMARY KEY (', $table->getName());
@@ -235,6 +367,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         // set the foreign keys
         $foreignKeys = $table->getForeignKeys();
+
         if (!empty($foreignKeys)) {
             foreach ($foreignKeys as $foreignKey) {
                 $sql .= ', ' . $this->getForeignKeySqlDefinition($foreignKey, $table->getName());
@@ -311,7 +444,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $columns = array();
         $sql = sprintf(
             "SELECT column_name, data_type, is_identity, is_nullable,
-             column_default, character_maximum_length, numeric_precision, numeric_scale
+             column_default, character_maximum_length, numeric_precision, numeric_scale, datetime_precision
              FROM information_schema.columns
              WHERE table_name ='%s'",
             $tableName
@@ -319,21 +452,40 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $columnsInfo = $this->fetchAll($sql);
 
         foreach ($columnsInfo as $columnInfo) {
+            if (null !== $columnInfo['column_default']) {
+                $columnInfo['column_default'] = substr(
+                    $columnInfo['column_default'],
+                    0,
+                    strpos($columnInfo['column_default'], '::')
+                );
+            }
+            if (in_array($columnInfo['column_default'], ['', "''", 'NULL'], true)) {
+                $columnInfo['column_default'] = null;
+            }
+            $type = $this->getPhinxType($columnInfo['data_type']);
             $column = new Column();
             $column->setName($columnInfo['column_name'])
-                   ->setType($this->getPhinxType($columnInfo['data_type']))
-                   ->setNull($columnInfo['is_nullable'] === 'YES')
-                   ->setDefault($columnInfo['column_default'])
-                   ->setIdentity($columnInfo['is_identity'] === 'YES')
-                   ->setPrecision($columnInfo['numeric_precision'])
-                   ->setScale($columnInfo['numeric_scale']);
-
+                ->setType($type)
+                ->setNull($columnInfo['is_nullable'] === 'YES')
+                ->setDefault($columnInfo['column_default'])
+                ->setIdentity($columnInfo['is_identity'] === 'YES');
+            if ($columnInfo['data_type'] === 'numeric') {
+                $column->setPrecision($columnInfo['numeric_precision'])
+                    ->setScale($columnInfo['numeric_scale']);
+            }
             if (preg_match('/\bwith time zone$/', $columnInfo['data_type'])) {
                 $column->setTimezone(true);
             }
-
+            if (null !== $columnInfo['datetime_precision'] && preg_match('/\btime/', $columnInfo['data_type'])) {
+                $column->setPrecision($columnInfo['datetime_precision']);
+            }
             if (isset($columnInfo['character_maximum_length'])) {
                 $column->setLimit($columnInfo['character_maximum_length']);
+            }
+            if (is_array($type) && $columnInfo['data_type'] === 'smallint') {
+                $column
+                    ->setLimit($type['limit'])
+                    ->setType(static::PHINX_TYPE_INTEGER);
             }
             $columns[] = $column;
         }
@@ -354,7 +506,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         );
 
         $result = $this->fetchRow($sql);
-        return  $result['count'] > 0;
+        return $result['count'] > 0;
     }
 
     /**
@@ -389,7 +541,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $columnName
         );
         $result = $this->fetchRow($sql);
-        if (!(bool) $result['column_exists']) {
+        if (!(bool)$result['column_exists']) {
             throw new \InvalidArgumentException("The specified column does not exist: $columnName");
         }
         $this->writeCommand('renameColumn', array($tableName, $columnName, $newColumnName));
@@ -447,8 +599,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     $this->getDefaultValueDefinition($newColumn->getDefault())
                 )
             );
-        }
-        else {
+        } else {
             //drop default
             $this->execute(
                 sprintf(
@@ -502,17 +653,19 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * @param string $tableName Table Name
      * @return array
      */
-    protected function getIndexes($tableName)
+    public function getIndexes($tableName)
     {
         $indexes = array();
         $sql = "SELECT
             i.relname AS index_name,
-            a.attname AS column_name
+            a.attname AS column_name,
+            pi.indexdef
         FROM
             pg_class t,
             pg_class i,
             pg_index ix,
-            pg_attribute a
+            pg_attribute a,
+            pg_indexes pi
         WHERE
             t.oid = ix.indrelid
             AND i.oid = ix.indexrelid
@@ -520,6 +673,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             AND a.attnum = ANY(ix.indkey)
             AND t.relkind = 'r'
             AND t.relname = '$tableName'
+            AND i.relname NOT LIKE '%pkey'
+            AND pi.indexname = i.relname
         ORDER BY
             t.relname,
             i.relname;";
@@ -529,6 +684,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $indexes[$row['index_name']] = array('columns' => array());
             }
             $indexes[$row['index_name']]['columns'][] = strtolower($row['column_name']);
+            $indexes[$row['index_name']]['unique'] = false !== strpos($row['indexdef'], 'UNIQUE');
         }
         return $indexes;
     }
@@ -551,19 +707,19 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         return false;
     }
 
-     /**
-      * {@inheritdoc}
-      */
-     public function hasIndexByName($tableName, $indexName)
-     {
-         $indexes = $this->getIndexes($tableName);
-         foreach ($indexes as $name => $index) {
-             if ($name === $indexName) {
-                 return true;
-             }
-         }
-         return false;
-     }
+    /**
+     * {@inheritdoc}
+     */
+    public function hasIndexByName($tableName, $indexName)
+    {
+        $indexes = $this->getIndexes($tableName);
+        foreach ($indexes as $name => $index) {
+            if ($name === $indexName) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * {@inheritdoc}
@@ -652,7 +808,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * @param string $tableName Table Name
      * @return array
      */
-    protected function getForeignKeys($tableName)
+    public function getForeignKeys($tableName)
     {
         $foreignKeys = array();
         $rows = $this->fetchAll(sprintf(
@@ -670,10 +826,17 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $tableName
         ));
         foreach ($rows as $row) {
-            $foreignKeys[$row['constraint_name']]['table'] = $row['table_name'];
-            $foreignKeys[$row['constraint_name']]['columns'][] = $row['column_name'];
-            $foreignKeys[$row['constraint_name']]['referenced_table'] = $row['referenced_table_name'];
-            $foreignKeys[$row['constraint_name']]['referenced_columns'][] = $row['referenced_column_name'];
+            $foreignKey = new ForeignKey();
+            $tableOptions = $this->getTableOptions($row['referenced_table_name']);
+            $referencedTable = new Table($row['referenced_table_name'], $tableOptions, $this);
+            $foreignKey->setConstraint($row['constraint_name'])
+                ->setReferencedTable($referencedTable)
+                ->setReferencedColumns([$row['referenced_column_name']])
+                ->setColumns($row['column_name'])
+                ->setOptions([
+                    'constraint' => $row['constraint_name']
+                ]);
+            $foreignKeys[] = $foreignKey;
         }
         return $foreignKeys;
     }
@@ -750,7 +913,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 }
                 return array('name' => $type);
             case static::PHINX_TYPE_TEXT:
-            case static::PHINX_TYPE_TIME:
             case static::PHINX_TYPE_DATE:
             case static::PHINX_TYPE_BOOLEAN:
             case static::PHINX_TYPE_JSON:
@@ -769,7 +931,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'real');
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIMESTAMP:
-                return array('name' => 'timestamp');
+                return array('name' => 'timestamp', 'precision' => 0);
+            case static::PHINX_TYPE_TIME:
+                return array('name' => $type, 'precision' => 0);
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
                 return array('name' => 'bytea');
@@ -881,7 +1045,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $sql = sprintf("SELECT count(*) FROM pg_database WHERE datname = '%s'", $databaseName);
         $result = $this->fetchRow($sql);
-        return  $result['count'] > 0;
+        return $result['count'] > 0;
     }
 
     /**
@@ -925,8 +1089,18 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if ($column->isIdentity()) {
             $buffer[] = $column->getType() == 'biginteger' ? 'BIGSERIAL' : 'SERIAL';
         } else {
+            $timeTypes = array(
+                static::PHINX_TYPE_TIME,
+                static::PHINX_TYPE_TIMESTAMP,
+            );
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
             $buffer[] = strtoupper($sqlType['name']);
+            if (null !== $column->getPrecision() && in_array($sqlType['name'], $timeTypes, true)) {
+                $buffer[] = sprintf(
+                    '(%s)',
+                    $column->getPrecision() ? $column->getPrecision() : $sqlType['precision']
+                );
+            }
             // integers cant have limits in postgres
             if (static::PHINX_TYPE_DECIMAL === $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
                 $buffer[] = sprintf(
@@ -940,10 +1114,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
 
-            $timeTypes = array(
-                'time',
-                'timestamp',
-            );
             if (in_array($sqlType['name'], $timeTypes) && $column->isTimezone()) {
                 $buffer[] = strtoupper('with time zone');
             }
@@ -969,8 +1139,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         // passing 'null' is to remove column comment
         $comment = (strcasecmp($column->getComment(), 'NULL') !== 0)
-                 ? $this->getConnection()->quote($column->getComment())
-                 : 'NULL';
+            ? $this->getConnection()->quote($column->getComment())
+            : 'NULL';
 
         return sprintf(
             'COMMENT ON COLUMN %s.%s IS %s;',
@@ -983,7 +1153,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Gets the PostgreSQL Index Definition for an Index object.
      *
-     * @param Index  $index Index
+     * @param Index $index Index
      * @param string $tableName Table name
      * @return string
      */
@@ -1012,12 +1182,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * Gets the MySQL Foreign Key Definition for an ForeignKey object.
      *
      * @param ForeignKey $foreignKey
-     * @param string     $tableName  Table name
+     * @param string $tableName Table name
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
     {
-        $constraintName = $foreignKey->getConstraint() ?: $tableName . '_' . implode('_', $foreignKey->getColumns());
+        $constraintName = $foreignKey->getConstraint() ?: $tableName . '_' . implode('_', $foreignKey->getColumns()) . '_fkey';
         $def = ' CONSTRAINT "' . $constraintName . '" FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
         $def .= " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
         if ($foreignKey->getOnDelete()) {
@@ -1178,6 +1348,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function castToBool($value)
     {
-        return (bool) $value ? 'TRUE' : 'FALSE';
+        return (bool)$value ? 'TRUE' : 'FALSE';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setForeignKeyChecks($enabled)
+    {
+        //Doesn't have a way to "SET FOREIGN_KEY_CHECKS=1" in Postgresql
     }
 }

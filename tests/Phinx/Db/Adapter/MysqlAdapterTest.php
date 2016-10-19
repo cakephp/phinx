@@ -927,6 +927,55 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($comment, $columnWithComment['column_comment'], 'Dont set column comment correctly');
     }
 
+    public function testGetTables()
+    {
+        $tableOne = new \Phinx\Db\Table('table_one', array(), $this->adapter);
+        $tableOne->addColumn('field1', 'string')->save();
+        $tableTwoOptions = array('id'=>'user_id');
+        $tableTwo = new \Phinx\Db\Table('table_two', $tableTwoOptions, $this->adapter);
+        $tableTwo->addColumn('name', 'string')
+            ->save();
+        $tableThreeOptions = array('id'=>false, 'primary_key'=>array('user_id', 'follower_id'));
+        $tableThree = new \Phinx\Db\Table('table_three', $tableThreeOptions, $this->adapter);
+        $tableThree->addColumn('user_id', 'integer')
+            ->addColumn('follower_id', 'integer')
+            ->addColumn('created', 'datetime')
+            ->save();
+        $tables = $this->adapter->getTables();
+        // 3 tables + phinxlog = 4
+        $this->assertCount(4, $tables);
+        foreach ($tables as $table) {
+            $this->assertInstanceOf('Phinx\Db\Table', $table);
+            if ($table->getName() == 'table_two') {
+                $this->assertEquals($tableTwoOptions, $table->getOptions());
+            }
+            if ($table->getName() == 'table_three') {
+                $this->assertEquals($tableThreeOptions, $table->getOptions());
+            }
+        }
+    }
+    public function testGetPhinxTypeAttribute()
+    {
+        $this->assertEquals(
+            array('name'=>'integer', 'limit'=>'3', 'precision'=> null),
+            $this->adapter->getPhinxType('int(3) unsigned')
+        );
+    }
+    public function testGetPhinxTypeWithoutLimit()
+    {
+        $this->assertEquals(
+            array('name'=>'timestamp', 'limit'=>null, 'precision'=> null),
+            $this->adapter->getPhinxType('timestamp')
+        );
+    }
+    public function testGetPhinxTypeWithPrecision()
+    {
+        $this->assertEquals(
+            array('name' => 'float', 'limit' => '5', 'precision' => '2'),
+            $this->adapter->getPhinxType('float(5,2)')
+        );
+    }
+
     public function testAddGeoSpatialColumns()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
