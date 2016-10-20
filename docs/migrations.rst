@@ -491,7 +491,7 @@ engine    set engine (defaults to InnoDB)
 For the PostgreSQL adapter:
 
 ======= ===========
-Option    Description
+Option  Description
 ======= ===========
 comment set a text comment on table
 ======= ===========
