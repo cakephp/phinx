@@ -229,6 +229,26 @@ Phinx currently supports the following database adapters natively:
 * `SQLite <http://www.sqlite.org/>`_: specify the ``sqlite`` adapter.
 * `SQL Server <http://www.microsoft.com/sqlserver>`_: specify the ``sqlsrv`` adapter.
 
+MySQL
+`````````````````
+
+The MySQL adapter supports arbitrary \PDO::MYSQL_ATTR_* driver options:
+
+.. code-block:: yaml
+
+    environments:
+        default_migration_table: phinxlog
+        default_database: development
+        production:
+            adapter: mysql
+            host: %%PHINX_DBHOST%%
+            name: %%PHINX_DBNAME%%
+            user: %%PHINX_DBUSER%%
+            pass: %%PHINX_DBPASS%%
+            port: 3306
+            charset: utf8
+            mysql_attr_use_buffered_query: false
+
 SQLite
 `````````````````
 
