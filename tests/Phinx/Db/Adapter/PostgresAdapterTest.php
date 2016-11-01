@@ -601,14 +601,22 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testDropConstraint()
     {
-        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
-        $table->addColumn('column2', 'integer')->save();
+        $table = new \Phinx\Db\Table('table', ['identity' => false], $this->adapter);
+        $table->save();
 
-        $columns = $table->getColumns();
+        $tmpSet = $this->adapter->getIndexes($table->getName());
 
-        self::assertTrue($columns[0]->getIdentity());
-        $this->adapter->dropConstraint($table->getName(), 'id');
-        self::assertFalse($columns[0]->getIdentity());
+        $constraintName = '';
+        foreach ($tmpSet as $key => $value) {
+            if (false !== strpos($key, '_pkey')) {
+                $constraintName = $key;
+                break;
+            }
+        }
+        $table->dropContraint('id', $constraintName);
+        $emptySet = $this->adapter->getIndexes($table->getName());
+
+        self::assertEmpty($emptySet);
     }
 
     public function testHasDatabase()

@@ -502,7 +502,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * @param string $tableName Table Name
      * @return array
      */
-    protected function getIndexes($tableName)
+    public function getIndexes($tableName)
     {
         $indexes = array();
         $sql = "SELECT
