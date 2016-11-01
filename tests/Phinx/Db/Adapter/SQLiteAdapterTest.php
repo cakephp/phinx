@@ -391,6 +391,21 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testDropContraint() {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table
+            ->addColumn('column1', 'string', ['null' => true, 'limit' => 255])
+            ->addColumn('column2', 'integer', ['null' => true])
+            ->save();
+
+        $table->dropContraint('id');
+
+        $columns = $this->adapter->getColumns('t');
+
+        $this->assertFalse($columns[0]->isIdentity());
+    }
+
+
     /**
      * timestamp will be transformed to datetime http://www.sqlite.org/datatype3.html
      * it still works though

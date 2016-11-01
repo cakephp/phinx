@@ -801,7 +801,7 @@ class SQLiteAdapter extends PdoAdapter
 
         // removes the two different syntax forms (id int primary key, .... ) && (id int, PRIMARY KEY (id))
         $sql = preg_replace("/([,][\s]+PRIMARY KEY[\s]*\((?:[\w `][,]?)+\)|PRIMARY KEY[\s]*[,]?)/", '', $sql);
-
+        $sql = str_ireplace('AUTOINCREMENT', '', $sql);
 
         $this->renameTable($tableName, $tmpTableName);
 

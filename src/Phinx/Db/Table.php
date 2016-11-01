@@ -540,6 +540,21 @@ class Table
         return $this;
     }
 
+
+    /**
+     * drops the primary key of a table
+     *
+     * @param $column
+     * @param null $constraint
+     * @throws \InvalidArgumentException
+     */
+    public function dropContraint($column, $constraint = null) {
+        if (!is_string($column)) {
+            throw new \InvalidArgumentException('Column parameter has to be of type string');
+        }
+        $this->getAdapter()->dropConstraint($this->getName(), $column, $constraint);
+    }
+
     /**
      * Checks to see if a foreign key exists.
      *
@@ -600,6 +615,7 @@ class Table
         $this->data[] = $data;
         return $this;
     }
+
 
     /**
      * Creates a table from the object instance.
