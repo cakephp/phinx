@@ -740,7 +740,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropConstraint($tableName, $columnName = null, $constraintName = null)
     {
+        // this is not ideal but the dropping of the key is set at least
+        $this->startCommandTimer();
+        $this->writeCommand('dropConstraint', array($tableName, $columnName));
+        // since the foreign key already contains the logic DRY
         $this->dropForeignKey($tableName, $columnName, $constraintName);
+        $this->endCommandTimer();
     }
 
 

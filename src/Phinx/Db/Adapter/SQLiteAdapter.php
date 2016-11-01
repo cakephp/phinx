@@ -361,7 +361,7 @@ class SQLiteAdapter extends PdoAdapter
         $this->execute($sql);
 
 
-        $this->duplicateTableDate($tableName, $tmpTableName, $selectColumns);
+        $this->duplicateTableData($tableName, $tmpTableName, $selectColumns);
 
         $this->dropTable($tmpTableName);
         $this->endCommandTimer();
@@ -407,7 +407,7 @@ class SQLiteAdapter extends PdoAdapter
 
         $this->execute($sql);
 
-        $this->duplicateTableDate($tableName, $tmpTableName, $selectColumns);
+        $this->duplicateTableData($tableName, $tmpTableName, $selectColumns);
         $this->dropTable($tmpTableName);
         $this->endCommandTimer();
     }
@@ -457,7 +457,7 @@ class SQLiteAdapter extends PdoAdapter
 
         $this->execute($sql);
 
-        $this->duplicateTableDate($tableName, $tmpTableName, $columns);
+        $this->duplicateTableData($tableName, $tmpTableName, $columns);
         $this->dropTable($tmpTableName);
         $this->endCommandTimer();
     }
@@ -677,7 +677,7 @@ class SQLiteAdapter extends PdoAdapter
         $sql = substr($sql, 0, -1) . ',' . $this->getForeignKeySqlDefinition($foreignKey) . ')';
         $this->execute($sql);
 
-        $this->duplicateTableDate($table->getName(), $tmpTableName, $columns);
+        $this->duplicateTableData($table->getName(), $tmpTableName, $columns);
         $this->dropTable($tmpTableName);
         $this->endCommandTimer();
     }
@@ -725,7 +725,7 @@ class SQLiteAdapter extends PdoAdapter
 
         $this->execute($sql);
 
-        $this->duplicateTableDate($tableName, $tmpTableName, $columns);
+        $this->duplicateTableData($tableName, $tmpTableName, $columns);
         $this->dropTable($tmpTableName);
         $this->endCommandTimer();
     }
@@ -737,14 +737,13 @@ class SQLiteAdapter extends PdoAdapter
      *
      * @return int
      */
-    private function duplicateTableDate($tableName, $tmpTableName, array $columns)
+    private function duplicateTableData($tableName, $tmpTableName, array $columns)
     {
         if (!is_array($columns)) {
             $columns = [$columns];
         }
 
         $colSet = implode(', ', $columns);
-
 
         return $this->execute(sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
@@ -789,22 +788,44 @@ class SQLiteAdapter extends PdoAdapter
     }
 
 
+    /**
+     * {@inheritdoc}
+     */
     public function dropConstraint($tableName, $columnName = null, $constraintName = null)
     {
-        /**
-         * CREATE TABLE child2 (
-        id INTEGER PRIMARY KEY,
-        parent_id INTEGER,
-        description TEXT
-        );
-        INSERT INTO child2 (id, parent_id, description)
-        SELECT id, parent_id, description FROM CHILD;
-        DROP TABLE child;
-        ALTER TABLE child2 RENAME TO child;
-         */
+        $this->startCommandTimer();
+        $this->writeCommand('Drop constraint', array($tableName));
+
+        $tmpTableName = $this->getTmpTableName($tableName);
+        $sql = $this->getTableSql($tableName);
+
+        // removes the two different syntax forms (id int primary key, .... ) && (id int, PRIMARY KEY (id))
+        $sql = preg_replace("/([,][\s]+PRIMARY KEY[\s]*\((?:[\w `][,]?)+\)|PRIMARY KEY[\s]*[,]?)/", '', $sql);
 
 
+        $this->renameTable($tableName, $tmpTableName);
 
+        $this->execute($sql);
+
+        $columns = $this->getColumnNames($tableName);
+
+        $this->duplicateTableData($tableName, $tmpTableName, $columns);
+        $this->dropTable($tmpTableName);
+        $this->endCommandTimer();
+    }
+
+    /**
+     * @param $tableName
+     * @return array
+     */
+    public function getColumnNames($tableName)
+    {
+        $columns = array();
+        foreach ($this->getTableInfo($tableName) as $row) {
+            $columns[] = $row['name'];
+        }
+
+        return $columns;
     }
 
 

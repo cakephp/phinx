@@ -334,7 +334,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     public function dropConstraint($tableName, $columnName = null, $constraintName = null)
     {
         $this->startCommandTimer();
-        $this->writeCommand('dropPrimaryKey', array($tableName));
+        $this->writeCommand('dropConstraint', array($tableName));
         $this->execute(sprintf('ALTER TABLE %s DROP PRIMARY KEY', $this->quoteTableName($tableName)));
         $this->endCommandTimer();
     }
