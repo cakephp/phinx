@@ -81,10 +81,15 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testPrintStatusMethod()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
-        $envStub->expects($this->once())
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock()
+        ;
+
+
+        $envStub->expects(static::once())
                 ->method('getVersionLog')
-                ->will($this->returnValue(
+                ->will(static::returnValue(
                     array (
                         '20120111235330' =>
                             array (
@@ -119,10 +124,13 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testPrintStatusMethodWithBreakpointSet()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
-        $envStub->expects($this->once())
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock()
+        ;
+        $envStub->expects(static::once())
                 ->method('getVersionLog')
-                ->will($this->returnValue(
+                ->will(static::returnValue(
                     array (
                         '20120111235330' =>
                             array (
@@ -156,7 +164,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testPrintStatusMethodWithNoMigrations()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock()
+        ;
 
         // override the migrations directory to an empty one
         $configArray = $this->getConfigArray();
@@ -177,10 +188,14 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testPrintStatusMethodWithMissingMigrations()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
-        $envStub->expects($this->once())
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock()
+        ;
+
+        $envStub->expects(static::once())
                 ->method('getVersionLog')
-                ->will($this->returnValue(
+                ->will(static::returnValue(
                     array (
                         '20120103083300' =>
                             array (
@@ -215,10 +230,14 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testPrintStatusMethodWithMissingMigrationsAndBreakpointSet()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
-        $envStub->expects($this->once())
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock()
+        ;
+
+        $envStub->expects(static::once())
                 ->method('getVersionLog')
-                ->will($this->returnValue(
+                ->will(static::returnValue(
                     array (
                         '20120103083300' =>
                             array (
@@ -254,10 +273,14 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testPrintStatusMethodWithDownMigrations()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
-        $envStub->expects($this->once())
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock()
+        ;
+
+        $envStub->expects(static::once())
                 ->method('getVersionLog')
-                ->will($this->returnValue(array(
+                ->will(static::returnValue(array(
                     '20120111235330'=> array(
                         'version' => '20120111235330',
                         'start_time' => '2012-01-16 18:35:40',
@@ -340,14 +363,18 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testMigrationsByDate(array $availableMigrations, $dateString, $expectedMigration, $message)
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock()
+        ;
+
         if (is_null($expectedMigration)) {
             $envStub->expects($this->never())
                     ->method('getVersions');
         } else {
-            $envStub->expects($this->once())
+            $envStub->expects(static::once())
                     ->method('getVersions')
-                    ->will($this->returnValue($availableMigrations));
+                    ->will(static::returnValue($availableMigrations));
         }
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->migrateToDateTime('mockenv', new \DateTime($dateString));
@@ -368,13 +395,16 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testRollbacksByDate(array $availableRollbacks, $dateString, $expectedRollback, $message)
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
-        $envStub->expects($this->any())
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock()
+        ;
+        $envStub->expects(static::any())
             ->method('getVersionLog')
-            ->will($this->returnValue($availableRollbacks));
-        $envStub->expects($this->any())
+            ->will(static::returnValue($availableRollbacks));
+        $envStub->expects(static::any())
                 ->method('getVersions')
-                ->will($this->returnValue(array_keys($availableRollbacks)));
+                ->will(static::returnValue(array_keys($availableRollbacks)));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->rollbackToDateTime('mockenv', new \DateTime($dateString));
@@ -390,15 +420,18 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testRollbackWithSingleMigrationDoesNotFail()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
-        $envStub->expects($this->any())
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock()
+        ;
+        $envStub->expects(static::any())
                 ->method('getVersionLog')
-                ->will($this->returnValue([
+                ->will(static::returnValue([
                     '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
                 ]));
-        $envStub->expects($this->any())
+        $envStub->expects(static::any())
                 ->method('getVersions')
-                ->will($this->returnValue([20120111235330]));
+                ->will(static::returnValue([20120111235330]));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->rollback('mockenv');
@@ -410,21 +443,24 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testRollbackWithTwoMigrationsDoesNotRollbackBothMigrations()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
-        $envStub->expects($this->any())
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $envStub->expects(static::any())
                 ->method('getVersionLog')
                 ->will(
-                    $this->returnValue(
+                    static::returnValue(
                         [
                             '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
                             '20120116183504' => ['version' => '20120815145812', 'migration' => '', 'breakpoint' => 0],
                         ]
                     )
                 );
-        $envStub->expects($this->any())
+        $envStub->expects(static::any())
                 ->method('getVersions')
                 ->will(
-                    $this->returnValue(
+                    static::returnValue(
                         [
                             20120111235330,
                             20120116183504,
@@ -660,7 +696,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testExecuteSeedWorksAsExpected()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock()
+        ;
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->seed('mockenv');
         rewind($this->manager->getOutput()->getStream());
@@ -673,7 +712,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testExecuteASingleSeedWorksAsExpected()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock()
+        ;
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->seed('mockenv', 'UserSeeder');
         rewind($this->manager->getOutput()->getStream());
@@ -688,7 +730,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testExecuteANonExistentSeedWorksAsExpected()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock()
+        ;
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->seed('mockenv', 'NonExistentSeeder');
         rewind($this->manager->getOutput()->getStream());

@@ -66,8 +66,21 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
-        $managerStub->expects($this->once())
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->disableOriginalConstructor()
+            ->setMethods(
+                [
+                    'setConfig',
+                    'setInput',
+                    'setOutput',
+                    'seed'
+                ]
+            )
+            ->getMock();
+        $managerStub->setConfig($this->config);
+        $managerStub->setInput($this->input);
+        $managerStub->setOutput($this->output);
+        $managerStub->expects(static::once())
                     ->method('seed')->with($this->identicalTo('development'), $this->identicalTo(null));
 
         $command->setConfig($this->config);
@@ -89,8 +102,21 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
-        $managerStub->expects($this->any())
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->disableOriginalConstructor()
+            ->setMethods(
+                [
+                    'setConfig',
+                    'setInput',
+                    'setOutput',
+                    'migrate'
+                ]
+            )
+            ->getMock();
+        $managerStub->setConfig($this->config);
+        $managerStub->setInput($this->input);
+        $managerStub->setOutput($this->output);
+        $managerStub->expects(static::any())
                     ->method('migrate');
 
         $command->setConfig($this->config);
@@ -111,8 +137,22 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
-        $managerStub->expects($this->once())
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->disableOriginalConstructor()
+            ->setMethods(
+                [
+                    'setConfig',
+                    'setInput',
+                    'setOutput',
+                    'seed'
+                ]
+            )
+            ->getMock();
+        $managerStub->setConfig($this->config);
+        $managerStub->setInput($this->input);
+        $managerStub->setOutput($this->output);
+
+        $managerStub->expects(static::once())
                     ->method('seed');
 
         $command->setConfig($this->config);
@@ -133,8 +173,22 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
-        $managerStub->expects($this->exactly(3))
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->disableOriginalConstructor()
+            ->setMethods(
+                [
+                    'setConfig',
+                    'setInput',
+                    'setOutput',
+                    'seed'
+                ]
+            )
+            ->getMock();
+        $managerStub->setConfig($this->config);
+        $managerStub->setInput($this->input);
+        $managerStub->setOutput($this->output);
+
+        $managerStub->expects(static::exactly(3))
                     ->method('seed')->withConsecutive(
                         array($this->identicalTo('development'), $this->identicalTo('One')),
                         array($this->identicalTo('development'), $this->identicalTo('Two')),

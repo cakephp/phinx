@@ -27,12 +27,14 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
 
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         // test methods
         $this->assertNull($migrationStub->getAdapter());
         $migrationStub->setAdapter($adapterStub);
-        $this->assertTrue($migrationStub->getAdapter() instanceof AdapterInterface);
+        $this->assertInstanceOf(AdapterInterface::class, $migrationStub->getAdapter());
     }
 
     public function testSetOutputMethods()
@@ -41,7 +43,9 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
 
         // stub output
-        $outputStub = $this->getMock('\Symfony\Component\Console\Output\OutputInterface', array(), array(array()));
+        $outputStub = $this->getMockBuilder('\Symfony\Component\Console\Output\OutputInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         // test methods
         $this->assertNull($migrationStub->getOutput());
@@ -52,7 +56,9 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
     public function testGetInputMethodWithInjectedInput()
     {
         // stub input
-        $inputStub = $this->getMock('\Symfony\Component\Console\Input\InputInterface', array(), array(array()));
+        $inputStub = $this->getMockBuilder('\Symfony\Component\Console\Input\InputInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0, $inputStub, null));
@@ -65,7 +71,9 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
     public function testGetOutputMethodWithInjectedOutput()
     {
         // stub output
-        $outputStub = $this->getMock('\Symfony\Component\Console\Output\OutputInterface', array(), array(array()));
+        $outputStub = $this->getMockBuilder('\Symfony\Component\Console\Output\OutputInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0, null, $outputStub));
@@ -78,7 +86,7 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
     public function testGetName()
     {
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
-        $this->assertFalse(!(strpos($migrationStub->getName(), 'AbstractMigration')));
+        $this->assertNotFalse(strpos($migrationStub->getName(), 'AbstractMigration'));
     }
 
     public function testVersionMethods()
@@ -95,10 +103,12 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
 
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
-        $adapterStub->expects($this->once())
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $adapterStub->expects(static::once())
                     ->method('execute')
-                    ->will($this->returnValue(2));
+                    ->will(static::returnValue(2));
 
         $migrationStub->setAdapter($adapterStub);
         $this->assertEquals(2, $migrationStub->execute('SELECT FOO FROM BAR'));
@@ -110,10 +120,12 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
 
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
-        $adapterStub->expects($this->once())
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $adapterStub->expects(static::once())
                     ->method('query')
-                    ->will($this->returnValue(array(array('0' => 'bar', 'foo' => 'bar'))));
+                    ->will(static::returnValue(array(array('0' => 'bar', 'foo' => 'bar'))));
 
         $migrationStub->setAdapter($adapterStub);
         $this->assertEquals(array(array('0' => 'bar', 'foo' => 'bar')), $migrationStub->query('SELECT FOO FROM BAR'));
@@ -125,10 +137,13 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
 
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
-        $adapterStub->expects($this->once())
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $adapterStub->expects(static::once())
                     ->method('fetchRow')
-                    ->will($this->returnValue(array('0' => 'bar', 'foo' => 'bar')));
+                    ->will(static::returnValue(array('0' => 'bar', 'foo' => 'bar')));
 
         $migrationStub->setAdapter($adapterStub);
         $this->assertEquals(array('0' => 'bar', 'foo' => 'bar'), $migrationStub->fetchRow('SELECT FOO FROM BAR'));
@@ -140,10 +155,13 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
 
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
-        $adapterStub->expects($this->once())
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $adapterStub->expects(static::once())
                     ->method('fetchAll')
-                    ->will($this->returnValue(array(array('0' => 'bar', 'foo' => 'bar'))));
+                    ->will(static::returnValue(array(array('0' => 'bar', 'foo' => 'bar'))));
 
         $migrationStub->setAdapter($adapterStub);
         $this->assertEquals(array(array('0' => 'bar', 'foo' => 'bar')), $migrationStub->fetchAll('SELECT FOO FROM BAR'));
@@ -155,8 +173,11 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
 
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
-        $adapterStub->expects($this->once())
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $adapterStub->expects(static::once())
                     ->method('insert');
 
         $table = new Table('testdb', [], $adapterStub);
@@ -171,10 +192,13 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
 
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
-        $adapterStub->expects($this->once())
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $adapterStub->expects(static::once())
                     ->method('createDatabase')
-                    ->will($this->returnValue(array(array('0' => 'bar', 'foo' => 'bar'))));
+                    ->will(static::returnValue(array(array('0' => 'bar', 'foo' => 'bar'))));
 
         $migrationStub->setAdapter($adapterStub);
         $migrationStub->createDatabase('testdb', array());
@@ -186,10 +210,13 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
 
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
-        $adapterStub->expects($this->once())
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $adapterStub->expects(static::once())
                     ->method('dropDatabase')
-                    ->will($this->returnValue(array(array('0' => 'bar', 'foo' => 'bar'))));
+                    ->will(static::returnValue(array(array('0' => 'bar', 'foo' => 'bar'))));
 
         $migrationStub->setAdapter($adapterStub);
         $migrationStub->dropDatabase('testdb');
@@ -201,10 +228,13 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
 
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
-        $adapterStub->expects($this->once())
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $adapterStub->expects(static::once())
                     ->method('hasTable')
-                    ->will($this->returnValue(true));
+                    ->will(static::returnValue(true));
 
         $migrationStub->setAdapter($adapterStub);
         $this->assertTrue($migrationStub->hasTable('test_table'));
@@ -216,10 +246,13 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
 
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $migrationStub->setAdapter($adapterStub);
 
-        $this->assertTrue($migrationStub->table('test_table') instanceof Table);
+        $this->assertInstanceOf(Table::class, $migrationStub->table('test_table'));
     }
 
     public function testDropTableMethod()
@@ -228,8 +261,10 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
 
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
-        $adapterStub->expects($this->once())
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $adapterStub->expects(static::once())
                     ->method('dropTable');
 
         $migrationStub->setAdapter($adapterStub);

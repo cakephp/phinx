@@ -331,6 +331,14 @@ interface AdapterInterface
     public function dropTable($tableName);
 
     /**
+     * @param $tableName
+     * @param null $columnName
+     * @param null $constraintName
+     * @return mixed
+     */
+    public function dropConstraint($tableName, $columnName = null, $constraintName = null);
+
+    /**
      * Returns table columns
      *
      * @param string $tableName Table Name
@@ -372,6 +380,7 @@ interface AdapterInterface
      * @param string $tableName  Table Name
      * @param string $columnName Column Name
      * @param Column $newColumn  New Column
+     * @throws \InvalidArgumentException
      * @return Table
      */
     public function changeColumn($tableName, $columnName, Column $newColumn);
@@ -381,6 +390,7 @@ interface AdapterInterface
      *
      * @param string $tableName Table Name
      * @param string $columnName Column Name
+     * @throws \InvalidArgumentException
      * @return void
      */
     public function dropColumn($tableName, $columnName);
@@ -455,6 +465,7 @@ interface AdapterInterface
      * @param string   $tableName
      * @param string[] $columns    Column(s)
      * @param string   $constraint Constraint name
+     * @throws \InvalidArgumentException
      * @return void
      */
     public function dropForeignKey($tableName, $columns, $constraint = null);

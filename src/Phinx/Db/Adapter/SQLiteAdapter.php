@@ -39,8 +39,10 @@ use Phinx\Db\Table\ForeignKey;
  * @author Rob Morgan <robbym@gmail.com>
  * @author Richard McIntyre <richard.mackstars@gmail.com>
  */
-class SQLiteAdapter extends PdoAdapter implements AdapterInterface
+class SQLiteAdapter extends PdoAdapter
 {
+    const TMP_PREFIX = 'tmp_';
+
     protected $definitionsWithLimits = array(
         'CHARACTER',
         'VARCHAR',
@@ -133,7 +135,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function quoteTableName($tableName)
     {
-        return str_replace('.', '`.`', $this->quoteColumnName($tableName));
+        if (!strpos($tableName, '`') !== false) {
+            $tableName = str_replace('.', '`.`', $this->quoteColumnName($tableName));
+        }
+        return $tableName;
     }
 
     /**
@@ -141,7 +146,11 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function quoteColumnName($columnName)
     {
-        return '`' . str_replace('`', '``', $columnName) . '`';
+        if (!strpos($columnName, '`') !== false) {
+            $columnName = '`' . str_replace('`', '``', $columnName) . '`';
+        }
+
+        return $columnName;
     }
 
     /**
@@ -155,7 +164,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $tables[] = strtolower($row[0]);
         }
 
-        return in_array(strtolower($tableName), $tables);
+        return in_array(strtolower($tableName), $tables, false);
     }
 
     /**
@@ -264,7 +273,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     public function getColumns($tableName)
     {
         $columns = array();
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
+        $rows = $this->getTableInfo($tableName);
 
         foreach ($rows as $columnInfo) {
             $column = new Column();
@@ -292,7 +301,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasColumn($tableName, $columnName)
     {
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
+        $rows = $this->getTableInfo($tableName);
         foreach ($rows as $column) {
             if (strcasecmp($column['name'], $columnName) === 0) {
                 return true;
@@ -326,34 +335,23 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameColumn($tableName, $columnName, $newColumnName)
     {
-        $tmpTableName = 'tmp_' . $tableName;
+        $tmpTableName = $this->getTmpTableName($tableName);
+        $sql = $this->getTableSql($tableName);
+        $columns = $this->getTableInfo($tableName);
 
-        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
-
-        $sql = '';
-        foreach ($rows as $table) {
-            if ($table['tbl_name'] === $tableName) {
-                $sql = $table['sql'];
-            }
-        }
-
-        $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
-        $selectColumns = array();
-        $writeColumns = array();
+        $selectColumns = [];
         foreach ($columns as $column) {
             $selectName = $column['name'];
-            $writeName = ($selectName == $columnName)? $newColumnName : $selectName;
             $selectColumns[] = $this->quoteColumnName($selectName);
-            $writeColumns[] = $this->quoteColumnName($writeName);
         }
 
-        if (!in_array($this->quoteColumnName($columnName), $selectColumns)) {
+        if (!in_array($this->quoteColumnName($columnName), $selectColumns, false)) {
             throw new \InvalidArgumentException(sprintf(
                 'The specified column doesn\'t exist: ' . $columnName
             ));
         }
 
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
+        $this->renameTable($tableName, $tmpTableName);
 
         $sql = str_replace(
             $this->quoteColumnName($columnName),
@@ -363,17 +361,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->execute($sql);
 
 
-        $sql = sprintf(
-            'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $tableName,
-            implode(', ', $writeColumns),
-            implode(', ', $selectColumns),
-            $tmpTableName
-        );
+        $this->duplicateTableDate($tableName, $tmpTableName, $selectColumns);
 
-        $this->execute($sql);
-
-        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
+        $this->dropTable($tmpTableName);
         $this->endCommandTimer();
     }
 
@@ -388,34 +378,25 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->startCommandTimer();
         $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
 
-        $tmpTableName = 'tmp_' . $tableName;
+        $tmpTableName = $this->getTmpTableName($tableName);
 
-        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
+        $sql = $this->getTableSql($tableName);
 
-        $sql = '';
-        foreach ($rows as $table) {
-            if ($table['tbl_name'] === $tableName) {
-                $sql = $table['sql'];
-            }
-        }
-
-        $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
+        $columns = $this->getTableInfo($tableName);
         $selectColumns = array();
-        $writeColumns = array();
+
         foreach ($columns as $column) {
             $selectName = $column['name'];
-            $writeName = ($selectName === $columnName)? $newColumn->getName() : $selectName;
             $selectColumns[] = $this->quoteColumnName($selectName);
-            $writeColumns[] = $this->quoteColumnName($writeName);
         }
 
-        if (!in_array($this->quoteColumnName($columnName), $selectColumns)) {
+        if (!in_array($this->quoteColumnName($columnName), $selectColumns, false)) {
             throw new \InvalidArgumentException(sprintf(
                 'The specified column doesn\'t exist: ' . $columnName
             ));
         }
 
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
+        $this->renameTable($tableName, $tmpTableName);
 
         $sql = preg_replace(
             sprintf("/%s[^,]+([,)])/", $this->quoteColumnName($columnName)),
@@ -426,16 +407,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $this->execute($sql);
 
-        $sql = sprintf(
-            'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $tableName,
-            implode(', ', $writeColumns),
-            implode(', ', $selectColumns),
-            $tmpTableName
-        );
-
-        $this->execute($sql);
-        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
+        $this->duplicateTableDate($tableName, $tmpTableName, $selectColumns);
+        $this->dropTable($tmpTableName);
         $this->endCommandTimer();
     }
 
@@ -449,18 +422,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->startCommandTimer();
         $this->writeCommand('dropColumn', array($tableName, $columnName));
 
-        $tmpTableName = 'tmp_' . $tableName;
+        $tmpTableName = $this->getTmpTableName($tableName);
+        $sql = $this->getTableSql($tableName);
+        $rows = $this->getTableInfo($tableName);
 
-        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
-
-        $sql = '';
-        foreach ($rows as $table) {
-            if ($table['tbl_name'] === $tableName) {
-                $sql = $table['sql'];
-            }
-        }
-
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
         $columns = array();
         $columnType = null;
         foreach ($rows as $row) {
@@ -478,7 +443,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             ));
         }
 
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
+        $this->renameTable($tableName, $tmpTableName);
 
         $sql = preg_replace(
             sprintf("/%s\s%s[^,)]*(,\s|\))/", preg_quote($this->quoteColumnName($columnName)), preg_quote($columnType)),
@@ -492,16 +457,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $this->execute($sql);
 
-        $sql = sprintf(
-            'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $tableName,
-            implode(', ', $columns),
-            implode(', ', $columns),
-            $tmpTableName
-        );
-
-        $this->execute($sql);
-        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
+        $this->duplicateTableDate($tableName, $tmpTableName, $columns);
+        $this->dropTable($tmpTableName);
         $this->endCommandTimer();
     }
 
@@ -685,7 +642,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         foreach ($rows as $row) {
             if ($row['tbl_name'] === $tableName) {
-
                 if (strpos($row['sql'], 'REFERENCES') !== false) {
                     preg_match_all("/\(`([^`]*)`\) REFERENCES/", $row['sql'], $matches);
                     foreach ($matches[1] as $match) {
@@ -707,37 +663,22 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->writeCommand('addForeignKey', array($table->getName(), $foreignKey->getColumns()));
         $this->execute('pragma foreign_keys = ON');
 
-        $tmpTableName = 'tmp_' . $table->getName();
-        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
+        $tmpTableName = $this->getTmpTableName($table->getName());
+        $sql = $this->getTableSql($table->getName());
+        $rows = $this->getTableInfo($table->getName());
 
-        $sql = '';
-        foreach ($rows as $row) {
-            if ($row['tbl_name'] === $table->getName()) {
-                $sql = $row['sql'];
-            }
-        }
-
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($table->getName())));
         $columns = array();
         foreach ($rows as $column) {
             $columns[] = $this->quoteColumnName($column['name']);
         }
 
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($table->getName()), $tmpTableName));
+        $this->renameTable($table->getName(), $tmpTableName);
 
         $sql = substr($sql, 0, -1) . ',' . $this->getForeignKeySqlDefinition($foreignKey) . ')';
         $this->execute($sql);
 
-        $sql = sprintf(
-            'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $this->quoteTableName($table->getName()),
-            implode(', ', $columns),
-            implode(', ', $columns),
-            $this->quoteTableName($tmpTableName)
-        );
-
-        $this->execute($sql);
-        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
+        $this->duplicateTableDate($table->getName(), $tmpTableName, $columns);
+        $this->dropTable($tmpTableName);
         $this->endCommandTimer();
     }
 
@@ -755,24 +696,14 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $this->writeCommand('dropForeignKey', array($tableName, $columns));
 
-        $tmpTableName = 'tmp_' . $tableName;
+        $tmpTableName = $this->getTmpTableName($tableName);
+        $sql = $this->getTableSql($tableName);
+        $rows = $this->getTableInfo($tableName);
 
-        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
-
-        $sql = '';
-        foreach ($rows as $table) {
-            if ($table['tbl_name'] === $tableName) {
-                $sql = $table['sql'];
-            }
-        }
-
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
-        $replaceColumns = array();
         foreach ($rows as $row) {
-            if (!in_array($row['name'], $columns)) {
-                $replaceColumns[] = $row['name'];
-            } else {
+            if (in_array($row['name'], $columns, false)) {
                 $found = true;
+                break;
             }
         }
 
@@ -782,7 +713,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             ));
         }
 
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($tableName), $tmpTableName));
+        $this->renameTable($tableName, $tmpTableName);
 
         foreach ($columns as $columnName) {
             $search = sprintf(
@@ -794,18 +725,88 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $this->execute($sql);
 
-        $sql = sprintf(
-            'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $tableName,
-            implode(', ', $columns),
-            implode(', ', $columns),
-            $tmpTableName
-        );
-
-        $this->execute($sql);
-        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
+        $this->duplicateTableDate($tableName, $tmpTableName, $columns);
+        $this->dropTable($tmpTableName);
         $this->endCommandTimer();
     }
+
+    /**
+     * @param string $tableName
+     * @param string $tmpTableName
+     * @param array $columns
+     *
+     * @return int
+     */
+    private function duplicateTableDate($tableName, $tmpTableName, array $columns)
+    {
+        if (!is_array($columns)) {
+            $columns = [$columns];
+        }
+
+        $colSet = implode(', ', $columns);
+
+
+        return $this->execute(sprintf(
+            'INSERT INTO %s(%s) SELECT %s FROM %s',
+            $this->quoteTableName($tableName),
+            $colSet,
+            $colSet,
+            $this->quoteTableName($tmpTableName)
+        ));
+    }
+
+    /**
+     * @param $tableName
+     * @return string
+     */
+    private function getTableSql($tableName)
+    {
+        $rows = $this->fetchAll('SELECT * FROM sqlite_master WHERE `type` = \'table\'');
+
+        foreach ($rows as $table) {
+            if ($table['tbl_name'] === $tableName) {
+                return $table['sql'];
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @param string $tableName
+     * @return array
+     */
+    private function getTableInfo($tableName) {
+        return $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
+    }
+
+    /**
+     * @param string $tableName
+     * @return string
+     */
+    private function getTmpTableName($tableName) {
+        return self::TMP_PREFIX . (string) $tableName;
+    }
+
+
+    public function dropConstraint($tableName, $columnName = null, $constraintName = null)
+    {
+        /**
+         * CREATE TABLE child2 (
+        id INTEGER PRIMARY KEY,
+        parent_id INTEGER,
+        description TEXT
+        );
+        INSERT INTO child2 (id, parent_id, description)
+        SELECT id, parent_id, description FROM CHILD;
+        DROP TABLE child;
+        ALTER TABLE child2 RENAME TO child;
+         */
+
+
+
+    }
+
 
     /**
      * {@inheritdoc}
@@ -816,20 +817,20 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->writeCommand('insert', array($table->getName()));
 
         $sql = sprintf(
-            "INSERT INTO %s ",
+            'INSERT INTO %s ',
             $this->quoteTableName($table->getName())
         );
 
         $columns = array_keys($row);
-        $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
-        $sql .= " VALUES ";
+        $sql .= '(' . implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ')';
+        $sql .= ' VALUES ';
 
-        $sql .= "(" . implode(', ', array_map(function ($value) {
+        $sql .= '(' . implode(', ', array_map(function ($value) {
                 if (is_numeric($value)) {
                     return $value;
                 }
                 return "'{$value}'";
-            }, $row)) . ")";
+            }, $row)) . ')';
 
         $this->execute($sql);
         $this->endCommandTimer();

@@ -331,6 +331,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function dropConstraint($tableName, $columnName = null, $constraintName = null)
+    {
+        $this->startCommandTimer();
+        $this->writeCommand('dropPrimaryKey', array($tableName));
+        $this->execute(sprintf('ALTER TABLE %s DROP PRIMARY KEY', $this->quoteTableName($tableName)));
+        $this->endCommandTimer();
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
     public function getColumns($tableName)
     {
         $columns = array();
@@ -627,7 +639,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             return false;
         } else {
             foreach ($foreignKeys as $key) {
-                $a = array_diff($columns, $key['columns']);
                 if ($columns == $key['columns']) {
                     return true;
                 }
@@ -848,7 +859,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'set');
                 break;
             case static::TYPE_YEAR:
-                if (!$limit || in_array($limit, array(2, 4)))
+                if (!$limit || in_array($limit, array(2, 4), false))
                     $limit = 4;
                 return array('name' => 'year', 'limit' => $limit);
                 break;

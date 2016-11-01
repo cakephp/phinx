@@ -738,6 +738,15 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function dropConstraint($tableName, $columnName = null, $constraintName = null)
+    {
+        $this->dropForeignKey($tableName, $columnName, $constraintName);
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
     public function getSqlType($type, $limit = null)
     {
         switch ($type) {

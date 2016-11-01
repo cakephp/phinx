@@ -38,7 +38,7 @@ use Phinx\Db\Table\ForeignKey;
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-class SqlServerAdapter extends PdoAdapter implements AdapterInterface
+class SqlServerAdapter extends PdoAdapter
 {
     protected $schema = 'dbo';
 
@@ -881,6 +881,14 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * {@inheritdoc}
      */
+    public function dropConstraint($tableName, $columnName = null, $constraintName = null) {
+        $this->dropForeignKey($tableName, $columnName, $constraintName);
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
     public function getSqlType($type, $limit = null)
     {
         switch ($type) {
@@ -943,7 +951,7 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * Returns Phinx type by SQL type
      *
-     * @param $sqlTypeDef
+     * @param $sqlType
      * @throws \RuntimeException
      * @internal param string $sqlType SQL type
      * @returns string Phinx type
