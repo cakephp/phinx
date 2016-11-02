@@ -508,12 +508,11 @@ abstract class PdoAdapter implements AdapterInterface
 
             $table = new Table($this->getSchemaTableName(), $options, $this);
 
-            if ($this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'mysql'
-                && version_compare($this->getConnection()->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.0', '>=')) {
+            if ($this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'mysql') {
                 $table->addColumn('version', 'biginteger', array('limit' => 14))
                       ->addColumn('migration_name', 'string', array('limit' => 100, 'default' => null, 'null' => true))
-                      ->addColumn('start_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
-                      ->addColumn('end_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
+                      ->addColumn('start_time', 'timestamp', array('default' => null, 'null' => true))
+                      ->addColumn('end_time', 'timestamp', array('default' => null, 'null' => true))
                       ->addColumn('breakpoint', 'boolean', array('default' => false))
                       ->save();
             } else {
