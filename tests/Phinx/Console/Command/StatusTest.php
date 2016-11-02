@@ -80,9 +80,9 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $managerStub->setInput($this->input);
         $managerStub->setOutput($this->output);
 
-        $managerStub->expects(static::once())
+        $managerStub->expects($this->once())
                     ->method('printStatus')
-                    ->will(static::returnValue(0));
+                    ->will($this->returnValue(0));
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -118,9 +118,9 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $managerStub->setConfig($this->config);
         $managerStub->setInput($this->input);
         $managerStub->setOutput($this->output);
-        $managerStub->expects(static::once())
+        $managerStub->expects($this->once())
                     ->method('printStatus')
-                    ->will(static::returnValue(0));
+                    ->will($this->returnValue(0));
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -156,9 +156,9 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $managerStub->setInput($this->input);
         $managerStub->setOutput($this->output);
 
-        $managerStub->expects(static::once())
+        $managerStub->expects($this->once())
                     ->method('printStatus')
-                    ->will(static::returnValue(0));
+                    ->will($this->returnValue(0));
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);

@@ -115,7 +115,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     public function testSchemaTableIsCreatedWithPrimaryKey()
     {
         $this->adapter->connect();
-        $table = new \Phinx\Db\Table($this->adapter->getSchemaTableName(), array(), $this->adapter);
+        new \Phinx\Db\Table($this->adapter->getSchemaTableName(), array(), $this->adapter);
         $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), array('version')));
     }
 
@@ -127,8 +127,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testQuoteTableName()
     {
-        $this->assertEquals('"public"."table"', $this->adapter->quoteTableName('table'));
-        $this->assertEquals('"public"."table.table"', $this->adapter->quoteTableName('table.table'));
+        $this->assertEquals('"'.TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE.'"."table"', $this->adapter->quoteTableName('table'));
+        $this->assertEquals('"'.TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE.'"."table.table"', $this->adapter->quoteTableName('table.table'));
     }
 
     public function testQuoteColumnName()
@@ -616,7 +616,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $table->dropContraint('id', $constraintName);
         $emptySet = $this->adapter->getIndexes($table->getName());
 
-        self::assertEmpty($emptySet);
+        $this->assertEmpty($emptySet);
     }
 
     public function testHasDatabase()

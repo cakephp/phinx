@@ -31,13 +31,13 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         $this->mock
-            ->expects(static::any())
+            ->expects($this->any())
             ->method('getOption')
             ->with($this->logicalOr(
                 $this->equalTo('table_prefix'),
                 $this->equalTo('table_suffix')
             ))
-            ->will(static::returnCallback(function ($option) use ($options) {
+            ->will($this->returnCallback(function ($option) use ($options) {
                 return $options[$option];
             }));
 
@@ -58,7 +58,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
     public function testHasTable()
     {
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('hasTable')
             ->with($this->equalTo('pre_table_suf'));
 
@@ -70,7 +70,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new Table('table');
 
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createTable')
             ->with($this->callback(
                 function ($table) {
@@ -84,7 +84,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
     public function testRenameTable()
     {
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('renameTable')
             ->with(
                 $this->equalTo('pre_old_suf'),
@@ -97,7 +97,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
     public function testDropTable()
     {
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dropTable')
             ->with($this->equalTo('pre_table_suf'));
 
@@ -107,7 +107,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
     public function testGetColumns()
     {
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getColumns')
             ->with($this->equalTo('pre_table_suf'));
 
@@ -117,7 +117,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
     public function testHasColumn()
     {
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('hasColumn')
             ->with(
                 $this->equalTo('pre_table_suf'),
@@ -133,7 +133,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
         $column = new Column();
 
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('addColumn')
             ->with($this->callback(
                 function ($table) {
@@ -148,7 +148,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
     public function testRenameColumn()
     {
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('renameColumn')
             ->with(
                 $this->equalTo('pre_table_suf'),
@@ -164,7 +164,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
         $newColumn = new Column();
 
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('changeColumn')
             ->with(
                 $this->equalTo('pre_table_suf'),
@@ -178,7 +178,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
     public function testDropColumn()
     {
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dropColumn')
             ->with(
                 $this->equalTo('pre_table_suf'),
@@ -193,7 +193,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
         $columns = array();
 
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('hasIndex')
             ->with(
                 $this->equalTo('pre_table_suf'),
@@ -209,7 +209,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
         $options = null;
 
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dropIndex')
             ->with(
                 $this->equalTo('pre_table_suf'),
@@ -223,7 +223,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
     public function testDropIndexByName()
     {
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dropIndexByName')
             ->with(
                 $this->equalTo('pre_table_suf'),
@@ -239,7 +239,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
         $constraint = null;
 
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('hasForeignKey')
             ->with(
                 $this->equalTo('pre_table_suf'),
@@ -256,7 +256,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
         $foreignKey = new ForeignKey();
 
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('addForeignKey')
             ->with($this->callback(
                 function ($table) {
@@ -274,7 +274,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
         $constraint = null;
 
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dropForeignKey')
             ->with(
                 $this->equalTo('pre_table_suf'),
@@ -288,14 +288,14 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
     public function testAddTableWithForeignKey()
     {
         $this->mock
-            ->expects(static::any())
+            ->expects($this->any())
             ->method('isValidColumnType')
             ->with($this->callback(
                 function ($column) {
                     return in_array($column->getType(), array('string', 'integer'));
                 }
             ))
-            ->will(static::returnValue(true));
+            ->will($this->returnValue(true));
 
         $table = new Table('table', array(), $this->adapter);
         $table
@@ -304,7 +304,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
             ->addForeignKey('relation', 'target_table', array('id'));
 
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createTable')
             ->with($this->callback(
                 function ($table) {
@@ -341,7 +341,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
         $row = array('column1' => 'value3');
         
         $this->mock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('insert')
             ->with($this->callback(
                 function ($table) {

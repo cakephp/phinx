@@ -39,7 +39,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testConnection()
     {
-        self::assertInstanceOf(\PDO::class, $this->adapter->getConnection());
+        $this->assertInstanceOf(\PDO::class, $this->adapter->getConnection());
     }
 
     public function testBeginTransaction()
@@ -416,7 +416,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $table->save();
 
         $columns = $this->adapter->getColumns('t');
-        self::assertEquals('datetime', $columns[1]->getType());
+        $this->assertEquals('datetime', $columns[1]->getType());
     }
 
     public function testAddIndex()

@@ -79,7 +79,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $managerStub->setConfig($this->config);
         $managerStub->setInput($this->input);
         $managerStub->setOutput($this->output);
-        $managerStub->expects(static::once())
+        $managerStub->expects($this->once())
                     ->method('migrate');
 
         $command->setConfig($this->config);
@@ -116,7 +116,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $managerStub->setConfig($this->config);
         $managerStub->setInput($this->input);
         $managerStub->setOutput($this->output);
-        $managerStub->expects(static::any())
+        $managerStub->expects($this->any())
                     ->method('migrate');
 
         $command->setConfig($this->config);
@@ -154,7 +154,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $managerStub->setInput($this->input);
         $managerStub->setOutput($this->output);
 
-        $managerStub->expects(static::once())
+        $managerStub->expects($this->once())
                     ->method('migrate');
 
         $command->setConfig($this->config);

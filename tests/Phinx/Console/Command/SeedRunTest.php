@@ -80,7 +80,7 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $managerStub->setConfig($this->config);
         $managerStub->setInput($this->input);
         $managerStub->setOutput($this->output);
-        $managerStub->expects(static::once())
+        $managerStub->expects($this->once())
                     ->method('seed')->with($this->identicalTo('development'), $this->identicalTo(null));
 
         $command->setConfig($this->config);
@@ -116,7 +116,7 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $managerStub->setConfig($this->config);
         $managerStub->setInput($this->input);
         $managerStub->setOutput($this->output);
-        $managerStub->expects(static::any())
+        $managerStub->expects($this->any())
                     ->method('migrate');
 
         $command->setConfig($this->config);
@@ -152,7 +152,7 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $managerStub->setInput($this->input);
         $managerStub->setOutput($this->output);
 
-        $managerStub->expects(static::once())
+        $managerStub->expects($this->once())
                     ->method('seed');
 
         $command->setConfig($this->config);
@@ -188,7 +188,7 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $managerStub->setInput($this->input);
         $managerStub->setOutput($this->output);
 
-        $managerStub->expects(static::exactly(3))
+        $managerStub->expects($this->exactly(3))
                     ->method('seed')->withConsecutive(
                         array($this->identicalTo('development'), $this->identicalTo('One')),
                         array($this->identicalTo('development'), $this->identicalTo('Two')),

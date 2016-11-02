@@ -79,7 +79,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $managerStub->setConfig($this->config);
         $managerStub->setInput($this->input);
         $managerStub->setOutput($this->output);
-        $managerStub->expects(static::once())
+        $managerStub->expects($this->once())
                     ->method('rollback');
 
         $command->setConfig($this->config);
@@ -115,7 +115,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $managerStub->setConfig($this->config);
         $managerStub->setInput($this->input);
         $managerStub->setOutput($this->output);
-        $managerStub->expects(static::once())
+        $managerStub->expects($this->once())
                     ->method('rollback');
 
         $command->setConfig($this->config);
@@ -150,7 +150,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $managerStub->setInput($this->input);
         $managerStub->setOutput($this->output);
 
-        $managerStub->expects(static::once())
+        $managerStub->expects($this->once())
                     ->method('rollback');
 
         $command->setConfig($this->config);

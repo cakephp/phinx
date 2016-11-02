@@ -87,26 +87,26 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
     // helper methods for easy mocking
     private function assertExecuteSql($expected_sql)
     {
-        $this->conn->expects(static::once())
+        $this->conn->expects($this->once())
                    ->method('exec')
                    ->with($this->equalTo($expected_sql));
     }
 
     private function assertQuerySql($expectedSql, $returnValue = null)
     {
-        $expect = $this->conn->expects(static::once())
+        $expect = $this->conn->expects($this->once())
                        ->method('query')
                        ->with($this->equalTo($expectedSql));
         if (!is_null($returnValue)) {
-            $expect->will(static::returnValue($returnValue));
+            $expect->will($this->returnValue($returnValue));
         }
     }
 
     private function assertFetchRowSql($expectedSql, $returnValue)
     {
-        $this->result->expects(static::once())
+        $this->result->expects($this->once())
                      ->method('fetch')
-                     ->will(static::returnValue($returnValue));
+                     ->will($this->returnValue($returnValue));
         $this->assertQuerySql($expectedSql, $this->result);
     }
 
@@ -123,12 +123,12 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testHasDatabaseExists()
     {
-        $this->result->expects(static::at(0))
+        $this->result->expects($this->at(0))
                      ->method('fetch')
-                     ->will(static::returnValue(array('SCHEMA_NAME' => 'database_name')));
-        $this->result->expects(static::at(1))
+                     ->will($this->returnValue(array('SCHEMA_NAME' => 'database_name')));
+        $this->result->expects($this->at(1))
                      ->method('fetch')
-                     ->will(static::returnValue(null));
+                     ->will($this->returnValue(null));
 
         $this->assertQuerySql("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'database_name'", $this->result);
 
@@ -137,9 +137,9 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testHasDatabaseNotExists()
     {
-        $this->result->expects(static::once())
+        $this->result->expects($this->once())
                      ->method('fetch')
-                     ->will(static::returnValue(null));
+                     ->will($this->returnValue(null));
 
         $this->assertQuerySql("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'database_name2'", $this->result);
 
@@ -229,9 +229,9 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
     public function testHasTableExists()
     {
         $this->adapter->setOptions(array('name'=>'database_name'));
-        $this->result->expects(static::once())
+        $this->result->expects($this->once())
                      ->method('fetch')
-                     ->will(static::returnValue(array('somecontent')));
+                     ->will($this->returnValue(array('somecontent')));
         $expectedSql = 'SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
             WHERE TABLE_SCHEMA = \'database_name\' AND TABLE_NAME = \'table_name\'';
@@ -242,9 +242,9 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
     public function testHasTableNotExists()
     {
         $this->adapter->setOptions(array('name'=>'database_name'));
-        $this->result->expects(static::once())
+        $this->result->expects($this->once())
                      ->method('fetch')
-                     ->will(static::returnValue(array()));
+                     ->will($this->returnValue(array()));
         $expectedSql = 'SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
             WHERE TABLE_SCHEMA = \'database_name\' AND TABLE_NAME = \'table_name\'';
@@ -259,31 +259,31 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit', 'setLimit'))
                       ->getMock();
 
-        $column1->expects(static::any())->method('getName')->will(static::returnValue('column_name'));
-        $column1->expects(static::any())->method('getType')->will(static::returnValue('string'));
-        $column1->expects(static::any())->method('getAfter')->will(static::returnValue(null));
-        $column1->expects(static::at(0))->method('getLimit')->will(static::returnValue('64'));
+        $column1->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column1->expects($this->any())->method('getType')->will($this->returnValue('string'));
+        $column1->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column1->expects($this->at(0))->method('getLimit')->will($this->returnValue('64'));
 
         $column2 = $this->getMockBuilder('Phinx\Db\Table\Column')
                       ->disableOriginalConstructor()
                       ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit', 'setLimit'))
                       ->getMock();
 
-        $column2->expects(static::any())->method('getName')->will(static::returnValue('column_name2'));
-        $column2->expects(static::any())->method('getType')->will(static::returnValue('integer'));
-        $column2->expects(static::any())->method('getAfter')->will(static::returnValue(null));
-        $column2->expects(static::at(0))->method('getLimit')->will(static::returnValue('4'));
+        $column2->expects($this->any())->method('getName')->will($this->returnValue('column_name2'));
+        $column2->expects($this->any())->method('getType')->will($this->returnValue('integer'));
+        $column2->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column2->expects($this->at(0))->method('getLimit')->will($this->returnValue('4'));
 
         $table = $this->getMockBuilder('Phinx\Db\Table')
                       ->disableOriginalConstructor()
                       ->setMethods(array('getName', 'getOptions', 'getPendingColumns', 'getIndexes', 'getForeignKeys'))
                       ->getMock();
 
-        $table->expects(static::any())->method('getPendingColumns')->will(static::returnValue(array($column1,$column2)));
-        $table->expects(static::any())->method('getName')->will(static::returnValue('table_name'));
-        $table->expects(static::any())->method('getOptions')->will(static::returnValue(array()));
-        $table->expects(static::any())->method('getIndexes')->will(static::returnValue(array()));
-        $table->expects(static::any())->method('getForeignKeys')->will(static::returnValue(array()));
+        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue(array($column1,$column2)));
+        $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
+        $table->expects($this->any())->method('getOptions')->will($this->returnValue(array()));
+        $table->expects($this->any())->method('getIndexes')->will($this->returnValue(array()));
+        $table->expects($this->any())->method('getForeignKeys')->will($this->returnValue(array()));
 
         $expectedSql = 'CREATE TABLE `table_name` (`id` INT(11) NOT NULL AUTO_INCREMENT, `column_name` VARCHAR(255) NOT NULL, `column_name2` INT(11) NOT NULL, PRIMARY KEY (`id`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;';
         $this->assertExecuteSql($expectedSql);
@@ -297,20 +297,20 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit', 'setLimit'))
                       ->getMock();
 
-        $column1->expects(static::any())->method('getName')->will(static::returnValue('column_name'));
-        $column1->expects(static::any())->method('getType')->will(static::returnValue('string'));
-        $column1->expects(static::any())->method('getAfter')->will(static::returnValue(null));
-        $column1->expects(static::at(0))->method('getLimit')->will(static::returnValue('64'));
+        $column1->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column1->expects($this->any())->method('getType')->will($this->returnValue('string'));
+        $column1->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column1->expects($this->at(0))->method('getLimit')->will($this->returnValue('64'));
 
         $column2 = $this->getMockBuilder('Phinx\Db\Table\Column')
                       ->disableOriginalConstructor()
                       ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit', 'setLimit'))
                       ->getMock();
 
-        $column2->expects(static::any())->method('getName')->will(static::returnValue('column_name2'));
-        $column2->expects(static::any())->method('getType')->will(static::returnValue('integer'));
-        $column2->expects(static::any())->method('getAfter')->will(static::returnValue(null));
-        $column2->expects(static::at(0))->method('getLimit')->will(static::returnValue('4'));
+        $column2->expects($this->any())->method('getName')->will($this->returnValue('column_name2'));
+        $column2->expects($this->any())->method('getType')->will($this->returnValue('integer'));
+        $column2->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column2->expects($this->at(0))->method('getLimit')->will($this->returnValue('4'));
 
         $table = $this->getMockBuilder('Phinx\Db\Table')
                       ->disableOriginalConstructor()
@@ -318,11 +318,11 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->getMock();
 
         $tableOptions = array('id' => 'column_name2');
-        $table->expects(static::any())->method('getPendingColumns')->will(static::returnValue(array($column1,$column2)));
-        $table->expects(static::any())->method('getName')->will(static::returnValue('table_name'));
-        $table->expects(static::any())->method('getOptions')->will(static::returnValue($tableOptions));
-        $table->expects(static::any())->method('getIndexes')->will(static::returnValue(array()));
-        $table->expects(static::any())->method('getForeignKeys')->will(static::returnValue(array()));
+        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue(array($column1,$column2)));
+        $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
+        $table->expects($this->any())->method('getOptions')->will($this->returnValue($tableOptions));
+        $table->expects($this->any())->method('getIndexes')->will($this->returnValue(array()));
+        $table->expects($this->any())->method('getForeignKeys')->will($this->returnValue(array()));
 
         $expectedSql = 'CREATE TABLE `table_name` (`column_name2` INT(11) NOT NULL AUTO_INCREMENT, `column_name` VARCHAR(255) NOT NULL, `column_name2` INT(11) NOT NULL, PRIMARY KEY (`column_name2`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;';
         $this->assertExecuteSql($expectedSql);
@@ -336,7 +336,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->disableOriginalConstructor()
                       ->setMethods(array('getName', 'getOptions', 'getPendingColumns', 'getIndexes', 'getForeignKeys'))
                       ->getMock();
-        $refTable->expects(static::any())->method('getName')->will(static::returnValue('other_table'));
+        $refTable->expects($this->any())->method('getName')->will($this->returnValue('other_table'));
 
 
         $table = $this->getMockBuilder('Phinx\Db\Table')
@@ -349,44 +349,44 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                               'id' => array('ref_id','other_table_id'),
                               'primary_key' => array('ref_id','other_table_id'),
                               'comment' => "Table Comment");
-        $this->conn->expects(static::any())->method('quote')->with('Table Comment')->will(static::returnValue('`Table Comment`'));
+        $this->conn->expects($this->any())->method('quote')->with('Table Comment')->will($this->returnValue('`Table Comment`'));
 
         $column1 = $this->getMockBuilder('Phinx\Db\Table\Column')
                       ->disableOriginalConstructor()
                       ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit', 'setLimit'))
                       ->getMock();
 
-        $column1->expects(static::any())->method('getName')->will(static::returnValue('column_name'));
-        $column1->expects(static::any())->method('getType')->will(static::returnValue('string'));
-        $column1->expects(static::any())->method('getAfter')->will(static::returnValue(null));
-        $column1->expects(static::at(0))->method('getLimit')->will(static::returnValue('64'));
+        $column1->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column1->expects($this->any())->method('getType')->will($this->returnValue('string'));
+        $column1->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column1->expects($this->at(0))->method('getLimit')->will($this->returnValue('64'));
 
         $column2 = $this->getMockBuilder('Phinx\Db\Table\Column')
                       ->disableOriginalConstructor()
                       ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit', 'setLimit'))
                       ->getMock();
 
-        $column2->expects(static::any())->method('getName')->will(static::returnValue('other_table_id'));
-        $column2->expects(static::any())->method('getType')->will(static::returnValue('integer'));
-        $column2->expects(static::any())->method('getAfter')->will(static::returnValue(null));
-        $column2->expects(static::at(0))->method('getLimit')->will(static::returnValue('4'));
+        $column2->expects($this->any())->method('getName')->will($this->returnValue('other_table_id'));
+        $column2->expects($this->any())->method('getType')->will($this->returnValue('integer'));
+        $column2->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column2->expects($this->at(0))->method('getLimit')->will($this->returnValue('4'));
 
         $column3 = $this->getMockBuilder('Phinx\Db\Table\Column')
                       ->disableOriginalConstructor()
                       ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit', 'setLimit'))
                       ->getMock();
 
-        $column3->expects(static::any())->method('getName')->will(static::returnValue('ref_id'));
-        $column3->expects(static::any())->method('getType')->will(static::returnValue('integer'));
-        $column3->expects(static::any())->method('getAfter')->will(static::returnValue(null));
-        $column3->expects(static::at(0))->method('getLimit')->will(static::returnValue('11'));
+        $column3->expects($this->any())->method('getName')->will($this->returnValue('ref_id'));
+        $column3->expects($this->any())->method('getType')->will($this->returnValue('integer'));
+        $column3->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column3->expects($this->at(0))->method('getLimit')->will($this->returnValue('11'));
 
         $index = $this->getMockBuilder('Phinx\Db\Table\Index')
                       ->disableOriginalConstructor()
                       ->setMethods(array( 'getColumns'))
                       ->getMock();
 
-        $index->expects(static::any())->method('getColumns')->will(static::returnValue(array('column_name')));
+        $index->expects($this->any())->method('getColumns')->will($this->returnValue(array('column_name')));
 
         $foreignkey = $this->getMockBuilder('Phinx\Db\Table\ForeignKey')
                            ->disableOriginalConstructor()
@@ -398,18 +398,18 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                                                'getReferencedTable'))
                            ->getMock();
 
-        $foreignkey->expects(static::any())->method('getColumns')->will(static::returnValue(array('other_table_id')));
-        $foreignkey->expects(static::any())->method('getConstraint')->will(static::returnValue('fk1'));
-        $foreignkey->expects(static::any())->method('getReferencedColumns')->will(static::returnValue(array('id')));
-        $foreignkey->expects(static::any())->method('getReferencedTable')->will(static::returnValue($refTable));
-        $foreignkey->expects(static::any())->method('getOnDelete')->will(static::returnValue(null));
-        $foreignkey->expects(static::any())->method('getOnUpdate')->will(static::returnValue(null));
+        $foreignkey->expects($this->any())->method('getColumns')->will($this->returnValue(array('other_table_id')));
+        $foreignkey->expects($this->any())->method('getConstraint')->will($this->returnValue('fk1'));
+        $foreignkey->expects($this->any())->method('getReferencedColumns')->will($this->returnValue(array('id')));
+        $foreignkey->expects($this->any())->method('getReferencedTable')->will($this->returnValue($refTable));
+        $foreignkey->expects($this->any())->method('getOnDelete')->will($this->returnValue(null));
+        $foreignkey->expects($this->any())->method('getOnUpdate')->will($this->returnValue(null));
 
-        $table->expects(static::any())->method('getPendingColumns')->will(static::returnValue(array($column1, $column2, $column3)));
-        $table->expects(static::any())->method('getName')->will(static::returnValue('table_name'));
-        $table->expects(static::any())->method('getOptions')->will(static::returnValue($tableOptions));
-        $table->expects(static::any())->method('getIndexes')->will(static::returnValue(array($index)));
-        $table->expects(static::any())->method('getForeignKeys')->will(static::returnValue(array($foreignkey)));
+        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue(array($column1, $column2, $column3)));
+        $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
+        $table->expects($this->any())->method('getOptions')->will($this->returnValue($tableOptions));
+        $table->expects($this->any())->method('getIndexes')->will($this->returnValue(array($index)));
+        $table->expects($this->any())->method('getForeignKeys')->will($this->returnValue(array($foreignkey)));
 
         $expectedSql ='CREATE TABLE `table_name` (`column_name` VARCHAR(255) NOT NULL, `other_table_id` INT(11) NOT NULL, `ref_id` INT(11) NOT NULL, PRIMARY KEY (`ref_id`,`other_table_id`),  KEY (`column_name`),  CONSTRAINT `fk1` FOREIGN KEY (`other_table_id`) REFERENCES `other_table` (`id`)) ENGINE = MyISAM CHARACTER SET latin1 COLLATE latin1_swedish_ci COMMENT=`Table Comment`;';
         $this->assertExecuteSql($expectedSql);
@@ -436,15 +436,15 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                          'Key'     => '',
                          'Extra'   => '');
 
-        $this->result->expects(static::at(0))
+        $this->result->expects($this->at(0))
                      ->method('fetch')
-                     ->will(static::returnValue($column1));
-        $this->result->expects(static::at(1))
+                     ->will($this->returnValue($column1));
+        $this->result->expects($this->at(1))
                      ->method('fetch')
-                     ->will(static::returnValue($column2));
-        $this->result->expects(static::at(2))
+                     ->will($this->returnValue($column2));
+        $this->result->expects($this->at(2))
                      ->method('fetch')
-                     ->will(static::returnValue(null));
+                     ->will($this->returnValue(null));
 
         $this->assertQuerySql("SHOW COLUMNS FROM `table_name`", $this->result);
 
@@ -485,15 +485,15 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                          'Default' => 'NULL',
                          'Extra'   => '');
 
-        $this->result->expects(static::at(0))
+        $this->result->expects($this->at(0))
                      ->method('fetch')
-                     ->will(static::returnValue($column1));
-        $this->result->expects(static::at(1))
+                     ->will($this->returnValue($column1));
+        $this->result->expects($this->at(1))
                      ->method('fetch')
-                     ->will(static::returnValue($column2));
-        $this->result->expects(static::at(2))
+                     ->will($this->returnValue($column2));
+        $this->result->expects($this->at(2))
                      ->method('fetch')
-                     ->will(static::returnValue(null));
+                     ->will($this->returnValue(null));
 
         $this->assertQuerySql('SHOW COLUMNS FROM `table_name`', $this->result);
 
@@ -507,10 +507,10 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit'))
                       ->getMock();
 
-        $column->expects(static::any())->method('getName')->will(static::returnValue('column_name'));
-        $column->expects(static::any())->method('getAfter')->will(static::returnValue(null));
-        $column->expects(static::any())->method('getLimit')->will(static::returnValue('11'));
-        $column->expects(static::any())->method('getType')->will(static::returnValue('integer'));
+        $column->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column->expects($this->any())->method('getLimit')->will($this->returnValue('11'));
+        $column->expects($this->any())->method('getType')->will($this->returnValue('integer'));
 
         $this->assertEquals("INT(11) NOT NULL",
                             $this->adapter->getColumnSqlDefinition($column));
@@ -523,11 +523,11 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit', 'setLimit', 'getScale', 'getPrecision'))
                       ->getMock();
 
-        $column->expects(static::any())->method('getName')->will(static::returnValue('column_name'));
-        $column->expects(static::any())->method('getType')->will(static::returnValue('float'));
-        $column->expects(static::any())->method('getAfter')->will(static::returnValue(null));
-        $column->expects(static::any())->method('getPrecision')->will(static::returnValue('8'));
-        $column->expects(static::any())->method('getScale')->will(static::returnValue('3'));
+        $column->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column->expects($this->any())->method('getType')->will($this->returnValue('float'));
+        $column->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column->expects($this->any())->method('getPrecision')->will($this->returnValue('8'));
+        $column->expects($this->any())->method('getScale')->will($this->returnValue('3'));
 
         $this->assertEquals("FLOAT(8,3) NOT NULL",
                             $this->adapter->getColumnSqlDefinition($column));
@@ -543,11 +543,11 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit', 'setLimit'))
                       ->getMock();
 
-        $column->expects(static::any())->method('getName')->will(static::returnValue('column_name'));
-        $column->expects(static::any())->method('getType')->will(static::returnValue('text'));
-        $column->expects(static::any())->method('getAfter')->will(static::returnValue(null));
-        $column->expects(static::at(0))->method('getLimit')->will(static::returnValue('2048'));
-        $column->expects(static::at(1))->method('getLimit')->will(static::returnValue(null));
+        $column->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column->expects($this->any())->method('getType')->will($this->returnValue('text'));
+        $column->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column->expects($this->at(0))->method('getLimit')->will($this->returnValue('2048'));
+        $column->expects($this->at(1))->method('getLimit')->will($this->returnValue(null));
 
         $this->assertEquals("TEXT NOT NULL",
                             $this->adapter->getColumnSqlDefinition($column));
@@ -555,10 +555,10 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testGetColumnSqlDefinitionComplete()
     {
-        $this->conn->expects(static::once())
+        $this->conn->expects($this->once())
                    ->method('quote')
                    ->with($this->equalTo('Custom Comment'))
-                   ->will(static::returnValue("`Custom Comment`"));
+                   ->will($this->returnValue("`Custom Comment`"));
 
         $column = $this->getMockBuilder('Phinx\Db\Table\Column')
                       ->disableOriginalConstructor()
@@ -573,15 +573,15 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                                           'getUpdate'))
                       ->getMock();
 
-        $column->expects(static::any())->method('getName')->will(static::returnValue('column_name'));
-        $column->expects(static::any())->method('getAfter')->will(static::returnValue(null));
-        $column->expects(static::any())->method('isIdentity')->will(static::returnValue(true));
-        $column->expects(static::any())->method('getComment')->will(static::returnValue('Custom Comment'));
-        $column->expects(static::any())->method('getUpdate')->will(static::returnValue('CASCADE'));
-        $column->expects(static::any())->method('getLimit')->will(static::returnValue(''));
-        $column->expects(static::any())->method('getScale')->will(static::returnValue('2'));
-        $column->expects(static::any())->method('getPrecision')->will(static::returnValue('8'));
-        $column->expects(static::any())->method('getType')->will(static::returnValue('float'));
+        $column->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column->expects($this->any())->method('isIdentity')->will($this->returnValue(true));
+        $column->expects($this->any())->method('getComment')->will($this->returnValue('Custom Comment'));
+        $column->expects($this->any())->method('getUpdate')->will($this->returnValue('CASCADE'));
+        $column->expects($this->any())->method('getLimit')->will($this->returnValue(''));
+        $column->expects($this->any())->method('getScale')->will($this->returnValue('2'));
+        $column->expects($this->any())->method('getPrecision')->will($this->returnValue('8'));
+        $column->expects($this->any())->method('getType')->will($this->returnValue('float'));
 
         $this->assertEquals("FLOAT(8,2) NOT NULL AUTO_INCREMENT COMMENT `Custom Comment` ON UPDATE CASCADE",
                             $this->adapter->getColumnSqlDefinition($column));
@@ -601,15 +601,15 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                          'Default' => 'NULL',
                          'Extra'   => '');
 
-        $this->result->expects(static::at(0))
+        $this->result->expects($this->at(0))
                      ->method('fetch')
-                     ->will(static::returnValue($column1));
-        $this->result->expects(static::at(1))
+                     ->will($this->returnValue($column1));
+        $this->result->expects($this->at(1))
                      ->method('fetch')
-                     ->will(static::returnValue($column2));
-        $this->result->expects(static::at(2))
+                     ->will($this->returnValue($column2));
+        $this->result->expects($this->at(2))
                      ->method('fetch')
-                     ->will(static::returnValue(null));
+                     ->will($this->returnValue(null));
 
         $this->assertQuerySql('SHOW COLUMNS FROM `table_name`', $this->result);
 
@@ -630,15 +630,15 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                          'Default' => 'NULL',
                          'Extra'   => '');
 
-        $this->result->expects(static::at(0))
+        $this->result->expects($this->at(0))
                      ->method('fetch')
-                     ->will(static::returnValue($column1));
-        $this->result->expects(static::at(1))
+                     ->will($this->returnValue($column1));
+        $this->result->expects($this->at(1))
                      ->method('fetch')
-                     ->will(static::returnValue($column2));
-        $this->result->expects(static::at(2))
+                     ->will($this->returnValue($column2));
+        $this->result->expects($this->at(2))
                      ->method('fetch')
-                     ->will(static::returnValue(null));
+                     ->will($this->returnValue(null));
 
         $this->assertQuerySql('SHOW COLUMNS FROM `table_name`', $this->result);
 
@@ -658,7 +658,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->disableOriginalConstructor()
                       ->setMethods(array('getName'))
                       ->getMock();
-        $table->expects(static::any())->method('getName')->will(static::returnValue('table_name'));
+        $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
 
 
         $column = $this->getMockBuilder('Phinx\Db\Table\Column')
@@ -666,10 +666,10 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit'))
                       ->getMock();
 
-        $column->expects(static::any())->method('getName')->will(static::returnValue('column_name'));
-        $column->expects(static::any())->method('getAfter')->will(static::returnValue(null));
-        $column->expects(static::any())->method('getLimit')->will(static::returnValue('11'));
-        $column->expects(static::any())->method('getType')->will(static::returnValue('integer'));
+        $column->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column->expects($this->any())->method('getLimit')->will($this->returnValue('11'));
+        $column->expects($this->any())->method('getType')->will($this->returnValue('integer'));
 
         $this->assertExecuteSql('ALTER TABLE `table_name` ADD `column_name` INT(11) NOT NULL');
         $this->adapter->addColumn($table, $column);
@@ -681,7 +681,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->disableOriginalConstructor()
                       ->setMethods(array('getName'))
                       ->getMock();
-        $table->expects(static::any())->method('getName')->will(static::returnValue('table_name'));
+        $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
 
 
         $column = $this->getMockBuilder('Phinx\Db\Table\Column')
@@ -689,10 +689,10 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit'))
                       ->getMock();
 
-        $column->expects(static::any())->method('getName')->will(static::returnValue('column_name'));
-        $column->expects(static::any())->method('getAfter')->will(static::returnValue('column_name2'));
-        $column->expects(static::any())->method('getLimit')->will(static::returnValue('11'));
-        $column->expects(static::any())->method('getType')->will(static::returnValue('integer'));
+        $column->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column->expects($this->any())->method('getAfter')->will($this->returnValue('column_name2'));
+        $column->expects($this->any())->method('getLimit')->will($this->returnValue('11'));
+        $column->expects($this->any())->method('getType')->will($this->returnValue('integer'));
 
         $this->assertExecuteSql('ALTER TABLE `table_name` ADD `column_name` INT(11) NOT NULL AFTER `column_name2`');
         $this->adapter->addColumn($table, $column);
@@ -705,9 +705,9 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(array( 'getName', 'getAfter', 'getType', 'getLimit'))
                       ->getMock();
 
-        $column->expects(static::any())->method('getName')->will(static::returnValue('column_name'));
-        $column->expects(static::any())->method('getLimit')->will(static::returnValue('11'));
-        $column->expects(static::any())->method('getType')->will(static::returnValue('integer'));
+        $column->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column->expects($this->any())->method('getLimit')->will($this->returnValue('11'));
+        $column->expects($this->any())->method('getType')->will($this->returnValue('integer'));
 
         $this->assertExecuteSql('ALTER TABLE `table_name` CHANGE `column1` `column_name` INT(11) NOT NULL');
         $this->adapter->changeColumn('table_name', 'column1', $column);
@@ -727,15 +727,15 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                          'Default' => 'NULL',
                          'Extra'   => '');
 
-        $this->result->expects(static::at(0))
+        $this->result->expects($this->at(0))
                      ->method('fetch')
-                     ->will(static::returnValue($column1));
-        $this->result->expects(static::at(1))
+                     ->will($this->returnValue($column1));
+        $this->result->expects($this->at(1))
                      ->method('fetch')
-                     ->will(static::returnValue($column2));
-        $this->result->expects(static::at(2))
+                     ->will($this->returnValue($column2));
+        $this->result->expects($this->at(2))
                      ->method('fetch')
-                     ->will(static::returnValue(null));
+                     ->will($this->returnValue(null));
 
         $this->assertQuerySql("DESCRIBE `table_name`", $this->result);
 
@@ -758,15 +758,15 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                          'Default' => 'NULL',
                          'Extra'   => '');
 
-        $this->result->expects(static::at(0))
+        $this->result->expects($this->at(0))
                      ->method('fetch')
-                     ->will(static::returnValue($column1));
-        $this->result->expects(static::at(1))
+                     ->will($this->returnValue($column1));
+        $this->result->expects($this->at(1))
                      ->method('fetch')
-                     ->will(static::returnValue($column2));
-        $this->result->expects(static::at(2))
+                     ->will($this->returnValue($column2));
+        $this->result->expects($this->at(2))
                      ->method('fetch')
-                     ->will(static::returnValue(null));
+                     ->will($this->returnValue(null));
 
         $this->assertQuerySql("DESCRIBE `table_name`", $this->result);
 
@@ -801,10 +801,10 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testGetDefaultValueDefinitionString()
     {
-        $this->conn->expects(static::once())
+        $this->conn->expects($this->once())
                    ->method('quote')
                    ->with($this->equalTo('str'))
-                   ->will(static::returnValue("`str`"));
+                   ->will($this->returnValue("`str`"));
         $this->assertEquals(' DEFAULT `str`', $this->adapter->getDefaultValueDefinition('str'));
     }
 
@@ -1044,9 +1044,9 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(array( 'getColumns', 'getName', 'getType'))
                       ->getMock();
 
-        $index->expects(static::any())->method('getColumns')->will(static::returnValue(array('column_name')));
-        $index->expects(static::any())->method('getName')->will(static::returnValue('index_name'));
-        $index->expects(static::any())->method('getType')->will(static::returnValue(\Phinx\Db\Table\Index::INDEX));
+        $index->expects($this->any())->method('getColumns')->will($this->returnValue(array('column_name')));
+        $index->expects($this->any())->method('getName')->will($this->returnValue('index_name'));
+        $index->expects($this->any())->method('getType')->will($this->returnValue(\Phinx\Db\Table\Index::INDEX));
         $this->assertEquals(' KEY `index_name` (`column_name`)', $this->adapter->getIndexSqlDefinition($index));
     }
 
@@ -1057,17 +1057,17 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(array( 'getColumns', 'getName', 'getType'))
                       ->getMock();
 
-        $index->expects(static::any())->method('getColumns')->will(static::returnValue(array('column_name')));
-        $index->expects(static::any())->method('getName')->will(static::returnValue('index_name'));
-        $index->expects(static::any())->method('getType')->will(static::returnValue(\Phinx\Db\Table\Index::UNIQUE));
+        $index->expects($this->any())->method('getColumns')->will($this->returnValue(array('column_name')));
+        $index->expects($this->any())->method('getName')->will($this->returnValue('index_name'));
+        $index->expects($this->any())->method('getType')->will($this->returnValue(\Phinx\Db\Table\Index::UNIQUE));
         $this->assertEquals(' UNIQUE KEY `index_name` (`column_name`)', $this->adapter->getIndexSqlDefinition($index));
     }
 
     public function testGetIndexesEmpty()
     {
-        $this->result->expects(static::once())
+        $this->result->expects($this->once())
                      ->method('fetch')
-                     ->will(static::returnValue(null));
+                     ->will($this->returnValue(null));
 
         $this->assertQuerySql("SHOW INDEXES FROM `table_name`", $this->result);
 
@@ -1134,25 +1134,25 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                         'Comment' => '',
                         'Index_comment'   => '');
 
-        $this->result->expects(static::at(0))
+        $this->result->expects($this->at(0))
                      ->method('fetch')
-                     ->will(static::returnValue($index1));
+                     ->will($this->returnValue($index1));
 
-        $this->result->expects(static::at(1))
+        $this->result->expects($this->at(1))
                      ->method('fetch')
-                     ->will(static::returnValue($index2));
+                     ->will($this->returnValue($index2));
 
-        $this->result->expects(static::at(2))
+        $this->result->expects($this->at(2))
                      ->method('fetch')
-                     ->will(static::returnValue($index3));
+                     ->will($this->returnValue($index3));
 
-        $this->result->expects(static::at(3))
+        $this->result->expects($this->at(3))
                      ->method('fetch')
-                     ->will(static::returnValue($index4));
+                     ->will($this->returnValue($index4));
 
-        $this->result->expects(static::at(4))
+        $this->result->expects($this->at(4))
                      ->method('fetch')
-                     ->will(static::returnValue(null));
+                     ->will($this->returnValue(null));
 
         $this->assertQuerySql("SHOW INDEXES FROM `table_name`", $this->result);
         return array($index1, $index2, $index3, $index4);
@@ -1206,7 +1206,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
     public function testAddIndexWithLimit()
     {
         list($table, $index) = $this->prepareAddIndex(array('getColumns', 'getLimit'));
-        $index->expects(static::any())->method('getLimit')->will(static::returnValue(50));
+        $index->expects($this->any())->method('getLimit')->will($this->returnValue(50));
 
         $this->assertExecuteSql('ALTER TABLE `table_name` ADD  KEY (`column_name`(50))');
         $this->adapter->addIndex($table, $index);
@@ -1223,7 +1223,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->setMethods(array('getName'))
             ->getMock();
-        $table->expects(static::any())->method('getName')->will(static::returnValue('table_name'));
+        $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
 
 
         $index = $this->getMockBuilder('Phinx\Db\Table\Index')
@@ -1231,7 +1231,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
             ->setMethods($methods)
             ->getMock();
 
-        $index->expects(static::any())->method('getColumns')->will(static::returnValue(array('column_name')));
+        $index->expects($this->any())->method('getColumns')->will($this->returnValue(array('column_name')));
         return array($table, $index);
     }
 
@@ -1279,21 +1279,21 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                     'REFERENCED_TABLE_NAME'   => 'other_table',
                     'REFERENCED_COLUMN_NAME'  => 'id');
 
-        $this->result->expects(static::at(0))
+        $this->result->expects($this->at(0))
                      ->method('fetch')
-                     ->will(static::returnValue($fk));
+                     ->will($this->returnValue($fk));
 
-        $this->result->expects(static::at(1))
+        $this->result->expects($this->at(1))
                      ->method('fetch')
-                     ->will(static::returnValue($fk1));
+                     ->will($this->returnValue($fk1));
 
-        $this->result->expects(static::at(2))
+        $this->result->expects($this->at(2))
                      ->method('fetch')
-                     ->will(static::returnValue($fk2));
+                     ->will($this->returnValue($fk2));
 
-        $this->result->expects(static::at(3))
+        $this->result->expects($this->at(3))
                      ->method('fetch')
-                     ->will(static::returnValue(null));
+                     ->will($this->returnValue(null));
 
         $expectedSql = 'SELECT
               CONSTRAINT_NAME,
@@ -1377,13 +1377,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->disableOriginalConstructor()
                       ->setMethods(array('getName'))
                       ->getMock();
-        $table->expects(static::any())->method('getName')->will(static::returnValue('table_name'));
+        $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
 
         $refTable = $this->getMockBuilder('Phinx\Db\Table')
                          ->disableOriginalConstructor()
                          ->setMethods(array('getName'))
                          ->getMock();
-        $refTable->expects(static::any())->method('getName')->will(static::returnValue('other_table'));
+        $refTable->expects($this->any())->method('getName')->will($this->returnValue('other_table'));
 
         $foreignkey = $this->getMockBuilder('Phinx\Db\Table\ForeignKey')
                            ->disableOriginalConstructor()
@@ -1395,12 +1395,12 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                                                'getReferencedTable'))
                            ->getMock();
 
-        $foreignkey->expects(static::any())->method('getColumns')->will(static::returnValue(array('other_table_id')));
-        $foreignkey->expects(static::any())->method('getConstraint')->will(static::returnValue('fk1'));
-        $foreignkey->expects(static::any())->method('getReferencedColumns')->will(static::returnValue(array('id')));
-        $foreignkey->expects(static::any())->method('getReferencedTable')->will(static::returnValue($refTable));
-        $foreignkey->expects(static::any())->method('getOnDelete')->will(static::returnValue(null));
-        $foreignkey->expects(static::any())->method('getOnUpdate')->will(static::returnValue(null));
+        $foreignkey->expects($this->any())->method('getColumns')->will($this->returnValue(array('other_table_id')));
+        $foreignkey->expects($this->any())->method('getConstraint')->will($this->returnValue('fk1'));
+        $foreignkey->expects($this->any())->method('getReferencedColumns')->will($this->returnValue(array('id')));
+        $foreignkey->expects($this->any())->method('getReferencedTable')->will($this->returnValue($refTable));
+        $foreignkey->expects($this->any())->method('getOnDelete')->will($this->returnValue(null));
+        $foreignkey->expects($this->any())->method('getOnUpdate')->will($this->returnValue(null));
 
         $this->assertExecuteSql('ALTER TABLE `table_name` ADD  CONSTRAINT `fk1` FOREIGN KEY (`other_table_id`) REFERENCES `other_table` (`id`)');
         $this->adapter->addForeignKey($table, $foreignkey);
@@ -1413,13 +1413,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->disableOriginalConstructor()
                       ->setMethods(array('getName'))
                       ->getMock();
-        $table->expects(static::any())->method('getName')->will(static::returnValue('table_name'));
+        $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
 
         $refTable = $this->getMockBuilder('Phinx\Db\Table')
                          ->disableOriginalConstructor()
                          ->setMethods(array('getName'))
                          ->getMock();
-        $refTable->expects(static::any())->method('getName')->will(static::returnValue('other_table'));
+        $refTable->expects($this->any())->method('getName')->will($this->returnValue('other_table'));
 
         $foreignkey = $this->getMockBuilder('Phinx\Db\Table\ForeignKey')
                            ->disableOriginalConstructor()
@@ -1431,12 +1431,12 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                                                'getReferencedTable'))
                            ->getMock();
 
-        $foreignkey->expects(static::any())->method('getColumns')->will(static::returnValue(array('other_table_id')));
-        $foreignkey->expects(static::any())->method('getConstraint')->will(static::returnValue('fk1'));
-        $foreignkey->expects(static::any())->method('getReferencedColumns')->will(static::returnValue(array('id')));
-        $foreignkey->expects(static::any())->method('getReferencedTable')->will(static::returnValue($refTable));
-        $foreignkey->expects(static::any())->method('getOnDelete')->will(static::returnValue('CASCADE'));
-        $foreignkey->expects(static::any())->method('getOnUpdate')->will(static::returnValue('CASCADE'));
+        $foreignkey->expects($this->any())->method('getColumns')->will($this->returnValue(array('other_table_id')));
+        $foreignkey->expects($this->any())->method('getConstraint')->will($this->returnValue('fk1'));
+        $foreignkey->expects($this->any())->method('getReferencedColumns')->will($this->returnValue(array('id')));
+        $foreignkey->expects($this->any())->method('getReferencedTable')->will($this->returnValue($refTable));
+        $foreignkey->expects($this->any())->method('getOnDelete')->will($this->returnValue('CASCADE'));
+        $foreignkey->expects($this->any())->method('getOnUpdate')->will($this->returnValue('CASCADE'));
 
         $this->assertExecuteSql('ALTER TABLE `table_name` ADD  CONSTRAINT `fk1` FOREIGN KEY (`other_table_id`) REFERENCES `other_table` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
         $this->adapter->addForeignKey($table, $foreignkey);
@@ -1450,13 +1450,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                     'REFERENCED_TABLE_NAME'   => 'other_table',
                     'REFERENCED_COLUMN_NAME'  => 'id');
 
-        $this->result->expects(static::at(0))
+        $this->result->expects($this->at(0))
                      ->method('fetch')
-                     ->will(static::returnValue($fk));
+                     ->will($this->returnValue($fk));
 
-        $this->result->expects(static::at(1))
+        $this->result->expects($this->at(1))
                      ->method('fetch')
-                     ->will(static::returnValue(null));
+                     ->will($this->returnValue(null));
 
         $expectedSql = 'SELECT
                         CONSTRAINT_NAME
@@ -1480,13 +1480,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                     'REFERENCED_TABLE_NAME'   => 'other_table',
                     'REFERENCED_COLUMN_NAME'  => 'id');
 
-        $this->result->expects(static::at(0))
+        $this->result->expects($this->at(0))
                      ->method('fetch')
-                     ->will(static::returnValue($fk));
+                     ->will($this->returnValue($fk));
 
-        $this->result->expects(static::at(1))
+        $this->result->expects($this->at(1))
                      ->method('fetch')
-                     ->will(static::returnValue(null));
+                     ->will($this->returnValue(null));
 
         $expectedSql = 'SELECT
                         CONSTRAINT_NAME

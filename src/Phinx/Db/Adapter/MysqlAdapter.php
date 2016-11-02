@@ -189,7 +189,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             "SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
             WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'",
-            $options['name'], $tableName
+            (string) isset($options['name']) ? $options['name'] : '',
+            $tableName
         ));
 
         return !empty($exists);

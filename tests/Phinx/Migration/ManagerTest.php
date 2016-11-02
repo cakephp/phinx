@@ -87,9 +87,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         ;
 
 
-        $envStub->expects(static::once())
+        $envStub->expects($this->once())
                 ->method('getVersionLog')
-                ->will(static::returnValue(
+                ->will($this->returnValue(
                     array (
                         '20120111235330' =>
                             array (
@@ -128,9 +128,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs(['mockenv', []])
             ->getMock()
         ;
-        $envStub->expects(static::once())
+        $envStub->expects($this->once())
                 ->method('getVersionLog')
-                ->will(static::returnValue(
+                ->will($this->returnValue(
                     array (
                         '20120111235330' =>
                             array (
@@ -193,9 +193,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->getMock()
         ;
 
-        $envStub->expects(static::once())
+        $envStub->expects($this->once())
                 ->method('getVersionLog')
-                ->will(static::returnValue(
+                ->will($this->returnValue(
                     array (
                         '20120103083300' =>
                             array (
@@ -235,9 +235,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->getMock()
         ;
 
-        $envStub->expects(static::once())
+        $envStub->expects($this->once())
                 ->method('getVersionLog')
-                ->will(static::returnValue(
+                ->will($this->returnValue(
                     array (
                         '20120103083300' =>
                             array (
@@ -278,9 +278,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->getMock()
         ;
 
-        $envStub->expects(static::once())
+        $envStub->expects($this->once())
                 ->method('getVersionLog')
-                ->will(static::returnValue(array(
+                ->will($this->returnValue(array(
                     '20120111235330'=> array(
                         'version' => '20120111235330',
                         'start_time' => '2012-01-16 18:35:40',
@@ -372,9 +372,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             $envStub->expects($this->never())
                     ->method('getVersions');
         } else {
-            $envStub->expects(static::once())
+            $envStub->expects($this->once())
                     ->method('getVersions')
-                    ->will(static::returnValue($availableMigrations));
+                    ->will($this->returnValue($availableMigrations));
         }
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->migrateToDateTime('mockenv', new \DateTime($dateString));
@@ -399,12 +399,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs(['mockenv', []])
             ->getMock()
         ;
-        $envStub->expects(static::any())
+        $envStub->expects($this->any())
             ->method('getVersionLog')
-            ->will(static::returnValue($availableRollbacks));
-        $envStub->expects(static::any())
+            ->will($this->returnValue($availableRollbacks));
+        $envStub->expects($this->any())
                 ->method('getVersions')
-                ->will(static::returnValue(array_keys($availableRollbacks)));
+                ->will($this->returnValue(array_keys($availableRollbacks)));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->rollbackToDateTime('mockenv', new \DateTime($dateString));
@@ -424,14 +424,14 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs(['mockenv', []])
             ->getMock()
         ;
-        $envStub->expects(static::any())
+        $envStub->expects($this->any())
                 ->method('getVersionLog')
-                ->will(static::returnValue([
+                ->will($this->returnValue([
                     '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
                 ]));
-        $envStub->expects(static::any())
+        $envStub->expects($this->any())
                 ->method('getVersions')
-                ->will(static::returnValue([20120111235330]));
+                ->will($this->returnValue([20120111235330]));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->rollback('mockenv');
@@ -447,20 +447,20 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $envStub->expects(static::any())
+        $envStub->expects($this->any())
                 ->method('getVersionLog')
                 ->will(
-                    static::returnValue(
+                    $this->returnValue(
                         [
                             '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
                             '20120116183504' => ['version' => '20120815145812', 'migration' => '', 'breakpoint' => 0],
                         ]
                     )
                 );
-        $envStub->expects(static::any())
+        $envStub->expects($this->any())
                 ->method('getVersions')
                 ->will(
-                    static::returnValue(
+                    $this->returnValue(
                         [
                             20120111235330,
                             20120116183504,

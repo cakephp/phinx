@@ -178,7 +178,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
             )
             ->getMock();
 
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('changeColumn');
         $newColumn = new \Phinx\Db\Table\Column();
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
@@ -196,7 +196,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
                 ]
             )
             ->getMock();
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('changeColumn');
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
         $table->changeColumn('test1', 'text', ['null' => false]);
@@ -213,7 +213,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
                 ]
             )
             ->getMock();
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('dropForeignKey');
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
         $table->dropForeignKey('test');
@@ -230,7 +230,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
                 ]
             )
             ->getMock();
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('getColumns');
 
         $table = new \Phinx\Db\Table('table1', [], $adapterStub);
@@ -283,13 +283,15 @@ class TableTest extends \PHPUnit_Framework_TestCase
             ],
         ];
 
-        $adapterStub->expects(static::exactly(4))
+        $adapterStub->expects($this->exactly(4))
                     ->method('insert')
                     ->with($table, $this->logicalOr($data[0], $data[1], $moreData[0], $moreData[1]));
 
-        $table->insert($data)
-              ->insert($moreData)
-              ->save();
+        $table->save();
+        $table
+            ->insert($data)
+            ->insert($moreData)
+            ->saveData();
     }
 
     public function testRemoveColumn()
@@ -303,7 +305,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
                 ]
             )
             ->getMock();
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('dropColumn');
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
         $table->removeColumn('test');
@@ -320,7 +322,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
                 ]
             )
             ->getMock();
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('dropIndex');
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
         $table->removeIndex(['email']);
@@ -337,7 +339,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
                 ]
             )
             ->getMock();
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('dropIndexByName');
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
         $table->removeIndexByName('emailindex');
@@ -354,7 +356,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
                 ]
             )
             ->getMock();
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('renameColumn');
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
         $table->renameColumn('test1', 'test2');

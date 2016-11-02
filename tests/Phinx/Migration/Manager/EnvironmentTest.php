@@ -110,9 +110,9 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $stub->expects(static::any())
+        $stub->expects($this->any())
              ->method('getVersions')
-             ->will(static::returnValue(array('20110301080000')));
+             ->will($this->returnValue(array('20110301080000')));
 
         $this->environment->setAdapter($stub);
 
@@ -126,9 +126,9 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('migrated')
-                    ->will(static::returnArgument(0));
+                    ->will($this->returnArgument(0));
 
         $this->environment->setAdapter($adapterStub);
 
@@ -141,7 +141,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
             )
             ->setConstructorArgs(['20110301080000'])
             ->getMock();
-        $upMigration->expects(static::once())
+        $upMigration->expects($this->once())
                     ->method('up');
 
         $this->environment->executeMigration($upMigration, MigrationInterface::UP);
@@ -154,9 +154,9 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('migrated')
-                    ->will(static::returnArgument(0));
+                    ->will($this->returnArgument(0));
 
         $this->environment->setAdapter($adapterStub);
 
@@ -166,7 +166,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
             ->setMethods(['down'])
             ->getMock();
 
-        $downMigration->expects(static::once())
+        $downMigration->expects($this->once())
                       ->method('down');
 
         $this->environment->executeMigration($downMigration, MigrationInterface::DOWN);
@@ -178,15 +178,15 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
             ->disableOriginalConstructor()
             ->getMock();
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('beginTransaction');
 
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('commitTransaction');
 
-        $adapterStub->expects(static::exactly(2))
+        $adapterStub->expects($this->exactly(2))
                     ->method('hasTransactions')
-                    ->will(static::returnValue(true));
+                    ->will($this->returnValue(true));
 
         $this->environment->setAdapter($adapterStub);
 
@@ -197,7 +197,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
             ->getMock()
         ;
 
-        $migration->expects(static::once())
+        $migration->expects($this->once())
                   ->method('up');
 
         $this->environment->executeMigration($migration, MigrationInterface::UP);
@@ -210,9 +210,9 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('migrated')
-                    ->will(static::returnArgument(0));
+                    ->will($this->returnArgument(0));
 
         $this->environment->setAdapter($adapterStub);
 
@@ -223,7 +223,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
             ->getMock()
         ;
 
-        $migration->expects(static::once())
+        $migration->expects($this->once())
                   ->method('change');
 
         $this->environment->executeMigration($migration, MigrationInterface::UP);
@@ -236,9 +236,9 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $adapterStub->expects(static::once())
+        $adapterStub->expects($this->once())
                     ->method('migrated')
-                    ->will(static::returnArgument(0));
+                    ->will($this->returnArgument(0));
 
         $this->environment->setAdapter($adapterStub);
 
@@ -248,7 +248,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
             ->setMethods(['change'])
             ->getMock();
 
-        $migration->expects(static::once())
+        $migration->expects($this->once())
                   ->method('change');
 
         $this->environment->executeMigration($migration, MigrationInterface::DOWN);
