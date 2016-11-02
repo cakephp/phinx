@@ -256,15 +256,12 @@ class TableTest extends \PHPUnit_Framework_TestCase
 
     public function testInsertSaveData()
     {
-        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\SqliteAdapter')
             ->disableOriginalConstructor()
-            ->setMethods(
-                [
-                    'insert'
-                ]
-            )
             ->getMock();
+
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+
         $data = [
             [
                 'column1' => 'value1',
@@ -287,11 +284,11 @@ class TableTest extends \PHPUnit_Framework_TestCase
                     ->method('insert')
                     ->with($table, $this->logicalOr($data[0], $data[1], $moreData[0], $moreData[1]));
 
-        $table->save();
+
         $table
             ->insert($data)
             ->insert($moreData)
-            ->saveData();
+            ->save();
     }
 
     public function testRemoveColumn()
