@@ -26,8 +26,8 @@ matrix:
 before_script:
     - travis_retry composer self-update
     - travis_retry composer update --no-interaction --prefer-source --prefer-stable ${COMPOSER_FLAGS}
-    - mysql -e 'create database phinx_testing;'
-    - psql -c 'create database phinx_testing;' -U postgres
+    - mysql -e 'create database public;'
+    - psql -c 'create database public;' -U postgres
 
 script:
     - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
