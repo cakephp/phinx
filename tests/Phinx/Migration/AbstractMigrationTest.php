@@ -3,7 +3,6 @@
 namespace Test\Phinx\Migration;
 
 use Phinx\Db\Table;
-use Phinx\Db\Adapter\AdapterInterface;
 
 class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
 {
@@ -34,7 +33,7 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         // test methods
         $this->assertNull($migrationStub->getAdapter());
         $migrationStub->setAdapter($adapterStub);
-        $this->assertInstanceOf(AdapterInterface::class, $migrationStub->getAdapter());
+        $this->assertInstanceOf('\Phinx\Db\Adapter\AdapterInterface', $migrationStub->getAdapter());
     }
 
     public function testSetOutputMethods()
@@ -252,7 +251,7 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
 
         $migrationStub->setAdapter($adapterStub);
 
-        $this->assertInstanceOf(Table::class, $migrationStub->table('test_table'));
+        $this->assertInstanceOf('\Phinx\Db\Table', $migrationStub->table('test_table'));
     }
 
     public function testDropTableMethod()
