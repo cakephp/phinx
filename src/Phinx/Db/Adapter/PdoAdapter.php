@@ -389,7 +389,6 @@ abstract class PdoAdapter implements AdapterInterface
         $stmt->execute(array_values($row));
         $this->endCommandTimer();
     }
-
     /**
      * {@inheritdoc}
      */

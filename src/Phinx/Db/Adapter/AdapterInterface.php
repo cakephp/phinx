@@ -330,6 +330,15 @@ interface AdapterInterface
      */
     public function dropTable($tableName);
 
+
+    /**
+     * Truncates the specified table
+     *
+     * @param string $tableName
+     * @return void
+     */
+    public function truncateTable($tableName);
+
     /**
      * Returns table columns
      *

@@ -79,6 +79,15 @@ class ProxyAdapter extends AdapterWrapper
         $this->recordCommand('dropTable', array($tableName));
     }
 
+
+    /**
+     * {@inheritdoc}
+     */
+    public function truncateTable($tableName)
+    {
+        $this->recordCommand('truncateTable', array($tableName));
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -311,7 +320,6 @@ class ProxyAdapter extends AdapterWrapper
     {
         return array('name' => 'dropIndex', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
     }
-
     /**
      * Returns the reverse of a addForeignKey command.
      *

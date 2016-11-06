@@ -655,6 +655,15 @@ class Table
     }
 
     /**
+     * Truncates the table
+     * @return void
+     */
+    public function truncate()
+    {
+        $this->getAdapter()->truncateTable($this);
+    }
+    
+    /**
      * Commits the table changes.
      *
      * If the table doesn't exist it is created otherwise it is updated.

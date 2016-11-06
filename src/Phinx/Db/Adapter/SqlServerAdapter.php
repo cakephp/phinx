@@ -343,6 +343,19 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         $this->endCommandTimer();
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function truncateTable($tableName)
+    {
+        $sql = sprintf(
+            "TRUNCATE TABLE %s",
+            $this->quoteTableName($tableName)
+        );
+
+        return $this->getConnection()->exec($sql);
+    }
+
     public function getColumnComment($tableName, $columnName)
     {
         $sql = sprintf("SELECT cast(extended_properties.[value] as nvarchar(4000)) comment
