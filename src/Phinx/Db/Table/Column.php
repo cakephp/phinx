@@ -505,7 +505,7 @@ class Column
             'signed',
             'timezone',
             'properties',
-            'values',
+            'values'
         );
     }
 

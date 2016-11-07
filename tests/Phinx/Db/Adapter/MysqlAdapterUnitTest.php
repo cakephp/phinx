@@ -1508,7 +1508,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->adapter->dropForeignKey('table_name', 'column_name', 'fk1');
     }
 
-    public function testDropContraint() {
+    public function testDropConstraint() {
         $this->assertExecuteSql('ALTER TABLE `table_name` DROP PRIMARY KEY');
         $this->adapter->dropConstraint('table_name');
     }

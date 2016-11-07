@@ -613,7 +613,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
                 break;
             }
         }
-        $table->dropContraint('id', $constraintName);
+        $table->dropConstraint('id', $constraintName);
         $emptySet = $this->adapter->getIndexes($table->getName());
 
         $this->assertEmpty($emptySet);

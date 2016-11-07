@@ -548,10 +548,7 @@ class Table
      * @param null $constraint
      * @throws \InvalidArgumentException
      */
-    public function dropContraint($column, $constraint = null) {
-        if (!is_string($column)) {
-            throw new \InvalidArgumentException('Column parameter has to be of type string');
-        }
+    public function dropConstraint($column, $constraint = null) {
         $this->getAdapter()->dropConstraint($this->getName(), $column, $constraint);
     }
 

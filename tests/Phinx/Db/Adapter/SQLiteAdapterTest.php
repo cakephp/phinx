@@ -391,14 +391,14 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testDropContraint() {
+    public function testDropConstraint() {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table
             ->addColumn('column1', 'string', ['null' => true, 'limit' => 255])
             ->addColumn('column2', 'integer', ['null' => true])
             ->save();
 
-        $table->dropContraint('id');
+        $table->dropConstraint('id');
 
         $columns = $this->adapter->getColumns('t');
 
