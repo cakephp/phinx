@@ -227,7 +227,19 @@ class Environment
      */
     public function getVersions()
     {
-        return $this->getAdapter()->getVersions();
+        return $this->getAdapter()->getVersions(false);
+    }
+
+    /**
+     * Gets all migrated version rows.
+     *
+     * This will include the breakpoint marker.
+     *
+     * @return array
+     */
+    public function getFullVersions()
+    {
+        return $this->getAdapter()->getVersions(true);
     }
 
     /**

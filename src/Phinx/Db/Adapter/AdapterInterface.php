@@ -74,9 +74,10 @@ interface AdapterInterface
     /**
      * Get all migrated version numbers.
      *
+     * @param bool $fullVersion Get the entire version row, not just the version number.
      * @return array
      */
-    public function getVersions();
+    public function getVersions($fullVersion = false);
 
     /**
      * Set adapter configuration options.

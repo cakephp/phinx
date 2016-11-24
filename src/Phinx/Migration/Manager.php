@@ -87,16 +87,16 @@ class Manager
         $migrations = array();
         if (count($this->getMigrations())) {
             $output->writeln('');
-            $output->writeln(' Status  Migration ID    Migration Name ');
-            $output->writeln('-----------------------------------------');
+            $output->writeln(sprintf(' Status  Migration ID    %sMigration Name ', $output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE ? 'Started              Finished             ' : ''));
+            $output->writeln(sprintf('-------------------------%s---------------', $output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE ? '------------------------------------------' : ''));
 
             $env = $this->getEnvironment($environment);
-            $versions = $env->getVersions();
+            $versions = $env->getFullVersions();
 
             foreach ($this->getMigrations() as $migration) {
-                if (in_array($migration->getVersion(), $versions)) {
+                $version = array_key_exists($migration->getVersion(), $versions) ? $versions[$migration->getVersion()] : false;
+                if ($version) {
                     $status = '     <info>up</info> ';
-                    unset($versions[array_search($migration->getVersion(), $versions)]);
                 } else {
                     $status = '   <error>down</error> ';
                 }
@@ -104,15 +104,18 @@ class Manager
                 $output->writeln(
                     $status
                     . sprintf(' %14.0f ', $migration->getVersion())
+                    . ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE ? ($version ? sprintf(' %s  %s ', $version['start_time'], $version['end_time']) : str_repeat(' ', 42)) : '')
                     . ' <comment>' . $migration->getName() . '</comment>'
                 );
                 $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
+                unset($versions[$migration->getVersion()]);
             }
 
-            foreach ($versions as $missing) {
+            foreach ($versions as $missing => $version) {
                 $output->writeln(
                     '     <error>up</error> '
                     . sprintf(' %14.0f ', $missing)
+                    . ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE ? sprintf(' %s  %s ', $version['start_time'], $version['end_time']) : '')
                     . ' <error>** MISSING **</error>'
                 );
             }
@@ -186,21 +189,23 @@ class Manager
     public function rollbackToDateTime($environment, \DateTime $dateTime)
     {
         $env        = $this->getEnvironment($environment);
-        $versions   = $env->getVersions();
-        $dateString = $dateTime->format('Ymdhis');
-        sort($versions);
-        $laterVersion = null;
-        foreach (array_reverse($versions) as $version) {
-            if ($version < $dateString) {
-                if (!is_null($laterVersion)) {
-                    $this->getOutput()->writeln('Rolling back to version '.$version);
-                }
-                return $this->rollback($environment, $version);
+        $versions   = $env->getFullVersions();
+        $dateString = $dateTime->format('U');
+        
+        // Sort versions by descending start time
+        uasort($versions, function($a, $b) {
+            return (strtotime($b['start_time'])-strtotime($a['start_time']));
+        });
+
+        foreach ($versions as $version) {
+            if (strtotime($version['start_time']) <= $dateString) {
+                $this->getOutput()->writeln('Rolling back to version '.$version['version']);
+                return $this->rollback($environment, $version['version']);
             }
-            $laterVersion = $version;
         }
-        $this->getOutput()->writeln('Rolling back to version ' . $laterVersion);
-        return $this->rollback($environment, $laterVersion);
+
+        $this->getOutput()->writeln('Rolling back all migrations');
+        return $this->rollback($environment, 0);
     }
 
     /**
@@ -332,10 +337,18 @@ class Manager
     {
         $migrations = $this->getMigrations();
         $env = $this->getEnvironment($environment);
-        $versions = $env->getVersions();
+        $versions = $env->getFullVersions();
 
-        ksort($migrations);
-        sort($versions);
+        if ($version === "0") {
+            $version = 0;
+        }
+        
+        // Sort versions by ascending start time or, if it's the same, version name
+        uasort($versions, function($a, $b) {
+            $diff = strtotime($a['start_time'])-strtotime($b['start_time']);
+
+            return $diff != 0 ? $diff : $a['version'] - $b['version'];
+        });
 
         // Check we have at least 1 migration to revert
         if (empty($versions) || $version == end($versions)) {
@@ -343,19 +356,14 @@ class Manager
             return;
         }
 
+        $versionNames = array_keys($versions);
+
         // If no target version was supplied, revert the last migration
         if (null === $version) {
             // Get the migration before the last run migration
             $prev = count($versions) - 2;
-            $version = $prev >= 0 ? $versions[$prev] : 0;
-        } else {
-            // Get the first migration number
-            $first = reset($versions);
 
-            // If the target version is before the first migration, revert all migrations
-            if ($version < $first) {
-                $version = 0;
-            }
+            $version = $prev >= 0 ? $versionNames[$prev] : $versionNames[0];
         }
 
         // Check the target version exists
@@ -364,14 +372,23 @@ class Manager
             return;
         }
 
-        // Revert the migration(s)
-        krsort($migrations);
-        foreach ($migrations as $migration) {
-            if ($migration->getVersion() <= $version) {
+        // Sort the migration(s) by descending start time (ie. the opposite order of the version names, which
+        // were sorted by ascending start time earlier)
+        $sortedMigrations = array();
+
+        while ($versionName = array_pop($versionNames)) {
+            if (isset($migrations[$versionName])) {
+                $sortedMigrations[$versionName] = $migrations[$versionName];
+            }
+        }
+
+        foreach ($sortedMigrations as $migration) {
+
+            if ($migration->getVersion() == $version) {
                 break;
             }
 
-            if (in_array($migration->getVersion(), $versions)) {
+            if (isset($versions[$migration->getVersion()])) {
                 $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
             }
         }
