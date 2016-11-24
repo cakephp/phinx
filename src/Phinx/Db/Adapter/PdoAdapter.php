@@ -139,7 +139,7 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function getOutput()
     {
-        if (null == $this->output) {
+        if (null === $this->output) {
             $output = new NullOutput();
             $this->setOutput($output);
         }

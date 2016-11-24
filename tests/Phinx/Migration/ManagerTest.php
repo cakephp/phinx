@@ -73,7 +73,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->will($this->returnValue(array('20120111235330', '20120116183504')));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
-        $this->manager->printStatus('mockenv');
+        $return = $this->manager->printStatus('mockenv');
+        $this->assertEquals(0, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -93,7 +94,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->manager->setConfig($config);
         $this->manager->setEnvironments(array('mockenv' => $envStub));
-        $this->manager->printStatus('mockenv');
+        $return = $this->manager->printStatus('mockenv');
+        $this->assertEquals(0, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -109,12 +111,31 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 ->will($this->returnValue(array('20120103083300', '20120815145812')));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
-        $this->manager->printStatus('mockenv');
+        $return = $this->manager->printStatus('mockenv');
+        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
         $this->assertRegExp('/up  20120103083300  \*\* MISSING \*\*/', $outputStr);
         $this->assertRegExp('/up  20120815145812  \*\* MISSING \*\*/', $outputStr);
+    }
+    
+    public function testPrintStatusMethodWithDownMigrations()
+    {
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->once())
+                ->method('getVersions')
+                ->will($this->returnValue(array('20120111235330')));
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $return = $this->manager->printStatus('mockenv');
+        $this->assertEquals(Manager::EXIT_STATUS_DOWN, $return);
+
+        rewind($this->manager->getOutput()->getStream());
+        $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
+        $this->assertRegExp('/up  20120111235330  TestMigration/', $outputStr);
+        $this->assertRegExp('/down  20120116183504  TestMigration2/', $outputStr);
     }
 
     public function testGetMigrationsWithDuplicateMigrationVersions()

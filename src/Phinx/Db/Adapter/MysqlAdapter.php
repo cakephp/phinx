@@ -339,12 +339,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
             $column = new Column();
             $column->setName($columnInfo['Field'])
-                   ->setNull($columnInfo['Null'] != 'NO')
+                   ->setNull($columnInfo['Null'] !== 'NO')
                    ->setDefault($columnInfo['Default'])
                    ->setType($phinxType['name'])
                    ->setLimit($phinxType['limit']);
 
-            if ($columnInfo['Extra'] == 'auto_increment') {
+            if ($columnInfo['Extra'] === 'auto_increment') {
                 $column->setIdentity(true);
             }
 
