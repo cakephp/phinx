@@ -110,6 +110,11 @@ class Column
     protected $values;
 
     /**
+     * @var string
+     */
+    protected $collation;
+
+    /**
      * Sets the column name.
      *
      * @param string $name
@@ -486,6 +491,28 @@ class Column
     }
 
     /**
+     * Sets collation value.
+     *
+     * @param mixed $collation
+     * @return Column
+     */
+    public function setCollation($collation)
+    {
+        $this->collation = $collation;
+        return $this;
+    }
+
+    /**
+     * Gets collation value.
+     *
+     * @return mixed
+     */
+    public function getCollation()
+    {
+        return $this->collation;
+    }
+
+    /**
      * Gets all allowed options. Each option must have a corresponding `setFoo` method.
      *
      * @return array
@@ -506,6 +533,7 @@ class Column
             'timezone',
             'properties',
             'values',
+            'collation',
         );
     }
 
