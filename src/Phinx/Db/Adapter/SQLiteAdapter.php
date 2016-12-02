@@ -407,7 +407,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
             $writeName = $selectName;
             if ($selectName === $columnName) {
-                if ($column['notnull'] === '0' && !$newColumn->isNull() && empty ($newColumn->getDefault())) {
+                if ($column['notnull'] === '0' && !$newColumn->isNull() && trim($newColumn->getDefault()) !== false) {
                     // it is necessary to check when changing NULL column to NOT NULL without DEFAULT options that
                     // there should be no existing rows with null values. Sqlite will SILENTLY IGNORE these rows when we would
                     // insert select them to the new table
