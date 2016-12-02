@@ -220,7 +220,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->save();
         $this->assertFalse($table->hasColumn('email'));
-        $table->addColumn('email', 'string')
+        $table->addColumn('email', 'string', array("null" => true))
               ->save();
         $this->assertTrue($table->hasColumn('email'));
 
@@ -238,6 +238,18 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
               ->save();
         $rows = $this->adapter->fetchAll(sprintf('pragma table_info(%s)', 'table1'));
         $this->assertEquals("'test'", $rows[1]['dflt_value']);
+    }
+
+    /**
+     * @expectedException \PDOException
+     * @expectedExceptionMessage SQLSTATE[HY000]: General error: 1 Cannot add a NOT NULL column with default value NULL
+     */
+    public function testAddColumnWithNotNullButWithoutDefaultValue()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $table->addColumn('default_zero', 'string', array('null' => false))
+              ->save();
     }
 
     public function testAddColumnWithDefaultZero()
@@ -680,12 +692,10 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testNullWithoutDefaultValue()
     {
-        $this->markTestSkipped('Skipping for now. See Github Issue #265.');
-
         // construct table with default/null combinations
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
-        $table->addColumn("aa", "string", array("null" => true)) // no default value
-              ->addColumn("bb", "string", array("null" => false)) // no default value
+        $table->addColumn("aa", "string", array("null" => true)) // no default value, nullable column
+              ->addColumn("bb", "string", array("null" => false)) // no default value, NOT NULL column
               ->addColumn("cc", "string", array("null" => true, "default" => "some1"))
               ->addColumn("dd", "string", array("null" => false, "default" => "some2"))
               ->save();
@@ -710,10 +720,10 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals("cc", $cc->getName());
         $this->assertEquals(true, $cc->isNull());
-        $this->assertEquals("some1", $cc->getDefault());
+        $this->assertEquals("'some1'", $cc->getDefault());
 
         $this->assertEquals("dd", $dd->getName());
         $this->assertEquals(false, $dd->isNull());
-        $this->assertEquals("some2", $dd->getDefault());
+        $this->assertEquals("'some2'", $dd->getDefault());
     }
 }
