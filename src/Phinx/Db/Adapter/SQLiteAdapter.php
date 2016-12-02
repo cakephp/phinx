@@ -76,7 +76,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
 
             try {
-                $db = new \PDO($dsn);
+                $db = new \PDO($dsn, null, null, array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
             } catch (\PDOException $exception) {
                 throw new \InvalidArgumentException(sprintf(
                     'There was a problem connecting to the database: %s',
@@ -353,7 +353,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             ));
         }
 
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
+        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($tableName), $this->quoteTableName($tmpTableName)));
 
         $sql = str_replace(
             $this->quoteColumnName($columnName),
@@ -365,10 +365,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $tableName,
+            $this->quoteTableName($tableName),
             implode(', ', $writeColumns),
             implode(', ', $selectColumns),
-            $tmpTableName
+            $this->quoteTableName($tmpTableName)
         );
 
         $this->execute($sql);
@@ -415,7 +415,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             ));
         }
 
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
+        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($tableName), $this->quoteTableName($tmpTableName)));
 
         $sql = preg_replace(
             sprintf("/%s[^,]+([,)])/", $this->quoteColumnName($columnName)),
@@ -427,11 +427,11 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->execute($sql);
 
         $sql = sprintf(
-            'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $tableName,
+            'INSERT INTO %s (%s) SELECT %s FROM %s',
+            $this->quoteTableName($tableName),
             implode(', ', $writeColumns),
             implode(', ', $selectColumns),
-            $tmpTableName
+            $this->quoteTableName($tmpTableName)
         );
 
         $this->execute($sql);
@@ -478,7 +478,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             ));
         }
 
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
+        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($tableName), $this->quoteTableName($tmpTableName)));
 
         $sql = preg_replace(
             sprintf("/%s\s%s[^,)]*(,\s|\))/", preg_quote($this->quoteColumnName($columnName)), preg_quote($columnType)),
@@ -494,10 +494,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $tableName,
+            $this->quoteTableName($tableName),
             implode(', ', $columns),
             implode(', ', $columns),
-            $tmpTableName
+            $this->quoteTableName($tmpTableName)
         );
 
         $this->execute($sql);
@@ -723,13 +723,13 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $columns[] = $this->quoteColumnName($column['name']);
         }
 
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($table->getName()), $tmpTableName));
+        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($table->getName()), $this->quoteTableName($tmpTableName)));
 
         $sql = substr($sql, 0, -1) . ',' . $this->getForeignKeySqlDefinition($foreignKey) . ')';
         $this->execute($sql);
 
         $sql = sprintf(
-            'INSERT INTO %s(%s) SELECT %s FROM %s',
+            'INSERT INTO %s (%s) SELECT %s FROM %s',
             $this->quoteTableName($table->getName()),
             implode(', ', $columns),
             implode(', ', $columns),
@@ -782,7 +782,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             ));
         }
 
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($tableName), $tmpTableName));
+        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($tableName), $this->quoteTableName($tmpTableName)));
 
         foreach ($columns as $columnName) {
             $search = sprintf(
@@ -796,10 +796,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $tableName,
+            $this->quoteTableName($tableName),
             implode(', ', $columns),
             implode(', ', $columns),
-            $tmpTableName
+            $this->quoteTableName($tmpTableName)
         );
 
         $this->execute($sql);
