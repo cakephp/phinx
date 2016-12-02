@@ -30,8 +30,8 @@ namespace Phinx\Db\Adapter;
 
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
-use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
+use Phinx\Db\Table\Index;
 
 /**
  * Phinx SQLite Adapter.
@@ -404,7 +404,24 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $writeColumns = array();
         foreach ($columns as $column) {
             $selectName = $column['name'];
-            $writeName = ($selectName === $columnName)? $newColumn->getName() : $selectName;
+
+            $writeName = $selectName;
+            if ($selectName === $columnName) {
+                if ($column['notnull'] === '0' && !$newColumn->isNull() && empty ($newColumn->getDefault())) {
+                    // it is necessary to check when changing NULL column to NOT NULL without DEFAULT options that
+                    // there should be no existing rows with null values. Sqlite will SILENTLY IGNORE these rows when we would
+                    // insert select them to the new table
+                    $nullCount = $this->fetchRow(sprintf('SELECT count(1) AS cnt FROM %s WHERE %s IS NULL',
+                            $this->quoteTableName($tableName), $this->quoteColumnName($columnName)
+                        )
+                    );
+                    if ((int)$nullCount['cnt'] > 0) {
+                        throw new \InvalidArgumentException("Cannot change column '$columnName' from NULL to NOT NULL without providing DEFAULT option. Data loss will occur!");
+                    }
+                }
+
+                $writeName = $newColumn->getName();
+            }
             $selectColumns[] = $this->quoteColumnName($selectName);
             $writeColumns[] = $this->quoteColumnName($writeName);
         }
@@ -825,7 +842,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $sql .= " VALUES ";
 
         $sql .= "(" . implode(', ', array_map(function ($value) {
-                if (is_numeric($value)) {
+                if (is_null($value)) {
+                    return 'null';
+                }
+                else if (is_numeric($value)) {
                     return $value;
                 }
                 return "'{$value}'";

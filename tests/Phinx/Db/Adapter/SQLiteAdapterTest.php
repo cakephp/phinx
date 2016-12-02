@@ -2,9 +2,9 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\Adapter\SQLiteAdapter;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
-use Phinx\Db\Adapter\SQLiteAdapter;
 
 class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -383,6 +383,67 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
                    ->setType('string');
         $table->changeColumn('column1', $newColumn1);
         $rows = $this->adapter->fetchAll('pragma table_info(t)');
+        $this->assertNull($rows[1]['dflt_value']);
+    }
+
+    public function testChangeNotNullColumnToNull()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string', array('null' => false))
+            ->save();
+
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1->setDefault(null)
+            ->setType('string')
+            ->setNull(true);
+        $table->changeColumn('column1', $newColumn1);
+
+        $rows = $this->adapter->fetchAll('pragma table_info(t)');
+        $this->assertEquals(0, $rows[1]['notnull']);
+        $this->assertNull($rows[1]['dflt_value']);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Cannot change column 'column1' from NULL to NOT NULL without providing DEFAULT option. Data loss will occur!
+     */
+    public function testChangeNullColumnToNotNullFailWhenNullDataExists()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string', array('null' => true))
+            ->insert(array(
+                array('column1' => 'value1'),
+                array('column1' => null)
+            ))
+            ->save();
+
+
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1->setDefault(null)
+            ->setType('string')
+            ->setNull(false);
+        $table->changeColumn('column1', $newColumn1);
+    }
+
+    public function testChangeNullColumnToNotNullSucceedWhenDataHasNoNulls()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string', array('null' => true))
+            ->insert(array(
+                array('column1' => 'value1'),
+                array('column1' => 'notnull')
+            ))
+            ->save();
+
+
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1->setDefault(null)
+            ->setType('string')
+            ->setNull(false);
+        $table->changeColumn('column1', $newColumn1);
+
+        $rows = $this->adapter->fetchAll('pragma table_info(t)');
+        $this->assertEquals(1, $rows[1]['notnull']);
         $this->assertNull($rows[1]['dflt_value']);
     }
 
