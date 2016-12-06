@@ -20,11 +20,12 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         }
 
         $options = array(
-            'host' => TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST,
-            'name' => TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE,
-            'user' => TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME,
-            'pass' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD,
-            'port' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT
+            'host'   => TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST,
+            'name'   => TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE,
+            'user'   => TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME,
+            'pass'   => TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD,
+            'port'   => TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT,
+            'schema' => TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE_SCHEMA
         );
         $this->adapter = new SqlServerAdapter($options, new ArrayInput([]), new NullOutput());
 
@@ -98,7 +99,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testQuoteTableName()
     {
-        $this->assertEquals('[test_table]', $this->adapter->quoteTableName('test_table'));
+        $this->assertEquals("[{$this->adapter->getSchemaName()}].[test_table]", $this->adapter->quoteTableName('test_table'));
     }
 
     public function testQuoteColumnName()
@@ -689,7 +690,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
               )
               ->save();
 
-        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $rows = $this->adapter->fetchAll("SELECT * FROM {$this->adapter->getSchemaName()}.table1");
 
         $this->assertEquals('value1', $rows[0]['column1']);
         $this->assertEquals('value2', $rows[1]['column1']);
@@ -697,5 +698,19 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $rows[0]['column2']);
         $this->assertEquals(2, $rows[1]['column2']);
         $this->assertEquals(3, $rows[2]['column2']);
+    }
+
+    public function testCreateSchema()
+    {
+        $this->adapter->createSchema('foo');
+        $this->assertTrue($this->adapter->hasSchema('foo'));
+    }
+
+    public function testDropSchema()
+    {
+        $this->adapter->createSchema('foo');
+        $this->assertTrue($this->adapter->hasSchema('foo'));
+        $this->adapter->dropSchema('foo');
+        $this->assertFalse($this->adapter->hasSchema('foo'));
     }
 }
