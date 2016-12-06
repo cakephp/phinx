@@ -217,6 +217,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $sql = substr(rtrim($sql), 0, -1);              // no primary keys
         }
 
+        $sql .= ') ';
+
         // set the foreign keys
         $foreignKeys = $table->getForeignKeys();
         if (!empty($foreignKeys)) {
@@ -225,7 +227,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-        $sql = rtrim($sql) . ');';
+        $sql = rtrim($sql) . ';';
         // execute the sql
         $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
@@ -417,13 +419,11 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
 
-        $val = end($columns);
-        $replacement = ($val['name'] === $columnName) ? "%s %s" : "%s %s,";
-        $sql = preg_replace(
-            sprintf("/%s[^,]*[^\)]/", $this->quoteColumnName($columnName)),
-            sprintf($replacement, $this->quoteColumnName($newColumn->getName()), $this->getColumnSqlDefinition($newColumn)),
-            $sql
-        );
+		$sql = preg_replace(
+			sprintf("/^(%s)[^,]*/", $this->quoteColumnName($columnName)),
+			sprintf("%s %s", $this->quoteColumnName($newColumn->getName()), $this->getColumnSqlDefinition($newColumn)),
+			$sql
+		);
 
         $this->execute($sql);
 
@@ -839,7 +839,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getSqlType($type, $limit = null)
+    public function getSqlType($type, $limit = null, $identity = false)
     {
         switch ($type) {
             case static::PHINX_TYPE_STRING:
@@ -855,7 +855,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'integer');
                 break;
             case static::PHINX_TYPE_BIG_INTEGER:
-                return array('name' => 'bigint');
+                // It's not possible to have an auto incrementing BIGINT in SQLite. However SQLite uses a dynamic type system.
+                // We can therefor use INTEGER. See: http://www.sqlite.org/datatype3.html
+                return $identity ? array('name' => 'bigint') : array('name' => 'integer');
                 break;
             case static::PHINX_TYPE_FLOAT:
                 return array('name' => 'float');
@@ -1026,7 +1028,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getColumnSqlDefinition(Column $column)
     {
-        $sqlType = $this->getSqlType($column->getType());
+        $sqlType = $this->getSqlType($column->getType(), $column->isIdentity());
         $def = '';
         $def .= strtoupper($sqlType['name']);
         if ($column->getPrecision() && $column->getScale()) {
