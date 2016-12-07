@@ -1250,4 +1250,17 @@ SQL;
         $options = $this->getOptions();
         return empty($options['schema']) ? 'dbo' : $options['schema'];
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSchemaTableNameWithSchema()
+    {
+        $schema    = $this->getSchemaName();
+        $tableName = $this->schemaTableName;
+        if (!empty($schema)) {
+            $tableName = "[{$schema}].{$tableName}";
+        }
+        return $tableName;
+    }
 }

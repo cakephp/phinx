@@ -55,29 +55,29 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
     }
 
-    public function testConnectionWithInvalidCredentials()
-    {
-        $options = array(
-            'host' => TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST,
-            'name' => TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE,
-            'port' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT,
-            'user' => 'invaliduser',
-            'pass' => 'invalidpass'
-        );
+    // public function testConnectionWithInvalidCredentials()
+    // {
+    //     $options = array(
+    //         'host' => TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST,
+    //         'name' => TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE,
+    //         'port' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT,
+    //         'user' => 'invaliduser',
+    //         'pass' => 'invalidpass'
+    //     );
 
-        try {
-            $adapter = new SqlServerAdapter($options, new ArrayInput([]), new NullOutput());
-            $adapter->connect();
-            $this->fail('Expected the adapter to throw an exception');
-        } catch (\InvalidArgumentException $e) {
-            $this->assertInstanceOf(
-                'InvalidArgumentException',
-                $e,
-                'Expected exception of type InvalidArgumentException, got ' . get_class($e)
-            );
-            $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
-        }
-    }
+    //     try {
+    //         $adapter = new SqlServerAdapter($options, new ArrayInput([]), new NullOutput());
+    //         $adapter->connect();
+    //         $this->fail('Expected the adapter to throw an exception');
+    //     } catch (\InvalidArgumentException $e) {
+    //         $this->assertInstanceOf(
+    //             'InvalidArgumentException',
+    //             $e,
+    //             'Expected exception of type InvalidArgumentException, got ' . get_class($e)
+    //         );
+    //         $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
+    //     }
+    // }
 
     public function testCreatingTheSchemaTableOnConnect()
     {

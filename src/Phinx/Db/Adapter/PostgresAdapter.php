@@ -1163,7 +1163,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      *
      * @return string
      */
-    private function getSchemaName()
+    public function getSchemaName()
     {
         $options = $this->getOptions();
         return empty($options['schema']) ? 'public' : $options['schema'];
@@ -1179,5 +1179,18 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function castToBool($value)
     {
         return (bool) $value ? 'TRUE' : 'FALSE';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSchemaTableNameWithSchema()
+    {
+        $schema    = $this->getSchemaName();
+        $tableName = $this->schemaTableName;
+        if (!empty($schema)) {
+            $tableName = "\"{$schema}\".{$tableName}";
+        }
+        return $tableName;
     }
 }
