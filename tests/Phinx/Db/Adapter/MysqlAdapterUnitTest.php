@@ -276,7 +276,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $table->expects($this->any())->method('getIndexes')->will($this->returnValue(array()));
         $table->expects($this->any())->method('getForeignKeys')->will($this->returnValue(array()));
 
-        $expectedSql = 'CREATE TABLE `table_name` (`id` INT(11) NOT NULL AUTO_INCREMENT, `column_name` VARCHAR(255) NOT NULL, `column_name2` INT(11) NOT NULL, PRIMARY KEY (`id`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;';
+        $expectedSql = 'CREATE TABLE `table_name` (`id` INT(11) unsigned NOT NULL AUTO_INCREMENT, `column_name` VARCHAR(255) NOT NULL, `column_name2` INT(11) NOT NULL, PRIMARY KEY (`id`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;';
         $this->assertExecuteSql($expectedSql);
         $this->adapter->createTable($table);
     }
@@ -315,7 +315,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $table->expects($this->any())->method('getIndexes')->will($this->returnValue(array()));
         $table->expects($this->any())->method('getForeignKeys')->will($this->returnValue(array()));
 
-        $expectedSql = 'CREATE TABLE `table_name` (`column_name2` INT(11) NOT NULL AUTO_INCREMENT, `column_name` VARCHAR(255) NOT NULL, `column_name2` INT(11) NOT NULL, PRIMARY KEY (`column_name2`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;';
+        $expectedSql = 'CREATE TABLE `table_name` (`column_name2` INT(11) unsigned NOT NULL AUTO_INCREMENT, `column_name` VARCHAR(255) NOT NULL, `column_name2` INT(11) NOT NULL, PRIMARY KEY (`column_name2`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;';
         $this->assertExecuteSql($expectedSql);
         $this->adapter->createTable($table);
     }
