@@ -29,9 +29,11 @@
 namespace Phinx\Console\Command;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Yaml;
 
 class Init extends Command
 {
@@ -42,7 +44,6 @@ class Init extends Command
     {
         $this->setName('init')
             ->setDescription('Initialize the application for Phinx')
-            ->addArgument('path', InputArgument::OPTIONAL, 'Which path should we initialize for Phinx?')
             ->setHelp(sprintf(
                 '%sInitializes the application for Phinx%s',
                 PHP_EOL,
@@ -61,13 +62,13 @@ class Init extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // get the migration path from the config
-        $path = $input->getArgument('path');
-
-        if (null === $path) {
-            $path = getcwd();
-        }
-
+        //set the path
+        $helper = $this->getHelper('question');
+        $getPath = new Question(
+            'Which path should we initialize for Phinx? (default is current directory) ',
+            getcwd()
+        );
+        $path = $helper->ask($input, $output, $getPath);
         $path = realpath($path);
 
         if (!is_writeable($path)) {
@@ -77,8 +78,17 @@ class Init extends Command
             ));
         }
 
+        // set the config format
+        $getFormat = new ChoiceQuestion(
+            'Would you like to use JSON, YML, or PHP configuration files?',
+            array('php', 'json', 'yml'),
+            2
+        );
+
+        $type = $helper->ask($input, $output, $getFormat);
+
         // Compute the file path
-        $fileName = 'phinx.yml'; // TODO - maybe in the future we allow custom config names.
+        $fileName = 'phinx.'.$type; // TODO - maybe in the future we allow custom config names.
         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
 
         if (file_exists($filePath)) {
@@ -90,10 +100,24 @@ class Init extends Command
 
         // load the config template
         if (is_dir(__DIR__ . '/../../../data/Phinx')) {
-            $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/phinx.yml');
+            $file = __DIR__ . '/../../../data/Phinx/phinx.php';
         } else {
-            $contents = file_get_contents(__DIR__ . '/../../../../phinx.yml');
+            $file = __DIR__  . '/../../../../phinx.php';
         }
+
+        switch ($type) {
+            case 'json':
+                $contents = json_encode(require $file, JSON_PRETTY_PRINT);
+                break;
+            case 'yml':
+                $contents = Yaml::dump(require $file, 6);
+                break;
+            case 'php':
+            default:
+                $contents = file_get_contents($file);
+                break;
+        }
+
 
         if (false === file_put_contents($filePath, $contents)) {
             throw new \RuntimeException(sprintf(

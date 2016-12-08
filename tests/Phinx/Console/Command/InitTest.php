@@ -27,11 +27,14 @@ class InitTest extends \PHPUnit_Framework_TestCase
 
         $command = $application->find('init');
 
+        $helper = $command->getHelper('question');
+        $helper->setInputStream($this->getInputStream(sys_get_temp_dir()."\n"));
+
         $commandTester = new CommandTester($command);
         $commandTester->execute(array(
             'command' => $command->getName(),
-            'path' => sys_get_temp_dir()
-        ));
+            $helper->getInputStream()
+        ), array('interactive'));
 
         $this->assertRegExp(
             '/created (.*)phinx.yml(.*)/',
@@ -64,5 +67,14 @@ class InitTest extends \PHPUnit_Framework_TestCase
             'command' => $command->getName(),
             'path' => sys_get_temp_dir()
         ));
+    }
+
+    protected function getInputStream($input)
+    {
+        $stream = fopen('php://memory', 'r+', false);
+        fputs($stream, $input);
+        rewind($stream);
+
+        return $stream;
     }
 }
