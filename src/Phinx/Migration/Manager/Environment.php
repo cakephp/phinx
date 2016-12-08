@@ -89,7 +89,7 @@ class Environment
     public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP)
     {
         $startTime = time();
-        $direction = ($direction == MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
+        $direction = ($direction === MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
         $migration->setAdapter($this->getAdapter());
 
         // begin the transaction if the adapter supports it
@@ -99,7 +99,7 @@ class Environment
 
         // Run the migration
         if (method_exists($migration, MigrationInterface::CHANGE)) {
-            if ($direction == MigrationInterface::DOWN) {
+            if ($direction === MigrationInterface::DOWN) {
                 // Create an instance of the ProxyAdapter so we can record all
                 // of the migration commands for reverse playback
                 $proxyAdapter = AdapterFactory::instance()
@@ -227,7 +227,19 @@ class Environment
      */
     public function getVersions()
     {
-        return $this->getAdapter()->getVersions();
+        return $this->getAdapter()->getVersions(false);
+    }
+
+    /**
+     * Gets all migrated version rows.
+     *
+     * This will include the breakpoint marker.
+     *
+     * @return array
+     */
+    public function getFullVersions()
+    {
+        return $this->getAdapter()->getVersions(true);
     }
 
     /**

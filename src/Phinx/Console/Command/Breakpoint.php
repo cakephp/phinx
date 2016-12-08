@@ -23,6 +23,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
+ * @author     Richard Quadling
  * @package    Phinx
  * @subpackage Phinx\Console
  */
@@ -32,7 +33,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Status extends AbstractCommand
+class Breakpoint extends AbstractCommand
 {
     /**
      * {@inheritdoc}
@@ -43,32 +44,37 @@ class Status extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment.');
 
-        $this->setName('status')
-             ->setDescription('Show migration status')
-             ->addOption('--format', '-f', InputOption::VALUE_REQUIRED, 'The output format: text or json. Defaults to text.')
+        $this->setName('breakpoint')
+             ->setDescription('Manage breakpoints')
+             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to set or clear a breakpoint against')
+             ->addOption('--remove-all', '-r', InputOption::VALUE_NONE, 'Remove all breakpoints')
              ->setHelp(
 <<<EOT
-The <info>status</info> command prints a list of all migrations, along with their current status
+The <info>breakpoint</info> command allows you to set or clear a breakpoint against a specific target to inhibit rollbacks beyond a certain target.
+If no target is supplied then the most recent migration will be used.
+You cannot specify un-migrated targets
 
-<info>phinx status -e development</info>
-<info>phinx status -e development -f json</info>
+<info>phinx breakpoint -e development</info>
+<info>phinx breakpoint -e development -t 20110103081132</info>
+<info>phinx breakpoint -e development -r</info>
 EOT
              );
     }
 
     /**
-     * Show the migration status.
+     * Toggle the breakpoint.
      *
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return integer 0 if all migrations are up, or an error code
+     * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
 
         $environment = $input->getOption('environment');
-        $format = $input->getOption('format');
+        $version = $input->getOption('target');
+        $removeAll = $input->getOption('remove-all');
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -76,11 +82,17 @@ EOT
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
-        if (null !== $format) {
-            $output->writeln('<info>using format</info> ' . $format);
+
+        if ($version && $removeAll){
+            throw new \InvalidArgumentException('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
         }
 
-        // print the status
-        return $this->getManager()->printStatus($environment, $format);
+        // Remove all breakpoints
+        if ($removeAll){
+            $this->getManager()->removeBreakpoints($environment);
+        } else {
+            // Toggle the breakpoint.
+            $this->getManager()->toggleBreakpoint($environment, $version);
+        }
     }
 }

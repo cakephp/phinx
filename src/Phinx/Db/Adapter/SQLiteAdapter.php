@@ -270,7 +270,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $column = new Column();
             $type = strtolower($columnInfo['type']);
             $column->setName($columnInfo['name'])
-                   ->setNull($columnInfo['notnull'] != '1')
+                   ->setNull($columnInfo['notnull'] !== '1')
                    ->setDefault($columnInfo['dflt_value']);
 
             $phinxType = $this->getPhinxType($type);
@@ -332,7 +332,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = '';
         foreach ($rows as $table) {
-            if ($table['tbl_name'] == $tableName) {
+            if ($table['tbl_name'] === $tableName) {
                 $sql = $table['sql'];
             }
         }
@@ -394,7 +394,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = '';
         foreach ($rows as $table) {
-            if ($table['tbl_name'] == $tableName) {
+            if ($table['tbl_name'] === $tableName) {
                 $sql = $table['sql'];
             }
         }
@@ -404,7 +404,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $writeColumns = array();
         foreach ($columns as $column) {
             $selectName = $column['name'];
-            $writeName = ($selectName == $columnName)? $newColumn->getName() : $selectName;
+            $writeName = ($selectName === $columnName)? $newColumn->getName() : $selectName;
             $selectColumns[] = $this->quoteColumnName($selectName);
             $writeColumns[] = $this->quoteColumnName($writeName);
         }
@@ -456,7 +456,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = '';
         foreach ($rows as $table) {
-            if ($table['tbl_name'] == $tableName) {
+            if ($table['tbl_name'] === $tableName) {
                 $sql = $table['sql'];
             }
         }
@@ -465,7 +465,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $columns = array();
         $columnType = null;
         foreach ($rows as $row) {
-            if ($row['name'] != $columnName) {
+            if ($row['name'] !== $columnName) {
                 $columns[] = $row['name'];
             } else {
                 $found = true;
@@ -559,7 +559,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $indexes = $this->getIndexes($tableName);
 
         foreach ($indexes as $index) {
-            if ($indexName == $index['index']) {
+            if ($indexName === $index['index']) {
                 return true;
             }
         }
@@ -630,7 +630,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $indexes = $this->getIndexes($tableName);
 
         foreach ($indexes as $index) {
-            if ($indexName == $index['index']) {
+            if ($indexName === $index['index']) {
                 $this->execute(
                     sprintf(
                         'DROP INDEX %s',
@@ -685,7 +685,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         );
 
         foreach ($rows as $row) {
-            if ($row['tbl_name'] == $tableName) {
+            if ($row['tbl_name'] === $tableName) {
 
                 if (strpos($row['sql'], 'REFERENCES') !== false) {
                     preg_match_all("/\(`([^`]*)`\) REFERENCES/", $row['sql'], $matches);
@@ -713,7 +713,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = '';
         foreach ($rows as $row) {
-            if ($row['tbl_name'] == $table->getName()) {
+            if ($row['tbl_name'] === $table->getName()) {
                 $sql = $row['sql'];
             }
         }
@@ -762,7 +762,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = '';
         foreach ($rows as $table) {
-            if ($table['tbl_name'] == $tableName) {
+            if ($table['tbl_name'] === $tableName) {
                 $sql = $table['sql'];
             }
         }
@@ -924,13 +924,13 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             switch ($matches[1]) {
                 case 'varchar':
                     $type = static::PHINX_TYPE_STRING;
-                    if ($limit == 255) {
+                    if ($limit === 255) {
                         $limit = null;
                     }
                     break;
                 case 'char':
                     $type = static::PHINX_TYPE_CHAR;
-                    if ($limit == 255) {
+                    if ($limit === 255) {
                         $limit = null;
                     }
                     if ($limit === 36) {
@@ -939,12 +939,12 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                     break;
                 case 'int':
                     $type = static::PHINX_TYPE_INTEGER;
-                    if ($limit == 11) {
+                    if ($limit === 11) {
                         $limit = null;
                     }
                     break;
                 case 'bigint':
-                    if ($limit == 11) {
+                    if ($limit === 11) {
                         $limit = null;
                     }
                     $type = static::PHINX_TYPE_BIG_INTEGER;
@@ -953,8 +953,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                     $type = static::PHINX_TYPE_BINARY;
                     break;
             }
-            if ($type == 'tinyint') {
-                if ($matches[3] == 1) {
+            if ($type === 'tinyint') {
+                if ($matches[3] === 1) {
                     $type = static::PHINX_TYPE_BOOLEAN;
                     $limit = null;
                 }
@@ -1074,7 +1074,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getIndexSqlDefinition(Table $table, Index $index)
     {
-        if ($index->getType() == Index::UNIQUE) {
+        if ($index->getType() === Index::UNIQUE) {
             $def = 'UNIQUE INDEX';
         } else {
             $def = 'INDEX';

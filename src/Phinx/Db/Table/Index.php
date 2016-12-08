@@ -99,12 +99,22 @@ class Index
         return $this->type;
     }
 
+    /**
+     * Sets the index name.
+     *
+     * @return string
+     */
     public function setName($name)
     {
         $this->name = $name;
         return $this;
     }
 
+    /**
+     * Gets the index name.
+     *
+     * @return string
+     */
     public function getName()
     {
         return $this->name;

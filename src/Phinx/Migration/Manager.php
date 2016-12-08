@@ -63,6 +63,16 @@ class Manager
     protected $seeds;
 
     /**
+     * @var integer
+     */
+    const EXIT_STATUS_DOWN = 1;
+
+    /**
+     * @var integer
+     */
+    const EXIT_STATUS_MISSING = 2;
+
+    /**
      * Class Constructor.
      *
      * @param ConfigInterface $config Configuration Object
@@ -79,25 +89,27 @@ class Manager
      *
      * @param string $environment
      * @param null $format
-     * @return void
+     * @return integer 0 if all migrations are up, or an error code
      */
     public function printStatus($environment, $format = null)
     {
         $output = $this->getOutput();
         $migrations = array();
+        $hasDownMigration = false;
+        $hasMissingMigration = false;
         if (count($this->getMigrations())) {
             $output->writeln('');
             $output->writeln(' Status  Migration ID    Migration Name ');
             $output->writeln('-----------------------------------------');
 
             $env = $this->getEnvironment($environment);
-            $versions = $env->getVersions();
+            $versions = $env->getFullVersions();
 
             foreach ($this->getMigrations() as $migration) {
-                if (in_array($migration->getVersion(), $versions)) {
+                if (array_key_exists($migration->getVersion(), $versions)) {
                     $status = '     <info>up</info> ';
-                    unset($versions[array_search($migration->getVersion(), $versions)]);
                 } else {
+                    $hasDownMigration = true;
                     $status = '   <error>down</error> ';
                 }
 
@@ -106,15 +118,27 @@ class Manager
                     . sprintf(' %14.0f ', $migration->getVersion())
                     . ' <comment>' . $migration->getName() . '</comment>'
                 );
+
+                 if (isset($versions[$migration->getVersion()]) && 0 != $versions[$migration->getVersion()]['breakpoint']) {
+                     $output->writeln('         <error>BREAKPOINT SET</error>');
+                 }
+
                 $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
+
+                if (array_key_exists($migration->getVersion(), $versions)) {
+                    unset($versions[$migration->getVersion()]);
+                }
             }
 
-            foreach ($versions as $missing) {
-                $output->writeln(
-                    '     <error>up</error> '
-                    . sprintf(' %14.0f ', $missing)
-                    . ' <error>** MISSING **</error>'
-                );
+            if (count($versions)) {
+                $hasMissingMigration = true;
+                foreach (array_keys($versions) as $missing) {
+                    $output->writeln(
+                        '     <error>up</error> '
+                        . sprintf(' %14.0f ', $missing)
+                        . ' <error>** MISSING **</error>'
+                    );
+                }
             }
         } else {
             // there are no migrations
@@ -124,7 +148,7 @@ class Manager
 
         // write an empty line
         $output->writeln('');
-        if ($format != null) {
+        if ($format !== null) {
             switch ($format) {
                 case 'json':
                     $output->writeln(json_encode(
@@ -136,10 +160,16 @@ class Manager
                     break;
                 default:
                     $output->writeln('<info>Unsupported format: '.$format.'</info>');
-                    break;
             }
         }
 
+        if ($hasMissingMigration) {
+            return self::EXIT_STATUS_MISSING;
+        } else if ($hasDownMigration) {
+            return self::EXIT_STATUS_DOWN;
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -163,7 +193,8 @@ class Manager
                         'Migrating to version ' . $earlierVersion
                     );
                 }
-                return $this->migrate($environment, $earlierVersion);
+                $this->migrate($environment, $earlierVersion);
+                return;
             }
             $earlierVersion = $version;
         }
@@ -172,7 +203,7 @@ class Manager
         $this->getOutput()->writeln(
             'Migrating to version ' . $earlierVersion
         );
-        return $this->migrate($environment, $earlierVersion);
+        $this->migrate($environment, $earlierVersion);
     }
 
     /**
@@ -180,10 +211,11 @@ class Manager
      *
      * @param string    $environment Environment
      * @param \DateTime $dateTime    Date to roll back to
+     * @param bool $force
      *
      * @return void
      */
-    public function rollbackToDateTime($environment, \DateTime $dateTime)
+    public function rollbackToDateTime($environment, \DateTime $dateTime, $force = false)
     {
         $env        = $this->getEnvironment($environment);
         $versions   = $env->getVersions();
@@ -195,12 +227,13 @@ class Manager
                 if (!is_null($laterVersion)) {
                     $this->getOutput()->writeln('Rolling back to version '.$version);
                 }
-                return $this->rollback($environment, $version);
+                $this->rollback($environment, $version, $force);
+                return;
             }
             $laterVersion = $version;
         }
         $this->getOutput()->writeln('Rolling back to version ' . $laterVersion);
-        return $this->rollback($environment, $laterVersion);
+        $this->rollback($environment, $laterVersion, $force);
     }
 
     /**
@@ -236,7 +269,7 @@ class Manager
         // are we migrating up or down?
         $direction = $version > $current ? MigrationInterface::UP : MigrationInterface::DOWN;
 
-        if ($direction == MigrationInterface::DOWN) {
+        if ($direction === MigrationInterface::DOWN) {
             // run downs first
             krsort($migrations);
             foreach ($migrations as $migration) {
@@ -276,7 +309,7 @@ class Manager
         $this->getOutput()->writeln(
             ' =='
             . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
-            . ' <comment>' . ($direction == 'up' ? 'migrating' : 'reverting') . '</comment>'
+            . ' <comment>' . ($direction === MigrationInterface::UP ? 'migrating' : 'reverting') . '</comment>'
         );
 
         // Execute the migration and log the time elapsed.
@@ -287,7 +320,7 @@ class Manager
         $this->getOutput()->writeln(
             ' =='
             . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
-            . ' <comment>' . ($direction == 'up' ? 'migrated' : 'reverted')
+            . ' <comment>' . ($direction === MigrationInterface::UP ? 'migrated' : 'reverted')
             . ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
         );
     }
@@ -326,31 +359,37 @@ class Manager
      *
      * @param string $environment Environment
      * @param int $version
+     * @param bool $force
      * @return void
      */
-    public function rollback($environment, $version = null)
+    public function rollback($environment, $version = null, $force = false)
     {
         $migrations = $this->getMigrations();
-        $env = $this->getEnvironment($environment);
-        $versions = $env->getVersions();
+        $versions = $this->getEnvironment($environment)->getFullVersions();
 
         ksort($migrations);
-        sort($versions);
+        asort($versions);
 
         // Check we have at least 1 migration to revert
-        if (empty($versions) || $version == end($versions)) {
+        $lastVersion = end($versions);
+        if (empty($versions) || $version == $lastVersion['version']) {
             $this->getOutput()->writeln('<error>No migrations to rollback</error>');
             return;
         }
 
         // If no target version was supplied, revert the last migration
+        $versionKeys = array_keys($versions);
         if (null === $version) {
             // Get the migration before the last run migration
             $prev = count($versions) - 2;
-            $version = $prev >= 0 ? $versions[$prev] : 0;
+            if (0 == $prev){
+                $version = 0;
+            } else {
+                $version = $versionKeys[$prev];
+            }
         } else {
             // Get the first migration number
-            $first = reset($versions);
+            $first = $versionKeys[0];
 
             // If the target version is before the first migration, revert all migrations
             if ($version < $first) {
@@ -370,8 +409,11 @@ class Manager
             if ($migration->getVersion() <= $version) {
                 break;
             }
-
-            if (in_array($migration->getVersion(), $versions)) {
+            if (array_key_exists($migration->getVersion(), $versions)) {
+                if (isset($versions[$migration->getVersion()]) && 0 != $versions[$migration->getVersion()]['breakpoint'] && !$force){
+                    $this->getOutput()->writeln('<error>Breakpoint reached. Further rollbacks inhibited.</error>');
+                    break;
+                }
                 $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
             }
         }
@@ -642,5 +684,71 @@ class Manager
     public function getConfig()
     {
         return $this->config;
+    }
+
+    /**
+     * Toggles the breakpoint for a specific version.
+     *
+     * @param string $environment
+     * @param int $version
+     * @return void
+     */
+    public function toggleBreakpoint($environment, $version){
+        $migrations = $this->getMigrations();
+        $this->getMigrations();
+        $env = $this->getEnvironment($environment);
+        $versions = $env->getVersions();
+
+        if (empty($versions) || empty($migrations)) {
+            return;
+        }
+
+        if (null === $version) {
+            $version = max($versions);
+        }
+
+        if (0 != $version && !isset($migrations[$version])) {
+            $this->output->writeln(sprintf(
+                '<comment>warning</comment> %s is not a valid version',
+                $version
+            ));
+            return;
+        }
+
+        $adapter = $env->getAdapter();
+        $schemaTableName = $env->getSchemaTableName();
+
+        $sql = sprintf(
+            'UPDATE %s SET breakpoint = CASE breakpoint WHEN 1 THEN 0 ELSE 1 END WHERE version = \'%s\';',
+            $schemaTableName,
+            $version
+        );
+
+        $adapter->execute($sql);
+
+        $breakpoint = $adapter->fetchRow(sprintf(
+            'SELECT breakpoint FROM %s WHERE version = \'%s\';',
+            $schemaTableName,
+            $version
+        ));
+
+        $this->getOutput()->writeln(
+            ' Breakpoint ' . ($breakpoint['breakpoint'] ? 'set' : 'cleared') .
+            ' for <info>' . $version . '</info>' .
+            ' <comment>' . $migrations[$version]->getName() . '</comment>'
+        );
+    }
+
+    public function removeBreakpoints($environment){
+        $env = $this->getEnvironment($environment);
+        $breakpointsReset = $env->getAdapter()->execute(sprintf(
+            'UPDATE %s SET breakpoint = 0 WHERE breakpoint <> 0;',
+            $env->getSchemaTableName()
+        ));
+
+        $this->getOutput()->writeln(sprintf(
+            ' %d breakpoints cleared.',
+            $breakpointsReset
+        ));
     }
 }
