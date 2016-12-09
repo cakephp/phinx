@@ -236,29 +236,45 @@ class Manager
         // are we migrating up or down?
         $direction = $version > $current ? MigrationInterface::UP : MigrationInterface::DOWN;
 
-        if ($direction == MigrationInterface::DOWN) {
-            // run downs first
-            krsort($migrations);
+        $adapter = $this->getEnvironment($environment)->getAdapter();
+        if ($adapter->hasTransactions()) {
+            $adapter->beginTransaction();
+        }
+
+        try {
+            if ($direction == MigrationInterface::DOWN) {
+                // run downs first
+                krsort($migrations);
+                foreach ($migrations as $migration) {
+                    if ($migration->getVersion() <= $version) {
+                        break;
+                    }
+
+                    if (in_array($migration->getVersion(), $versions)) {
+                        $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                    }
+                }
+            }
+
+            ksort($migrations);
             foreach ($migrations as $migration) {
-                if ($migration->getVersion() <= $version) {
+                if ($migration->getVersion() > $version) {
                     break;
                 }
 
-                if (in_array($migration->getVersion(), $versions)) {
-                    $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                if (!in_array($migration->getVersion(), $versions)) {
+                    $this->executeMigration($environment, $migration, MigrationInterface::UP);
                 }
             }
+        } catch (\Exception $e) {
+           if ($adapter->hasTransactions()) {
+               $adapter->rollbackTransaction();
+           }
+           throw $e;
         }
 
-        ksort($migrations);
-        foreach ($migrations as $migration) {
-            if ($migration->getVersion() > $version) {
-                break;
-            }
-
-            if (!in_array($migration->getVersion(), $versions)) {
-                $this->executeMigration($environment, $migration, MigrationInterface::UP);
-            }
+        if ($adapter->hasTransactions()) {
+            $adapter->commitTransaction();
         }
     }
 
@@ -364,16 +380,32 @@ class Manager
             return;
         }
 
-        // Revert the migration(s)
-        krsort($migrations);
-        foreach ($migrations as $migration) {
-            if ($migration->getVersion() <= $version) {
-                break;
-            }
+        $adapter = $this->getEnvironment($environment)->getAdapter();
+        if ($adapter->hasTransactions()) {
+            $adapter->beginTransaction();
+        }
 
-            if (in_array($migration->getVersion(), $versions)) {
-                $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+        try {
+            // Revert the migration(s)
+            krsort($migrations);
+            foreach ($migrations as $migration) {
+                if ($migration->getVersion() <= $version) {
+                    break;
+                }
+
+                if (in_array($migration->getVersion(), $versions)) {
+                    $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                }
             }
+        } catch (\Exception $e) {
+            if ($adapter->hasTransactions()) {
+                $adapter->rollbackTransaction();
+            }
+            throw $e;
+        }
+
+        if ($adapter->hasTransactions()) {
+            $adapter->commitTransaction();
         }
     }
 

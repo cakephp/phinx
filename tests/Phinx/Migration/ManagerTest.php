@@ -178,11 +178,20 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testMigrationsByDate($availableMigrations, $dateString, $expectedMigration)
     {
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub->expects($this->any())
+                    ->method('hasTransaction')
+                    ->will($this->returnValue(true));
+
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->once())
                 ->method('getVersions')
                 ->will($this->returnValue($availableMigrations));
+        $envStub->expects($this->any())
+                ->method('getAdapter')
+                ->will($this->returnValue($adapterStub));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->migrateToDateTime('mockenv', new \DateTime($dateString));
@@ -202,11 +211,20 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testRollbacksByDate($availableRollbacks, $dateString, $expectedRollback)
     {
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub->expects($this->any())
+                    ->method('hasTransaction')
+                    ->will($this->returnValue(true));
+
         // stub environment
         $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
         $envStub->expects($this->any())
                 ->method('getVersions')
                 ->will($this->returnValue($availableRollbacks));
+        $envStub->expects($this->any())
+                ->method('getAdapter')
+                ->will($this->returnValue($adapterStub));
 
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->rollbackToDateTime('mockenv', new \DateTime($dateString));
@@ -217,6 +235,132 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         } else {
             $this->assertContains($expectedRollback, $output);
         }
+    }
+
+    /**
+     * Test that whole migrate method runs inside a transaction
+     */
+    public function testMigrationsTransaction()
+    {
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub->expects($this->any())
+                    ->method('hasTransactions')
+                    ->will($this->returnValue(true));
+        $adapterStub->expects($this->once())
+                    ->method('beginTransaction');
+        $adapterStub->expects($this->once())
+                    ->method('commitTransaction');
+
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->any())
+                ->method('getAdapter')
+                ->will($this->returnValue($adapterStub));
+        $envStub->expects($this->once())
+                ->method('getVersions')
+                ->will($this->returnValue(array()));
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->migrate('mockenv', null);
+    }
+
+    /**
+     * Test that the migrations transaction will be rolled back when exception occurs
+     */
+    public function testMigrationsTransactionRollback()
+    {
+        $this->setExpectedException(
+            'InvalidArgumentException',
+            'test exception'
+        );
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub->expects($this->any())
+                    ->method('hasTransactions')
+                    ->will($this->returnValue(true));
+        $adapterStub->expects($this->once())
+                    ->method('beginTransaction');
+        $adapterStub->expects($this->once())
+                    ->method('rollbackTransaction');
+
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->any())
+                ->method('getAdapter')
+                ->will($this->returnValue($adapterStub));
+        $envStub->expects($this->once())
+                ->method('getVersions')
+                ->will($this->returnValue(array()));
+        $envStub->expects($this->once())
+                    ->method('executeMigration')
+                    ->will($this->throwException(new \InvalidArgumentException('test exception')));
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->migrate('mockenv', null);
+    }
+
+    /**
+     * Test that whole rollback method runs inside a transaction
+     */
+    public function testRollbackTransaction()
+    {
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub->expects($this->any())
+                    ->method('hasTransactions')
+                    ->will($this->returnValue(true));
+        $adapterStub->expects($this->once())
+                    ->method('beginTransaction');
+        $adapterStub->expects($this->once())
+                    ->method('commitTransaction');
+
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->any())
+                ->method('getAdapter')
+                ->will($this->returnValue($adapterStub));
+        $envStub->expects($this->once())
+                ->method('getVersions')
+                ->will($this->returnValue(array(20120111235330)));
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->rollback('mockenv', null);
+    }
+
+    /**
+     * Test that the rollback transaction will be rolled back when exception occurs
+     */
+    public function testRollbackTransactionRollback()
+    {
+        $this->setExpectedException(
+            'InvalidArgumentException',
+            'test exception'
+        );
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub->expects($this->any())
+                    ->method('hasTransactions')
+                    ->will($this->returnValue(true));
+        $adapterStub->expects($this->once())
+                    ->method('beginTransaction');
+        $adapterStub->expects($this->once())
+                    ->method('rollbackTransaction');
+
+        // stub environment
+        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub->expects($this->any())
+                ->method('getAdapter')
+                ->will($this->returnValue($adapterStub));
+        $envStub->expects($this->once())
+                ->method('getVersions')
+                ->will($this->returnValue(array(20120111235330)));
+        $envStub->expects($this->once())
+                    ->method('executeMigration')
+                    ->will($this->throwException(new \InvalidArgumentException('test exception')));
+
+        $this->manager->setEnvironments(array('mockenv' => $envStub));
+        $this->manager->migrate('mockenv', null);
     }
 
     /**

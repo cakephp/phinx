@@ -97,11 +97,13 @@ EOT
 
         // rollback the specified environment
         $start = microtime(true);
+
         if (null !== $date) {
             $this->getManager()->rollbackToDateTime($environment, new \DateTime($date));
         } else {
             $this->getManager()->rollback($environment, $version);
         }
+
         $end = microtime(true);
 
         $output->writeln('');

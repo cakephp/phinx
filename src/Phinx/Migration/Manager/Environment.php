@@ -92,11 +92,6 @@ class Environment
         $direction = ($direction == MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
         $migration->setAdapter($this->getAdapter());
 
-        // begin the transaction if the adapter supports it
-        if ($this->getAdapter()->hasTransactions()) {
-            $this->getAdapter()->beginTransaction();
-        }
-
         // Run the migration
         if (method_exists($migration, MigrationInterface::CHANGE)) {
             if ($direction == MigrationInterface::DOWN) {
@@ -115,11 +110,6 @@ class Environment
             }
         } else {
             $migration->{$direction}();
-        }
-
-        // commit the transaction if the adapter supports it
-        if ($this->getAdapter()->hasTransactions()) {
-            $this->getAdapter()->commitTransaction();
         }
 
         // Record it in the database

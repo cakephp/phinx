@@ -107,11 +107,13 @@ EOT
 
         // run the migrations
         $start = microtime(true);
+
         if (null !== $date) {
             $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
         } else {
             $this->getManager()->migrate($environment, $version);
         }
+
         $end = microtime(true);
 
         $output->writeln('');
