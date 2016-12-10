@@ -1,5 +1,7 @@
 # [Phinx](https://phinx.org): Simple PHP Database Migrations
 
+[![Join the chat at https://gitter.im/phinx-php/Lobby](https://badges.gitter.im/phinx-php/Lobby.svg)](https://gitter.im/phinx-php/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/robmorgan/phinx.png?branch=master)](https://travis-ci.org/robmorgan/phinx)
 [![Build status](https://ci.appveyor.com/api/projects/status/9vag4892hfq6effr)](https://ci.appveyor.com/project/robmorgan/phinx)
 [![Code Coverage](https://scrutinizer-ci.com/g/robmorgan/phinx/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/robmorgan/phinx/)
