@@ -92,6 +92,18 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
 
+    /**
+     * @expectedException \PDOException
+     * @expectedExceptionMessage SQLSTATE[HY000]: General error: 1 duplicate column name: realname
+     */
+    public function testCreateTableWithInvalidSyntaxThrowsException()
+    {
+        $table = new \Phinx\Db\Table('ntable', array(), $this->adapter);
+        $table->addColumn('realname', 'string')
+              ->addColumn('realname', 'integer')
+              ->save();
+    }
+
     public function testCreateTableCustomIdColumn()
     {
         $table = new \Phinx\Db\Table('ntable', array('id' => 'custom_id'), $this->adapter);
@@ -514,7 +526,9 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     public function testDropForeignKey()
     {
         $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
-        $refTable->addColumn('field1', 'string')->save();
+        $refTable->addColumn('field1', 'string')
+            ->addIndex(array('field1'), array('unique' => true)) // referenced key must be unique or primary key
+            ->save();
 
         $table = new \Phinx\Db\Table('table', array(), $this->adapter);
         $table->addColumn('ref_table_id', 'integer')->addColumn('ref_table_field', 'string')->save();
