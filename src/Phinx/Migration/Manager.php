@@ -187,6 +187,56 @@ class Manager
     }
 
     /**
+     * Migrate only this version of the database on a given date.
+     *
+     * @param string    $environment Environment
+     * @param int       $version
+     *
+     * @return void
+     */
+    public function rollbackOnlyThisVersion($environment, $version = null)
+    {
+      return $this->migrateOnlyThisVersion($environment,$version,MigrationInterface::DOWN);
+    }
+
+    /**
+     * Migrate only this version of the database on a given date.
+     *
+     * @param string    $environment Environment
+     * @param int       $version
+     * @param string    $direction
+     *
+     * @return boolean
+     */
+    public function migrateOnlyThisVersion($environment, $version = null,$direction = MigrationInterface::UP)
+    {
+        if (!$version || !is_numeric($version) || $version == 0) {
+            throw new \InvalidArgumentException(sprintf('Must give a valid version %s',$version));
+            return;
+        }
+        if (!in_array($direction,array(MigrationInterface::UP,MigrationInterface::DOWN))) {
+            throw new \InvalidArgumentException(sprintf('Direction must be up or down only',$version));
+            return;
+        }
+        $migrations = $this->getMigrations($version);
+        $env = $this->getEnvironment($environment);
+        $versions = in_array($version,$env->getversions())? array($version):array();
+
+        if (empty($versions) && empty($migrations)) {
+            $this->output->writeln(sprintf('<error>nothing to do</error>'));
+            return;
+        }
+
+        if (!isset($migrations[$version])) {
+            throw new \InvalidArgumentException(sprintf('%s is not a valid version',$version));
+            return;
+        }
+
+        $migration = current($migrations);
+        $this->executeMigration($environment, $migration, $direction);
+        return true;
+    }
+    /**
      * Migrate to the version of the database on a given date.
      *
      * @param string    $environment Environment
@@ -553,15 +603,15 @@ class Manager
 
     /**
      * Gets an array of the database migrations.
-     *
+     * @param string $filter
      * @throws \InvalidArgumentException
      * @return AbstractMigration[]
      */
-    public function getMigrations()
+    public function getMigrations($filter='')
     {
         if (null === $this->migrations) {
             $config = $this->getConfig();
-            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . '*.php', defined('GLOB_BRACE') ? GLOB_BRACE : 0);
+            $phpFiles = glob($config->getMigrationPath() . DIRECTORY_SEPARATOR . $filter.'*.php', defined('GLOB_BRACE') ? GLOB_BRACE : 0);
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
