@@ -9,7 +9,7 @@ use Phinx\Db\Adapter\SQLiteAdapter;
 class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Phinx\Db\Adapter\MysqlAdapter
+     * @var \Phinx\Db\Adapter\SQLiteAdapter
      */
     private $adapter;
 
@@ -39,7 +39,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testConnection()
     {
-        $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
+        $this->assertInstanceOf('\PDO', $this->adapter->getConnection());
     }
 
     public function testBeginTransaction()
@@ -65,7 +65,6 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     public function testSchemaTableIsCreatedWithPrimaryKey()
     {
         $this->adapter->connect();
-        $table = new \Phinx\Db\Table($this->adapter->getSchemaTableName(), array(), $this->adapter);
         $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), array('version')));
     }
 
@@ -109,7 +108,6 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     public function testCreateTableWithNoOptions()
     {
         $this->markTestIncomplete();
-        //$this->adapter->createTable('ntable', )
     }
 
     public function testCreateTableWithNoPrimaryKey()
@@ -211,11 +209,6 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('email', 'string')
               ->save();
         $this->assertTrue($table->hasColumn('email'));
-
-        // In SQLite it is not possible to dictate order of added columns.
-        // $table->addColumn('realname', 'string', array('after' => 'id'))
-        //       ->save();
-        // $this->assertEquals('realname', $rows[1]['Field']);
     }
 
     public function testAddColumnWithDefaultValue()
@@ -346,7 +339,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
                    ->setType('integer');
         $table->changeColumn('column1', $newColumn1);
         $rows = $this->adapter->fetchAll('pragma table_info(t)');
-        $this->assertEquals("0", $rows[1]['dflt_value']);
+        $this->assertEquals('0', $rows[1]['dflt_value']);
     }
 
     public function testChangeColumnDefaultToNull()
@@ -375,28 +368,55 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     public function testGetColumns()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-        $table->addColumn('column1', 'string')
-              ->addColumn('column2', 'integer')
-              ->addColumn('column3', 'biginteger')
-              ->addColumn('column4', 'text')
-              ->addColumn('column5', 'float')
-              ->addColumn('column6', 'decimal')
-              ->addColumn('column7', 'datetime')
-              ->addColumn('column8', 'time')
-              ->addColumn('column9', 'timestamp')
-              ->addColumn('column10', 'date')
-              ->addColumn('column11', 'binary')
-              ->addColumn('column12', 'boolean')
-              ->addColumn('column13', 'string', array('limit' => 10))
-              ->addColumn('column15', 'integer', array('limit' => 10))
-              ->addColumn('column16', 'enum', array('values' => array('a', 'b', 'c')));
+        $table->addColumn('column1', 'string', ['null' => true, 'limit' => 255])
+              ->addColumn('column2', 'integer', ['null' => true])
+              ->addColumn('column3', 'biginteger', ['null' => true])
+              ->addColumn('column4', 'text', ['null' => true])
+              ->addColumn('column5', 'float', ['null' => true])
+              ->addColumn('column6', 'decimal', ['null' => true])
+              ->addColumn('column7', 'datetime', ['null' => true])
+              ->addColumn('column8', 'time', ['null' => true])
+              ->addColumn('column9', 'date', ['null' => true])
+              ->addColumn('column10', 'binary', ['null' => true])
+              ->addColumn('column11', 'boolean', ['null' => true])
+              ->addColumn('column12', 'string', ['null' => true, 'limit' => 10])
+              ->addColumn('column13', 'enum', ['null' => true]); // there can be no enum values since there is no enum type in sqlite
+
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
         $this->assertCount(count($pendingColumns) + 1, $columns);
-        for ($i = 0; $i++; $i < count($pendingColumns)) {
-            $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
+        foreach ($pendingColumns as $key => $columnDefinition) {
+            $this->assertEquals($columnDefinition, $columns[$key+1]);
         }
+    }
+
+    public function testDropConstraint() {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table
+            ->addColumn('column1', 'string', ['null' => true, 'limit' => 255])
+            ->addColumn('column2', 'integer', ['null' => true])
+            ->save();
+
+        $table->dropConstraint('id');
+
+        $columns = $this->adapter->getColumns('t');
+
+        $this->assertFalse($columns[0]->isIdentity());
+    }
+
+
+    /**
+     * timestamp will be transformed to datetime http://www.sqlite.org/datatype3.html
+     * it still works though
+     */
+    public function testTimestampToDatetimeType() {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column9', 'timestamp', ['null' => true]);
+        $table->save();
+
+        $columns = $this->adapter->getColumns('t');
+        $this->assertEquals('datetime', $columns[1]->getType());
     }
 
     public function testAddIndex()
@@ -679,27 +699,27 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         // load table info
         $columns = $this->adapter->getColumns("table1");
 
-        $this->assertEquals(count($columns), 5);
+        $this->assertCount(5, $columns);
 
         $aa = $columns[1];
         $bb = $columns[2];
         $cc = $columns[3];
         $dd = $columns[4];
 
-        $this->assertEquals("aa", $aa->getName());
+        $this->assertEquals('aa', $aa->getName());
         $this->assertEquals(true, $aa->isNull());
         $this->assertEquals(null, $aa->getDefault());
 
-        $this->assertEquals("bb", $bb->getName());
+        $this->assertEquals('bb', $bb->getName());
         $this->assertEquals(false, $bb->isNull());
         $this->assertEquals(null, $bb->getDefault());
 
-        $this->assertEquals("cc", $cc->getName());
+        $this->assertEquals('cc', $cc->getName());
         $this->assertEquals(true, $cc->isNull());
-        $this->assertEquals("some1", $cc->getDefault());
+        $this->assertEquals('some1', $cc->getDefault());
 
-        $this->assertEquals("dd", $dd->getName());
+        $this->assertEquals('dd', $dd->getName());
         $this->assertEquals(false, $dd->isNull());
-        $this->assertEquals("some2", $dd->getDefault());
+        $this->assertEquals('some2', $dd->getDefault());
     }
 }

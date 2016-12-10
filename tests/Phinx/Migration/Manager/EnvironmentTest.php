@@ -106,7 +106,10 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
     public function testCurrentVersion()
     {
-        $stub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $stub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $stub->expects($this->any())
              ->method('getVersions')
              ->will($this->returnValue(array('20110301080000')));
@@ -119,7 +122,10 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     public function testExecutingAMigrationUp()
     {
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $adapterStub->expects($this->once())
                     ->method('migrated')
                     ->will($this->returnArgument(0));
@@ -127,7 +133,14 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->environment->setAdapter($adapterStub);
 
         // up
-        $upMigration = $this->getMock('\Phinx\Migration\AbstractMigration', array('up'), array('20110301080000'));
+        $upMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
+            ->setMethods(
+                [
+                    'up'
+                ]
+            )
+            ->setConstructorArgs(['20110301080000'])
+            ->getMock();
         $upMigration->expects($this->once())
                     ->method('up');
 
@@ -137,7 +150,10 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     public function testExecutingAMigrationDown()
     {
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $adapterStub->expects($this->once())
                     ->method('migrated')
                     ->will($this->returnArgument(0));
@@ -145,7 +161,11 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->environment->setAdapter($adapterStub);
 
         // down
-        $downMigration = $this->getMock('\Phinx\Migration\AbstractMigration', array('down'), array('20110301080000'));
+        $downMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
+            ->setConstructorArgs(['20110301080000'])
+            ->setMethods(['down'])
+            ->getMock();
+
         $downMigration->expects($this->once())
                       ->method('down');
 
@@ -155,7 +175,9 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     public function testExecutingAMigrationWithTransactions()
     {
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
         $adapterStub->expects($this->once())
                     ->method('beginTransaction');
 
@@ -169,7 +191,12 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->environment->setAdapter($adapterStub);
 
         // migrate
-        $migration = $this->getMock('\Phinx\Migration\AbstractMigration', array('up'), array('20110301080000'));
+        $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
+            ->setConstructorArgs(['20110301080000'])
+            ->setMethods(['up'])
+            ->getMock()
+        ;
+
         $migration->expects($this->once())
                   ->method('up');
 
@@ -179,7 +206,10 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     public function testExecutingAChangeMigrationUp()
     {
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $adapterStub->expects($this->once())
                     ->method('migrated')
                     ->will($this->returnArgument(0));
@@ -187,7 +217,12 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->environment->setAdapter($adapterStub);
 
         // migration
-        $migration = $this->getMock('\Phinx\Migration\AbstractMigration', array('change'), array('20130301080000'));
+        $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
+            ->setConstructorArgs(['20130301080000'])
+            ->setMethods(['change'])
+            ->getMock()
+        ;
+
         $migration->expects($this->once())
                   ->method('change');
 
@@ -197,7 +232,10 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     public function testExecutingAChangeMigrationDown()
     {
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $adapterStub->expects($this->once())
                     ->method('migrated')
                     ->will($this->returnArgument(0));
@@ -205,7 +243,11 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->environment->setAdapter($adapterStub);
 
         // migration
-        $migration = $this->getMock('\Phinx\Migration\AbstractMigration', array('change'), array('20130301080000'));
+        $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
+            ->setConstructorArgs(['20130301080000'])
+            ->setMethods(['change'])
+            ->getMock();
+
         $migration->expects($this->once())
                   ->method('change');
 
@@ -214,7 +256,11 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
     public function testGettingInputObject()
     {
-        $this->environment->setInput($this->getMock('\Symfony\Component\Console\Input\InputInterface'));
+        $this->environment->setInput(
+            $this->getMockBuilder('\Symfony\Component\Console\Input\InputInterface')
+                ->disableOriginalConstructor()
+                ->getMock()
+        );
         $inputObject = $this->environment->getInput();
         $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $inputObject);
     }

@@ -231,6 +231,15 @@ class TablePrefixAdapter extends AdapterWrapper
     /**
      * {@inheritdoc}
      */
+    public function dropConstraint($tableName, $columnName = null, $constraintName = null)
+    {
+        $adapterTableName = $this->getAdapterTableName($tableName);
+        return parent::dropConstraint($adapterTableName, $columnName, $constraintName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function insert(Table $table, $row)
     {
         $adapterTable = clone $table;

@@ -65,7 +65,20 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', [], [$this->config, $this->input, $this->output]);
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->disableOriginalConstructor()
+            ->setMethods(
+                [
+                    'setConfig',
+                    'setInput',
+                    'setOutput',
+                    'migrate'
+                ]
+            )
+            ->getMock();
+        $managerStub->setConfig($this->config);
+        $managerStub->setInput($this->input);
+        $managerStub->setOutput($this->output);
         $managerStub->expects($this->once())
                     ->method('migrate');
 
@@ -89,7 +102,20 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', [], [$this->config, $this->input, $this->output]);
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->disableOriginalConstructor()
+            ->setMethods(
+                [
+                    'setConfig',
+                    'setInput',
+                    'setOutput',
+                    'migrate'
+                ]
+            )
+            ->getMock();
+        $managerStub->setConfig($this->config);
+        $managerStub->setInput($this->input);
+        $managerStub->setOutput($this->output);
         $managerStub->expects($this->any())
                     ->method('migrate');
 
@@ -113,7 +139,21 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', [], [$this->config, $this->input, $this->output]);
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->disableOriginalConstructor()
+            ->setMethods(
+                [
+                    'setConfig',
+                    'setInput',
+                    'setOutput',
+                    'migrate'
+                ]
+            )
+            ->getMock();
+        $managerStub->setConfig($this->config);
+        $managerStub->setInput($this->input);
+        $managerStub->setOutput($this->output);
+
         $managerStub->expects($this->once())
                     ->method('migrate');
 

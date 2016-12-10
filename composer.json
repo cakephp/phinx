@@ -1,7 +1,7 @@
 {
-    "name": "robmorgan/phinx",
+    "name": "chilimatic/phinx",
     "type": "library",
-    "description": "Phinx makes it ridiculously easy to manage the database migrations for your PHP app.",
+    "description": "This is only because he didn't accept my pull request and i cannot wait forever",
     "keywords": ["phinx", "migrations", "database", "db", "database migrations"],
     "homepage": "https://phinx.org",
     "license": "MIT",

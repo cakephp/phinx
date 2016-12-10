@@ -331,6 +331,19 @@ interface AdapterInterface
     public function dropTable($tableName);
 
     /**
+     * this will drop the primary key in MySQL & SQLite but in pgSQL they are called constraints that why it's called
+     * drop constraint and not drop primary key because a primary key is only a special form of a constraint
+     * still the procedures for mysql and sqlite will only remove the primary key.
+     *
+     * @param $tableName
+     * @param null $columnName
+     * @param null $constraintName
+     * @throws \InvalidArgumentException
+     * @return mixed
+     */
+    public function dropConstraint($tableName, $columnName = null, $constraintName = null);
+
+    /**
      * Returns table columns
      *
      * @param string $tableName Table Name
@@ -372,6 +385,7 @@ interface AdapterInterface
      * @param string $tableName  Table Name
      * @param string $columnName Column Name
      * @param Column $newColumn  New Column
+     * @throws \InvalidArgumentException
      * @return Table
      */
     public function changeColumn($tableName, $columnName, Column $newColumn);
@@ -381,6 +395,7 @@ interface AdapterInterface
      *
      * @param string $tableName Table Name
      * @param string $columnName Column Name
+     * @throws \InvalidArgumentException
      * @return void
      */
     public function dropColumn($tableName, $columnName);
@@ -455,6 +470,7 @@ interface AdapterInterface
      * @param string   $tableName
      * @param string[] $columns    Column(s)
      * @param string   $constraint Constraint name
+     * @throws \InvalidArgumentException
      * @return void
      */
     public function dropForeignKey($tableName, $columns, $constraint = null);
@@ -479,6 +495,7 @@ interface AdapterInterface
      *
      * @param string $type
      * @param integer $limit
+     * @throws \RuntimeException
      * @return string
      */
     public function getSqlType($type, $limit = null);

@@ -151,6 +151,11 @@ class ProxyAdapter extends AdapterWrapper
         $this->recordCommand('dropForeignKey', array($columns, $constraint));
     }
 
+    public function dropConstraint($tableName, $columnName = null, $constraintName = null)
+    {
+        $this->recordCommand('dropConstraint', array($columnName, $constraintName));
+    }
+
     /**
      * {@inheritdoc}
      */

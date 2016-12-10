@@ -26,7 +26,9 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
             'table_suffix' => '_suf',
         );
 
-        $this->mock = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $this->mock = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->mock
             ->expects($this->any())
@@ -44,8 +46,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        unset($this->adapter);
-        unset($this->mock);
+        unset($this->adapter, $this->mock);
     }
 
     public function testGetAdapterTableName()

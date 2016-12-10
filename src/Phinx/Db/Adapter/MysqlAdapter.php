@@ -189,7 +189,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             "SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
             WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'",
-            $options['name'], $tableName
+            (string) isset($options['name']) ? $options['name'] : '',
+            $tableName
         ));
 
         return !empty($exists);
@@ -327,6 +328,18 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
         $this->endCommandTimer();
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropConstraint($tableName, $columnName = null, $constraintName = null)
+    {
+        $this->startCommandTimer();
+        $this->writeCommand('dropConstraint', array($tableName));
+        $this->execute(sprintf('ALTER TABLE %s DROP PRIMARY KEY', $this->quoteTableName($tableName)));
+        $this->endCommandTimer();
+    }
+
 
     /**
      * {@inheritdoc}
@@ -627,7 +640,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             return false;
         } else {
             foreach ($foreignKeys as $key) {
-                $a = array_diff($columns, $key['columns']);
                 if ($columns == $key['columns']) {
                     return true;
                 }
@@ -848,7 +860,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'set');
                 break;
             case static::TYPE_YEAR:
-                if (!$limit || in_array($limit, array(2, 4)))
+                if (!$limit || in_array($limit, array(2, 4), false))
                     $limit = 4;
                 return array('name' => 'year', 'limit' => $limit);
                 break;

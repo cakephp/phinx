@@ -28,6 +28,7 @@ install:
   - echo extension=php_openssl.dll >> php.ini
   - echo extension=php_sqlsrv.dll >> php.ini
   - echo extension=php_pdo_sqlsrv.dll >> php.ini
+  - echo extension=php_pdo_mysql.dll >> php.ini
   - cd C:\projects\phinx
   - php -r "readfile('https://getcomposer.org/installer');" | php
   - php composer.phar install --prefer-dist --no-interaction --dev
