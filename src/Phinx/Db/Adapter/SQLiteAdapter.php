@@ -290,6 +290,21 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function getColumnNames($tableName)
+    {
+        $columns = array();
+        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
+
+        foreach ($rows as $columnInfo) {
+            $columns[] = $columnInfo['name'];
+        }
+
+        return $columns;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasColumn($tableName, $columnName)
     {
         $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));

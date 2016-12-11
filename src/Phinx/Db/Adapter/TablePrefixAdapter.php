@@ -108,6 +108,15 @@ class TablePrefixAdapter extends AdapterWrapper
     /**
      * {@inheritdoc}
      */
+    public function getColumnNames($tableName)
+    {
+        $adapterTableName = $this->getAdapterTableName($tableName);
+        return parent::getColumnNames($adapterTableName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasColumn($tableName, $columnName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
@@ -238,7 +247,18 @@ class TablePrefixAdapter extends AdapterWrapper
         $adapterTable->setName($adapterTableName);
         return parent::insert($adapterTable, $row);
     }
-    
+
+    /**
+     * {@inheritdoc}
+     */
+    public function update(Table $table, $row, $whereParams)
+    {
+        $adapterTable = clone $table;
+        $adapterTableName = $this->getAdapterTableName($table->getName());
+        $adapterTable->setName($adapterTableName);
+        return parent::update($adapterTable, $row, $whereParams);
+    }
+
     /**
      * Gets the table prefix.
      *

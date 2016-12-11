@@ -186,6 +186,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function update(Table $table, $row, $whereParams)
+    {
+        return $this->getAdapter()->update($table, $row, $whereParams);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function fetchRow($sql)
     {
         return $this->getAdapter()->fetchRow($sql);
@@ -359,6 +367,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function getColumns($tableName)
     {
         return $this->getAdapter()->getColumns($tableName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getColumnNames($tableName)
+    {
+        return $this->getAdapter()->getColumnNames($tableName);
     }
 
     /**

@@ -165,6 +165,22 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $migrationStub->insert($table, ['row' => 'value']);
     }
 
+    public function testUpdate()
+    {
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array(0));
+
+        // stub adapter
+        $adapterStub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $adapterStub->expects($this->once())
+            ->method('update');
+
+        $table = new Table('testdb', [], $adapterStub);
+
+        $migrationStub->setAdapter($adapterStub);
+        $migrationStub->update($table, ['row' => ['K' => 1, 'column' => 'value']], ['K' => 1]);
+    }
+
     public function testCreateDatabase()
     {
         // stub migration

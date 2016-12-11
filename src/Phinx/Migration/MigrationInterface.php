@@ -178,6 +178,16 @@ interface MigrationInterface
     public function insert($tableName, $data);
 
     /**
+     * Update data in a table.
+     * 
+     * @param string $tableName
+     * @param array $data
+     * @param string $whereParams
+     * @return void
+     */
+    public function update($tableName, $data, $whereParams);
+
+    /**
      * Create a new database.
      *
      * @param string $name Database Name

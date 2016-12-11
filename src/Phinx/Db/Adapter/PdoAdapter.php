@@ -28,6 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
+use InvalidArgumentException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\NullOutput;
@@ -387,6 +388,48 @@ abstract class PdoAdapter implements AdapterInterface
 
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute(array_values($row));
+        $this->endCommandTimer();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function update(Table $table, $row, $whereParams)
+    {
+        $this->startCommandTimer();
+        $this->writeCommand('update', array($table->getName()));
+
+        if (!is_array($whereParams)) {
+            throw new InvalidArgumentException('$whereParams must be an array type, "' . gettype($whereParams) . '" was given.');
+        }
+        // Get column names to validate $whereParams
+        $tableColumns = $table->getColumnNames();
+
+        $whereColumns = [];
+        foreach ($whereParams as $column => $value) {
+            // Validate column name is valid for this table
+            if (!in_array($column, $tableColumns)) {
+                throw new InvalidArgumentException('$whereParams keys must contain valid column names for this table: ' . $table->getName());
+            }
+            // Quote column and prep unnamed param
+            $whereColumns[] = $this->quoteColumnName($column) . "=?";
+        }
+
+        $columns = array_keys($row);
+        $sql = sprintf(
+            "UPDATE %s SET ",
+            $this->quoteTableName($table->getName())
+        );
+        $setColumns = [];
+        foreach ($columns as $col) {
+            $setColumns[] = $this->quoteColumnName($col) . '=?';
+        }
+        $sql .= implode(', ', $setColumns);
+
+        $sql .= " WHERE " . implode(' AND ', $whereColumns);
+
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute(array_merge(array_values($row), array_values($whereParams)));
         $this->endCommandTimer();
     }
 

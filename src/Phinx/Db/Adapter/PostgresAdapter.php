@@ -343,6 +343,26 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function getColumnNames($tableName)
+    {
+        $columns = array();
+        $sql = sprintf(
+            "SELECT column_name
+             FROM information_schema.columns
+             WHERE table_name ='%s'",
+            $tableName
+        );
+        $columnsInfo = $this->fetchAll($sql);
+
+        foreach ($columnsInfo as $columnInfo) {
+            $columns[] = $columnInfo['column_name'];
+        }
+        return $columns;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasColumn($tableName, $columnName, $options = array())
     {
         $sql = sprintf("SELECT count(*)
