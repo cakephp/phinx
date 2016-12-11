@@ -121,7 +121,8 @@ parameter or ``-t`` for short.
 
         $ phinx rollback -e development -t 20120103083322
 
-Specifying 0 as the target version will revert all migrations.
+Specifying 0 as the target version will revert all migrations. This also
+works if specifying all.
 
 .. code-block:: bash
 

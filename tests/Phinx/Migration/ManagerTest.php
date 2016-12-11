@@ -467,8 +467,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration2'],
                 ],
                 '20130118',
                 null,
@@ -476,8 +476,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration2'],
                 ],
                 '20120116183504',
                 '`No migrations to rollback`',
@@ -485,8 +485,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration2'],
                 ],
                 '20120115',
                 '`20120116183504`',
@@ -494,8 +494,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration2'],
                 ],
                 '20120111235330',
                 '`20120116183504`',
@@ -503,8 +503,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration2'],
                 ],
                 '20110115',
                 '`20120111235330`',
@@ -515,8 +515,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration2'],
                 ],
                 '20130118',
                 null,
@@ -524,8 +524,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration2'],
                 ],
                 '20120116183504',
                 '`No migrations to rollback`',
@@ -533,8 +533,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration2'],
                 ],
                 '20120115',
                 '`20120116183504`',
@@ -542,8 +542,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration2'],
                 ],
                 '20120111235330',
                 '`20120116183504`',
@@ -551,8 +551,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration2'],
                 ],
                 '20110115',
                 '`(?!.*20120111235330.*)20120116183504.*Breakpoint reached.*`s',
@@ -563,8 +563,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration2'],
                 ],
                 '20130118',
                 null,
@@ -572,8 +572,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration2'],
                 ],
                 '20120116183504',
                 '`No migrations to rollback`',
@@ -581,8 +581,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration2'],
                 ],
                 '20120115',
                 '`(?!.*20120116183504.*).*Breakpoint reached.*`s',
@@ -590,8 +590,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration2'],
                 ],
                 '20120111235330',
                 '`(?!.*20120116183504.*).*Breakpoint reached.*`s',
@@ -599,8 +599,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration2'],
                 ],
                 '20110115',
                 '`(?!.*20120116183504.*).*Breakpoint reached.*`s',
@@ -611,8 +611,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration2'],
                 ],
                 '20130118',
                 null,
@@ -620,8 +620,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration2'],
                 ],
                 '20120116183504',
                 '`No migrations to rollback`',
@@ -629,8 +629,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration2'],
                 ],
                 '20120115',
                 '`(?!.*20120116183504.*).*Breakpoint reached.*`s',
@@ -638,8 +638,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration2'],
                 ],
                 '20120111235330',
                 '`(?!.*20120116183504.*).*Breakpoint reached.*`s',
@@ -647,8 +647,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 [
-                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1],
-                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1],
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration'],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 1, 'migration_name' => 'TestMigration2'],
                 ],
                 '20110115',
                 '`(?!.*20120116183504.*).*Breakpoint reached.*`s',
