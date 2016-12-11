@@ -40,8 +40,6 @@ use Phinx\Db\Table\ForeignKey;
  */
 class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 {
-    protected $schema = 'dbo';
-
     protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
 
     /**
@@ -174,11 +172,22 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * Quotes a schema name for use in a query.
+     *
+     * @param string $schemaName Schema Name
+     * @return string
+     */
+    public function quoteSchemaName($schemaName)
+    {
+        return $this->quoteColumnName($schemaName);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function quoteTableName($tableName)
     {
-        return str_replace('.', '].[', $this->quoteColumnName($tableName));
+        return $this->quoteSchemaName($this->getSchemaName()) . '.' . str_replace('.', '].[', $this->quoteColumnName($tableName));
     }
 
     /**
@@ -194,7 +203,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        $result = $this->fetchRow(sprintf('SELECT count(*) as [count] FROM information_schema.tables WHERE table_name = \'%s\';', $tableName));
+        $result = $this->fetchRow(sprintf('SELECT count(*) as [count] FROM information_schema.tables WHERE table_name = \'%s\' AND table_schema = \'%s\';', $tableName, $this->getSchemaName()));
         return $result['count'] > 0;
     }
 
@@ -315,7 +324,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             "EXECUTE %s N'MS_Description', N%s, N'SCHEMA', N'%s', N'TABLE', N'%s', N'COLUMN', N'%s';",
             $command,
             $comment,
-            $this->schema,
+            $this->getSchemaName(),
             $tableName,
             $column->getName()
         );
@@ -326,9 +335,10 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameTable($tableName, $newTableName)
     {
+        $schema = $this->getSchemaName();
         $this->startCommandTimer();
         $this->writeCommand('renameTable', array($tableName, $newTableName));
-        $this->execute(sprintf('EXEC sp_rename \'%s\', \'%s\'', $tableName, $newTableName));
+        $this->execute(sprintf('EXEC sp_rename \'%s\', \'%s\'', "{$schema}.{$tableName}", $newTableName));
         $this->endCommandTimer();
     }
 
@@ -355,7 +365,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     ON tables.object_id = extended_properties.major_id
    AND columns.column_id = extended_properties.minor_id
    AND extended_properties.name = 'MS_Description'
-   WHERE schemas.[name] = '%s' AND tables.[name] = '%s' AND columns.[name] = '%s'", $this->schema, $tableName, $columnName);
+   WHERE schemas.[name] = '%s' AND tables.[name] = '%s' AND columns.[name] = '%s'", $this->getSchemaName(), $tableName, $columnName);
         $row = $this->fetchRow($sql);
 
         if ($row) {
@@ -380,8 +390,10 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             COLUMNPROPERTY(object_id(TABLE_NAME), COLUMN_NAME, 'IsIdentity') as [identity]
         FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = '%s'
+            AND TABLE_SCHEMA = '%s'
         ORDER BY ordinal_position",
-            $tableName
+            $tableName,
+            $this->getSchemaName()
         );
         $rows = $this->fetchAll($sql);
         foreach ($rows as $columnInfo) {
@@ -424,9 +436,10 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         $sql = sprintf(
             "SELECT count(*) as [count]
              FROM information_schema.columns
-             WHERE table_name = '%s' AND column_name = '%s'",
+             WHERE table_name = '%s' AND column_name = '%s' AND table_schema = '%s'",
             $tableName,
-            $columnName
+            $columnName,
+            $this->getSchemaName()
         );
         $result = $this->fetchRow($sql);
 
@@ -466,7 +479,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(
              sprintf(
                  "EXECUTE sp_rename N'%s.%s', N'%s', 'COLUMN' ",
-                 $tableName,
+                 "{$this->getSchemaName()}.{$tableName}",
                  $columnName,
                  $newColumnName
              )
@@ -602,7 +615,7 @@ FROM
         ON all_columns.default_object_id = default_constraints.object_id
 
 WHERE
-        schemas.name = 'dbo'
+        schemas.name = '{$this->getSchemaName()}'
     AND tables.name = '{$tableName}'
     AND all_columns.name = '{$columnName}'";
 
@@ -800,9 +813,10 @@ ORDER BY T.[name], I.[index_id];";
                     information_schema.table_constraints AS tc
                     JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
                     JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
-                WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s'
+                WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s' AND tc.TABLE_SCHEMA = '%s'
                 ORDER BY kcu.ordinal_position",
-            $tableName
+            $tableName,
+            $this->getSchemaName()
         ));
         foreach ($rows as $row) {
             $foreignKeys[$row['constraint_name']]['table'] = $row['table_name'];
@@ -865,9 +879,10 @@ ORDER BY T.[name], I.[index_id];";
                     information_schema.table_constraints AS tc
                     JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
                     JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
-                WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s' and ccu.column_name='%s'
+                WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s' AND tc.TABLE_SCHEMA = '%s' and ccu.column_name='%s'
                 ORDER BY kcu.ordinal_position",
                     $tableName,
+                    $this->getSchemaName(),
                     $column
                 ));
                 foreach ($rows as $row) {
@@ -1162,5 +1177,77 @@ SQL;
     public function getColumnTypes()
     {
         return array_merge(parent::getColumnTypes(), array('filestream'));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createSchemaTable()
+    {
+        // Create the public/custom schema if it doesn't already exist
+        if (false === $this->hasSchema($this->getSchemaName())) {
+            $this->createSchema($this->getSchemaName());
+        }
+
+        return parent::createSchemaTable();
+    }
+
+    /**
+     * Creates the specified schema.
+     *
+     * @param  string $schemaName Schema Name
+     * @return void
+     */
+    public function createSchema($schemaName = 'public')
+    {
+        $this->startCommandTimer();
+        $this->writeCommand('addSchema', array($schemaName));
+        $sql = sprintf('CREATE SCHEMA %s;', $this->quoteSchemaName($schemaName));
+        $this->execute($sql);
+        $this->endCommandTimer();
+    }
+
+    /**
+     * Checks to see if a schema exists.
+     *
+     * @param string $schemaName Schema Name
+     * @return boolean
+     */
+    public function hasSchema($schemaName)
+    {
+        $sql = sprintf(
+            "SELECT count(*) AS total
+            FROM information_schema.schemata
+            WHERE schema_name = '%s'",
+            $schemaName
+        );
+        $result = $this->fetchRow($sql);
+        return $result['total'] > 0;
+    }
+
+    /**
+     * Drops the specified schema table.
+     *
+     * @param string $schemaName Schema name
+     * @return void
+     */
+    public function dropSchema($schemaName)
+    {
+        $this->startCommandTimer();
+        $this->writeCommand('dropSchema', array($schemaName));
+        $sql = sprintf("DROP SCHEMA %s", $this->quoteSchemaName($schemaName));
+        $this->execute($sql);
+        $this->endCommandTimer();
+    }
+
+    /**
+     * Gets the schema name.
+     *
+     * @return string
+     */
+    public function getSchemaName()
+    {
+        $options = $this->getOptions();
+        return empty($options['schema']) ? 'dbo' : $options['schema'];
     }
 }
