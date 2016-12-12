@@ -927,6 +927,15 @@ scale     combine with ``precision`` to set decimial accuracy
 signed    enable or disable the ``unsigned`` option *(only applies to MySQL)*
 ========= ===========
 
+For ``string`` and ``text`` columns:
+
+========= ===========
+Option    Description
+========= ===========
+collation set collation that differs from table defaults
+encoding  set character set that differs from table defaults
+========= ===========
+
 For ``enum`` and ``set`` columns:
 
 ========= ===========
