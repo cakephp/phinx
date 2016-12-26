@@ -673,6 +673,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case 'boolean':
                 return array('name' => 'tinyint', 'limit' => 1);
                 break;
+            case 'current_timestamp':
+                return array('name' => 'timestamp default current_timestamp on update current_timestamp');
+                break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
         }

@@ -242,6 +242,7 @@ class ProxyAdapter implements AdapterInterface
             'decimal',
             'datetime',
             'timestamp',
+            'current_timestamp',
             'time',
             'date',
             'binary',
