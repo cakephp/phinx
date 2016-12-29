@@ -6,6 +6,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
 use Phinx\Db\Adapter\MysqlAdapter;
+use Symfony\Component\Yaml\Exception\RuntimeException;
 
 class PDOMock extends \PDO
 {
@@ -27,9 +28,9 @@ class MysqlAdapterTester extends MysqlAdapter
     }
 
     // change visibility for testing
-    public function getDefaultValueDefinition($default)
+    public function getDefaultValueDefinition($default, $columnType = null)
     {
-        return parent::getDefaultValueDefinition($default);
+        return parent::getDefaultValueDefinition($default, $columnType);
     }
 
     public function getColumnSqlDefinition(Column $column)
@@ -788,6 +789,20 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(' DEFAULT CURRENT_TIMESTAMP',
                             $this->adapter->getDefaultValueDefinition('CURRENT_TIMESTAMP'));
+    }
+
+    public function testGetDefaultValueDefinitionCurrentTimestampException()
+    {
+        $this->setExpectedException('\RuntimeException', 'You cannot use CURRENT_TIMESTAMP as DEFAULT value for DATETIME on this version (5.6.4) of MySQL.');
+        $this->assertFetchRowSql("SHOW VARIABLES where variable_name like 'version';",  array('Value' => '5.6.4'));
+        $this->adapter->getDefaultValueDefinition('CURRENT_TIMESTAMP', 'DATETIME');
+    }
+
+    public function testGetDefaultValueDefinitionCurrentTimestampCorrectVersion()
+    {
+        $this->assertFetchRowSql("SHOW VARIABLES where variable_name like 'version';", array('Value' => '5.6.5'));
+        $this->assertEquals(' DEFAULT CURRENT_TIMESTAMP',
+            $this->adapter->getDefaultValueDefinition('CURRENT_TIMESTAMP', 'DATETIME'));
     }
 
     public function testGetDefaultValueDefinitionString()
