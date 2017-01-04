@@ -228,7 +228,7 @@ class Create extends AbstractCommand
         }
 
         // Do we need to do the post creation call to the creation class?
-        if ($creationClassName) {
+        if (isset($creationClass)) {
             $creationClass->postMigrationCreation($filePath, $className, $this->getConfig()->getMigrationBaseClassName());
         }
 
