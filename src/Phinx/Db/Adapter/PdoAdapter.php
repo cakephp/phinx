@@ -243,7 +243,7 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * Sets the command start time
      *
-     * @param int $time
+     * @param float $time
      * @return AdapterInterface
      */
     public function setCommandStartTime($time)
