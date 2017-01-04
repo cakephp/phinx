@@ -9,7 +9,7 @@ use Phinx\Db\Adapter\SQLiteAdapter;
 class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Phinx\Db\Adapter\MysqlAdapter
+     * @var \Phinx\Db\Adapter\SQLiteAdapter
      */
     private $adapter;
 

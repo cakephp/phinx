@@ -512,7 +512,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_LONG))
               ->save();
-        $columns = $table->getColumns('t');
+        $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
         $this->assertEquals('longtext', $sqlType['name']);
     }
@@ -522,7 +522,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_MEDIUM))
               ->save();
-        $columns = $table->getColumns('t');
+        $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
         $this->assertEquals('mediumtext', $sqlType['name']);
     }
@@ -532,7 +532,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'text', array('limit' => MysqlAdapter::TEXT_TINY))
               ->save();
-        $columns = $table->getColumns('t');
+        $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
         $this->assertEquals('tinytext', $sqlType['name']);
     }
@@ -542,7 +542,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'integer', array('limit' => MysqlAdapter::INT_BIG))
               ->save();
-        $columns = $table->getColumns('t');
+        $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
         $this->assertEquals('bigint', $sqlType['name']);
     }
@@ -552,7 +552,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'integer', array('limit' => MysqlAdapter::INT_MEDIUM))
               ->save();
-        $columns = $table->getColumns('t');
+        $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
         $this->assertEquals('mediumint', $sqlType['name']);
     }
@@ -562,7 +562,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'integer', array('limit' => MysqlAdapter::INT_SMALL))
               ->save();
-        $columns = $table->getColumns('t');
+        $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
         $this->assertEquals('smallint', $sqlType['name']);
     }
@@ -572,7 +572,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'integer', array('limit' => MysqlAdapter::INT_TINY))
               ->save();
-        $columns = $table->getColumns('t');
+        $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
         $this->assertEquals('tinyint', $sqlType['name']);
     }
@@ -583,7 +583,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'integer', array('limit' => $limit))
               ->save();
-        $columns = $table->getColumns('t');
+        $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
         $this->assertEquals($limit, $sqlType['limit']);
     }

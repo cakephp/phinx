@@ -25,7 +25,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @var \Phinx\Db\Adapter\PostgresqlAdapter
+     * @var \Phinx\Db\Adapter\PostgresAdapter
      */
     private $adapter;
 

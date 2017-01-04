@@ -21,7 +21,7 @@ class UtilTest extends \PHPUnit_Framework_TestCase
         $existingClassNames = Util::getExistingMigrationClassNames($this->getCorrectedPath(__DIR__ . '/_files/migrations'));
         $this->assertCount(count($expectedResults), $existingClassNames);
         foreach ($expectedResults as $expectedResult) {
-            $this->arrayHasKey($expectedResult, $existingClassNames);
+            $this->assertContains($expectedResult, $existingClassNames);
         }
     }
 
