@@ -210,11 +210,7 @@ class Config implements ConfigInterface
     }
 
     /**
-     * Get the aliased value from a supplied alias.
-     *
-     * @param string $alias
-     *
-     * @return string|null
+     * {@inheritdoc}
      */
     public function getAlias($alias){
         return !empty($this->values['aliases'][$alias]) ? $this->values['aliases'][$alias] : null;
