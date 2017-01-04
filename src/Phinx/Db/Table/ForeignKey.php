@@ -196,7 +196,7 @@ class ForeignKey
     /**
      * Gets constraint name for the foreign key.
      *
-     * @return string
+     * @return string|boolean
      */
     public function getConstraint()
     {
