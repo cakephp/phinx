@@ -428,9 +428,9 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function dropIndex($tableName, $columns, $options = array())
+    public function dropIndex($tableName, $columns)
     {
-        return $this->getAdapter()->dropIndex($tableName, $columns, $options);
+        return $this->getAdapter()->dropIndex($tableName, $columns);
     }
 
     /**

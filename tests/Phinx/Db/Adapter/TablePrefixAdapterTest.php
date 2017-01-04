@@ -205,18 +205,16 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
     public function testDropIndex()
     {
         $columns = array();
-        $options = null;
 
         $this->mock
             ->expects($this->once())
             ->method('dropIndex')
             ->with(
                 $this->equalTo('pre_table_suf'),
-                $this->equalTo($columns),
-                $this->equalTo($options)
+                $this->equalTo($columns)
             );
 
-        $this->adapter->dropIndex('table', $columns, $options);
+        $this->adapter->dropIndex('table', $columns);
     }
 
     public function testDropIndexByName()
@@ -334,11 +332,11 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
 
         $table->create();
     }
-    
+
     public function testInsertData()
     {
         $row = array('column1' => 'value3');
-        
+
         $this->mock
             ->expects($this->once())
             ->method('insert')
@@ -348,7 +346,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
                 },
                 $this->equalTo($row)
             ));
-        
+
         $table = new Table('table', array(), $this->adapter);
         $table->insert($row)
               ->save();

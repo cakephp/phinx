@@ -184,10 +184,10 @@ class TablePrefixAdapter extends AdapterWrapper
     /**
      * {@inheritdoc}
      */
-    public function dropIndex($tableName, $columns, $options = array())
+    public function dropIndex($tableName, $columns)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        return parent::dropIndex($adapterTableName, $columns, $options);
+        return parent::dropIndex($adapterTableName, $columns);
     }
 
     /**
@@ -238,7 +238,7 @@ class TablePrefixAdapter extends AdapterWrapper
         $adapterTable->setName($adapterTableName);
         return parent::insert($adapterTable, $row);
     }
-    
+
     /**
      * Gets the table prefix.
      *
