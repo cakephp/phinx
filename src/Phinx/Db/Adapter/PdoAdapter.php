@@ -63,7 +63,7 @@ abstract class PdoAdapter implements AdapterInterface
     protected $schemaTableName = 'phinxlog';
 
     /**
-     * @var \PDO
+     * @var \PDO|null
      */
     protected $connection;
 
@@ -255,7 +255,7 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * Gets the command start time
      *
-     * @return int
+     * @return float
      */
     public function getCommandStartTime()
     {
