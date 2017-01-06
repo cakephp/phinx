@@ -53,15 +53,15 @@ Migration Path
 --------------
 
 The first option specifies the path to your migration directory. Phinx uses
-``%%PHINX_CONFIG_DIR%%/migrations`` by default.
+``%%PHINX_CONFIG_DIR%%/db/migrations`` by default.
 
 .. note::
 
     ``%%PHINX_CONFIG_DIR%%`` is a special token and is automatically replaced
     with the root directory where your ``phinx.yml`` file is stored.
 
-In order to overwrite the default ``%%PHINX_CONFIG_DIR%%/migrations``, you need
-to add the following to the yaml configuration.
+In order to overwrite the default ``%%PHINX_CONFIG_DIR%%/db/migrations``, you
+need to add the following to the yaml configuration.
 
 .. code-block:: yaml
 
@@ -75,6 +75,14 @@ You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
     paths:
         migrations: %%PHINX_CONFIG_DIR%%/your/relative/path
 
+Migrations are captured with ``glob``, so you can define a pattern for multiple
+directories.
+
+.. code-block:: yaml
+
+    paths:
+        migrations: %%PHINX_CONFIG_DIR%%/module/*/{data,scripts}/migrations
+
 Custom Migration Base
 ---------------------
 
@@ -85,6 +93,32 @@ setting ``migration_base_class`` in your config:
 .. code-block:: yaml
 
     migration_base_class: MyMagicalMigration
+
+Seed Path
+---------
+
+The second option specifies the path to your seed directory. Phinx uses
+``%%PHINX_CONFIG_DIR%%/db/seeds`` by default.
+
+.. note::
+
+    ``%%PHINX_CONFIG_DIR%%`` is a special token and is automatically replaced
+    with the root directory where your ``phinx.yml`` file is stored.
+
+In order to overwrite the default ``%%PHINX_CONFIG_DIR%%/db/seeds``, you
+need to add the following to the yaml configuration.
+
+.. code-block:: yaml
+
+    paths:
+        seeds: /your/full/path
+
+You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
+
+.. code-block:: yaml
+
+    paths:
+        seeds: %%PHINX_CONFIG_DIR%%/your/relative/path
 
 Environments
 ------------
@@ -124,7 +158,7 @@ file:
 
 
 Table Prefix and Suffix
-------------------
+-----------------------
 
 You can define a table prefix and table suffix:
 

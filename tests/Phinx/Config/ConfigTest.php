@@ -158,8 +158,8 @@ class ConfigTest extends AbstractConfigTest
     }
 
     /**
-     * @covers \Phinx\Config\Config::getTemplateFile();
-     * @covers \Phinx\Config\Config::getTemplateClass();
+     * @covers \Phinx\Config\Config::getTemplateFile
+     * @covers \Phinx\Config\Config::getTemplateClass
      */
     public function testGetTemplateValuesFalseOnEmpty()
     {
@@ -190,5 +190,46 @@ class ConfigTest extends AbstractConfigTest
     {
         $config = new \Phinx\Config\Config(array('aliases'=> array('Short' => 'Some\Long\Classname')));
         $this->assertEquals('Some\Long\Classname', $config->getAlias('Short'));
+    }
+
+    public function testGetSeedPath()
+    {
+        $config = new \Phinx\Config\Config(array('paths' => array('seeds' => 'db/seeds')));
+        $this->assertEquals('db/seeds', $config->getSeedPath());
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::getSeedPath
+     * @expectedException \UnexpectedValueException
+     * @expectedExceptionMessage Seeds path missing from config file
+     */
+    public function testGetSeedPathThrowsException()
+    {
+        $config = new \Phinx\Config\Config(array());
+        $this->assertEquals('db/seeds', $config->getSeedPath());
+    }
+
+    /**
+     * Checks if base class is returned correctly when specified without
+     * a namespace.
+     *
+     * @covers \Phinx\Config\Config::getMigrationBaseClassName
+     */
+    public function testGetMigrationBaseClassNameNoNamespace()
+    {
+        $config = new Config(array('migration_base_class' => 'BaseMigration'));
+        $this->assertEquals('BaseMigration', $config->getMigrationBaseClassName());
+    }
+
+    /**
+     * Checks if base class is returned correctly when specified without
+     * a namespace.
+     *
+     * @covers \Phinx\Config\Config::getMigrationBaseClassName
+     */
+    public function testGetMigrationBaseClassNameNoNamespaceNoDrop()
+    {
+        $config = new Config(array('migration_base_class' => 'BaseMigration'));
+        $this->assertEquals('BaseMigration', $config->getMigrationBaseClassName(false));
     }
 }

@@ -1,7 +1,7 @@
 # How to contribute to Phinx
 
 Phinx relies heavily on external contributions in order to make it the best database migration
-tool possible. Without the support of our 70+ contributors we wouldn't be where we are today!
+tool possible. Without the support of our 115+ contributors we wouldn't be where we are today!
 We encourage anyone to submit documentation enhancements and code.
 
 Issues, feature requests and bugs should be submitted using the Github issue tool:
@@ -35,7 +35,7 @@ Great, so you want to contribute. Let's get started:
 1. If you do not have Composer set up already, install it:
 
     ```
-    curl -s https://getcomposer.org/installer | php
+    curl -sS https://getcomposer.org/installer | php
     ```
 
 1. Change to your Phinx clone directory and pull the necessary dependencies:

@@ -62,6 +62,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     const INT_REGULAR = 4294967295;
     const INT_BIG     = 18446744073709551615;
 
+    const TYPE_YEAR   = 'year';
+
     /**
      * {@inheritdoc}
      */
@@ -339,12 +341,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
             $column = new Column();
             $column->setName($columnInfo['Field'])
-                   ->setNull($columnInfo['Null'] != 'NO')
+                   ->setNull($columnInfo['Null'] !== 'NO')
                    ->setDefault($columnInfo['Default'])
                    ->setType($phinxType['name'])
                    ->setLimit($phinxType['limit']);
 
-            if ($columnInfo['Extra'] == 'auto_increment') {
+            if ($columnInfo['Extra'] === 'auto_increment') {
                 $column->setIdentity(true);
             }
 
@@ -380,7 +382,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
-            $default = (int) $default;
+            $default = $this->castToBool($default);
         }
         return isset($default) ? ' DEFAULT ' . $default : '';
     }
@@ -514,8 +516,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $indexes = $this->getIndexes($tableName);
 
         foreach ($indexes as $index) {
-            $a = array_diff($columns, $index['columns']);
-            if (empty($a)) {
+            if ($columns == $index['columns']) {
                 return true;
             }
         }
@@ -571,8 +572,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $columns = array_map('strtolower', $columns);
 
         foreach ($indexes as $indexName => $index) {
-            $a = array_diff($columns, $index['columns']);
-            if (empty($a)) {
+            if ($columns == $index['columns']) {
                 $this->execute(
                     sprintf(
                         'ALTER TABLE %s DROP INDEX %s',
@@ -628,7 +628,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } else {
             foreach ($foreignKeys as $key) {
                 $a = array_diff($columns, $key['columns']);
-                if (empty($a)) {
+                if ($columns == $key['columns']) {
                     return true;
                 }
             }
@@ -761,6 +761,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_BINARY:
                 return array('name' => 'binary', 'limit' => $limit ? $limit : 255);
                 break;
+            case static::PHINX_TYPE_VARBINARY:
+                return array('name' => 'varbinary', 'limit' => $limit ? $limit : 255);
+                break;
             case static::PHINX_TYPE_BLOB:
                 if ($limit) {
                     $sizes = array(
@@ -843,6 +846,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 break;
             case static::PHINX_TYPE_SET:
                 return array('name' => 'set');
+                break;
+            case static::TYPE_YEAR:
+                if (!$limit || in_array($limit, array(2, 4)))
+                    $limit = 4;
+                return array('name' => 'year', 'limit' => $limit);
+                break;
+            case static::PHINX_TYPE_JSON:
+                return array('name' => 'json');
                 break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
@@ -1048,9 +1059,17 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     protected function getIndexSqlDefinition(Index $index)
     {
         $def = '';
+        $limit = '';
+        if ($index->getLimit()) {
+            $limit = '(' . $index->getLimit() . ')';
+        }
 
         if ($index->getType() == Index::UNIQUE) {
             $def .= ' UNIQUE';
+        }
+
+        if ($index->getType() == Index::FULLTEXT) {
+            $def .= ' FULLTEXT';
         }
 
         $def .= ' KEY';
@@ -1059,7 +1078,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= ' `' . $index->getName() . '`';
         }
 
-        $def .= ' (`' . implode('`,`', $index->getColumns()) . '`)';
+        $def .= ' (`' . implode('`,`', $index->getColumns()) . '`' . $limit . ')';
 
         return $def;
     }
@@ -1124,6 +1143,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array ('enum', 'set'));
+        return array_merge(parent::getColumnTypes(), array ('enum', 'set', 'year', 'json'));
     }
 }

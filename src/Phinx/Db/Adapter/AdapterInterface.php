@@ -28,6 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
@@ -54,6 +55,7 @@ interface AdapterInterface
     const PHINX_TYPE_TIME           = 'time';
     const PHINX_TYPE_DATE           = 'date';
     const PHINX_TYPE_BINARY         = 'binary';
+    const PHINX_TYPE_VARBINARY      = 'varbinary';
     const PHINX_TYPE_BLOB           = 'blob';
     const PHINX_TYPE_BOOLEAN        = 'boolean';
     const PHINX_TYPE_JSON           = 'json';
@@ -67,7 +69,7 @@ interface AdapterInterface
     const PHINX_TYPE_LINESTRING     = 'linestring';
     const PHINX_TYPE_POLYGON        = 'polygon';
 
-	// only for mysql so far
+    // only for mysql so far
     const PHINX_TYPE_ENUM           = 'enum';
     const PHINX_TYPE_SET            = 'set';
 
@@ -77,6 +79,13 @@ interface AdapterInterface
      * @return array
      */
     public function getVersions();
+
+    /**
+     * Get all migration log entries, indexed by version number.
+     *
+     * @return array
+     */
+    public function getVersionLog();
 
     /**
      * Set adapter configuration options.
@@ -110,6 +119,21 @@ interface AdapterInterface
     public function getOption($name);
 
     /**
+     * Sets the console input.
+     *
+     * @param InputInterface $input Input
+     * @return AdapterInterface
+     */
+    public function setInput(InputInterface $input);
+
+    /**
+     * Gets the console input.
+     *
+     * @return InputInterface
+     */
+    public function getInput();
+
+    /**
      * Sets the console output.
      *
      * @param OutputInterface $output Output
@@ -134,6 +158,22 @@ interface AdapterInterface
      * @return AdapterInterface
      */
     public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime);
+
+    /**
+     * Toggle a migration breakpoint.
+     *
+     * @param MigrationInterface $migration
+     *
+     * @return AdapterInterface
+     */
+    public function toggleBreakpoint(MigrationInterface $migration);
+
+    /**
+     * Reset all migration breakpoints.
+     *
+     * @return int The number of breakpoints reset
+     */
+    public function resetAllBreakpoints();
 
     /**
      * Does the schema table exist?
@@ -233,13 +273,13 @@ interface AdapterInterface
     public function fetchAll($sql);
 
     /**
-     * Inserts data into the table
+     * Inserts data into a table.
      *
      * @param Table $table where to insert data
-     * @param array $columns column names
-     * @param $data
+     * @param array $row
+     * @return void
      */
-    public function insert(Table $table, $columns, $data);
+    public function insert(Table $table, $row);
 
     /**
      * Quotes a table name for use in a query.

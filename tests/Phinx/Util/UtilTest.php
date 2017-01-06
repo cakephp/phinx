@@ -1,8 +1,8 @@
 <?php
 
-namespace Test\Phinx\Migration;
+namespace Test\Phinx\Util;
 
-use Phinx\Migration\Util;
+use Phinx\Util\Util;
 
 class UtilTest extends \PHPUnit_Framework_TestCase
 {
@@ -71,17 +71,18 @@ class UtilTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testIsValidMigrationClassName()
+    public function testisValidPhinxClassName()
     {
         $expectedResults = array(
             'CAmelCase'         => false,
             'CreateUserTable'   => true,
+            'UserSeeder'        => true,
             'Test'              => true,
             'test'              => false
         );
 
         foreach ($expectedResults as $input => $expectedResult) {
-            $this->assertEquals($expectedResult, Util::isValidMigrationClassName($input));
+            $this->assertEquals($expectedResult, Util::isValidPhinxClassName($input));
         }
     }
 }

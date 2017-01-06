@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\SQLiteAdapter;
 
@@ -21,7 +22,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $options = array(
             'name' => TESTS_PHINX_DB_ADAPTER_SQLITE_DATABASE
         );
-        $this->adapter = new SQLiteAdapter($options, new NullOutput());
+        $this->adapter = new SQLiteAdapter($options, new ArrayInput([]), new NullOutput());
 
         // ensure the database is empty for each test
         $this->adapter->dropDatabase($options['name']);
@@ -310,6 +311,30 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("'test1'", $rows[1]['dflt_value']);
     }
 
+    /**
+     * @group bug922
+     */
+    public function testChangeColumnWithForeignKey()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table->addColumn('ref_table_id', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+           ->setColumns(array('ref_table_id'))
+           ->setReferencedColumns(array('id'));
+
+        $this->adapter->addForeignKey($table, $fk);
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+
+        $table->changeColumn('ref_table_id', 'float');
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), array('ref_table_id')));
+    }
 
     public function testChangeColumnDefaultToZero()
     {
@@ -363,7 +388,8 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column11', 'binary')
               ->addColumn('column12', 'boolean')
               ->addColumn('column13', 'string', array('limit' => 10))
-              ->addColumn('column15', 'integer', array('limit' => 10));
+              ->addColumn('column15', 'integer', array('limit' => 10))
+              ->addColumn('column16', 'enum', array('values' => array('a', 'b', 'c')));
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -591,21 +617,24 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
-            ->insert(
-                array("column1", "column2"),
-                array(
-                    array('value1', 1),
-                    array('value2', 2)
-                )
-            )
-            ->insert(
-                array("column1", "column2"),
-                array(
-                    array('value3', 3),
-                )
-            )
-            ->save();
+              ->addColumn('column2', 'integer')
+              ->insert(array(
+                  array(
+                      'column1' => 'value1',
+                      'column2' => 1,
+                  ),
+                  array(
+                      'column1' => 'value2',
+                      'column2' => 2,
+                  )
+              ))
+              ->insert(
+                  array(
+                      'column1' => 'value3',
+                      'column2' => 3,
+                  )
+              )
+              ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
 
@@ -615,6 +644,24 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $rows[0]['column2']);
         $this->assertEquals(2, $rows[1]['column2']);
         $this->assertEquals(3, $rows[2]['column2']);
+    }
+
+    public function testInserDataEnum()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'enum', array('values' => ['a', 'b', 'c']))
+              ->addColumn('column2', 'enum', array('values' => ['a', 'b', 'c'], 'null' => true))
+              ->addColumn('column3', 'enum', array('values' => ['a', 'b', 'c'], 'default' => 'c'))
+              ->insert(array(
+                  'column1' => 'a',
+              ))
+              ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+
+        $this->assertEquals('a', $rows[0]['column1']);
+        $this->assertEquals(null, $rows[0]['column2']);
+        $this->assertEquals('c', $rows[0]['column3']);
     }
 
     public function testNullWithoutDefaultValue()

@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\SqlServerAdapter;
 
@@ -25,7 +26,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
             'pass' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD,
             'port' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT
         );
-        $this->adapter = new SqlServerAdapter($options, new NullOutput());
+        $this->adapter = new SqlServerAdapter($options, new ArrayInput([]), new NullOutput());
 
         // ensure the database is empty for each test
         $this->adapter->dropDatabase($options['name']);
@@ -64,7 +65,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         );
 
         try {
-            $adapter = new SqlServerAdapter($options, new NullOutput());
+            $adapter = new SqlServerAdapter($options, new ArrayInput([]), new NullOutput());
             $adapter->connect();
             $this->fail('Expected the adapter to throw an exception');
         } catch (\InvalidArgumentException $e) {
@@ -663,5 +664,38 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
                 ->create();
 
         $this->assertTrue($foreign->hasForeignKey('user'));
+    }
+
+    public function testInsertData()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->addColumn('column2', 'integer')
+              ->insert(array(
+                  array(
+                      'column1' => 'value1',
+                      'column2' => 1,
+                  ),
+                  array(
+                      'column1' => 'value2',
+                      'column2' => 2,
+                  )
+              ))
+              ->insert(
+                  array(
+                      'column1' => 'value3',
+                      'column2' => 3,
+                  )
+              )
+              ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+
+        $this->assertEquals('value1', $rows[0]['column1']);
+        $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals('value3', $rows[2]['column1']);
+        $this->assertEquals(1, $rows[0]['column2']);
+        $this->assertEquals(2, $rows[1]['column2']);
+        $this->assertEquals(3, $rows[2]['column2']);
     }
 }

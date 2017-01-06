@@ -250,7 +250,19 @@ class Config implements ConfigInterface
     {
         $className = !isset($this->values['migration_base_class']) ? 'Phinx\Migration\AbstractMigration' : $this->values['migration_base_class'];
 
-        return $dropNamespace ? substr(strrchr($className, '\\'), 1) : $className;
+        return $dropNamespace ? substr(strrchr($className, '\\'), 1) ?: $className : $className;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSeedPath()
+    {
+        if (!isset($this->values['paths']['seeds'])) {
+            throw new \UnexpectedValueException('Seeds path missing from config file');
+        }
+
+        return $this->values['paths']['seeds'];
     }
 
     /**

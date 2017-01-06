@@ -334,4 +334,23 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
 
         $table->create();
     }
+    
+    public function testInsertData()
+    {
+        $row = array('column1' => 'value3');
+        
+        $this->mock
+            ->expects($this->once())
+            ->method('insert')
+            ->with($this->callback(
+                function ($table) {
+                    return $table->getName() == 'pre_table_suf';
+                },
+                $this->equalTo($row)
+            ));
+        
+        $table = new Table('table', array(), $this->adapter);
+        $table->insert($row)
+              ->save();
+    }
 }

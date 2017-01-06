@@ -32,7 +32,6 @@ use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
-use Phinx\Migration\MigrationInterface;
 
 /**
  * Phinx SqlServer Adapter.
@@ -389,7 +388,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             $column = new Column();
             $column->setName($columnInfo['name'])
                    ->setType($this->getPhinxType($columnInfo['type']))
-                   ->setNull($columnInfo['null'] != 'NO')
+                   ->setNull($columnInfo['null'] !== 'NO')
                    ->setDefault($this->parseDefault($columnInfo['default']))
                    ->setIdentity($columnInfo['identity'] === '1')
                    ->setComment($this->getColumnComment($columnInfo['table_name'], $columnInfo['name']));
@@ -525,7 +524,7 @@ SQL;
         $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
         $columns = $this->getColumns($tableName);
         $changeDefault = $newColumn->getDefault() !== $columns[$columnName]->getDefault() || $newColumn->getType() !== $columns[$columnName]->getType();
-        if ($columnName != $newColumn->getName()) {
+        if ($columnName !== $newColumn->getName()) {
             $this->renameColumn($tableName, $columnName, $newColumn->getName());
         }
 
@@ -1056,7 +1055,7 @@ SQL;
         if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
-            $default = (int) $default;
+            $default = $this->castToBool($default);
         }
         return isset($default) ? ' DEFAULT ' . $default : '';
     }
@@ -1087,7 +1086,7 @@ SQL;
         }
 
         $properties = $column->getProperties();
-        $buffer[] = $column->getType() == 'filestream' ? 'FILESTREAM' : '';
+        $buffer[] = $column->getType() === 'filestream' ? 'FILESTREAM' : '';
         $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';
 
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
@@ -1126,7 +1125,7 @@ SQL;
         }
         $def = sprintf(
             "CREATE %s INDEX %s ON %s (%s);",
-            ($index->getType() == Index::UNIQUE ? 'UNIQUE' : ''),
+            ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
             $this->quoteTableName($tableName),
             '[' . implode('],[', $index->getColumns()) . ']'
@@ -1146,7 +1145,7 @@ SQL;
         $def = ' CONSTRAINT "';
         $def .= $tableName . '_' . implode('_', $foreignKey->getColumns());
         $def .= '" FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
-        $def .= " REFERENCES {$foreignKey->getReferencedTable()->getName()} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
+        $def .= " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
         if ($foreignKey->getOnDelete()) {
             $def .= " ON DELETE {$foreignKey->getOnDelete()}";
         }
@@ -1163,34 +1162,5 @@ SQL;
     public function getColumnTypes()
     {
         return array_merge(parent::getColumnTypes(), array('filestream'));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime) {
-        if (strcasecmp($direction, MigrationInterface::UP) === 0) {
-            // up
-            $sql = sprintf(
-                "INSERT INTO %s ([version], [start_time], [end_time]) VALUES ('%s', '%s', '%s');",
-                $this->getSchemaTableName(),
-                $migration->getVersion(),
-                $startTime,
-                $endTime
-            );
-
-            $this->query($sql);
-        } else {
-            // down
-            $sql = sprintf(
-                "DELETE FROM %s WHERE [version] = '%s'",
-                $this->getSchemaTableName(),
-                $migration->getVersion()
-            );
-
-            $this->query($sql);
-        }
-
-        return $this;
     }
 }

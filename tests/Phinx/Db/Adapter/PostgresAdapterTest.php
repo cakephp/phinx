@@ -2,11 +2,28 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\PostgresAdapter;
 
 class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * Check if Postgres is enabled in the current PHP
+     *
+     * @return boolean
+     */
+    private static function isPostgresAvailable()
+    {
+        static $available;
+
+        if (is_null($available)) {
+            $available = in_array('pgsql', \PDO::getAvailableDrivers());
+        }
+
+        return $available;
+    }
+
     /**
      * @var \Phinx\Db\Adapter\PostgresqlAdapter
      */
@@ -18,6 +35,10 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('Postgres tests disabled.  See TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED constant.');
         }
 
+        if (!self::isPostgresAvailable()) {
+            $this->markTestSkipped('Postgres is not available.  Please install php-pdo-pgsql or equivalent package.');
+        }
+
         $options = array(
             'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
             'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
@@ -26,7 +47,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
             'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA
         );
-        $this->adapter = new PostgresAdapter($options, new NullOutput());
+        $this->adapter = new PostgresAdapter($options, new ArrayInput([]), new NullOutput());
 
         $this->adapter->dropAllSchemas();
         $this->adapter->createSchema($options['schema']);
@@ -67,7 +88,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         );
 
         try {
-            $adapter = new PostgresAdapter($options, new NullOutput());
+            $adapter = new PostgresAdapter($options, new ArrayInput([]), new NullOutput());
             $adapter->connect();
             $this->fail('Expected the adapter to throw an exception');
         } catch (\InvalidArgumentException $e) {
@@ -664,6 +685,25 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     }
 
+    public function testCreateTableWithComment()
+    {
+        $tableComment = 'Table comment';
+        $table = new \Phinx\Db\Table('ntable', ['comment' => $tableComment], $this->adapter);
+        $table->addColumn('realname', 'string')
+              ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+
+        $rows = $this->adapter->fetchAll(sprintf(
+            "SELECT description FROM pg_description JOIN pg_class ON pg_description.objoid = pg_class.oid WHERE relname = '%s'",
+            'ntable'
+        ));
+
+        $this->assertEquals($tableComment, $rows[0]['description'], 'Dont set table comment correctly');
+    }
+
     public function testCanAddColumnComment()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
@@ -854,18 +894,20 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
-            ->insert(
-                array("column1", "column2"),
-                array(
-                    array('value1', 1),
-                    array('value2', 2)
-                )
-            )
-            ->save();
+              ->addColumn('column2', 'integer')
+              ->insert(array(
+                  array(
+                      'column1' => 'value1',
+                      'column2' => 1
+                  ),
+                  array(
+                      'column1' => 'value2',
+                      'column2' => 2
+                  )
+              ))
+              ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-
         $this->assertEquals('value1', $rows[0]['column1']);
         $this->assertEquals('value2', $rows[1]['column1']);
         $this->assertEquals(1, $rows[0]['column2']);

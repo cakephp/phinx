@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\MysqlAdapter;
 
@@ -25,7 +26,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             'pass' => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
             'port' => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT
         );
-        $this->adapter = new MysqlAdapter($options, new NullOutput());
+        $this->adapter = new MysqlAdapter($options, new ArrayInput([]), new NullOutput());
 
         // ensure the database is empty for each test
         $this->adapter->dropDatabase($options['name']);
@@ -64,7 +65,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         );
 
         try {
-            $adapter = new MysqlAdapter($options, new NullOutput());
+            $adapter = new MysqlAdapter($options, new ArrayInput([]), new NullOutput());
             $adapter->connect();
             $this->fail('Expected the adapter to throw an exception');
         } catch (\InvalidArgumentException $e) {
@@ -90,7 +91,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             'unix_socket' => TESTS_PHINX_DB_ADAPTER_MYSQL_UNIX_SOCKET,
         );
 
-        $adapter = new MysqlAdapter($options, new NullOutput());
+        $adapter = new MysqlAdapter($options, new ArrayInput([]), new NullOutput());
         $adapter->connect();
 
         $this->assertInstanceOf('\PDO', $this->adapter->getConnection());
@@ -139,7 +140,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateTableWithComment()
     {
-        $table = new \Phinx\Db\Table('ntable', array('comment'=>$tableComment = 'Table comment'), $this->adapter);
+        $tableComment = 'Table comment';
+        $table = new \Phinx\Db\Table('ntable', ['comment' => $tableComment], $this->adapter);
         $table->addColumn('realname', 'string')
               ->save();
         $this->assertTrue($this->adapter->hasTable('ntable'));
@@ -227,7 +229,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('tag_id', 'integer')
               ->save();
         $this->assertTrue($this->adapter->hasIndex('table1', array('user_id', 'tag_id')));
-        $this->assertTrue($this->adapter->hasIndex('table1', array('tag_id', 'USER_ID')));
+        $this->assertTrue($this->adapter->hasIndex('table1', array('USER_ID', 'tag_id')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('tag_id', 'user_id')));
         $this->assertFalse($this->adapter->hasIndex('table1', array('tag_id', 'user_email')));
     }
 
@@ -250,6 +253,16 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('email', 'string')
               ->addIndex('email', array('unique' => true))
+              ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
+        $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
+    }
+
+    public function testCreateTableWithFullTextIndex()
+    {
+        $table = new \Phinx\Db\Table('table1', array('engine' => 'MyISAM'), $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addIndex('email', array('type' => 'fulltext'))
               ->save();
         $this->assertTrue($this->adapter->hasIndex('table1', array('email')));
         $this->assertFalse($this->adapter->hasIndex('table1', array('email', 'user_email')));
@@ -677,6 +690,23 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table->hasIndex('email'));
     }
 
+    public function testAddIndexWithLimit()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('email', 'string')
+            ->save();
+        $this->assertFalse($table->hasIndex('email'));
+        $table->addIndex('email', array('limit' => 50))
+            ->save();
+        $this->assertTrue($table->hasIndex('email'));
+        $index_data = $this->adapter->query(sprintf(
+            'SELECT SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = "%s" AND TABLE_NAME = "table1" AND INDEX_NAME = "email"',
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
+            ))->fetch(\PDO::FETCH_ASSOC);
+        $expected_limit = $index_data['SUB_PART'];
+        $this->assertEquals($expected_limit, 50);
+    }
+
     public function testDropIndex()
     {
         // single column index
@@ -716,6 +746,27 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table4->hasIndex(array('fname', 'lname')));
         $this->adapter->dropIndex($table4->getName(), array('fname', 'lname'));
         $this->assertFalse($table4->hasIndex(array('fname', 'lname')));
+
+        // don't drop multiple column index when dropping single column
+        $table2 = new \Phinx\Db\Table('table5', array(), $this->adapter);
+        $table2->addColumn('fname', 'string')
+               ->addColumn('lname', 'string')
+               ->addIndex(array('fname', 'lname'))
+               ->save();
+        $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
+        $this->adapter->dropIndex($table2->getName(), array('fname'));
+        $this->assertTrue($table2->hasIndex(array('fname', 'lname')));
+
+        // don't drop multiple column index with name specified when dropping
+        // single column
+        $table4 = new \Phinx\Db\Table('table6', array(), $this->adapter);
+        $table4->addColumn('fname', 'string')
+               ->addColumn('lname', 'string')
+               ->addIndex(array('fname', 'lname'), array('name' => 'multiname'))
+               ->save();
+        $this->assertTrue($table4->hasIndex(array('fname', 'lname')));
+        $this->adapter->dropIndex($table4->getName(), array('fname'));
+        $this->assertTrue($table4->hasIndex(array('fname', 'lname')));
     }
 
     public function testDropIndexByName()
@@ -931,23 +982,36 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testInsertData()
     {
+        $data = array(
+            array(
+                'column1' => 'value1',
+                'column2' => 1,
+            ),
+            array(
+                'column1' => 'value2',
+                'column2' => 2,
+            ),
+            array(
+                'column1' => 'value3',
+                'column2' => 3,
+                'column3' => 'foo',
+            )
+        );
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('column1', 'string')
             ->addColumn('column2', 'integer')
-            ->insert(
-                array("column1", "column2"),
-                array(
-                    array('value1', 1),
-                    array('value2', 2)
-                )
-            )
+            ->addColumn('column3', 'string', array('default' => 'test'))
+            ->insert($data)
             ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-
         $this->assertEquals('value1', $rows[0]['column1']);
         $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals('value3', $rows[2]['column1']);
         $this->assertEquals(1, $rows[0]['column2']);
         $this->assertEquals(2, $rows[1]['column2']);
+        $this->assertEquals(3, $rows[2]['column2']);
+        $this->assertEquals('test', $rows[0]['column3']);
+        $this->assertEquals('foo', $rows[2]['column3']);
     }
 }

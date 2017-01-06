@@ -6,6 +6,33 @@ Commands
 
 Phinx is run using a number of commands.
 
+The Breakpoint Command
+----------------------
+
+The Breakpoint command is used to set breakpoints, allowing you to limit
+rollbacks. You can toggle the breakpoint of the most recent migration by
+not supplying any parameters.
+
+.. code-block:: bash
+
+        $ phinx breakpoint -e development
+
+To toggle a breakpoint on a specific version then use the ``--target``
+parameter or ``-t`` for short.
+
+.. code-block:: bash
+
+        $ phinx breakpoint -e development -t 20120103083322
+
+You can remove all the breakpoints by using the ``--remove-all`` parameter
+or ``-r`` for short.
+
+.. code-block:: bash
+
+        $ phinx breakpoint -e development -r
+
+Breakpoints are visible when you run the ``status`` command.
+
 The Create Command
 ------------------
 
@@ -100,6 +127,13 @@ Specifying 0 as the target version will revert all migrations.
 
         $ phinx rollback -e development -t 0
 
+If a breakpoint is set, blocking further rollbacks, you can override the
+breakpoint using the ``--force`` parameter or ``-f`` for short.
+
+.. code-block:: bash
+
+        $ phinx rollback -e development -t 0 -f
+
 The Status Command
 ------------------
 
@@ -110,10 +144,48 @@ status. You can use this command to determine which migrations have been run.
 
         $ phinx status -e development
 
+This command exits with code 0 if the database is up-to-date (ie. all migrations are up) or one of the following codes otherwise:
+
+* 1: There is at least one down migration.
+* 2: There is at least one missing migration.
+
+The Seed Create Command
+-----------------------
+
+The Seed Create command can be used to create new database seed classes. It
+requires one argument and that is the name of the class. The class name should
+be specified in CamelCase format.
+
+.. code-block:: bash
+
+        $ phinx seed:create MyNewSeeder
+
+Open the new seed file in your text editor to add your database seed commands.
+Phinx creates seed files using the path specified in your ``phinx.yml`` file.
+Please see the :doc:`Configuration <configuration>` chapter for more information.
+
+The Seed Run Command
+--------------------
+
+The Seed Run command runs all of the available seed classes or optionally just
+one.
+
+.. code-block:: bash
+
+        $ phinx seed:run -e development
+
+To run only one seed class use the ``--seed`` parameter or ``-s`` for short.
+
+.. code-block:: bash
+
+        $ phinx seed:run -e development -s MyNewSeeder
+
 Configuration File Parameter
 ----------------------------
 
-When running Phinx from the command line, you may specify a configuration file using the ``--configuration`` or ``-c`` parameter. In addition to YAML, the configuration file may be the computed output of a PHP file as a PHP array:
+When running Phinx from the command line, you may specify a configuration file
+using the ``--configuration`` or ``-c`` parameter. In addition to YAML, the
+configuration file may be the computed output of a PHP file as a PHP array:
 
 .. code-block:: php
 

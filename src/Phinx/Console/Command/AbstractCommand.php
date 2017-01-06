@@ -51,6 +51,11 @@ abstract class AbstractCommand extends Command
     const DEFAULT_MIGRATION_TEMPLATE = '/../../Migration/Migration.template.php.dist';
 
     /**
+     * The location of the default seed template.
+     */
+    const DEFAULT_SEED_TEMPLATE = '/../../Seed/Seed.template.php.dist';
+
+    /**
      * @var ConfigInterface
      */
     protected $config;
@@ -87,9 +92,14 @@ abstract class AbstractCommand extends Command
             $this->loadConfig($input, $output);
         }
 
-        $this->loadManager($output);
-        // report the migrations path
+        $this->loadManager($input, $output);
+        // report the paths
         $output->writeln('<info>using migration path</info> ' . $this->getConfig()->getMigrationPath());
+        try {
+            $output->writeln('<info>using seed path</info> ' . $this->getConfig()->getSeedPath());
+        } catch (\UnexpectedValueException $e) {
+            // do nothing as seeds are optional
+        }
     }
 
     /**
@@ -107,7 +117,7 @@ abstract class AbstractCommand extends Command
     /**
      * Gets the config.
      *
-     * @return Config
+     * @return ConfigInterface
      */
     public function getConfig()
     {
@@ -227,7 +237,6 @@ abstract class AbstractCommand extends Command
                 case 'yml':
                 default:
                     $parser = 'yaml';
-                    break;
             }
         }
 
@@ -253,13 +262,13 @@ abstract class AbstractCommand extends Command
     /**
      * Load the migrations manager and inject the config
      *
+     * @param InputInterface $input
      * @param OutputInterface $output
-     * @return void
      */
-    protected function loadManager(OutputInterface $output)
+    protected function loadManager(InputInterface $input, OutputInterface $output)
     {
         if (null === $this->getManager()) {
-            $manager = new Manager($this->getConfig(), $output);
+            $manager = new Manager($this->getConfig(), $input, $output);
             $this->setManager($manager);
         }
     }
@@ -279,9 +288,32 @@ abstract class AbstractCommand extends Command
             ));
         }
 
-        if (!is_writeable($path)) {
+        if (!is_writable($path)) {
             throw new \InvalidArgumentException(sprintf(
-                'Migration directory "%s" is not writeable',
+                'Migration directory "%s" is not writable',
+                $path
+            ));
+        }
+    }
+
+    /**
+     * Verify that the seed directory exists and is writable.
+     *
+     * @throws InvalidArgumentException
+     * @return void
+     */
+    protected function verifySeedDirectory($path)
+    {
+        if (!is_dir($path)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Seed directory "%s" does not exist',
+                $path
+            ));
+        }
+
+        if (!is_writable($path)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Seed directory "%s" is not writable',
                 $path
             ));
         }
@@ -295,5 +327,15 @@ abstract class AbstractCommand extends Command
     protected function getMigrationTemplateFilename()
     {
         return __DIR__ . self::DEFAULT_MIGRATION_TEMPLATE;
+    }
+
+    /**
+     * Returns the seed template filename.
+     *
+     * @return string
+     */
+    protected function getSeedTemplateFilename()
+    {
+        return __DIR__ . self::DEFAULT_SEED_TEMPLATE;
     }
 }

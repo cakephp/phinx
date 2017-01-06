@@ -63,7 +63,7 @@ EOT
      *
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return void
+     * @return integer 0 if all migrations are up, or an error code
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -99,7 +99,7 @@ EOT
 
         // print the status
         try {
-            $this->getManager()->printStatus($environment, $format, $showOnlyDownMigrations);
+            return $this->getManager()->printStatus($environment, $format, $showOnlyDownMigrations);
         } catch (\PDOException $exception) {
             $message = $exception->getMessage();
             $output->writeln('<error>  --== ERROR ==--  </error> skipping :' . $message);

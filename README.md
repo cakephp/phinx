@@ -17,6 +17,7 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 * Write database migrations using database agnostic PHP code.
 * Migrate up and down.
 * Migrate on deployment.
+* Seed data after database creation.
 * Get going in less than 5 minutes.
 * Stop worrying about the state of your database.
 * Take advantage of SCM features such as branching.
@@ -41,7 +42,7 @@ The fastest way to install Phinx is to add it to your project using Composer (ht
 1. Install Composer:
 
     ```
-    curl -s https://getcomposer.org/installer | php
+    curl -sS https://getcomposer.org/installer | php
     ```
 
 1. Require Phinx as a dependency using Composer:
@@ -64,7 +65,7 @@ The fastest way to install Phinx is to add it to your project using Composer (ht
 
 ### As a Phar
 
-You can also use the Box application to build Phinx as a Phar archive (http://box-project.org/).
+You can also use the Box application to build Phinx as a Phar archive (https://box-project.github.io/box2/).
 
 1. Clone Phinx from GitHub
 
@@ -113,7 +114,7 @@ Follow Chuck (@cdburgess) on Twitter to stay up to date (http://twitter.com/cdbu
 
 ### Version History
 
-**0.4.6** (Friday, 11th September 2015)
+Please read the [CHANGELOG](CHANGELOG.md) document.
 
 * You can now set custom migration templates in the config files
 * Support for MySQL unsigned booleans
@@ -386,7 +387,7 @@ Follow Chuck (@cdburgess) on Twitter to stay up to date (http://twitter.com/cdbu
 
 (The MIT license)
 
-Copyright (c) 2015 Rob Morgan
+Copyright (c) 2016 Rob Morgan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
