@@ -197,7 +197,8 @@ class CreateTest extends \PHPUnit_Framework_TestCase
 
         $commandTester = new CommandTester($command);
 
-        $this->setExpectedException('\InvalidArgumentException', $exceptionMessage);
+        $this->expectException('\InvalidArgumentException');
+        $this->expectExceptionMessage($exceptionMessage);
         $commandLine = array_merge(array('command' => $command->getName(), 'name' => 'MyFailingMigration'), $commandLine);
         $commandTester->execute($commandLine);
     }

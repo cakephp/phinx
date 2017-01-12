@@ -279,10 +279,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetMigrationsWithDuplicateMigrationVersions()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'Duplicate migration - "' . $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions/20120111235330_duplicate_migration_2.php') . '" has the same version as "20120111235330"'
-        );
+        $this->expectException('InvalidArgumentException');
+        $this->expectExceptionMessage('Duplicate migration - "' . $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions/20120111235330_duplicate_migration_2.php') . '" has the same version as "20120111235330"');
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions'))));
         $manager = new Manager($config, $this->input, $this->output);
         $manager->getMigrations();
@@ -290,10 +288,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetMigrationsWithDuplicateMigrationNames()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'Migration "20120111235331_duplicate_migration_name.php" has the same name as "20120111235330_duplicate_migration_name.php"'
-        );
+        $this->expectException('InvalidArgumentException');
+        $this->expectExceptionMessage('Migration "20120111235331_duplicate_migration_name.php" has the same name as "20120111235330_duplicate_migration_name.php"');
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicatenames'))));
         $manager = new Manager($config, $this->input, $this->output);
         $manager->getMigrations();
@@ -301,10 +297,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetMigrationsWithInvalidMigrationClassName()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'Could not find class "InvalidClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname/20120111235330_invalid_class.php') . '"'
-        );
+        $this->expectException('InvalidArgumentException');
+        $this->expectExceptionMessage('Could not find class "InvalidClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname/20120111235330_invalid_class.php') . '"');
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname'))));
         $manager = new Manager($config, $this->input, $this->output);
         $manager->getMigrations();
@@ -312,10 +306,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetMigrationsWithClassThatDoesntExtendAbstractMigration()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'The class "InvalidSuperClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass/20120111235330_invalid_super_class.php') . '" must extend \Phinx\Migration\AbstractMigration'
-        );
+        $this->expectException('InvalidArgumentException');
+        $this->expectExceptionMessage('The class "InvalidSuperClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass/20120111235330_invalid_super_class.php') . '" must extend \Phinx\Migration\AbstractMigration');
         $config = new Config(array('paths' => array('migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass'))));
         $manager = new Manager($config, $this->input, $this->output);
         $manager->getMigrations();
