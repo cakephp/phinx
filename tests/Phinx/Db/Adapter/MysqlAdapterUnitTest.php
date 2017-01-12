@@ -771,7 +771,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->assertQuerySql("DESCRIBE `table_name`", $this->result);
 
 
-        $this->setExpectedException('\InvalidArgumentException', 'The specified column doesn\'t exist: column_old');
+        $this->expectException('\InvalidArgumentException');
+        $this->expectExceptionMessage('The specified column doesn\'t exist: column_old');
         $this->adapter->renameColumn('table_name', 'column_old', 'column_new');
     }
 
@@ -924,7 +925,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testGetSqlTypeNotExists()
     {
-        $this->setExpectedException('\RuntimeException', 'The type: "fake" is not supported.');
+        $this->expectException('\RuntimeException');
+        $this->expectExceptionMessage('The type: "fake" is not supported.');
         $this->adapter->getSqlType('fake');
     }
 
@@ -1025,13 +1027,15 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testPhinxTypeNotValidType()
     {
-        $this->setExpectedException('\RuntimeException', 'The type: "fake" is not supported.');
+        $this->expectException('\RuntimeException');
+        $this->expectExceptionMessage('The type: "fake" is not supported.');
         $this->adapter->getPhinxType('fake');
     }
 
     public function testPhinxTypeNotValidTypeRegex()
     {
-        $this->setExpectedException('\RuntimeException', 'Column type ?int? is not supported');
+        $this->expectException('\RuntimeException');
+        $this->expectExceptionMessage('Column type ?int? is not supported');
         $this->adapter->getPhinxType('?int?');
     }
 
