@@ -479,7 +479,7 @@ interface AdapterInterface
      *
      * @param string $type
      * @param integer $limit
-     * @return string
+     * @return string[]
      */
     public function getSqlType($type, $limit = null);
 
