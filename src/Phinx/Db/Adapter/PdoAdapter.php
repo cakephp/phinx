@@ -339,7 +339,10 @@ abstract class PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Executes a query and returns PDOStatement.
+     *
+     * @param string $sql SQL
+     * @return \PDOStatement
      */
     public function query($sql)
     {
