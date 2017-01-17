@@ -1187,6 +1187,36 @@ This allows us to establish a foreign key relationship to a table which uses a c
             }
         }
 
+We can add named foreign keys using the ``constraint`` parameter. This feature is supported as of Phinx version 0.6.5
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('your_table');
+                $table->addForeignKey('foreign_id', 'reference_table', array('id'), 
+                                    array('constraint'=>'your_foreign_key_name'));
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
 We can also easily check if a foreign key exists:
 
 .. code-block:: php
