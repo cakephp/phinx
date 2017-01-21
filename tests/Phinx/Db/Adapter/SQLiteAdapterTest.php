@@ -362,6 +362,20 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($rows[1]['dflt_value']);
     }
 
+    public function testChangeColumnWithCommasInCommentsOrDefaultValue()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string', array('default' => 'one, two or three', 'comment' => 'three, two or one'))
+              ->save();
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1->setDefault('another default')
+                   ->setComment('another comment')
+                   ->setType('string');
+        $table->changeColumn('column1', $newColumn1);
+        $rows = $this->adapter->fetchAll('pragma table_info(t)');
+        $this->assertEquals("'another default'", $rows[1]['dflt_value']);
+    }
+
     public function testDropColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);

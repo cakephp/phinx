@@ -258,7 +258,7 @@ class Table
     }
 
     /**
-     * Gets an array of foreign keys waiting to be commited.
+     * Sets an array of foreign keys waiting to be commited.
      *
      * @param ForeignKey[] $foreignKeys foreign keys
      * @return Table

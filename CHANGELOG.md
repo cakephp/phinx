@@ -9,11 +9,24 @@
   * [#966](https://github.com/robmorgan/phinx/pull/966) Remove unused variable
   * [#1001](https://github.com/robmorgan/phinx/pull/1001) Cleanup phpunit mock warnings
 
-**0.6.x-dev** (***)
+**0.6.6** (Sunday, 22nd January 2017)
+
+* Documentation updates
+* New Features
+  * [#869](https://github.com/robmorgan/phinx/pull/869) Config File Location Feature
+* Bug fixes
+  * [#1002](https://github.com/robmorgan/phinx/pull/1002) Fix Appveyor builds
+  * [#1006](https://github.com/robmorgan/phinx/pull/1006) Fix update column with , in definition (SQLite)
+* Development branch changed to `master`
+
+**0.6.5** (Thursday, 27th October 2016)
 
 * Documentation updates
 * Pull requests
   * [#831](https://github.com/robmorgan/phinx/pull/831) Typos
+  * [#929](https://github.com/robmorgan/phinx/pull/929) Support glob brace for seed paths
+  * [#949](https://github.com/robmorgan/phinx/pull/949) Fix for Config::getMigrationBaseClassName
+  * [#958](https://github.com/robmorgan/phinx/pull/958) Allow console input to be used within adapters
 
 **0.6.4** (Wednesday, 27th July 2016)
 
@@ -146,17 +159,17 @@
 * SQLite migration fixes
 * Documentation improvements
 
-**0.4.3** (Monday, 23rd Feburary 2015)
+**0.4.3** (Monday, 23rd February 2015)
 
 * Postgres bugfix for modifying column DEFAULTs
 * MySQL bugfix for setting column INTEGER lengths
 * SQLite bugfix for creating multiple indexes with similar names
 
-**0.4.2.1** (Saturday, 7th Feburary 2015)
+**0.4.2.1** (Saturday, 7th February 2015)
 
 * Proper release, updated docs
 
-**0.4.2** (Friday, 6th Feburary 2015)
+**0.4.2** (Friday, 6th February 2015)
 
 * Postgres support for `json` columns added
 * MySQL support for `enum` and `set` columns added
