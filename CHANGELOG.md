@@ -2,8 +2,12 @@
 
 **0.7.x-dev** (***)
 
+* Documentation updates
 * New features
   * [#885](https://github.com/robmorgan/phinx/pull/885) Add `collation` and `encoding` options for MySQL text and char columns
+* Pull requests
+  * [#966](https://github.com/robmorgan/phinx/pull/966) Remove unused variable
+  * [#1001](https://github.com/robmorgan/phinx/pull/1001) Cleanup phpunit mock warnings
 
 **0.6.x-dev** (***)
 
@@ -53,7 +57,7 @@
 
 **0.5.5** (Friday, 17th May 2016)
 
-* Fix support for running multiple seeders 
+* Fix support for running multiple seeders
 * Bug fix for migration template source - defaults and command line
 * Bug fixes
 
