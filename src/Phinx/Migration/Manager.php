@@ -663,8 +663,7 @@ class Manager
     public function getSeeds()
     {
         if (null === $this->seeds) {
-            $config = $this->getConfig();
-            $phpFiles = glob($config->getSeedPath() . DIRECTORY_SEPARATOR . '*.php', defined('GLOB_BRACE') ? GLOB_BRACE : 0);
+            $phpFiles = $this->getSeedFiles();
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = array();
