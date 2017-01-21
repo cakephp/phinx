@@ -241,7 +241,9 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
     public function testGettingInputObject()
     {
-        $this->environment->setInput($this->getMock('\Symfony\Component\Console\Input\InputInterface'));
+        $mock = $this->getMockBuilder('\Symfony\Component\Console\Input\InputInterface')
+            ->getMock();
+        $this->environment->setInput($mock);
         $inputObject = $this->environment->getInput();
         $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $inputObject);
     }
