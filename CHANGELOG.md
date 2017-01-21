@@ -1,6 +1,6 @@
 # Version History
 
-**0.6.6** (Saturday, 21st January 2017)
+**0.6.6** (Sunday, 22nd January 2017)
 
 * Documentation updates
 * New Features
