@@ -19,7 +19,7 @@ command:
         $ php vendor/bin/phinx create MyNewMigration
 
 This will create a new migration in the format
-``YYYYMMDDHHMMSS_my_new_migration.php`` where the first 14 characters are
+``YYYYMMDDHHMMSS_my_new_migration.php``, where the first 14 characters are
 replaced with the current timestamp down to the second.
 
 If you have specified multiple migration paths, you will be asked to select
@@ -67,16 +67,16 @@ The AbstractMigration Class
 
 All Phinx migrations extend from the ``AbstractMigration`` class. This class
 provides the necessary support to create your database migrations. Database
-migrations can transform your database in many ways such as creating new
+migrations can transform your database in many ways, such as creating new
 tables, inserting rows, adding indexes and modifying columns.
 
 The Change Method
 ~~~~~~~~~~~~~~~~~
 
 Phinx 0.2.0 introduced a new feature called reversible migrations. This feature
-has now become the default migration method. With reversible migrations you only
-need to define the ``up`` logic and Phinx can figure out how to migrate down
-automatically for you. For example:
+has now become the default migration method. With reversible migrations, you
+only need to define the ``up`` logic, and Phinx can figure out how to migrate
+down automatically for you. For example:
 
 .. code-block:: php
 
@@ -120,9 +120,9 @@ automatically for you. For example:
             }
         }
 
-When executing this migration Phinx will create the ``user_logins`` table on
+When executing this migration, Phinx will create the ``user_logins`` table on
 the way up and automatically figure out how to drop the table on the way down.
-Please be aware that when a ``change`` method exists Phinx will automatically
+Please be aware that when a ``change`` method exists, Phinx will automatically
 ignore the ``up`` and ``down`` methods. If you need to use these methods it is
 recommended to create a separate migration file.
 
@@ -343,10 +343,10 @@ object.
 The Save Method
 ~~~~~~~~~~~~~~~
 
-When working with the Table object Phinx stores certain operations in a
+When working with the Table object, Phinx stores certain operations in a
 pending changes cache.
 
-When in doubt it is recommended you call this method. It will commit any
+When in doubt, it is recommended you call this method. It will commit any
 pending changes to the database.
 
 Creating a Table
@@ -403,7 +403,7 @@ The ``id`` option sets the name of the automatically created identity field, whi
 option selects the field or fields used for primary key. The ``primary_key`` option always defaults to
 the value of ``id``. Both can be disabled by setting them to false.
 
-To specify an alternate primary key you can specify the ``primary_key`` option
+To specify an alternate primary key, you can specify the ``primary_key`` option
 when accessing the Table object. Let's disable the automatic ``id`` column and
 create a primary key using two columns instead:
 
@@ -862,7 +862,7 @@ You can check if a table already has a certain column by using the
 Renaming a Column
 ~~~~~~~~~~~~~~~~~
 
-To rename a column access an instance of the Table object then call the
+To rename a column, access an instance of the Table object then call the
 ``renameColumn()`` method.
 
 .. code-block:: php
@@ -1103,7 +1103,7 @@ call this method for each index.
             {
                 $table = $this->table('users');
                 $table->removeIndex(array('email'));
-                
+
                 // alternatively, you can delete an index by its name, ie:
                 $table->removeIndexByName('idx_users_email');
             }
@@ -1230,7 +1230,7 @@ We can also easily check if a foreign key exists:
             }
         }
 
-Finally to delete a foreign key use the ``dropForeignKey`` method.
+Finally, to delete a foreign key, use the ``dropForeignKey`` method.
 
 .. code-block:: php
 
