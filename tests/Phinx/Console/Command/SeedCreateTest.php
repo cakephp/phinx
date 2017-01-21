@@ -70,7 +70,9 @@ class SeedCreateTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -94,7 +96,9 @@ class SeedCreateTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);

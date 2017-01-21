@@ -169,7 +169,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
     public function testChangeColumn()
     {
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', [], [[]]);
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
         $adapterStub->expects($this->once())
                     ->method('changeColumn');
         $newColumn = new \Phinx\Db\Table\Column();
@@ -180,7 +182,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
     public function testChangeColumnWithoutAColumnObject()
     {
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', [], [[]]);
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
         $adapterStub->expects($this->once())
                     ->method('changeColumn');
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
@@ -190,7 +194,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
     public function testDropForeignKey()
     {
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', [], [[]]);
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
         $adapterStub->expects($this->once())
                     ->method('dropForeignKey');
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
@@ -200,7 +206,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
     public function testGetColumns()
     {
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', [], [[]]);
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
         $adapterStub->expects($this->once())
                     ->method('getColumns');
 
@@ -210,7 +218,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
 
     public function testInsert()
     {
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', [], [[]]);
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
         $data = [
             'column1' => 'value1',
@@ -225,7 +235,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
 
     public function testInsertSaveData()
     {
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', [], [[]]);
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
         $data = [
             [
@@ -257,7 +269,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
     public function testRemoveColumn()
     {
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', [], [[]]);
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
         $adapterStub->expects($this->once())
                     ->method('dropColumn');
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
@@ -267,7 +281,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
     public function testRemoveIndex()
     {
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', [], [[]]);
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
         $adapterStub->expects($this->once())
                     ->method('dropIndex');
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
@@ -277,7 +293,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
     public function testRemoveIndexByName()
     {
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', [], [[]]);
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
         $adapterStub->expects($this->once())
                     ->method('dropIndexByName');
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
@@ -287,7 +305,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
     public function testRenameColumn()
     {
         // stub adapter
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', [], [[]]);
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
         $adapterStub->expects($this->once())
                     ->method('renameColumn');
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
@@ -296,7 +316,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
 
     public function testResetAfterAddingData()
     {
-        $adapterStub = $this->getMock('\Phinx\Db\Adapter\MysqlAdapter', [], [[]]);
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
         $columns = ["column1"];
         $data = [["value1"]];

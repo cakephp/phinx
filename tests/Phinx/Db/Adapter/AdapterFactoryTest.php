@@ -90,7 +90,7 @@ class AdapterFactoryTest extends \PHPUnit_Framework_TestCase
 
     private function getAdapterMock()
     {
-        return $this->getMock('Phinx\Db\Adapter\AdapterInterface', array());
+        return $this->getMockBuilder('Phinx\Db\Adapter\AdapterInterface')->getMock();
     }
 
     public function testGetWrapper()
