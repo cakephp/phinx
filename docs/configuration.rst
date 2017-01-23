@@ -6,17 +6,12 @@ Configuration
 
 When you initialize your project using the :doc:`Init Command<commands>`, Phinx
 creates a default file called ``phinx.yml`` in the root of your project directory.
-This file uses the YAML data serialization format.  This configuration file can
-also exist in different formats, namely as ``phinx.php`` or ``phinx.json``.
+This file uses the YAML data serialization format.
 
 If a ``--configuration`` command line option is given, Phinx will load the
-specified file.  If the environment variable ``PHINX_CONFIG_DIR`` exists, phinx
-will attempt to file a configuration file within the specified directory.
-Otherwise phinx will attempt to find and load the first file found from the
-current working directory or the first level of directories under the current
-working directory.
-
-See the :doc:`Commands <commands>` chapter for more information.
+specified file. Otherwise, it will attempt to find ``phinx.php``, ``phinx.json`` or
+``phinx.yml`` and load the first file found. See the :doc:`Commands <commands>`
+chapter for more information.
 
 .. warning::
 
