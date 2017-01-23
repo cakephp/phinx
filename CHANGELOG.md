@@ -1,11 +1,13 @@
 # Version History
 
-**0.6.6** (Sunday, 22nd January 2017)
+**0.6.6** (Monday, 23rd January 2017)
 
 * Documentation updates
 * New Features
-  * [#869](https://github.com/robmorgan/phinx/pull/869) Config File Location Feature
+  * [#943](https://github.com/robmorgan/phinx/pull/943) Adding hint on migration name in CamelCase
 * Bug fixes
+  * [#813](https://github.com/robmorgan/phinx/pull/813) fix(pdo_sqlite): Correctly handles data insertions
+  * [#956](https://github.com/robmorgan/phinx/pull/956) Fix seed command accepting string
   * [#1002](https://github.com/robmorgan/phinx/pull/1002) Fix Appveyor builds
   * [#1006](https://github.com/robmorgan/phinx/pull/1006) Fix update column with , in definition (SQLite)
 * Development branch changed to `master`
