@@ -226,6 +226,12 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->adapter->dropTable("table_name");
     }
 
+    public function testTruncateTable()
+    {
+        $this->assertExecuteSql("TRUNCATE TABLE `table_name`");
+        $this->adapter->truncateTable("table_name");
+    }
+
     public function testHasTableExists()
     {
         $this->adapter->setOptions(array('name'=>'database_name'));
