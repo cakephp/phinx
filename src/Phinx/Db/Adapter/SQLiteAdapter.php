@@ -418,7 +418,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
 
         $sql = preg_replace(
-            sprintf("/%s[^,]+([,)])/", $this->quoteColumnName($columnName)),
+            sprintf("/%s(?:\/\*.*?\*\/|\([^)]+\)|'[^']+'|[^,])+([,)])/", $this->quoteColumnName($columnName)),
             sprintf('%s %s$1', $this->quoteColumnName($newColumn->getName()), $this->getColumnSqlDefinition($newColumn)),
             $sql,
             1
@@ -828,7 +828,12 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 if (is_numeric($value)) {
                     return $value;
                 }
-                return "'{$value}'";
+
+                if ($value === null) {
+                    return 'null';
+                }
+
+                return $this->getConnection()->quote($value);
             }, $row)) . ")";
 
         $this->execute($sql);

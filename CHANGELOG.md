@@ -1,6 +1,18 @@
 # Version History
 
-**0.6.5** (Thursday, 27 October 2016)
+**0.6.6** (Monday, 23rd January 2017)
+
+* Documentation updates
+* New Features
+  * [#943](https://github.com/robmorgan/phinx/pull/943) Adding hint on migration name in CamelCase
+* Bug fixes
+  * [#813](https://github.com/robmorgan/phinx/pull/813) fix(pdo_sqlite): Correctly handles data insertions
+  * [#956](https://github.com/robmorgan/phinx/pull/956) Fix seed command accepting string
+  * [#1002](https://github.com/robmorgan/phinx/pull/1002) Fix Appveyor builds
+  * [#1006](https://github.com/robmorgan/phinx/pull/1006) Fix update column with , in definition (SQLite)
+* Development branch changed to `master`
+
+**0.6.5** (Thursday, 27th October 2016)
 
 * Documentation updates
 * Pull requests
@@ -51,7 +63,7 @@
 
 **0.5.5** (Friday, 17th May 2016)
 
-* Fix support for running multiple seeders 
+* Fix support for running multiple seeders
 * Bug fix for migration template source - defaults and command line
 * Bug fixes
 
@@ -140,17 +152,17 @@
 * SQLite migration fixes
 * Documentation improvements
 
-**0.4.3** (Monday, 23rd Feburary 2015)
+**0.4.3** (Monday, 23rd February 2015)
 
 * Postgres bugfix for modifying column DEFAULTs
 * MySQL bugfix for setting column INTEGER lengths
 * SQLite bugfix for creating multiple indexes with similar names
 
-**0.4.2.1** (Saturday, 7th Feburary 2015)
+**0.4.2.1** (Saturday, 7th February 2015)
 
 * Proper release, updated docs
 
-**0.4.2** (Friday, 6th Feburary 2015)
+**0.4.2** (Friday, 6th February 2015)
 
 * Postgres support for `json` columns added
 * MySQL support for `enum` and `set` columns added

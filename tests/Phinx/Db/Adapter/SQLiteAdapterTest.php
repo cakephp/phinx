@@ -362,6 +362,20 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($rows[1]['dflt_value']);
     }
 
+    public function testChangeColumnWithCommasInCommentsOrDefaultValue()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', 'string', array('default' => 'one, two or three', 'comment' => 'three, two or one'))
+              ->save();
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1->setDefault('another default')
+                   ->setComment('another comment')
+                   ->setType('string');
+        $table->changeColumn('column1', $newColumn1);
+        $rows = $this->adapter->fetchAll('pragma table_info(t)');
+        $this->assertEquals("'another default'", $rows[1]['dflt_value']);
+    }
+
     public function testDropColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
@@ -634,6 +648,12 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
                       'column2' => 3,
                   )
               )
+              ->insert(
+                  array(
+                      'column1' => '\'value4\'',
+                      'column2' => null,
+                  )
+              )
               ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
@@ -641,9 +661,11 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('value1', $rows[0]['column1']);
         $this->assertEquals('value2', $rows[1]['column1']);
         $this->assertEquals('value3', $rows[2]['column1']);
+        $this->assertEquals('\'value4\'', $rows[3]['column1']);
         $this->assertEquals(1, $rows[0]['column2']);
         $this->assertEquals(2, $rows[1]['column2']);
         $this->assertEquals(3, $rows[2]['column2']);
+        $this->assertEquals(null, $rows[3]['column2']);
     }
 
     public function testInserDataEnum()

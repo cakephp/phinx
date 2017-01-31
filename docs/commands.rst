@@ -250,6 +250,6 @@ and to rollback use `<http://localhost:8000/rollback>`__.
 
 .. note::
 
-        To modify configuration variables at runtime and overrid ``%%PHINX_DBNAME%%``
+        To modify configuration variables at runtime and override ``%%PHINX_DBNAME%%``
         or other another dynamic option, set ``$_SERVER['PHINX_DBNAME']`` before
         running commands. Available options are documented in the Configuration page.
