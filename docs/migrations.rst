@@ -238,6 +238,66 @@ Both methods accept raw SQL as their only parameter.
             }
         }
 
+Inserting Data
+--------------
+
+Phinx makes it easy to insert data into your tables. Whilst this feature is
+intended for the :doc:`seed feature <seeding>`, you are also free to use the
+insert methods in your migrations.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class NewStatus extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                // inserting only one row
+                $singleRow = [
+                    'id'    => 1,
+                    'name'  => 'In Progress'
+                ]
+
+                $table = $this->table('status');
+                $table->insert($singleRow);
+                $table->saveData();
+
+                // inserting multiple rows
+                $rows = [
+                    [
+                      'id'    => 2,
+                      'name'  => 'Stopped'
+                    ],
+                    [
+                      'id'    => 3,
+                      'name'  => 'Queued'
+                    ]
+                ];
+
+                // this is a handy shortcut
+                $this->insert('status', $rows);
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+                $this->execute('DELETE FROM status');
+            }
+        }
+
+.. note::
+
+    You cannot use the insert methods inside a `change()` method. Please use the
+    `up()` and `down()` methods.
+
 Working With Tables
 -------------------
 

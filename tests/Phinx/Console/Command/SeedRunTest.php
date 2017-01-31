@@ -76,7 +76,7 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'));
+        $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'), array('decorated' => false));
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
     }
 
@@ -99,7 +99,7 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName()));
+        $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
     }
 }

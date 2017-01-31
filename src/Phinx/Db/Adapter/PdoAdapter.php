@@ -139,7 +139,7 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function getOutput()
     {
-        if (null == $this->output) {
+        if (null === $this->output) {
             $output = new NullOutput();
             $this->setOutput($output);
         }
@@ -354,13 +354,13 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function getVersions()
     {
+        $result = array();
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY version ASC', $this->getSchemaTableName()));
-        return array_map(
-            function ($v) {
-                return $v['version'];
-            },
-            $rows
-        );
+        foreach($rows as $version) {
+            $result[$version['version']] = $version;
+        }
+
+        return $result;
     }
 
     /**

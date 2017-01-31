@@ -237,7 +237,6 @@ abstract class AbstractCommand extends Command
                 case 'yml':
                 default:
                     $parser = 'yaml';
-                    break;
             }
         }
 
@@ -289,9 +288,9 @@ abstract class AbstractCommand extends Command
             ));
         }
 
-        if (!is_writeable($path)) {
+        if (!is_writable($path)) {
             throw new \InvalidArgumentException(sprintf(
-                'Migration directory "%s" is not writeable',
+                'Migration directory "%s" is not writable',
                 $path
             ));
         }
@@ -312,9 +311,9 @@ abstract class AbstractCommand extends Command
             ));
         }
 
-        if (!is_writeable($path)) {
+        if (!is_writable($path)) {
             throw new \InvalidArgumentException(sprintf(
-                'Seed directory "%s" is not writeable',
+                'Seed directory "%s" is not writable',
                 $path
             ));
         }
