@@ -1150,6 +1150,46 @@ ensure the table uses the ``MyISAM`` engine.
             }
         }
 
+The MySQL and Postgresql adapters also supports ``using`` keyword when creating indexes.
+This defines the method used to create index . The method is database specific, please consult the manual.
+e.g. ``btree`` which is default if no using is specified, ``hash``, ``gin``. ``gist``, ...
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->addColumn('email', 'string')
+                      ->addIndex('email', ['using' => 'gin'])
+                      ->create();
+            }
+        }
+
+Partial indexes are supported by Postgresql, SQLite, SQLServer via ``where`` keyword when creating indexes.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->addColumn('email', 'string')
+                      ->addIndex('email', ['where' => 'email IS NOT NULL'])
+                      ->create();
+            }
+        }
+
 Removing indexes is as easy as calling the ``removeIndex()`` method. You must
 call this method for each index.
 

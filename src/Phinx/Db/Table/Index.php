@@ -46,6 +46,16 @@ class Index
     const FULLTEXT = 'fulltext';
 
     /**
+     * @var string
+     */
+    const USING = 'using';
+
+    /**
+     * @var string
+     */
+    const WHERE = 'where';
+
+    /**
      * @var array
      */
     protected $columns;
@@ -64,6 +74,16 @@ class Index
      * @var integer
      */
     protected $limit = null;
+
+    /**
+     * @var string
+     */
+    protected $using = null;
+
+    /**
+     * @var string
+     */
+    protected $where = null;
 
     /**
      * Sets the index columns.
@@ -154,6 +174,54 @@ class Index
     }
 
     /**
+     * Gets the format type e.g. btree, hash, gist, gin...
+     *
+     * @return string
+     */
+    public function getUsing()
+    {
+        return $this->using;
+    }
+
+    /**
+     * Sets the format type e.g. btree, hash, gist, gin...
+     *
+     * @param string $using
+     *
+     * @return Index
+     */
+    public function setUsing($using)
+    {
+        $this->using = $using;
+        return $this;
+    }
+
+    /**
+     * Gets the where part of the index
+     *
+     * @return string
+     */
+    public function getWhere()
+    {
+        return $this->where;
+    }
+
+    /**
+     * Sets the where part of the index
+     *
+     * @param string $where
+     *
+     * @return Index
+     */
+    public function setWhere($where)
+    {
+        $this->where = $where;
+        return $this;
+    }
+
+
+
+    /**
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
@@ -163,7 +231,7 @@ class Index
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = array('type', 'unique', 'name', 'limit');
+        $validOptions = array('type', 'unique', 'name', 'limit', 'using', 'where');
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions, true)) {
                 throw new \RuntimeException(sprintf('"%s" is not a valid index option.', $option));

@@ -566,10 +566,11 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $indexColumns = implode(',', $indexColumnArray);
         $this->execute(
             sprintf(
-                'CREATE %s ON %s (%s)',
+                'CREATE %s ON %s (%s) %s',
                 $this->getIndexSqlDefinition($table, $index),
                 $this->quoteTableName($table->getName()),
-                $indexColumns
+                $indexColumns,
+                (null !== $index->getWhere() ? ' WHERE ' . $index->getWhere() : '')
             )
         );
     }

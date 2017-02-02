@@ -1045,6 +1045,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= ' `' . $index->getName() . '`';
         }
 
+        if (null !== $index->getUsing()) {
+            $def .= ' USING ' . $index->getUsing() . ' ';
+        }
+
         $def .= ' (`' . implode('`,`', $index->getColumns()) . '`' . $limit . ')';
 
         return $def;
