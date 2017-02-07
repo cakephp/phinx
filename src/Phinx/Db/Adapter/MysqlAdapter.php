@@ -41,7 +41,26 @@ use Phinx\Db\Table\ForeignKey;
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
 
-    protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true, 'boolean' => true);
+    /**
+     * @var array
+     */
+    protected $signedColumnTypes = [
+        'integer'    => true, 
+        'biginteger' => true, 
+        'float'      => true, 
+        'decimal'    => true, 
+        'boolean'    => true,
+    ];
+
+    /**
+     * @var array
+     */
+    protected $zerofillColumnTypes = [
+        'integer'    => true,
+        'biginteger' => true, 
+        'float'      => true, 
+        'decimal'    => true,
+    ];
 
     const TEXT_TINY    = 255;
     const TEXT_SMALL   = 255; /* deprecated, alias of TEXT_TINY */
@@ -1035,6 +1054,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= "('" . implode("', '", $values) . "')";
         }
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
+        $def .= ($column->isZerofill() && isset($this->zerofillColumnTypes[$column->getType()])) ? ' zerofill' : '' ;
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
         $def .= $this->getDefaultValueDefinition($column->getDefault());

@@ -97,12 +97,17 @@ class Column
     /**
      * @var boolean
      */
+    protected $zerofill = false;
+
+    /**
+     * @var boolean
+     */
     protected $timezone = false;
 
     /**
      * @var array
      */
-    protected $properties = array();
+    protected $properties = [];
 
     /**
      * @var array
@@ -113,11 +118,13 @@ class Column
      * Sets the column name.
      *
      * @param string $name
+     *
      * @return Column
      */
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -135,11 +142,13 @@ class Column
      * Sets the column type.
      *
      * @param string $type
+     *
      * @return Column
      */
     public function setType($type)
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -157,11 +166,13 @@ class Column
      * Sets the column limit.
      *
      * @param integer $limit
+     *
      * @return Column
      */
     public function setLimit($limit)
     {
         $this->limit = $limit;
+
         return $this;
     }
 
@@ -179,11 +190,13 @@ class Column
      * Sets whether the column allows nulls.
      *
      * @param boolean $null
+     *
      * @return Column
      */
     public function setNull($null)
     {
-        $this->null = (bool) $null;
+        $this->null = (bool)$null;
+
         return $this;
     }
 
@@ -211,11 +224,13 @@ class Column
      * Sets the default column value.
      *
      * @param mixed $default
+     *
      * @return Column
      */
     public function setDefault($default)
     {
         $this->default = $default;
+
         return $this;
     }
 
@@ -233,11 +248,13 @@ class Column
      * Sets whether or not the column is an identity column.
      *
      * @param boolean $identity
+     *
      * @return Column
      */
     public function setIdentity($identity)
     {
         $this->identity = $identity;
+
         return $this;
     }
 
@@ -265,11 +282,13 @@ class Column
      * Sets the name of the column to add this column after.
      *
      * @param string $after After
+     *
      * @return Column
      */
     public function setAfter($after)
     {
         $this->after = $after;
+
         return $this;
     }
 
@@ -287,11 +306,13 @@ class Column
      * Sets the 'ON UPDATE' mysql column function.
      *
      * @param  string $update On Update function
+     *
      * @return Column
      */
     public function setUpdate($update)
     {
         $this->update = $update;
+
         return $this;
     }
 
@@ -309,11 +330,13 @@ class Column
      * Sets the column precision for decimal.
      *
      * @param integer $precision
+     *
      * @return Column
      */
     public function setPrecision($precision)
     {
         $this->precision = $precision;
+
         return $this;
     }
 
@@ -331,11 +354,13 @@ class Column
      * Sets the column scale for decimal.
      *
      * @param integer $scale
+     *
      * @return Column
      */
     public function setScale($scale)
     {
         $this->scale = $scale;
+
         return $this;
     }
 
@@ -353,11 +378,13 @@ class Column
      * Sets the column comment.
      *
      * @param string $comment
+     *
      * @return Column
      */
     public function setComment($comment)
     {
         $this->comment = $comment;
+
         return $this;
     }
 
@@ -375,11 +402,13 @@ class Column
      * Sets whether field should be signed.
      *
      * @param bool $signed
+     *
      * @return Column
      */
     public function setSigned($signed)
     {
-        $this->signed = (bool) $signed;
+        $this->signed = (bool)$signed;
+
         return $this;
     }
 
@@ -403,6 +432,40 @@ class Column
         return $this->getSigned();
     }
 
+    /**
+     * Sets whether field should be filled with zero.
+     *
+     * @param  boolean $zerofill
+     *
+     * @return Column
+     */
+    public function setZerofill($zerofill)
+    {
+        $this->zerofill = (boolean) $zerofill;
+
+        return $this;
+    }
+
+    /**
+     * Gets whether field should be filled with zero.
+     *
+     * @return boolean
+     */
+    public function getZerofill()
+    {
+        return $this->zerofill;
+    }
+
+    /**
+     * Should the column be zerofill?
+     * 
+     * @return boolean
+     */
+    public function isZerofill()
+    {
+        return $this->getZerofill();
+    }
+    
     /**
      * Sets whether the field should have a timezone identifier.
      * Used for date/time columns only!
@@ -503,6 +566,7 @@ class Column
             'update',
             'comment',
             'signed',
+            'zerofill',
             'timezone',
             'properties',
             'values',
