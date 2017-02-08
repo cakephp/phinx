@@ -28,13 +28,25 @@
  */
 namespace Phinx\Console\Command;
 
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputOption;
 
 class Init extends Command
 {
+
+    const TEMPLATE_DIR        = '/../../Config/templates';
+    const DEFAULT_CONFIG_NAME = 'phinx';
+    const DEFAULT_CONFIG_EXT  = 'yml';
+
+    public $extensionFile = [
+      'php' =>  'phinx.template.php.dist',
+      'yml' =>  'phinx.template.yml.dist'
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -42,7 +54,9 @@ class Init extends Command
     {
         $this->setName('init')
             ->setDescription('Initialize the application for Phinx')
-            ->addArgument('path', InputArgument::OPTIONAL, 'Which path should we initialize for Phinx?')
+            ->addArgument('path', InputArgument::OPTIONAL, 'Which path should we initialize for Phinx ?')
+            ->addOption('--file-extension', '-f', InputOption::VALUE_REQUIRED, 'The  extension config file.')
+            ->addOption('--config-name', '-g', InputOption::VALUE_REQUIRED, 'The  name config file.')
             ->setHelp(sprintf(
                 '%sInitializes the application for Phinx%s',
                 PHP_EOL,
@@ -62,14 +76,23 @@ class Init extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // get the migration path from the config
-        $path = $input->getArgument('path');
+        $path               = $input->getArgument('path');
+        $extension          = $input->getOption('file-extension');
+        $configName         = $input->getOption('config-name');
 
         if (null === $path) {
             $path = getcwd();
         }
+        
+        if (null === $extension) {
+            $extension = self::DEFAULT_CONFIG_EXT;
+        }
+
+        if (null === $configName) {
+            $configName = self::DEFAULT_CONFIG_NAME;
+        }
 
         $path = realpath($path);
-
         if (!is_writable($path)) {
             throw new \InvalidArgumentException(sprintf(
                 'The directory "%s" is not writable',
@@ -78,7 +101,11 @@ class Init extends Command
         }
 
         // Compute the file path
-        $fileName = 'phinx.yml'; // TODO - maybe in the future we allow custom config names.
+        if (isset($this->extensionFile[$extension])) {
+            $fileName = $configName . '.' . $extension;
+        } else {
+            $fileName = $configName . '.' . self::DEFAULT_CONFIG_EXT;
+        }
         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
 
         if (file_exists($filePath)) {
@@ -88,12 +115,16 @@ class Init extends Command
             ));
         }
 
-        // load the config template
-        if (is_dir(__DIR__ . '/../../../data/Phinx')) {
-            $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/phinx.yml');
-        } else {
-            $contents = file_get_contents(__DIR__ . '/../../../../phinx.yml');
+        // check config template directory
+        if (!is_dir(__DIR__ . self::TEMPLATE_DIR)) {
+            throw new Exception('The directory ' . __DIR__ . self::TEMPLATE_DIR . 'not exist.');
         }
+        // check config template
+        if (!is_file(__DIR__ . self::TEMPLATE_DIR . '/' . $this->extensionFile[$extension])) {
+            throw new Exception($this->extensionFile[$extension] . 'Undefined template file.');
+        }
+        // load config file
+        $contents = file_get_contents(__DIR__ . self::TEMPLATE_DIR . '/' . $this->extensionFile[$extension]);
 
         if (false === file_put_contents($filePath, $contents)) {
             throw new \RuntimeException(sprintf(
