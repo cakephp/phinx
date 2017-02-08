@@ -44,6 +44,19 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * @var array
      */
     protected $columnsWithComments = array();
+    /**
+     * Custom enums list
+     * 
+     * @var array 
+     */
+    private $enums = array();
+    
+    /**
+     * Custom sets emulation list
+     * 
+     * @var array 
+     */
+    private $sets = array();
 
     /**
      * {@inheritdoc}
@@ -171,11 +184,50 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createTable(Table $table)
     {
+        $sql = '';
         $this->startCommandTimer();
         $options = $table->getOptions();
 
          // Add the default primary key
         $columns = $table->getPendingColumns();
+        
+        // Create Enum Types
+        foreach ($columns as $col){
+            switch ($col->getType()) {
+                case 'enum':
+                    $typename = strtoupper($table->getName().'_'.$col->getName());
+                    $sql .= 'CREATE TYPE ' . $typename . ' AS ENUM (';
+                    $sql .= implode(',', array_map(function($a) {
+                                                return "'".$a."'";
+                                         }, $col->getValues()));
+                    $sql .= ");\n";
+                    $this->addEnumType($typename);
+                    $col->setType($typename);
+                    break;
+                case 'set':
+                    $sql .= "CREATE OR REPLACE FUNCTION has_unique_value(varchar[]) returns boolean as $$
+    select (select count(distinct c) from unnest($1) as dt(c)) = array_length($1, 1);
+$$ language sql;
+";
+                    
+                    $maxval = 0;
+                    foreach ($col->getValues() as $value) {
+                        if(strlen($value)>$maxval){
+                            $maxval = strlen($value);
+                        }
+                    }
+                    $col->setType('varchar('.$maxval.')[]');
+                    $this->addSet(array($col->getName()=>'varchar('.$maxval.')[]'));
+                    $default = $col->getDefault();
+                    if($default){
+                        $col->setDefault('{'.$default.'}');
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
             $column = new Column();
             $column->setName('id')
@@ -197,7 +249,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
 
         // TODO - process table options like collation etc
-        $sql = 'CREATE TABLE ';
+        $sql .= 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
 
         $this->columnsWithComments = array();
@@ -783,6 +835,15 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 if ($this->isArrayType($type)) {
                     return array('name' => $type);
                 }
+                if(array_key_exists($type, $this->enums)){
+                    return array('name' => $type);
+                }
+                if($colname = array_search($type, $this->sets)){
+                    return array('name' => $colname.' '.$type);
+                }
+                if($type == 'double'){
+                    return array('name' => 'DOUBLE PRECISION');
+                }
                 // Return array type
                 throw new \RuntimeException('The type: "' . $type . '" is not supported');
         }
@@ -804,6 +865,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'char':
                 return static::PHINX_TYPE_CHAR;
             case 'text':
+            case 'mediumtext':
                 return static::PHINX_TYPE_TEXT;
             case 'json':
                 return static::PHINX_TYPE_JSON;
@@ -916,7 +978,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $buffer[] = 'SERIAL';
         } else {
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
-            $buffer[] = strtoupper($sqlType['name']);
+
+            if(array_search($column->getType(), $this->sets)){
+                $buffer[] = $column->getType(); //"Set" 
+            } else {
+                $buffer[] = strtoupper($sqlType['name']);
+            }
+            
             // integers cant have limits in postgres
             if (static::PHINX_TYPE_DECIMAL == $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
                 $buffer[] = sprintf(
@@ -924,7 +992,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     $column->getPrecision() ? $column->getPrecision() : $sqlType['precision'],
                     $column->getScale() ? $column->getScale() : $sqlType['scale']
                 );
-            } elseif (!in_array($sqlType['name'], array('integer', 'smallint'))) {
+            } elseif (!in_array($sqlType['name'], array('integer', 'smallint','bytea'))) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
                 }
@@ -945,6 +1013,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
         }
 
+        if(array_search($column->getType(), $this->sets)){
+                    $buffer[] = ",
+    check (". $column->getName() ." <@ ARRAY[". implode(',', array_map(function($a) {
+                                                return "'".$a."'";
+                                         }, $column->getValues())) ."]::varchar[] and has_unique_value(". $column->getName() ."))
+";
+        }        
         return implode(' ', $buffer);
     }
 
@@ -1149,7 +1224,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('json', 'jsonb'));
+        return array_merge(parent::getColumnTypes(), array('json', 'jsonb','enum','set','double'));
     }
 
     /**
@@ -1187,4 +1262,25 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $options = $this->getOptions();
         return empty($options['schema']) ? 'public' : $options['schema'];
     }
+
+    /**
+     * Add definiton of new custom enum
+     * 
+     * @param string $typename
+     */
+    public function addEnumType($typename) {
+        $this->enums[$typename] = strtoupper($typename);
+    }
+
+    /**
+     * Add definiton of new "custom set emulation"
+     * 
+     * @param string $set
+     */
+    public function addSet( array $set) {
+        $this->sets[key($set)] = current($set);
+    }
+
+    
+    
 }
