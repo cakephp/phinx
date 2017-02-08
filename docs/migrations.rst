@@ -467,6 +467,16 @@ To simply change the name of the primary key, we need to override the default ``
             }
         }
 
+In addition, the MySQL adapter supports following options:
+
+========= ===========
+Option    Description
+========= ===========
+comment   set a text comment on the table
+engine    define table engine *(defaults to ``InnoDB``)*
+collation define table collation *(defaults to ``utf8_general_ci``)*
+========= ===========
+
 Valid Column Types
 ~~~~~~~~~~~~~~~~~~
 
@@ -1162,6 +1172,7 @@ Let's add a foreign key to an example table:
         }
 
 "On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possibles values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.
+Constraint name can be changed with the 'constraint' option.
 
 It is also possible to pass ``addForeignKey()`` an array of columns.
 This allows us to establish a foreign key relationship to a table which uses a combined key.
@@ -1186,7 +1197,37 @@ This allows us to establish a foreign key relationship to a table which uses a c
                       ->addForeignKey(array('user_id', 'follower_id'),
                                       'followers',
                                       array('user_id', 'follower_id'),
-                                      array('delete'=> 'NO_ACTION', 'update'=> 'NO_ACTION'))
+                                      array('delete'=> 'NO_ACTION', 'update'=> 'NO_ACTION', 'constraint' => 'user_follower_id'))
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
+We can add named foreign keys using the ``constraint`` parameter. This feature is supported as of Phinx version 0.6.5
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('your_table');
+                $table->addForeignKey('foreign_id', 'reference_table', array('id'), 
+                                    array('constraint'=>'your_foreign_key_name'));
                       ->save();
             }
 

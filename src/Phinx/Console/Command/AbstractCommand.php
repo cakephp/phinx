@@ -201,23 +201,11 @@ abstract class AbstractCommand extends Command
 
         $cwd = getcwd();
 
-        $locateDirs = [];
-
-        if ($envDir = getenv('PHINX_CONFIG_DIR')) {
-            $locateDirs[] = $envDir;
-        } else {
-            $locateDirs[] = $cwd . DIRECTORY_SEPARATOR;
-
-            // locate the phinx config file (default: phinx.{php,json,yml})
-            // while traversing 1 level deep (for example `config/` directory)
-            foreach (scandir($cwd) as $cwdDir) {
-                if (!in_array($cwdDir, ['.', '..', 'vendor']) && is_dir($cwd . DIRECTORY_SEPARATOR . $cwdDir)) {
-                    $locateDirs[] = $cwd . DIRECTORY_SEPARATOR . $cwdDir;
-                }
-            }
-        }
-
-        $locator = new FileLocator($locateDirs);
+        // locate the phinx config file (default: phinx.yml)
+        // TODO - In future walk the tree in reverse (max 10 levels)
+        $locator = new FileLocator(array(
+            $cwd . DIRECTORY_SEPARATOR
+        ));
 
         if (!$useDefault) {
             // Locate() throws an exception if the file does not exist

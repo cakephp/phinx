@@ -126,9 +126,9 @@ class TextWrapper
 
     /**
      * Returns the output from running the "seed:run" command.
-     * @param  string|null $env environment name
-     * @param  string|null $target target version
-     * @param  string|null $seed seed name
+     * @param  string|null       $env environment name
+     * @param  string|null       $target target version
+     * @param  array|string|null $seed array of seed names or seed name
      * @return string
      */
     public function getSeed($env = null, $target = null, $seed = null)
@@ -143,6 +143,7 @@ class TextWrapper
             $command += array('-t' => $target);
         }
         if ($seed) {
+            $seed = (array) $seed;
             $command += array('-s' => $seed);
         }
         return $this->executeRun($command);

@@ -828,7 +828,12 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 if (is_numeric($value)) {
                     return $value;
                 }
-                return "'{$value}'";
+
+                if ($value === null) {
+                    return 'null';
+                }
+
+                return $this->getConnection()->quote($value);
             }, $row)) . ")";
 
         $this->execute($sql);
