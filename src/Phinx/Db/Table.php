@@ -576,7 +576,8 @@ class Table
     }
 
     /**
-     * Insert data into the table.
+     * 
+     data into the table.
      *
      * @param $data array of data in the form:
      *              array(
@@ -589,6 +590,16 @@ class Table
      */
     public function insert($data)
     {
+        // backwards compatibility when passing
+        // array of keys and indexed array of values
+        if(func_num_args() === 2) {
+            $keys = func_get_arg(0);
+            $rows = func_get_arg(1);
+            $data = array_map(function($row) use ($keys) {
+                return array_combine($keys, $row);
+            }, $rows);
+        }
+        
         // handle array of array situations
         if (isset($data[0]) && is_array($data[0])) {
             foreach ($data as $row) {
