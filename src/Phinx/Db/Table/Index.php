@@ -85,7 +85,7 @@ class Index
      */
     public function setType($type)
     {
-        $this->type = $type;
+        $this->type = trim($type);
         return $this;
     }
 
@@ -101,7 +101,7 @@ class Index
 
     public function setName($name)
     {
-        $this->name = $name;
+        $this->name = trim($name);
         return $this;
     }
 
