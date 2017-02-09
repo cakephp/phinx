@@ -576,8 +576,7 @@ class Table
     }
 
     /**
-     * 
-     data into the table.
+     * Insert data into the table.
      *
      * @param $data array of data in the form:
      *              array(
