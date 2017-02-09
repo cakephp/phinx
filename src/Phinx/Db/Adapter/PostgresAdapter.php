@@ -778,16 +778,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             // which enables the use of the "geography" type in combination
             // with SRID 4326.
             case static::PHINX_TYPE_GEOMETRY:
-                return array('name' => 'geography', 'geometry', 4326);
+                return array('name' => 'geography', 'type' => 'geometry', 'srid' => 4326);
                 break;
             case static::PHINX_TYPE_POINT:
-                return array('name' => 'geography', 'point', 4326);
+                return array('name' => 'geography', 'type' => 'point', 'srid' => 4326);
                 break;
             case static::PHINX_TYPE_LINESTRING:
-                return array('name' => 'geography', 'linestring', 4326);
+                return array('name' => 'geography', 'type' => 'linestring', 'srid' => 4326);
                 break;
             case static::PHINX_TYPE_POLYGON:
-                return array('name' => 'geography', 'polygon', 4326);
+                return array('name' => 'geography', 'type' => 'polygon', 'srid' => 4326);
                 break;
             default:
                 if ($this->isArrayType($type)) {
@@ -933,6 +933,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     '(%s, %s)',
                     $column->getPrecision() ? $column->getPrecision() : $sqlType['precision'],
                     $column->getScale() ? $column->getScale() : $sqlType['scale']
+                );
+            } elseif (in_array($sqlType['name'], array('geography'))) {
+                // geography type must be written with geometry type and srid, like this: geography(POLYGON,4326)
+                $buffer[] = sprintf(
+                    '(%s,%s)',
+                    strtoupper($sqlType['type']),
+                    $sqlType['srid']
                 );
             } elseif (!in_array($sqlType['name'], array('integer', 'smallint'))) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
