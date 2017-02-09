@@ -398,7 +398,7 @@ class Column
     /**
      * Gets whether field should be signed.
      *
-     * @return string
+     * @return boolean
      */
     public function getSigned()
     {
@@ -490,7 +490,7 @@ class Column
     /**
      * Gets field values
      *
-     * @return string
+     * @return array
      */
     public function getValues()
     {

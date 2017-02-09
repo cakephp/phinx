@@ -59,7 +59,7 @@ class Util
     /**
      * Gets an array of all the existing migration class names.
      *
-     * @return string
+     * @return string[]
      */
     public static function getExistingMigrationClassNames($path)
     {
