@@ -1,5 +1,5 @@
 {
-    "name": "robmorgan/phinx",
+    "name": "bamboohr/phinx-mt",
     "type": "library",
     "description": "Phinx makes it ridiculously easy to manage the database migrations for your PHP app.",
     "keywords": ["phinx", "migrations", "database", "db", "database migrations"],
@@ -15,6 +15,10 @@
         "email": "woody.gilk@gmail.com",
         "homepage": "http://shadowhand.me",
         "role": "Developer"
+    }, {
+        "name": "Chuck Burgess",
+        "email": "cdburgess@gmail.com",
+        "role": "Multi-Tenancy Hacker"
     }],
     "require": {
         "php": ">=5.3.2",

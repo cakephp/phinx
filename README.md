@@ -1,10 +1,9 @@
 # [Phinx](https://phinx.org): Simple PHP Database Migrations
 
-[![Build Status](https://travis-ci.org/robmorgan/phinx.png?branch=0.2.x-dev)](https://travis-ci.org/robmorgan/phinx)
-[![Build status](https://ci.appveyor.com/api/projects/status/9vag4892hfq6effr)](https://ci.appveyor.com/project/robmorgan/phinx)
-[![Code Coverage](https://scrutinizer-ci.com/g/robmorgan/phinx/badges/coverage.png?s=9776e35b967f5adb0f4958bd72b617e0a9519f7d)](https://scrutinizer-ci.com/g/robmorgan/phinx/)
-[![Latest Stable Version](https://poser.pugx.org/robmorgan/phinx/version.png)](https://packagist.org/packages/robmorgan/phinx)
-[![Total Downloads](https://poser.pugx.org/robmorgan/phinx/d/total.png)](https://packagist.org/packages/robmorgan/phinx)
+[![Build Status](https://api.travis-ci.org/BambooHR/phinx-mt.svg?branch=0.4.x-dev)](https://travis-ci.org/bamboohr/phinx-mt)
+[![Code Coverage](https://scrutinizer-ci.com/g/BambooHR/phinx-mt/badges/coverage.png?b=0.4.x-dev)](https://scrutinizer-ci.com/g/BambooHR/phinx-mt/?branch=0.4.x-dev)
+[![Latest Stable Version](https://poser.pugx.org/bamboohr/phinx-mt/v/stable)](https://packagist.org/packages/bamboohr/phinx-mt)
+[![Total Downloads](https://poser.pugx.org/bamboohr/phinx-mt/downloads)](https://packagist.org/packages/bamboohr/phinx-mt)
 
 Phinx makes it ridiculously easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or framework.
 
@@ -14,6 +13,7 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 
 ### Features
 
+* Multi-Tenant Fork of the Phinx code base
 * Write database migrations using database agnostic PHP code.
 * Migrate up and down.
 * Migrate on deployment.
@@ -22,6 +22,7 @@ Phinx makes it ridiculously easy to manage the database migrations for your PHP 
 * Stop worrying about the state of your database.
 * Take advantage of SCM features such as branching.
 * Integrate with any app.
+* Use environments to manage multi-tenant databases
 
 ### Supported Adapters
 
@@ -47,7 +48,7 @@ The fastest way to install Phinx is to add it to your project using Composer (ht
 1. Require Phinx as a dependency using Composer:
 
     ```
-    php composer.phar require robmorgan/phinx
+    php composer.phar require cdburgess/phinx-mt
     ```
 
 1. Install Phinx:
@@ -69,7 +70,7 @@ You can also use the Box application to build Phinx as a Phar archive (http://bo
 1. Clone Phinx from GitHub
 
     ```
-    git clone git://github.com/robmorgan/phinx.git
+    git clone git://github.com/cdburgess/phinx-mt.git
     cd phinx
     ```
 
@@ -107,7 +108,7 @@ Please read the [CONTRIBUTING](CONTRIBUTING.md) document.
 
 ## News & Updates
 
-Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
+Follow Chuck (@cdburgess) on Twitter to stay up to date (http://twitter.com/cdburgess)
 
 ## Misc
 
@@ -147,6 +148,11 @@ Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
 * Fix for Postgres named foreign keys
 * Unit test improvements (including strict warnings)
 * Documentation improvements
+-- Multi-Tenancy Improvements -- (Tuesday 11th July 2015)
+* Initial Multi-Tenant Fork Release
+* Updated the migrate, rollback, and status to loop through ALL environments with the `-e all` option
+* Handling db errors on migrate, rollback, and status so it will continue for all databases
+* Migration ignores the default_database so you must specify the databases to migrate or use `-e all`
 
 **0.4.4** (Sunday, 14th June 2015)
 
