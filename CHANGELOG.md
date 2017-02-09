@@ -1,5 +1,14 @@
 # Version History
 
+**0.7.x-dev** (***)
+
+* Documentation updates
+* New features
+  * [#885](https://github.com/robmorgan/phinx/pull/885) Add `collation` and `encoding` options for MySQL text and char columns
+* Pull requests
+  * [#966](https://github.com/robmorgan/phinx/pull/966) Remove unused variable
+  * [#1001](https://github.com/robmorgan/phinx/pull/1001) Cleanup phpunit mock warnings
+
 **0.6.6** (Monday, 23rd January 2017)
 
 * Documentation updates

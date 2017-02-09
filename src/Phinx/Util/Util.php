@@ -187,4 +187,32 @@ class Util
         $matches = array();
         return preg_match(static::SEED_FILE_NAME_PATTERN, $fileName, $matches);
     }
+
+    /**
+     * Expands a set of paths with curly braces (if supported by the OS).
+     * 
+     * @param array $paths
+     * @return array
+     */
+    public static function globAll(array $paths)
+    {
+        $result = array();
+
+        foreach ($paths as $path) {
+            $result = array_merge($result, static::glob($path));
+        }
+
+        return $result;
+    }
+
+    /**
+     * Expands a path with curly braces (if supported by the OS).
+     *
+     * @param $path
+     * @return array
+     */
+    public static function glob($path)
+    {
+        return glob($path, defined('GLOB_BRACE') ? GLOB_BRACE : 0);
+    }
 }

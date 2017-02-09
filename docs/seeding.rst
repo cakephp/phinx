@@ -6,12 +6,12 @@ Database Seeding
 
 In version 0.5.0 Phinx introduced support for seeding your database with test
 data. Seed classes are a great way to easily fill your database with data after
-its created. By default they are stored in the `seeds` directory, however this
+it's created. By default they are stored in the `seeds` directory; however, this
 path can be changed in your configuration file.
 
 .. note::
 
-    Database seeding is entirely optional and Phinx does not create a `seeds`
+    Database seeding is entirely optional, and Phinx does not create a `seeds`
     directory by default.
 
 Creating a New Seed Class
@@ -23,7 +23,9 @@ Phinx includes a command to easily generate a new seed class:
 
         $ php bin/phinx seed:create UserSeeder
 
-The new class will be created in your seeds directory using CamelCase format.
+If you have specified multiple seed paths, you will be asked to select which
+path to create the new seed class in.
+
 It is based on a skeleton template:
 
 .. code-block:: php
@@ -63,9 +65,9 @@ command. You should use this method to insert your test data.
 
 .. note::
 
-    Unlike migrations Phinx does not keep track of which seed classes have been
-    run. This means database seeders can be run repeatedly. Keep this in mind
-    when developing them.
+    Unlike with migrations, Phinx does not keep track of which seed classes have
+    been run. This means database seeders can be run repeatedly. Keep this in
+    mind when developing them.
 
 Inserting Data
 --------------
@@ -153,14 +155,14 @@ Then use it in your seed classes:
 Executing Seed Classes
 ----------------------
 
-This is the easy part. To seed your database simply use the `seed:run` command:
+This is the easy part. To seed your database, simply use the `seed:run` command:
 
 .. code-block:: bash
 
         $ php bin/phinx seed:run
 
-By default Phinx will execute all available seed classes. If you would like to
-run a specific class simply pass in the name of it using the `-s` parameter:
+By default, Phinx will execute all available seed classes. If you would like to
+run a specific class, simply pass in the name of it using the `-s` parameter:
 
 .. code-block:: bash
 

@@ -66,7 +66,9 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
         $managerStub->expects($this->once())
                     ->method('seed')->with($this->identicalTo('development'), $this->identicalTo(null));
 
@@ -89,7 +91,9 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
         $managerStub->expects($this->any())
                     ->method('migrate');
 
@@ -111,7 +115,9 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
         $managerStub->expects($this->once())
                     ->method('seed');
 
@@ -133,7 +139,9 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
         $managerStub->expects($this->exactly(3))
                     ->method('seed')->withConsecutive(
                         array($this->identicalTo('development'), $this->identicalTo('One')),

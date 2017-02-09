@@ -7,7 +7,7 @@
 [![Total Downloads](https://poser.pugx.org/robmorgan/phinx/d/total.png)](https://packagist.org/packages/robmorgan/phinx)
 [![Join the chat at https://gitter.im/phinx-php/Lobby](https://badges.gitter.im/phinx-php/Lobby.svg)](https://gitter.im/phinx-php/Lobby)
 
-Phinx makes it ridiculously easy to manage the database migrations for your PHP app. In less than 5 minutes you can install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or framework.
+Phinx makes it ridiculously easy to manage the database migrations for your PHP app. In less than 5 minutes, you can install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or framework.
 
 **Check out http://docs.phinx.org for the comprehensive documentation.**
 
