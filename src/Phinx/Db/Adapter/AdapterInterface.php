@@ -298,6 +298,14 @@ interface AdapterInterface
     public function quoteColumnName($columnName);
 
     /**
+     * Quotes a string value for use in an sql expression.
+     *
+     * @param string $stringValue the string
+     * @return string
+     */
+    public function quoteStringValue($stringValue);
+
+    /**
      * Checks to see if a table exists.
      *
      * @param string $tableName Table Name
