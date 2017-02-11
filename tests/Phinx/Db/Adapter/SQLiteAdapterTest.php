@@ -668,7 +668,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(null, $rows[3]['column2']);
     }
 
-    public function testInserDataEnum()
+    public function testInsertDataEnum()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('column1', 'enum', array('values' => ['a', 'b', 'c']))
@@ -723,5 +723,29 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("dd", $dd->getName());
         $this->assertEquals(false, $dd->isNull());
         $this->assertEquals("some2", $dd->getDefault());
+    }
+
+    public function testTruncateTable()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->addColumn('column2', 'integer')
+              ->insert(array(
+                  array(
+                      'column1' => 'value1',
+                      'column2' => 1,
+                  ),
+                  array(
+                      'column1' => 'value2',
+                      'column2' => 2,
+                  )
+              ))
+              ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $this->assertEquals(2, count($rows));
+        $table->truncate();
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $this->assertEquals(0, count($rows));
     }
 }
