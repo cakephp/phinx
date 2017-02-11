@@ -320,6 +320,7 @@ class ProxyAdapter extends AdapterWrapper
     {
         return array('name' => 'dropIndex', 'arguments' => array($args[0]->getName(), $args[1]->getColumns()));
     }
+
     /**
      * Returns the reverse of a addForeignKey command.
      *
