@@ -655,7 +655,8 @@ class Table
     }
 
     /**
-     * Truncates the table
+     * Truncates the table.
+     *
      * @return void
      */
     public function truncate()
