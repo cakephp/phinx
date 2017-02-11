@@ -659,9 +659,9 @@ class Table
      */
     public function truncate()
     {
-        $this->getAdapter()->truncateTable($this);
+        $this->getAdapter()->truncateTable($this->getName());
     }
-    
+
     /**
      * Commits the table changes.
      *
