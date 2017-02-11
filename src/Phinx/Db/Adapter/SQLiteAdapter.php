@@ -264,11 +264,11 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     public function truncateTable($tableName)
     {
         $sql = sprintf(
-            "DELETE FROM %s",
+            'DELETE FROM %s',
             $this->quoteTableName($tableName)
         );
 
-        $this->getConnection()->exec($sql);
+        $this->execute($sql);
     }
 
     /**
