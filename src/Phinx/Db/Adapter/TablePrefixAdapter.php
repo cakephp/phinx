@@ -99,6 +99,15 @@ class TablePrefixAdapter extends AdapterWrapper
     /**
      * {@inheritdoc}
      */
+    public function truncateTable($tableName)
+    {
+        $adapterTableName = $this->getAdapterTableName($tableName);
+        return parent::truncateTable($adapterTableName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getColumns($tableName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
