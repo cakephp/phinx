@@ -90,14 +90,14 @@ within your seed class and then use the `insert()` method to insert data:
             public function run()
             {
                 $data = array(
-                  array(
-                      'body'    => 'foo',
-                      'created' => date('Y-m-d H:i:s'),
-                  ),
-                  array(
-                      'body'    => 'bar',
-                      'created' => date('Y-m-d H:i:s'),
-                  )
+                    array(
+                        'body'    => 'foo',
+                        'created' => date('Y-m-d H:i:s'),
+                    ),
+                    array(
+                        'body'    => 'bar',
+                        'created' => date('Y-m-d H:i:s'),
+                    )
                 );
 
                 $posts = $this->table('posts');
@@ -134,23 +134,65 @@ Then use it in your seed classes:
         {
             public function run()
             {
-              $faker = Faker\Factory::create();
-              $data = [];
-              for ($i = 0; $i < 100; $i++) {
-                  $data[] = [
-                      'username'      => $faker->userName,
-                      'password'      => sha1($faker->password),
-                      'password_salt' => sha1('foo'),
-                      'email'         => $faker->email,
-                      'first_name'    => $faker->firstName,
-                      'last_name'     => $faker->lastName,
-                      'created'       => date('Y-m-d H:i:s'),
-                  ];
-              }
+                $faker = Faker\Factory::create();
+                $data = [];
+                for ($i = 0; $i < 100; $i++) {
+                    $data[] = [
+                        'username'      => $faker->userName,
+                        'password'      => sha1($faker->password),
+                        'password_salt' => sha1('foo'),
+                        'email'         => $faker->email,
+                        'first_name'    => $faker->firstName,
+                        'last_name'     => $faker->lastName,
+                        'created'       => date('Y-m-d H:i:s'),
+                    ];
+                }
 
-              $this->insert('users', $data);
+                $this->insert('users', $data);
             }
         }
+
+Truncating Tables
+-----------------
+
+In addition to inserting data Phinx makes it trivial to empty your tables using the
+SQL `TRUNCATE` command:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Seed\AbstractSeed;
+
+        class UserSeeder extends AbstractSeed
+        {
+            public function run()
+            {
+                $data = [
+                    [
+                        'body'    => 'foo',
+                        'created' => date('Y-m-d H:i:s'),
+                    ],
+                    [
+                        'body'    => 'bar',
+                        'created' => date('Y-m-d H:i:s'),
+                    ]
+                ];
+
+                $posts = $this->table('posts');
+                $posts->insert($data)
+                      ->save();
+
+                // empty the table
+                $posts->truncate();
+            }
+        }
+
+.. note::
+
+    SQLite doesn't natively support the `TRUNCATE` command so behind the scenes
+    `DELETE FROM` is used. It is recommended to call the `VACUUM` command
+    after truncating a table. Phinx does not do this automatically.
 
 Executing Seed Classes
 ----------------------
