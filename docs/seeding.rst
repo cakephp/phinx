@@ -21,7 +21,7 @@ Phinx includes a command to easily generate a new seed class:
 
 .. code-block:: bash
 
-        $ php bin/phinx seed:create UserSeeder
+        $ php vendor/bin/phinx seed:create UserSeeder
 
 If you have specified multiple seed paths, you will be asked to select which
 path to create the new seed class in.
@@ -201,26 +201,26 @@ This is the easy part. To seed your database, simply use the `seed:run` command:
 
 .. code-block:: bash
 
-        $ php bin/phinx seed:run
+        $ php vendor/bin/phinx seed:run
 
 By default, Phinx will execute all available seed classes. If you would like to
 run a specific class, simply pass in the name of it using the `-s` parameter:
 
 .. code-block:: bash
 
-        $ php bin/phinx seed:run -s UserSeeder
+        $ php vendor/bin/phinx seed:run -s UserSeeder
 
 You can also run multiple seeders:
 
 .. code-block:: bash
 
-        $ php bin/phinx seed:run -s UserSeeder -s PermissionSeeder -s LogSeeder
+        $ php vendor/bin/phinx seed:run -s UserSeeder -s PermissionSeeder -s LogSeeder
 
 You can also use the `-v` parameter for more output verbosity:
 
 .. code-block:: bash
 
-        $ php bin/phinx seed:run -v
+        $ php vendor/bin/phinx seed:run -v
 
 The Phinx seed functionality provides a simple mechanism to easily and repeatably
 insert test data into your database.
