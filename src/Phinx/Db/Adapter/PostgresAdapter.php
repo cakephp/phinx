@@ -315,7 +315,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $columns = [];
         $sql = sprintf(
             "SELECT column_name, data_type, udt_name, is_identity, is_nullable,
-             column_default, character_maximum_length, numeric_precision, numeric_scale
+             column_default, character_maximum_length, numeric_precision, numeric_scale,
+             datetime_precision
              FROM information_schema.columns
              WHERE table_name ='%s'",
             $tableName
@@ -349,7 +350,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                    ->setNull($columnInfo['is_nullable'] === 'YES')
                    ->setDefault($columnDefault)
                    ->setIdentity($columnInfo['is_identity'] === 'YES')
-                   ->setPrecision($columnInfo['numeric_precision'])
                    ->setScale($columnInfo['numeric_scale']);
 
             if (preg_match('/\bwith time zone$/', $columnInfo['data_type'])) {
@@ -359,6 +359,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             if (isset($columnInfo['character_maximum_length'])) {
                 $column->setLimit($columnInfo['character_maximum_length']);
             }
+
+            $phinxType = $this->getPhinxType($columnInfo['data_type']);
+            if (in_array($phinxType, [static::PHINX_TYPE_TIME, static::PHINX_TYPE_DATETIME])) {
+                $column->setPrecision($columnInfo['datetime_precision']);
+            } else {
+                $column->setPrecision($columnInfo['numeric_precision']);
+            }
+
             $columns[] = $column;
         }
 
@@ -971,6 +979,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 'time',
                 'timestamp',
             ];
+
+            if (in_array($sqlType['name'], $timeTypes) && is_numeric($column->getPrecision())) {
+                $buffer[] = sprintf('(%s)', $column->getPrecision());
+            }
+
             if (in_array($sqlType['name'], $timeTypes) && $column->isTimezone()) {
                 $buffer[] = strtoupper('with time zone');
             }
