@@ -424,6 +424,30 @@ class PostgresAdapterTest extends TestCase
         }
     }
 
+    public function testAddTimestampWithPrecision()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn('timestamp1', 'timestamp', ['precision' => 0])
+            ->addColumn('timestamp2', 'timestamp', ['precision' => 4])
+            ->addColumn('timestamp3', 'timestamp')
+            ->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() == 'timestamp1') {
+                $this->assertEquals("0", $column->getPrecision());
+            }
+
+            if ($column->getName() == 'timestamp2') {
+                $this->assertEquals("4", $column->getPrecision());
+            }
+
+            if ($column->getName() == 'timestamp3') {
+                $this->assertEquals("6", $column->getPrecision());
+            }
+        }
+    }
+
     public function providerArrayType()
     {
         return [
