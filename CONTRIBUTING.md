@@ -60,6 +60,20 @@ Great, so you want to contribute. Let's get started:
 
 1. Open a pull request on the Github project page. Ensure the code is being merged into `master`.
 
+## Getting Started with docker
+
+If you do not wish to install MySQL and Postgres locally to run unit tests
+can use [docker-compose](https://docs.docker.com/compose/) which will start 
+both database, install all development dependencies and run all unit tests.
+
+To get started, just run `docker-compose run phinx`. It will download all 
+images, install all dependencies, hook them up and run all unit tests
+(note: SQLServer tests are not supported, yet).
+
+You can also use `docker-compose run phinx install` to update/reinstall
+php composer packages manually. If you wish to drop into a shell, just run
+`docker-compose run phinx bash`, which will drop you right into a shell.
+
 ## Documentation
 
 The Phinx documentation is stored in the **docs** directory using the [RestructedText](http://docutils.sourceforge.net/rst.html)
