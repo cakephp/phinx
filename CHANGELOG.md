@@ -1,5 +1,13 @@
 # Version History
 
+**0.7.1** (Sunday, 19th February 2017)
+
+* Documentation updates
+* New features
+  * [#978](https://github.com/robmorgan/phinx/pull/978) Add table truncate method
+* Pull requests
+  * [#1029](https://github.com/robmorgan/phinx/pull/1029) Add vendor to Phinx path to align with other docs
+
 **0.7.0** (Friday, 10th February 2017)
 
 * Documentation updates
