@@ -32,7 +32,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
 /**
- * Phinx text wrapper: a way to run `status`, `migrate`, and `rollback` commands
+ * Phinx text wrapper: a way to run `status`, `migrate`, `rollback` and `seed:run` commands
  * and get the output of the command back as plain text.
  *
  * @author Woody Gilk <woody.gilk@gmail.com>
@@ -167,6 +167,25 @@ class TextWrapper
             // Need to use isset() with rollback, because -t0 is a valid option!
             // See http://docs.phinx.org/en/latest/commands.html#the-rollback-command
             $command += array('-t' => $target);
+        }
+        return $this->executeRun($command);
+    }
+
+    /**
+     * Returns the output from running the "seed:run" command.
+     * @param  string $env environment name (optional)
+     * @param  string $seed single seed to run (optional)
+     * @return string
+     */
+    public function getSeedRun($env = null, $seed = null)
+    {
+        $command = array(
+            'seed:run',
+            '-e' => $env ?: $this->getOption('environment'),
+            '-c' => $this->getOption('configuration'),
+        );
+        if ($seed) {
+            $command += array('-s' => $seed);
         }
         return $this->executeRun($command);
     }
