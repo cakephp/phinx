@@ -411,7 +411,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 'ALTER TABLE %s RENAME COLUMN %s TO %s',
                 $this->quoteTableName($tableName),
                 $this->quoteColumnName($columnName),
-                $newColumnName
+                $this->quoteColumnName($newColumnName)
             )
         );
         $this->endCommandTimer();
