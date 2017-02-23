@@ -213,6 +213,13 @@ class Util
      */
     public static function glob($path)
     {
-        return glob($path, defined('GLOB_BRACE') ? GLOB_BRACE : 0);
+        $directory = new \DirectoryIterator($path);
+        $files = [];
+        foreach ($directory as $file) {
+            if($file->isFile() && $file->getExtension() === 'php'){
+                $files[] = $file->getPath() . DIRECTORY_SEPARATOR . $file->getFilename();
+            }
+        }
+        return $files;
     }
 }
