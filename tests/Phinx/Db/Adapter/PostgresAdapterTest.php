@@ -360,6 +360,18 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
     }
 
+    public function testRenameColumnIsCaseSensitive()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('columnOne', 'string')
+              ->save();
+        $this->assertTrue($this->adapter->hasColumn('t', 'columnOne'));
+        $this->assertFalse($this->adapter->hasColumn('t', 'columnTwo'));
+        $this->adapter->renameColumn('t', 'columnOne', 'columnTwo');
+        $this->assertFalse($this->adapter->hasColumn('t', 'columnOne'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'columnTwo'));
+    }
+    
     public function testRenamingANonExistentColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
