@@ -152,7 +152,10 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('rollback');
 
         // mock the manager class
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs(array($this->config, $this->input, $this->output))
+            ->getMock();
+
         $managerStub->expects($this->once())
                     ->method('rollback')
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false, true);
@@ -171,7 +174,10 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
 
         $date = '20160101';
         $target = '20160101000000';
-        $rollbackStub = $this->getMock('\Phinx\Console\Command\Rollback', array('getTargetFromDate'));
+        $rollbackStub = $this->getMockBuilder('\Phinx\Console\Command\Rollback')
+            ->setMethods(array('getTargetFromDate'))
+            ->getMock();
+
         $rollbackStub->expects($this->once())
                     ->method('getTargetFromDate')
                     ->with($date)
@@ -183,7 +189,9 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('rollback');
 
         // mock the manager class
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs(array($this->config, $this->input, $this->output))
+            ->getMock();
         $managerStub->expects($this->once())
                     ->method('rollback')
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, $target, false, false);
@@ -261,7 +269,9 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         $targetDate = '20150101';
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs(array($this->config, $this->input, $this->output))
+            ->getMock();
         $managerStub->expects($this->once())
                     ->method('rollback')
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, '20150101000000', false, false);

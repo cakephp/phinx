@@ -255,7 +255,10 @@ class ConfigTest extends AbstractConfigTest
     public function testIsVersionOrderCreationTime($versionOrder, $expected)
     {
         // get config stub
-        $configStub = $this->getMock('\Phinx\Config\Config', array('getVersionOrder'), array(array()));
+        $configStub = $this->getMockBuilder('\Phinx\Config\Config')
+            ->setMethods(array('getVersionOrder'))
+            ->setConstructorArgs(array(array()))
+            ->getMock();
 
         $configStub->expects($this->once())
             ->method('getVersionOrder')

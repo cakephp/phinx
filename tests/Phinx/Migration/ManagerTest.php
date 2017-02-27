@@ -227,7 +227,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testPrintStatusMethodWithMissingLastMigration()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(array('mockenv', array()))
+            ->getMock();
         $envStub->expects($this->once())
                 ->method('getVersionLog')
                 ->will($this->returnValue(
@@ -345,7 +347,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testPrintStatusMethodWithMissingAndDownMigrations()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(array('mockenv', array()))
+            ->getMock();
         $envStub->expects($this->once())
                 ->method('getVersionLog')
                 ->will($this->returnValue(array(
@@ -400,7 +404,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testPrintStatusMethodVersionOrderHeader($config, $expectedStatusHeader)
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(array('mockenv', array()))
+            ->getMock();
         $envStub->expects($this->once())
                 ->method('getVersionLog')
                 ->will($this->returnValue(array()));
@@ -452,7 +458,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testPrintStatusInvalidVersionOrderKO()
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(array('mockenv', array()))
+            ->getMock();
 
         $configArray = $this->getConfigArray();
         $configArray['version_order'] ='invalid';
@@ -591,7 +599,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testRollbackToDate($availableRollbacks, $version, $expectedOutput)
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(array('mockenv', array()))
+            ->getMock();
         $envStub->expects($this->any())
             ->method('getVersionLog')
             ->will($this->returnValue($availableRollbacks));
@@ -622,7 +632,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testRollbackToVersionByExecutionTime($availableRollbacks, $version, $expectedOutput)
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(array('mockenv', array()))
+            ->getMock();
         $envStub->expects($this->any())
             ->method('getVersionLog')
             ->will($this->returnValue($availableRollbacks));
@@ -663,7 +675,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testRollbackToDateByExecutionTime($availableRollbacks, $date, $expectedOutput)
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(array('mockenv', array()))
+            ->getMock();
         $envStub->expects($this->any())
             ->method('getVersionLog')
             ->will($this->returnValue($availableRollbacks));
@@ -759,7 +773,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testRollbackLast($availableRolbacks, $versionOrder, $expectedOutput)
     {
         // stub environment
-        $envStub = $this->getMock('\Phinx\Migration\Manager\Environment', array(), array('mockenv', array()));
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(array('mockenv', array()))
+            ->getMock();
         $envStub->expects($this->any())
             ->method('getVersionLog')
             ->will($this->returnValue($availableRolbacks));
