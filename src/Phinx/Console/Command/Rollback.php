@@ -132,7 +132,7 @@ EOT
      * Get Target from Date
      *
      * @param string $date The date to convert to a target.
-     * @return The target
+     * @return string The target
      */
     public function getTargetFromDate($date)
     {
