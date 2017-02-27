@@ -117,6 +117,20 @@ interface ConfigInterface extends \ArrayAccess
     public function getTemplateClass();
 
     /**
+     * Get the version order.
+     *
+     * @return string
+     */
+    public function getVersionOrder();
+
+    /**
+     * Is version order creation time?
+     *
+     * @return boolean
+     */
+    public function isVersionOrderCreationTime();
+
+    /**
      * Gets the base class name for migrations.
      *
      * @param boolean $dropNamespace Return the base migration class name without the namespace.
