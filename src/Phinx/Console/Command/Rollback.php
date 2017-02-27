@@ -150,13 +150,11 @@ EOT
             4 => '0101000000',
         );
 
-        if (isset($dateStrlenToAppend[strlen($date)])) {
-            $target = $date . $dateStrlenToAppend[strlen($date)];
-        }
-
-        if ($target === null) {
+        if (!isset($dateStrlenToAppend[strlen($date)])) {
             throw new \InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
         }
+
+        $target = $date . $dateStrlenToAppend[strlen($date)];
 
         $dateTime = \DateTime::createFromFormat('YmdHis', $target);
 
