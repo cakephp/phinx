@@ -108,6 +108,8 @@ class Environment
             if ($direction === MigrationInterface::DOWN) {
                 // Create an instance of the ProxyAdapter so we can record all
                 // of the migration commands for reverse playback
+
+                /** @var \Phinx\Db\Adapter\ProxyAdapter $proxyAdapter */
                 $proxyAdapter = AdapterFactory::instance()
                     ->getWrapper('proxy', $this->getAdapter());
                 $migration->setAdapter($proxyAdapter);
@@ -257,7 +259,8 @@ class Environment
     }
 
     /**
-     * Get all migration log entries, indexed by version number.
+     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's 
+     * version_order option
      *
      * @return array
      */
@@ -343,7 +346,7 @@ class Environment
         if ($this->getInput()) {
             $adapter->setInput($this->getInput());
         }
-        
+
         if ($this->getOutput()) {
             $adapter->setOutput($this->getOutput());
         }

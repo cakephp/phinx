@@ -52,7 +52,8 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         if (null === $this->connection) {
             if (!class_exists('PDO') || !in_array('sqlsrv', \PDO::getAvailableDrivers(), true)) {
                 // try our connection via freetds (Mac/Linux)
-                return $this->connectDblib();
+                $this->connectDblib();
+                return;
             }
 
             $db = null;
@@ -341,6 +342,19 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         $this->writeCommand('dropTable', array($tableName));
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
         $this->endCommandTimer();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function truncateTable($tableName)
+    {
+        $sql = sprintf(
+            'TRUNCATE TABLE %s',
+            $this->quoteTableName($tableName)
+        );
+
+        $this->execute($sql);
     }
 
     public function getColumnComment($tableName, $columnName)

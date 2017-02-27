@@ -31,6 +31,11 @@ class StatusTest extends \PHPUnit_Framework_TestCase
      */
     protected $output;
 
+    /**
+     * Default Test Environment
+     */
+    const DEFAULT_TEST_ENVIRONMENT = 'development';
+
     protected function setUp()
     {
         $this->config = new Config(array(
@@ -70,6 +75,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('printStatus')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null)
                     ->will($this->returnValue(0));
 
         $command->setConfig($this->config);
@@ -79,7 +85,12 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $return = $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
 
         $this->assertEquals(0, $return);
-        $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
+
+        $display = $commandTester->getDisplay();
+        $this->assertRegExp('/no environment specified/', $display);
+        
+        // note that the default order is by creation time
+        $this->assertRegExp('/ordering by creation time/', $display);
     }
 
     public function testExecuteWithEnvironmentOption()
@@ -97,6 +108,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('printStatus')
+                    ->with('fakeenv', null)
                     ->will($this->returnValue(0));
 
         $command->setConfig($this->config);
@@ -123,6 +135,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('printStatus')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, 'json')
                     ->will($this->returnValue(0));
 
         $command->setConfig($this->config);
@@ -132,5 +145,36 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $return = $commandTester->execute(array('command' => $command->getName(), '--format' => 'json'), array('decorated' => false));
         $this->assertEquals(0, $return);
         $this->assertRegExp('/using format json/', $commandTester->getDisplay());
+    }
+
+    public function testExecuteVersionOrderByExecutionTime()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Status());
+
+        /** @var Status $command */
+        $command = $application->find('status');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub->expects($this->once())
+                    ->method('printStatus')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null)
+                    ->will($this->returnValue(0));
+
+        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $return = $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+
+        $this->assertEquals(0, $return);
+
+        $display = $commandTester->getDisplay();
+        $this->assertRegExp('/no environment specified/', $display);
+        $this->assertRegExp('/ordering by execution time/', $display);
     }
 }

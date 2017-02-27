@@ -74,7 +74,7 @@ abstract class AbstractSeed implements SeedInterface
         if (!is_null($output)){
             $this->setOutput($output);
         }
-        
+
         $this->init();
     }
 
@@ -194,7 +194,7 @@ abstract class AbstractSeed implements SeedInterface
         if (is_string($table)) {
             $table = new Table($table, array(), $this->getAdapter());
         }
-        return $table->insert($data)->save();
+        $table->insert($data)->save();
     }
 
     /**

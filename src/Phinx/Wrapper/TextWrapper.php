@@ -175,7 +175,7 @@ class TextWrapper
      * Get option from options array
      *
      * @param  string $key
-     * @return string
+     * @return string|null
      */
     protected function getOption($key)
     {

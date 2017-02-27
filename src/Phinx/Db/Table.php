@@ -454,12 +454,11 @@ class Table
      * Removes the given index from a table.
      *
      * @param array $columns Columns
-     * @param array $options Options
      * @return Table
      */
-    public function removeIndex($columns, $options = array())
+    public function removeIndex($columns)
     {
-        $this->getAdapter()->dropIndex($this->getName(), $columns, $options);
+        $this->getAdapter()->dropIndex($this->getName(), $columns);
         return $this;
     }
 
@@ -482,9 +481,9 @@ class Table
      * @param array        $options Options
      * @return boolean
      */
-    public function hasIndex($columns, $options = array())
+    public function hasIndex($columns)
     {
-        return $this->getAdapter()->hasIndex($this->getName(), $columns, $options);
+        return $this->getAdapter()->hasIndex($this->getName(), $columns);
     }
 
     /**
@@ -651,6 +650,16 @@ class Table
         foreach ($this->getData() as $row) {
             $this->getAdapter()->insert($this, $row);
         }
+    }
+
+    /**
+     * Truncates the table.
+     *
+     * @return void
+     */
+    public function truncate()
+    {
+        $this->getAdapter()->truncateTable($this->getName());
     }
 
     /**

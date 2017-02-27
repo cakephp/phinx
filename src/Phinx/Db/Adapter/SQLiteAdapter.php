@@ -261,6 +261,19 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function truncateTable($tableName)
+    {
+        $sql = sprintf(
+            'DELETE FROM %s',
+            $this->quoteTableName($tableName)
+        );
+
+        $this->execute($sql);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getColumns($tableName)
     {
         $columns = array();

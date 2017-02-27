@@ -25,7 +25,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @var \Phinx\Db\Adapter\PostgresqlAdapter
+     * @var \Phinx\Db\Adapter\PostgresAdapter
      */
     private $adapter;
 
@@ -360,6 +360,18 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
     }
 
+    public function testRenameColumnIsCaseSensitive()
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('columnOne', 'string')
+              ->save();
+        $this->assertTrue($this->adapter->hasColumn('t', 'columnOne'));
+        $this->assertFalse($this->adapter->hasColumn('t', 'columnTwo'));
+        $this->adapter->renameColumn('t', 'columnOne', 'columnTwo');
+        $this->assertFalse($this->adapter->hasColumn('t', 'columnOne'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'columnTwo'));
+    }
+    
     public function testRenamingANonExistentColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
@@ -912,5 +924,29 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('value2', $rows[1]['column1']);
         $this->assertEquals(1, $rows[0]['column2']);
         $this->assertEquals(2, $rows[1]['column2']);
+    }
+
+    public function testTruncateTable()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->addColumn('column2', 'integer')
+              ->insert(array(
+                  array(
+                      'column1' => 'value1',
+                      'column2' => 1,
+                  ),
+                  array(
+                      'column1' => 'value2',
+                      'column2' => 2,
+                  )
+              ))
+              ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $this->assertEquals(2, count($rows));
+        $table->truncate();
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $this->assertEquals(0, count($rows));
     }
 }

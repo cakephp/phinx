@@ -52,6 +52,8 @@ The <info>status</info> command prints a list of all migrations, along with thei
 
 <info>phinx status -e development</info>
 <info>phinx status -e development -f json</info>
+
+The <info>version_order</info> configuration option is used to determine the order of the status migrations.
 EOT
              );
     }
@@ -79,6 +81,8 @@ EOT
         if (null !== $format) {
             $output->writeln('<info>using format</info> ' . $format);
         }
+
+        $output->writeln('<info>ordering by </info>' . $this->getConfig()->getVersionOrder() . " time");
 
         // print the status
         return $this->getManager()->printStatus($environment, $format);

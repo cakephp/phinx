@@ -63,7 +63,7 @@ abstract class PdoAdapter implements AdapterInterface
     protected $schemaTableName = 'phinxlog';
 
     /**
-     * @var \PDO
+     * @var \PDO|null
      */
     protected $connection;
 
@@ -243,7 +243,7 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * Sets the command start time
      *
-     * @param int $time
+     * @param float $time
      * @return AdapterInterface
      */
     public function setCommandStartTime($time)
@@ -255,7 +255,7 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * Gets the command start time
      *
-     * @return int
+     * @return float
      */
     public function getCommandStartTime()
     {
@@ -339,7 +339,10 @@ abstract class PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Executes a query and returns PDOStatement.
+     *
+     * @param string $sql SQL
+     * @return \PDOStatement
      */
     public function query($sql)
     {
@@ -389,7 +392,6 @@ abstract class PdoAdapter implements AdapterInterface
         $stmt->execute(array_values($row));
         $this->endCommandTimer();
     }
-
     /**
      * {@inheritdoc}
      */
@@ -406,8 +408,20 @@ abstract class PdoAdapter implements AdapterInterface
     public function getVersionLog()
     {
         $result = array();
-        $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY version ASC', $this->getSchemaTableName()));
-        foreach ($rows as $version) {
+
+        switch ($this->options['version_order']) {
+            case \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME:
+                $orderBy = 'version ASC';
+                break;
+            case \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME:
+                $orderBy = 'start_time ASC, version ASC';
+                break;
+            default:
+                throw new \RuntimeException('Invalid version_order configuration option');
+        }
+
+        $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s', $this->getSchemaTableName(), $orderBy));
+        foreach($rows as $version) {
             $result[$version['version']] = $version;
         }
 
@@ -575,11 +589,7 @@ abstract class PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Cast a value to a boolean appropriate for the adapter.
-     *
-     * @param mixed $value The value to be cast
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
     public function castToBool($value)
     {

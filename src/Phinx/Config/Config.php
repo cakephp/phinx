@@ -39,6 +39,16 @@ use Symfony\Component\Yaml\Yaml;
 class Config implements ConfigInterface
 {
     /**
+     * The value that identifies a version order by creation time.
+     */
+    const VERSION_ORDER_CREATION_TIME = 'creation';
+
+    /**
+     * The value that identifies a version order by execution time.
+     */
+    const VERSION_ORDER_EXECUTION_TIME = 'execution';
+
+    /**
      * @var array
      */
     private $values = array();
@@ -210,11 +220,7 @@ class Config implements ConfigInterface
     }
 
     /**
-     * Get the aliased value from a supplied alias.
-     *
-     * @param string $alias
-     *
-     * @return string|null
+     * {@inheritdoc}
      */
     public function getAlias($alias){
         return !empty($this->values['aliases'][$alias]) ? $this->values['aliases'][$alias] : null;
@@ -300,6 +306,34 @@ class Config implements ConfigInterface
 
         return $this->values['templates']['class'];
      }
+
+    /**
+     * Get the version order.
+     *
+     * @return string
+     */
+    public function getVersionOrder()
+    {
+        if (!isset($this->values['version_order'])) {
+            return self::VERSION_ORDER_CREATION_TIME;
+        }
+
+        return $this->values['version_order'];
+    }
+
+    /**
+     * Is version order creation time?
+     *
+     * @return boolean
+     */
+    public function isVersionOrderCreationTime()
+    {
+        $versionOrder = $this->getVersionOrder();
+
+        return $versionOrder == self::VERSION_ORDER_CREATION_TIME;
+    }
+
+    
 
     /**
      * Replace tokens in the specified array.

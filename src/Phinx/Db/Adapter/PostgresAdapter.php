@@ -306,6 +306,19 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function truncateTable($tableName)
+    {
+        $sql = sprintf(
+            'TRUNCATE TABLE %s',
+            $this->quoteTableName($tableName)
+        );
+
+        $this->execute($sql);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getColumns($tableName)
     {
         $columns = array();
@@ -398,7 +411,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 'ALTER TABLE %s RENAME COLUMN %s TO %s',
                 $this->quoteTableName($tableName),
                 $this->quoteColumnName($columnName),
-                $newColumnName
+                $this->quoteColumnName($newColumnName)
             )
         );
         $this->endCommandTimer();
@@ -778,16 +791,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             // which enables the use of the "geography" type in combination
             // with SRID 4326.
             case static::PHINX_TYPE_GEOMETRY:
-                return array('name' => 'geography', 'geometry', 4326);
+                return array('name' => 'geography', 'type' => 'geometry', 'srid' => 4326);
                 break;
             case static::PHINX_TYPE_POINT:
-                return array('name' => 'geography', 'point', 4326);
+                return array('name' => 'geography', 'type' => 'point', 'srid' => 4326);
                 break;
             case static::PHINX_TYPE_LINESTRING:
-                return array('name' => 'geography', 'linestring', 4326);
+                return array('name' => 'geography', 'type' => 'linestring', 'srid' => 4326);
                 break;
             case static::PHINX_TYPE_POLYGON:
-                return array('name' => 'geography', 'polygon', 4326);
+                return array('name' => 'geography', 'type' => 'polygon', 'srid' => 4326);
                 break;
             default:
                 if ($this->isArrayType($type)) {
@@ -934,6 +947,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     $column->getPrecision() ? $column->getPrecision() : $sqlType['precision'],
                     $column->getScale() ? $column->getScale() : $sqlType['scale']
                 );
+            } elseif (in_array($sqlType['name'], array('geography'))) {
+                // geography type must be written with geometry type and srid, like this: geography(POLYGON,4326)
+                $buffer[] = sprintf(
+                    '(%s,%s)',
+                    strtoupper($sqlType['type']),
+                    $sqlType['srid']
+                );
             } elseif (!in_array($sqlType['name'], array('integer', 'smallint'))) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
@@ -1041,7 +1061,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         $this->fetchAll(sprintf('SET search_path TO %s', $this->getSchemaName()));
 
-        return parent::createSchemaTable();
+        parent::createSchemaTable();
     }
 
     /**
@@ -1170,11 +1190,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Cast a value to a boolean appropriate for the adapter.
-     *
-     * @param mixed $value The value to be cast
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
     public function castToBool($value)
     {

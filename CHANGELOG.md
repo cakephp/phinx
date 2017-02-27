@@ -1,13 +1,30 @@
 # Version History
 
-**0.7.x-dev** (***)
+**0.7.1** (Sunday, 19th February 2017)
+
+* Documentation updates
+* New features
+  * [#978](https://github.com/robmorgan/phinx/pull/978) Add table truncate method
+* Pull requests
+  * [#1029](https://github.com/robmorgan/phinx/pull/1029) Add vendor to Phinx path to align with other docs
+
+**0.7.0** (Friday, 10th February 2017)
 
 * Documentation updates
 * New features
   * [#885](https://github.com/robmorgan/phinx/pull/885) Add `collation` and `encoding` options for MySQL text and char columns
 * Pull requests
+  * [#813](https://github.com/robmorgan/phinx/pull/813) Fix SQLite data insertion
+  * [#867](https://github.com/robmorgan/phinx/pull/867) Improve Postgres geography types creation
   * [#966](https://github.com/robmorgan/phinx/pull/966) Remove unused variable
+  * [#973](https://github.com/robmorgan/phinx/pull/973) Improve documentation grammar
+  * [#979](https://github.com/robmorgan/phinx/pull/979) Add `.gitattributes` to exclude tests on Composer export
+  * [#983](https://github.com/robmorgan/phinx/pull/983) Document changing a foreign key constraint name
   * [#1001](https://github.com/robmorgan/phinx/pull/1001) Cleanup phpunit mock warnings
+  * [#1007](https://github.com/robmorgan/phinx/pull/1007) Integrate PHPStan and fix issues discovered
+  * [#1020](https://github.com/robmorgan/phinx/pull/1020) Document adding named foreign keys
+  * [#1028](https://github.com/robmorgan/phinx/pull/1028) Add docs about MySQL table specific options
+  * [#1033](https://github.com/robmorgan/phinx/pull/1033) Add PHP 7.1 to Travis CI
 
 **0.6.6** (Monday, 23rd January 2017)
 
