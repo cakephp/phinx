@@ -1,5 +1,11 @@
 # Version History
 
+**0.7.2** (Tuesday, 28th February 2017)
+
+* Bug fixes
+  * [#1041](https://github.com/robmorgan/phinx/pull/1041) Quote new column name in renameColumn in PostgresAdapter
+  * [#1048](https://github.com/robmorgan/phinx/pull/1048) Do not allow the start_time to be updated when setting a breakpoint
+
 **0.7.1** (Sunday, 19th February 2017)
 
 * Documentation updates
