@@ -1,4 +1,8 @@
-<phpunit bootstrap="./tests/phpunit-bootstrap.php">
+<phpunit
+        bootstrap="./tests/phpunit-bootstrap.php"
+        colors="true"
+        columns="max"
+>
 
     <!--
     * This section defines configuration for running the Phinx unit tests. Some tests

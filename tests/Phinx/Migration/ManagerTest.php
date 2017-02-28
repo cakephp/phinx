@@ -820,12 +820,31 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager->setConfig($config);
         $this->manager->migrate('production');
 
+        $versions = $this->manager->getEnvironment('production')->getVersionLog();
+        $lastVersion = end($versions);
+
+        // Wait until the second has changed.
+        $now = time();
+        while($now == time());
+
         // set breakpoint on most recent migration
         $this->manager->toggleBreakpoint('production', null);
 
         // ensure breakpoint is set
         $versions = $this->manager->getEnvironment('production')->getVersionLog();
-        $this->assertEquals(1, end($versions)['breakpoint']);
+        $currentVersion = end($versions);
+        $this->assertEquals(1, $currentVersion['breakpoint']);
+
+        // ensure no other data has changed.
+        foreach($lastVersion as $key => $value) {
+            if (!is_numeric($key) && $key != 'breakpoint') {
+                $this->assertEquals($value, $currentVersion[$key]);
+            }
+        }
+
+        // Wait until the second has changed.
+        $now = time();
+        while($now == time());
 
         // reset all breakpoints
         $this->manager->removeBreakpoints('production');
@@ -833,6 +852,13 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         // ensure breakpoint is not set
         $versions = $this->manager->getEnvironment('production')->getVersionLog();
         $this->assertEquals(0, end($versions)['breakpoint']);
+
+        // ensure no other data has changed.
+        foreach($lastVersion as $key => $value) {
+            if (!is_numeric($key) && $key != 'breakpoint') {
+                $this->assertEquals($value, $currentVersion[$key]);
+            }
+        }
     }
 
     public function testBreakpointWithInvalidVersion()

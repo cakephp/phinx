@@ -461,13 +461,14 @@ abstract class PdoAdapter implements AdapterInterface
     {
         $this->query(
             sprintf(
-                'UPDATE %1$s SET %2$s = CASE %2$s WHEN %3$s THEN %4$s ELSE %3$s END WHERE %5$s = \'%6$s\';',
+                'UPDATE %1$s SET %2$s = CASE %2$s WHEN %3$s THEN %4$s ELSE %3$s END, %7$s = %7$s WHERE %5$s = \'%6$s\';',
                 $this->getSchemaTableName(),
                 $this->quoteColumnName('breakpoint'),
                 $this->castToBool(true),
                 $this->castToBool(false),
                 $this->quoteColumnName('version'),
-                $migration->getVersion()
+                $migration->getVersion(),
+                $this->quoteColumnName('start_time')
             )
         );
 
@@ -481,10 +482,11 @@ abstract class PdoAdapter implements AdapterInterface
     {
         return $this->execute(
             sprintf(
-                'UPDATE %1$s SET %2$s = %3$s WHERE %2$s <> %3$s;',
+                'UPDATE %1$s SET %2$s = %3$s, %4$s = %4$s WHERE %2$s <> %3$s;',
                 $this->getSchemaTableName(),
                 $this->quoteColumnName('breakpoint'),
-                $this->castToBool(false)
+                $this->castToBool(false),
+                $this->quoteColumnName('start_time')
             )
         );
     }
