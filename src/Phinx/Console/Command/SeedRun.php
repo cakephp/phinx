@@ -108,6 +108,10 @@ EOT
             $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
         }
 
+        if ($dryRun) {
+            $output->writeln('<info>Doing dry run</info>');
+        }
+
         $start = microtime(true);
 
         if (empty($seedSet)) {
