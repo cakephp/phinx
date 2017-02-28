@@ -175,7 +175,9 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('seed:run');
 
         // mock the manager class
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs(array($this->config, $this->input, $output))
+            ->getMock();
         $managerStub->expects($this->once())
                     ->method('seed');
 
