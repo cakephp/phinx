@@ -31,6 +31,7 @@ namespace Phinx\Console\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Phinx\Config\Config;
 
 class Rollback extends AbstractCommand
 {
@@ -61,6 +62,10 @@ The <info>rollback</info> command reverts the last migration, or optionally up t
 If you have a breakpoint set, then you can rollback to target 0 and the rollbacks will stop at the breakpoint.
 <info>phinx rollback -e development -t 0 </info>
 
+The <info>version_order</info> configuration option is used to determine the order of the migrations when rolling back.
+This can be used to allow the rolling back of the last executed migration instead of the last created one, or combined 
+with the <info>-d|--date</info> option to rollback to a certain date using the migration start times to order them.
+
 EOT
              );
     }
@@ -81,14 +86,16 @@ EOT
         $date        = $input->getOption('date');
         $force       = !!$input->getOption('force');
 
+        $config = $this->getConfig();
+
         if (null === $environment) {
-            $environment = $this->getConfig()->getDefaultEnvironment();
+            $environment = $config->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
 
-        $envOptions = $this->getConfig()->getEnvironment($environment);
+        $envOptions = $config->getEnvironment($environment);
         if (isset($envOptions['adapter'])) {
             $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         }
@@ -100,17 +107,61 @@ EOT
         if (isset($envOptions['name'])) {
             $output->writeln('<info>using database</info> ' . $envOptions['name']);
         }
+        
+        $versionOrder = $this->getConfig()->getVersionOrder();
+        $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
 
         // rollback the specified environment
-        $start = microtime(true);
-        if (null !== $date) {
-            $this->getManager()->rollbackToDateTime($environment, new \DateTime($date), $force);
+        if (null === $date) {
+            $targetMustMatchVersion = true;
+            $target = $version;
         } else {
-            $this->getManager()->rollback($environment, $version, $force);
+            $targetMustMatchVersion = false;
+            $target = $this->getTargetFromDate($date);
         }
+
+        $start = microtime(true);
+        $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion);
         $end = microtime(true);
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+    }
+
+    /**
+     * Get Target from Date
+     *
+     * @param string $date The date to convert to a target.
+     * @return string The target
+     */
+    public function getTargetFromDate($date)
+    {
+        if (!preg_match('/^\d{4,14}$/', $date)) {
+            throw new \InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
+        }
+
+        // what we need to append to the date according to the possible date string lengths
+        $dateStrlenToAppend = array(
+            14 => '',
+            12 => '00',
+            10 => '0000',
+            8 => '000000',
+            6 => '01000000',
+            4 => '0101000000',
+        );
+
+        if (!isset($dateStrlenToAppend[strlen($date)])) {
+            throw new \InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
+        }
+
+        $target = $date . $dateStrlenToAppend[strlen($date)];
+
+        $dateTime = \DateTime::createFromFormat('YmdHis', $target);
+
+        if ($dateTime === false) {
+            throw new \InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
+        }
+
+        return $dateTime->format('YmdHis');
     }
 }

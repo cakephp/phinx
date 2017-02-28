@@ -31,6 +31,11 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
      */
     protected $output;
 
+    /**
+     * Default Test Environment
+     */
+    const DEFAULT_TEST_ENVIRONMENT = 'development';
+
     protected function setUp()
     {
         $this->config = new Config(array(
@@ -69,7 +74,8 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
         $managerStub->expects($this->once())
-                    ->method('rollback');
+                    ->method('rollback')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false, true);
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -77,7 +83,12 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
 
-        $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
+        $display = $commandTester->getDisplay();
+
+        $this->assertRegExp('/no environment specified/', $display);
+
+        // note that the default order is by creation time
+        $this->assertRegExp('/ordering by creation time/', $display);
     }
 
     public function testExecuteWithEnvironmentOption()
@@ -94,7 +105,8 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
         $managerStub->expects($this->once())
-                    ->method('rollback');
+                    ->method('rollback')
+                    ->with('fakeenv', null, false, true);
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -118,7 +130,8 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
         $managerStub->expects($this->once())
-                    ->method('rollback');
+                    ->method('rollback')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false);
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -126,5 +139,148 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
+    }
+    
+    public function testStartTimeVersionOrder()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        // setup dependencies
+        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs(array($this->config, $this->input, $this->output))
+            ->getMock();
+
+        $managerStub->expects($this->once())
+                    ->method('rollback')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false, true);
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+        $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
+    }
+    
+    public function testWithDate()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+
+        $date = '20160101';
+        $target = '20160101000000';
+        $rollbackStub = $this->getMockBuilder('\Phinx\Console\Command\Rollback')
+            ->setMethods(array('getTargetFromDate'))
+            ->getMock();
+
+        $rollbackStub->expects($this->once())
+                    ->method('getTargetFromDate')
+                    ->with($date)
+                    ->will($this->returnValue($target));
+
+        $application->add($rollbackStub);
+
+        // setup dependencies
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs(array($this->config, $this->input, $this->output))
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('rollback')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, $target, false, false);
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName(), '-d' => $date), array('decorated' => false));
+    }
+
+    /**
+     * @dataProvider getTargetFromDataProvider
+     */
+    public function testGetTargetFromDate($date, $expectedTarget)
+    {
+        $rollbackCommand = new Rollback();
+        $this->assertEquals($expectedTarget, $rollbackCommand->getTargetFromDate($date));
+    }
+
+    public function getTargetFromDataProvider()
+    {
+        return [
+            'Date with only year' => [
+                '2015', '20150101000000'
+            ],
+            'Date with year and month' => [
+                '201409', '20140901000000'
+            ],
+            'Date with year, month and day' => [
+                '20130517', '20130517000000'
+            ],
+            'Date with year, month, day and hour' => [
+                '2013051406', '20130514060000'
+            ],
+            'Date with year, month, day, hour and minutes' => [
+                '201305140647', '20130514064700'
+            ],
+            'Date with year, month, day, hour, minutes and seconds' => [
+                '20130514064726', '20130514064726'
+            ]
+        ];
+    }
+
+
+    /**
+     * @dataProvider getTargetFromDateThrowsExceptionDataProvider
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].
+     */
+    public function testGetTargetFromDateThrowsException($invalidDate)
+    {
+        $rollbackCommand = new Rollback();
+        $rollbackCommand->getTargetFromDate($invalidDate);
+    }
+    
+    public function getTargetFromDateThrowsExceptionDataProvider()
+    {
+        return [
+            ['20'],
+            ['2015060522354698'],
+            ['invalid']
+        ];
+    }
+
+    public function testStarTimeVersionOrderWithDate()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        // setup dependencies
+        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        $targetDate = '20150101';
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs(array($this->config, $this->input, $this->output))
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('rollback')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, '20150101000000', false, false);
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName(), '-d' => $targetDate), array('decorated' => false));
+        $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
     }
 }
