@@ -345,7 +345,7 @@ abstract class PdoAdapter implements AdapterInterface
             if ($sql != "COMMIT" && $sql != "START TRANSACTION") {
                 $this->writeSqlToOutput($sql);
             }
-            return;
+            return 0;
         }
         else {
             return $this->getConnection()->exec($sql);
