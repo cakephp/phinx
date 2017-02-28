@@ -504,4 +504,20 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     {
         return $this->getAdapter()->castToBool($value);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function enableDryRun()
+    {
+        $this->getAdapter()->enableDryRun();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isDryRun()
+    {
+        return $this->getAdapter()->isDryRun();
+    }
 }
