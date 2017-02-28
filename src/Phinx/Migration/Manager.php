@@ -282,7 +282,7 @@ class Manager
         if (count($outstandingMigrations) > 0) {
             $migration = max($outstandingMigrations);
             $this->getOutput()->writeln('Migrating to version ' . $migration);
-            $this->migrate($environment, $migration);
+            $this->migrate($environment, $migration, $dryRun);
         }
     }
 
