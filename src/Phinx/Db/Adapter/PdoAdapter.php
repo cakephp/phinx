@@ -516,15 +516,15 @@ abstract class PdoAdapter implements AdapterInterface
                 && version_compare($this->getConnection()->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.0', '>=')) {
                 $table->addColumn('version', 'biginteger', array('limit' => 14))
                       ->addColumn('migration_name', 'string', array('limit' => 100, 'default' => null, 'null' => true))
-                      ->addColumn('start_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
-                      ->addColumn('end_time', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
+                      ->addColumn('start_time', 'timestamp', array('default' => null, 'null' => true))
+                      ->addColumn('end_time', 'timestamp', array('default' => null, 'null' => true))
                       ->addColumn('breakpoint', 'boolean', array('default' => false))
                       ->save();
             } else {
                 $table->addColumn('version', 'biginteger')
                       ->addColumn('migration_name', 'string', array('limit' => 100, 'default' => null, 'null' => true))
-                      ->addColumn('start_time', 'timestamp')
-                      ->addColumn('end_time', 'timestamp')
+                      ->addColumn('start_time', 'timestamp', array('default' => null, 'null' => true))
+                      ->addColumn('end_time', 'timestamp', array('default' => null, 'null' => true))
                       ->addColumn('breakpoint', 'boolean', array('default' => false))
                       ->save();
             }
