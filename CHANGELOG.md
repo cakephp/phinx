@@ -5,7 +5,7 @@
 * New features
   * [#1045](https://github.com/robmorgan/phinx/pull/1045) Rollbacks by start time - Thanks to [Daniel Gomes](https://github.com/daniel-gomes-sociomantic).
   
-Please see [UPGRAGE_0.8](https://github.com/robmorgan/phinx/blob/master/UPGRADE_0.6.md) for additional details regarding [#1045](https://github.com/robmorgan/phinx/pull/1045)  
+Please see [UPGRAGE_0.8](https://github.com/robmorgan/phinx/blob/master/UPGRADE_0.8.md) for additional details regarding [#1045](https://github.com/robmorgan/phinx/pull/1045)  
 
 **0.7.2** (Tuesday, 28th February 2017)
 
