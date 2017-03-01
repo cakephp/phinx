@@ -2173,7 +2173,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         }
  
         $managerStub->setEnvironments(array('mockenv' => $envStub));
-        $managerStub->rollback('mockenv', $version, false, true);
+        $managerStub->rollback('mockenv', $version, false, true, true);
     }
 
     /**
