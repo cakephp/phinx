@@ -18,7 +18,7 @@ To install Phinx, simply require it using Composer:
 
     php composer.phar require robmorgan/phinx
 
-Create a folder in your project directory called ``migrations`` with adequate permissions.
+Create folders in your project following the structure ``db/migrations`` with adequate permissions.
 It is where your migration files will live and should be writable.
 
 Phinx can now be executed from within your project:
