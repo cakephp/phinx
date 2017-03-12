@@ -60,10 +60,6 @@ class TextWrapper
      */
     public function __construct(PhinxApplication $app, array $options = array())
     {
-        $options += array(
-            'environment' => 'development',
-        );
-
         $this->app = $app;
         $this->options = $options;
     }
