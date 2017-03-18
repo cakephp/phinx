@@ -105,6 +105,10 @@ EOT
 
         $start = microtime(true);
 
+        if(empty($seedSet) && count($this->getConfig()->getSeeds())) {
+            $seedSet = $this->getConfig()->getSeeds();
+        }
+
         if (empty($seedSet)) {
             // run all the seed(ers)
             $this->getManager()->seed($environment);

@@ -422,4 +422,12 @@ class Config implements ConfigInterface
     {
         unset($this->values[$id]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSeeds()
+    {
+        return (array_key_exists("seeds",$this->values))?$this->values['seeds']:[];
+    }
 }

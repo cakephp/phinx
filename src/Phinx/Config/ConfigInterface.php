@@ -102,6 +102,13 @@ interface ConfigInterface extends \ArrayAccess
      */
     public function getSeedPaths();
 
+    /**
+     * Gets seed classes to load seeds config array
+     *
+     * @return string[]
+     */
+    public function getSeeds();
+
      /**
      * Get the template file name.
      *
