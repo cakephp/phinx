@@ -725,13 +725,16 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                          'Type'    => 'int(15)',
                          'Null'    => 'NO',
                          'Default' => '',
-                         'Extra'   => 'auto_increment');
+                         'Extra'   => 'auto_increment',
+                         'Comment' => '');
 
         $column2 = array('Field'   => 'column2',
                          'Type'    => 'varchar(32)',
                          'Null'    => '',
                          'Default' => 'NULL',
-                         'Extra'   => '');
+                         'Extra'   => '',
+                         'Comment' => '');
+
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -743,7 +746,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                      ->method('fetch')
                      ->will($this->returnValue(null));
 
-        $this->assertQuerySql("DESCRIBE `table_name`", $this->result);
+        $this->assertQuerySql("SHOW FULL COLUMNS FROM `table_name`", $this->result);
 
 
         $this->assertExecuteSql('ALTER TABLE `table_name` CHANGE COLUMN `column_old` `column_new` int(15) NOT NULL AUTO_INCREMENT');
@@ -774,7 +777,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                      ->method('fetch')
                      ->will($this->returnValue(null));
 
-        $this->assertQuerySql("DESCRIBE `table_name`", $this->result);
+        $this->assertQuerySql("SHOW FULL COLUMNS FROM `table_name`", $this->result);
 
 
         $this->setExpectedException('\InvalidArgumentException', 'The specified column doesn\'t exist: column_old');
