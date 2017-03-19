@@ -432,7 +432,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         foreach ($rows as $row) {
             if (strcasecmp($row['Field'], $columnName) === 0) {
                 $null = ($row['Null'] == 'NO') ? 'NOT NULL' : 'NULL';
-                $comment = isset($row['Comment']) ? ' COMMENT ' . '\'' . $row['Comment'] . '\'' : '';
+                $comment = isset($row['Comment']) ? ' COMMENT ' . '\'' . addslashes($row['Comment']) . '\'' : '';
                 $extra = ' ' . strtoupper($row['Extra']);
                 if (!is_null($row['Default'])) {
                     $extra .= $this->getDefaultValueDefinition($row['Default']);
