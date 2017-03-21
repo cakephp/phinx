@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Migration\Manager;
 
+use Phinx\Config\Config;
 use Phinx\Db\Adapter\AdapterFactory;
 use Phinx\Db\Adapter\PdoAdapter;
 use Phinx\Migration\Manager\Environment;
@@ -33,7 +34,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->environment = new Environment('test', array());
-        $this->config = [];
+        $this->config = new Config([]);
         $this->input = $this->getMockBuilder('\Symfony\Component\Console\Input\InputInterface')
             ->setConstructorArgs([[]])
             ->getMock();

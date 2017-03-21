@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Migration;
 
+use Phinx\Config\Config;
 use Phinx\Db\Table;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Migration\Manager;
@@ -17,7 +18,7 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->config = [];
+        $this->config = new Config([]);
         $this->input = $this->getMockBuilder('\Symfony\Component\Console\Input\InputInterface')
             ->setConstructorArgs([[]])
             ->getMock();
