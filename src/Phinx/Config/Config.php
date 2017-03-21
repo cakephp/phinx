@@ -28,6 +28,7 @@
  */
 namespace Phinx\Config;
 
+use Phinx\Db\Adapter\AdapterFactory;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -333,6 +334,60 @@ class Config implements ConfigInterface
         return $versionOrder == self::VERSION_ORDER_CREATION_TIME;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getDatabases()
+    {
+        if (isset($this->values, $this->values['databases'])) {
+            $adapter_factory = AdapterFactory::instance();
+            $default_env = $this->getDefaultEnvironment();
+            $default_database = $this->getEnvironment($default_env);
+            $databases = [];
+            foreach ($this->values['databases'] as $key => $options) {
+                $options = array_merge($default_database, $options);
+                $adapter = $adapter_factory->getAdapter($options['adapter'], $options);
+
+                if (isset($options['wrapper'])) {
+                    $adapter = $adapter_factory->getWrapper($options['wrapper'], $adapter);
+                }
+
+                // Use the TablePrefixAdapter if table prefix/suffixes are in use
+                if ($adapter->hasOption('table_prefix') || $adapter->hasOption('table_suffix')) {
+                    $adapter = $adapter_factory->getWrapper('prefix', $adapter);
+                }
+
+                $databases[$key] = $adapter;
+            }
+
+            return $databases;
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDatabase($name)
+    {
+        $databases = $this->getDatabases();
+
+        if (isset($databases[$name])) {
+            return $databases[$name];
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasDatabase($name)
+    {
+        return (null !== $this->getDatabase($name));
+
+    }
     
 
     /**

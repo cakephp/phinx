@@ -78,11 +78,34 @@ interface MigrationInterface
     public function setAdapter(AdapterInterface $adapter);
 
     /**
+     * Sets the database adapter by alias
+     *
+     * @param string $alias
+     * @return MigrationInterface
+     */
+    public function setAdapterByAlias($alias);
+
+    /**
      * Gets the database adapter.
      *
      * @return AdapterInterface
      */
     public function getAdapter();
+
+    /**
+     * Sets the migration manager.
+     *
+     * @param Manager $manager Migration manager
+     * @return MigrationInterface
+     */
+    public function setManager(Manager $manager);
+
+    /**
+     * Gets the migration manager.
+     *
+     * @return Manager
+     */
+    public function getManager();
 
     /**
      * Sets the input object to be used in migration object

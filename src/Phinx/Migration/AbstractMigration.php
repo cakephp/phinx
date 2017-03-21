@@ -65,15 +65,20 @@ abstract class AbstractMigration implements MigrationInterface
      */
     protected $input;
 
+    /** @var Manager */
+    protected $manager;
+
     /**
      * Class Constructor.
      *
+     * @param Manager $manager
      * @param int $version Migration Version
      * @param InputInterface|null $input
      * @param OutputInterface|null $output
      */
-    final public function __construct($version, InputInterface $input = null, OutputInterface $output = null)
+    final public function __construct(Manager $manager, $version, InputInterface $input = null, OutputInterface $output = null)
     {
+        $this->manager = $manager;
         $this->version = $version;
         if (!is_null($input)){
             $this->setInput($input);
@@ -120,9 +125,42 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
+    public function setAdapterByAlias($alias)
+    {
+        $config = $this->getManager()
+            ->getConfig();
+        if ($config->hasDatabase($alias) === false) {
+            throw new \InvalidArgumentException('Missing database configuration for "' . $alias . '"');
+        }
+
+        $this->setAdapter($config->getDatabase($alias));
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getAdapter()
     {
         return $this->adapter;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setManager(Manager $manager)
+    {
+        $this->manager = $manager;
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getManager()
+    {
+        return $this->manager;
     }
 
     /**

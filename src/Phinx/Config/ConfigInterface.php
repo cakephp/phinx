@@ -28,6 +28,8 @@
  */
 namespace Phinx\Config;
 
+use Phinx\Db\Adapter\AdapterInterface;
+
 /**
  * Phinx configuration interface.
  *
@@ -129,6 +131,23 @@ interface ConfigInterface extends \ArrayAccess
      * @return boolean
      */
     public function isVersionOrderCreationTime();
+
+    /**
+     * @return AdapterInterface[]|null
+     */
+    public function getDatabases();
+
+    /**
+     * @param string $alias
+     * @return AdapterInterface|null
+     */
+    public function getDatabase($alias);
+
+    /**
+     * @param string $alias
+     * @return bool
+     */
+    public function hasDatabase($alias);
 
     /**
      * Gets the base class name for migrations.

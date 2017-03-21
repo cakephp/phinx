@@ -25,10 +25,24 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
      * @var \Phinx\Migration\Manager\Environment
      */
     private $environment;
+    private $config;
+    private $input;
+    private $output;
+    private $manager;
 
     public function setUp()
     {
         $this->environment = new Environment('test', array());
+        $this->config = [];
+        $this->input = $this->getMockBuilder('\Symfony\Component\Console\Input\InputInterface')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $this->output = $this->getMockBuilder('\Symfony\Component\Console\Output\OutputInterface')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $this->manager = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
     }
 
     public function testConstructorWorksAsExpected()
@@ -132,7 +146,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // up
         $upMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20110301080000'])
+            ->setConstructorArgs([$this->manager, '20110301080000'])
             ->setMethods(['up'])
             ->getMock();
         $upMigration->expects($this->once())
@@ -155,7 +169,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // down
         $downMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20110301080000'])
+            ->setConstructorArgs([$this->manager, '20110301080000'])
             ->setMethods(['down'])
             ->getMock();
         $downMigration->expects($this->once())
@@ -184,7 +198,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // migrate
         $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20110301080000'])
+            ->setConstructorArgs([$this->manager, '20110301080000'])
             ->setMethods(['up'])
             ->getMock();
         $migration->expects($this->once())
@@ -207,7 +221,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // migration
         $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20130301080000'])
+            ->setConstructorArgs([$this->manager, '20130301080000'])
             ->setMethods(['change'])
             ->getMock();
         $migration->expects($this->once())
@@ -230,7 +244,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // migration
         $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20130301080000'])
+            ->setConstructorArgs([$this->manager, '20130301080000'])
             ->setMethods(['change'])
             ->getMock();
         $migration->expects($this->once())
@@ -241,9 +255,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
     public function testGettingInputObject()
     {
-        $mock = $this->getMockBuilder('\Symfony\Component\Console\Input\InputInterface')
-            ->getMock();
-        $this->environment->setInput($mock);
+        $this->environment->setInput($this->input);
         $inputObject = $this->environment->getInput();
         $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $inputObject);
     }

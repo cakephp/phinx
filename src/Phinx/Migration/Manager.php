@@ -675,7 +675,7 @@ class Manager
                     }
 
                     // instantiate it
-                    $migration = new $class($version, $this->getInput(), $this->getOutput());
+                    $migration = new $class($this, $version, $this->getInput(), $this->getOutput());
 
                     if (!($migration instanceof AbstractMigration)) {
                         throw new \InvalidArgumentException(sprintf(
