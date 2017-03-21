@@ -129,11 +129,11 @@ abstract class AbstractMigration implements MigrationInterface
     {
         $config = $this->getManager()
             ->getConfig();
-        if ($config->hasDatabase($alias) === false) {
-            throw new \InvalidArgumentException('Missing database configuration for "' . $alias . '"');
+        if ($config->hasAdapter($alias) === false) {
+            throw new \InvalidArgumentException('Missing adapter configuration for "' . $alias . '"');
         }
 
-        $this->setAdapter($config->getDatabase($alias));
+        $this->setAdapter($config->getAvailableAdapter($alias));
 
         return $this;
     }

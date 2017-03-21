@@ -135,19 +135,19 @@ interface ConfigInterface extends \ArrayAccess
     /**
      * @return AdapterInterface[]|null
      */
-    public function getDatabases();
+    public function getAvailableAdapters();
 
     /**
      * @param string $alias
      * @return AdapterInterface|null
      */
-    public function getDatabase($alias);
+    public function getAvailableAdapter($alias);
 
     /**
      * @param string $alias
      * @return bool
      */
-    public function hasDatabase($alias);
+    public function hasAdapter($alias);
 
     /**
      * Gets the base class name for migrations.

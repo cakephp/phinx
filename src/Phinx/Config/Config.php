@@ -337,13 +337,13 @@ class Config implements ConfigInterface
     /**
      * {@inheritdoc}
      */
-    public function getDatabases()
+    public function getAvailableAdapters()
     {
         if (isset($this->values, $this->values['databases'])) {
             $adapter_factory = AdapterFactory::instance();
             $default_env = $this->getDefaultEnvironment();
             $default_database = $this->getEnvironment($default_env);
-            $databases = [];
+            $adapter_list = [];
             foreach ($this->values['databases'] as $key => $options) {
                 $options = array_merge($default_database, $options);
                 $adapter = $adapter_factory->getAdapter($options['adapter'], $options);
@@ -357,10 +357,10 @@ class Config implements ConfigInterface
                     $adapter = $adapter_factory->getWrapper('prefix', $adapter);
                 }
 
-                $databases[$key] = $adapter;
+                $adapter_list[$key] = $adapter;
             }
 
-            return $databases;
+            return $adapter_list;
         }
 
         return null;
@@ -369,12 +369,12 @@ class Config implements ConfigInterface
     /**
      * {@inheritdoc}
      */
-    public function getDatabase($name)
+    public function getAvailableAdapter($name)
     {
-        $databases = $this->getDatabases();
+        $adapters = $this->getAvailableAdapters();
 
-        if (isset($databases[$name])) {
-            return $databases[$name];
+        if (isset($adapters[$name])) {
+            return $adapters[$name];
         }
 
         return null;
@@ -383,9 +383,9 @@ class Config implements ConfigInterface
     /**
      * {@inheritdoc}
      */
-    public function hasDatabase($name)
+    public function hasAdapter($name)
     {
-        return (null !== $this->getDatabase($name));
+        return (null !== $this->getAvailableAdapter($name));
 
     }
     
