@@ -918,7 +918,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDefaultValueDefinition($default)
     {
-        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+        if (is_string($default) && !$this->isDbFunctionName($default)) {
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
@@ -1176,6 +1176,17 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         $baseType = $matches[1];
         return in_array($baseType, $this->getColumnTypes());
+    }
+
+    /**
+     * Determine if a string is a database function name.
+     *
+     * @param string $string
+     * @return boolean
+     */
+    private function isDbFunctionName($string = '')
+    {
+        return 'CURRENT_TIMESTAMP' === $string || preg_match('/.*\(.*\)/', $string);
     }
 
     /**

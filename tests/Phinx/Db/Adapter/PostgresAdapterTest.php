@@ -294,6 +294,25 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * Sets an arbitrary Postgres function as the default column value.
+     */
+    public function testAddColumnWithDefaultFunction()
+    {
+        $defaultFunctionName = 'chr(65)';
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->save();
+        $table->addColumn('default_function', 'string', array('default' => $defaultFunctionName))
+            ->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() == 'default_function') {
+                $this->assertNotNull($column->getDefault());
+                $this->assertEquals($defaultFunctionName, $column->getDefault());
+            }
+        }
+    }
+
     public function testAddDecimalWithPrecisionAndScale()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
