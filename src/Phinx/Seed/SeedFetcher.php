@@ -30,7 +30,10 @@ class SeedFetcher
         if(null === $seed) {
             $seed = '*';
         }
-        $files = glob($this->config->getSeedPath() . DIRECTORY_SEPARATOR . $seed . '.php');
+        $files = [];
+        foreach($this->config->getSeedPaths() as $path) {
+            $files = array_merge($files, glob($path . DIRECTORY_SEPARATOR . $seed . '.php'));
+        }
 
         $queue = array();
 
