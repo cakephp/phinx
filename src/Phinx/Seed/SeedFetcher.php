@@ -43,7 +43,7 @@ class SeedFetcher
 
                 if (!array_key_exists($class, $queue)) {
                     $seed = $this->instantiateClass($filePath, $class);
-                    $heap = $this->getParentStack($class, $seed);
+                    $heap = $this->getParentStack($filePath, $class, $seed);
                     while ($heap->count()) {
                         $element_to_queue = $heap->pop();
                         $queue[key($element_to_queue)] = current($element_to_queue);
@@ -85,18 +85,18 @@ class SeedFetcher
     }
 
     /**
+     * @param $filePath
      * @param string $class
      * @param AbstractSeed $seed
-     * @throws \InvalidArgumentException
      * @return \SplStack
      */
-    private function getParentStack($class, AbstractSeed $seed)
+    private function getParentStack($filePath, $class, AbstractSeed $seed)
     {
         $heap = new \SplStack();
         $heap->push(array($class => $seed));
         $parent = $seed->getParentSeed();
         while(null !== $parent) {
-            $seed = $this->instantiateClass($this->config->getSeedPath() . DIRECTORY_SEPARATOR . $parent .'.php', $parent);
+            $seed = $this->instantiateClass($filePath, $parent);
             $heap->push(array($parent => $seed));
             $parent = $seed->getParentSeed();
         }
