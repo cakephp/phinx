@@ -88,7 +88,7 @@ class SeedFetcherTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             'paths' => array(
-                'seeds' => $this->getCorrectedPath(__DIR__ . '/_files/seeds'),
+                'seeds' => [$this->getCorrectedPath(__DIR__ . '/_files/seeds')],
             )
         );
     }
@@ -110,7 +110,7 @@ class SeedFetcherTest extends \PHPUnit_Framework_TestCase
         );
         foreach ($seed_files as $seed_file) {
             /** @noinspection PhpIncludeInspection */
-            require_once $config->getSeedPath() . DIRECTORY_SEPARATOR . $seed_file . '.php';
+            require_once $config->getSeedPaths()[0] . DIRECTORY_SEPARATOR . $seed_file . '.php';
         }
     }
 
