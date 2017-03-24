@@ -60,34 +60,13 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($migrationStub->getAdapter() instanceof AdapterInterface);
     }
 
-    public function testSetOutputMethods()
+    public function testGetInputAndGetOutputMethods()
     {
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array($this->manager, 0));
 
         // test methods
-        $this->assertNull($migrationStub->getOutput());
-        $migrationStub->setOutput($this->output);
-        $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $migrationStub->getOutput());
-    }
-
-    public function testGetInputMethodWithInjectedInput()
-    {
-        // stub migration
-        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array($this->manager, 0, $this->input, null));
-
-        // test methods
-        $this->assertNotNull($migrationStub->getInput());
         $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $migrationStub->getInput());
-    }
-
-    public function testGetOutputMethodWithInjectedOutput()
-    {
-        // stub migration
-        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array($this->manager, 0, null, $this->output));
-
-        // test methods
-        $this->assertNotNull($migrationStub->getOutput());
         $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $migrationStub->getOutput());
     }
 
