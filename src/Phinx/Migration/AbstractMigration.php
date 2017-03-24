@@ -73,18 +73,16 @@ abstract class AbstractMigration implements MigrationInterface
      *
      * @param Manager $manager
      * @param int $version Migration Version
-     * @param InputInterface|null $input
-     * @param OutputInterface|null $output
      */
-    final public function __construct(Manager $manager, $version, InputInterface $input = null, OutputInterface $output = null)
+    final public function __construct(Manager $manager, $version)
     {
         $this->manager = $manager;
         $this->version = $version;
-        if (!is_null($input)){
-            $this->setInput($input);
+        if ($manager->getInput()) {
+            $this->setInput($manager->getInput());
         }
-        if (!is_null($output)){
-            $this->setOutput($output);
+        if ($manager->getOutput()) {
+            $this->setOutput($manager->getOutput());
         }
 
         $this->init();
