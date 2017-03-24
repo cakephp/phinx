@@ -29,6 +29,7 @@
 namespace Phinx\Config;
 
 use Phinx\Db\Adapter\AdapterFactory;
+use Phinx\Db\Adapter\AdapterInterface;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -58,6 +59,10 @@ class Config implements ConfigInterface
      * @var string
      */
     protected $configFilePath;
+    /**
+     * @var AdapterInterface[]
+     */
+    protected $availableAdapters;
 
     /**
      * {@inheritdoc}
@@ -339,11 +344,15 @@ class Config implements ConfigInterface
      */
     public function getAvailableAdapters()
     {
+        if ($this->availableAdapters !== null) {
+            return $this->availableAdapters;
+        }
+
+        $this->availableAdapters = [];
         if (isset($this->values, $this->values['databases'])) {
             $adapter_factory = AdapterFactory::instance();
             $default_env = $this->getDefaultEnvironment();
             $default_database = $this->getEnvironment($default_env);
-            $adapter_list = [];
             foreach ($this->values['databases'] as $key => $options) {
                 $options = array_merge($default_database, $options);
                 $adapter = $adapter_factory->getAdapter($options['adapter'], $options);
@@ -357,13 +366,12 @@ class Config implements ConfigInterface
                     $adapter = $adapter_factory->getWrapper('prefix', $adapter);
                 }
 
-                $adapter_list[$key] = $adapter;
+                $this->availableAdapters[$key] = $adapter;
             }
 
-            return $adapter_list;
         }
 
-        return null;
+        return $this->availableAdapters;
     }
 
     /**
