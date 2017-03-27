@@ -27,6 +27,7 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $this->manager = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->setMethods(null)
             ->getMock();
     }
 
@@ -60,13 +61,21 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($migrationStub->getAdapter() instanceof AdapterInterface);
     }
 
-    public function testGetInputAndGetOutputMethods()
+    public function testGetInputMethodWithManagerInput()
     {
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array($this->manager, 0));
 
         // test methods
         $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $migrationStub->getInput());
+    }
+
+    public function testGetOutputMethodWithManagerOutput()
+    {
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', array($this->manager, 0));
+
+        // test methods
         $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $migrationStub->getOutput());
     }
 
