@@ -133,7 +133,7 @@ interface ConfigInterface extends \ArrayAccess
     public function isVersionOrderCreationTime();
 
     /**
-     * @return AdapterInterface[]
+     * @return AdapterInterface[]|null
      */
     public function getAvailableAdapters();
 
