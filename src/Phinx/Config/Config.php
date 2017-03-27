@@ -59,6 +59,7 @@ class Config implements ConfigInterface
      * @var string
      */
     protected $configFilePath;
+
     /**
      * @var AdapterInterface[]
      */
@@ -344,31 +345,28 @@ class Config implements ConfigInterface
      */
     public function getAvailableAdapters()
     {
-        if ($this->availableAdapters !== null) {
-            return $this->availableAdapters;
-        }
+        if (is_null($this->availableAdapters)) {
+            $this->availableAdapters = [];
+            if (isset($this->values, $this->values['databases'])) {
+                $adapter_factory = AdapterFactory::instance();
+                $default_env = $this->getDefaultEnvironment();
+                $default_database = $this->getEnvironment($default_env);
+                foreach ($this->values['databases'] as $key => $options) {
+                    $options = array_merge($default_database, $options);
+                    $adapter = $adapter_factory->getAdapter($options['adapter'], $options);
 
-        $this->availableAdapters = [];
-        if (isset($this->values, $this->values['databases'])) {
-            $adapter_factory = AdapterFactory::instance();
-            $default_env = $this->getDefaultEnvironment();
-            $default_database = $this->getEnvironment($default_env);
-            foreach ($this->values['databases'] as $key => $options) {
-                $options = array_merge($default_database, $options);
-                $adapter = $adapter_factory->getAdapter($options['adapter'], $options);
+                    if (isset($options['wrapper'])) {
+                        $adapter = $adapter_factory->getWrapper($options['wrapper'], $adapter);
+                    }
 
-                if (isset($options['wrapper'])) {
-                    $adapter = $adapter_factory->getWrapper($options['wrapper'], $adapter);
+                    // Use the TablePrefixAdapter if table prefix/suffixes are in use
+                    if ($adapter->hasOption('table_prefix') || $adapter->hasOption('table_suffix')) {
+                        $adapter = $adapter_factory->getWrapper('prefix', $adapter);
+                    }
+
+                    $this->availableAdapters[$key] = $adapter;
                 }
-
-                // Use the TablePrefixAdapter if table prefix/suffixes are in use
-                if ($adapter->hasOption('table_prefix') || $adapter->hasOption('table_suffix')) {
-                    $adapter = $adapter_factory->getWrapper('prefix', $adapter);
-                }
-
-                $this->availableAdapters[$key] = $adapter;
             }
-
         }
 
         return $this->availableAdapters;
@@ -394,9 +392,7 @@ class Config implements ConfigInterface
     public function hasAdapter($name)
     {
         return (null !== $this->getAvailableAdapter($name));
-
     }
-    
 
     /**
      * Replace tokens in the specified array.
