@@ -117,6 +117,7 @@ abstract class AbstractMigration implements MigrationInterface
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
+
         return $this;
     }
 
@@ -150,6 +151,7 @@ abstract class AbstractMigration implements MigrationInterface
     public function setManager(Manager $manager)
     {
         $this->manager = $manager;
+
         return $this;
     }
 
@@ -167,6 +169,7 @@ abstract class AbstractMigration implements MigrationInterface
     public function setInput(InputInterface $input)
     {
         $this->input = $input;
+
         return $this;
     }
 
@@ -184,6 +187,7 @@ abstract class AbstractMigration implements MigrationInterface
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+
         return $this;
     }
 
@@ -209,6 +213,7 @@ abstract class AbstractMigration implements MigrationInterface
     public function setVersion($version)
     {
         $this->version = $version;
+
         return $this;
     }
 
