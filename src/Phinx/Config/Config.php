@@ -61,7 +61,7 @@ class Config implements ConfigInterface
     protected $configFilePath;
 
     /**
-     * @var AdapterInterface[]
+     * @var AdapterInterface[]|null
      */
     protected $availableAdapters;
 
