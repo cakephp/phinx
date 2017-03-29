@@ -290,8 +290,8 @@ class Table
     /**
      * Add a table column.
      *
-     * Type can be: primary_key, string, text, integer, float, decimal,
-     * datetime, timestamp, time, date, binary, boolean.
+     * Type can be: primary_key, string, char, text, integer, float, decimal,
+     * datetime, timestamp, time, date, blob, binary, varbinary, boolean.
      * 
      * Valid options can be: limit, default, null, precision or scale.
      *

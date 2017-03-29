@@ -422,6 +422,7 @@ abstract class PdoAdapter implements AdapterInterface
         return array(
             'primary_key',
             'string',
+            'char',
             'text',
             'integer',
             'biginteger',
@@ -431,7 +432,9 @@ abstract class PdoAdapter implements AdapterInterface
             'timestamp',
             'time',
             'date',
+            'blob',
             'binary',
+            'varbinary',
             'boolean'
         );
     }
