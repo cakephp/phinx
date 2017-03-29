@@ -1287,9 +1287,28 @@ class PostgresAdapter extends PdoAdapter
             $this->createSchema($this->getGlobalSchemaName());
         }
 
-        $this->fetchAll(sprintf('SET search_path TO %s', $this->quoteSchemaName($this->getGlobalSchemaName())));
+        $this->execute(sprintf('SET search_path TO %s,"$user",public', $this->quoteSchemaName($this->getGlobalSchemaName())));
 
         parent::createSchemaTable();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getVersions()
+    {
+        $this->execute(sprintf('SET search_path TO %s,"$user",public', $this->quoteSchemaName($this->getGlobalSchemaName())));
+        return parent::getVersions();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getVersionLog()
+    {
+        $this->execute(sprintf('SET search_path TO %s,"$user",public', $this->quoteSchemaName($this->getGlobalSchemaName())));
+
+        return parent::getVersionLog();
     }
 
     /**
