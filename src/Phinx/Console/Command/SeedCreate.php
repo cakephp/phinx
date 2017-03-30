@@ -28,6 +28,7 @@
  */
 namespace Phinx\Console\Command;
 
+use Phinx\Config\NamespaceAwareInterface;
 use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -173,10 +174,14 @@ class SeedCreate extends AbstractCommand
 
         // inject the class names appropriate to this seeder
         $contents = file_get_contents($this->getSeedTemplateFilename());
+
+        $config = $this->getConfig();
+        $namespace = $config instanceof NamespaceAwareInterface ? $config->getNamespaceByPath($path) : null;
         $classes = array(
-            '$useClassName'  => 'Phinx\Seed\AbstractSeed',
-            '$className'     => $className,
-            '$baseClassName' => 'AbstractSeed',
+            '$defineNamespace' => null !== $namespace ? ('namespace ' . $namespace . ';') : '',
+            '$useClassName'    => 'Phinx\Seed\AbstractSeed',
+            '$className'       => $className,
+            '$baseClassName'   => 'AbstractSeed',
         );
         $contents = strtr($contents, $classes);
 

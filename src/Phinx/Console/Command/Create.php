@@ -28,6 +28,7 @@
  */
 namespace Phinx\Console\Command;
 
+use Phinx\Config\NamespaceAwareInterface;
 use Phinx\Migration\CreationInterface;
 use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputArgument;
@@ -272,12 +273,16 @@ class Create extends AbstractCommand
             $contents = file_get_contents($altTemplate ?: $this->getMigrationTemplateFilename());
         }
 
+        $config = $this->getConfig();
+        $namespace = $config instanceof NamespaceAwareInterface ? $config->getNamespaceByPath($path) : null;
+
         // inject the class names appropriate to this migration
         $classes = array(
-            '$useClassName'  => $this->getConfig()->getMigrationBaseClassName(false),
-            '$className'     => $className,
-            '$version'       => Util::getVersionFromFileName($fileName),
-            '$baseClassName' => $this->getConfig()->getMigrationBaseClassName(true),
+            '$defineNamespace' => null !== $namespace ? ('namespace ' . $namespace . ';') : '',
+            '$useClassName'    => $this->getConfig()->getMigrationBaseClassName(false),
+            '$className'       => $className,
+            '$version'         => Util::getVersionFromFileName($fileName),
+            '$baseClassName'   => $this->getConfig()->getMigrationBaseClassName(true),
         );
         $contents = strtr($contents, $classes);
 

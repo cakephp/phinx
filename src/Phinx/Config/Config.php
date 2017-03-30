@@ -36,8 +36,10 @@ use Symfony\Component\Yaml\Yaml;
  * @package Phinx
  * @author Rob Morgan
  */
-class Config implements ConfigInterface
+class Config implements ConfigInterface, NamespaceAwareInterface
 {
+    use NamespaceAwareTrait;
+
     /**
      * The value that identifies a version order by creation time.
      */
