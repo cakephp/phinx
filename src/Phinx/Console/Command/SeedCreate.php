@@ -176,7 +176,7 @@ class SeedCreate extends AbstractCommand
         $contents = file_get_contents($this->getSeedTemplateFilename());
 
         $config = $this->getConfig();
-        $namespace = $config instanceof NamespaceAwareInterface ? $config->getNamespaceByPath($path) : null;
+        $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath($path) : null;
         $classes = array(
             '$defineNamespace' => null !== $namespace ? ('namespace ' . $namespace . ';') : '',
             '$useClassName'    => 'Phinx\Seed\AbstractSeed',

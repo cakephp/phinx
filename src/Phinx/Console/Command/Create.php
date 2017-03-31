@@ -167,6 +167,9 @@ class Create extends AbstractCommand
 
         $this->verifyMigrationDirectory($path);
 
+        $config = $this->getConfig();
+        $namespace = $config instanceof NamespaceAwareInterface ? $config->getMigrationNamespaceByPath($path) : null;
+
         $path = realpath($path);
         $className = $input->getArgument('name');
 
@@ -179,7 +182,8 @@ class Create extends AbstractCommand
 
         if (!Util::isUniqueMigrationClassName($className, $path)) {
             throw new \InvalidArgumentException(sprintf(
-                'The migration class name "%s" already exists',
+                'The migration class name "%s%s" already exists',
+                $namespace ? ($namespace . '\\') : '',
                 $className
             ));
         }
@@ -272,9 +276,6 @@ class Create extends AbstractCommand
             // Load the alternative template if it is defined.
             $contents = file_get_contents($altTemplate ?: $this->getMigrationTemplateFilename());
         }
-
-        $config = $this->getConfig();
-        $namespace = $config instanceof NamespaceAwareInterface ? $config->getNamespaceByPath($path) : null;
 
         // inject the class names appropriate to this migration
         $classes = array(

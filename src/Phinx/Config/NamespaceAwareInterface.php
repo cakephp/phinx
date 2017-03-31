@@ -37,10 +37,18 @@ namespace Phinx\Config;
 interface NamespaceAwareInterface
 {
     /**
-     * Get Namespace associated with path.
+     * Get Migration Namespace associated with path.
      *
      * @param string $path
      * @return string|null
      */
-    public function getNamespaceByPath($path);
+    public function getMigrationNamespaceByPath($path);
+
+    /**
+     * Get Seed Namespace associated with path.
+     *
+     * @param string $path
+     * @return string|null
+     */
+    public function getSeedNamespaceByPath($path);
 }

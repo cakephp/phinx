@@ -35,25 +35,43 @@ namespace Phinx\Config;
  * @author Andrey N. Mokhov
  *
  * @method array getMigrationPaths()
+ * @method array getSeedPaths()
  */
 trait NamespaceAwareTrait
 {
+    protected function searchNamespace($needle, $haystack)
+    {
+        $needle = realpath($needle);
+        $haystack = array_map('realpath', $haystack);
+
+        $key = array_search($needle, $haystack);
+
+        return is_string($key) ? trim($key, '\\') : null;
+    }
+
     /**
      * Get Namespace associated with path.
      *
      * @param string $path
      * @return string|null
      */
-    public function getNamespaceByPath($path)
+    public function getMigrationNamespaceByPath($path)
     {
-        $path = realpath($path);
-
         $paths = $this->getMigrationPaths();
-        $paths = array_map('realpath', $paths);
 
-        $key = array_search($path, $paths);
-
-        return is_int($key) ? null : trim($key, '\\');
+        return $this->searchNamespace($path, $paths);
     }
 
+    /**
+     * Get Namespace associated with path.
+     *
+     * @param string $path
+     * @return string|null
+     */
+    public function getSeedNamespaceByPath($path)
+    {
+        $paths = $this->getSeedPaths();
+
+        return $this->searchNamespace($path, $paths);
+    }
 }

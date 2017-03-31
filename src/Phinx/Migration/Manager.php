@@ -652,7 +652,7 @@ class Manager
                     }
 
                     $config = $this->getConfig();
-                    $namespace = $config instanceof NamespaceAwareInterface ? $config->getNamespaceByPath(dirname($filePath)) : null;
+                    $namespace = $config instanceof NamespaceAwareInterface ? $config->getMigrationNamespaceByPath(dirname($filePath)) : null;
 
                     // convert the filename to a class name
                     $class = (null === $namespace ? '' : $namespace . '\\') . Util::mapFileNameToClassName(basename($filePath));
@@ -752,7 +752,7 @@ class Manager
             foreach ($phpFiles as $filePath) {
                 if (Util::isValidSeedFileName(basename($filePath))) {
                     $config = $this->getConfig();
-                    $namespace = $config instanceof NamespaceAwareInterface ? $config->getNamespaceByPath(dirname($filePath)) : null;
+                    $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath(dirname($filePath)) : null;
 
                     // convert the filename to a class name
                     $class = (null === $namespace ? '' : $namespace . '\\') . pathinfo($filePath, PATHINFO_FILENAME);
