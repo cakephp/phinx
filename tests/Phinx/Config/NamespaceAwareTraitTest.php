@@ -2,13 +2,11 @@
 
 namespace Test\Phinx\Config;
 
-use Phinx\Config\NamespaceAwareTrait;
-
 class NamespaceAwareTraitTest extends \PHPUnit_Framework_TestCase
 {
     public function testGetMigrationNamespaceByPath()
     {
-        $config = $this->getMockForTrait(NamespaceAwareTrait::class);
+        $config = $this->getMockForTrait('Phinx\Config\NamespaceAwareTrait');
         $config->expects($this->any())
             ->method('getMigrationPaths')
             ->will($this->returnValue([
@@ -16,7 +14,7 @@ class NamespaceAwareTraitTest extends \PHPUnit_Framework_TestCase
                 'Baz'     => __DIR__ . '/_rootDirectories/all/../OnlyPhp',
                 'Foo\Bar' => __DIR__ . '/_rootDirectories/all',
             ]));
-        /** @var NamespaceAwareTrait $config */
+        /** @var \Phinx\Config\NamespaceAwareTrait $config */
         $this->assertNull($config->getMigrationNamespaceByPath(__DIR__ . '/_files'));
         $this->assertNull($config->getMigrationNamespaceByPath(__DIR__ . '/_rootDirectories/../_files'));
         $this->assertEquals('Baz',  $config->getMigrationNamespaceByPath(__DIR__ . '/_rootDirectories/OnlyPhp'));
@@ -26,7 +24,7 @@ class NamespaceAwareTraitTest extends \PHPUnit_Framework_TestCase
 
     public function testGetSeedNamespaceByPath()
     {
-        $config = $this->getMockForTrait(NamespaceAwareTrait::class);
+        $config = $this->getMockForTrait('Phinx\Config\NamespaceAwareTrait');
         $config->expects($this->any())
             ->method('getSeedPaths')
             ->will($this->returnValue([
@@ -34,7 +32,7 @@ class NamespaceAwareTraitTest extends \PHPUnit_Framework_TestCase
                 'Baz'     => __DIR__ . '/_rootDirectories/all/../OnlyPhp',
                 'Foo\Bar' => __DIR__ . '/_rootDirectories/all',
             ]));
-        /** @var NamespaceAwareTrait $config */
+        /** @var \Phinx\Config\NamespaceAwareTrait $config */
         $this->assertNull($config->getSeedNamespaceByPath(__DIR__ . '/_files'));
         $this->assertNull($config->getSeedNamespaceByPath(__DIR__ . '/_rootDirectories/../_files'));
         $this->assertEquals('Baz',  $config->getSeedNamespaceByPath(__DIR__ . '/_rootDirectories/OnlyPhp'));
