@@ -3,9 +3,8 @@
 namespace Test\Phinx\Config;
 
 use Phinx\Config\NamespaceAwareTrait;
-use PHPUnit\Framework\TestCase;
 
-class NamespaceAwareTraitTest extends TestCase
+class NamespaceAwareTraitTest extends \PHPUnit_Framework_TestCase
 {
     public function testGetMigrationNamespaceByPath()
     {
