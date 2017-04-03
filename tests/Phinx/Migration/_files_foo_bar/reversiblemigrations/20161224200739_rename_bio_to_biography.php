@@ -4,17 +4,16 @@ namespace Foo\Bar;
 
 use Phinx\Migration\AbstractMigration;
 
-class UpdateInfoTable extends AbstractMigration
+class RenameBioToBiography extends AbstractMigration
 {
     /**
      * Change.
      */
     public function change()
     {
-        // info table
-        $info = $this->table('info');
-        $info->addColumn('password', 'string', array('limit' => 40))
-             ->update();
+        // users table
+        $table = $this->table('users_foo_bar');
+        $table->renameColumn('bio', 'biography');
     }
 
     /**

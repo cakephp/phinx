@@ -1,6 +1,6 @@
 <?php
 
-namespace Foo\Bar;
+namespace Baz;
 
 use Phinx\Migration\AbstractMigration;
 
@@ -12,7 +12,7 @@ class RenameBioToBiography extends AbstractMigration
     public function change()
     {
         // users table
-        $table = $this->table('users');
+        $table = $this->table('users_baz');
         $table->renameColumn('bio', 'biography');
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Foo\Bar;
+namespace Baz;
 
 use Phinx\Migration\AbstractMigration;
 
@@ -12,8 +12,8 @@ class RenameInfoTableToStatusesTable extends AbstractMigration
     public function change()
     {
         // users table
-        $table = $this->table('info');
-        $table->rename('statuses');
+        $table = $this->table('info_baz');
+        $table->rename('statuses_baz');
     }
 
     /**

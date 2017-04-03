@@ -12,13 +12,13 @@ class CreateUserLoginsTable extends AbstractMigration
     public function change()
     {
         // user logins table
-        $table = $this->table('user_logins');
+        $table = $this->table('user_logins_foo_bar');
         $table->addColumn('user_id', 'integer')
               ->addColumn('created', 'datetime')
               ->create();
 
         // add a foreign key back to the users table
-        $table->addForeignKey('user_id', 'users', array('id'))
+        $table->addForeignKey('user_id', 'users_foo_bar', array('id'))
               ->update();
     }
 

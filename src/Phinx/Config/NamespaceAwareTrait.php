@@ -33,12 +33,30 @@ namespace Phinx\Config;
  * Trait implemented NamespaceAwareInterface.
  * @package Phinx\Config
  * @author Andrey N. Mokhov
- *
- * @method array getMigrationPaths()
- * @method array getSeedPaths()
  */
 trait NamespaceAwareTrait
 {
+    /**
+     * Gets the paths to search for migration files.
+     *
+     * @return string[]
+     */
+    abstract public function getMigrationPaths();
+
+    /**
+     * Gets the paths to search for seed files.
+     *
+     * @return string[]
+     */
+    abstract public function getSeedPaths();
+
+    /**
+     * Search $needle in $haystack and return key associate with him.
+     *
+     * @param string $needle
+     * @param array  $haystack
+     * @return null|string
+     */
     protected function searchNamespace($needle, $haystack)
     {
         $needle = realpath($needle);
@@ -50,7 +68,7 @@ trait NamespaceAwareTrait
     }
 
     /**
-     * Get Namespace associated with path.
+     * Get Migration Namespace associated with path.
      *
      * @param string $path
      * @return string|null
@@ -63,7 +81,7 @@ trait NamespaceAwareTrait
     }
 
     /**
-     * Get Namespace associated with path.
+     * Get Seed Namespace associated with path.
      *
      * @param string $path
      * @return string|null

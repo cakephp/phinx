@@ -12,7 +12,7 @@ class CreateInitialSchema extends AbstractMigration
     public function change()
     {
         // users table
-        $users = $this->table('users');
+        $users = $this->table('users_foo_bar');
         $users->addColumn('username', 'string', array('limit' => 20))
               ->addColumn('password', 'string', array('limit' => 40))
               ->addColumn('password_salt', 'string', array('limit' => 40))
@@ -31,7 +31,7 @@ class CreateInitialSchema extends AbstractMigration
               ->create();
 
         // info table
-        $info = $this->table('info');
+        $info = $this->table('info_foo_bar');
         $info->addColumn('username', 'string', array('limit' => 20))
              ->create();
     }
