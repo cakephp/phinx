@@ -279,11 +279,12 @@ class Create extends AbstractCommand
 
         // inject the class names appropriate to this migration
         $classes = array(
-            '$defineNamespace' => null !== $namespace ? ('namespace ' . $namespace . ';') : '',
-            '$useClassName'    => $this->getConfig()->getMigrationBaseClassName(false),
-            '$className'       => $className,
-            '$version'         => Util::getVersionFromFileName($fileName),
-            '$baseClassName'   => $this->getConfig()->getMigrationBaseClassName(true),
+            '$namespaceDefinition' => null !== $namespace ? ('namespace ' . $namespace . ';') : '',
+            '$namespace'           => $namespace,
+            '$useClassName'        => $this->getConfig()->getMigrationBaseClassName(false),
+            '$className'           => $className,
+            '$version'             => Util::getVersionFromFileName($fileName),
+            '$baseClassName'       => $this->getConfig()->getMigrationBaseClassName(true),
         );
         $contents = strtr($contents, $classes);
 

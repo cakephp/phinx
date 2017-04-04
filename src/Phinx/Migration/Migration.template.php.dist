@@ -1,5 +1,5 @@
 <?php
-$defineNamespace
+$namespaceDefinition
 
 use $useClassName;
 
