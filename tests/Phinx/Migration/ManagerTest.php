@@ -728,6 +728,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager->rollback('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
+        $this->assertContains('== 20120111235330 TestMigration: reverting', $output);
+        $this->assertContains('== 20120111235330 TestMigration: reverted', $output);
+        $this->assertNotContains('No migrations to rollback', $output);
         $this->assertNotContains('Undefined offset: -1', $output);
     }
 
