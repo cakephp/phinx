@@ -171,7 +171,7 @@ class Create extends AbstractCommand
 
         if (!Util::isValidPhinxClassName($className)) {
             throw new \InvalidArgumentException(sprintf(
-                'The migration class name "%s" is invalid. Please use CamelCase format.',
+                'The migration class name "%s" is invalid. Please use PascalCase format.',
                 $className
             ));
         }
