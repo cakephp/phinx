@@ -204,6 +204,43 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
     DELIMITERs during insertion of stored procedures or triggers which
     don't support DELIMITERs.
 
+Inserting records
+-----------------
+
+Sometimes you might not want to change the structure of the database but to insert new records. For example, adding a new status name. Bear in mind that you cannot use the change method, you must use up/down methods. 
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class NewStatus extends AbstractMigration
+        {
+            protected $statusId = 1234; //It'd be nice to use an entity constant instead of magic numbers, but that's up to you.
+            protected $statusName = 'In Progress';
+            
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                
+                $columns = ['id', 'name'];
+                $data = [[$this->statusId, $this->statusName]]
+                $table = $this->table('status');
+                $table->insert($columns, $data);
+                $table->saveData();   
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+               $this->execute('Delete from status where id = ' . $this->statusId)
+            }
+        }
 Fetching Rows
 -------------
 
