@@ -38,6 +38,8 @@ use Symfony\Component\Yaml\Yaml;
  */
 class Config implements ConfigInterface
 {
+	const CONFIG_ENVIRONMENTS = 'environments';
+
     /**
      * @var array
      */
@@ -153,6 +155,12 @@ class Config implements ConfigInterface
             if (isset($this->values['environments']['default_migration_table'])) {
                 $environments[$name]['default_migration_table'] =
                     $this->values['environments']['default_migration_table'];
+            }
+            // add any other custom $config values from phinx.php
+            foreach ($this->values as $key => $value) {
+            	if ($key !== self::CONFIG_ENVIRONMENTS) {
+            		$environments[$name][$key] = $this->values[$key];
+	            }
             }
 
             return $environments[$name];
