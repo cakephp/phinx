@@ -206,7 +206,7 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
 
 .. warning::
 
-    When using `execute()` or `query()` with a batch of queries, PDO doesn't
+    When using ``execute()`` or ``query()`` with a batch of queries, PDO doesn't
     throw an exception if there is an issue with one or more of the queries
     in the batch.
 
@@ -215,7 +215,8 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
     If Phinx was to iterate any potential result sets, looking to see if one
     had an error, then Phinx would be denying access to all the results as there
     is no facility in PDO to get a previous result set
-    ([`nextRowset()`](http://php.net/manual/en/pdostatement.nextrowset.php) - but no `previousSet()`).
+    `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>` -
+    but no ``previousSet()``).
 
     So, as a consequence, due to the design decision in PDO to not throw
     an exception for batched queries, Phinx is unable to provide the fullest
@@ -223,8 +224,8 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
 
     Fortunately though, all the features of PDO are available, so multiple batches
     can be controlled within the migration by calling upon
-    [`nextRowset()`](http://php.net/manual/en/pdostatement.nextrowset.php)
-    and examining [`errorInfo`](http://php.net/manual/en/pdostatement.errorinfo.php).
+    `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`
+    and examining `errorInfo <http://php.net/manual/en/pdostatement.errorinfo.php>`.
 
 Fetching Rows
 -------------
