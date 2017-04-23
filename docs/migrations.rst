@@ -204,6 +204,28 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
     DELIMITERs during insertion of stored procedures or triggers which
     don't support DELIMITERs.
 
+.. warning::
+
+    When using `execute()` or `query()` with a batch of queries, PDO doesn't
+    throw an exception if there is an issue with one or more of the queries
+    in the batch.
+
+    As such, the entire batch is assumed to have passed without issue.
+
+    If Phinx was to iterate any potential result sets, looking to see if one
+    had an error, then Phinx would be denying access to all the results as there
+    is no facility in PDO to get a previous result set
+    ([`nextRowset()`](http://php.net/manual/en/pdostatement.nextrowset.php) - but no `previousSet()`).
+
+    So, as a consequence, due to the design decision in PDO to not throw
+    an exception for batched queries, Phinx is unable to provide the fullest
+    support for error handling when batches of queries are supplied.
+
+    Fortunately though, all the features of PDO are available, so multiple batches
+    can be controlled within the migration by calling upon
+    [`nextRowset()`](http://php.net/manual/en/pdostatement.nextrowset.php)
+    and examining [`errorInfo`](http://php.net/manual/en/pdostatement.errorinfo.php).
+
 Fetching Rows
 -------------
 
@@ -1225,7 +1247,7 @@ We can add named foreign keys using the ``constraint`` parameter. This feature i
             public function up()
             {
                 $table = $this->table('your_table');
-                $table->addForeignKey('foreign_id', 'reference_table', array('id'), 
+                $table->addForeignKey('foreign_id', 'reference_table', array('id'),
                                     array('constraint'=>'your_foreign_key_name'));
                       ->save();
             }
