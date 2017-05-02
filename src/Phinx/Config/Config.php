@@ -359,7 +359,7 @@ class Config implements ConfigInterface
         // Recurse the array and replace tokens
         return $this->recurseArrayForTokens($arr, $tokens);
     }
-
+    
     /**
      * Recurse an array for the specified tokens and replace them.
      *
@@ -367,8 +367,9 @@ class Config implements ConfigInterface
      * @param array $tokens Array of tokens to search for
      * @return array
      */
-    protected function recurseArrayForTokens($arr, $tokens)
+    protected function recurseArrayForTokens($arr, &$tokens)
     {
+        $matches = array();
         $out = array();
         foreach ($arr as $name => $value) {
             if (is_array($value)) {
@@ -376,6 +377,17 @@ class Config implements ConfigInterface
                 continue;
             }
             if (is_string($value)) {
+                if (preg_match_all('/(%env\()([^%env\(]*)(\)%)/', $value, $matches)) {
+                    foreach ($matches[0] as $index => $match) {
+                        if (!isset($tokens[$match])) {
+                            $matchEnvName = $matches[2][$index];
+                            if (!isset($_SERVER[$matchEnvName])) {
+                                throw new \RuntimeException("Missing environment variable $matchEnvName");
+                            }
+                            $tokens[$match] = $_SERVER[$matchEnvName];
+                        }
+                    }
+                }
                 foreach ($tokens as $token => $tval) {
                     $value = str_replace($token, $tval, $value);
                 }
