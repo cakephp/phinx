@@ -29,6 +29,7 @@
 namespace Phinx\Console\Command;
 
 use Phinx\Migration\CreationInterface;
+use Phinx\Migration\MigrationDefinition;
 use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -95,7 +96,7 @@ class Create extends AbstractCommand
 
     /**
      * Returns the migration path to create the migration in.
-     * 
+     *
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return mixed
@@ -168,24 +169,8 @@ class Create extends AbstractCommand
 
         $path = realpath($path);
         $className = $input->getArgument('name');
-
-        if (!Util::isValidPhinxClassName($className)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The migration class name "%s" is invalid. Please use CamelCase format.',
-                $className
-            ));
-        }
-
-        if (!Util::isUniqueMigrationClassName($className, $path)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The migration class name "%s" already exists',
-                $className
-            ));
-        }
-
-        // Compute the file path
-        $fileName = Util::mapClassNameToFileName($className);
-        $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
+        $definition = $this->getMigrationDefinition($className, $path);
+        $filePath = $definition->getFilePath();
 
         if (is_file($filePath)) {
             throw new \InvalidArgumentException(sprintf(
@@ -276,7 +261,7 @@ class Create extends AbstractCommand
         $classes = array(
             '$useClassName'  => $this->getConfig()->getMigrationBaseClassName(false),
             '$className'     => $className,
-            '$version'       => Util::getVersionFromFileName($fileName),
+            '$version'       => $definition->getVersion(),
             '$baseClassName' => $this->getConfig()->getMigrationBaseClassName(true),
         );
         $contents = strtr($contents, $classes);
@@ -304,5 +289,20 @@ class Create extends AbstractCommand
         }
 
         $output->writeln('<info>created</info> ' . str_replace(getcwd(), '', $filePath));
+    }
+
+    /**
+     * @param string $className
+     * @param string $path
+     *
+     * @return MigrationDefinition
+     */
+    private function getMigrationDefinition($className, $path)
+    {
+        /* @var \Phinx\Migration\Locator\LocatorInterface $locator */
+        $locator = new ($this->getConfig()->getMigrationLocatorClass());
+        $definition = $locator->generate($className, $path);
+
+        return $definition;
     }
 }

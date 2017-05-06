@@ -137,4 +137,11 @@ interface ConfigInterface extends \ArrayAccess
      * @return string
      */
     public function getMigrationBaseClassName($dropNamespace = true);
+
+    /**
+     * Gets the naming strategy used to locate migrations.
+     *
+     * @return string
+     */
+    public function getMigrationLocatorClass();
 }

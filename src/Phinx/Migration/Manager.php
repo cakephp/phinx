@@ -28,6 +28,7 @@
  */
 namespace Phinx\Migration;
 
+use Phinx\Migration\Locator\LocatorInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Config\ConfigInterface;
@@ -67,6 +68,11 @@ class Manager
      * @var array
      */
     protected $seeds;
+
+    /**
+     * @var null|LocatorInterface
+     */
+    protected $locator;
 
     /**
      * @var integer
@@ -147,7 +153,7 @@ class Manager
             }
 
             if (empty($sortedMigrations) && !empty($missingVersions)) {
-                // this means we have no up migrations, so we write all the missing versions already so they show up 
+                // this means we have no up migrations, so we write all the missing versions already so they show up
                 // before any possible down migration
                 foreach ($missingVersions as $missingVersionCreationTime => $missingVersion) {
                     $this->printMissingVersion($missingVersion, $maxNameLength);
@@ -156,7 +162,7 @@ class Manager
                 }
             }
 
-            // any migration left in the migrations (ie. not unset when sorting the migrations by the version order) is 
+            // any migration left in the migrations (ie. not unset when sorting the migrations by the version order) is
             // a migration that is down, so we add them to the end of the sorted migrations list
             if (!empty($migrations)) {
                 $sortedMigrations = array_merge($sortedMigrations, $migrations);
@@ -174,7 +180,7 @@ class Manager
                         } else {
                             if ($missingVersion['start_time'] > $version['start_time']) {
                                 break;
-                            } elseif ($missingVersion['start_time'] == $version['start_time'] && 
+                            } elseif ($missingVersion['start_time'] == $version['start_time'] &&
                                 $missingVersion['version'] > $version['version']) {
                                 break;
                             }
@@ -438,7 +444,7 @@ class Manager
             if (isset($migrations[$versionCreationTime])) {
                 array_unshift($sortedMigrations, $migrations[$versionCreationTime]);
             } else {
-                // this means the version is missing so we unset it so that we don't consider it when rolling back 
+                // this means the version is missing so we unset it so that we don't consider it when rolling back
                 // migrations (or choosing the last up version as target)
                 unset($executedVersions[$versionCreationTime]);
             }
@@ -455,7 +461,7 @@ class Manager
         if (null === $target) {
             // Get the migration before the last run migration
             $prev = count($executedVersionCreationTimes) - 2;
-            $target = $prev >= 0 ? $executedVersionCreationTimes[$prev] : 0;
+            $target = $prev >= 0 ? $executedVersionCreationTimes[$prev] : $executedVersionCreationTimes[0];
         }
 
         // If the target must match a version, check the target version exists
@@ -626,7 +632,7 @@ class Manager
     }
 
     /**
-     * Gets an array of the database migrations, indexed by migration name (aka creation time) and sorted in ascending 
+     * Gets an array of the database migrations, indexed by migration name (aka creation time) and sorted in ascending
      * order
      *
      * @throws \InvalidArgumentException
@@ -643,15 +649,13 @@ class Manager
             $versions = array();
 
             foreach ($phpFiles as $filePath) {
-                if (Util::isValidMigrationFileName(basename($filePath))) {
-                    $version = Util::getVersionFromFileName(basename($filePath));
+                if (null !== $definition = $this->getLocator()->locate($filePath)) {
+                    $version = $definition->getVersion();
+                    $class = $definition->getClass();
 
-                    if (isset($versions[$version])) {
+                    if (isset($versions[$definition->getVersion()])) {
                         throw new \InvalidArgumentException(sprintf('Duplicate migration - "%s" has the same version as "%s"', $filePath, $versions[$version]->getVersion()));
                     }
-
-                    // convert the filename to a class name
-                    $class = Util::mapFileNameToClassName(basename($filePath));
 
                     if (isset($fileNames[$class])) {
                         throw new \InvalidArgumentException(sprintf(
@@ -879,5 +883,19 @@ class Manager
             ' %d breakpoints cleared.',
             $this->getEnvironment($environment)->getAdapter()->resetAllBreakpoints()
         ));
+    }
+
+    /**
+     * @return LocatorInterface
+     */
+    protected function getLocator()
+    {
+        if (!isset($this->locator)) {
+            $class = $this->getConfig()->getMigrationLocatorClass();
+
+            $this->locator = new $class();
+        }
+
+        return $this->locator;
     }
 }

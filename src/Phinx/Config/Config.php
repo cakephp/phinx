@@ -266,6 +266,16 @@ class Config implements ConfigInterface
     /**
      * {@inheritdoc}
      */
+    public function getMigrationLocatorClass()
+    {
+        $className = !isset($this->values['migration_locator_class']) ? 'Phinx\Migration\Locator\DefaultLocator' : $this->values['migration_locator_class'];
+
+        return $className;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getSeedPaths()
     {
         if (!isset($this->values['paths']['seeds'])) {
@@ -333,7 +343,7 @@ class Config implements ConfigInterface
         return $versionOrder == self::VERSION_ORDER_CREATION_TIME;
     }
 
-    
+
 
     /**
      * Replace tokens in the specified array.
