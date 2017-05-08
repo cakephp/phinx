@@ -31,18 +31,17 @@ namespace Phinx\Migration\Locator;
 use Phinx\Migration\MigrationDefinition;
 
 /**
- * @author Cas Leentfaar <info@casleentfaar.com>
+ * @author Cas Leentfaar
  */
 interface LocatorInterface
 {
     /**
-     * @param string      $version
      * @param string      $targetDir
      * @param string|null $name
      *
      * @return MigrationDefinition
      */
-    public function generate($version, $targetDir, $name = null);
+    public function generate($targetDir, $name = null);
 
     /**
      * @param string $filePath

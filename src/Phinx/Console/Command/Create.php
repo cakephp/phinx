@@ -54,7 +54,7 @@ class Create extends AbstractCommand
 
         $this->setName('create')
             ->setDescription('Create a new migration')
-            ->addArgument('name', InputArgument::REQUIRED, 'What is the name of the migration (in CamelCase)?')
+            ->addArgument('name', InputArgument::OPTIONAL, 'What is the name of the migration (in CamelCase)?')
             ->setHelp(sprintf(
                 '%sCreates a new database migration%s',
                 PHP_EOL,
@@ -168,8 +168,8 @@ class Create extends AbstractCommand
         $this->verifyMigrationDirectory($path);
 
         $path = realpath($path);
-        $className = $input->getArgument('name');
-        $definition = $this->getMigrationDefinition($className, $path);
+        $definition = $this->getMigrationDefinition($path, $input->getArgument('name'));
+        $className = $definition->getClass();
         $filePath = $definition->getFilePath();
 
         if (is_file($filePath)) {
@@ -292,16 +292,18 @@ class Create extends AbstractCommand
     }
 
     /**
-     * @param string $className
-     * @param string $path
+     * @param string      $path
+     * @param string|null $name
      *
      * @return MigrationDefinition
      */
-    private function getMigrationDefinition($className, $path)
+    private function getMigrationDefinition($path, $name)
     {
+        $locatorClass = $this->getConfig()->getMigrationLocatorClass();
+
         /* @var \Phinx\Migration\Locator\LocatorInterface $locator */
-        $locator = new ($this->getConfig()->getMigrationLocatorClass());
-        $definition = $locator->generate($className, $path);
+        $locator = new $locatorClass();
+        $definition = $locator->generate($path, $name);
 
         return $definition;
     }

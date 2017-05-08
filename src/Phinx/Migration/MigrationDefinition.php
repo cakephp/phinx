@@ -29,10 +29,8 @@
 namespace Phinx\Migration;
 
 /**
- * @author Cas Leentfaar <info@casleentfaar.com>
+ * @author Cas Leentfaar
  */
-namespace Phinx\Migration;
-
 class MigrationDefinition
 {
     /**

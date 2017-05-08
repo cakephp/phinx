@@ -32,17 +32,17 @@ use Phinx\Migration\MigrationDefinition;
 use Phinx\Util\Util;
 
 /**
- * @author Cas Leentfaar <info@casleentfaar.com>
+ * @author Cas Leentfaar
  */
 class PsrLocator implements LocatorInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function generate($version, $targetDir, $name = null)
+    public function generate($targetDir, $name = null)
     {
         $version = Util::getCurrentTimestamp();
-        $className = sprintf('v%d%s', $targetDir, $version, $name ? '_' . $name : '');
+        $className = sprintf('v%d%s', $version, $name ? '_' . $name : '');
         $filePath = sprintf('%s/%s.php', $targetDir, $className);
         $definition = new MigrationDefinition($version, $className, $filePath, $name);
 
@@ -76,10 +76,6 @@ class PsrLocator implements LocatorInterface
         } else {
             // namespace detected, the FQCN is expected to be the same as the namespace + filename
             $fqcn = sprintf('%s\%s', $matches[1], $class);
-        }
-
-        if (!class_exists($fqcn)) {
-            return null;
         }
 
         return new MigrationDefinition($version, $fqcn, $filePath, $label);

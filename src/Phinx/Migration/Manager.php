@@ -28,10 +28,10 @@
  */
 namespace Phinx\Migration;
 
-use Phinx\Migration\Locator\LocatorInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Config\ConfigInterface;
+use Phinx\Migration\Locator\LocatorInterface as MigrationLocatorInterface;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Seed\AbstractSeed;
 use Phinx\Seed\SeedInterface;
@@ -70,9 +70,9 @@ class Manager
     protected $seeds;
 
     /**
-     * @var null|LocatorInterface
+     * @var null|MigrationLocatorInterface
      */
-    protected $locator;
+    protected $migrationLocator;
 
     /**
      * @var integer
@@ -461,7 +461,7 @@ class Manager
         if (null === $target) {
             // Get the migration before the last run migration
             $prev = count($executedVersionCreationTimes) - 2;
-            $target = $prev >= 0 ? $executedVersionCreationTimes[$prev] : $executedVersionCreationTimes[0];
+            $target = $prev >= 0 ? $executedVersionCreationTimes[$prev] : 0;
         }
 
         // If the target must match a version, check the target version exists
@@ -649,7 +649,7 @@ class Manager
             $versions = array();
 
             foreach ($phpFiles as $filePath) {
-                if (null !== $definition = $this->getLocator()->locate($filePath)) {
+                if (null !== $definition = $this->getMigrationLocator()->locate($filePath)) {
                     $version = $definition->getVersion();
                     $class = $definition->getClass();
 
@@ -886,16 +886,16 @@ class Manager
     }
 
     /**
-     * @return LocatorInterface
+     * @return MigrationLocatorInterface
      */
-    protected function getLocator()
+    protected function getMigrationLocator()
     {
-        if (!isset($this->locator)) {
+        if (!isset($this->migrationLocator)) {
             $class = $this->getConfig()->getMigrationLocatorClass();
 
-            $this->locator = new $class();
+            $this->migrationLocator = new $class();
         }
 
-        return $this->locator;
+        return $this->migrationLocator;
     }
 }

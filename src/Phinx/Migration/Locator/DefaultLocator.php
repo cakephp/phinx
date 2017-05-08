@@ -34,15 +34,16 @@ use Phinx\Util\Util;
 /**
  * BC locator to support existing migrations
  *
- * @author Cas Leentfaar <info@casleentfaar.com>
+ * @author Cas Leentfaar
  */
 class DefaultLocator implements LocatorInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function generate($version, $targetDir, $name = null)
+    public function generate($targetDir, $name = null)
     {
+        $version = Util::getCurrentTimestamp();
         $className = $name;
 
         if (!Util::isValidPhinxClassName($className)) {
