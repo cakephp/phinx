@@ -36,7 +36,7 @@ use Phinx\Util\Util;
  *
  * @author Cas Leentfaar
  */
-class DefaultLocator implements LocatorInterface
+class LegacyLocator implements LocatorInterface
 {
     /**
      * {@inheritdoc}

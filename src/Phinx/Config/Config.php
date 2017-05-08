@@ -268,7 +268,7 @@ class Config implements ConfigInterface
      */
     public function getMigrationLocatorClass()
     {
-        $className = !isset($this->values['migration_locator_class']) ? 'Phinx\Migration\Locator\DefaultLocator' : $this->values['migration_locator_class'];
+        $className = !isset($this->values['migration_locator_class']) ? 'Phinx\Migration\Locator\LegacyLocator' : $this->values['migration_locator_class'];
 
         return $className;
     }
