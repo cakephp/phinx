@@ -58,9 +58,9 @@ class PsrLocator implements LocatorInterface
         $class = basename($filePath, '.php');
 
         if (false !== $underscorePos = strpos($class, '_')) {
-            $label = substr($class, strpos($class, "_") + 1);
+            $name = substr($class, strpos($class, "_") + 1);
         } else {
-            $label = null;
+            $name = null;
         }
 
         // extract version from class name
@@ -78,6 +78,6 @@ class PsrLocator implements LocatorInterface
             $fqcn = sprintf('%s\%s', $matches[1], $class);
         }
 
-        return new MigrationDefinition($version, $fqcn, $filePath, $label);
+        return new MigrationDefinition($version, $fqcn, $filePath, $name);
     }
 }
