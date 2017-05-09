@@ -32,40 +32,40 @@ use Phinx\Console\Command\AbstractCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-trait MigrationCommandTrait
+trait RepeatableMigrationCommandTrait
 {
     use AbstractCommandTrait;
 
     /**
-     * Report the paths used for migration commands.
+     * Report the paths used for repeatable migration commands.
      *
      * @param InputInterface $input
      * @param OutputInterface $output
      */
-    protected function reportMigrationPaths(InputInterface $input, OutputInterface $output)
+    protected function reportRepeatableMigrationPaths(InputInterface $input, OutputInterface $output)
     {
-        $this->reportPathSet($input, $output, $this->getConfig()->getMigrationPaths(), 'migration');
+        $this->reportPathSet($input, $output, $this->getConfig()->getRepeatableMigrationPaths(), 'repeatable migration');
     }
 
     /**
-     * Verify that the migration directory exists and is writable.
+     * Verify that the repeatable migration directory exists and is writable.
      *
      * @param string $path
      * @throws \InvalidArgumentException
      * @return void
      */
-    protected function verifyMigrationDirectory($path)
+    protected function verifyRepeatableMigrationDirectory($path)
     {
-        $this->verifyDirectory($path, 'migration');
+        $this->verifyDirectory($path, 'repeatable migration');
     }
 
     /**
-     * Returns the migration template filename.
+     * Returns the repeatable migration template filename.
      *
      * @return string
      */
-    protected function getMigrationTemplateFilename()
+    protected function getRepeatableMigrationTemplateFilename()
     {
-        return __DIR__ . '/../../../' . AbstractCommand::DEFAULT_MIGRATION_TEMPLATE;
+        return __DIR__ . '/../../../' . AbstractCommand::DEFAULT_REPEATABLE_MIGRATION_TEMPLATE;
     }
 }

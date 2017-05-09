@@ -30,6 +30,7 @@
 namespace Phinx\Console\Command;
 
 use Phinx\Console\Command\Traits\MigrationCommandTrait;
+use Phinx\Console\Command\Traits\RepeatableMigrationCommandTrait;
 use Phinx\Console\Command\Traits\SeedCommandTrait;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Util\Util;
@@ -42,7 +43,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Test extends AbstractCommand
 {
-    use MigrationCommandTrait, SeedCommandTrait;
+    use MigrationCommandTrait, RepeatableMigrationCommandTrait, SeedCommandTrait;
 
     /**
      * {@inheritdoc}
@@ -84,6 +85,7 @@ EOT
         foreach (
             [
                 'verifyMigrationDirectory' => $this->getConfig()->getMigrationPaths(),
+                'verifyRepeatableMigrationDirectory' => $this->getConfig()->getRepeatableMigrationPaths(),
                 'verifySeedDirectory' => $this->getConfig()->getSeedPaths(),
             ] as $verifyDirectoryMethod => $paths) {
             array_map(
@@ -121,6 +123,7 @@ EOT
     protected function reportPaths(InputInterface $input, OutputInterface $output)
     {
         $this->reportMigrationPaths($input, $output);
+        $this->reportRepeatableMigrationPaths($input, $output);
         $this->reportSeedPaths($input, $output);
     }
 }

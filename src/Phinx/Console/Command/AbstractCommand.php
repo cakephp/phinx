@@ -52,6 +52,11 @@ abstract class AbstractCommand extends Command
     const DEFAULT_MIGRATION_TEMPLATE = 'Migration/Migration.template.php.dist';
 
     /**
+     * The location of the default repeatable migration template.
+     */
+    const DEFAULT_REPEATABLE_MIGRATION_TEMPLATE = 'Repeatable/RepeatableMigration.template.php.dist';
+
+    /**
      * The location of the default seed template.
      */
     const DEFAULT_SEED_TEMPLATE = 'Seed/Seed.template.php.dist';

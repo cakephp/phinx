@@ -36,6 +36,12 @@ trait SeedCommandTrait
 {
     use AbstractCommandTrait;
 
+    /**
+     * Report the paths used for migration commands.
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
     protected function reportSeedPaths(InputInterface $input, OutputInterface $output)
     {
         $this->reportPathSet($input, $output, $this->getConfig()->getSeedPaths(), 'seed');
