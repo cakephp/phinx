@@ -148,8 +148,8 @@ breakpoint using the ``--force`` parameter or ``-f`` for short.
 
 .. note::
 
-        When rolling back, Phinx orders the executed migrations using 
-        the order specified in the ``version_order`` option of your 
+        When rolling back, Phinx orders the executed migrations using
+        the order specified in the ``version_order`` option of your
         ``phinx.yml`` file.
         Please see the :doc:`Configuration <configuration>` chapter for more information.
 

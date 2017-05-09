@@ -96,6 +96,13 @@ interface ConfigInterface extends \ArrayAccess
     public function getMigrationPaths();
 
     /**
+     * Gets the paths to search for repeatable migration files.
+     *
+     * @return string[]
+     */
+    public function getRepeatableMigrationPaths();
+
+    /**
      * Gets the paths to search for seed files.
      *
      * @return string[]
@@ -137,4 +144,20 @@ interface ConfigInterface extends \ArrayAccess
      * @return string
      */
     public function getMigrationBaseClassName($dropNamespace = true);
+
+    /**
+     * Gets the base class name for repeatable migrations.
+     *
+     * @param boolean $dropNamespace Return the base repeatable migration class name without the namespace.
+     * @return string
+     */
+    public function getRepeatableMigrationBaseClassName($dropNamespace = true);
+
+    /**
+     * Gets the base class name for seeders.
+     *
+     * @param boolean $dropNamespace Return the base seeder class name without the namespace.
+     * @return string
+     */
+    public function getSeedBaseClassName($dropNamespace = true);
 }

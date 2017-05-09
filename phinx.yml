@@ -1,5 +1,6 @@
 paths:
     migrations: %%PHINX_CONFIG_DIR%%/db/migrations
+    repeatables: %%PHINX_CONFIG_DIR%%/db/repeatables
     seeds: %%PHINX_CONFIG_DIR%%/db/seeds
 
 environments:

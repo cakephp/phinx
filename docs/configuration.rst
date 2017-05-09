@@ -104,10 +104,65 @@ setting ``migration_base_class`` in your config:
 
     migration_base_class: MyMagicalMigration
 
+Repeatable Migration Paths
+--------------------------
+
+The second option specifies the path to your repeatable migration directory. Phinx uses
+``%%PHINX_CONFIG_DIR%%/db/repeatables`` by default.
+
+.. note::
+
+    ``%%PHINX_CONFIG_DIR%%`` is a special token and is automatically replaced
+    with the root directory where your ``phinx.yml`` file is stored.
+
+In order to overwrite the default ``%%PHINX_CONFIG_DIR%%/db/repeatables``, you
+need to add the following to the yaml configuration.
+
+.. code-block:: yaml
+
+    paths:
+        repeatables: /your/full/path
+
+You can also provide multiple repeatable migration paths by using an array in your configuration:
+
+.. code-block:: yaml
+
+    paths:
+        repeatables:
+            - application/module1/repeatables
+            - application/module2/repeatables
+
+
+You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
+
+.. code-block:: yaml
+
+    paths:
+        repeatables: %%PHINX_CONFIG_DIR%%/your/relative/path
+
+Repeatable migrations are captured with ``glob``, so you can define a pattern for multiple
+directories.
+
+.. code-block:: yaml
+
+    paths:
+        migrations: %%PHINX_CONFIG_DIR%%/module/*/{views,triggers}/repeatables
+
+Custom Repeatable Migration Base
+--------------------------------
+
+By default all repeatable migrations will extend from Phinx's `AbstractRepeatableMigration` class.
+This can be set to a custom class that extends from `AbstractRepeatableMigration` by
+setting ``repeatable_migration_base_class`` in your config:
+
+.. code-block:: yaml
+
+    repeatable_migration_base_class: MyMagicalRepeatableMigration
+
 Seed Paths
 ----------
 
-The second option specifies the path to your seed directory. Phinx uses
+The third option specifies the path to your seed directory. Phinx uses
 ``%%PHINX_CONFIG_DIR%%/db/seeds`` by default.
 
 .. note::
@@ -139,6 +194,25 @@ You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 
     paths:
         seeds: %%PHINX_CONFIG_DIR%%/your/relative/path
+
+Seeds are captured with ``glob``, so you can define a pattern for multiple
+directories.
+
+.. code-block:: yaml
+
+    paths:
+        seeds: %%PHINX_CONFIG_DIR%%/module/*/{primary,secondary}/seeds
+
+Custom Seed Base
+----------------
+
+By default all seeds will extend from Phinx's `AbstractSeed` class.
+This can be set to a custom class that extends from `AbstractSeed` by
+setting ``seed_base_class`` in your config:
+
+.. code-block:: yaml
+
+    seed_base_class: MyMagicalSeeder
 
 Environments
 ------------
@@ -304,7 +378,7 @@ The aliased classes will still be required to implement the ``Phinx\Templates\Te
 Version Order
 ------
 
-When rolling back or printing the status of migrations, Phinx orders the executed migrations according to the 
+When rolling back or printing the status of migrations, Phinx orders the executed migrations according to the
 ``version_order`` option, which can have the following values:
 
 * ``creation`` (the default): migrations are ordered by their creation time, which is also part of their filename.

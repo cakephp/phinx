@@ -251,14 +251,37 @@ class Config implements ConfigInterface
     }
 
     /**
-     * Gets the base class name for migrations.
-     *
-     * @param boolean $dropNamespace Return the base migration class name without the namespace.
-     * @return string
+     * {@inheritdoc}
      */
     public function getMigrationBaseClassName($dropNamespace = true)
     {
         $className = !isset($this->values['migration_base_class']) ? 'Phinx\Migration\AbstractMigration' : $this->values['migration_base_class'];
+
+        return $dropNamespace ? substr(strrchr($className, '\\'), 1) ?: $className : $className;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getRepeatableMigrationPaths()
+    {
+        if (!isset($this->values['paths']['repeatables'])) {
+            throw new \UnexpectedValueException('Repeatables path missing from config file');
+        }
+
+        if (is_string($this->values['paths']['repeatables'])) {
+            $this->values['paths']['repeatables'] = array($this->values['paths']['repeatables']);
+        }
+
+        return $this->values['paths']['repeatables'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRepeatableMigrationBaseClassName($dropNamespace = true)
+    {
+        $className = !isset($this->values['repeatable_migration_base_class']) ? 'Phinx\Repeatable\AbstractRepeatableMigration' : $this->values['repeatable_migration_base_class'];
 
         return $dropNamespace ? substr(strrchr($className, '\\'), 1) ?: $className : $className;
     }
@@ -277,6 +300,16 @@ class Config implements ConfigInterface
         }
 
         return $this->values['paths']['seeds'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSeedBaseClassName($dropNamespace = true)
+    {
+        $className = !isset($this->values['seed_base_class']) ? 'Phinx\Seed\AbstractSeed' : $this->values['seed_base_class'];
+
+        return $dropNamespace ? substr(strrchr($className, '\\'), 1) ?: $className : $className;
     }
 
     /**
@@ -332,8 +365,6 @@ class Config implements ConfigInterface
 
         return $versionOrder == self::VERSION_ORDER_CREATION_TIME;
     }
-
-    
 
     /**
      * Replace tokens in the specified array.
