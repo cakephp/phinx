@@ -12,32 +12,30 @@
 
     Phinx 0.8
 
-        `Phinx\Migration\CreationInterface`
+          Phinx\Migration\CreationInterface
 
     Phinx 0.9
 
-        `Phinx\Templates\TemplateCreationInterface`.
+          Phinx\Templates\TemplateCreationInterface
 
   * Class
 
     Phinx 0.8
 
-        `Phinx\Migration\AbstractTemplateCreation`
+          Phinx\Migration\AbstractTemplateCreation
 
     Phinx 0.9
 
-        `Phinx\Templates\AbstractTemplateCreation`.
+          Phinx\Templates\AbstractTemplateCreation
 
   * Methods
 
     Phinx 0.8:
 
-        `Phinx\Migration\CreationInterface\getMigrationTemplate()`
-
-        `Phinx\Migration\CreationInterface\postMigrationCreation($migrationFilename, $className, $baseClassName)`
+          Phinx\Migration\CreationInterface\getMigrationTemplate()`
+          Phinx\Migration\CreationInterface\postMigrationCreation($migrationFilename, $className, $baseClassName)
 
     Phinx 0.9
 
-        `Phinx\Templates\TemplateCreationInterface\getTemplate()`
-
-        `Phinx\Templates\TemplateCreationInterface\postTemplateCreation($filename, $className, $baseClassName)`
+          Phinx\Templates\TemplateCreationInterface\getTemplate()
+          Phinx\Templates\TemplateCreationInterface\postTemplateCreation($filename, $className, $baseClassName)
