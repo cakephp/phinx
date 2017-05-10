@@ -52,7 +52,6 @@ trait MigrationCommandTrait
      *
      * @param string $path
      * @throws \InvalidArgumentException
-     * @return void
      */
     protected function verifyMigrationDirectory($path)
     {

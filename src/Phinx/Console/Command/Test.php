@@ -43,7 +43,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Test extends AbstractCommand
 {
-    use MigrationCommandTrait, RepeatableMigrationCommandTrait, SeedCommandTrait;
+    use MigrationCommandTrait;
+    use RepeatableMigrationCommandTrait;
+    use SeedCommandTrait;
 
     /**
      * {@inheritdoc}

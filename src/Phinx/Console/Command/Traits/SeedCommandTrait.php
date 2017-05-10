@@ -37,7 +37,7 @@ trait SeedCommandTrait
     use AbstractCommandTrait;
 
     /**
-     * Report the paths used for migration commands.
+     * Report the paths used for seed commands.
      *
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -52,7 +52,6 @@ trait SeedCommandTrait
      *
      * @param string $path
      * @throws \InvalidArgumentException
-     * @return void
      */
     protected function verifySeedDirectory($path)
     {

@@ -52,7 +52,6 @@ trait RepeatableMigrationCommandTrait
      *
      * @param string $path
      * @throws \InvalidArgumentException
-     * @return void
      */
     protected function verifyRepeatableMigrationDirectory($path)
     {
