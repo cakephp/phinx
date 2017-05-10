@@ -187,7 +187,7 @@ class Create extends AbstractCommand
         }
 
         // Compute the file path
-        $fileName = Util::mapClassNameToFileName($className);
+        $fileName = Util::mapClassNameToMigrationFileName($className);
         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
 
         if (is_file($filePath)) {

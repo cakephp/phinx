@@ -147,7 +147,7 @@ class Manager
             }
 
             if (empty($sortedMigrations) && !empty($missingVersions)) {
-                // this means we have no up migrations, so we write all the missing versions already so they show up 
+                // this means we have no up migrations, so we write all the missing versions already so they show up
                 // before any possible down migration
                 foreach ($missingVersions as $missingVersionCreationTime => $missingVersion) {
                     $this->printMissingVersion($missingVersion, $maxNameLength);
@@ -156,7 +156,7 @@ class Manager
                 }
             }
 
-            // any migration left in the migrations (ie. not unset when sorting the migrations by the version order) is 
+            // any migration left in the migrations (ie. not unset when sorting the migrations by the version order) is
             // a migration that is down, so we add them to the end of the sorted migrations list
             if (!empty($migrations)) {
                 $sortedMigrations = array_merge($sortedMigrations, $migrations);
@@ -174,7 +174,7 @@ class Manager
                         } else {
                             if ($missingVersion['start_time'] > $version['start_time']) {
                                 break;
-                            } elseif ($missingVersion['start_time'] == $version['start_time'] && 
+                            } elseif ($missingVersion['start_time'] == $version['start_time'] &&
                                 $missingVersion['version'] > $version['version']) {
                                 break;
                             }
@@ -438,7 +438,7 @@ class Manager
             if (isset($migrations[$versionCreationTime])) {
                 array_unshift($sortedMigrations, $migrations[$versionCreationTime]);
             } else {
-                // this means the version is missing so we unset it so that we don't consider it when rolling back 
+                // this means the version is missing so we unset it so that we don't consider it when rolling back
                 // migrations (or choosing the last up version as target)
                 unset($executedVersions[$versionCreationTime]);
             }
@@ -626,7 +626,7 @@ class Manager
     }
 
     /**
-     * Gets an array of the database migrations, indexed by migration name (aka creation time) and sorted in ascending 
+     * Gets an array of the database migrations, indexed by migration name (aka creation time) and sorted in ascending
      * order
      *
      * @throws \InvalidArgumentException
@@ -651,7 +651,7 @@ class Manager
                     }
 
                     // convert the filename to a class name
-                    $class = Util::mapFileNameToClassName(basename($filePath));
+                    $class = Util::mapMigrationFileNameToClassName(basename($filePath));
 
                     if (isset($fileNames[$class])) {
                         throw new \InvalidArgumentException(sprintf(

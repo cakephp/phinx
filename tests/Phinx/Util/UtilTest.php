@@ -55,7 +55,7 @@ class UtilTest extends \PHPUnit_Framework_TestCase
         );
 
         foreach ($expectedResults as $input => $expectedResult) {
-            $this->assertRegExp($expectedResult, Util::mapClassNameToFileName($input));
+            $this->assertRegExp($expectedResult, Util::mapClassNameToMigrationFileName($input));
         }
     }
 
@@ -67,7 +67,7 @@ class UtilTest extends \PHPUnit_Framework_TestCase
         );
 
         foreach ($expectedResults as $input => $expectedResult) {
-            $this->assertEquals($expectedResult, Util::mapFileNameToClassName($input));
+            $this->assertEquals($expectedResult, Util::mapMigrationFileNameToClassName($input));
         }
     }
 
