@@ -180,10 +180,12 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
             public function up()
             {
                 // execute()
-                $count = $this->execute('DELETE FROM users'); // returns the number of affected rows
+                // returns the number of affected rows
+                $count = $this->execute('DELETE FROM users');
 
                 // query()
-                $rows = $this->query('SELECT * FROM users'); // returns the result as an array
+                // returns the result as PDOStatement which you can iterate with foreach
+                $rows = $this->query('SELECT * FROM users');
             }
 
             /**
