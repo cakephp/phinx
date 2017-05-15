@@ -379,11 +379,12 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider columnCreationArgumentProvider
      */
-    public function testDropColumn($columnName, $extraColumnCreationArgs)
+    public function testDropColumn($columnCreationArgs)
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-        $table->addColumn($columnName, ...$extraColumnCreationArgs)
-              ->save();
+        $columnName = $columnCreationArgs[0];
+        call_user_func_array([$table, 'addColumn'], $columnCreationArgs);
+        $table->save();
         $this->assertTrue($this->adapter->hasColumn('t', $columnName));
 
         $this->adapter->dropColumn('t', $columnName);
@@ -394,8 +395,8 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     public function columnCreationArgumentProvider()
     {
         return [
-            [ 'column1', ['string'] ],
-            [ 'profile_colour', ['enum', ['values' => ['blue', 'red', 'white']]] ]
+            [ ['column1', 'string'] ],
+            [ ['profile_colour', 'enum', ['values' => ['blue', 'red', 'white']]] ]
         ];
     }
 
