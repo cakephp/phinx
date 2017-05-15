@@ -1177,4 +1177,14 @@ SQL;
     {
         return array_merge(parent::getColumnTypes(), array('filestream'));
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
+    {
+        $startTime = str_replace(' ', 'T', $startTime);
+        $endTime = str_replace(' ', 'T', $endTime);
+        return parent::migrated($migration, $direction, $startTime, $endTime);
+    }
 }
