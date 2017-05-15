@@ -205,6 +205,9 @@ abstract class PdoAdapter implements AdapterInterface
     {
         $this->connection = $connection;
 
+        // ensure connection throws exceptions on errors (SQL syntax errors, etc)
+        $this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
         // Create the schema table if it doesn't already exist
         if (!$this->hasSchemaTable()) {
             $this->createSchemaTable();

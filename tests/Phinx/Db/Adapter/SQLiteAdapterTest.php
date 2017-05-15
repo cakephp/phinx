@@ -319,7 +319,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
         $refTable->addColumn('field1', 'string')->save();
 
-        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table = new \Phinx\Db\Table('another_table', array(), $this->adapter);
         $table->addColumn('ref_table_id', 'integer')->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
@@ -376,14 +376,27 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("'another default'", $rows[1]['dflt_value']);
     }
 
-    public function testDropColumn()
+    /**
+     * @dataProvider columnCreationArgumentProvider
+     */
+    public function testDropColumn($columnName, $extraColumnCreationArgs)
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-        $table->addColumn('column1', 'string')
+        $table->addColumn($columnName, ...$extraColumnCreationArgs)
               ->save();
-        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
-        $this->adapter->dropColumn('t', 'column1');
-        $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
+        $this->assertTrue($this->adapter->hasColumn('t', $columnName));
+
+        $this->adapter->dropColumn('t', $columnName);
+
+        $this->assertFalse($this->adapter->hasColumn('t', $columnName));
+    }
+
+    public function columnCreationArgumentProvider()
+    {
+        return [
+            [ 'column1', ['string'] ],
+            [ 'profile_colour', ['enum', ['values' => ['blue', 'red', 'white']]] ]
+        ];
     }
 
     public function testGetColumns()
@@ -528,9 +541,11 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     public function testDropForeignKey()
     {
         $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
-        $refTable->addColumn('field1', 'string')->save();
+        $refTable->addColumn('field1', 'string')
+                 ->addIndex(array('field1'), array('unique' => true))
+                 ->save();
 
-        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table = new \Phinx\Db\Table('another_table', array(), $this->adapter);
         $table->addColumn('ref_table_id', 'integer')->addColumn('ref_table_field', 'string')->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
