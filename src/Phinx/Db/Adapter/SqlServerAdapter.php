@@ -1181,7 +1181,7 @@ SQL;
     /**
      * {@inheritdoc}
      */
-    public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
+    public function migrated(Phinx\Migration\MigrationInterface $migration, $direction, $startTime, $endTime)
     {
         $startTime = str_replace(' ', 'T', $startTime);
         $endTime = str_replace(' ', 'T', $endTime);
