@@ -11,18 +11,12 @@ php:
   - 5.6
   - 7.0
   - 7.1
-  - hhvm
 
 env:
   - COMPOSER_FLAGS=--prefer-lowest
 
 matrix:
-  exclude:
-    - php: hhvm
-      env: COMPOSER_FLAGS=--prefer-lowest
   include:
-    - php: hhvm
-      env: COMPOSER_FLAGS=
     - php: 7
       env: PHPSTAN=1
 
