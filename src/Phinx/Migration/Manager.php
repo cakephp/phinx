@@ -777,8 +777,14 @@ class Manager
                 }
             }
 
-            ksort($seeds);
-            $this->setSeeds($seeds);
+            uasort($seeds, function ($a, $b) {
+                if ($a->priority == $b->priority) {
+                    return 0;
+                }
+                return ($a->priority < $b->priority) ? -1 : 1;
+            });
+
+            $this->setSeeds(array_reverse($seeds));
         }
 
         return $this->seeds;
