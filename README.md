@@ -10,7 +10,7 @@
 ## Supporting Phinx
 
 Phinx is a MIT-licensed open source project. Its ongoing development wouldn't be possible without the support of these very generous
-[backers](https://github.com/robmorgan/phinx/blob/dev/BACKERS.md). If you'd like to join them, check out the [Phinx Patreon  campaign](https://www.patreon.com/robmorgan).
+[backers](https://github.com/robmorgan/phinx/blob/master/BACKERS.md). If you'd like to join them, check out the [Phinx Patreon campaign](https://www.patreon.com/robmorgan).
 
 ## Intro
 
