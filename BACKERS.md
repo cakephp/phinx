@@ -8,13 +8,13 @@ You can join them in supporting Phinx development by [pledging on Patreon](https
 
 ---
 
-### $250
+### $250 Silver Sponsors
 
  * [Available!](https://www.patreon.com/robmorgan)
 
 ---
 
-### $100
+### $100 Bronze Sponsors
 
  * [Available!](https://www.patreon.com/robmorgan)
 
