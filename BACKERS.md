@@ -2,19 +2,19 @@
 
 You can join them in supporting Phinx development by [pledging on Patreon](https://www.patreon.com/robmorgan)! Backers in the same pledge level appear in the order of pledge date.
 
-### $500 Gold Sponsor
+### Gold Sponsor
 
  * [Available!](https://www.patreon.com/robmorgan)
 
 ---
 
-### $250 Silver Sponsors
+### Silver Sponsors
 
  * [Available!](https://www.patreon.com/robmorgan)
 
 ---
 
-### $100 Bronze Sponsors
+### Bronze Sponsors
 
  * [Available!](https://www.patreon.com/robmorgan)
 
@@ -26,6 +26,6 @@ You can join them in supporting Phinx development by [pledging on Patreon](https
 
 ---
 
-### $10+
+### $5+
 
 - [Available!](https://www.patreon.com/robmorgan)
