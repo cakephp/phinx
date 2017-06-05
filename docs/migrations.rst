@@ -497,7 +497,39 @@ Option    Description
 comment   set a text comment on the table
 engine    define table engine *(defaults to ``InnoDB``)*
 collation define table collation *(defaults to ``utf8_general_ci``)*
+signed    whether the primary key is ``signed``
 ========= ===========
+
+By default the primary key is ``signed``.
+To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('followers', array('signed' => false));
+                $table->addColumn('follower_id', 'integer')
+                      ->addColumn('created', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
 
 Valid Column Types
 ~~~~~~~~~~~~~~~~~~
