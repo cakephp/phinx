@@ -95,7 +95,7 @@ class Create extends AbstractCommand
 
     /**
      * Returns the migration path to create the migration in.
-     * 
+     *
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return mixed
@@ -303,6 +303,6 @@ class Create extends AbstractCommand
             $output->writeln('<info>using default template</info>');
         }
 
-        $output->writeln('<info>created</info> ' . str_replace(getcwd(), '', $filePath));
+        $output->writeln('<info>created</info> ' . str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $filePath));
     }
 }
