@@ -1,10 +1,16 @@
 # Version History
 
+**0.8.1** (Monday, 5th June 2017)
+* Pull requests
+  * [#768]https://github.com/robmorgan/phinx/pull/768 Support for MySQL unsigned primary keys
+  * [#1104](https://github.com/robmorgan/phinx/pull/1029) Removed support for HHVM
+  * [#1082](https://github.com/robmorgan/phinx/pull/1082) Fixed paths displayed in text output
+
 **0.8.0** (Tuesday, 28th February 2017)
 * Documentation updates
 * New features
   * [#1045](https://github.com/robmorgan/phinx/pull/1045) Rollbacks by start time - Thanks to [Daniel Gomes](https://github.com/daniel-gomes-sociomantic).
-  
+
 Please see [UPGRAGE_0.8](https://github.com/robmorgan/phinx/blob/master/UPGRADE_0.8.md) for additional details regarding [#1045](https://github.com/robmorgan/phinx/pull/1045)  
 
 **0.7.2** (Tuesday, 28th February 2017)
