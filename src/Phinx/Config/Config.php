@@ -38,6 +38,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class Config implements ConfigInterface
 {
+	const CONFIG_ENVIRONMENTS = 'environments';
     /**
      * The value that identifies a version order by creation time.
      */
@@ -164,6 +165,12 @@ class Config implements ConfigInterface
                 $environments[$name]['default_migration_table'] =
                     $this->values['environments']['default_migration_table'];
             }
+			// inject any other custom $config entries outside of the $config['environments'] entry
+			foreach ($this->values as $key => $value) {
+				if ($key !== self::CONFIG_ENVIRONMENTS) {
+					$environments[$name][$key] = $this->values[$key];
+				}
+			}
 
             return $environments[$name];
         }
