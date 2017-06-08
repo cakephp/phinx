@@ -49,12 +49,12 @@ abstract class AbstractCommand extends Command
     /**
      * The location of the default migration template.
      */
-    const DEFAULT_MIGRATION_TEMPLATE = '/../../Migration/Migration.template.php.dist';
+    const DEFAULT_MIGRATION_TEMPLATE = 'Migration/Migration.template.php.dist';
 
     /**
      * The location of the default seed template.
      */
-    const DEFAULT_SEED_TEMPLATE = '/../../Seed/Seed.template.php.dist';
+    const DEFAULT_SEED_TEMPLATE = 'Seed/Seed.template.php.dist';
 
     /**
      * @var ConfigInterface
@@ -95,26 +95,7 @@ abstract class AbstractCommand extends Command
 
         $this->loadManager($input, $output);
 
-        // report the paths
-        $paths = $this->getConfig()->getMigrationPaths();
-
-        $output->writeln('<info>using migration paths</info> ');
-
-        foreach (Util::globAll($paths) as $path) {
-            $output->writeln('<info> - ' . realpath($path) . '</info>');
-        }
-
-        try {
-            $paths = $this->getConfig()->getSeedPaths();
-
-            $output->writeln('<info>using seed paths</info> ');
-
-            foreach (Util::globAll($paths) as $path) {
-                $output->writeln('<info> - ' . realpath($path) . '</info>');
-            }
-        } catch (\UnexpectedValueException $e) {
-            // do nothing as seeds are optional
-        }
+        $this->reportPaths($input, $output);
     }
 
     /**
@@ -293,70 +274,53 @@ abstract class AbstractCommand extends Command
     }
 
     /**
-     * Verify that the migration directory exists and is writable.
+     * Report a single set of paths.
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @param array $paths
+     * @param string $pathsLabel
+     */
+    protected function reportPathSet(InputInterface $input, OutputInterface $output, array $paths, $pathsLabel) {
+        $output->writeln(sprintf('<info>using %s paths</info> ', strtolower($pathsLabel)));
+
+        foreach (Util::globAll($paths) as $path) {
+            $output->writeln('<info> - ' . realpath($path) . '</info>');
+        }
+    }
+
+    /**
+     * Verify that a directory exists and is writable.
      *
      * @param string $path
+     * @param string $pathLabel
      * @throws \InvalidArgumentException
      * @return void
      */
-    protected function verifyMigrationDirectory($path)
+    protected function verifyDirectory($path, $pathLabel)
     {
         if (!is_dir($path)) {
             throw new \InvalidArgumentException(sprintf(
-                'Migration directory "%s" does not exist',
+                '%s directory "%s" does not exist',
+                ucfirst(strtolower($pathLabel)),
                 $path
             ));
         }
 
         if (!is_writable($path)) {
             throw new \InvalidArgumentException(sprintf(
-                'Migration directory "%s" is not writable',
+                '%s directory "%s" is not writable',
+                ucfirst(strtolower($pathLabel)),
                 $path
             ));
         }
     }
 
     /**
-     * Verify that the seed directory exists and is writable.
+     * Report paths appropriate to the command
      *
-     * @param string $path
-     * @throws \InvalidArgumentException
-     * @return void
+     * @param InputInterface $input
+     * @param OutputInterface $output
      */
-    protected function verifySeedDirectory($path)
-    {
-        if (!is_dir($path)) {
-            throw new \InvalidArgumentException(sprintf(
-                'Seed directory "%s" does not exist',
-                $path
-            ));
-        }
-
-        if (!is_writable($path)) {
-            throw new \InvalidArgumentException(sprintf(
-                'Seed directory "%s" is not writable',
-                $path
-            ));
-        }
-    }
-
-    /**
-     * Returns the migration template filename.
-     *
-     * @return string
-     */
-    protected function getMigrationTemplateFilename()
-    {
-        return __DIR__ . self::DEFAULT_MIGRATION_TEMPLATE;
-    }
-
-    /**
-     * Returns the seed template filename.
-     *
-     * @return string
-     */
-    protected function getSeedTemplateFilename()
-    {
-        return __DIR__ . self::DEFAULT_SEED_TEMPLATE;
-    }
+    abstract protected function reportPaths(InputInterface $input, OutputInterface $output);
 }

@@ -29,12 +29,15 @@
  */
 namespace Phinx\Console\Command;
 
+use Phinx\Console\Command\Traits\MigrationCommandTrait;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Breakpoint extends AbstractCommand
 {
+    use MigrationCommandTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -94,5 +97,13 @@ EOT
             // Toggle the breakpoint.
             $this->getManager()->toggleBreakpoint($environment, $version);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function reportPaths(InputInterface $input, OutputInterface $output)
+    {
+        $this->reportMigrationPaths($input, $output);
     }
 }

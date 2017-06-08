@@ -26,20 +26,20 @@
  * @package    Phinx
  * @subpackage Phinx\Migration
  */
-namespace Phinx\Migration;
+namespace Phinx\Templates;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Migration interface
+ * Template creation interface
  *
  * @author Richard Quadling <RQuadling@GMail.com>
  */
-interface CreationInterface
+interface TemplateCreationInterface
 {
     /**
-     * CreationInterface constructor.
+     * TemplateCreationInterface constructor.
      *
      * @param InputInterface|null  $input
      * @param OutputInterface|null $output
@@ -49,14 +49,14 @@ interface CreationInterface
     /**
      * @param InputInterface $input
      *
-     * @return CreationInterface
+     * @return TemplateCreationInterface
      */
     public function setInput(InputInterface $input);
 
     /**
      * @param OutputInterface $output
      *
-     * @return CreationInterface
+     * @return TemplateCreationInterface
      */
     public function setOutput(OutputInterface $output);
 
@@ -71,24 +71,25 @@ interface CreationInterface
     public function getOutput();
 
     /**
-     * Get the migration template.
+     * Get the template.
      *
-     * This will be the content that Phinx will amend to generate the migration file.
+     * This will be the content that Phinx will amend to generate the template file.
      *
      * @return string The content of the template for Phinx to amend.
      */
-    public function getMigrationTemplate();
+    public function getTemplate();
 
     /**
-     * Post Migration Creation.
+     * Post Template Creation.
      *
-     * Once the migration file has been created, this method will be called, allowing any additional
+     * Once the template file has been created, this method will be called, allowing any additional
      * processing, specific to the template to be performed.
      *
-     * @param string $migrationFilename The name of the newly created migration.
-     * @param string $className         The class name.
-     * @param string $baseClassName     The name of the base class.
+     * @param string $filename      The name of the newly created file.
+     * @param string $className     The class name.
+     * @param string $baseClassName The name of the base class.
+     *
      * @return void
      */
-    public function postMigrationCreation($migrationFilename, $className, $baseClassName);
+    public function postTemplateCreation($filename, $className, $baseClassName);
 }

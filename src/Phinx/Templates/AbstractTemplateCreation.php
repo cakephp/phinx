@@ -26,12 +26,12 @@
  * @package    Phinx
  * @subpackage Phinx\Migration
  */
-namespace Phinx\Migration;
+namespace Phinx\Templates;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-abstract class AbstractTemplateCreation implements CreationInterface
+abstract class AbstractTemplateCreation implements TemplateCreationInterface
 {
     /**
      * @var InputInterface

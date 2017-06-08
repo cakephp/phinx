@@ -28,7 +28,8 @@
  */
 namespace Phinx\Console\Command;
 
-use Phinx\Migration\CreationInterface;
+use Phinx\Console\Command\Traits\MigrationCommandTrait;
+use Phinx\Templates\TemplateCreationInterface;
 use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -39,10 +40,12 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class Create extends AbstractCommand
 {
+    use MigrationCommandTrait;
+
     /**
      * The name of the interface that any external template creation class is required to implement.
      */
-    const CREATION_INTERFACE = 'Phinx\Migration\CreationInterface';
+    const CREATION_INTERFACE = 'Phinx\Templates\TemplateCreationInterface';
 
     /**
      * {@inheritdoc}
@@ -265,8 +268,9 @@ class Create extends AbstractCommand
         // Determine the appropriate mechanism to get the template
         if ($creationClassName) {
             // Get the template from the creation class
+            /** @var TemplateCreationInterface $creationClass */
             $creationClass = new $creationClassName($input, $output);
-            $contents = $creationClass->getMigrationTemplate();
+            $contents = $creationClass->getTemplate();
         } else {
             // Load the alternative template if it is defined.
             $contents = file_get_contents($altTemplate ?: $this->getMigrationTemplateFilename());
@@ -290,7 +294,7 @@ class Create extends AbstractCommand
 
         // Do we need to do the post creation call to the creation class?
         if (isset($creationClass)) {
-            $creationClass->postMigrationCreation($filePath, $className, $this->getConfig()->getMigrationBaseClassName());
+            $creationClass->postTemplateCreation($filePath, $className, $this->getConfig()->getMigrationBaseClassName());
         }
 
         $output->writeln('<info>using migration base class</info> ' . $classes['$useClassName']);
@@ -304,5 +308,13 @@ class Create extends AbstractCommand
         }
 
         $output->writeln('<info>created</info> ' . str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $filePath));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function reportPaths(InputInterface $input, OutputInterface $output)
+    {
+       $this->reportMigrationPaths($input, $output);
     }
 }

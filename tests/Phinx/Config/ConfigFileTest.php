@@ -2,11 +2,10 @@
 
 namespace Test\Phinx\Config;
 
-use Phinx\Console\Command\AbstractCommand;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputOption;
+use Test\Phinx\Config\Fixtures\VoidCommand;
 
 class ConfigFileTest extends \PHPUnit_Framework_TestCase
 {
@@ -114,18 +113,5 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
             array('phinx.json', 'OnlyYaml'),
             array('phinx.php', 'OnlyYaml'),
         );
-    }
-}
-
-/**
- * Class VoidCommand : used to expose locateConfigFile To testing
- *
- * @package Test\Phinx\Config
- */
-class VoidCommand extends AbstractCommand
-{
-    public function locateConfigFile(InputInterface $input)
-    {
-        return parent::locateConfigFile($input);
     }
 }

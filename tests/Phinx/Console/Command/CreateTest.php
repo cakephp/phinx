@@ -158,12 +158,12 @@ class CreateTest extends \PHPUnit_Framework_TestCase
                     ),
                 ),
                 array(),
-                'The class "\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface" does not implement the required interface "Phinx\Migration\CreationInterface"',
+                'The class "\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface" does not implement the required interface "Phinx\Templates\TemplateCreationInterface"',
             ),
             array(
                 array(),
                 array('--class' => '\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface'),
-                'The class "\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface" does not implement the required interface "Phinx\Migration\CreationInterface"',
+                'The class "\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface" does not implement the required interface "Phinx\Templates\TemplateCreationInterface"',
             ),
             array(
                 array(
@@ -174,7 +174,7 @@ class CreateTest extends \PHPUnit_Framework_TestCase
                 array(
                     '--class' => 'PoorInterface',
                 ),
-                'The class "\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface" via the alias "PoorInterface" does not implement the required interface "Phinx\Migration\CreationInterface"',
+                'The class "\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface" via the alias "PoorInterface" does not implement the required interface "Phinx\Templates\TemplateCreationInterface"',
             ),
         );
     }

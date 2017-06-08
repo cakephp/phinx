@@ -57,7 +57,7 @@ alternative template filename.
         $ phinx create MyNewMigration --template="<file>"
 
 You can also supply a template generating class. This class must implement the
-interface ``Phinx\Migration\CreationInterface``.
+interface ``Phinx\Templates\TemplateCreationInterface``.
 
 .. code-block:: bash
 

@@ -28,6 +28,7 @@
  */
 namespace Phinx\Console\Command;
 
+use Phinx\Console\Command\Traits\SeedCommandTrait;
 use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,6 +39,8 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class SeedCreate extends AbstractCommand
 {
+    use SeedCommandTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -189,5 +192,13 @@ class SeedCreate extends AbstractCommand
 
         $output->writeln('<info>using seed base class</info> ' . $classes['$useClassName']);
         $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function reportPaths(InputInterface $input, OutputInterface $output)
+    {
+        $this->reportSeedPaths($input, $output);
     }
 }

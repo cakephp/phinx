@@ -28,12 +28,15 @@
  */
 namespace Phinx\Console\Command;
 
+use Phinx\Console\Command\Traits\SeedCommandTrait;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SeedRun extends AbstractCommand
 {
+    use SeedCommandTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -119,5 +122,13 @@ EOT
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function reportPaths(InputInterface $input, OutputInterface $output)
+    {
+        $this->reportSeedPaths($input, $output);
     }
 }

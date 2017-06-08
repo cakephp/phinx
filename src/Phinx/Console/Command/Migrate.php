@@ -28,12 +28,15 @@
  */
 namespace Phinx\Console\Command;
 
+use Phinx\Console\Command\Traits\MigrationCommandTrait;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Migrate extends AbstractCommand
 {
+    use MigrationCommandTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -118,5 +121,13 @@ EOT
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
 
         return 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function reportPaths(InputInterface $input, OutputInterface $output)
+    {
+        $this->reportMigrationPaths($input, $output);
     }
 }

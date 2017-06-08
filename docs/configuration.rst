@@ -293,7 +293,7 @@ Aliases
 
 Template creation class names can be aliased and used with the ``--class`` command line option for the :doc:`Create Command <commands>`.
 
-The aliased classes will still be required to implement the ``Phinx\Migration\CreationInterface`` interface.
+The aliased classes will still be required to implement the ``Phinx\Templates\TemplateCreationInterface`` interface.
 
 .. code-block:: yaml
 

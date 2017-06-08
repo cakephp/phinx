@@ -28,6 +28,7 @@
  */
 namespace Phinx\Console\Command;
 
+use Phinx\Console\Command\Traits\MigrationCommandTrait;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -35,6 +36,8 @@ use Phinx\Config\Config;
 
 class Rollback extends AbstractCommand
 {
+    use MigrationCommandTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -107,7 +110,7 @@ EOT
         if (isset($envOptions['name'])) {
             $output->writeln('<info>using database</info> ' . $envOptions['name']);
         }
-        
+
         $versionOrder = $this->getConfig()->getVersionOrder();
         $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
 
@@ -163,5 +166,13 @@ EOT
         }
 
         return $dateTime->format('YmdHis');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function reportPaths(InputInterface $input, OutputInterface $output)
+    {
+        $this->reportMigrationPaths($input, $output);
     }
 }
