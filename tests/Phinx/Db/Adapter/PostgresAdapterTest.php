@@ -509,6 +509,15 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addIndex('email')
               ->save();
         $this->assertTrue($table->hasIndex('email'));
+
+        // column name quoting ("user" is a postgres function)
+        $table2 = new \Phinx\Db\Table('table2', array(), $this->adapter);
+        $table2->addColumn('user', 'string')
+               ->save();
+        $this->assertFalse($table2->hasIndex('user'));
+        $table2->addIndex('user')
+               ->save();
+        $this->assertTrue($table2->hasIndex('user'));
     }
 
     public function testDropIndex()
