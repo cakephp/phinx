@@ -1023,7 +1023,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
             $this->quoteTableName($tableName),
-            implode(',', $index->getColumns())
+            implode(',', array_map([$this, 'quoteColumnName'], $index->getColumns()))
         );
         return $def;
     }
