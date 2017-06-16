@@ -287,7 +287,7 @@ insert methods in your migrations.
                 $singleRow = [
                     'id'    => 1,
                     'name'  => 'In Progress'
-                ]
+                ];
 
                 $table = $this->table('status');
                 $table->insert($singleRow);
