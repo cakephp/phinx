@@ -511,6 +511,17 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table->hasIndex('email'));
     }
 
+    public function testAddIndexIsCaseSensitive()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('theEmail', 'string')
+            ->save();
+        $this->assertFalse($table->hasIndex('theEmail'));
+        $table->addIndex('theEmail')
+            ->save();
+        $this->assertTrue($table->hasIndex('theEmail'));
+    }
+
     public function testDropIndex()
     {
          // single column index
