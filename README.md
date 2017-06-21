@@ -1,6 +1,6 @@
 # [Phinx](https://phinx.org): Simple PHP Database Migrations
 
-[![Build Status](https://travis-ci.org/robmorgan/phinx.png?branch=master)](https://travis-ci.org/robmorgan/phinx)
+[![Build Status](https://travis-ci.org/cakephp/phinx.png?branch=master)](https://travis-ci.org/cakephp/phinx)
 [![Build status](https://ci.appveyor.com/api/projects/status/9vag4892hfq6effr)](https://ci.appveyor.com/project/robmorgan/phinx)
 [![Code Coverage](https://scrutinizer-ci.com/g/robmorgan/phinx/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/robmorgan/phinx/)
 [![Latest Stable Version](https://poser.pugx.org/robmorgan/phinx/version.png)](https://packagist.org/packages/robmorgan/phinx)
