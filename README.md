@@ -72,7 +72,7 @@ You can also use the Box application to build Phinx as a Phar archive (https://b
 1. Clone Phinx from GitHub
 
     ```
-    git clone git://github.com/robmorgan/phinx.git
+    git clone https://github.com/cakephp/phinx.git
     cd phinx
     ```
 
@@ -114,7 +114,7 @@ Please read the [CONTRIBUTING](CONTRIBUTING.md) document.
 
 ## News & Updates
 
-Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
+Follow [@CakePHP](https://twitter.com/cakephp) on Twitter to stay up to date.
 
 ## Misc
 
