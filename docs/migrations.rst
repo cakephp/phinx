@@ -183,7 +183,8 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
                 $count = $this->execute('DELETE FROM users'); // returns the number of affected rows
 
                 // query()
-                $rows = $this->query('SELECT * FROM users'); // returns the result as an array
+                $stmt = $this->query('SELECT * FROM users'); // returns PDOStatement
+                $rows = $stmt->fetchAll(); // returns the result as an array
             }
 
             /**
