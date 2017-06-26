@@ -9,7 +9,7 @@ use Phinx\Migration\MigrationInterface;
 
 class PDOMock extends \PDO
 {
-    private $attributes = [];
+    public $attributes = [];
 
     public function __construct()
     {
@@ -17,7 +17,7 @@ class PDOMock extends \PDO
 
     public function getAttribute($attribute)
     {
-        return array_key_exists($attribute, $this->attributes) ? $this->attributes[$attribute] : 'pdomock';
+        return isset($this->attributes[$attribute]) ? $this->attributes[$attribute] : 'pdomock';
     }
 
     public function setAttribute($attribute, $value)
@@ -89,7 +89,8 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', array(array('foo' => 'bar')));
         AdapterFactory::instance()->registerAdapter('pdomock', $adapter);
         $this->environment->setOptions(array('connection' => $pdoMock));
-        $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $pdoMock->getAttribute(\PDO::ATTR_ERRMODE));
+        $options = $this->environment->getAdapter()->getOptions();
+        $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $options['connection']->getAttribute(\PDO::ATTR_ERRMODE));
     }
 
     /**
