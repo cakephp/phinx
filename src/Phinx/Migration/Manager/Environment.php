@@ -329,6 +329,7 @@ class Environment
                 throw new \RuntimeException('The specified connection is not a PDO instance');
             }
 
+            $this->options['connection']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $this->options['adapter'] = $this->options['connection']->getAttribute(\PDO::ATTR_DRIVER_NAME);
         }
         if (!isset($this->options['adapter'])) {
