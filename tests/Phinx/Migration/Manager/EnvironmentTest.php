@@ -89,7 +89,6 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', array(array('foo' => 'bar')));
         AdapterFactory::instance()->registerAdapter('pdomock', $adapter);
         $this->environment->setOptions(array('connection' => $pdoMock));
-        $options = $this->environment->getAdapter()->getOptions();
         $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $pdoMock->getAttribute(\PDO::ATTR_ERRMODE));
     }
 
