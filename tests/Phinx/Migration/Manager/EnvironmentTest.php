@@ -17,6 +17,11 @@ class PDOMock extends \PDO
     {
         return 'pdomock';
     }
+
+    public function setAttribute($attribute, $value)
+    {
+        return null;
+    }
 }
 
 class EnvironmentTest extends \PHPUnit_Framework_TestCase
