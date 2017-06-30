@@ -284,18 +284,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         // set the indexes
         $indexes = $table->getIndexes();
-        if (!empty($indexes)) {
-            foreach ($indexes as $index) {
-                $sql .= ', ' . $this->getIndexSqlDefinition($index);
-            }
+        foreach ($indexes as $index) {
+            $sql .= ', ' . $this->getIndexSqlDefinition($index);
         }
 
         // set the foreign keys
         $foreignKeys = $table->getForeignKeys();
-        if (!empty($foreignKeys)) {
-            foreach ($foreignKeys as $foreignKey) {
-                $sql .= ', ' . $this->getForeignKeySqlDefinition($foreignKey);
-            }
+        foreach ($foreignKeys as $foreignKey) {
+            $sql .= ', ' . $this->getForeignKeySqlDefinition($foreignKey);
         }
 
         $sql .= ') ' . $optionsStr;
