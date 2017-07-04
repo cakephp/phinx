@@ -91,6 +91,17 @@ abstract class PdoAdapter implements AdapterInterface
     }
 
     /**
+     * Determines if instead of executing queries a dump to standard output is needed
+     *
+     * @return boolean
+     */
+    public function isDumpEnabled()
+    {
+        $input = $this->getInput();
+        return $input->hasOption('dump') ? $input->getOption('dump') : false;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function setOptions(array $options)
@@ -335,6 +346,11 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function execute($sql)
     {
+        if ($this->isDumpEnabled()) {
+            $this->getOutput()->writeln($sql);
+            return 0;
+        }
+
         return $this->getConnection()->exec($sql);
     }
 
@@ -450,7 +466,7 @@ abstract class PdoAdapter implements AdapterInterface
                 $this->castToBool(false)
             );
 
-            $this->query($sql);
+            $this->execute($sql);
         } else {
             // down
             $sql = sprintf(
@@ -460,7 +476,7 @@ abstract class PdoAdapter implements AdapterInterface
                 $migration->getVersion()
             );
 
-            $this->query($sql);
+            $this->execute($sql);
         }
 
         return $this;
