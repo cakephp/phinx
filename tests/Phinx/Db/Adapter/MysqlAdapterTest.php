@@ -2,9 +2,13 @@
 
 namespace Test\Phinx\Db\Adapter;
 
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\MysqlAdapter;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\StreamOutput;
 
 class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -1111,5 +1115,27 @@ public function testRenameColumn()
         $this->assertEquals(3, $rows[2]['column2']);
         $this->assertEquals('test', $rows[0]['column3']);
         $this->assertEquals('foo', $rows[2]['column3']);
+    }
+
+    public function testDumpCreateTable()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dump')]);
+        $this->adapter->setInput(new ArrayInput(['--dump' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', array('default' => 'test'))
+            ->save();
+
+        $expectedOutput = <<<'OUTPUT'
+CREATE TABLE `table1` (`id` INT(11) NOT NULL AUTO_INCREMENT, `column1` VARCHAR(255) NOT NULL, `column2` INT(11) NOT NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test', PRIMARY KEY (`id`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;
+OUTPUT;
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dump option does not dump create table query to the output');
     }
 }
