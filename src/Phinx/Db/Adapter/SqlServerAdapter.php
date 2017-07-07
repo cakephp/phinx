@@ -267,28 +267,22 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 
         // set the foreign keys
         $foreignKeys = $table->getForeignKeys();
-        if (!empty($foreignKeys)) {
-            foreach ($foreignKeys as $foreignKey) {
-                $sqlBuffer[] = $this->getForeignKeySqlDefinition($foreignKey, $table->getName());
-            }
+        foreach ($foreignKeys as $foreignKey) {
+            $sqlBuffer[] = $this->getForeignKeySqlDefinition($foreignKey, $table->getName());
         }
 
         $sql .= implode(', ', $sqlBuffer);
         $sql .= ');';
 
         // process column comments
-        if (!empty($columnsWithComments)) {
-            foreach ($columnsWithComments as $column) {
-                $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
-            }
+        foreach ($columnsWithComments as $column) {
+            $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
         }
 
         // set the indexes
         $indexes = $table->getIndexes();
-        if (!empty($indexes)) {
-            foreach ($indexes as $index) {
-                $sql .= $this->getIndexSqlDefinition($index, $table->getName());
-            }
+        foreach ($indexes as $index) {
+            $sql .= $this->getIndexSqlDefinition($index, $table->getName());
         }
 
         // execute the sql
