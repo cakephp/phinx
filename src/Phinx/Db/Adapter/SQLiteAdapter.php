@@ -491,32 +491,21 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             ));
         }
 
-        // rename existing table to a temp table
         $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
 
-        $originalBuildTableCommandIncludingColumnToRemove = $sql;
-
-        // isolate and rebuild column definitions sans the column we no longer want
-        $columnDefinitionsSubstring = preg_replace([
-                '/^CREATE\sTABLE\s`[^`]+`\s\(/i',
-                '/\);?\s*$/'
-            ],
-            '',
-            $originalBuildTableCommandIncludingColumnToRemove
+        $sql = preg_replace(
+            sprintf("/%s\s%s.*(,\s(?!')|\)$)/U", preg_quote($this->quoteColumnName($columnName)), preg_quote($columnType)),
+            "",
+            $sql
         );
 
-        $columnDefinitions = preg_split('/,\s*(?=`)/i', $columnDefinitionsSubstring);
-        $columnDefinitionsWithoutTheUnwantedColumn = array_filter($columnDefinitions, function ($definition) use ($columnName, $columnType) {
-            return (strpos($definition, $this->quoteColumnName($columnName).' '.$columnType) !== 0);
-        });
+        if (substr($sql, -2) === ', ') {
+            $sql = substr($sql, 0, -2) . ')';
+        }
 
-        // rebuild the table creation command, without the unwanted column
-        $rebuildTableCommand = "CREATE TABLE `{$tableName}` (".implode(', ', $columnDefinitionsWithoutTheUnwantedColumn).')';
+        $this->execute($sql);
 
-        // rebuild the table
-        $this->execute($rebuildTableCommand);
-
-        $dataMigrationFromTempTableToNewTable = sprintf(
+        $sql = sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
             $tableName,
             implode(', ', $columns),
@@ -524,7 +513,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $tmpTableName
         );
 
-        $this->execute($dataMigrationFromTempTableToNewTable);
+        $this->execute($sql);
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
         $this->endCommandTimer();
     }
