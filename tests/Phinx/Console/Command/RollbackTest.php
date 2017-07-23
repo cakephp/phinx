@@ -283,4 +283,29 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute(array('command' => $command->getName(), '-d' => $targetDate), array('decorated' => false));
         $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
     }
+    
+    public function testDryRun()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        // setup dependencies
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs(array($this->config, $this->input, $output))
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('rollback');
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName(), '--dry-run' => true), array('decorated' => false));
+        $this->assertRegExp('/Doing dry run/', $commandTester->getDisplay());
+    }
 }

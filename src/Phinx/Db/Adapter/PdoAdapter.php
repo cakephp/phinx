@@ -73,6 +73,11 @@ abstract class PdoAdapter implements AdapterInterface
     protected $commandStartTime;
 
     /**
+     * @var boolean
+     */
+    private $dryRun = false;
+
+    /**
      * Class Constructor.
      *
      * @param array $options Options
@@ -335,7 +340,31 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function execute($sql)
     {
-        return $this->getConnection()->exec($sql);
+        if ($this->dryRun) {
+            // let's hide the transaction mechanism from the user
+            if ($sql != "COMMIT" && $sql != "START TRANSACTION") {
+                $this->writeSqlToOutput($sql);
+            }
+            return 0;
+        }
+        else {
+            return $this->getConnection()->exec($sql);
+        }
+    }
+
+    /**
+     * Write SQL Code to Output
+     *
+     * @param string $sql the SQL Code to output.
+     * @return void
+     */
+    private function writeSqlToOutput($sql)
+    {
+        // some SQL code will come with the ending ; while some other won't, so 
+        // we just make sure we print it for the sake of presentation
+        $sql = rtrim($sql, ';').';';
+
+        $this->getOutput()->writeln($sql);
     }
 
     /**
@@ -386,12 +415,41 @@ abstract class PdoAdapter implements AdapterInterface
 
         $columns = array_keys($row);
         $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
-        $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
+        
+        $values = array_values($row);
 
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->execute(array_values($row));
+        if ($this->dryRun) {
+            $this->quoteValues($values);
+            $sql .= " VALUES (" . implode(', ', $values) . ")";
+            $this->writeSqlToOutput($sql);
+        }
+        else {
+            $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute($values);
+        }
+
         $this->endCommandTimer();
     }
+    /**
+     * Quotes a query's values for use when dry-running.
+     *
+     * Note: we take the array values' types as the indication of their types.
+     * This doesn't have to be 100% accurate as this is only used to encase 
+     * strings in quotes for easier readability when dry-running.
+     *
+     * @param array &$values The values to quote.
+     * @return void
+     */
+    private function quoteValues(&$values)
+    {
+        array_walk($values, function(&$v, $k) {
+            if (gettype($v) === "string") {
+                $v = "'".$v."'";
+            }
+        });
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -596,5 +654,26 @@ abstract class PdoAdapter implements AdapterInterface
     public function castToBool($value)
     {
         return (bool) $value ? 1 : 0;
+    }
+    
+    /**
+     * Enable Dry Run
+     *
+     * @return AdapterInterface
+     */
+    public function enableDryRun()
+    {
+        $this->dryRun = true;
+        return $this;
+    }
+    
+    /**
+     * Is Dry Run mode enabled?
+     *
+     * @return boolean
+     */
+    public function isDryRun()
+    {
+        return $this->dryRun;
     }
 }

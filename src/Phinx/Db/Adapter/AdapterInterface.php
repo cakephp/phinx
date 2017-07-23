@@ -526,4 +526,18 @@ interface AdapterInterface
      * @return mixed
      */
     public function castToBool($value);
+
+    /**
+     * Enable Dry Run
+     *
+     * @return AdapterInterface
+     */
+    public function enableDryRun();
+
+    /**
+     * Is Dry Run mode enabled?
+     *
+     * @return boolean
+     */
+    public function isDryRun();
 }

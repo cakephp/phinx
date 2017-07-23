@@ -90,9 +90,10 @@ class Environment
      *
      * @param MigrationInterface $migration Migration
      * @param string $direction Direction
+     * @param bool $dryRun Do dry run?
      * @return void
      */
-    public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP)
+    public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP, $dryRun = false)
     {
         $startTime = time();
         $direction = ($direction === MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
@@ -101,6 +102,10 @@ class Environment
         // begin the transaction if the adapter supports it
         if ($this->getAdapter()->hasTransactions()) {
             $this->getAdapter()->beginTransaction();
+        }
+
+        if ($dryRun) {
+            $this->getAdapter()->enableDryRun();   
         }
 
         // Run the migration
@@ -138,15 +143,20 @@ class Environment
      * Executes the specified seeder on this environment.
      *
      * @param SeedInterface $seed
+     * @param bool $dryRun Do dry run?
      * @return void
      */
-    public function executeSeed(SeedInterface $seed)
+    public function executeSeed(SeedInterface $seed, $dryRun = false)
     {
         $seed->setAdapter($this->getAdapter());
 
         // begin the transaction if the adapter supports it
         if ($this->getAdapter()->hasTransactions()) {
             $this->getAdapter()->beginTransaction();
+        }
+
+        if ($dryRun) {
+            $this->getAdapter()->enableDryRun();   
         }
 
         // Run the seeder

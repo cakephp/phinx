@@ -266,10 +266,11 @@ class Manager
      *
      * @param string    $environment Environment
      * @param \DateTime $dateTime    Date to migrate to
+     * @param boolean   $dryRun      Do dry run?
      *
      * @return void
      */
-    public function migrateToDateTime($environment, \DateTime $dateTime)
+    public function migrateToDateTime($environment, \DateTime $dateTime, $dryRun = false)
     {
         $versions   = array_keys($this->getMigrations());
         $dateString = $dateTime->format('YmdHis');
@@ -281,7 +282,7 @@ class Manager
         if (count($outstandingMigrations) > 0) {
             $migration = max($outstandingMigrations);
             $this->getOutput()->writeln('Migrating to version ' . $migration);
-            $this->migrate($environment, $migration);
+            $this->migrate($environment, $migration, $dryRun);
         }
     }
 
@@ -290,9 +291,10 @@ class Manager
      *
      * @param string $environment Environment
      * @param int $version
+     * @param bool $dryRun Do dry run?
      * @return void
      */
-    public function migrate($environment, $version = null)
+    public function migrate($environment, $version = null, $dryRun = false)
     {
         $migrations = $this->getMigrations();
         $env = $this->getEnvironment($environment);
@@ -327,7 +329,7 @@ class Manager
                 }
 
                 if (in_array($migration->getVersion(), $versions)) {
-                    $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                    $this->executeMigration($environment, $migration, MigrationInterface::DOWN, $dryRun);
                 }
             }
         }
@@ -339,7 +341,7 @@ class Manager
             }
 
             if (!in_array($migration->getVersion(), $versions)) {
-                $this->executeMigration($environment, $migration, MigrationInterface::UP);
+                $this->executeMigration($environment, $migration, MigrationInterface::UP, $dryRun);
             }
         }
     }
@@ -350,28 +352,41 @@ class Manager
      * @param string $name Environment Name
      * @param MigrationInterface $migration Migration
      * @param string $direction Direction
+     * @param bool $dryRun Do dry run?
      * @return void
      */
-    public function executeMigration($name, MigrationInterface $migration, $direction = MigrationInterface::UP)
+    public function executeMigration($name, MigrationInterface $migration, $direction = MigrationInterface::UP, $dryRun = false)
     {
         $this->getOutput()->writeln('');
-        $this->getOutput()->writeln(
-            ' =='
+
+        $migrationLine = ' =='
             . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
-            . ' <comment>' . ($direction === MigrationInterface::UP ? 'migrating' : 'reverting') . '</comment>'
-        );
+            . ' <comment>';
+
+        if ($dryRun) {
+            $migrationLine .= 'dry-running ' . ($direction === MigrationInterface::UP ? 'migration' : 'rollback');
+        }
+        else {
+            $migrationLine .= ($direction === MigrationInterface::UP ? 'migrating' : 'reverting');
+        }
+
+        $migrationLine .= '</comment>';
+        
+        $this->getOutput()->writeln($migrationLine);
 
         // Execute the migration and log the time elapsed.
         $start = microtime(true);
-        $this->getEnvironment($name)->executeMigration($migration, $direction);
+        $this->getEnvironment($name)->executeMigration($migration, $direction, $dryRun);
         $end = microtime(true);
 
-        $this->getOutput()->writeln(
-            ' =='
-            . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
-            . ' <comment>' . ($direction === MigrationInterface::UP ? 'migrated' : 'reverted')
-            . ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
-        );
+        if (!$dryRun) {
+            $this->getOutput()->writeln(
+                ' =='
+                . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
+                . ' <comment>' . ($direction === MigrationInterface::UP ? 'migrated' : 'reverted')
+                . ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
+            );
+        }
     }
 
     /**
@@ -379,9 +394,10 @@ class Manager
      *
      * @param string $name Environment Name
      * @param SeedInterface $seed Seed
+     * @param bool $dryRun Do dry run?
      * @return void
      */
-    public function executeSeed($name, SeedInterface $seed)
+    public function executeSeed($name, SeedInterface $seed, $dryRun = false)
     {
         $this->getOutput()->writeln('');
         $this->getOutput()->writeln(
@@ -392,7 +408,7 @@ class Manager
 
         // Execute the seeder and log the time elapsed.
         $start = microtime(true);
-        $this->getEnvironment($name)->executeSeed($seed);
+        $this->getEnvironment($name)->executeSeed($seed, $dryRun);
         $end = microtime(true);
 
         $this->getOutput()->writeln(
@@ -410,9 +426,10 @@ class Manager
      * @param int $target
      * @param bool $force
      * @param bool $targetMustMatchVersion
+     * @param bool $dryRun Do dry run?
      * @return void
      */
-    public function rollback($environment, $target = null, $force = false, $targetMustMatchVersion = true)
+    public function rollback($environment, $target = null, $force = false, $targetMustMatchVersion = true, $dryRun = false)
     {
         // note that the migrations are indexed by name (aka creation time) in ascending order
         $migrations = $this->getMigrations();
@@ -486,7 +503,7 @@ class Manager
                     $this->getOutput()->writeln('<error>Breakpoint reached. Further rollbacks inhibited.</error>');
                     break;
                 }
-                $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                $this->executeMigration($environment, $migration, MigrationInterface::DOWN, $dryRun);
                 $rollbacked = true;
             }
         }
@@ -501,9 +518,10 @@ class Manager
      *
      * @param string $environment Environment
      * @param string $seed Seeder
+     * @param bool $dryRun Do dry run?
      * @return void
      */
-    public function seed($environment, $seed = null)
+    public function seed($environment, $seed = null, $dryRun = false)
     {
         $seeds = $this->getSeeds();
 
@@ -511,13 +529,13 @@ class Manager
             // run all seeders
             foreach ($seeds as $seeder) {
                 if (array_key_exists($seeder->getName(), $seeds)) {
-                    $this->executeSeed($environment, $seeder);
+                    $this->executeSeed($environment, $seeder, $dryRun);
                 }
             }
         } else {
             // run only one seeder
             if (array_key_exists($seed, $seeds)) {
-                $this->executeSeed($environment, $seeds[$seed]);
+                $this->executeSeed($environment, $seeds[$seed], $dryRun);
             } else {
                 throw new \InvalidArgumentException(sprintf('The seed class "%s" does not exist', $seed));
             }

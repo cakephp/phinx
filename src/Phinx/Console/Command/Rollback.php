@@ -49,6 +49,7 @@ class Rollback extends AbstractCommand
              ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to rollback to')
              ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to rollback to')
              ->addOption('--force', '-f', InputOption::VALUE_NONE, 'Force rollback to ignore breakpoints')
+             ->addOption('--dry-run', null, InputOption::VALUE_NONE, 'Output SQL rather than executing it')
              ->setHelp(
 <<<EOT
 The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
@@ -65,6 +66,10 @@ If you have a breakpoint set, then you can rollback to target 0 and the rollback
 The <info>version_order</info> configuration option is used to determine the order of the migrations when rolling back.
 This can be used to allow the rolling back of the last executed migration instead of the last created one, or combined 
 with the <info>-d|--date</info> option to rollback to a certain date using the migration start times to order them.
+
+The <info>--dry-run</info> option will output the SQL code of the migration(s) which would be rollbacked:
+
+<info>phinx rollback -e development --dry-run</info>
 
 EOT
              );
@@ -85,6 +90,7 @@ EOT
         $version     = $input->getOption('target');
         $date        = $input->getOption('date');
         $force       = !!$input->getOption('force');
+        $dryRun      = $input->getOption('dry-run');
 
         $config = $this->getConfig();
 
@@ -111,6 +117,10 @@ EOT
         $versionOrder = $this->getConfig()->getVersionOrder();
         $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
 
+        if ($dryRun) {
+            $output->writeln('<info>Doing dry run</info>');
+        }
+
         // rollback the specified environment
         if (null === $date) {
             $targetMustMatchVersion = true;
@@ -121,7 +131,7 @@ EOT
         }
 
         $start = microtime(true);
-        $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion);
+        $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion, $dryRun);
         $end = microtime(true);
 
         $output->writeln('');

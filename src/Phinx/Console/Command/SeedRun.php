@@ -46,6 +46,7 @@ class SeedRun extends AbstractCommand
         $this->setName('seed:run')
              ->setDescription('Run database seeders')
              ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
+             ->addOption('--dry-run', null, InputOption::VALUE_NONE, 'Output SQL rather than executing it')
              ->setHelp(
 <<<EOT
 The <info>seed:run</info> command runs all available or individual seeders
@@ -55,6 +56,9 @@ The <info>seed:run</info> command runs all available or individual seeders
 <info>phinx seed:run -e development -s UserSeeder -s PermissionSeeder -s LogSeeder</info>
 <info>phinx seed:run -e development -v</info>
 
+The <info>--dry-run</info> option will output the SQL code of the seeder(s) which would be run:
+
+<info>phinx seed:run -e development --dry-run</info>
 EOT
              );
     }
@@ -72,6 +76,7 @@ EOT
 
         $seedSet     = $input->getOption('seed');
         $environment = $input->getOption('environment');
+        $dryRun      = $input->getOption('dry-run');
 
         if (null === $environment) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -103,6 +108,10 @@ EOT
             $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
         }
 
+        if ($dryRun) {
+            $output->writeln('<info>Doing dry run</info>');
+        }
+
         $start = microtime(true);
 
         if (empty($seedSet)) {
@@ -111,7 +120,7 @@ EOT
         } else {
             // run seed(ers) specified in a comma-separated list of classes
             foreach ($seedSet as $seed) {
-                $this->getManager()->seed($environment, trim($seed));
+                $this->getManager()->seed($environment, trim($seed), $dryRun);
             }
         }
 

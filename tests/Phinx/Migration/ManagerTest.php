@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
+use Phinx\Migration\MigrationInterface;
 
 class ManagerTest extends \PHPUnit_Framework_TestCase
 {
@@ -2071,7 +2072,154 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ];
     }
 
-    public function testExecuteSeedWorksAsExpected()
+    /**
+     * Test migrates with dry-run
+     *
+     * @dataProvider migrateDryRunDataProvider
+     */
+    public function testMigrateDryRun($availableMigrations, $version, $expectedExecutedMigrations)
+    {
+        // stub environment
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(array('mockenv', array()))
+            ->getMock();
+        $envStub->expects($this->any())
+            ->method('getVersions')
+            ->will($this->returnValue($availableMigrations));
+
+        // stub manager
+        $config = new Config($this->getConfigArray());
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setMethods(array('executeMigration'))
+            ->setConstructorArgs(array($config, $this->input, $output))
+            ->getMock();
+ 
+        $migrations = $managerStub->getMigrations();
+
+        if (empty($expectedExecutedMigrations)) {
+            $managerStub->expects($this->never())
+                ->method('executeMigration');
+        } else {
+            for($n = 0; $n < count($expectedExecutedMigrations); $n++)
+            {
+                $expectedMigrationName = $expectedExecutedMigrations[$n];
+                $expectedMigration = $migrations[$expectedMigrationName];
+
+                $managerStub->expects($this->at($n))
+                    ->method('executeMigration')
+                    ->with($this->equalTo('mockenv'), $this->equalTo($expectedMigration), 
+                        $this->equalTo(MigrationInterface::UP), $this->equalTo(true));
+            }
+        }
+
+        $managerStub->setEnvironments(array('mockenv' => $envStub));
+        $managerStub->migrate('mockenv', $version, true);
+    }
+
+    /**
+     * Migration lists, version to migrate to and expected executed migrations.
+     *
+     * @return array
+     */
+    public function migrateDryRunDataProvider()
+    {
+        return array(
+            'Migrate to one of the versions' => 
+                array(array('20120111235330'), '20120116183504', array('20120116183504')),
+            'Migrate all versions' => 
+                array(array(), null, array('20120111235330', '20120116183504')),
+            'Migrate no versions' => 
+                array(array('20120111235330', '20120116183504'), null, array()),
+        );
+    }
+
+    /**
+     * Test rollbacks with dry-run
+     *
+     * @dataProvider rollbackDryRunDataProvider
+     */
+    public function testRollbackDryRun($availableRollbacks, $version, $expectedRollbackedMigrations)
+    {
+        // stub environment
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(array('mockenv', array()))
+            ->getMock();
+        $envStub->expects($this->any())
+            ->method('getVersionLog')
+            ->will($this->returnValue($availableRollbacks));
+
+        // stub manager
+        $config = new Config($this->getConfigArray());
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setMethods(array('executeMigration'))
+            ->setConstructorArgs(array($config, $this->input, $output))
+            ->getMock();
+ 
+        $migrations = $managerStub->getMigrations();
+
+        if (empty($expectedRollbackedMigrations)) {
+            $managerStub->expects($this->never())
+                ->method('executeMigration');
+        } else {
+            for($n = 0; $n < count($expectedRollbackedMigrations); $n++)
+            {
+                $expectedMigrationName = $expectedRollbackedMigrations[$n];
+                $expectedMigration = $migrations[$expectedMigrationName];
+
+                $managerStub->expects($this->at($n))
+                    ->method('executeMigration')
+                    ->with($this->equalTo('mockenv'), $this->equalTo($expectedMigration), 
+                        $this->equalTo(MigrationInterface::DOWN), $this->equalTo(true));
+            }
+        }
+ 
+        $managerStub->setEnvironments(array('mockenv' => $envStub));
+        $managerStub->rollback('mockenv', $version, false, true, true);
+    }
+
+    /**
+     * Migration lists, version to rollback to and expected rollbacked migrations
+     *
+     * @return array
+     */
+    public function rollbackDryRunDataProvider()
+    {
+        return array(
+            'Rollback to one of the versions' => array(
+                array(
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0]
+                ),
+                '20120111235330',
+                array('20120116183504')
+            ),
+            'Rollback to the latest version' => array(
+                array(
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0]
+                ),
+                '20120116183504',
+                null),
+            'Rollback all versions (ie. rollback to version 0)' => array(
+                array(
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0]
+                ),
+                '0',
+                array('20120116183504', '20120111235330')),
+            'Rollback last version' => array(
+                array(
+                    '20120111235330' => ['version' => '20120111235330', 'migration' => '', 'breakpoint' => 0],
+                    '20120116183504' => ['version' => '20120116183504', 'migration' => '', 'breakpoint' => 0]
+                ),
+                null,
+                array('20120116183504')),
+        );
+    }
+
+    public function testSeed()
     {
         // stub environment
         $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
@@ -2081,12 +2229,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager->seed('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('GSeeder', $output);
-        $this->assertContains('PostSeeder', $output);
-        $this->assertContains('UserSeeder', $output);
+        $this->assertContains('GSeeder: seeded', $output);
+        $this->assertContains('PostSeeder: seeded', $output);
+        $this->assertContains('UserSeeder: seeded', $output);
     }
 
-    public function testExecuteASingleSeedWorksAsExpected()
+    public function testSeedSingle()
     {
         // stub environment
         $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
@@ -2096,14 +2244,14 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager->seed('mockenv', 'UserSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('UserSeeder', $output);
+        $this->assertContains('UserSeeder: seeded', $output);
     }
 
     /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The seed class "NonExistentSeeder" does not exist
      */
-    public function testExecuteANonExistentSeedWorksAsExpected()
+    public function testSeedNonExistent()
     {
         // stub environment
         $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
@@ -2111,9 +2259,6 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $this->manager->setEnvironments(array('mockenv' => $envStub));
         $this->manager->seed('mockenv', 'NonExistentSeeder');
-        rewind($this->manager->getOutput()->getStream());
-        $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('UserSeeder', $output);
     }
 
     public function testGettingInputObject()
@@ -2129,6 +2274,31 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         foreach ($seeds as $seed) {
             $this->assertEquals($inputObject, $seed->getInput());
         }
+    }
+
+    public function testSeedDryRun()
+    {
+        // stub manager
+        $config = new Config($this->getConfigArray());
+        $output = new StreamOutput(fopen('php://memory', 'a', false));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setMethods(array('executeSeed'))
+            ->setConstructorArgs(array($config, $this->input, $output))
+            ->getMock();
+
+        $seeds = $managerStub->getSeeds();
+        $userSeeder = $seeds['UserSeeder'];
+        $managerStub->expects($this->once())
+                    ->method('executeSeed')
+                    ->with($this->equalTo('mockenv'), $this->equalTo($userSeeder), $this->equalTo(true));
+
+        // stub environment
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(array('mockenv', array()))
+            ->getMock();
+        
+        $managerStub->setEnvironments(array('mockenv' => $envStub));
+        $managerStub->seed('mockenv', 'UserSeeder', true);
     }
 
     public function testGettingOutputObject()
