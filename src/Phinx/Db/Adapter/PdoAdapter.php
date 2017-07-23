@@ -28,9 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Output\NullOutput;
+use BadMethodCallException;
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Migration\MigrationInterface;
@@ -40,166 +38,12 @@ use Phinx\Migration\MigrationInterface;
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-abstract class PdoAdapter implements AdapterInterface
+abstract class PdoAdapter extends BaseAdapter
 {
-    /**
-     * @var array
-     */
-    protected $options = array();
-
-    /**
-     * @var InputInterface
-     */
-    protected $input;
-
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
-
-    /**
-     * @var string
-     */
-    protected $schemaTableName = 'phinxlog';
-
     /**
      * @var \PDO|null
      */
     protected $connection;
-
-    /**
-     * Class Constructor.
-     *
-     * @param array $options Options
-     * @param InputInterface $input Input Interface
-     * @param OutputInterface $output Output Interface
-     */
-    public function __construct(array $options, InputInterface $input = null, OutputInterface $output = null)
-    {
-        $this->setOptions($options);
-        if (null !== $input) {
-            $this->setInput($input);
-        }
-        if (null !== $output) {
-            $this->setOutput($output);
-        }
-    }
-
-    /**
-     * Determines if instead of executing queries a dump to standard output is needed
-     *
-     * @return boolean
-     */
-    public function isDryRunEnabled()
-    {
-        $input = $this->getInput();
-        return $input->hasOption('dry-run') ? $input->getOption('dry-run') : false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setOptions(array $options)
-    {
-        $this->options = $options;
-
-        if (isset($options['default_migration_table'])) {
-            $this->setSchemaTableName($options['default_migration_table']);
-        }
-
-        if (isset($options['connection'])) {
-            $this->setConnection($options['connection']);
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOptions()
-    {
-        return $this->options;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasOption($name)
-    {
-        return isset($this->options[$name]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOption($name)
-    {
-        if (!$this->hasOption($name)) {
-            return null;
-        }
-        return $this->options[$name];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setInput(InputInterface $input)
-    {
-        $this->input = $input;
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getInput()
-    {
-        return $this->input;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setOutput(OutputInterface $output)
-    {
-        $this->output = $output;
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOutput()
-    {
-        if (null === $this->output) {
-            $output = new NullOutput();
-            $this->setOutput($output);
-        }
-        return $this->output;
-    }
-
-    /**
-     * Sets the schema table name.
-     *
-     * @param string $schemaTableName Schema Table Name
-     * @return PdoAdapter
-     */
-    public function setSchemaTableName($schemaTableName)
-    {
-        $this->schemaTableName = $schemaTableName;
-        return $this;
-    }
-
-    /**
-     * Gets the schema table name.
-     *
-     * @return string
-     */
-    public function getSchemaTableName()
-    {
-        return $this->schemaTableName;
-    }
 
     /**
      * Sets the database connection.
@@ -437,51 +281,17 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasSchemaTable()
+    public function createSchema($schemaName = 'public')
     {
-        return $this->hasTable($this->getSchemaTableName());
+        throw new BadMethodCallException('Creating a schema is not supported');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createSchemaTable()
+    public function dropSchema($name)
     {
-        try {
-            $options = array(
-                'id'          => false,
-                'primary_key' => 'version'
-            );
-
-            $table = new Table($this->getSchemaTableName(), $options, $this);
-
-            if ($this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'mysql'
-                && version_compare($this->getConnection()->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.0', '>=')) {
-                $table->addColumn('version', 'biginteger', array('limit' => 14))
-                      ->addColumn('migration_name', 'string', array('limit' => 100, 'default' => null, 'null' => true))
-                      ->addColumn('start_time', 'timestamp', array('default' => null, 'null' => true))
-                      ->addColumn('end_time', 'timestamp', array('default' => null, 'null' => true))
-                      ->addColumn('breakpoint', 'boolean', array('default' => false))
-                      ->save();
-            } else {
-                $table->addColumn('version', 'biginteger')
-                      ->addColumn('migration_name', 'string', array('limit' => 100, 'default' => null, 'null' => true))
-                      ->addColumn('start_time', 'timestamp', array('default' => null, 'null' => true))
-                      ->addColumn('end_time', 'timestamp', array('default' => null, 'null' => true))
-                      ->addColumn('breakpoint', 'boolean', array('default' => false))
-                      ->save();
-            }
-        } catch (\Exception $exception) {
-            throw new \InvalidArgumentException('There was a problem creating the schema table: ' . $exception->getMessage());
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAdapterType()
-    {
-        return $this->getOption('adapter');
+        throw new BadMethodCallException('Dropping a schema is not supported');
     }
 
     /**
@@ -512,13 +322,6 @@ abstract class PdoAdapter implements AdapterInterface
             'linestring',
             'polygon',
         );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isValidColumnType(Column $column) {
-        return in_array($column->getType(), $this->getColumnTypes());
     }
 
     /**

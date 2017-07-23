@@ -28,7 +28,6 @@
  */
 namespace Phinx\Db\Adapter;
 
-use BadMethodCallException;
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
@@ -507,37 +506,19 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * Creates the specified schema if the underlying adapter
-     * supports if the underlying adapter supports it
-     *
-     * @param  string $schemaName Schema Name
-     * @return void
+     * {@inheritdoc}
      */
     public function createSchema($schemaName = 'public')
     {
-        $adapter = $this->getAdapter();
-        if (!method_exists($adapter, 'createSchema')) {
-            throw new BadMethodCallException('No support for creating schemas');
-        }
-
-        $adapter->createSchema($schemaName);
+        $this->getAdapter()->createSchema($schemaName);
     }
 
     /**
-     * Drops the specified schema table if the underlying adapter
-     * supports it
-     *
-     * @param string $schemaName Schema name
-     * @return void
+     * {@inheritdoc}
      */
     public function dropSchema($schemaName)
     {
-        $adapter = $this->getAdapter();
-        if (!method_exists($adapter, 'dropSchema')) {
-            throw new BadMethodCallException('No support for dropping schemas');
-        }
-
-        $adapter->dropSchema($schemaName);
+        $this->getAdapter()->dropSchema($schemaName);
     }
 
     /**
