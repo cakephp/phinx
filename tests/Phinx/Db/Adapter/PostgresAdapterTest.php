@@ -747,6 +747,27 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($comment, $row['column_comment'], 'Dont set column comment correctly');
     }
 
+    public function testCanAddCommentForColumnWithReservedName()
+    {
+        $table = new \Phinx\Db\Table('user', array(), $this->adapter);
+        $table->addColumn('index', 'string', array('comment' => $comment = 'Comments from column "index"'))
+            ->save();
+
+        $row = $this->adapter->fetchRow(
+            'SELECT
+                (select pg_catalog.col_description(oid,cols.ordinal_position::int)
+            from pg_catalog.pg_class c
+            where c.relname=cols.table_name ) as column_comment
+            FROM information_schema.columns cols
+            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            AND cols.table_name=\'user\'
+            AND cols.column_name = \'index\''
+        );
+
+        $this->assertEquals($comment, $row['column_comment'],
+            'Dont set column comment correctly for tables or columns with reserved names');
+    }
+
     /**
      * @depends testCanAddColumnComment
      */
