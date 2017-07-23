@@ -954,7 +954,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     strtoupper($sqlType['type']),
                     $sqlType['srid']
                 );
-            } elseif (!in_array($sqlType['name'], array('integer', 'smallint'))) {
+            } elseif (!in_array($sqlType['name'], array('integer', 'smallint', 'bigint'))) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
                 }
