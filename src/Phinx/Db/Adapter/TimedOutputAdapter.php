@@ -59,7 +59,7 @@ class TimedOutputAdapter extends AdapterWrapper
         return function () use ($started) {
             $end = microtime(true);
             if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
-                $this->getOutput()->writeln('    -> ' . sprintf('%.4fs', $end - $start));
+                $this->getOutput()->writeln('    -> ' . sprintf('%.4fs', $end - $started));
             }
         };
     }

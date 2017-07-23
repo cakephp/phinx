@@ -517,7 +517,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     {
         $adapter = $this->getAdapter();
         if (!method_exists($adapter, 'createSchema')) {
-            throw BadMethodCallException('No support for creating schemas');
+            throw new BadMethodCallException('No support for creating schemas');
         }
 
         $adapter->createSchema($schemaName);
@@ -534,7 +534,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     {
         $adapter = $this->getAdapter();
         if (!method_exists($adapter, 'dropSchema')) {
-            throw BadMethodCallException('No support for dropping schemas');
+            throw new BadMethodCallException('No support for dropping schemas');
         }
 
         $adapter->dropSchema($schemaName);

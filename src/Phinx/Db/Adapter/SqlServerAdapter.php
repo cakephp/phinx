@@ -204,8 +204,6 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createTable(Table $table)
     {
-        $this->startCommandTimer();
-
         $options = $table->getOptions();
 
         // Add the default primary key
