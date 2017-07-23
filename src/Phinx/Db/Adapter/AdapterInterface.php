@@ -258,7 +258,7 @@ interface AdapterInterface
      * Executes a SQL statement and returns the result as an array.
      *
      * @param string $sql SQL
-     * @return array
+     * @return mixed
      */
     public function query($sql);
 

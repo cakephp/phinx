@@ -336,11 +336,15 @@ class Environment
             throw new \RuntimeException('No adapter was specified for environment: ' . $this->getName());
         }
 
-        $adapter = AdapterFactory::instance()
+        $factory = AdapterFactory::instance();
+        $adapter = $factory
             ->getAdapter($this->options['adapter'], $this->options);
 
+        // Automatically time the executed commands
+        $adapter = $factory->getWrapper('timed', $adapter);
+
         if (isset($this->options['wrapper'])) {
-            $adapter = AdapterFactory::instance()
+            $adapter = $factory
                 ->getWrapper($this->options['wrapper'], $adapter);
         }
 

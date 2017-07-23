@@ -200,8 +200,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createTable(Table $table)
     {
-        $this->startCommandTimer();
-
         // This method is based on the MySQL docs here: http://dev.mysql.com/doc/refman/5.1/en/create-index.html
         $defaultOptions = array(
             'engine' => 'InnoDB',
@@ -298,9 +296,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $sql = rtrim($sql) . ';';
 
         // execute the sql
-        $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
-        $this->endCommandTimer();
     }
 
     /**
@@ -308,10 +304,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameTable($tableName, $newTableName)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('renameTable', array($tableName, $newTableName));
         $this->execute(sprintf('RENAME TABLE %s TO %s', $this->quoteTableName($tableName), $this->quoteTableName($newTableName)));
-        $this->endCommandTimer();
     }
 
     /**
@@ -319,10 +312,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropTable($tableName)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('dropTable', array($tableName));
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
-        $this->endCommandTimer();
     }
 
     /**
@@ -402,7 +392,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function addColumn(Table $table, Column $column)
     {
-        $this->startCommandTimer();
         $sql = sprintf(
             'ALTER TABLE %s ADD %s %s',
             $this->quoteTableName($table->getName()),
@@ -414,9 +403,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $sql .= ' AFTER ' . $this->quoteColumnName($column->getAfter());
         }
 
-        $this->writeCommand('addColumn', array($table->getName(), $column->getName(), $column->getType()));
         $this->execute($sql);
-        $this->endCommandTimer();
     }
 
     /**
@@ -424,7 +411,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameColumn($tableName, $columnName, $newColumnName)
     {
-        $this->startCommandTimer();
         $rows = $this->fetchAll(sprintf('DESCRIBE %s', $this->quoteTableName($tableName)));
         foreach ($rows as $row) {
             if (strcasecmp($row['Field'], $columnName) === 0) {
@@ -435,7 +421,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 }
                 $definition = $row['Type'] . ' ' . $null . $extra;
 
-                $this->writeCommand('renameColumn', array($tableName, $columnName, $newColumnName));
                 $this->execute(
                     sprintf(
                         'ALTER TABLE %s CHANGE COLUMN %s %s %s',
@@ -445,7 +430,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $definition
                     )
                 );
-                $this->endCommandTimer();
                 return;
             }
         }
@@ -461,8 +445,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function changeColumn($tableName, $columnName, Column $newColumn)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
         $after = $newColumn->getAfter() ? ' AFTER ' . $this->quoteColumnName($newColumn->getAfter()) : '';
         $this->execute(
             sprintf(
@@ -474,7 +456,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $after
             )
         );
-        $this->endCommandTimer();
     }
 
     /**
@@ -482,8 +463,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropColumn($tableName, $columnName)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('dropColumn', array($tableName, $columnName));
         $this->execute(
             sprintf(
                 'ALTER TABLE %s DROP COLUMN %s',
@@ -491,7 +470,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $this->quoteColumnName($columnName)
             )
         );
-        $this->endCommandTimer();
     }
 
     /**
@@ -555,8 +533,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function addIndex(Table $table, Index $index)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('addIndex', array($table->getName(), $index->getColumns()));
         $this->execute(
             sprintf(
                 'ALTER TABLE %s ADD %s',
@@ -564,7 +540,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $this->getIndexSqlDefinition($index)
             )
         );
-        $this->endCommandTimer();
     }
 
     /**
@@ -572,12 +547,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropIndex($tableName, $columns)
     {
-        $this->startCommandTimer();
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
 
-        $this->writeCommand('dropIndex', array($tableName, $columns));
         $indexes = $this->getIndexes($tableName);
         $columns = array_map('strtolower', $columns);
 
@@ -590,7 +563,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($indexName)
                     )
                 );
-                $this->endCommandTimer();
                 return;
             }
         }
@@ -601,8 +573,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropIndexByName($tableName, $indexName)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('dropIndexByName', array($tableName, $indexName));
         $indexes = $this->getIndexes($tableName);
 
         foreach ($indexes as $name => $index) {
@@ -615,7 +585,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($indexName)
                     )
                 );
-                $this->endCommandTimer();
                 return;
             }
         }
@@ -682,8 +651,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function addForeignKey(Table $table, ForeignKey $foreignKey)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('addForeignKey', array($table->getName(), $foreignKey->getColumns()));
         $this->execute(
             sprintf(
                 'ALTER TABLE %s ADD %s',
@@ -691,7 +658,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $this->getForeignKeySqlDefinition($foreignKey)
             )
         );
-        $this->endCommandTimer();
     }
 
     /**
@@ -699,12 +665,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropForeignKey($tableName, $columns, $constraint = null)
     {
-        $this->startCommandTimer();
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
 
-        $this->writeCommand('dropForeignKey', array($tableName, $columns));
 
         if ($constraint) {
             $this->execute(
@@ -714,7 +678,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     $constraint
                 )
             );
-            $this->endCommandTimer();
             return;
         } else {
             foreach ($columns as $column) {
@@ -735,7 +698,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
         }
-        $this->endCommandTimer();
     }
 
     /**
@@ -979,8 +941,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createDatabase($name, $options = array())
     {
-        $this->startCommandTimer();
-        $this->writeCommand('createDatabase', array($name));
         $charset = isset($options['charset']) ? $options['charset'] : 'utf8';
 
         if (isset($options['collation'])) {
@@ -988,7 +948,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } else {
             $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s`', $name, $charset));
         }
-        $this->endCommandTimer();
     }
 
     /**
@@ -1017,10 +976,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropDatabase($name)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('dropDatabase', array($name));
         $this->execute(sprintf('DROP DATABASE IF EXISTS `%s`', $name));
-        $this->endCommandTimer();
     }
 
     /**

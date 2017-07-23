@@ -68,11 +68,6 @@ abstract class PdoAdapter implements AdapterInterface
     protected $connection;
 
     /**
-     * @var float
-     */
-    protected $commandStartTime;
-
-    /**
      * Class Constructor.
      *
      * @param array $options Options
@@ -252,82 +247,6 @@ abstract class PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Sets the command start time
-     *
-     * @param float $time
-     * @return AdapterInterface
-     */
-    public function setCommandStartTime($time)
-    {
-        $this->commandStartTime = $time;
-        return $this;
-    }
-
-    /**
-     * Gets the command start time
-     *
-     * @return float
-     */
-    public function getCommandStartTime()
-    {
-        return $this->commandStartTime;
-    }
-
-    /**
-     * Start timing a command.
-     *
-     * @return void
-     */
-    public function startCommandTimer()
-    {
-        $this->setCommandStartTime(microtime(true));
-    }
-
-    /**
-     * Stop timing the current command and write the elapsed time to the
-     * output.
-     *
-     * @return void
-     */
-    public function endCommandTimer()
-    {
-        $end = microtime(true);
-        if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
-            $this->getOutput()->writeln('    -> ' . sprintf('%.4fs', $end - $this->getCommandStartTime()));
-        }
-    }
-
-    /**
-     * Write a Phinx command to the output.
-     *
-     * @param string $command Command Name
-     * @param array  $args    Command Args
-     * @return void
-     */
-    public function writeCommand($command, $args = array())
-    {
-        if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
-            if (count($args)) {
-                $outArr = array();
-                foreach ($args as $arg) {
-                    if (is_array($arg)) {
-                        $arg = array_map(function ($value) {
-                            return '\'' . $value . '\'';
-                        }, $arg);
-                        $outArr[] = '[' . implode(', ', $arg)  . ']';
-                        continue;
-                    }
-
-                    $outArr[] = '\'' . $arg . '\'';
-                }
-                $this->getOutput()->writeln(' -- ' . $command . '(' . implode(', ', $outArr) . ')');
-                return;
-            }
-            $this->getOutput()->writeln(' -- ' . $command);
-        }
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function connect()
@@ -392,9 +311,6 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function insert(Table $table, $row)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('insert', array($table->getName()));
-
         $sql = sprintf(
             "INSERT INTO %s ",
             $this->quoteTableName($table->getName())
@@ -406,7 +322,6 @@ abstract class PdoAdapter implements AdapterInterface
 
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute(array_values($row));
-        $this->endCommandTimer();
     }
     /**
      * {@inheritdoc}

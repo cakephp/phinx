@@ -110,7 +110,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Phinx\Db\Adapter\TablePrefixAdapter', $this->environment->getAdapter());
 
         $tablePrefixAdapter = $this->environment->getAdapter();
-        $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $tablePrefixAdapter->getAdapter());
+        $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $tablePrefixAdapter->getAdapter()->getAdapter());
     }
 
     public function testSchemaName()
