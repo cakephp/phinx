@@ -152,18 +152,18 @@ breakpoint using the ``--force`` parameter or ``-f`` for short.
 
         $ phinx rollback -e development -t 0 -f
 
+Use ``--dry-run`` to print the queries to standard output without executing them
+
+.. code-block:: bash
+
+        $ phinx rollback --dry-run
+
 .. note::
 
         When rolling back, Phinx orders the executed migrations using 
         the order specified in the ``version_order`` option of your 
         ``phinx.yml`` file.
         Please see the :doc:`Configuration <configuration>` chapter for more information.
-
-Use ``--dry-run`` to print the queries to standard output without executing them
-
-.. code-block:: bash
-
-        $ phinx rollback --dry-run
 
 The Status Command
 ------------------
