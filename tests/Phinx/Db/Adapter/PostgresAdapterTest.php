@@ -967,7 +967,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testDumpCreateTable()
     {
-        $inputDefinition = new InputDefinition([new InputOption('dump')]);
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
         $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
 
         $consoleOutput = new BufferedOutput();
