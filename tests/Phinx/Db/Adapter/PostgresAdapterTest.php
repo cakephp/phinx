@@ -968,7 +968,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     public function testDumpCreateTable()
     {
         $inputDefinition = new InputDefinition([new InputOption('dump')]);
-        $this->adapter->setInput(new ArrayInput(['--dump' => true], $inputDefinition));
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
 
         $consoleOutput = new BufferedOutput();
         $this->adapter->setOutput($consoleOutput);
@@ -984,6 +984,6 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT 'test', CONSTRAINT table1_pkey PRIMARY KEY ("id"));
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dump option does not dump create table query');
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query');
     }
 }

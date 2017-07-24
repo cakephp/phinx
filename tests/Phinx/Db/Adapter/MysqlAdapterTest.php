@@ -1120,7 +1120,7 @@ public function testRenameColumn()
     public function testDumpCreateTable()
     {
         $inputDefinition = new InputDefinition([new InputOption('dump')]);
-        $this->adapter->setInput(new ArrayInput(['--dump' => true], $inputDefinition));
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
 
         $consoleOutput = new BufferedOutput();
         $this->adapter->setOutput($consoleOutput);
@@ -1136,6 +1136,6 @@ public function testRenameColumn()
 CREATE TABLE `table1` (`id` INT(11) NOT NULL AUTO_INCREMENT, `column1` VARCHAR(255) NOT NULL, `column2` INT(11) NOT NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test', PRIMARY KEY (`id`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dump option does not dump create table query to the output');
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
     }
 }

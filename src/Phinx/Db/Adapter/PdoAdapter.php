@@ -95,10 +95,10 @@ abstract class PdoAdapter implements AdapterInterface
      *
      * @return boolean
      */
-    public function isDumpEnabled()
+    public function isDryRunEnabled()
     {
         $input = $this->getInput();
-        return $input->hasOption('dump') ? $input->getOption('dump') : false;
+        return $input->hasOption('dry-run') ? $input->getOption('dry-run') : false;
     }
 
     /**
@@ -346,7 +346,7 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function execute($sql)
     {
-        if ($this->isDumpEnabled()) {
+        if ($this->isDryRunEnabled()) {
             $this->getOutput()->writeln($sql);
             return 0;
         }
