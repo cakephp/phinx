@@ -101,6 +101,12 @@ for short.
 
         $ phinx migrate -e development -t 20110103081132
 
+Use ``--dry-run`` to print the queries to standard output without executing them
+
+.. code-block:: bash
+
+        $ phinx migrate --dry-run
+
 The Rollback Command
 --------------------
 
@@ -152,6 +158,12 @@ breakpoint using the ``--force`` parameter or ``-f`` for short.
         the order specified in the ``version_order`` option of your 
         ``phinx.yml`` file.
         Please see the :doc:`Configuration <configuration>` chapter for more information.
+
+Use ``--dry-run`` to print the queries to standard output without executing them
+
+.. code-block:: bash
+
+        $ phinx rollback --dry-run
 
 The Status Command
 ------------------
