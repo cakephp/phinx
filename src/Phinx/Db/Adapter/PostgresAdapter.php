@@ -769,6 +769,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_JSON:
             case static::PHINX_TYPE_JSONB:
             case static::PHINX_TYPE_UUID:
+            case static::PHINX_TYPE_CIDR:
+            case static::PHINX_TYPE_INET:
+            case static::PHINX_TYPE_MACADDR:
                 return array('name' => $type);
             case static::PHINX_TYPE_DECIMAL:
                 return array('name' => $type, 'precision' => 18, 'scale' => 0);
@@ -870,6 +873,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return static::PHINX_TYPE_BOOLEAN;
             case 'uuid':
                 return static::PHINX_TYPE_UUID;
+            case 'cidr':
+                return static::PHINX_TYPE_CIDR;
+            case 'inet':
+                return static::PHINX_TYPE_INET;
+            case 'macaddr':
+                return static::PHINX_TYPE_MACADDR;
             default:
                 throw new \RuntimeException('The PostgreSQL type: "' . $sqlType . '" is not supported');
         }
@@ -1150,7 +1159,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('json', 'jsonb'));
+        return array_merge(parent::getColumnTypes(), array('json', 'jsonb', 'cidr', 'inet', 'macaddr'));
     }
 
     /**
