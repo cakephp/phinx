@@ -38,7 +38,7 @@ use Phinx\Migration\MigrationInterface;
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-abstract class PdoAdapter extends BaseAdapter
+abstract class PdoAdapter extends AbstractAdapter
 {
     /**
      * @var \PDO|null

@@ -122,7 +122,7 @@ class TimedOutputAdapter extends AdapterWrapper
         $this->writeCommand('createTable', [$table->getName()]);
         parent::createTable($table);
         $end();
-	}
+    }
 
     /**
      * {@inheritdoc}
@@ -185,7 +185,7 @@ class TimedOutputAdapter extends AdapterWrapper
         parent::renameColumn($tableName, $columnName, $newColumnName);
         $end();
     }
-    
+
     /**
      * {@inheritdoc}
      */

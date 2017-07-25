@@ -38,7 +38,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Base Abstract Database Adapter.
  */
-abstract class BaseAdapter implements AdapterInterface
+abstract class AbstractAdapter implements AdapterInterface
 {
     /**
      * @var array
