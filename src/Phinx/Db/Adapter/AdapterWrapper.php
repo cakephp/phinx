@@ -508,6 +508,22 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function createSchema($schemaName = 'public')
+    {
+        $this->getAdapter()->createSchema($schemaName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropSchema($schemaName)
+    {
+        $this->getAdapter()->dropSchema($schemaName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function castToBool($value)
     {
         return $this->getAdapter()->castToBool($value);

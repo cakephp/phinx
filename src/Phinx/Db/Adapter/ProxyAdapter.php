@@ -55,6 +55,7 @@ class ProxyAdapter extends AdapterWrapper
     {
         return 'ProxyAdapter';
     }
+
     /**
      * {@inheritdoc}
      */

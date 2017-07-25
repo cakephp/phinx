@@ -77,6 +77,7 @@ class AdapterFactory
     protected $wrappers = array(
         'prefix' => 'Phinx\Db\Adapter\TablePrefixAdapter',
         'proxy'  => 'Phinx\Db\Adapter\ProxyAdapter',
+        'timed'  => 'Phinx\Db\Adapter\TimedOutputAdapter',
     );
 
     /**
