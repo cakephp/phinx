@@ -55,6 +55,11 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->dropAllSchemas();
         $this->adapter->createSchema($options['schema']);
 
+        $citext = $this->adapter->fetchRow("SELECT COUNT(*) AS enabled FROM pg_extension WHERE extname = 'citext'");
+        if (!$citext['enabled']) {
+            $this->adapter->query('CREATE EXTENSION IF NOT EXISTS citext');
+        }
+
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
     }
@@ -374,7 +379,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasColumn('t', 'columnOne'));
         $this->assertTrue($this->adapter->hasColumn('t', 'columnTwo'));
     }
-    
+
     public function testRenamingANonExistentColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
@@ -419,7 +424,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testChangeColumnWithDefault() {
+    public function testChangeColumnWithDefault()
+    {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string')
               ->save();
@@ -441,7 +447,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testChangeColumnWithDropDefault() {
+    public function testChangeColumnWithDropDefault()
+    {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string', array('default' => 'Test'))
               ->save();
@@ -493,7 +500,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column11', 'boolean')
               ->addColumn('column12', 'datetime')
               ->addColumn('column13', 'binary')
-              ->addColumn('column14', 'string', array('limit' => 10));
+              ->addColumn('column14', 'string', array('limit' => 10))
+              ->addColumn('column15', 'text', array('case_sensitive' => false));
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -527,7 +535,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testDropIndex()
     {
-         // single column index
+        // single column index
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('email', 'string')
               ->addIndex('email')
@@ -934,6 +942,21 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             } else {
                 $this->assertTrue($column->isTimezone(), 'column: ' . $column->getName());
             }
+        }
+    }
+
+    public function testCiText()
+    {
+        $table = new \Phinx\Db\Table('citable', array('id' => false), $this->adapter);
+        $table
+            ->addColumn('insensitive', 'text', array('case_sensitive' => false))
+            ->save();
+
+        $this->assertTrue($this->adapter->hasColumn('citable', 'insensitive'));
+
+        $columns = $this->adapter->getColumns('citable');
+        foreach ($columns as $column) {
+            $this->assertFalse($column->isCaseSensitive(), 'column: ' . $column->getName());
         }
     }
 

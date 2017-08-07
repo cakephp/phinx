@@ -143,7 +143,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function quoteColumnName($columnName)
     {
-        return '"'. $columnName . '"';
+        return '"' . $columnName . '"';
     }
 
     /**
@@ -172,7 +172,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $options = $table->getOptions();
 
-         // Add the default primary key
+        // Add the default primary key
         $columns = $table->getPendingColumns();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
             $column = new Column();
@@ -208,7 +208,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-         // set the primary key(s)
+        // set the primary key(s)
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
             $sql .= sprintf(' CONSTRAINT %s_pkey PRIMARY KEY (', $table->getName());
@@ -229,7 +229,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
             $sql .= ')';
         } else {
-            $sql = substr(rtrim($sql), 0, -1);              // no primary keys
+            $sql = rtrim($sql, ', '); // no primary keys, remove trailing comma
         }
 
         // set the foreign keys
@@ -313,7 +313,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $columns = array();
         $sql = sprintf(
-            "SELECT column_name, data_type, is_identity, is_nullable,
+            "SELECT column_name, data_type, udt_name, is_identity, is_nullable,
              column_default, character_maximum_length, numeric_precision, numeric_scale
              FROM information_schema.columns
              WHERE table_name ='%s'",
@@ -323,13 +323,18 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         foreach ($columnsInfo as $columnInfo) {
             $column = new Column();
+            $columnType = $columnInfo['data_type'] === 'USER-DEFINED' ? $columnInfo['udt_name'] : $columnInfo['data_type'];
             $column->setName($columnInfo['column_name'])
-                   ->setType($this->getPhinxType($columnInfo['data_type']))
+                   ->setType($this->getPhinxType($columnType))
                    ->setNull($columnInfo['is_nullable'] === 'YES')
                    ->setDefault($columnInfo['column_default'])
                    ->setIdentity($columnInfo['is_identity'] === 'YES')
                    ->setPrecision($columnInfo['numeric_precision'])
                    ->setScale($columnInfo['numeric_scale']);
+
+            if ($columnType === 'citext') {
+                $column->setCaseSensitive(false);
+            }
 
             if (preg_match('/\bwith time zone$/', $columnInfo['data_type'])) {
                 $column->setTimezone(true);
@@ -357,7 +362,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         );
 
         $result = $this->fetchRow($sql);
-        return  $result['count'] > 0;
+        return $result['count'] > 0;
     }
 
     /**
@@ -442,8 +447,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     $this->getDefaultValueDefinition($newColumn->getDefault())
                 )
             );
-        }
-        else {
+        } else {
             //drop default
             $this->execute(
                 sprintf(
@@ -541,19 +545,19 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         return false;
     }
 
-     /**
-      * {@inheritdoc}
-      */
-     public function hasIndexByName($tableName, $indexName)
-     {
-         $indexes = $this->getIndexes($tableName);
-         foreach ($indexes as $name => $index) {
-             if ($name === $indexName) {
-                 return true;
-             }
-         }
-         return false;
-     }
+    /**
+     * {@inheritdoc}
+     */
+    public function hasIndexByName($tableName, $indexName)
+    {
+        $indexes = $this->getIndexes($tableName);
+        foreach ($indexes as $name => $index) {
+            if ($name === $indexName) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * {@inheritdoc}
@@ -714,7 +718,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getSqlType($type, $limit = null)
+    public function getSqlType($type, $limit = null, $caseSensitive = null)
     {
         switch ($type) {
             case static::PHINX_TYPE_INTEGER:
@@ -726,6 +730,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 }
                 return array('name' => $type);
             case static::PHINX_TYPE_TEXT:
+                if ($caseSensitive === false) {
+                    return array('name' => 'citext');
+                }
             case static::PHINX_TYPE_TIME:
             case static::PHINX_TYPE_DATE:
             case static::PHINX_TYPE_BOOLEAN:
@@ -794,6 +801,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return static::PHINX_TYPE_CHAR;
             case 'text':
                 return static::PHINX_TYPE_TEXT;
+            case 'citext':
+                return array('name' => 'citext');
             case 'json':
                 return static::PHINX_TYPE_JSON;
             case 'jsonb':
@@ -863,7 +872,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $sql = sprintf("SELECT count(*) FROM pg_database WHERE datname = '%s'", $databaseName);
         $result = $this->fetchRow($sql);
-        return  $result['count'] > 0;
+        return $result['count'] > 0;
     }
 
     /**
@@ -904,7 +913,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if ($column->isIdentity()) {
             $buffer[] = $column->getType() == 'biginteger' ? 'BIGSERIAL' : 'SERIAL';
         } else {
-            $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
+            $sqlType = $this->getSqlType($column->getType(), $column->getLimit(), $column->getCaseSensitive());
             $buffer[] = strtoupper($sqlType['name']);
             // integers cant have limits in postgres
             if (static::PHINX_TYPE_DECIMAL === $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
@@ -1107,7 +1116,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('json', 'jsonb', 'cidr', 'inet', 'macaddr'));
+        return array_merge(parent::getColumnTypes(), array('json', 'jsonb', 'cidr', 'inet', 'macaddr', 'citext'));
     }
 
     /**

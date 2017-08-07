@@ -102,6 +102,11 @@ class Column
     protected $timezone = false;
 
     /**
+     * @var boolean
+     */
+    protected $caseSensitive = true;
+
+    /**
      * @var array
      */
     protected $properties = array();
@@ -449,6 +454,39 @@ class Column
     }
 
     /**
+     * Sets whether the field should be case-sensitive.
+     * Used for text columns only!
+     *
+     * @param bool $caseSensitive
+     * @return Column
+     */
+    public function setCaseSensitive($caseSensitive)
+    {
+        $this->caseSensitive = (bool) $caseSensitive;
+        return $this;
+    }
+
+    /**
+     * Gets whether field is case-sensitive.
+     *
+     * @return boolean
+     */
+    public function getCaseSensitive()
+    {
+        return $this->caseSensitive;
+    }
+
+    /**
+     * Should the column be case-sensitive?
+     *
+     * @return boolean
+     */
+    public function isCaseSensitive()
+    {
+        return $this->getCaseSensitive();
+    }
+
+    /**
      * Sets field properties.
      *
      * @param array $properties
@@ -586,6 +624,7 @@ class Column
             'values',
             'collation',
             'encoding',
+            'caseSensitive',
         );
     }
 
@@ -598,6 +637,7 @@ class Column
     {
         return array(
             'length' => 'limit',
+            'case_sensitive' => 'caseSensitive',
         );
     }
 
