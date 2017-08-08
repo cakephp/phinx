@@ -423,8 +423,9 @@ Finally calling ``save()`` commits the changes to the database.
     table.
 
 The ``id`` option sets the name of the automatically created identity field, while the ``primary_key``
-option selects the field or fields used for primary key. The ``primary_key`` option always defaults to
-the value of ``id``. Both can be disabled by setting them to false.
+option selects the field or fields used for primary key. ``id`` will always override the ``primary_key``
+option unless it's set to false. If you don't need a primary key set ``id`` to false without
+specifying a ``primary_key``, and no primary key will be created.
 
 To specify an alternate primary key, you can specify the ``primary_key`` option
 when accessing the Table object. Let's disable the automatic ``id`` column and
