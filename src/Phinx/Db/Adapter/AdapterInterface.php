@@ -288,6 +288,15 @@ interface AdapterInterface
     public function insert(Table $table, $row);
 
     /**
+     * Inserts data into a table in a bulk.
+     *
+     * @param Table $table where to insert data
+     * @param array $rows
+     * @return void
+     */
+    public function bulkinsert(Table $table, $rows);
+
+    /**
      * Quotes a table name for use in a query.
      *
      * @param string $tableName Table Name
