@@ -182,9 +182,11 @@ abstract class PdoAdapter extends AbstractAdapter
         $keys = array_keys($current);
         $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $keys)) . ") VALUES";
 
-        $objTmp = (object) array('aFlat' => array());
-        array_walk_recursive($rows, create_function('&$v, $k, &$t', '$t->flat[] = $v;'), $objTmp);
-        $vals = $objTmp->flat;
+        foreach ($rows as $row) {
+            foreach($row as $v) {
+                $vals[] = $v;
+            }
+        }
 
         $count_keys = count($keys);
         $query = "(" . implode(', ', array_fill(0, $count_keys, '?')) . ")";
