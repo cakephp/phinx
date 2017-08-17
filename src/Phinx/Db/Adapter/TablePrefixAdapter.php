@@ -249,6 +249,17 @@ class TablePrefixAdapter extends AdapterWrapper
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function bulkinsert(Table $table, $rows)
+    {
+        $adapterTable = clone $table;
+        $adapterTableName = $this->getAdapterTableName($table->getName());
+        $adapterTable->setName($adapterTableName);
+        parent::bulkinsert($adapterTable, $rows);
+    }
+
+    /**
      * Gets the table prefix.
      *
      * @return string
