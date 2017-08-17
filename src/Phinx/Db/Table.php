@@ -75,11 +75,6 @@ class Table
     protected $data = array();
 
     /**
-     * @var boolean
-     */
-    protected $bulk = false;
-
-    /**
      * Class Constuctor.
      *
      * @param string $name Table Name
@@ -307,39 +302,6 @@ class Table
     }
 
     /**
-     * Sets flag to be inserted in bulk.
-     *
-     * @return Table
-     */
-    public function bulk()
-    {
-        $this->setBulk(true);
-        return $this;
-    }
-
-    /**
-     * Sets flag to be inserted in bulk.
-     *
-     * @param boolean $bulk bulk flag
-     * @return Table
-     */
-    public function setBulk($bulk)
-    {
-        $this->bulk = $bulk;
-        return $this;
-    }
-
-    /**
-     * Gets flag to be inserted in bulk.
-     *
-     * @return boolean
-     */
-    public function getBulk()
-    {
-        return $this->bulk;
-    }
-
-    /**
      * Resets all of the pending table changes.
      *
      * @return void
@@ -350,7 +312,6 @@ class Table
         $this->setIndexes(array());
         $this->setForeignKeys(array());
         $this->setData(array());
-        $this->setBulk(false);
     }
 
     /**
@@ -686,7 +647,23 @@ class Table
      */
     public function saveData()
     {
-        if ($this->getBulk()) {
+        $rows = $this->getData();
+        if (empty($rows)) {
+            return;
+        }
+
+        $bulk = true;
+        $row = current($rows);
+        $c = array_keys($row);
+        foreach($this->getData() as $row) {
+            $k = array_keys($row);
+            if ($k != $c) {
+                $bulk = false;
+                break;
+            }
+        }
+
+        if ($bulk) {
             $this->getAdapter()->bulkinsert($this, $this->getData());
         } else {
             foreach ($this->getData() as $row) {
