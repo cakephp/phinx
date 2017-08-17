@@ -175,7 +175,7 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs([[]])
             ->getMock();
         $adapterStub->expects($this->once())
-                    ->method('insert');
+                    ->method('bulkinsert');
 
         $table = new Table('testdb', [], $adapterStub);
 

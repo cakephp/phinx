@@ -182,6 +182,7 @@ abstract class PdoAdapter extends AbstractAdapter
         $keys = array_keys($current);
         $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $keys)) . ") VALUES";
 
+        $vals = array();
         foreach ($rows as $row) {
             foreach($row as $v) {
                 $vals[] = $v;
