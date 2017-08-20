@@ -407,7 +407,7 @@ class Manager
      * Rollback an environment to the specified version.
      *
      * @param string $environment Environment
-     * @param int $target
+     * @param int|string $target
      * @param bool $force
      * @param bool $targetMustMatchVersion
      * @return void
