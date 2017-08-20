@@ -420,10 +420,6 @@ class Manager
         // note that the version log are also indexed by name with the proper ascending order according to the version order
         $executedVersions = $this->getEnvironment($environment)->getVersionLog();
 
-        if ($target === "0") {
-            $target = 0;
-        }
-
         // get a list of migrations sorted in the opposite way of the executed versions
         $sortedMigrations = array();
 
@@ -441,6 +437,22 @@ class Manager
                 // this means the version is missing so we unset it so that we don't consider it when rolling back 
                 // migrations (or choosing the last up version as target)
                 unset($executedVersions[$versionCreationTime]);
+            }
+        }
+
+        if ($target === 'all' || $target === '0') {
+            $target = 0;
+        } else if (!is_numeric($target) && !is_null($target)) { // try to find a target version based on name
+            // search through the migrations using the name
+            $migrationNames = array_map(function ($item) { return $item['migration_name']; }, $executedVersions);
+            $found = array_search($target, $migrationNames);
+
+            // check on was found
+            if ($found !== false) {
+                $target = (string)$found;
+            } else {
+                $this->getOutput()->writeln("<error>No migration found with name ($target)</error>");
+                return;
             }
         }
 
