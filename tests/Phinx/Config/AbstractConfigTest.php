@@ -45,6 +45,8 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
             'environments' => array(
                 'default_migration_table' => 'phinxlog',
                 'default_database' => 'testing',
+                'default_adapter' => 'pgsql',
+                'default_host' => 'localhost',
                 'testing' => array(
                     'adapter' => 'sqllite',
                     'wrapper' => 'testwrapper',
