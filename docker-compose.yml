@@ -1,14 +1,13 @@
 version: "2"
 services:
     phinx:
-        build:
-            dockerfile: docker/Dockerfile
-            context: .
+        build: .
         volumes:
-            - .:/app
+            - .:/src
         links:
-            - mysql:mysql
-            - postgres:postgres
+            - mysql
+            - postgres
+        command: sh -c "cd /src && `cat phpunit.xml.dist | sed 's/localhost/mysql/' | sed 's/127.0.0.1/postgres/' > phpunit.xml` && /bin/bash"
     mysql:
         image: mysql:5.5
         environment:

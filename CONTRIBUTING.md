@@ -66,13 +66,8 @@ If you do not wish to install MySQL and Postgres locally to run unit tests
 can use [docker-compose](https://docs.docker.com/compose/) which will start 
 both database, install all development dependencies and run all unit tests.
 
-To get started, just run `docker-compose run phinx`. It will download all 
-images, install all dependencies, hook them up and run all unit tests
-(note: SQLServer tests are not supported, yet).
-
-You can also use `docker-compose run phinx install` to update/reinstall
-php composer packages manually. If you wish to drop into a shell, just run
-`docker-compose run phinx bash`, which will drop you right into a shell.
+To get started, just run `dco run --rm phinx`. It will download all 
+images, build&start development container create `phpunit.xml` configuration and switch you to that container. So just install dependencies with `composer install` and run unittests with `vendor/bin/phpunit`.
 
 ## Documentation
 
