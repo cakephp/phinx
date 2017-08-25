@@ -34,5 +34,9 @@ vendor
 # this is user specific settings for running phpunit to override the defaults in phpunit.xml.dist
 phpunit.xml
 
+# auto created by docker-compose runs
+phpunit.xml.docker
+
 # sqlite test database
 phinx_testing.sqlite3
+phinx_testing.sqlite3-journal
