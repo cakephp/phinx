@@ -291,6 +291,7 @@ Using Phinx with PHPUnit
 Phinx can be used within your unit tests to prepare or seed the database. You can use it programatically :
 
 .. code-block:: php
+
         public function setUp ()
         {
           $app = new PhinxApplication();
@@ -301,6 +302,7 @@ Phinx can be used within your unit tests to prepare or seed the database. You ca
 If you use a memory database, you'll need to give Phinx a specific PDO instance. You can interact with Phinx directly using the Manager class : 
 
 .. code-block:: php
+
         use PDO;
         use Phinx\Config\Config;
         use Phinx\Migration\Manager;
