@@ -350,6 +350,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $column->setIdentity(true);
             }
 
+            if (isset($phinxType['values'])) {
+                $column->setValues($phinxType['values']);
+            }
+
             $columns[] = $column;
         }
 
@@ -841,6 +845,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getPhinxType($sqlTypeDef)
     {
+        $matches = array();
         if (!preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*(.+)*$/', $sqlTypeDef, $matches)) {
             throw new \RuntimeException('Column type ' . $sqlTypeDef . ' is not supported');
         } else {
@@ -926,13 +931,20 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     break;
             }
 
+            // Call this to check if parsed type is supported.
             $this->getSqlType($type, $limit);
 
-            return array(
+            $phinxType = array(
                 'name' => $type,
                 'limit' => $limit,
                 'precision' => $precision
             );
+
+            if (static::PHINX_TYPE_ENUM == $type) {
+                $phinxType['values'] = explode("','", trim($matches[6], "()'"));
+            }
+
+            return $phinxType;
         }
     }
 
