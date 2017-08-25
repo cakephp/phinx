@@ -63,16 +63,16 @@ Great, so you want to contribute. Let's get started:
 ## Getting Started with docker
 
 If you do not wish to install MySQL and Postgres locally to run unit tests
-can use [docker-compose](https://docs.docker.com/compose/) which will start 
+can use [docker-compose](https://docs.docker.com/compose/) which will start
 both database, install all development dependencies and run all unit tests.
 
-To get started, just run `docker-compose run phinx`. It will download all 
+To get started, just run `docker-compose run --rm phinx`. It will download all
 images, install all dependencies, hook them up and run all unit tests
 (note: SQLServer tests are not supported, yet).
 
-You can also use `docker-compose run phinx install` to update/reinstall
+You can also use `docker-compose run --rm phinx install` to update/reinstall
 php composer packages manually. If you wish to drop into a shell, just run
-`docker-compose run phinx bash`, which will drop you right into a shell.
+`docker-compose run --rm phinx bash`, which will drop you right into a shell.
 
 ## Documentation
 
