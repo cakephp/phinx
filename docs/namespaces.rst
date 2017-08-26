@@ -11,7 +11,7 @@ Using namespaces
 ------------------------
 1) locate your Phinx config file, the config file may be in one of following three formats: PHP, YAML or JSON.
 2) Locate the "paths" key inside the config file, it should look something like one of the below examples.
-    - (NB. the "migrations" and "seeds" keys may be both an array or string, so don't be alarmed if yours looks different)
+    - (NB. the "migrations" and "seeds" keys may be both an array or a string, so don't be alarmed if yours looks different)
 
 PHP:
 
@@ -66,8 +66,8 @@ PHP is a bit special in this case, as it allows keyless and keyed values in the 
         {
             "paths": {
                 "migrations": {
-                    "0": "./db/migrations", // Non-namespaced migrations
-                    "Foo\\Bar": "./db/FooBar" // Migrations in the Foo\Bar namespace.
+                    "0": "./db/migrations",
+                    "Foo\\Bar": "./db/FooBar"
                 }
             }
         }
