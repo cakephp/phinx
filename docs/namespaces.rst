@@ -4,8 +4,8 @@
 PSR-4 compliance
 ==================
 
-Phinx allows the use of namespaces in Migrations and Seeders, to allow for a more PSR-4 compliant application.
-Migrations require a timestamp in the filename, and therefore won't be fully PSR-4 compliant, however Seeders does not need a timestamp, and will be fully PSR-4 compliant.
+Phinx allows the use of namespaces in Migrations and Seeders.
+Migrations require a timestamp in the filename, and therefore won't be fully PSR-4 compliant. Seeders does not need a timestamp, and will be fully PSR-4 compliant.
 
 Using namespaces
 ------------------------
@@ -59,7 +59,7 @@ JSON:
             ]
         ],
 
-PHP is a bit special in this case, as it allows keyless and keyed values in the same array, to make this configuration work in YAML and JSON, we have to key the non-namespaced path with "0".
+PHP is a bit special in this case, as it allows keyless and keyed values in the same array. To make this configuration work in YAML and JSON, we have to key the non-namespaced path with "0".
 
 .. code-block:: json
 
@@ -76,4 +76,4 @@ PHP is a bit special in this case, as it allows keyless and keyed values in the 
 
 Did you run into an issue?
 
-    - Due to the way the migrations are created, it is imposible to generate a migration in the *global* namespace with a classname that is the same as a migration in a user-defined namespace.
+    - Due to the way the migrations are created, it is imposible to generate a migration in the *global* namespace with a classname that is the same, as a migration in a user-defined namespace.
