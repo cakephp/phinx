@@ -78,4 +78,4 @@ PHP is a bit special in this case, as it allows keyless and keyed values in the 
 Did you run into an issue?
 ------------------------
 
-- Due to the way the migrations are created, it is imposible to generate a migration in the *global* namespace with a classname that is the same, as a migration in a user-defined namespace.
+- Due to the way the migrations are created, it is imposible to generate a migration in the *global* namespace with a classname that is the same as a migration in a user-defined namespace.
