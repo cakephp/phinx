@@ -122,6 +122,9 @@ class TextWrapper
         if ($this->hasOption('parser')) {
             $command += array('-p' => $this->getOption('parser'));
         }
+        if ($this->hasOption('migrations')) {
+            $command += array('-m' => $this->getOption('migrations'));
+        }
         if ($target) {
             $command += array('-t' => $target);
         }
