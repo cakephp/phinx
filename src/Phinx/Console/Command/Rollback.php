@@ -122,15 +122,17 @@ EOT
         if (null === $date) {
             $targetMustMatchVersion = true;
             $target = $version;
-        } else if ($migrations != null) {
-            $this->getManager()->rollbackMigrations($environment, $migrations);
         } else {
             $targetMustMatchVersion = false;
             $target = $this->getTargetFromDate($date);
         }
 
         $start = microtime(true);
-        $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion);
+        if ($migrations != null) {
+            $this->getManager()->rollbackMigrations($environment, $migrations);
+        } else {
+            $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion);
+        }
         $end = microtime(true);
 
         $output->writeln('');
