@@ -102,7 +102,7 @@ class TablePrefixAdapter extends AdapterWrapper
     public function truncateTable($tableName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        return parent::truncateTable($adapterTableName);
+        parent::truncateTable($adapterTableName);
     }
 
     /**

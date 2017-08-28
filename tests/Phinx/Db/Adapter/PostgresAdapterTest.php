@@ -3,6 +3,9 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\PostgresAdapter;
 
@@ -511,6 +514,17 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table->hasIndex('email'));
     }
 
+    public function testAddIndexIsCaseSensitive()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('theEmail', 'string')
+            ->save();
+        $this->assertFalse($table->hasIndex('theEmail'));
+        $table->addIndex('theEmail')
+            ->save();
+        $this->assertTrue($table->hasIndex('theEmail'));
+    }
+
     public function testDropIndex()
     {
          // single column index
@@ -736,6 +750,27 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($comment, $row['column_comment'], 'Dont set column comment correctly');
     }
 
+    public function testCanAddCommentForColumnWithReservedName()
+    {
+        $table = new \Phinx\Db\Table('user', array(), $this->adapter);
+        $table->addColumn('index', 'string', array('comment' => $comment = 'Comments from column "index"'))
+            ->save();
+
+        $row = $this->adapter->fetchRow(
+            'SELECT
+                (select pg_catalog.col_description(oid,cols.ordinal_position::int)
+            from pg_catalog.pg_class c
+            where c.relname=cols.table_name ) as column_comment
+            FROM information_schema.columns cols
+            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            AND cols.table_name=\'user\'
+            AND cols.column_name = \'index\''
+        );
+
+        $this->assertEquals($comment, $row['column_comment'],
+            'Dont set column comment correctly for tables or columns with reserved names');
+    }
+
     /**
      * @depends testCanAddColumnComment
      */
@@ -948,5 +983,28 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $table->truncate();
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
         $this->assertEquals(0, count($rows));
+    }
+
+
+    public function testDumpCreateTable()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', array('default' => 'test'))
+            ->save();
+
+        $expectedOutput = <<<'OUTPUT'
+CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT 'test', CONSTRAINT table1_pkey PRIMARY KEY ("id"));
+OUTPUT;
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query');
     }
 }

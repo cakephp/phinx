@@ -47,6 +47,7 @@ class Migrate extends AbstractCommand
              ->setDescription('Migrate the database')
              ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
              ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to migrate to')
+             ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
              ->setHelp(
 <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version

@@ -408,7 +408,7 @@ class Manager
      * Rollback an environment to the specified version.
      *
      * @param string $environment Environment
-     * @param int $target
+     * @param int|string $target
      * @param bool $force
      * @param bool $targetMustMatchVersion
      * @return void
@@ -420,10 +420,6 @@ class Manager
 
         // note that the version log are also indexed by name with the proper ascending order according to the version order
         $executedVersions = $this->getEnvironment($environment)->getVersionLog();
-
-        if ($target === "0") {
-            $target = 0;
-        }
 
         // get a list of migrations sorted in the opposite way of the executed versions
         $sortedMigrations = array();
@@ -445,6 +441,22 @@ class Manager
             }
         }
 
+        if ($target === 'all' || $target === '0') {
+            $target = 0;
+        } else if (!is_numeric($target) && !is_null($target)) { // try to find a target version based on name
+            // search through the migrations using the name
+            $migrationNames = array_map(function ($item) { return $item['migration_name']; }, $executedVersions);
+            $found = array_search($target, $migrationNames);
+
+            // check on was found
+            if ($found !== false) {
+                $target = (string)$found;
+            } else {
+                $this->getOutput()->writeln("<error>No migration found with name ($target)</error>");
+                return;
+            }
+        }
+
         // Check we have at least 1 migration to revert
         $executedVersionCreationTimes = array_keys($executedVersions);
         if (empty($executedVersionCreationTimes) || $target == end($executedVersionCreationTimes)) {
@@ -456,7 +468,7 @@ class Manager
         if (null === $target) {
             // Get the migration before the last run migration
             $prev = count($executedVersionCreationTimes) - 2;
-            $target = $prev >= 0 ? $executedVersionCreationTimes[$prev] : $executedVersionCreationTimes[0];
+            $target = $prev >= 0 ? $executedVersionCreationTimes[$prev] : 0;
         }
 
         // If the target must match a version, check the target version exists

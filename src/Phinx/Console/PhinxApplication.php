@@ -47,9 +47,9 @@ class PhinxApplication extends Application
      *
      * @param string $version The Application Version
      */
-    public function __construct($version = '0.8.0')
+    public function __construct($version = '0.8.1')
     {
-        parent::__construct('Phinx by Rob Morgan - https://phinx.org.', $version);
+        parent::__construct('Phinx by CakePHP - https://phinx.org.', $version);
 
         $this->addCommands(array(
             new Command\Init(),

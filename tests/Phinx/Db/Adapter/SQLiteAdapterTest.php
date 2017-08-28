@@ -3,6 +3,9 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Phinx\Db\Adapter\SQLiteAdapter;
 
@@ -319,7 +322,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
         $refTable->addColumn('field1', 'string')->save();
 
-        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table = new \Phinx\Db\Table('another_table', array(), $this->adapter);
         $table->addColumn('ref_table_id', 'integer')->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
@@ -376,14 +379,28 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("'another default'", $rows[1]['dflt_value']);
     }
 
-    public function testDropColumn()
+    /**
+     * @dataProvider columnCreationArgumentProvider
+     */
+    public function testDropColumn($columnCreationArgs)
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
-        $table->addColumn('column1', 'string')
-              ->save();
-        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
-        $this->adapter->dropColumn('t', 'column1');
-        $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
+        $columnName = $columnCreationArgs[0];
+        call_user_func_array([$table, 'addColumn'], $columnCreationArgs);
+        $table->save();
+        $this->assertTrue($this->adapter->hasColumn('t', $columnName));
+
+        $this->adapter->dropColumn('t', $columnName);
+
+        $this->assertFalse($this->adapter->hasColumn('t', $columnName));
+    }
+
+    public function columnCreationArgumentProvider()
+    {
+        return [
+            [ ['column1', 'string'] ],
+            [ ['profile_colour', 'enum', ['values' => ['blue', 'red', 'white']]] ]
+        ];
     }
 
     public function testGetColumns()
@@ -528,9 +545,11 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     public function testDropForeignKey()
     {
         $refTable = new \Phinx\Db\Table('ref_table', array(), $this->adapter);
-        $refTable->addColumn('field1', 'string')->save();
+        $refTable->addColumn('field1', 'string')
+                 ->addIndex(array('field1'), array('unique' => true))
+                 ->save();
 
-        $table = new \Phinx\Db\Table('table', array(), $this->adapter);
+        $table = new \Phinx\Db\Table('another_table', array(), $this->adapter);
         $table->addColumn('ref_table_id', 'integer')->addColumn('ref_table_field', 'string')->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
@@ -747,5 +766,27 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $table->truncate();
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
         $this->assertEquals(0, count($rows));
+    }
+
+    public function testDumpCreateTable()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', array('default' => 'test'))
+            ->save();
+
+        $expectedOutput = <<<'OUTPUT'
+CREATE TABLE `table1` (`id` INTEGER NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR(255) NULL, `column2` INTEGER NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test');
+OUTPUT;
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
     }
 }

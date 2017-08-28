@@ -9,13 +9,21 @@ use Phinx\Migration\MigrationInterface;
 
 class PDOMock extends \PDO
 {
+    public $attributes = [];
+
     public function __construct()
     {
+
     }
 
     public function getAttribute($attribute)
     {
-        return 'pdomock';
+        return isset($this->attributes[$attribute]) ? $this->attributes[$attribute] : 'pdomock';
+    }
+
+    public function setAttribute($attribute, $value)
+    {
+        $this->attributes[$attribute] = $value;
     }
 }
 
@@ -77,6 +85,15 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('pdomock', $options['adapter']);
     }
 
+    public function testSetPdoAttributeToErrmodeException() {
+        $pdoMock = new PDOMock();
+        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', array(array('foo' => 'bar')));
+        AdapterFactory::instance()->registerAdapter('pdomock', $adapter);
+        $this->environment->setOptions(array('connection' => $pdoMock));
+        $options = $this->environment->getAdapter()->getOptions();
+        $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $options['connection']->getAttribute(\PDO::ATTR_ERRMODE));
+    }
+
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage The specified connection is not a PDO instance
@@ -93,7 +110,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Phinx\Db\Adapter\TablePrefixAdapter', $this->environment->getAdapter());
 
         $tablePrefixAdapter = $this->environment->getAdapter();
-        $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $tablePrefixAdapter->getAdapter());
+        $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $tablePrefixAdapter->getAdapter()->getAdapter());
     }
 
     public function testSchemaName()

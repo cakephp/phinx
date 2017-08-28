@@ -170,7 +170,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createTable(Table $table)
     {
-        $this->startCommandTimer();
         $options = $table->getOptions();
 
          // Add the default primary key
@@ -260,7 +259,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
 
         // execute the sql
-        $this->writeCommand('createTable', array($table->getName()));
         $this->execute($sql);
 
         // process table comments
@@ -272,8 +270,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             );
             $this->execute($sql);
         }
-
-        $this->endCommandTimer();
     }
 
     /**
@@ -281,15 +277,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameTable($tableName, $newTableName)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('renameTable', array($tableName, $newTableName));
         $sql = sprintf(
             'ALTER TABLE %s RENAME TO %s',
             $this->quoteTableName($tableName),
             $this->quoteColumnName($newTableName)
         );
         $this->execute($sql);
-        $this->endCommandTimer();
     }
 
     /**
@@ -297,10 +290,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropTable($tableName)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('dropTable', array($tableName));
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
-        $this->endCommandTimer();
     }
 
     /**
@@ -375,8 +365,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function addColumn(Table $table, Column $column)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('addColumn', array($table->getName(), $column->getName(), $column->getType()));
         $sql = sprintf(
             'ALTER TABLE %s ADD %s %s',
             $this->quoteTableName($table->getName()),
@@ -385,7 +373,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         );
 
         $this->execute($sql);
-        $this->endCommandTimer();
     }
 
     /**
@@ -393,7 +380,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameColumn($tableName, $columnName, $newColumnName)
     {
-        $this->startCommandTimer();
         $sql = sprintf(
             "SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS column_exists
              FROM information_schema.columns
@@ -405,7 +391,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if (!(bool) $result['column_exists']) {
             throw new \InvalidArgumentException("The specified column does not exist: $columnName");
         }
-        $this->writeCommand('renameColumn', array($tableName, $columnName, $newColumnName));
         $this->execute(
             sprintf(
                 'ALTER TABLE %s RENAME COLUMN %s TO %s',
@@ -414,7 +399,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $this->quoteColumnName($newColumnName)
             )
         );
-        $this->endCommandTimer();
     }
 
     /**
@@ -423,8 +407,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function changeColumn($tableName, $columnName, Column $newColumn)
     {
         // TODO - is it possible to merge these 3 queries into less?
-        $this->startCommandTimer();
-        $this->writeCommand('changeColumn', array($tableName, $columnName, $newColumn->getType()));
         // change data type
         $sql = sprintf(
             'ALTER TABLE %s ALTER COLUMN %s TYPE %s',
@@ -488,8 +470,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $sql = $this->getColumnCommentSqlDefinition($newColumn, $tableName);
             $this->execute($sql);
         }
-
-        $this->endCommandTimer();
     }
 
     /**
@@ -497,8 +477,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropColumn($tableName, $columnName)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('dropColumn', array($tableName, $columnName));
         $this->execute(
             sprintf(
                 'ALTER TABLE %s DROP COLUMN %s',
@@ -506,7 +484,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $this->quoteColumnName($columnName)
             )
         );
-        $this->endCommandTimer();
     }
 
     /**
@@ -583,11 +560,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function addIndex(Table $table, Index $index)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('addIndex', array($table->getName(), $index->getColumns()));
         $sql = $this->getIndexSqlDefinition($index, $table->getName());
         $this->execute($sql);
-        $this->endCommandTimer();
     }
 
     /**
@@ -595,12 +569,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropIndex($tableName, $columns)
     {
-        $this->startCommandTimer();
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
 
-        $this->writeCommand('dropIndex', array($tableName, $columns));
         $indexes = $this->getIndexes($tableName);
         $columns = array_map('strtolower', $columns);
 
@@ -613,7 +585,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($indexName)
                     )
                 );
-                $this->endCommandTimer();
+
                 return;
             }
         }
@@ -624,14 +596,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropIndexByName($tableName, $indexName)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('dropIndexByName', array($tableName, $indexName));
         $sql = sprintf(
             'DROP INDEX IF EXISTS %s',
             $indexName
         );
         $this->execute($sql);
-        $this->endCommandTimer();
     }
 
     /**
@@ -696,15 +665,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function addForeignKey(Table $table, ForeignKey $foreignKey)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('addForeignKey', array($table->getName(), $foreignKey->getColumns()));
         $sql = sprintf(
             'ALTER TABLE %s ADD %s',
             $this->quoteTableName($table->getName()),
             $this->getForeignKeySqlDefinition($foreignKey, $table->getName())
         );
         $this->execute($sql);
-        $this->endCommandTimer();
     }
 
     /**
@@ -712,11 +678,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropForeignKey($tableName, $columns, $constraint = null)
     {
-        $this->startCommandTimer();
         if (is_string($columns)) {
             $columns = array($columns); // str to array
         }
-        $this->writeCommand('dropForeignKey', array($tableName, $columns));
 
         if ($constraint) {
             $this->execute(
@@ -745,7 +709,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
         }
-        $this->endCommandTimer();
     }
 
     /**
@@ -769,6 +732,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_JSON:
             case static::PHINX_TYPE_JSONB:
             case static::PHINX_TYPE_UUID:
+            case static::PHINX_TYPE_CIDR:
+            case static::PHINX_TYPE_INET:
+            case static::PHINX_TYPE_MACADDR:
                 return array('name' => $type);
             case static::PHINX_TYPE_DECIMAL:
                 return array('name' => $type, 'precision' => 18, 'scale' => 0);
@@ -870,6 +836,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return static::PHINX_TYPE_BOOLEAN;
             case 'uuid':
                 return static::PHINX_TYPE_UUID;
+            case 'cidr':
+                return static::PHINX_TYPE_CIDR;
+            case 'inet':
+                return static::PHINX_TYPE_INET;
+            case 'macaddr':
+                return static::PHINX_TYPE_MACADDR;
             default:
                 throw new \RuntimeException('The PostgreSQL type: "' . $sqlType . '" is not supported');
         }
@@ -880,11 +852,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createDatabase($name, $options = array())
     {
-        $this->startCommandTimer();
-        $this->writeCommand('createDatabase', array($name));
         $charset = isset($options['charset']) ? $options['charset'] : 'utf8';
         $this->execute(sprintf("CREATE DATABASE %s WITH ENCODING = '%s'", $name, $charset));
-        $this->endCommandTimer();
     }
 
     /**
@@ -902,12 +871,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropDatabase($name)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('dropDatabase', array($name));
         $this->disconnect();
         $this->execute(sprintf('DROP DATABASE IF EXISTS %s', $name));
         $this->connect();
-        $this->endCommandTimer();
     }
 
     /**
@@ -954,7 +920,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     strtoupper($sqlType['type']),
                     $sqlType['srid']
                 );
-            } elseif (!in_array($sqlType['name'], array('integer', 'smallint'))) {
+            } elseif (!in_array($sqlType['name'], array('integer', 'smallint', 'bigint'))) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
                 }
@@ -994,8 +960,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         return sprintf(
             'COMMENT ON COLUMN %s.%s IS %s;',
-            $tableName,
-            $column->getName(),
+            $this->quoteSchemaName($tableName),
+            $this->quoteColumnName($column->getName()),
             $comment
         );
     }
@@ -1023,7 +989,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
             $this->quoteTableName($tableName),
-            implode(',', $index->getColumns())
+            implode(',', array_map(array($this, 'quoteColumnName'), $index->getColumns()))
         );
         return $def;
     }
@@ -1072,11 +1038,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createSchema($schemaName = 'public')
     {
-        $this->startCommandTimer();
-        $this->writeCommand('addSchema', array($schemaName));
         $sql = sprintf('CREATE SCHEMA %s;', $this->quoteSchemaName($schemaName)); // from postgres 9.3 we can use "CREATE SCHEMA IF NOT EXISTS schema_name"
         $this->execute($sql);
-        $this->endCommandTimer();
     }
 
     /**
@@ -1105,11 +1068,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropSchema($schemaName)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('dropSchema', array($schemaName));
         $sql = sprintf("DROP SCHEMA IF EXISTS %s CASCADE;", $this->quoteSchemaName($schemaName));
         $this->execute($sql);
-        $this->endCommandTimer();
     }
 
     /**
@@ -1119,12 +1079,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropAllSchemas()
     {
-        $this->startCommandTimer();
-        $this->writeCommand('dropAllSchemas');
         foreach ($this->getAllSchemas() as $schema) {
             $this->dropSchema($schema);
         }
-        $this->endCommandTimer();
     }
 
     /**
@@ -1150,7 +1107,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('json', 'jsonb'));
+        return array_merge(parent::getColumnTypes(), array('json', 'jsonb', 'cidr', 'inet', 'macaddr'));
     }
 
     /**

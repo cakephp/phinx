@@ -73,6 +73,11 @@ interface AdapterInterface
     const PHINX_TYPE_ENUM           = 'enum';
     const PHINX_TYPE_SET            = 'set';
 
+    // only for postgresql so far
+    const PHINX_TYPE_CIDR      = 'cidr';
+    const PHINX_TYPE_INET      = 'inet';
+    const PHINX_TYPE_MACADDR   = 'macaddr';
+
     /**
      * Get all migrated version numbers.
      *
@@ -253,7 +258,7 @@ interface AdapterInterface
      * Executes a SQL statement and returns the result as an array.
      *
      * @param string $sql SQL
-     * @return array
+     * @return mixed
      */
     public function query($sql);
 
@@ -517,6 +522,24 @@ interface AdapterInterface
      * @return void
      */
     public function dropDatabase($name);
+
+    /**
+     * Creates the specified schema or throws an exception
+     * if there is no support for it.
+     *
+     * @param  string $schemaName Schema Name
+     * @return void
+     */
+    public function createSchema($schemaName = 'public');
+
+    /**
+     * Drops the specified schema table  or throws an exception
+     * if there is no support for it.
+     *
+     * @param string $schemaName Schema name
+     * @return void
+     */
+    public function dropSchema($schemaName);
 
     /**
      * Cast a value to a boolean appropriate for the adapter.

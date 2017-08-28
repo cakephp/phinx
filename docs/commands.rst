@@ -101,6 +101,12 @@ for short.
 
         $ phinx migrate -e development -t 20110103081132
 
+Use ``--dry-run`` to print the queries to standard output without executing them
+
+.. code-block:: bash
+
+        $ phinx migrate --dry-run
+
 The Rollback Command
 --------------------
 
@@ -145,6 +151,12 @@ breakpoint using the ``--force`` parameter or ``-f`` for short.
 .. code-block:: bash
 
         $ phinx rollback -e development -t 0 -f
+
+Use ``--dry-run`` to print the queries to standard output without executing them
+
+.. code-block:: bash
+
+        $ phinx rollback --dry-run
 
 .. note::
 
@@ -272,3 +284,51 @@ and to rollback use `<http://localhost:8000/rollback>`__.
         To modify configuration variables at runtime and override ``%%PHINX_DBNAME%%``
         or other another dynamic option, set ``$_SERVER['PHINX_DBNAME']`` before
         running commands. Available options are documented in the Configuration page.
+
+Using Phinx with PHPUnit
+--------------------------
+
+Phinx can be used within your unit tests to prepare or seed the database. You can use it programatically :
+
+.. code-block:: php
+
+        public function setUp ()
+        {
+          $app = new PhinxApplication();
+          $app->setAutoExit(false);
+          $app->run(new StringInput('migrate'), new NullOutput());
+        }
+
+If you use a memory database, you'll need to give Phinx a specific PDO instance. You can interact with Phinx directly using the Manager class : 
+
+.. code-block:: php
+
+        use PDO;
+        use Phinx\Config\Config;
+        use Phinx\Migration\Manager;
+        use PHPUnit\Framework\TestCase;
+        use Symfony\Component\Console\Input\StringInput;
+        use Symfony\Component\Console\Output\NullOutput;
+
+        class DatabaseTestCase extends TestCase {
+                
+            public function setUp ()
+            {
+                $pdo = new PDO('sqlite::memory:', null, null, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                ]);
+                $configArray = require('phinx.php');
+                $configArray['environments']['test'] = [
+                    'adapter'    => 'sqlite',
+                    'connection' => $pdo
+                ];
+                $config = new Config($configArray);
+                $manager = new Manager($config, new StringInput(' '), new NullOutput());
+                $manager->migrate('test');
+                $manager->seed('test');
+                // You can change default fetch mode after the seeding
+                $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+                $this->pdo = $pdo;
+            }
+
+        }

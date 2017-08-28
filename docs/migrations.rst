@@ -183,7 +183,8 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
                 $count = $this->execute('DELETE FROM users'); // returns the number of affected rows
 
                 // query()
-                $rows = $this->query('SELECT * FROM users'); // returns the result as an array
+                $stmt = $this->query('SELECT * FROM users'); // returns PDOStatement
+                $rows = $stmt->fetchAll(); // returns the result as an array
             }
 
             /**
@@ -203,6 +204,29 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
     the ``execute()`` command. This is especially important when using
     DELIMITERs during insertion of stored procedures or triggers which
     don't support DELIMITERs.
+
+.. warning::
+
+    When using ``execute()`` or ``query()`` with a batch of queries, PDO doesn't
+    throw an exception if there is an issue with one or more of the queries
+    in the batch.
+
+    As such, the entire batch is assumed to have passed without issue.
+
+    If Phinx was to iterate any potential result sets, looking to see if one
+    had an error, then Phinx would be denying access to all the results as there
+    is no facility in PDO to get a previous result set
+    `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`_ -
+    but no ``previousSet()``).
+
+    So, as a consequence, due to the design decision in PDO to not throw
+    an exception for batched queries, Phinx is unable to provide the fullest
+    support for error handling when batches of queries are supplied.
+
+    Fortunately though, all the features of PDO are available, so multiple batches
+    can be controlled within the migration by calling upon
+    `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`_
+    and examining `errorInfo <http://php.net/manual/en/pdostatement.errorinfo.php>`_.
 
 Fetching Rows
 -------------
@@ -264,7 +288,7 @@ insert methods in your migrations.
                 $singleRow = [
                     'id'    => 1,
                     'name'  => 'In Progress'
-                ]
+                ];
 
                 $table = $this->table('status');
                 $table->insert($singleRow);
@@ -399,8 +423,9 @@ Finally calling ``save()`` commits the changes to the database.
     table.
 
 The ``id`` option sets the name of the automatically created identity field, while the ``primary_key``
-option selects the field or fields used for primary key. The ``primary_key`` option always defaults to
-the value of ``id``. Both can be disabled by setting them to false.
+option selects the field or fields used for primary key. ``id`` will always override the ``primary_key``
+option unless it's set to false. If you don't need a primary key set ``id`` to false without
+specifying a ``primary_key``, and no primary key will be created.
 
 To specify an alternate primary key, you can specify the ``primary_key`` option
 when accessing the Table object. Let's disable the automatic ``id`` column and
@@ -474,7 +499,39 @@ Option    Description
 comment   set a text comment on the table
 engine    define table engine *(defaults to ``InnoDB``)*
 collation define table collation *(defaults to ``utf8_general_ci``)*
+signed    whether the primary key is ``signed``
 ========= ===========
+
+By default the primary key is ``signed``.
+To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('followers', array('signed' => false));
+                $table->addColumn('follower_id', 'integer')
+                      ->addColumn('created', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
 
 Valid Column Types
 ~~~~~~~~~~~~~~~~~~
@@ -498,7 +555,7 @@ Column types are specified as strings and can be one of:
 In addition, the MySQL adapter supports ``enum``, ``set``, ``blob`` and ``json`` column types.
 (``json`` in MySQL 5.7 and above)
 
-In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb`` and ``uuid`` column types
+In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
 
 For valid options, see the `Valid Column Options`_ below.
@@ -636,7 +693,7 @@ Column types are specified as strings and can be one of:
 
 In addition, the MySQL adapter supports ``enum``, ``set`` and ``blob`` column types.
 
-In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb`` and ``uuid`` column types
+In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
 
 Valid Column Options
@@ -1225,7 +1282,7 @@ We can add named foreign keys using the ``constraint`` parameter. This feature i
             public function up()
             {
                 $table = $this->table('your_table');
-                $table->addForeignKey('foreign_id', 'reference_table', array('id'), 
+                $table->addForeignKey('foreign_id', 'reference_table', array('id'),
                                     array('constraint'=>'your_foreign_key_name'));
                       ->save();
             }
