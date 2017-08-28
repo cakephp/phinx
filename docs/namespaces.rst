@@ -67,15 +67,80 @@ PHP is a bit special in this case, as it allows keyless and keyed values in the 
             "paths": {
                 "migrations": {
                     "0": "./db/migrations",
-                    "Foo\\Bar": "./db/FooBar"
+                    "Foo\\Bar": "./src/FooBar/db/migrations"
                 }
             }
         }
 
-4) That's it, you're ready to go, to create a migration simply run: `$ phinx create Foo\\MyNewMigration`
+.. code-block:: yaml
+
+        paths:
+            migrations:
+                0: ./db/migrations
+                Foo\\Bar: ./src/FooBar/db/migrations
+
+Let's take a closer look on how the paths are resolved, let's start with the non-namespaced path.
+
+"./" refers to the project-root, therefore "./db/migrations" would resolve to <project-root>/db/migrations.
+This is the directory where Phinx will look for migrations when migrating.
+NB. these migrations must not have a namespace.
+
+.. image:: http://i.imgur.com/Kb40Cze.jpg
+
+This image shows the path for "./db/migrations" where "Phinx" is the project root.
+
+And the namespaced path would be resolved as shown below.
+
+"./src/FooBar/db/migrations" would resolve to <project-root>/src/FooBar/db/migrations, which is where Phinx will look for migrations in the Foo\\Bar namespace.
+
+.. image:: http://i.imgur.com/C5NI3Ag.png
+
+The filepath would look like this, if the project-root was "Phinx"
+
+The non-namespaced file is located in <project-root>/db/migrations and can look like the following example.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class CreateUserTable extends AbstractMigration
+        {
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->addColumn('name', 'string')->create();
+            }
+        }
+
+Whereas the namespaced file will be found in <project-root>/src/FoorBar/db/migrations and can look like this:
+(Notice the namespace is the same as defined in the paths config).
+
+.. code-block:: php
+
+        <?php
+
+        namespace Foo\Bar;
+
+        use Phinx\Migration\AbstractMigration;
+
+        class CreateUserTable extends AbstractMigration
+        {
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->addColumn('name', 'string')->create();
+            }
+        }
+
+
+4) That's it, you're ready to go, to create a migration simply run: *$ phinx create CreateUsersTable [--path ./src/FoorBar/db/migrations]*
+
+    - If multiple paths are configued, but none provided with the --path flag, you will be prompted for which path to use.
 
 
 Did you run into an issue?
-------------------------
+--------------------------
 
 - Due to the way the migrations are created, it is imposible to generate a migration in the *global* namespace with a classname that is the same as a migration in a user-defined namespace.
