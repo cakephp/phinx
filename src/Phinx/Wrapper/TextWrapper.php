@@ -178,6 +178,9 @@ class TextWrapper
         if ($this->hasOption('parser')) {
             $command += array('-p' => $this->getOption('parser'));
         }
+        if ($this->hasOption('migrations')) {
+            $command += array('-m' => $this->getOption('migrations'));
+        }
         if (isset($target)) {
             // Need to use isset() with rollback, because -t0 is a valid option!
             // See http://docs.phinx.org/en/latest/commands.html#the-rollback-command

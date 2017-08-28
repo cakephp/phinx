@@ -50,7 +50,8 @@ class Rollback extends AbstractCommand
              ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to rollback to')
              ->addOption('--force', '-f', InputOption::VALUE_NONE, 'Force rollback to ignore breakpoints')
              ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
-             ->setHelp(
+             ->addOption('--migrations', '-m', InputOption::VALUE_REQUIRED, 'The class names of the migrations that you want to rollback, space separated')
+            ->setHelp(
 <<<EOT
 The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
 
@@ -59,6 +60,7 @@ The <info>rollback</info> command reverts the last migration, or optionally up t
 <info>phinx rollback -e development -d 20111018</info>
 <info>phinx rollback -e development -v</info>
 <info>phinx rollback -e development -t 20111018185412 -f</info>
+<info>phinx rollback -e development -m CreateUsersTable CreateEmailsTable</info>
 
 If you have a breakpoint set, then you can rollback to target 0 and the rollbacks will stop at the breakpoint.
 <info>phinx rollback -e development -t 0 </info>
@@ -86,6 +88,10 @@ EOT
         $version     = $input->getOption('target');
         $date        = $input->getOption('date');
         $force       = !!$input->getOption('force');
+        $migrations       = $input->getOption('migrations');
+        if ($migrations != null) {
+            $migrations       = explode(' ', $migrations);
+        }
 
         $config = $this->getConfig();
 
@@ -108,7 +114,7 @@ EOT
         if (isset($envOptions['name'])) {
             $output->writeln('<info>using database</info> ' . $envOptions['name']);
         }
-        
+
         $versionOrder = $this->getConfig()->getVersionOrder();
         $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
 
@@ -116,6 +122,8 @@ EOT
         if (null === $date) {
             $targetMustMatchVersion = true;
             $target = $version;
+        } else if ($migrations != null) {
+            $this->getManager()->rollbackMigrations($environment, $migrations);
         } else {
             $targetMustMatchVersion = false;
             $target = $this->getTargetFromDate($date);

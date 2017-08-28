@@ -527,6 +527,24 @@ class Manager
     }
 
     /**
+     * Rollback by using space separate migration class names
+     *
+     * @param $environment
+     * @param string[] $migrations
+     *
+     * @return void
+     */
+    public function rollbackMigrations($environment, array $migrations)
+    {
+        $migrationsAvailable = $this->getMigrations();
+        foreach ($migrationsAvailable as $migration) {
+            if (in_array(get_class($migration), $migrations)) {
+                $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+            }
+        }
+    }
+
+    /**
      * Run database seeders against an environment.
      *
      * @param string $environment Environment
