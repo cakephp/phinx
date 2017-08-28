@@ -565,8 +565,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testRunMigrations()
     {
         $migrations = [
-            \TestMigration::class,
-            \TestMigration2::class
+            'TestMigration',
+            'TestMigration2'
         ];
 
         $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
@@ -593,8 +593,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     public function testRollbackMigrations()
     {
         $migrations = [
-            \TestMigration::class,
-            \TestMigration2::class
+            'TestMigration',
+            'TestMigration2'
         ];
 
         $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
