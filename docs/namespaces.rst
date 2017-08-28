@@ -5,7 +5,7 @@ PSR-4 compliance
 ==================
 
 Phinx allows the use of namespaces in Migrations and Seeders.
-Migrations require a timestamp in the filename, and therefore won't be fully PSR-4 compliant. Seeders does not need a timestamp, and will be fully PSR-4 compliant.
+Migrations require a timestamp in the filename, and therefore won't be fully PSR-4 compliant. Seeders do not need a timestamp and will be fully PSR-4 compliant.
 
 Using namespaces
 ------------------------
@@ -43,7 +43,7 @@ JSON:
         }
 
 3) Enabling namespaces is a fairly simple task, we're going to turn the "migrations" and "seeds" keys into arrays.
-    - Any value without a key, is a global-non-namespaced path
+    - Any value without a key is a global-non-namespaced path
     - Any keyed value will use the key as namespace
 
 .. code-block:: php
@@ -79,6 +79,9 @@ PHP is a bit special in this case, as it allows keyless and keyed values in the 
                 0: ./db/migrations
                 Foo\\Bar: ./src/FooBar/db/migrations
 
+Path resolving
+^^^^^^^^^^^^^^
+
 Let's take a closer look on how the paths are resolved, let's start with the non-namespaced path.
 
 "./" refers to the project-root, therefore "./db/migrations" would resolve to <project-root>/db/migrations.
@@ -95,9 +98,12 @@ And the namespaced path would be resolved as shown below.
 
 .. image:: http://i.imgur.com/2mg0V8V.jpg
 
-The filepath would look like this, if the project-root was "Phinx"
+The file path would look like this, if the project-root was "Phinx"
 
-The non-namespaced file is located in <project-root>/db/migrations and can look like the following example.
+File examples
+^^^^^^^^^^^^^
+
+The non-namespaced file in <project-root>/db/migrations may look like the following example.
 
 .. code-block:: php
 
@@ -137,10 +143,10 @@ Whereas the namespaced file will be found in <project-root>/src/FoorBar/db/migra
 
 4) That's it, you're ready to go, to create a migration simply run: *$ phinx create CreateUsersTable [--path ./src/FoorBar/db/migrations]*
 
-    - If multiple paths are configued, but none provided with the --path flag, you will be prompted for which path to use.
+    - If multiple paths are configured, but none provided with the --path flag, you will be prompted for which path to use.
 
 
 Did you run into an issue?
 --------------------------
 
-- Due to the way the migrations are created, it is imposible to generate a migration in the *global* namespace with a classname that is the same as a migration in a user-defined namespace.
+- Due to the way the migrations are created, it is impossible to generate a migration in the *global* namespace with a class-name that is the same as a migration in a user-defined namespace.
