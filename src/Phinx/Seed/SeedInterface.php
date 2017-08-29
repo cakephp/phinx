@@ -164,4 +164,24 @@ interface SeedInterface
      * @return Table
      */
     public function table($tableName, $options);
+
+    /**
+     * Set an instance of the <code>\Seed</code> class on which the current class depends.
+     *
+     * This class is called the parent Seed, and when running the current Seed the parent has
+     * to run first.
+     *
+     * @param string $parent
+     */
+    public function dependsOn($parent);
+
+    /**
+     * Returns an instance of the <code>\Seed</code> class on which the current class depends.
+     *
+     * This class is called the parent Seed, and when running the current Seed the parent has
+     * to run first.
+     *
+     * @return string
+     */
+    public function getParentSeed();
 }
