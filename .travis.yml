@@ -25,6 +25,7 @@ before_script:
     - travis_retry composer update --no-interaction --prefer-source --prefer-stable ${COMPOSER_FLAGS}
     - mysql -e 'create database phinx_testing;'
     - psql -c 'create database phinx_testing;' -U postgres
+    - psql -c 'create extension if not exists citext;' -U postgres
 
 script:
     - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover

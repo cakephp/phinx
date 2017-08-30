@@ -789,6 +789,14 @@ collation set collation that differs from table defaults *(only applies to MySQL
 encoding  set character set that differs from table defaults *(only applies to MySQL)*
 ========= ===========
 
+For the ``text`` column only:
+
+============== ===========
+Option         Description
+============== ===========
+case_sensitive set case-sensitivity via the ``citext`` extension *(only applies to PostgreSQL)*
+============== ===========
+
 For foreign key definitions:
 
 ====== ===========
