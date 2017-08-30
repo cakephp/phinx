@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\StreamOutput;
+use Phinx\Db\Adapter\AdapterInterface;
 
 class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -1060,6 +1061,21 @@ public function testRenameColumn()
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals("enum('one','two')", $rows[1]['Type']);
+    }
+
+    public function testEnumColumnValuesFilledUpFromSchema()
+    {
+        // Creating column with values
+        (new \Phinx\Db\Table('table1', array(), $this->adapter))
+            ->addColumn('enum_column', 'enum', array('values' => array('one', 'two')))
+            ->save();
+
+        // Reading them back
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $columns = $table->getColumns();
+        $enumColumn = end($columns);
+        $this->assertEquals(AdapterInterface::PHINX_TYPE_ENUM, $enumColumn->getType());
+        $this->assertEquals(array('one', 'two'), $enumColumn->getValues());
     }
 
     public function testHasColumn()
