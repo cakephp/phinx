@@ -28,6 +28,7 @@
  */
 namespace Phinx\Console\Command;
 
+use Phinx\Config\NamespaceAwareInterface;
 use Phinx\Migration\CreationInterface;
 use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputArgument;
@@ -166,6 +167,9 @@ class Create extends AbstractCommand
 
         $this->verifyMigrationDirectory($path);
 
+        $config = $this->getConfig();
+        $namespace = $config instanceof NamespaceAwareInterface ? $config->getMigrationNamespaceByPath($path) : null;
+
         $path = realpath($path);
         $className = $input->getArgument('name');
 
@@ -178,7 +182,8 @@ class Create extends AbstractCommand
 
         if (!Util::isUniqueMigrationClassName($className, $path)) {
             throw new \InvalidArgumentException(sprintf(
-                'The migration class name "%s" already exists',
+                'The migration class name "%s%s" already exists',
+                $namespace ? ($namespace . '\\') : '',
                 $className
             ));
         }
@@ -274,10 +279,12 @@ class Create extends AbstractCommand
 
         // inject the class names appropriate to this migration
         $classes = array(
-            '$useClassName'  => $this->getConfig()->getMigrationBaseClassName(false),
-            '$className'     => $className,
-            '$version'       => Util::getVersionFromFileName($fileName),
-            '$baseClassName' => $this->getConfig()->getMigrationBaseClassName(true),
+            '$namespaceDefinition' => null !== $namespace ? ('namespace ' . $namespace . ';') : '',
+            '$namespace'           => $namespace,
+            '$useClassName'        => $this->getConfig()->getMigrationBaseClassName(false),
+            '$className'           => $className,
+            '$version'             => Util::getVersionFromFileName($fileName),
+            '$baseClassName'       => $this->getConfig()->getMigrationBaseClassName(true),
         );
         $contents = strtr($contents, $classes);
 

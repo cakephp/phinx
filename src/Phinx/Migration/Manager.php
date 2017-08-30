@@ -28,6 +28,7 @@
  */
 namespace Phinx\Migration;
 
+use Phinx\Config\NamespaceAwareInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Config\ConfigInterface;
@@ -662,8 +663,11 @@ class Manager
                         throw new \InvalidArgumentException(sprintf('Duplicate migration - "%s" has the same version as "%s"', $filePath, $versions[$version]->getVersion()));
                     }
 
+                    $config = $this->getConfig();
+                    $namespace = $config instanceof NamespaceAwareInterface ? $config->getMigrationNamespaceByPath(dirname($filePath)) : null;
+
                     // convert the filename to a class name
-                    $class = Util::mapFileNameToClassName(basename($filePath));
+                    $class = (null === $namespace ? '' : $namespace . '\\') . Util::mapFileNameToClassName(basename($filePath));
 
                     if (isset($fileNames[$class])) {
                         throw new \InvalidArgumentException(sprintf(
@@ -759,8 +763,11 @@ class Manager
 
             foreach ($phpFiles as $filePath) {
                 if (Util::isValidSeedFileName(basename($filePath))) {
+                    $config = $this->getConfig();
+                    $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath(dirname($filePath)) : null;
+
                     // convert the filename to a class name
-                    $class = pathinfo($filePath, PATHINFO_FILENAME);
+                    $class = (null === $namespace ? '' : $namespace . '\\') . pathinfo($filePath, PATHINFO_FILENAME);
                     $fileNames[$class] = basename($filePath);
 
                     // load the seed file

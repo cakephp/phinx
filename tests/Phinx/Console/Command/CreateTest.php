@@ -77,7 +77,7 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $application = new PhinxApplication('testing');
         $application->add(new Create());
 
-        /** @var Create $command $command */
+        /** @var Create $command */
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
@@ -94,6 +94,37 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute(array('command' => $command->getName(), 'name' => 'MyDuplicateMigration'));
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage The migration class name "Foo\Bar\MyDuplicateMigration" already exists
+     */
+    public function testExecuteWithDuplicateMigrationNamesWithNamespace()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs(array($this->config, $this->input, $this->output))
+            ->getMock();
+
+        $config = clone $this->config;
+        $config['paths'] = array(
+            'migrations' => array(
+                'Foo\Bar' => sys_get_temp_dir().DIRECTORY_SEPARATOR.'migrations',
+            ),
+        );
+        $command->setConfig($config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array('command' => $command->getName(), 'name' => 'MyDuplicateMigration'));
+        sleep(1.01); // need at least a second due to file naming scheme
+        $commandTester->execute(array('command' => $command->getName(), 'name' => 'MyDuplicateMigration'));
+    }
 
     /**
      * @expectedException \Exception
