@@ -66,6 +66,11 @@ abstract class AbstractMigration implements MigrationInterface
     protected $input;
 
     /**
+     * @var bool
+     */
+    protected $goingUp;
+
+    /**
      * Class Constructor.
      *
      * @param int $version Migration Version
@@ -182,6 +187,23 @@ abstract class AbstractMigration implements MigrationInterface
     public function getVersion()
     {
         return $this->version;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setGoingUp($goingUp)
+    {
+        $this->goingUp = $goingUp;
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getGoingUp()
+    {
+        return $this->goingUp;
     }
 
     /**

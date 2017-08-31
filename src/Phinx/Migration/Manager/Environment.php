@@ -105,6 +105,10 @@ class Environment
 
         // Run the migration
         if (method_exists($migration, MigrationInterface::CHANGE)) {
+
+            // notify reversible migrations of current direction
+            $migration->setGoingUp($direction === MigrationInterface::UP);
+
             if ($direction === MigrationInterface::DOWN) {
                 // Create an instance of the ProxyAdapter so we can record all
                 // of the migration commands for reverse playback

@@ -5469,6 +5469,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($adapter->hasTable('user_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'biography'));
         $this->assertTrue($adapter->hasForeignKey('user_logins', array('user_id')));
+        $this->assertTrue($adapter->hasTable('change_direction_test'));
+        $this->assertTrue($adapter->hasColumn('change_direction_test', 'subthing'));
+        $this->assertEquals(
+            count($adapter->fetchAll('SELECT * FROM change_direction_test WHERE subthing IS NOT NULL')),
+            2
+        );
 
         // revert all changes to the first
         $this->manager->rollback('production', '20121213232502');
@@ -5479,6 +5485,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($adapter->hasTable('user_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'bio'));
         $this->assertFalse($adapter->hasForeignKey('user_logins', array('user_id')));
+        $this->assertFalse($adapter->hasTable('change_direction_test'));
     }
 
     public function testReversibleMigrationsWorkAsExpectedWithNamespace()
