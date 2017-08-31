@@ -646,6 +646,49 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table2->hasIndex('email'));
     }
 
+    public function testBulkInsertData()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->addColumn('column2', 'integer')
+              ->insert(array(
+                  array(
+                      'column1' => 'value1',
+                      'column2' => 1,
+                  ),
+                  array(
+                      'column1' => 'value2',
+                      'column2' => 2,
+                  )
+              ))
+              ->insert(
+                  array(
+                      'column1' => 'value3',
+                      'column2' => 3,
+                  )
+              )
+              ->insert(
+                  array(
+                      'column1' => '\'value4\'',
+                      'column2' => null,
+                  )
+              );
+        $this->adapter->createTable($table);
+        $this->adapter->bulkinsert($table, $table->getData());
+        $table->reset();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+
+        $this->assertEquals('value1', $rows[0]['column1']);
+        $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals('value3', $rows[2]['column1']);
+        $this->assertEquals('\'value4\'', $rows[3]['column1']);
+        $this->assertEquals(1, $rows[0]['column2']);
+        $this->assertEquals(2, $rows[1]['column2']);
+        $this->assertEquals(3, $rows[2]['column2']);
+        $this->assertEquals(null, $rows[3]['column2']);
+    }
+
     public function testInsertData()
     {
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
@@ -685,6 +728,26 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $rows[1]['column2']);
         $this->assertEquals(3, $rows[2]['column2']);
         $this->assertEquals(null, $rows[3]['column2']);
+    }
+
+    public function testBulkInsertDataEnum()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'enum', array('values' => ['a', 'b', 'c']))
+              ->addColumn('column2', 'enum', array('values' => ['a', 'b', 'c'], 'null' => true))
+              ->addColumn('column3', 'enum', array('values' => ['a', 'b', 'c'], 'default' => 'c'))
+              ->insert(array(
+                  'column1' => 'a',
+              ));
+        $this->adapter->createTable($table);
+        $this->adapter->bulkinsert($table, $table->getData());
+        $table->reset();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+
+        $this->assertEquals('a', $rows[0]['column1']);
+        $this->assertEquals(null, $rows[0]['column2']);
+        $this->assertEquals('c', $rows[0]['column3']);
     }
 
     public function testInsertDataEnum()

@@ -374,7 +374,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasColumn('t', 'columnOne'));
         $this->assertTrue($this->adapter->hasColumn('t', 'columnTwo'));
     }
-    
+
     public function testRenamingANonExistentColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
@@ -935,6 +935,32 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
                 $this->assertTrue($column->isTimezone(), 'column: ' . $column->getName());
             }
         }
+    }
+
+    public function testBulkInsertData()
+    {
+        $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
+        $table->addColumn('column1', 'string')
+              ->addColumn('column2', 'integer')
+              ->insert(array(
+                  array(
+                      'column1' => 'value1',
+                      'column2' => 1
+                  ),
+                  array(
+                      'column1' => 'value2',
+                      'column2' => 2
+                  )
+              ));
+        $this->adapter->createTable($table);
+        $this->adapter->bulkinsert($table, $table->getData());
+        $table->reset();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $this->assertEquals('value1', $rows[0]['column1']);
+        $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals(1, $rows[0]['column2']);
+        $this->assertEquals(2, $rows[1]['column2']);
     }
 
     public function testInsertData()
