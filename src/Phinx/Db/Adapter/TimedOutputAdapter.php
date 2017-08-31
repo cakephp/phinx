@@ -115,6 +115,19 @@ class TimedOutputAdapter extends AdapterWrapper
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
+     */
+    public function bulkinsert(Table $table, $rows)
+    {
+        $end = $this->startCommandTimer();
+        $this->writeCommand('bulkinsert', [$table->getName()]);
+        parent::bulkinsert($table, $rows);
+        $end();
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function createTable(Table $table)
     {

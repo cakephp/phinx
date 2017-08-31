@@ -647,8 +647,28 @@ class Table
      */
     public function saveData()
     {
-        foreach ($this->getData() as $row) {
-            $this->getAdapter()->insert($this, $row);
+        $rows = $this->getData();
+        if (empty($rows)) {
+            return;
+        }
+
+        $bulk = true;
+        $row = current($rows);
+        $c = array_keys($row);
+        foreach($this->getData() as $row) {
+            $k = array_keys($row);
+            if ($k != $c) {
+                $bulk = false;
+                break;
+            }
+        }
+
+        if ($bulk) {
+            $this->getAdapter()->bulkinsert($this, $this->getData());
+        } else {
+            foreach ($this->getData() as $row) {
+                $this->getAdapter()->insert($this, $row);
+            }
         }
     }
 

@@ -341,7 +341,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->mock
             ->expects($this->once())
-            ->method('insert')
+            ->method('bulkinsert')
             ->with($this->callback(
                 function ($table) {
                     return $table->getName() == 'pre_table_suf';

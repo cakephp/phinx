@@ -186,6 +186,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function bulkinsert(Table $table, $rows)
+    {
+        $this->getAdapter()->bulkinsert($table, $rows);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function fetchRow($sql)
     {
         return $this->getAdapter()->fetchRow($sql);

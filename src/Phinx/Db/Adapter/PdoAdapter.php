@@ -167,6 +167,39 @@ abstract class PdoAdapter extends AbstractAdapter
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute(array_values($row));
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function bulkinsert(Table $table, $rows)
+    {
+        $sql = sprintf(
+            "INSERT INTO %s ",
+            $this->quoteTableName($table->getName())
+        );
+
+        $current = current($rows);
+        $keys = array_keys($current);
+        $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $keys)) . ") VALUES";
+
+        $vals = array();
+        foreach ($rows as $row) {
+            foreach($row as $v) {
+                $vals[] = $v;
+            }
+        }
+
+        $count_keys = count($keys);
+        $query = "(" . implode(', ', array_fill(0, $count_keys, '?')) . ")";
+
+        $count_vars = count($rows);
+        $queries = array_fill(0, $count_vars, $query);
+        $sql .= implode(',', $queries);
+
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute($vals);
+    }
+
     /**
      * {@inheritdoc}
      */
