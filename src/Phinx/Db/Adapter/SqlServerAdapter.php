@@ -1181,13 +1181,13 @@ SQL;
     /**
      * Records a migration being run.
      *
-     * @param Phinx\Migration\MigrationInterface $migration Migration
+     * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @param string $direction Direction
      * @param int $startTime Start Time
      * @param int $endTime End Time
      * @return AdapterInterface
      */
-    public function migrated(Phinx\Migration\MigrationInterface $migration, $direction, $startTime, $endTime)
+    public function migrated(\Phinx\Migration\MigrationInterface $migration, $direction, $startTime, $endTime)
     {
         $startTime = str_replace(' ', 'T', $startTime);
         $endTime = str_replace(' ', 'T', $endTime);
