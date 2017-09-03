@@ -1,5 +1,23 @@
 # Version History
 
+
+**0.9.0** (Sunday, 3rd September 2017)
+* Documentation updates
+* Pull requests
+  * [#1122](https://github.com/robmorgan/phinx/pull/1129) SQL exceptions will now produce PHP exceptions
+  * [#1053](https://github.com/robmorgan/phinx/pull/1053) Docker Development Kickstarter
+  * [#945](https://github.com/robmorgan/phinx/pull/945) Rollback --target using migration name
+  * [#1070](https://github.com/robmorgan/phinx/pull/1070) Supporting namespaces in configuration, Migrations and Seeds
+  * [#1155](https://github.com/robmorgan/phinx/pull/1155) Fill up column values from schema
+  * [#1148](https://github.com/robmorgan/phinx/pull/1148) When execute command `seed:run`, insert all data to a table in a bulk
+* Bug fixes
+  * [#1111](https://github.com/cakephp/phinx/pull/1111) Fixed error when calling truncateTable() method
+  * [#1117](https://github.com/cakephp/phinx/pull/1117) Quote column names in the addIndex() method for PostgresSQL
+  * [#1126](https://github.com/robmorgan/phinx/pull/1126) Fix invalid changeColumn regex causing deletions
+  * [#1093](https://github.com/robmorgan/phinx/pull/1093) Fix issue with dropColumn command in SQLite
+  * [#1091](https://github.com/robmorgan/phinx/pull/1091) Fix pgsql quoting in comment clause
+  * [#1094](https://github.com/robmorgan/phinx/pull/1094) Fix varchar to datetime error
+
 **0.8.1** (Monday, 5th June 2017)
 * Documentation updates
 * Pull requests
