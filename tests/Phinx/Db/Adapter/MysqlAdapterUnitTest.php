@@ -942,12 +942,18 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_DECIMAL));
         $this->assertEquals(array('name' => 'datetime'),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_DATETIME));
+        $this->assertEquals(array('name' => 'datetime', 'limit' => 6),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_DATETIME, 6));
         $this->assertEquals(array('name' => 'timestamp'),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TIMESTAMP));
+        $this->assertEquals(array('name' => 'timestamp', 'limit' => 6),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TIMESTAMP, 6));
         $this->assertEquals(array('name' => 'date'),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_DATE));
         $this->assertEquals(array('name' => 'time'),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TIME));
+        $this->assertEquals(array('name' => 'time', 'limit' => 6),
+                            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TIME, 6));
         $this->assertEquals(array('name' => 'blob'),
                             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB));
         $this->assertEquals(array('name' => 'tinyint', 'limit' => 1),
@@ -1050,6 +1056,12 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                             $this->adapter->getPhinxType('decimal(8,2)'));
         $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TEXT, 'limit' => 1024, 'precision' => null),
                             $this->adapter->getPhinxType('text(1024)'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_DATETIME, 'limit' => 6, 'precision' => null),
+                            $this->adapter->getPhinxType('datetime(6)'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TIME, 'limit' => 6, 'precision' => null),
+                            $this->adapter->getPhinxType('time(6)'));
+        $this->assertEquals(array('name' => MysqlAdapter::PHINX_TYPE_TIMESTAMP, 'limit' => 6, 'precision' => null),
+                            $this->adapter->getPhinxType('timestamp(6)'));
     }
 
 
