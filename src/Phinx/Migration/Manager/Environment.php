@@ -103,8 +103,12 @@ class Environment
             $this->getAdapter()->beginTransaction();
         }
 
+        // notify migrations of current direction
+        $migration->setGoingUp($direction === MigrationInterface::UP);
+
         // Run the migration
         if (method_exists($migration, MigrationInterface::CHANGE)) {
+
             if ($direction === MigrationInterface::DOWN) {
                 // Create an instance of the ProxyAdapter so we can record all
                 // of the migration commands for reverse playback

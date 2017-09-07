@@ -137,6 +137,21 @@ interface MigrationInterface
     public function getVersion();
 
     /**
+     * Sets the current migration direction.
+     *
+     * @param bool $goingUp Direction is up
+     * @return MigrationInterface
+     */
+    public function setGoingUp($goingUp);
+
+    /**
+     * Gets the current migration direction.
+     *
+     * @return bool
+     */
+    public function getGoingUp();
+
+    /**
      * Executes a SQL statement and returns the number of affected rows.
      *
      * @param string $sql SQL
