@@ -118,12 +118,12 @@ class Environment
                     ->getWrapper('proxy', $this->getAdapter());
                 $migration->setAdapter($proxyAdapter);
                 /** @noinspection PhpUndefinedMethodInspection */
-                $migration->change();
+                $migration->change(MigrationInterface::UP);
                 $proxyAdapter->executeInvertedCommands();
                 $migration->setAdapter($this->getAdapter());
             } else {
                 /** @noinspection PhpUndefinedMethodInspection */
-                $migration->change();
+                $migration->change(MigrationInterface::DOWN);
             }
         } else {
             $migration->{$direction}();
@@ -263,7 +263,7 @@ class Environment
     }
 
     /**
-     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's 
+     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's
      * version_order option
      *
      * @return array

@@ -25,8 +25,10 @@ class $className extends $baseClassName
      *
      * Remember to call "create()" or "update()" and NOT "save()" when working
      * with the Table class.
+     *
+     * @param string $direction Is one of MigrationInterface::UP or MigrationInterface::DOWN
      */
-    public function change()
+    public function change($direction)
     {
 
     }

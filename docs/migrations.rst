@@ -58,7 +58,7 @@ Phinx automatically creates a skeleton migration file with a single method:
              * Remember to call "create()" or "update()" and NOT "save()" when working
              * with the Table class.
              */
-            public function change()
+            public function change($direction)
             {
 
             }
@@ -93,7 +93,7 @@ down automatically for you. For example:
              *
              * Uncomment this method if you would like to use it.
              */
-            public function change()
+            public function change($direction)
             {
                 // create the table
                 $table = $this->table('user_logins');
@@ -127,7 +127,7 @@ recommended to create a separate migration file.
 
 .. note::
 
-    When creating or updating tables inside a ``change()`` method you must use
+    When creating or updating tables inside a ``change($direction)`` method you must use
     the Table ``create()`` and ``update()`` methods. Phinx cannot automatically
     determine whether a ``save()`` call is creating a new table or modifying an
     existing one.
@@ -321,7 +321,7 @@ insert methods in your migrations.
 
 .. note::
 
-    You cannot use the insert methods inside a `change()` method. Please use the
+    You cannot use the insert methods inside a `change($direction)` method. Please use the
     `up()` and `down()` methods.
 
 Working With Tables
@@ -765,7 +765,7 @@ allows you to supply alternative names.
             /**
              * Migrate Change.
              */
-            public function change()
+            public function change($direction)
             {
                 // Override the 'updated_at' column name with 'amended_at'.
                 $table = $this->table('users')->addTimestamps(null, 'amended_at')->create();
@@ -913,7 +913,7 @@ You can check if a table already has a certain column by using the
             /**
              * Change Method.
              */
-            public function change()
+            public function change($direction)
             {
                 $table = $this->table('user');
                 $column = $table->hasColumn('username');
@@ -974,7 +974,7 @@ When adding a column you can dictate its position using the ``after`` option.
             /**
              * Change Method.
              */
-            public function change()
+            public function change($direction)
             {
                 $table = $this->table('users');
                 $table->addColumn('city', 'string', array('after' => 'email'))
@@ -1023,7 +1023,7 @@ You can limit the maximum length of a column by using the ``limit`` option.
             /**
              * Change Method.
              */
-            public function change()
+            public function change($direction)
             {
                 $table = $this->table('tags');
                 $table->addColumn('short_name', 'string', array('limit' => 30))
@@ -1142,7 +1142,7 @@ ensure the table uses the ``MyISAM`` engine.
 
         class MyNewMigration extends AbstractMigration
         {
-            public function change()
+            public function change($direction)
             {
                 $table = $this->table('users', ['engine' => 'MyISAM']);
                 $table->addColumn('email', 'string')
