@@ -30,7 +30,6 @@ namespace Phinx\Db\Adapter;
 
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
-use Phinx\Migration\MigrationInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -84,6 +83,10 @@ abstract class AbstractAdapter implements AdapterInterface
     public function setOptions(array $options)
     {
         $this->options = $options;
+
+        if (isset($options['default_migration_table'])) {
+        	$this->setSchemaTableName($options['default_migration_table']);
+        }
 
         return $this;
     }
