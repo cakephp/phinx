@@ -85,7 +85,7 @@ abstract class AbstractAdapter implements AdapterInterface
         $this->options = $options;
 
         if (isset($options['default_migration_table'])) {
-        	$this->setSchemaTableName($options['default_migration_table']);
+            $this->setSchemaTableName($options['default_migration_table']);
         }
 
         return $this;
