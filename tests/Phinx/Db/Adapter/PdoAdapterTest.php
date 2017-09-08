@@ -4,6 +4,13 @@ namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\PdoAdapter;
 
+class PdoAdapterTestPDOMock extends \PDO
+{
+    public function __construct()
+    {
+    }
+}
+
 class PdoAdapterTest extends \PHPUnit_Framework_TestCase
 {
     private $adapter;
@@ -29,10 +36,7 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertNull($this->adapter->getConnection());
 
-        $connection = $this
-            ->getMockBuilder('\PDO')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $connection = new PdoAdapterTestPDOMock();
         $this->adapter->setOptions(['connection' => $connection]);
 
         $this->assertSame($connection, $this->adapter->getConnection());
