@@ -376,22 +376,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Get the defintion for a `DEFAULT` statement.
-     *
-     * @param  mixed $default
-     * @return string
-     */
-    protected function getDefaultValueDefinition($default)
-    {
-        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
-            $default = $this->getConnection()->quote($default);
-        } elseif (is_bool($default)) {
-            $default = $this->castToBool($default);
-        }
-        return isset($default) ? ' DEFAULT ' . $default : '';
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function addColumn(Table $table, Column $column)
@@ -525,7 +509,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         foreach ($indexes as $name => $index) {
             if ($name === $indexName) {
-                 return true;
+                return true;
             }
         }
 
@@ -823,8 +807,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'set');
                 break;
             case static::TYPE_YEAR:
-                if (!$limit || in_array($limit, array(2, 4)))
+                if (!$limit || in_array($limit, array(2, 4))) {
                     $limit = 4;
+                }
                 return array('name' => 'year', 'limit' => $limit);
                 break;
             case static::PHINX_TYPE_JSON:
@@ -999,23 +984,29 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getColumnSqlDefinition(Column $column)
     {
-        $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
-
-        $def = '';
-        $def .= strtoupper($sqlType['name']);
-        if ($column->getPrecision() && $column->getScale()) {
-            $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
-        } elseif (isset($sqlType['limit'])) {
-            $def .= '(' . $sqlType['limit'] . ')';
+        $isCustomColumn = $column instanceof Table\CustomColumn;
+        if ($isCustomColumn) {
+            $def = $column->getType();
+        } else {
+            $def = '';
+            $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
+            $def .= strtoupper($sqlType['name']);
+            if ($column->getPrecision() && $column->getScale()) {
+                $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
+            } elseif (isset($sqlType['limit'])) {
+                $def .= '(' . $sqlType['limit'] . ')';
+            }
+            if (($values = $column->getValues()) && is_array($values)) {
+                $def .= "('" . implode("', '", $values) . "')";
+            }
+            $def .= $column->getEncoding() ? ' CHARACTER SET ' . $column->getEncoding() : '';
+            $def .= $column->getCollation() ? ' COLLATE ' . $column->getCollation() : '';
+            $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '';
         }
-        if (($values = $column->getValues()) && is_array($values)) {
-            $def .= "('" . implode("', '", $values) . "')";
-        }
-        $def .= $column->getEncoding() ? ' CHARACTER SET ' . $column->getEncoding() : '';
-        $def .= $column->getCollation() ? ' COLLATE ' . $column->getCollation() : '';
-        $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
-        $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
+        if (!$isCustomColumn) {
+            $def .= $column->isIdentity() ? ' AUTO_INCREMENT' : '';
+        }
         $def .= $this->getDefaultValueDefinition($column->getDefault());
 
         if ($column->getComment()) {
@@ -1122,6 +1113,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array ('enum', 'set', 'year', 'json'));
+        return array_merge(parent::getColumnTypes(), array('enum', 'set', 'year', 'json'));
     }
 }

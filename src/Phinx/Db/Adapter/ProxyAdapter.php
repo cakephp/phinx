@@ -301,6 +301,17 @@ class ProxyAdapter extends AdapterWrapper
     }
 
     /**
+     * Returns the reverse of a addCustomColumn command.
+     *
+     * @param array $args Method Arguments
+     * @return array
+     */
+    public function invertAddCustomColumn($args)
+    {
+        return $this->invertAddColumn($args);
+    }
+
+    /**
      * Returns the reverse of a renameColumn command.
      *
      * @param array $args Method Arguments

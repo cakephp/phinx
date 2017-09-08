@@ -55,6 +55,11 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->dropAllSchemas();
         $this->adapter->createSchema($options['schema']);
 
+        $citext = $this->adapter->fetchRow("SELECT COUNT(*) AS enabled FROM pg_extension WHERE extname = 'citext'");
+        if (!$citext['enabled']) {
+            $this->adapter->query('CREATE EXTENSION IF NOT EXISTS citext');
+        }
+
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
     }
@@ -419,7 +424,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testChangeColumnWithDefault() {
+    public function testChangeColumnWithDefault()
+    {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string')
               ->save();
@@ -441,7 +447,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testChangeColumnWithDropDefault() {
+    public function testChangeColumnWithDropDefault()
+    {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string', array('default' => 'Test'))
               ->save();
@@ -527,7 +534,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testDropIndex()
     {
-         // single column index
+        // single column index
         $table = new \Phinx\Db\Table('table1', array(), $this->adapter);
         $table->addColumn('email', 'string')
               ->addIndex('email')
@@ -934,6 +941,21 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             } else {
                 $this->assertTrue($column->isTimezone(), 'column: ' . $column->getName());
             }
+        }
+    }
+
+    public function testCustomColumn()
+    {
+        $table = new \Phinx\Db\Table('citable', array('id' => false), $this->adapter);
+        $table
+            ->addCustomColumn('insensitive', 'citext')
+            ->save();
+
+        $this->assertTrue($this->adapter->hasColumn('citable', 'insensitive'));
+
+        $columns = $this->adapter->getColumns('citable');
+        foreach ($columns as $column) {
+            $this->assertEquals('citext', $column->getType(), 'column: ' . $column->getName());
         }
     }
 

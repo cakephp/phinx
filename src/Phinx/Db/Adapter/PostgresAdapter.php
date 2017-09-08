@@ -30,6 +30,7 @@ namespace Phinx\Db\Adapter;
 
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
+use Phinx\Db\Table\CustomColumn;
 use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
 
@@ -229,7 +230,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
             $sql .= ')';
         } else {
-            $sql = substr(rtrim($sql), 0, -1);              // no primary keys
+            $sql = rtrim($sql, ', '); // no primary keys
         }
 
         // set the foreign keys
@@ -313,7 +314,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $columns = array();
         $sql = sprintf(
-            "SELECT column_name, data_type, is_identity, is_nullable,
+            "SELECT column_name, data_type, udt_name, is_identity, is_nullable,
              column_default, character_maximum_length, numeric_precision, numeric_scale
              FROM information_schema.columns
              WHERE table_name ='%s'",
@@ -322,9 +323,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $columnsInfo = $this->fetchAll($sql);
 
         foreach ($columnsInfo as $columnInfo) {
-            $column = new Column();
+            $isUserDefined = $columnInfo['data_type'] === 'USER-DEFINED';
+            $column = $isUserDefined ? new CustomColumn() : new Column();
+            $columnType = $isUserDefined ? $columnInfo['udt_name'] : $columnInfo['data_type'];
             $column->setName($columnInfo['column_name'])
-                   ->setType($this->getPhinxType($columnInfo['data_type']))
+                   ->setType($this->getPhinxType($columnType, !$isUserDefined))
                    ->setNull($columnInfo['is_nullable'] === 'YES')
                    ->setDefault($columnInfo['column_default'])
                    ->setIdentity($columnInfo['is_identity'] === 'YES')
@@ -781,9 +784,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * Returns Phinx type by SQL type
      *
      * @param string $sqlType SQL type
+     * @param bool $strict If true throw exception when invalid, if false return input
      * @returns string Phinx type
      */
-    public function getPhinxType($sqlType)
+    public function getPhinxType($sqlType, $strict = true)
     {
         switch ($sqlType) {
             case 'character varying':
@@ -843,6 +847,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'macaddr':
                 return static::PHINX_TYPE_MACADDR;
             default:
+                if (!$strict) {
+                    return $sqlType;
+                }
                 throw new \RuntimeException('The PostgreSQL type: "' . $sqlType . '" is not supported');
         }
     }
@@ -877,22 +884,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Get the defintion for a `DEFAULT` statement.
-     *
-     * @param  mixed $default
-     * @return string
-     */
-    protected function getDefaultValueDefinition($default)
-    {
-        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
-            $default = $this->getConnection()->quote($default);
-        } elseif (is_bool($default)) {
-            $default = $this->castToBool($default);
-        }
-        return isset($default) ? 'DEFAULT ' . $default : '';
-    }
-
-    /**
      * Gets the PostgreSQL Column Definition for a Column object.
      *
      * @param Column $column Column
@@ -901,7 +892,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     protected function getColumnSqlDefinition(Column $column)
     {
         $buffer = array();
-        if ($column->isIdentity()) {
+        if ($column instanceof CustomColumn) {
+            $buffer[] = $column->getType();
+        } else if ($column->isIdentity()) {
             $buffer[] = $column->getType() == 'biginteger' ? 'BIGSERIAL' : 'SERIAL';
         } else {
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
@@ -936,12 +929,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
+        $buffer = implode(' ', $buffer);
 
         if (!is_null($column->getDefault())) {
-            $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
+            $buffer .= $this->getDefaultValueDefinition($column->getDefault());
         }
 
-        return implode(' ', $buffer);
+        return $buffer;
     }
 
     /**

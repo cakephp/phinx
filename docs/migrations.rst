@@ -51,6 +51,7 @@ Phinx automatically creates a skeleton migration file with a single method:
              *    createTable
              *    renameTable
              *    addColumn
+             *    addCustomColumn
              *    renameColumn
              *    addIndex
              *    addForeignKey
@@ -137,12 +138,13 @@ Phinx can only reverse the following commands:
 -  createTable
 -  renameTable
 -  addColumn
+-  addCustomColumn
 -  renameColumn
 -  addIndex
 -  addForeignKey
 
-If a command cannot be reversed then Phinx will throw a
-``IrreversibleMigrationException`` exception when it's migrating down.
+If a command cannot be reversed then Phinx will throw an
+``IrreversibleMigrationException`` when it's migrating down.
 
 The Up Method
 ~~~~~~~~~~~~~
@@ -559,6 +561,37 @@ In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb``, ``
 (PostgreSQL 9.3 and above).
 
 For valid options, see the `Valid Column Options`_ below.
+
+Custom Column Types
+~~~~~~~~~~~~~~~~~~~
+
+Some DBMS systems (e.g. PostgreSQL) provide additional column types specific to them.
+If you don't want to keep your migrations DBMS-agnostic you can use those custom types in your migrations
+through the ``addCustomColumn()`` method, which takes a column name, a type and an array of options,
+similar to ``addColumn()``.
+
+This method doe not run any validation on the type of the column, and instrucs Phinx ot use it exactly as
+supplied. Cusom column supports only the most common options, ``default`` and ``null``, which behave
+exactly as they do when you use ``addColumn()``.
+
+You can see an example below showing how to add a ``citext`` column to an existing table if you use PostgreSQL.
+This method is supported in the MySQL, PostgreSQL, SQLite and Sql Server adapters.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class AddHexColorMigration extends AbstractMigration
+        {
+            public function change()
+            {
+                $this->table('users')
+                      ->addCustomColumn('username', 'citext')
+                      ->save();
+            }
+        }
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
