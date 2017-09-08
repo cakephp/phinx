@@ -50,7 +50,7 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function setOptions(array $options)
     {
-        $this->options = $options;
+        parent::setOptions($options);
 
         if (isset($options['connection'])) {
             $this->setConnection($options['connection']);
