@@ -89,16 +89,15 @@ within your seed class and then use the `insert()` method to insert data:
         {
             public function run()
             {
-                $data = array(
-                    array(
+                $data = [
+                    [
                         'body'    => 'foo',
                         'created' => date('Y-m-d H:i:s'),
-                    ),
-                    array(
+                    ],[
                         'body'    => 'bar',
                         'created' => date('Y-m-d H:i:s'),
-                    )
-                );
+                    ]
+                ];
 
                 $posts = $this->table('posts');
                 $posts->insert($data)
