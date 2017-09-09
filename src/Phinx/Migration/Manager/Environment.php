@@ -94,17 +94,16 @@ class Environment
      */
     public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP)
     {
-        $startTime = time();
         $direction = ($direction === MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
+        $migration->setMigratingUp($direction === MigrationInterface::UP);
+
+        $startTime = time();
         $migration->setAdapter($this->getAdapter());
 
         // begin the transaction if the adapter supports it
         if ($this->getAdapter()->hasTransactions()) {
             $this->getAdapter()->beginTransaction();
         }
-
-        // notify migrations of current direction
-        $migration->setGoingUp($direction === MigrationInterface::UP);
 
         // Run the migration
         if (method_exists($migration, MigrationInterface::CHANGE)) {

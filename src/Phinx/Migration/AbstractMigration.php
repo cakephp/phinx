@@ -66,9 +66,11 @@ abstract class AbstractMigration implements MigrationInterface
     protected $input;
 
     /**
+     * Whether this migration is being applied or reverted
+     *
      * @var bool
      */
-    protected $goingUp;
+    protected $isMigratingUp = true;
 
     /**
      * Class Constructor.
@@ -192,18 +194,18 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
-    public function setGoingUp($goingUp)
+    public function setMigratingUp($goingUp)
     {
-        $this->goingUp = $goingUp;
+        $this->isMigratingUp = $goingUp;
         return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getGoingUp()
+    public function isMigratingUp()
     {
-        return $this->goingUp;
+        return $this->isMigratingUp;
     }
 
     /**
