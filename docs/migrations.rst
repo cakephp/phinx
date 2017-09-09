@@ -392,15 +392,15 @@ store a collection of users.
             public function up()
             {
                 $users = $this->table('users');
-                $users->addColumn('username', 'string', array('limit' => 20))
-                      ->addColumn('password', 'string', array('limit' => 40))
-                      ->addColumn('password_salt', 'string', array('limit' => 40))
-                      ->addColumn('email', 'string', array('limit' => 100))
-                      ->addColumn('first_name', 'string', array('limit' => 30))
-                      ->addColumn('last_name', 'string', array('limit' => 30))
+                $users->addColumn('username', 'string', ['limit' => 20])
+                      ->addColumn('password', 'string', ['limit' => 40])
+                      ->addColumn('password_salt', 'string', ['limit' => 40])
+                      ->addColumn('email', 'string', ['limit' => 100])
+                      ->addColumn('first_name', 'string', ['limit' => 30])
+                      ->addColumn('last_name', 'string', ['limit' => 30])
                       ->addColumn('created', 'datetime')
-                      ->addColumn('updated', 'datetime', array('null' => true))
-                      ->addIndex(array('username', 'email'), array('unique' => true))
+                      ->addColumn('updated', 'datetime', ['null' => true])
+                      ->addIndex(['username', 'email'], ['unique' => true])
                       ->save();
             }
 
@@ -444,7 +444,7 @@ create a primary key using two columns instead:
              */
             public function up()
             {
-                $table = $this->table('followers', array('id' => false, 'primary_key' => array('user_id', 'follower_id')));
+                $table = $this->table('followers', ['id' => false, 'primary_key' => ['user_id', 'follower_id']]);
                 $table->addColumn('user_id', 'integer')
                       ->addColumn('follower_id', 'integer')
                       ->addColumn('created', 'datetime')
@@ -476,9 +476,9 @@ To simply change the name of the primary key, we need to override the default ``
              */
             public function up()
             {
-                $table = $this->table('followers', array('id' => 'user_id'));
+                $table = $this->table('followers', ['id' => 'user_id']);
                 $table->addColumn('follower_id', 'integer')
-                      ->addColumn('created', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
+                      ->addColumn('created', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
                       ->save();
             }
 
@@ -518,9 +518,9 @@ To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
              */
             public function up()
             {
-                $table = $this->table('followers', array('signed' => false));
+                $table = $this->table('followers', ['signed' => false]);
                 $table->addColumn('follower_id', 'integer')
-                      ->addColumn('created', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
+                      ->addColumn('created', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
                       ->save();
             }
 
@@ -622,15 +622,15 @@ good idea to recreate the table again in the ``down()`` method.
             public function down()
             {
                 $users = $this->table('users');
-                $users->addColumn('username', 'string', array('limit' => 20))
-                      ->addColumn('password', 'string', array('limit' => 40))
-                      ->addColumn('password_salt', 'string', array('limit' => 40))
-                      ->addColumn('email', 'string', array('limit' => 100))
-                      ->addColumn('first_name', 'string', array('limit' => 30))
-                      ->addColumn('last_name', 'string', array('limit' => 30))
+                $users->addColumn('username', 'string', ['limit' => 20])
+                      ->addColumn('password', 'string', ['limit' => 40])
+                      ->addColumn('password_salt', 'string', ['limit' => 40])
+                      ->addColumn('email', 'string', ['limit' => 100])
+                      ->addColumn('first_name', 'string', ['limit' => 30])
+                      ->addColumn('last_name', 'string', ['limit' => 30])
                       ->addColumn('created', 'datetime')
-                      ->addColumn('updated', 'datetime', array('null' => true))
-                      ->addIndex(array('username', 'email'), array('unique' => true))
+                      ->addColumn('updated', 'datetime', ['null' => true])
+                      ->addIndex(['username', 'email'], ['unique' => true])
                       ->save();
             }
         }
@@ -822,7 +822,7 @@ INT_SMALL    SMALLINT
 
          $table = $this->table('cart_items');
          $table->addColumn('user_id', 'integer')
-               ->addColumn('subtype_id', 'integer', array('limit' => PostgresAdapter::INT_SMALL))
+               ->addColumn('subtype_id', 'integer', ['limit' => PostgresAdapter::INT_SMALL])
                ->create();
 
 Limit Option and MySQL
@@ -858,9 +858,9 @@ INT_BIG      BIGINT
 
          $table = $this->table('cart_items');
          $table->addColumn('user_id', 'integer')
-               ->addColumn('product_id', 'integer', array('limit' => MysqlAdapter::INT_BIG))
-               ->addColumn('subtype_id', 'integer', array('limit' => MysqlAdapter::INT_SMALL))
-               ->addColumn('quantity', 'integer', array('limit' => MysqlAdapter::INT_TINY))
+               ->addColumn('product_id', 'integer', ['limit' => MysqlAdapter::INT_BIG])
+               ->addColumn('subtype_id', 'integer', ['limit' => MysqlAdapter::INT_SMALL])
+               ->addColumn('quantity', 'integer', ['limit' => MysqlAdapter::INT_TINY])
                ->create();
 
 
@@ -977,7 +977,7 @@ When adding a column you can dictate its position using the ``after`` option.
             public function change()
             {
                 $table = $this->table('users');
-                $table->addColumn('city', 'string', array('after' => 'email'))
+                $table->addColumn('city', 'string', ['after' => 'email'])
                       ->update();
             }
         }
@@ -1026,7 +1026,7 @@ You can limit the maximum length of a column by using the ``limit`` option.
             public function change()
             {
                 $table = $this->table('tags');
-                $table->addColumn('short_name', 'string', array('limit' => 30))
+                $table->addColumn('short_name', 'string', ['limit' => 30])
                       ->update();
             }
         }
@@ -1051,7 +1051,7 @@ See `Valid Column Types`_ and `Valid Column Options`_ for allowed values.
             public function up()
             {
                 $users = $this->table('users');
-                $users->changeColumn('email', 'string', array('limit' => 255))
+                $users->changeColumn('email', 'string', ['limit' => 255])
                       ->save();
             }
 
@@ -1085,7 +1085,7 @@ table object.
             {
                 $table = $this->table('users');
                 $table->addColumn('city', 'string')
-                      ->addIndex(array('city'))
+                      ->addIndex(['city'])
                       ->save();
             }
 
@@ -1118,7 +1118,9 @@ using the ``name`` parameter.
             {
                 $table = $this->table('users');
                 $table->addColumn('email', 'string')
-                      ->addIndex(array('email'), array('unique' => true, 'name' => 'idx_users_email'))
+                      ->addIndex(['email'], [
+                            'unique' => true, 
+                            'name' => 'idx_users_email'])
                       ->save();
             }
 
@@ -1168,7 +1170,7 @@ call this method for each index.
             public function up()
             {
                 $table = $this->table('users');
-                $table->removeIndex(array('email'));
+                $table->removeIndex(['email']);
 
                 // alternatively, you can delete an index by its name, ie:
                 $table->removeIndexByName('idx_users_email');
@@ -1213,7 +1215,7 @@ Let's add a foreign key to an example table:
 
                 $refTable = $this->table('tag_relationships');
                 $refTable->addColumn('tag_id', 'integer')
-                         ->addForeignKey('tag_id', 'tags', 'id', array('delete'=> 'SET_NULL', 'update'=> 'NO_ACTION'))
+                         ->addForeignKey('tag_id', 'tags', 'id', ['delete'=> 'SET_NULL', 'update'=> 'NO_ACTION'])
                          ->save();
 
             }
@@ -1250,10 +1252,10 @@ This allows us to establish a foreign key relationship to a table which uses a c
                 $table->addColumn('user_id', 'integer')
                       ->addColumn('follower_id', 'integer')
                       ->addColumn('event_id', 'integer')
-                      ->addForeignKey(array('user_id', 'follower_id'),
+                      ->addForeignKey(['user_id', 'follower_id'],
                                       'followers',
-                                      array('user_id', 'follower_id'),
-                                      array('delete'=> 'NO_ACTION', 'update'=> 'NO_ACTION', 'constraint' => 'user_follower_id'))
+                                      ['user_id', 'follower_id'],
+                                      ['delete'=> 'NO_ACTION', 'update'=> 'NO_ACTION', 'constraint' => 'user_follower_id'])
                       ->save();
             }
 
@@ -1282,8 +1284,8 @@ We can add named foreign keys using the ``constraint`` parameter. This feature i
             public function up()
             {
                 $table = $this->table('your_table');
-                $table->addForeignKey('foreign_id', 'reference_table', array('id'),
-                                    array('constraint'=>'your_foreign_key_name'));
+                $table->addForeignKey('foreign_id', 'reference_table', ['id'],
+                                    ['constraint' => 'your_foreign_key_name']);
                       ->save();
             }
 

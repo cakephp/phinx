@@ -39,15 +39,14 @@ This means that:
    global $app;
    $pdo = $app->getDatabase()->getPdo();
 
-   return array('environments' =>
-            array(
+   return ['environments' => [
               'default_database' => 'development',
-              'development' => array(
+              'development' => [
                 'name' => 'devdb',
                 'connection' => $pdo
-              )
-            )
-          );
+              ]
+            ]
+          ];
 
 Migration Paths
 ---------------
