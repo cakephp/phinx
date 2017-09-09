@@ -4,6 +4,13 @@ namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\PdoAdapter;
 
+class PdoAdapterTestPDOMock extends \PDO
+{
+    public function __construct()
+    {
+    }
+}
+
 class PdoAdapterTest extends \PHPUnit_Framework_TestCase
 {
     private $adapter;
@@ -25,18 +32,36 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $options['foo']);
     }
 
+    public function testOptionsSetConnection()
+    {
+        $this->assertNull($this->adapter->getConnection());
+
+        $connection = new PdoAdapterTestPDOMock();
+        $this->adapter->setOptions(['connection' => $connection]);
+
+        $this->assertSame($connection, $this->adapter->getConnection());
+    }
+
+    public function testOptionsSetSchemaTableName()
+    {
+        $this->assertEquals('phinxlog', $this->adapter->getSchemaTableName());
+        $this->adapter->setOptions(['default_migration_table' => 'schema_table_test']);
+        $this->assertEquals('schema_table_test', $this->adapter->getSchemaTableName());
+    }
+
     public function testSchemaTableName()
     {
+        $this->assertEquals('phinxlog', $this->adapter->getSchemaTableName());
         $this->adapter->setSchemaTableName('schema_table_test');
         $this->assertEquals('schema_table_test', $this->adapter->getSchemaTableName());
     }
-    
+
     /**
      * @dataProvider getVersionLogDataProvider
      */
     public function testGetVersionLog($versionOrder, $expectedOrderBy)
     {
-        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', 
+        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter',
             array(array('version_order' => $versionOrder)), '', true, true, true,
             array('fetchAll', 'getSchemaTableName'));
 
@@ -87,14 +112,14 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
             ),
         );
     }
-    
+
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage Invalid version_order configuration option
      */
     public function testGetVersionLogInvalidVersionOrderKO()
     {
-        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', 
+        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter',
             array(array('version_order' => 'invalid')));
 
         $adapter->getVersionLog();
