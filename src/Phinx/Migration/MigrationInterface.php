@@ -137,12 +137,12 @@ interface MigrationInterface
     public function getVersion();
 
     /**
-     * Sets whether this migration ins being applied or reverted
+     * Sets whether this migration is being applied or reverted
      *
-     * @param bool $goingUp True if the migration is being applied
+     * @param bool $isMigratingUp True if the migration is being applied
      * @return MigrationInterface
      */
-    public function setMigratingUp($goingUp);
+    public function setMigratingUp($isMigratingUp);
 
     /**
      * Gets whether this migration is being applied or reverted.

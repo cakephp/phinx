@@ -194,9 +194,9 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
-    public function setMigratingUp($goingUp)
+    public function setMigratingUp($isMigratingUp)
     {
-        $this->isMigratingUp = $goingUp;
+        $this->isMigratingUp = $isMigratingUp;
         return $this;
     }
 
