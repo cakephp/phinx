@@ -232,7 +232,8 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function isValidColumnType(Column $column) {
+    public function isValidColumnType(Column $column)
+    {
         return in_array($column->getType(), $this->getColumnTypes());
     }
 

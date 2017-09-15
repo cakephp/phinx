@@ -76,7 +76,9 @@ abstract class PdoAdapter extends AbstractAdapter
             $table = new Table($this->getSchemaTableName(), [], $this);
             if (!$table->hasColumn('migration_name')) {
                 $table
-                    ->addColumn('migration_name', 'string',
+                    ->addColumn(
+                        'migration_name',
+                        'string',
                         ['limit' => 100, 'after' => 'version', 'default' => null, 'null' => true]
                     )
                     ->save();
@@ -198,7 +200,7 @@ abstract class PdoAdapter extends AbstractAdapter
 
         $vals = [];
         foreach ($rows as $row) {
-            foreach($row as $v) {
+            foreach ($row as $v) {
                 $vals[] = $v;
             }
         }
@@ -243,7 +245,7 @@ abstract class PdoAdapter extends AbstractAdapter
         }
 
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s', $this->getSchemaTableName(), $orderBy));
-        foreach($rows as $version) {
+        foreach ($rows as $version) {
             $result[$version['version']] = $version;
         }
 

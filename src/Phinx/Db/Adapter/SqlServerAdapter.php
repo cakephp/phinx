@@ -216,7 +216,6 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 
             array_unshift($columns, $column);
             $options['primary_key'] = 'id';
-
         } elseif (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
@@ -456,12 +455,12 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         }
         $this->renameDefault($tableName, $columnName, $newColumnName);
         $this->execute(
-             sprintf(
-                 "EXECUTE sp_rename N'%s.%s', N'%s', 'COLUMN' ",
-                 $tableName,
-                 $columnName,
-                 $newColumnName
-             )
+            sprintf(
+                "EXECUTE sp_rename N'%s.%s', N'%s', 'COLUMN' ",
+                $tableName,
+                $columnName,
+                $newColumnName
+            )
         );
     }
 
@@ -605,7 +604,7 @@ ORDER BY IC.[key_ordinal];";
 
         $rows = $this->fetchAll($sql);
         $columns = [];
-        foreach($rows as $row) {
+        foreach ($rows as $row) {
             $columns[] = strtolower($row['column_name']);
         }
         return $columns;

@@ -512,8 +512,9 @@ class Column
             AdapterInterface::PHINX_TYPE_STRING,
             AdapterInterface::PHINX_TYPE_TEXT,
         ];
-        if (!in_array($this->getType(), $allowedTypes))
+        if (!in_array($this->getType(), $allowedTypes)) {
             throw new \UnexpectedValueException('Collation may be set only for types: ' . implode(', ', $allowedTypes));
+        }
 
         $this->collation = $collation;
 
@@ -545,8 +546,9 @@ class Column
             AdapterInterface::PHINX_TYPE_STRING,
             AdapterInterface::PHINX_TYPE_TEXT,
         ];
-        if (!in_array($this->getType(), $allowedTypes))
+        if (!in_array($this->getType(), $allowedTypes)) {
             throw new \UnexpectedValueException('Character set may be set only for types: ' . implode(', ', $allowedTypes));
+        }
 
         $this->encoding = $encoding;
 

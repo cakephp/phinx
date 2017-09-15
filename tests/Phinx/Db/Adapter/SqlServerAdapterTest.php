@@ -243,7 +243,8 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testAddColumnWithDefaultNull() {
+    public function testAddColumnWithDefaultNull()
+    {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
         $table->addColumn('default_null', 'string', ['null' => true, 'default' => null])
@@ -256,7 +257,8 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testAddColumnWithDefaultBool() {
+    public function testAddColumnWithDefaultBool()
+    {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
         $table
@@ -297,9 +299,9 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
             $this->fail('Expected the adapter to throw an exception');
         } catch (\InvalidArgumentException $e) {
             $this->assertInstanceOf(
-                 'InvalidArgumentException',
-                     $e,
-                     'Expected exception of type InvalidArgumentException, got ' . get_class($e)
+                'InvalidArgumentException',
+                $e,
+                'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
             $this->assertEquals('The specified column does not exist: column2', $e->getMessage());
         }
@@ -506,8 +508,10 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $table2 = new \Phinx\Db\Table('table2', [], $this->adapter);
         $table2->addColumn('fname', 'string')
                ->addColumn('lname', 'string')
-               ->addIndex(['fname', 'lname'],
-                   ['name' => 'twocolumnuniqueindex', 'unique' => true])
+               ->addIndex(
+                   ['fname', 'lname'],
+                   ['name' => 'twocolumnuniqueindex', 'unique' => true]
+               )
                ->save();
         $this->assertTrue($table2->hasIndex(['fname', 'lname']));
         $this->adapter->dropIndexByName($table2->getName(), 'twocolumnuniqueindex');
@@ -599,7 +603,6 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('date', $this->adapter->getPhinxType('date'));
 
         $this->assertEquals('datetime', $this->adapter->getPhinxType('datetime'));
-
     }
 
     public function testAddColumnComment()

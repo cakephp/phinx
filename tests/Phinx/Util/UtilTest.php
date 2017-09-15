@@ -111,6 +111,5 @@ class UtilTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('20120116183504_test_migration_2.php', basename($files[1]));
         $this->assertEquals('not_a_migration.php', basename($files[2]));
         $this->assertEquals('empty.txt', basename($files[3]));
-
     }
 }

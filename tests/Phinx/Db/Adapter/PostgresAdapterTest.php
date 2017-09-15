@@ -419,7 +419,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testChangeColumnWithDefault() {
+    public function testChangeColumnWithDefault()
+    {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string')
               ->save();
@@ -441,7 +442,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testChangeColumnWithDropDefault() {
+    public function testChangeColumnWithDropDefault()
+    {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string', ['default' => 'Test'])
               ->save();
@@ -581,8 +583,10 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $table2 = new \Phinx\Db\Table('table2', [], $this->adapter);
         $table2->addColumn('fname', 'string')
                ->addColumn('lname', 'string')
-               ->addIndex(['fname', 'lname'],
-                          ['name' => 'twocolumnuniqueindex', 'unique' => true])
+               ->addIndex(
+                   ['fname', 'lname'],
+                   ['name' => 'twocolumnuniqueindex', 'unique' => true]
+               )
                ->save();
         $this->assertTrue($table2->hasIndex(['fname', 'lname']));
         $this->adapter->dropIndexByName($table2->getName(), 'twocolumnuniqueindex');
@@ -708,7 +712,6 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp without time zone'));
 
         $this->assertEquals('uuid', $this->adapter->getPhinxType('uuid'));
-
     }
 
     public function testCreateTableWithComment()
@@ -767,8 +770,11 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             AND cols.column_name = \'index\''
         );
 
-        $this->assertEquals($comment, $row['column_comment'],
-            'Dont set column comment correctly for tables or columns with reserved names');
+        $this->assertEquals(
+            $comment,
+            $row['column_comment'],
+            'Dont set column comment correctly for tables or columns with reserved names'
+        );
     }
 
     /**

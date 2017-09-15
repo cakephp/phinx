@@ -156,7 +156,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $rows = $this->adapter->fetchAll(sprintf(
             "SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='%s' AND table_name='ntable'",
-            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE));
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
+        ));
         $comment = $rows[0];
 
         $this->assertEquals($tableComment, $comment['table_comment'], 'Dont set table comment correctly');
@@ -184,7 +185,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             "SELECT table_name, column_name, referenced_table_name, referenced_column_name
              FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
              WHERE table_schema='%s' AND REFERENCED_TABLE_NAME='ntable_tag'",
-            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE));
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
+        ));
         $foreignKey = $rows[0];
 
         $this->assertEquals($foreignKey['table_name'], 'ntable');
@@ -447,7 +449,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('utf8mb4_unicode_ci', $rows[2]['Collation']);
     }
 
-public function testRenameColumn()
+    public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string')
@@ -733,7 +735,7 @@ public function testRenameColumn()
         $index_data = $this->adapter->query(sprintf(
             'SELECT SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = "%s" AND TABLE_NAME = "table1" AND INDEX_NAME = "email"',
             TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
-            ))->fetch(\PDO::FETCH_ASSOC);
+        ))->fetch(\PDO::FETCH_ASSOC);
         $expected_limit = $index_data['SUB_PART'];
         $this->assertEquals($expected_limit, 50);
     }
@@ -1024,7 +1026,8 @@ public function testRenameColumn()
 
         $rows = $this->adapter->fetchAll(sprintf(
             "SELECT column_name, column_comment FROM information_schema.columns WHERE table_schema='%s' AND table_name='table1'",
-            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE));
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
+        ));
         $columnWithComment = $rows[1];
 
         $this->assertEquals($comment, $columnWithComment['column_comment'], 'Dont set column comment correctly');

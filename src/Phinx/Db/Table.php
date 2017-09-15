@@ -655,7 +655,7 @@ class Table
         $bulk = true;
         $row = current($rows);
         $c = array_keys($row);
-        foreach($this->getData() as $row) {
+        foreach ($this->getData() as $row) {
             $k = array_keys($row);
             if ($k != $c) {
                 $bulk = false;

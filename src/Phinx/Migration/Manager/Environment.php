@@ -107,7 +107,6 @@ class Environment
 
         // Run the migration
         if (method_exists($migration, MigrationInterface::CHANGE)) {
-
             if ($direction === MigrationInterface::DOWN) {
                 // Create an instance of the ProxyAdapter so we can record all
                 // of the migration commands for reverse playback
@@ -262,7 +261,7 @@ class Environment
     }
 
     /**
-     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's 
+     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's
      * version_order option
      *
      * @return array
