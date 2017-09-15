@@ -55,7 +55,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function connect()
     {
-        if (null === $this->connection) {
+        if ($this->connection === null) {
             if (!class_exists('PDO') || !in_array('sqlite', \PDO::getAvailableDrivers(), true)) {
                 // @codeCoverageIgnoreStart
                 throw new \RuntimeException('You need to enable the PDO_SQLITE extension for Phinx to run properly.');

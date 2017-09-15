@@ -195,7 +195,7 @@ abstract class AbstractCommand extends Command
 
         $useDefault = false;
 
-        if (null === $configFile || false === $configFile) {
+        if ($configFile === null || $configFile === false) {
             $useDefault = true;
         }
 
@@ -239,7 +239,7 @@ abstract class AbstractCommand extends Command
         $parser = $input->getOption('parser');
 
         // If no parser is specified try to determine the correct one from the file extension.  Defaults to YAML
-        if (null === $parser) {
+        if ($parser === null) {
             $extension = pathinfo($configFilePath, PATHINFO_EXTENSION);
 
             switch (strtolower($extension)) {
@@ -282,7 +282,7 @@ abstract class AbstractCommand extends Command
      */
     protected function loadManager(InputInterface $input, OutputInterface $output)
     {
-        if (null === $this->getManager()) {
+        if ($this->getManager() === null) {
             $manager = new Manager($this->getConfig(), $input, $output);
             $this->setManager($manager);
         } else {

@@ -49,7 +49,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function connect()
     {
-        if (null === $this->connection) {
+        if ($this->connection === null) {
             if (!class_exists('PDO') || !in_array('pgsql', \PDO::getAvailableDrivers(), true)) {
                 // @codeCoverageIgnoreStart
                 throw new \RuntimeException('You need to enable the PDO_Pgsql extension for Phinx to run properly.');
@@ -1021,7 +1021,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function createSchemaTable()
     {
         // Create the public/custom schema if it doesn't already exist
-        if (false === $this->hasSchema($this->getSchemaName())) {
+        if ($this->hasSchema($this->getSchemaName()) === false) {
             $this->createSchema($this->getSchemaName());
         }
 

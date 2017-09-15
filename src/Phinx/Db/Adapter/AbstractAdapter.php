@@ -69,10 +69,10 @@ abstract class AbstractAdapter implements AdapterInterface
     public function __construct(array $options, InputInterface $input = null, OutputInterface $output = null)
     {
         $this->setOptions($options);
-        if (null !== $input) {
+        if ($input !== null) {
             $this->setInput($input);
         }
-        if (null !== $output) {
+        if ($output !== null) {
             $this->setOutput($output);
         }
     }
@@ -149,7 +149,7 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     public function getOutput()
     {
-        if (null === $this->output) {
+        if ($this->output === null) {
             $output = new NullOutput();
             $this->setOutput($output);
         }

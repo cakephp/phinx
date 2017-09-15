@@ -76,7 +76,7 @@ EOT
         $environment = $input->getOption('environment');
         $date        = $input->getOption('date');
 
-        if (null === $environment) {
+        if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
@@ -108,7 +108,7 @@ EOT
 
         // run the migrations
         $start = microtime(true);
-        if (null !== $date) {
+        if ($date !== null) {
             $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
         } else {
             $this->getManager()->migrate($environment, $version);

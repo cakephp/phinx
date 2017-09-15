@@ -148,7 +148,7 @@ class Manager
             }
 
             if (empty($sortedMigrations) && !empty($missingVersions)) {
-                // this means we have no up migrations, so we write all the missing versions already so they show up 
+                // this means we have no up migrations, so we write all the missing versions already so they show up
                 // before any possible down migration
                 foreach ($missingVersions as $missingVersionCreationTime => $missingVersion) {
                     $this->printMissingVersion($missingVersion, $maxNameLength);
@@ -157,7 +157,7 @@ class Manager
                 }
             }
 
-            // any migration left in the migrations (ie. not unset when sorting the migrations by the version order) is 
+            // any migration left in the migrations (ie. not unset when sorting the migrations by the version order) is
             // a migration that is down, so we add them to the end of the sorted migrations list
             if (!empty($migrations)) {
                 $sortedMigrations = array_merge($sortedMigrations, $migrations);
@@ -175,7 +175,7 @@ class Manager
                         } else {
                             if ($missingVersion['start_time'] > $version['start_time']) {
                                 break;
-                            } elseif ($missingVersion['start_time'] == $version['start_time'] && 
+                            } elseif ($missingVersion['start_time'] == $version['start_time'] &&
                                 $missingVersion['version'] > $version['version']) {
                                 break;
                             }
@@ -304,7 +304,7 @@ class Manager
             return;
         }
 
-        if (null === $version) {
+        if ($version === null) {
             $version = max(array_merge($versions, array_keys($migrations)));
         } else {
             if (0 != $version && !isset($migrations[$version])) {
@@ -435,7 +435,7 @@ class Manager
             if (isset($migrations[$versionCreationTime])) {
                 array_unshift($sortedMigrations, $migrations[$versionCreationTime]);
             } else {
-                // this means the version is missing so we unset it so that we don't consider it when rolling back 
+                // this means the version is missing so we unset it so that we don't consider it when rolling back
                 // migrations (or choosing the last up version as target)
                 unset($executedVersions[$versionCreationTime]);
             }
@@ -465,7 +465,7 @@ class Manager
         }
 
         // If no target was supplied, revert the last migration
-        if (null === $target) {
+        if ($target === null) {
             // Get the migration before the last run migration
             $prev = count($executedVersionCreationTimes) - 2;
             $target = $prev >= 0 ? $executedVersionCreationTimes[$prev] : 0;
@@ -520,7 +520,7 @@ class Manager
     {
         $seeds = $this->getSeeds();
 
-        if (null === $seed) {
+        if ($seed === null) {
             // run all seeders
             foreach ($seeds as $seeder) {
                 if (array_key_exists($seeder->getName(), $seeds)) {
@@ -639,7 +639,7 @@ class Manager
     }
 
     /**
-     * Gets an array of the database migrations, indexed by migration name (aka creation time) and sorted in ascending 
+     * Gets an array of the database migrations, indexed by migration name (aka creation time) and sorted in ascending
      * order
      *
      * @throws \InvalidArgumentException
@@ -647,7 +647,7 @@ class Manager
      */
     public function getMigrations()
     {
-        if (null === $this->migrations) {
+        if ($this->migrations === null) {
             $phpFiles = $this->getMigrationFiles();
 
             // filter the files to only get the ones that match our naming scheme
@@ -667,7 +667,7 @@ class Manager
                     $namespace = $config instanceof NamespaceAwareInterface ? $config->getMigrationNamespaceByPath(dirname($filePath)) : null;
 
                     // convert the filename to a class name
-                    $class = (null === $namespace ? '' : $namespace . '\\') . Util::mapFileNameToClassName(basename($filePath));
+                    $class = ($namespace === null ? '' : $namespace . '\\') . Util::mapFileNameToClassName(basename($filePath));
 
                     if (isset($fileNames[$class])) {
                         throw new \InvalidArgumentException(sprintf(
@@ -753,7 +753,7 @@ class Manager
      */
     public function getSeeds()
     {
-        if (null === $this->seeds) {
+        if ($this->seeds === null) {
             $phpFiles = $this->getSeedFiles();
 
             // filter the files to only get the ones that match our naming scheme
@@ -767,7 +767,7 @@ class Manager
                     $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath(dirname($filePath)) : null;
 
                     // convert the filename to a class name
-                    $class = (null === $namespace ? '' : $namespace . '\\') . pathinfo($filePath, PATHINFO_FILENAME);
+                    $class = ($namespace === null ? '' : $namespace . '\\') . pathinfo($filePath, PATHINFO_FILENAME);
                     $fileNames[$class] = basename($filePath);
 
                     // load the seed file
@@ -863,7 +863,7 @@ class Manager
             return;
         }
 
-        if (null === $version) {
+        if ($version === null) {
             $lastVersion = end($versions);
             $version = $lastVersion['version'];
         }

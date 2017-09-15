@@ -214,7 +214,7 @@ class ProxyAdapter extends AdapterWrapper
      */
     public function getInvertedCommands()
     {
-        if (null === $this->getCommands()) {
+        if ($this->getCommands() === null) {
             return [];
         }
 

@@ -279,7 +279,7 @@ class Create extends AbstractCommand
 
         // inject the class names appropriate to this migration
         $classes = [
-            '$namespaceDefinition' => null !== $namespace ? ('namespace ' . $namespace . ';') : '',
+            '$namespaceDefinition' => $namespace !== null ? ('namespace ' . $namespace . ';') : '',
             '$namespace'           => $namespace,
             '$useClassName'        => $this->getConfig()->getMigrationBaseClassName(false),
             '$className'           => $className,
@@ -288,7 +288,7 @@ class Create extends AbstractCommand
         ];
         $contents = strtr($contents, $classes);
 
-        if (false === file_put_contents($filePath, $contents)) {
+        if (file_put_contents($filePath, $contents) === false) {
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',
                 $path

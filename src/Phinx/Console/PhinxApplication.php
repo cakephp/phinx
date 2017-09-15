@@ -75,7 +75,7 @@ class PhinxApplication extends Application
     {
         // always show the version information except when the user invokes the help
         // command as that already does it
-        if (false === $input->hasParameterOption(['--help', '-h']) && null !== $input->getFirstArgument()) {
+        if ($input->hasParameterOption(['--help', '-h']) === false && $input->getFirstArgument() !== null) {
             $output->writeln($this->getLongVersion());
             $output->writeln('');
         }

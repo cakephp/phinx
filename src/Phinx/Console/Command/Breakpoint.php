@@ -76,7 +76,7 @@ EOT
         $version = $input->getOption('target');
         $removeAll = $input->getOption('remove-all');
 
-        if (null === $environment) {
+        if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
