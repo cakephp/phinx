@@ -985,11 +985,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         }
         $def = sprintf(
-            "CREATE %s INDEX %s ON %s (%s);",
+            "CREATE %s INDEX %s ON %s %s (%s) %s;",
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
             $this->quoteTableName($tableName),
-            implode(',', array_map(array($this, 'quoteColumnName'), $index->getColumns()))
+            (null !== $index->getUsing() ? ' USING ' . $index->getUsing() : ''),
+            implode(',', array_map(array($this, 'quoteColumnName'), $index->getColumns())),
+            (null !== $index->getWhere() ? ' WHERE ' . $index->getWhere() : '')
         );
         return $def;
     }

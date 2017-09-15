@@ -1084,11 +1084,12 @@ SQL;
             $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         }
         $def = sprintf(
-            "CREATE %s INDEX %s ON %s (%s);",
+            "CREATE %s INDEX %s ON %s (%s) %s;",
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
             $this->quoteTableName($tableName),
-            '[' . implode('],[', $index->getColumns()) . ']'
+            '[' . implode('],[', $index->getColumns()) . ']',
+            (null !== $index->getWhere() ? ' WHERE ' . $index->getWhere() : '')
         );
 
         return $def;
