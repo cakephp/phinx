@@ -37,5 +37,7 @@ script:
     - if [[ $PHPCS = 1 ]]; then composer require --dev squizlabs/php_codesniffer:^3.0 && vendor/bin/phpcs -p -s src; fi
 
 after_success:
-    - if [[ $DEFAULT = 1 ]]; then wget https://scrutinizer-ci.com/ocular.phar; fi
-    - if [[ $DEFAULT = 1 ]]; then php ocular.phar code-coverage:upload --format=php-clover coverage.clover; fi
+  - if [[ $DEFAULT = 1 ]]; then bash <(curl -s https://codecov.io/bash); fi
+
+notifications:
+  email: false
