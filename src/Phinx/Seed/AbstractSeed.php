@@ -192,7 +192,7 @@ abstract class AbstractSeed implements SeedInterface
     {
         // convert to table object
         if (is_string($table)) {
-            $table = new Table($table, array(), $this->getAdapter());
+            $table = new Table($table, [], $this->getAdapter());
         }
         $table->insert($data)->save();
     }
@@ -208,7 +208,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * {@inheritdoc}
      */
-    public function table($tableName, $options = array())
+    public function table($tableName, $options = [])
     {
         return new Table($tableName, $options, $this->getAdapter());
     }

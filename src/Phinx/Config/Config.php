@@ -53,7 +53,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * @var array
      */
-    private $values = array();
+    private $values = [];
 
     /**
      * @var string
@@ -141,7 +141,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     public function getEnvironments()
     {
         if (isset($this->values) && isset($this->values['environments'])) {
-            $environments = array();
+            $environments = [];
             foreach ($this->values['environments'] as $key => $value) {
                 if (is_array($value)) {
                     $environments[$key] = $value;
@@ -246,7 +246,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         }
 
         if (is_string($this->values['paths']['migrations'])) {
-            $this->values['paths']['migrations'] = array($this->values['paths']['migrations']);
+            $this->values['paths']['migrations'] = [$this->values['paths']['migrations']];
         }
 
         return $this->values['paths']['migrations'];
@@ -275,7 +275,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         }
 
         if (is_string($this->values['paths']['seeds'])) {
-            $this->values['paths']['seeds'] = array($this->values['paths']['seeds']);
+            $this->values['paths']['seeds'] = [$this->values['paths']['seeds']];
         }
 
         return $this->values['paths']['seeds'];
@@ -347,7 +347,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     {
         // Get environment variables
         // $_ENV is empty because variables_order does not include it normally
-        $tokens = array();
+        $tokens = [];
         foreach ($_SERVER as $varname => $varvalue) {
             if (0 === strpos($varname, 'PHINX_')) {
                 $tokens['%%' . $varname . '%%'] = $varvalue;
@@ -371,7 +371,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      */
     protected function recurseArrayForTokens($arr, $tokens)
     {
-        $out = array();
+        $out = [];
         foreach ($arr as $name => $value) {
             if (is_array($value)) {
                 $out[$name] = $this->recurseArrayForTokens($value, $tokens);

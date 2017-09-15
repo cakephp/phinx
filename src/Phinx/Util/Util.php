@@ -63,7 +63,7 @@ class Util
      */
     public static function getExistingMigrationClassNames($path)
     {
-        $classNames = array();
+        $classNames = [];
 
         if (!is_dir($path)) {
             return $classNames;
@@ -89,7 +89,7 @@ class Util
      */
     public static function getVersionFromFileName($fileName)
     {
-        $matches = array();
+        $matches = [];
         preg_match('/^[0-9]+/', basename($fileName), $matches);
         return $matches[0];
     }
@@ -119,7 +119,7 @@ class Util
      */
     public static function mapFileNameToClassName($fileName)
     {
-        $matches = array();
+        $matches = [];
         if (preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName, $matches)) {
             $fileName = $matches[1];
         }
@@ -172,7 +172,7 @@ class Util
      */
     public static function isValidMigrationFileName($fileName)
     {
-        $matches = array();
+        $matches = [];
         return preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName, $matches);
     }
 
@@ -184,7 +184,7 @@ class Util
      */
     public static function isValidSeedFileName($fileName)
     {
-        $matches = array();
+        $matches = [];
         return preg_match(static::SEED_FILE_NAME_PATTERN, $fileName, $matches);
     }
 
@@ -196,7 +196,7 @@ class Util
      */
     public static function globAll(array $paths)
     {
-        $result = array();
+        $result = [];
 
         foreach ($paths as $path) {
             $result = array_merge($result, static::glob($path));

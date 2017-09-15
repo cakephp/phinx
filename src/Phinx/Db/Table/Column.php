@@ -104,7 +104,7 @@ class Column
     /**
      * @var array
      */
-    protected $properties = array();
+    protected $properties = [];
 
     /**
      * @var string
@@ -507,11 +507,11 @@ class Column
      */
     public function setCollation($collation)
     {
-        $allowedTypes = array(
+        $allowedTypes = [
             AdapterInterface::PHINX_TYPE_CHAR,
             AdapterInterface::PHINX_TYPE_STRING,
             AdapterInterface::PHINX_TYPE_TEXT,
-        );
+        ];
         if (!in_array($this->getType(), $allowedTypes))
             throw new \UnexpectedValueException('Collation may be set only for types: ' . implode(', ', $allowedTypes));
 
@@ -540,11 +540,11 @@ class Column
      */
     public function setEncoding($encoding)
     {
-        $allowedTypes = array(
+        $allowedTypes = [
             AdapterInterface::PHINX_TYPE_CHAR,
             AdapterInterface::PHINX_TYPE_STRING,
             AdapterInterface::PHINX_TYPE_TEXT,
-        );
+        ];
         if (!in_array($this->getType(), $allowedTypes))
             throw new \UnexpectedValueException('Character set may be set only for types: ' . implode(', ', $allowedTypes));
 
@@ -570,7 +570,7 @@ class Column
      */
     protected function getValidOptions()
     {
-        return array(
+        return [
             'limit',
             'default',
             'null',
@@ -586,7 +586,7 @@ class Column
             'values',
             'collation',
             'encoding',
-        );
+        ];
     }
 
     /**
@@ -596,9 +596,9 @@ class Column
      */
     protected function getAliasedOptions()
     {
-        return array(
+        return [
             'length' => 'limit',
-        );
+        ];
     }
 
     /**

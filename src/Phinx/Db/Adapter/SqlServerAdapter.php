@@ -42,7 +42,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 {
     protected $schema = 'dbo';
 
-    protected $signedColumnTypes = array('integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true);
+    protected $signedColumnTypes = ['integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true];
 
     /**
      * {@inheritdoc}
@@ -67,7 +67,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             }
             $dsn .= ';MultipleActiveResultSets=false';
 
-            $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
+            $driverOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
 
             // charset support
             if (isset($options['charset'])) {
@@ -119,7 +119,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             $dsn = 'dblib:host=' . $options['host'] . ':' . $options['port'] . ';dbname=' . $options['name'];
         }
 
-        $driverOptions = array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION);
+        $driverOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
 
 
         try {
@@ -230,8 +230,8 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
-        $sqlBuffer = array();
-        $columnsWithComments = array();
+        $sqlBuffer = [];
+        $columnsWithComments = [];
         foreach ($columns as $column) {
             $sqlBuffer[] = $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column);
 
@@ -368,7 +368,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumns($tableName)
     {
-        $columns = array();
+        $columns = [];
         $sql = sprintf(
             "SELECT DISTINCT TABLE_SCHEMA AS [schema], TABLE_NAME as [table_name], COLUMN_NAME AS [name], DATA_TYPE AS [type],
             IS_NULLABLE AS [null], COLUMN_DEFAULT AS [default],
@@ -403,7 +403,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 
     protected function parseDefault($default)
     {
-        $default = preg_replace(array("/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"), '$1', $default);
+        $default = preg_replace(["/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"], '$1', $default);
 
         if (strtoupper($default) === 'NULL') {
             $default = null;
@@ -604,7 +604,7 @@ WHERE AC.[object_id] = {$tableId} AND IC.[index_id] = {$indexId}  AND IC.[object
 ORDER BY IC.[key_ordinal];";
 
         $rows = $this->fetchAll($sql);
-        $columns = array();
+        $columns = [];
         foreach($rows as $row) {
             $columns[] = strtolower($row['column_name']);
         }
@@ -619,7 +619,7 @@ ORDER BY IC.[key_ordinal];";
      */
     public function getIndexes($tableName)
     {
-        $indexes = array();
+        $indexes = [];
         $sql = "SELECT I.[name] AS [index_name], I.[index_id] as [index_id], T.[object_id] as [table_id]
 FROM sys.[tables] AS T
   INNER JOIN sys.[indexes] I ON T.[object_id] = I.[object_id]
@@ -629,7 +629,7 @@ ORDER BY T.[name], I.[index_id];";
         $rows = $this->fetchAll($sql);
         foreach ($rows as $row) {
             $columns = $this->getIndexColums($row['table_id'], $row['index_id']);
-            $indexes[$row['index_name']] = array('columns' => $columns);
+            $indexes[$row['index_name']] = ['columns' => $columns];
         }
 
         return $indexes;
@@ -641,7 +641,7 @@ ORDER BY T.[name], I.[index_id];";
     public function hasIndex($tableName, $columns)
     {
         if (is_string($columns)) {
-            $columns = array($columns); // str to array
+            $columns = [$columns]; // str to array
         }
 
         $columns = array_map('strtolower', $columns);
@@ -689,7 +689,7 @@ ORDER BY T.[name], I.[index_id];";
     public function dropIndex($tableName, $columns)
     {
         if (is_string($columns)) {
-            $columns = array($columns); // str to array
+            $columns = [$columns]; // str to array
         }
 
         $indexes = $this->getIndexes($tableName);
@@ -737,7 +737,7 @@ ORDER BY T.[name], I.[index_id];";
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
         if (is_string($columns)) {
-            $columns = array($columns); // str to array
+            $columns = [$columns]; // str to array
         }
         $foreignKeys = $this->getForeignKeys($tableName);
         if ($constraint) {
@@ -764,7 +764,7 @@ ORDER BY T.[name], I.[index_id];";
      */
     protected function getForeignKeys($tableName)
     {
-        $foreignKeys = array();
+        $foreignKeys = [];
         $rows = $this->fetchAll(sprintf(
             "SELECT
                     tc.constraint_name,
@@ -809,7 +809,7 @@ ORDER BY T.[name], I.[index_id];";
     public function dropForeignKey($tableName, $columns, $constraint = null)
     {
         if (is_string($columns)) {
-            $columns = array($columns); // str to array
+            $columns = [$columns]; // str to array
         }
 
         if ($constraint) {
@@ -852,47 +852,47 @@ ORDER BY T.[name], I.[index_id];";
     {
         switch ($type) {
             case static::PHINX_TYPE_STRING:
-                return array('name' => 'nvarchar', 'limit' => 255);
+                return ['name' => 'nvarchar', 'limit' => 255];
                 break;
             case static::PHINX_TYPE_CHAR:
-                return array('name' => 'nchar', 'limit' => 255);
+                return ['name' => 'nchar', 'limit' => 255];
                 break;
             case static::PHINX_TYPE_TEXT:
-                return array('name' => 'ntext');
+                return ['name' => 'ntext'];
                 break;
             case static::PHINX_TYPE_INTEGER:
-                return array('name' => 'int');
+                return ['name' => 'int'];
                 break;
             case static::PHINX_TYPE_BIG_INTEGER:
-                return array('name' => 'bigint');
+                return ['name' => 'bigint'];
                 break;
             case static::PHINX_TYPE_FLOAT:
-                return array('name' => 'float');
+                return ['name' => 'float'];
                 break;
             case static::PHINX_TYPE_DECIMAL:
-                return array('name' => 'decimal');
+                return ['name' => 'decimal'];
                 break;
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIMESTAMP:
-                return array('name' => 'datetime');
+                return ['name' => 'datetime'];
                 break;
             case static::PHINX_TYPE_TIME:
-                return array('name' => 'time');
+                return ['name' => 'time'];
                 break;
             case static::PHINX_TYPE_DATE:
-                return array('name' => 'date');
+                return ['name' => 'date'];
                 break;
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
-                return array('name' => 'varbinary');
+                return ['name' => 'varbinary'];
                 break;
             case static::PHINX_TYPE_BOOLEAN:
-                return array('name' => 'bit');
+                return ['name' => 'bit'];
                 break;
             case static::PHINX_TYPE_UUID:
-                return array('name' => 'uniqueidentifier');
+                return ['name' => 'uniqueidentifier'];
             case static::PHINX_TYPE_FILESTREAM:
-                return array('name' => 'varbinary', 'limit' => 'max');
+                return ['name' => 'varbinary', 'limit' => 'max'];
             // Geospatial database types
             case static::PHINX_TYPE_GEOMETRY:
             case static::PHINX_TYPE_POINT:
@@ -900,7 +900,7 @@ ORDER BY T.[name], I.[index_id];";
             case static::PHINX_TYPE_POLYGON:
                 // SQL Server stores all spatial data using a single data type.
                 // Specific types (point, polygon, etc) are set at insert time.
-                return array('name' => 'geography');
+                return ['name' => 'geography'];
                 break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
@@ -965,7 +965,7 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * {@inheritdoc}
      */
-    public function createDatabase($name, $options = array())
+    public function createDatabase($name, $options = [])
     {
         if (isset($options['collation'])) {
             $this->execute(sprintf('CREATE DATABASE [%s] COLLATE [%s]', $name, $options['collation']));
@@ -1028,16 +1028,16 @@ SQL;
      */
     protected function getColumnSqlDefinition(Column $column, $create = true)
     {
-        $buffer = array();
+        $buffer = [];
 
         $sqlType = $this->getSqlType($column->getType());
         $buffer[] = strtoupper($sqlType['name']);
         // integers cant have limits in SQlServer
-        $noLimits = array(
+        $noLimits = [
             'bigint',
             'int',
             'tinyint'
-        );
+        ];
         if (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
             $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
         }
@@ -1079,7 +1079,7 @@ SQL;
         } else {
             $columnNames = $index->getColumns();
             if (is_string($columnNames)) {
-                $columnNames = array($columnNames);
+                $columnNames = [$columnNames];
             }
             $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         }
@@ -1121,7 +1121,7 @@ SQL;
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('filestream'));
+        return array_merge(parent::getColumnTypes(), ['filestream']);
     }
     
     /**

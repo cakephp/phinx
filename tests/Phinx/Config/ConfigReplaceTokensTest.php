@@ -15,11 +15,11 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
      * Data to be saved to $_SERVER and checked later
      * @var array
      */
-    protected static $server = array(
+    protected static $server = [
         'PHINX_TEST_VAR_1' => 'some-value',
         'NON_PHINX_TEST_VAR_1' => 'some-other-value',
         'PHINX_TEST_VAR_2' => 213456,
-    );
+    ];
 
     /**
      * Pass vars to $_SERVER
@@ -47,12 +47,12 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
      */
     public function testReplaceTokens()
     {
-        $config = new Config(array(
+        $config = new Config([
             'some-var-1' => 'includes/%%PHINX_TEST_VAR_1%%',
             'some-var-2' => 'includes/%%NON_PHINX_TEST_VAR_1%%',
             'some-var-3' => 'includes/%%PHINX_TEST_VAR_2%%',
             'some-var-4' => 123456,
-        ));
+        ]);
 
         $this->assertContains(
             static::$server['PHINX_TEST_VAR_1'].'', // force convert to string
@@ -74,14 +74,14 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
      */
     public function testReplaceTokensRecursive()
     {
-        $config = new Config(array(
-            'folding' => array(
+        $config = new Config([
+            'folding' => [
                 'some-var-1' => 'includes/%%PHINX_TEST_VAR_1%%',
                 'some-var-2' => 'includes/%%NON_PHINX_TEST_VAR_1%%',
                 'some-var-3' => 'includes/%%PHINX_TEST_VAR_2%%',
                 'some-var-4' => 123456,
-            )
-        ));
+            ]
+        ]);
 
         $folding = $config->offsetGet('folding');
 

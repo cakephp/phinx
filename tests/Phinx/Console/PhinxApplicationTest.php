@@ -21,7 +21,7 @@ class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
         $app->setCatchExceptions(false);
 
         $appTester = new ApplicationTester($app);
-        $appTester->run(array('command' => $command));
+        $appTester->run(['command' => $command]);
         $stream = $appTester->getOutput()->getStream();
         rewind($stream);
 
@@ -30,8 +30,8 @@ class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
 
     public function provider()
     {
-        return array(
-            array('help', '/help \[options\] \[--\] \[<command_name>\]/')
-        );
+        return [
+            ['help', '/help \[options\] \[--\] \[<command_name>\]/']
+        ];
     }
 }

@@ -62,23 +62,23 @@ class AdapterFactory
      *
      * @var array
      */
-    protected $adapters = array(
+    protected $adapters = [
         'mysql'  => 'Phinx\Db\Adapter\MysqlAdapter',
         'pgsql'  => 'Phinx\Db\Adapter\PostgresAdapter',
         'sqlite' => 'Phinx\Db\Adapter\SQLiteAdapter',
         'sqlsrv' => 'Phinx\Db\Adapter\SqlServerAdapter',
-    );
+    ];
 
     /**
      * Class map of adapters wrappers, indexed by name.
      *
      * @var array
      */
-    protected $wrappers = array(
+    protected $wrappers = [
         'prefix' => 'Phinx\Db\Adapter\TablePrefixAdapter',
         'proxy'  => 'Phinx\Db\Adapter\ProxyAdapter',
         'timed'  => 'Phinx\Db\Adapter\TimedOutputAdapter',
-    );
+    ];
 
     /**
      * Add or replace an adapter with a fully qualified class name.

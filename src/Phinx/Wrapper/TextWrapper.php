@@ -47,7 +47,7 @@ class TextWrapper
     /**
      * @var array
      */
-    private $options = array();
+    private $options = [];
 
     /**
      * @var integer
@@ -58,7 +58,7 @@ class TextWrapper
      * @param PhinxApplication $app
      * @param array $options
      */
-    public function __construct(PhinxApplication $app, array $options = array())
+    public function __construct(PhinxApplication $app, array $options = [])
     {
         $this->app = $app;
         $this->options = $options;
@@ -91,15 +91,15 @@ class TextWrapper
      */
     public function getStatus($env = null)
     {
-        $command = array('status');
+        $command = ['status'];
         if ($env ?: $this->hasOption('environment')) {
-            $command += array('-e' => $env ?: $this->getOption('environment'));
+            $command += ['-e' => $env ?: $this->getOption('environment')];
         }
         if ($this->hasOption('configuration')) {
-            $command += array('-c' => $this->getOption('configuration'));
+            $command += ['-c' => $this->getOption('configuration')];
         }
         if ($this->hasOption('parser')) {
-            $command += array('-p' => $this->getOption('parser'));
+            $command += ['-p' => $this->getOption('parser')];
         }
         return $this->executeRun($command);
     }
@@ -112,18 +112,18 @@ class TextWrapper
      */
     public function getMigrate($env = null, $target = null)
     {
-        $command = array('migrate');
+        $command = ['migrate'];
         if ($env ?: $this->hasOption('environment')) {
-            $command += array('-e' => $env ?: $this->getOption('environment'));
+            $command += ['-e' => $env ?: $this->getOption('environment')];
         }
         if ($this->hasOption('configuration')) {
-            $command += array('-c' => $this->getOption('configuration'));
+            $command += ['-c' => $this->getOption('configuration')];
         }
         if ($this->hasOption('parser')) {
-            $command += array('-p' => $this->getOption('parser'));
+            $command += ['-p' => $this->getOption('parser')];
         }
         if ($target) {
-            $command += array('-t' => $target);
+            $command += ['-t' => $target];
         }
         return $this->executeRun($command);
     }
@@ -137,22 +137,22 @@ class TextWrapper
      */
     public function getSeed($env = null, $target = null, $seed = null)
     {
-        $command = array ('seed:run');
+        $command = ['seed:run'];
         if ($env ?: $this->hasOption('environment')) {
-            $command += array('-e' => $env ?: $this->getOption('environment'));
+            $command += ['-e' => $env ?: $this->getOption('environment')];
         }
         if ($this->hasOption('configuration')) {
-            $command += array('-c' => $this->getOption('configuration'));
+            $command += ['-c' => $this->getOption('configuration')];
         }
         if ($this->hasOption('parser')) {
-            $command += array('-p' => $this->getOption('parser'));
+            $command += ['-p' => $this->getOption('parser')];
         }
         if ($target) {
-            $command += array('-t' => $target);
+            $command += ['-t' => $target];
         }
         if ($seed) {
             $seed = (array) $seed;
-            $command += array('-s' => $seed);
+            $command += ['-s' => $seed];
         }
         return $this->executeRun($command);
     }
@@ -165,20 +165,20 @@ class TextWrapper
      */
     public function getRollback($env = null, $target = null)
     {
-        $command = array('rollback');
+        $command = ['rollback'];
         if ($env ?: $this->hasOption('environment')) {
-            $command += array('-e' => $env ?: $this->getOption('environment'));
+            $command += ['-e' => $env ?: $this->getOption('environment')];
         }
         if ($this->hasOption('configuration')) {
-            $command += array('-c' => $this->getOption('configuration'));
+            $command += ['-c' => $this->getOption('configuration')];
         }
         if ($this->hasOption('parser')) {
-            $command += array('-p' => $this->getOption('parser'));
+            $command += ['-p' => $this->getOption('parser')];
         }
         if (isset($target)) {
             // Need to use isset() with rollback, because -t0 is a valid option!
             // See http://docs.phinx.org/en/latest/commands.html#the-rollback-command
-            $command += array('-t' => $target);
+            $command += ['-t' => $target];
         }
         return $this->executeRun($command);
     }

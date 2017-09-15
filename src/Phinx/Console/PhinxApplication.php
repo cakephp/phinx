@@ -51,7 +51,7 @@ class PhinxApplication extends Application
     {
         parent::__construct('Phinx by CakePHP - https://phinx.org.', $version);
 
-        $this->addCommands(array(
+        $this->addCommands([
             new Command\Init(),
             new Command\Create(),
             new Command\Migrate(),
@@ -61,7 +61,7 @@ class PhinxApplication extends Application
             new Command\Test(),
             new Command\SeedCreate(),
             new Command\SeedRun(),
-        ));
+        ]);
     }
 
     /**
@@ -75,7 +75,7 @@ class PhinxApplication extends Application
     {
         // always show the version information except when the user invokes the help
         // command as that already does it
-        if (false === $input->hasParameterOption(array('--help', '-h')) && null !== $input->getFirstArgument()) {
+        if (false === $input->hasParameterOption(['--help', '-h']) && null !== $input->getFirstArgument()) {
             $output->writeln($this->getLongVersion());
             $output->writeln('');
         }
