@@ -24,9 +24,9 @@ class ConfigDefaultEnvironmentTest extends AbstractConfigTest
     {
         $_SERVER['PHINX_DBHOST'] = 'localhost';
         $_SERVER['PHINX_DBNAME'] = 'productionapp';
-        $_SERVER['PHINX_DBUSER'] = 'root';
-        $_SERVER['PHINX_DBPASS'] = 'ds6xhj1';
         $_SERVER['PHINX_DBPORT'] = '1234';
+        $_SERVER['DB_PASS'] = 'ds6xhj1';
+        $_SERVER['DB_USER'] = 'root';
         $path = __DIR__ . '/_files';
         $config = Config::fromYaml($path . '/external_variables.yml');
         $env = $config->getEnvironment($config->getDefaultEnvironment());
