@@ -64,7 +64,7 @@ If you have a breakpoint set, then you can rollback to target 0 and the rollback
 <info>phinx rollback -e development -t 0 </info>
 
 The <info>version_order</info> configuration option is used to determine the order of the migrations when rolling back.
-This can be used to allow the rolling back of the last executed migration instead of the last created one, or combined 
+This can be used to allow the rolling back of the last executed migration instead of the last created one, or combined
 with the <info>-d|--date</info> option to rollback to a certain date using the migration start times to order them.
 
 EOT
@@ -89,7 +89,7 @@ EOT
 
         $config = $this->getConfig();
 
-        if (null === $environment) {
+        if ($environment === null) {
             $environment = $config->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
@@ -108,12 +108,12 @@ EOT
         if (isset($envOptions['name'])) {
             $output->writeln('<info>using database</info> ' . $envOptions['name']);
         }
-        
+
         $versionOrder = $this->getConfig()->getVersionOrder();
         $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
 
         // rollback the specified environment
-        if (null === $date) {
+        if ($date === null) {
             $targetMustMatchVersion = true;
             $target = $version;
         } else {

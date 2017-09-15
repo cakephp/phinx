@@ -178,7 +178,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      */
     public function hasEnvironment($name)
     {
-        return (null !== $this->getEnvironment($name));
+        return ($this->getEnvironment($name) !== null);
     }
 
     /**
@@ -336,7 +336,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         return $versionOrder == self::VERSION_ORDER_CREATION_TIME;
     }
 
-    
+
 
     /**
      * Replace tokens in the specified array.

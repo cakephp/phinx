@@ -100,7 +100,7 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function getConnection()
     {
-        if (null === $this->connection) {
+        if ($this->connection === null) {
             $this->connect();
         }
         return $this->connection;

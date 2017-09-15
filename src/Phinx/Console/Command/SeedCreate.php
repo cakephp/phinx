@@ -178,7 +178,7 @@ class SeedCreate extends AbstractCommand
         $config = $this->getConfig();
         $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath($path) : null;
         $classes = [
-            '$namespaceDefinition' => null !== $namespace ? ('namespace ' . $namespace . ';') : '',
+            '$namespaceDefinition' => $namespace !== null ? ('namespace ' . $namespace . ';') : '',
             '$namespace'           => $namespace,
             '$useClassName'        => 'Phinx\Seed\AbstractSeed',
             '$className'           => $className,
@@ -186,7 +186,7 @@ class SeedCreate extends AbstractCommand
         ];
         $contents = strtr($contents, $classes);
 
-        if (false === file_put_contents($filePath, $contents)) {
+        if (file_put_contents($filePath, $contents) === false) {
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',
                 $path

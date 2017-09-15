@@ -86,7 +86,7 @@ class Table
         $this->setName($name);
         $this->setOptions($options);
 
-        if (null !== $adapter) {
+        if ($adapter !== null) {
             $this->setAdapter($adapter);
         }
     }
@@ -332,7 +332,7 @@ class Table
     public function addColumn($columnName, $type = null, $options = [])
     {
         // we need an adapter set to add a column
-        if (null === $this->getAdapter()) {
+        if ($this->getAdapter() === null) {
             throw new \RuntimeException('An adapter must be specified to add a column.');
         }
 
@@ -404,7 +404,7 @@ class Table
         }
 
         // if the name was omitted use the existing column name
-        if (null === $newColumn->getName() || strlen($newColumn->getName()) === 0) {
+        if ($newColumn->getName() === null || strlen($newColumn->getName()) === 0) {
             $newColumn->setName($columnName);
         }
 

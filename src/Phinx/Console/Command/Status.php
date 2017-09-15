@@ -72,13 +72,13 @@ EOT
         $environment = $input->getOption('environment');
         $format = $input->getOption('format');
 
-        if (null === $environment) {
+        if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
-        if (null !== $format) {
+        if ($format !== null) {
             $output->writeln('<info>using format</info> ' . $format);
         }
 

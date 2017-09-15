@@ -311,7 +311,7 @@ class Manager
             return;
         }
 
-        if (null === $version) {
+        if ($version === null) {
             $version = max(array_merge($versions, array_keys($migrations)));
         } else {
             if (0 != $version && !isset($migrations[$version])) {
@@ -474,7 +474,7 @@ class Manager
         }
 
         // If no target was supplied, revert the last migration
-        if (null === $target) {
+        if ($target === null) {
             // Get the migration before the last run migration
             $prev = count($executedVersionCreationTimes) - 2;
             $target = $prev >= 0 ? $executedVersionCreationTimes[$prev] : 0;
@@ -529,7 +529,7 @@ class Manager
     {
         $seeds = $this->getSeeds();
 
-        if (null === $seed) {
+        if ($seed === null) {
             // run all seeders
             foreach ($seeds as $seeder) {
                 if (array_key_exists($seeder->getName(), $seeds)) {
@@ -656,7 +656,7 @@ class Manager
      */
     public function getMigrations()
     {
-        if (null === $this->migrations) {
+        if ($this->migrations === null) {
             $phpFiles = $this->getMigrationFiles();
 
             // filter the files to only get the ones that match our naming scheme
@@ -676,7 +676,7 @@ class Manager
                     $namespace = $config instanceof NamespaceAwareInterface ? $config->getMigrationNamespaceByPath(dirname($filePath)) : null;
 
                     // convert the filename to a class name
-                    $class = (null === $namespace ? '' : $namespace . '\\') . Util::mapFileNameToClassName(basename($filePath));
+                    $class = ($namespace === null ? '' : $namespace . '\\') . Util::mapFileNameToClassName(basename($filePath));
 
                     if (isset($fileNames[$class])) {
                         throw new \InvalidArgumentException(sprintf(
@@ -762,7 +762,7 @@ class Manager
      */
     public function getSeeds()
     {
-        if (null === $this->seeds) {
+        if ($this->seeds === null) {
             $phpFiles = $this->getSeedFiles();
 
             // filter the files to only get the ones that match our naming scheme
@@ -776,7 +776,7 @@ class Manager
                     $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath(dirname($filePath)) : null;
 
                     // convert the filename to a class name
-                    $class = (null === $namespace ? '' : $namespace . '\\') . pathinfo($filePath, PATHINFO_FILENAME);
+                    $class = ($namespace === null ? '' : $namespace . '\\') . pathinfo($filePath, PATHINFO_FILENAME);
                     $fileNames[$class] = basename($filePath);
 
                     // load the seed file
@@ -873,7 +873,7 @@ class Manager
             return;
         }
 
-        if (null === $version) {
+        if ($version === null) {
             $lastVersion = end($versions);
             $version = $lastVersion['version'];
         }

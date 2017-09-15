@@ -49,7 +49,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     public function connect()
     {
-        if (null === $this->connection) {
+        if ($this->connection === null) {
             if (!class_exists('PDO') || !in_array('sqlsrv', \PDO::getAvailableDrivers(), true)) {
                 // try our connection via freetds (Mac/Linux)
                 $this->connectDblib();
@@ -1122,7 +1122,7 @@ SQL;
     {
         return array_merge(parent::getColumnTypes(), ['filestream']);
     }
-    
+
     /**
      * Records a migration being run.
      *
