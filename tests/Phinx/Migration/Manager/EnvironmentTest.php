@@ -13,7 +13,6 @@ class PDOMock extends \PDO
 
     public function __construct()
     {
-
     }
 
     public function getAttribute($attribute)
@@ -85,7 +84,8 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('pdomock', $options['adapter']);
     }
 
-    public function testSetPdoAttributeToErrmodeException() {
+    public function testSetPdoAttributeToErrmodeException()
+    {
         $pdoMock = new PDOMock();
         $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', [['foo' => 'bar']]);
         AdapterFactory::instance()->registerAdapter('pdomock', $adapter);

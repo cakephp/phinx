@@ -68,10 +68,10 @@ abstract class AbstractSeed implements SeedInterface
      */
     final public function __construct(InputInterface $input = null, OutputInterface $output = null)
     {
-        if (!is_null($input)){
+        if (!is_null($input)) {
             $this->setInput($input);
         }
-        if (!is_null($output)){
+        if (!is_null($output)) {
             $this->setOutput($output);
         }
 

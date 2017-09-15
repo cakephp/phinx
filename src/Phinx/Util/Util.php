@@ -190,7 +190,7 @@ class Util
 
     /**
      * Expands a set of paths with curly braces (if supported by the OS).
-     * 
+     *
      * @param array $paths
      * @return array
      */

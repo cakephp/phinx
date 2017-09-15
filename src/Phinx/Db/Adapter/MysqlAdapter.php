@@ -189,7 +189,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             "SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
             WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'",
-            $options['name'], $tableName
+            $options['name'],
+            $tableName
         ));
 
         return !empty($exists);
@@ -218,7 +219,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
             array_unshift($columns, $column);
             $options['primary_key'] = 'id';
-
         } elseif (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
@@ -336,7 +336,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $columns = [];
         $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $columnInfo) {
-
             $phinxType = $this->getPhinxType($columnInfo['Type']);
 
             $column = new Column();
@@ -823,8 +822,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return ['name' => 'set'];
                 break;
             case static::TYPE_YEAR:
-                if (!$limit || in_array($limit, [2, 4]))
+                if (!$limit || in_array($limit, [2, 4])) {
                     $limit = 4;
+                }
                 return ['name' => 'year', 'limit' => $limit];
                 break;
             case static::PHINX_TYPE_JSON:

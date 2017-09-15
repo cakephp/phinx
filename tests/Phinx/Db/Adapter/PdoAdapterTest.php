@@ -61,9 +61,15 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetVersionLog($versionOrder, $expectedOrderBy)
     {
-        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter',
-            [['version_order' => $versionOrder]], '', true, true, true,
-            ['fetchAll', 'getSchemaTableName']);
+        $adapter = $this->getMockForAbstractClass(
+            '\Phinx\Db\Adapter\PdoAdapter',
+            [['version_order' => $versionOrder]],
+            '',
+            true,
+            true,
+            true,
+            ['fetchAll', 'getSchemaTableName']
+        );
 
         $schemaTableName = 'log';
         $adapter->expects($this->once())
@@ -119,8 +125,10 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetVersionLogInvalidVersionOrderKO()
     {
-        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter',
-            [['version_order' => 'invalid']]);
+        $adapter = $this->getMockForAbstractClass(
+            '\Phinx\Db\Adapter\PdoAdapter',
+            [['version_order' => 'invalid']]
+        );
 
         $adapter->getVersionLog();
     }

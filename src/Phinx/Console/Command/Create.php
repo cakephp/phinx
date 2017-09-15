@@ -202,7 +202,7 @@ class Create extends AbstractCommand
         // Get the alternative template and static class options from the config, but only allow one of them.
         $defaultAltTemplate = $this->getConfig()->getTemplateFile();
         $defaultCreationClassName = $this->getConfig()->getTemplateClass();
-        if ($defaultAltTemplate && $defaultCreationClassName){
+        if ($defaultAltTemplate && $defaultCreationClassName) {
             throw new \InvalidArgumentException('Cannot define template:class and template:file at the same time');
         }
 
@@ -214,7 +214,7 @@ class Create extends AbstractCommand
         }
 
         // If no commandline options then use the defaults.
-        if (!$altTemplate && !$creationClassName){
+        if (!$altTemplate && !$creationClassName) {
             $altTemplate = $defaultAltTemplate;
             $creationClassName = $defaultCreationClassName;
         }

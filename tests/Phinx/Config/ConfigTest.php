@@ -283,5 +283,4 @@ class ConfigTest extends AbstractConfigTest
             ],
         ];
     }
-
 }

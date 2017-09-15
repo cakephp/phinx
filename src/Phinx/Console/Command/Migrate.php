@@ -49,7 +49,7 @@ class Migrate extends AbstractCommand
              ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to migrate to')
              ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
              ->setHelp(
-<<<EOT
+                 <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
 
 <info>phinx migrate -e development</info>

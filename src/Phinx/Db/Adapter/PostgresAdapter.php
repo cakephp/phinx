@@ -182,7 +182,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
             array_unshift($columns, $column);
             $options['primary_key'] = 'id';
-
         } elseif (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
@@ -348,7 +347,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasColumn($tableName, $columnName)
     {
-        $sql = sprintf("SELECT count(*)
+        $sql = sprintf(
+            "SELECT count(*)
             FROM information_schema.columns
             WHERE table_schema = '%s' AND table_name = '%s' AND column_name = '%s'",
             $this->getSchemaName(),
@@ -442,8 +442,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     $this->getDefaultValueDefinition($newColumn->getDefault())
                 )
             );
-        }
-        else {
+        } else {
             //drop default
             $this->execute(
                 sprintf(
@@ -544,16 +543,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      /**
       * {@inheritdoc}
       */
-     public function hasIndexByName($tableName, $indexName)
-     {
-         $indexes = $this->getIndexes($tableName);
-         foreach ($indexes as $name => $index) {
-             if ($name === $indexName) {
-                 return true;
-             }
-         }
-         return false;
-     }
+    public function hasIndexByName($tableName, $indexName)
+    {
+        $indexes = $this->getIndexes($tableName);
+        foreach ($indexes as $name => $index) {
+            if ($name === $indexName) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * {@inheritdoc}

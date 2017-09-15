@@ -51,7 +51,7 @@ class Rollback extends AbstractCommand
              ->addOption('--force', '-f', InputOption::VALUE_NONE, 'Force rollback to ignore breakpoints')
              ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
              ->setHelp(
-<<<EOT
+                 <<<EOT
 The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
 
 <info>phinx rollback -e development</info>
