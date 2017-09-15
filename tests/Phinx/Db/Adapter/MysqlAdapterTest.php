@@ -447,7 +447,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('utf8mb4_unicode_ci', $rows[2]['Collation']);
     }
 
-public function testRenameColumn()
+    public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
         $table->addColumn('column1', 'string')
@@ -619,6 +619,36 @@ public function testRenameColumn()
         $this->assertEquals($limit, $sqlType['limit']);
     }
 
+    /**
+     * @dataProvider provideTimeTypes
+     */
+    public function testDatetimeColumn($type, $options = array())
+    {
+        $table = new \Phinx\Db\Table('t', array(), $this->adapter);
+        $table->addColumn('column1', $type, $options)
+            ->save();
+        $columns = $table->getColumns();
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals($type, $sqlType['name']);
+        if (isset($options['limit'])) {
+            $this->assertEquals($options['limit'], $sqlType['limit']);
+        } else {
+            $this->assertFalse(isset($sqlType['limit']));
+        }
+    }
+
+    public function provideTimeTypes()
+    {
+        return array(
+            array('datetime'),
+            array('datetime', array('limit' => 6)),
+            array('time'),
+            array('time', array('limit' => 6)),
+            array('timestamp'),
+            array('timestamp', array('limit' => 6)),
+        );
+    }
+
     public function testDropColumn()
     {
         $table = new \Phinx\Db\Table('t', array(), $this->adapter);
@@ -639,20 +669,23 @@ public function testRenameColumn()
               ->addColumn('column5', 'float')
               ->addColumn('column6', 'decimal')
               ->addColumn('column7', 'datetime')
-              ->addColumn('column8', 'time')
-              ->addColumn('column9', 'timestamp')
-              ->addColumn('column10', 'date')
-              ->addColumn('column11', 'binary')
-              ->addColumn('column12', 'boolean')
-              ->addColumn('column13', 'string', array('limit' => 10))
-              ->addColumn('column15', 'integer', array('limit' => 10))
-              ->addColumn('column16', 'geometry')
-              ->addColumn('column17', 'point')
-              ->addColumn('column18', 'linestring')
-              ->addColumn('column19', 'polygon')
-              ->addColumn('column20', 'uuid')
-              ->addColumn('column21', 'set', array('values' => "one, two"))
-              ->addColumn('column22', 'enum', array('values' => array('three', 'four')));
+              ->addColumn('column8', 'datetime', array('limit' => 6))
+              ->addColumn('column9', 'time')
+              ->addColumn('column10', 'time', array('limit' => 6))
+              ->addColumn('column11', 'timestamp')
+              ->addColumn('column12', 'timestamp', array('limit' => 6))
+              ->addColumn('column13', 'date')
+              ->addColumn('column14', 'binary')
+              ->addColumn('column15', 'boolean')
+              ->addColumn('column16', 'string', array('limit' => 10))
+              ->addColumn('column17', 'integer', array('limit' => 10))
+              ->addColumn('column18', 'geometry')
+              ->addColumn('column19', 'point')
+              ->addColumn('column20', 'linestring')
+              ->addColumn('column21', 'polygon')
+              ->addColumn('column22', 'uuid')
+              ->addColumn('column23', 'set', array('values' => "one, two"))
+              ->addColumn('column24', 'enum', array('values' => array('three', 'four')));
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -686,20 +719,23 @@ public function testRenameColumn()
               ->addColumn('column5', 'float')
               ->addColumn('column6', 'decimal')
               ->addColumn('column7', 'datetime')
-              ->addColumn('column8', 'time')
-              ->addColumn('column9', 'timestamp')
-              ->addColumn('column10', 'date')
-              ->addColumn('column11', 'binary')
-              ->addColumn('column12', 'boolean')
-              ->addColumn('column13', 'string', array('limit' => 10))
-              ->addColumn('column15', 'integer', array('limit' => 10))
-              ->addColumn('column16', 'geometry')
-              ->addColumn('column17', 'point')
-              ->addColumn('column18', 'linestring')
-              ->addColumn('column19', 'polygon')
-              ->addColumn('column20', 'uuid')
-              ->addColumn('column21', 'set', array('values' => "one, two"))
-              ->addColumn('column22', 'enum', array('values' => array('three', 'four')));
+              ->addColumn('column8', 'datetime', array('limit' => 6))
+              ->addColumn('column9', 'time')
+              ->addColumn('column10', 'time', array('limit' => 6))
+              ->addColumn('column11', 'timestamp')
+              ->addColumn('column12', 'timestamp', array('limit' => 6))
+              ->addColumn('column13', 'date')
+              ->addColumn('column14', 'binary')
+              ->addColumn('column15', 'boolean')
+              ->addColumn('column16', 'string', array('limit' => 10))
+              ->addColumn('column17', 'integer', array('limit' => 10))
+              ->addColumn('column18', 'geometry')
+              ->addColumn('column19', 'point')
+              ->addColumn('column20', 'linestring')
+              ->addColumn('column21', 'polygon')
+              ->addColumn('column22', 'uuid')
+              ->addColumn('column23', 'set', array('values' => "one, two"))
+              ->addColumn('column24', 'enum', array('values' => array('three', 'four')));
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('group');
