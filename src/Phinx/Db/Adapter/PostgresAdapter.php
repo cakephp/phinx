@@ -746,6 +746,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return array('name' => 'bigint');
             case static::PHINX_TYPE_FLOAT:
                 return array('name' => 'real');
+            case static::PHINX_TYPE_DOUBLE:
+                return array('name' => 'double precision');
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIMESTAMP:
                 return array('name' => 'timestamp');

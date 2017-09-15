@@ -790,6 +790,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_FLOAT:
                 return array('name' => 'float');
                 break;
+            case static::PHINX_TYPE_DOUBLE:
+                return array('name' => 'double');
+                break;
             case static::PHINX_TYPE_DECIMAL:
                 return array('name' => 'decimal');
                 break;
