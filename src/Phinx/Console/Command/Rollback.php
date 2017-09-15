@@ -142,14 +142,14 @@ EOT
         }
 
         // what we need to append to the date according to the possible date string lengths
-        $dateStrlenToAppend = array(
+        $dateStrlenToAppend = [
             14 => '',
             12 => '00',
             10 => '0000',
             8 => '000000',
             6 => '01000000',
             4 => '0101000000',
-        );
+        ];
 
         if (!isset($dateStrlenToAppend[strlen($date)])) {
             throw new \InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');

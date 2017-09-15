@@ -48,7 +48,7 @@ class ConfigDefaultEnvironmentTest extends AbstractConfigTest
         putenv('PHINX_ENVIRONMENT=' . $dummyEnv);
 
         try {
-            $config = new Config(array());
+            $config = new Config([]);
             $config->getDefaultEnvironment();
         }
         catch (\Exception $e) {
@@ -69,7 +69,7 @@ class ConfigDefaultEnvironmentTest extends AbstractConfigTest
         // set empty env var
         putenv('PHINX_ENVIRONMENT=');
 
-        $config = new Config(array());
+        $config = new Config([]);
         $config->getDefaultEnvironment();
     }
 }

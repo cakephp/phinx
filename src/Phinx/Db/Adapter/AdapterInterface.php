@@ -514,7 +514,7 @@ interface AdapterInterface
      * @param array $options Options
      * @return void
      */
-    public function createDatabase($name, $options = array());
+    public function createDatabase($name, $options = []);
 
     /**
      * Checks to see if a database exists.

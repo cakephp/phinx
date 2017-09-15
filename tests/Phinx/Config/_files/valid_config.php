@@ -1,19 +1,19 @@
 <?php
-return array(
-    'paths' => array(
-        'migrations' => array(
+return [
+    'paths' => [
+        'migrations' => [
             'application/migrations',
             'application2/migrations'
-        ),
-        'seeds' => array(
+        ],
+        'seeds' => [
             'application/seeds',
             'application2/seeds'
-        )
-    ),
-    'environments' => array(
+        ]
+    ],
+    'environments' => [
         'default_migration_table' => 'phinxlog',
         'default_database' => 'dev',
-        'dev' => array(
+        'dev' => [
             'adapter' => 'mysql',
             'wrapper' => 'testwrapper',
             'host' => 'localhost',
@@ -21,6 +21,6 @@ return array(
             'user' => 'root',
             'pass' => '',
             'port' => 3306
-        )
-    )
-);
+        ]
+    ]
+];

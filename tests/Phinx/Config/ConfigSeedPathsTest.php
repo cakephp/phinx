@@ -17,7 +17,7 @@ class ConfigSeedPathsTest extends AbstractConfigTest
      */
     public function testGetSeedPathsThrowsExceptionForNoPath()
     {
-        $config = new Config(array());
+        $config = new Config([]);
         $config->getSeedPaths();
     }
 
@@ -32,11 +32,11 @@ class ConfigSeedPathsTest extends AbstractConfigTest
 
     public function testGetSeedPathConvertsStringToArray()
     {
-        $values = array(
-            'paths' => array(
+        $values = [
+            'paths' => [
                 'seeds' => '/test'
-            )
-        );
+            ]
+        ];
 
         $config = new Config($values);
         $paths = $config->getSeedPaths();

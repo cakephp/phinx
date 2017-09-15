@@ -41,14 +41,14 @@ use Phinx\Db\Table\ForeignKey;
  */
 class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 {
-    protected $definitionsWithLimits = array(
+    protected $definitionsWithLimits = [
         'CHARACTER',
         'VARCHAR',
         'VARYING CHARACTER',
         'NCHAR',
         'NATIVE CHARACTER',
         'NVARCHAR'
-    );
+    ];
 
     /**
      * {@inheritdoc}
@@ -149,7 +149,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        $tables = array();
+        $tables = [];
         $rows = $this->fetchAll(sprintf('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'%s\'', $tableName));
         foreach ($rows as $row) {
             $tables[] = strtolower($row[0]);
@@ -266,7 +266,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumns($tableName)
     {
-        $columns = array();
+        $columns = [];
         $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
 
         foreach ($rows as $columnInfo) {
@@ -337,8 +337,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
-        $selectColumns = array();
-        $writeColumns = array();
+        $selectColumns = [];
+        $writeColumns = [];
         foreach ($columns as $column) {
             $selectName = $column['name'];
             $writeName = ($selectName == $columnName)? $newColumnName : $selectName;
@@ -394,8 +394,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
-        $selectColumns = array();
-        $writeColumns = array();
+        $selectColumns = [];
+        $writeColumns = [];
         foreach ($columns as $column) {
             $selectName = $column['name'];
             $writeName = ($selectName === $columnName)? $newColumn->getName() : $selectName;
@@ -450,7 +450,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
-        $columns = array();
+        $columns = [];
         $columnType = null;
         foreach ($rows as $row) {
             if ($row['name'] !== $columnName) {
@@ -501,13 +501,13 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getIndexes($tableName)
     {
-        $indexes = array();
+        $indexes = [];
         $rows = $this->fetchAll(sprintf('pragma index_list(%s)', $tableName));
 
         foreach ($rows as $row) {
             $indexData = $this->fetchAll(sprintf('pragma index_info(%s)', $row['name']));
             if (!isset($indexes[$tableName])) {
-                $indexes[$tableName] = array('index' => $row['name'], 'columns' => array());
+                $indexes[$tableName] = ['index' => $row['name'], 'columns' => []];
             }
             foreach ($indexData as $indexItem) {
                 $indexes[$tableName]['columns'][] = strtolower($indexItem['name']);
@@ -522,7 +522,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     public function hasIndex($tableName, $columns)
     {
         if (is_string($columns)) {
-            $columns = array($columns); // str to array
+            $columns = [$columns]; // str to array
         }
 
         $columns = array_map('strtolower', $columns);
@@ -559,7 +559,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function addIndex(Table $table, Index $index)
     {
-        $indexColumnArray = array();
+        $indexColumnArray = [];
         foreach ($index->getColumns() as $column) {
             $indexColumnArray []= sprintf('`%s` ASC', $column);
         }
@@ -580,7 +580,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     public function dropIndex($tableName, $columns)
     {
         if (is_string($columns)) {
-            $columns = array($columns); // str to array
+            $columns = [$columns]; // str to array
         }
 
         $indexes = $this->getIndexes($tableName);
@@ -626,7 +626,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
         if (is_string($columns)) {
-            $columns = array($columns); // str to array
+            $columns = [$columns]; // str to array
         }
         $foreignKeys = $this->getForeignKeys($tableName);
 
@@ -645,7 +645,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getForeignKeys($tableName)
     {
-        $foreignKeys = array();
+        $foreignKeys = [];
         $rows = $this->fetchAll(
             "SELECT sql, tbl_name
               FROM (
@@ -694,7 +694,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($table->getName())));
-        $columns = array();
+        $columns = [];
         foreach ($rows as $column) {
             $columns[] = $this->quoteColumnName($column['name']);
         }
@@ -723,7 +723,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         // TODO: DRY this up....
         if (is_string($columns)) {
-            $columns = array($columns); // str to array
+            $columns = [$columns]; // str to array
         }
 
         $tmpTableName = 'tmp_' . $tableName;
@@ -738,7 +738,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
-        $replaceColumns = array();
+        $replaceColumns = [];
         foreach ($rows as $row) {
             if (!in_array($row['name'], $columns)) {
                 $replaceColumns[] = $row['name'];
@@ -788,7 +788,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         );
 
         $columns = array_keys($row);
-        $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
+        $sql .= "(". implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
         $sql .= " VALUES ";
 
         $sql .= "(" . implode(', ', array_map(function ($value) {
@@ -813,61 +813,61 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         switch ($type) {
             case static::PHINX_TYPE_STRING:
-                return array('name' => 'varchar', 'limit' => 255);
+                return ['name' => 'varchar', 'limit' => 255];
                 break;
             case static::PHINX_TYPE_CHAR:
-                return array('name' => 'char', 'limit' => 255);
+                return ['name' => 'char', 'limit' => 255];
                 break;
             case static::PHINX_TYPE_TEXT:
-                return array('name' => 'text');
+                return ['name' => 'text'];
                 break;
             case static::PHINX_TYPE_INTEGER:
-                return array('name' => 'integer');
+                return ['name' => 'integer'];
                 break;
             case static::PHINX_TYPE_BIG_INTEGER:
-                return array('name' => 'bigint');
+                return ['name' => 'bigint'];
                 break;
             case static::PHINX_TYPE_FLOAT:
-                return array('name' => 'float');
+                return ['name' => 'float'];
                 break;
             case static::PHINX_TYPE_DECIMAL:
-                return array('name' => 'decimal');
+                return ['name' => 'decimal'];
                 break;
             case static::PHINX_TYPE_DATETIME:
-                return array('name' => 'datetime');
+                return ['name' => 'datetime'];
                 break;
             case static::PHINX_TYPE_TIMESTAMP:
-                return array('name' => 'datetime');
+                return ['name' => 'datetime'];
                 break;
             case static::PHINX_TYPE_TIME:
-                return array('name' => 'time');
+                return ['name' => 'time'];
                 break;
             case static::PHINX_TYPE_DATE:
-                return array('name' => 'date');
+                return ['name' => 'date'];
                 break;
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
-                return array('name' => 'blob');
+                return ['name' => 'blob'];
                 break;
             case static::PHINX_TYPE_BOOLEAN:
-                return array('name' => 'boolean');
+                return ['name' => 'boolean'];
                 break;
             case static::PHINX_TYPE_UUID:
-                return array('name' => 'char', 'limit' => 36);
+                return ['name' => 'char', 'limit' => 36];
             case static::PHINX_TYPE_ENUM:
-                return array('name' => 'enum');
+                return ['name' => 'enum'];
             // Geospatial database types
             // No specific data types exist in SQLite, instead all geospatial
             // functionality is handled in the client. See also: SpatiaLite.
             case static::PHINX_TYPE_GEOMETRY:
             case static::PHINX_TYPE_POLYGON:
-                return array('name' => 'text');
+                return ['name' => 'text'];
                 return;
             case static::PHINX_TYPE_LINESTRING:
-                return array('name' => 'varchar', 'limit' => 255);
+                return ['name' => 'varchar', 'limit' => 255];
                 break;
             case static::PHINX_TYPE_POINT:
-                return array('name' => 'float');
+                return ['name' => 'float'];
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
         }
@@ -934,18 +934,18 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
             $this->getSqlType($type);
 
-            return array(
+            return [
                 'name' => $type,
                 'limit' => $limit,
                 'precision' => $precision
-            );
+            ];
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createDatabase($name, $options = array())
+    public function createDatabase($name, $options = [])
     {
         touch($name . '.sqlite3');
     }
@@ -1066,7 +1066,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), array('enum'));
+        return array_merge(parent::getColumnTypes(), ['enum']);
     }
 
     /**
@@ -1081,12 +1081,12 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if ($foreignKey->getConstraint()) {
             $def .= ' CONSTRAINT ' . $this->quoteColumnName($foreignKey->getConstraint());
         } else {
-            $columnNames = array();
+            $columnNames = [];
             foreach ($foreignKey->getColumns() as $column) {
                 $columnNames[] = $this->quoteColumnName($column);
             }
             $def .= ' FOREIGN KEY (' . implode(',', $columnNames) . ')';
-            $refColumnNames = array();
+            $refColumnNames = [];
             foreach ($foreignKey->getReferencedColumns() as $column) {
                 $refColumnNames[] = $this->quoteColumnName($column);
             }

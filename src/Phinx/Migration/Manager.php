@@ -103,7 +103,7 @@ class Manager
     public function printStatus($environment, $format = null)
     {
         $output = $this->getOutput();
-        $migrations = array();
+        $migrations = [];
         $hasDownMigration = false;
         $hasMissingMigration = false;
         $migrations = $this->getMigrations();
@@ -138,7 +138,7 @@ class Manager
             $hasMissingMigration = !empty($missingVersions);
 
             // get the migrations sorted in the same way as the versions
-            $sortedMigrations = array();
+            $sortedMigrations = [];
 
             foreach ($versions as $versionCreationTime => $version) {
                 if (isset($migrations[$versionCreationTime])) {
@@ -202,7 +202,7 @@ class Manager
                     $output->writeln('         <error>BREAKPOINT SET</error>');
                 }
 
-                $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
+                $migrations[] = ['migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName()];
                 unset($versions[$migration->getVersion()]);
             }
 
@@ -224,10 +224,10 @@ class Manager
             switch ($format) {
                 case 'json':
                     $output->writeln(json_encode(
-                        array(
+                        [
                             'pending_count' => count($this->getMigrations()),
                             'migrations' => $migrations
-                        )
+                        ]
                     ));
                     break;
                 default:
@@ -422,7 +422,7 @@ class Manager
         $executedVersions = $this->getEnvironment($environment)->getVersionLog();
 
         // get a list of migrations sorted in the opposite way of the executed versions
-        $sortedMigrations = array();
+        $sortedMigrations = [];
 
         foreach ($executedVersions as $versionCreationTime => &$executedVersion) {
             // if we have a date (ie. the target must not match a version) and we are sorting by execution time, we
@@ -543,7 +543,7 @@ class Manager
      * @param array $environments Environments
      * @return Manager
      */
-    public function setEnvironments($environments = array())
+    public function setEnvironments($environments = [])
     {
         $this->environments = $environments;
         return $this;
@@ -651,9 +651,9 @@ class Manager
             $phpFiles = $this->getMigrationFiles();
 
             // filter the files to only get the ones that match our naming scheme
-            $fileNames = array();
+            $fileNames = [];
             /** @var AbstractMigration[] $versions */
-            $versions = array();
+            $versions = [];
 
             foreach ($phpFiles as $filePath) {
                 if (Util::isValidMigrationFileName(basename($filePath))) {
@@ -721,7 +721,7 @@ class Manager
     {
         $config = $this->getConfig();
         $paths = $config->getMigrationPaths();
-        $files = array();
+        $files = [];
 
         foreach ($paths as $path) {
             $files = array_merge(
@@ -757,9 +757,9 @@ class Manager
             $phpFiles = $this->getSeedFiles();
 
             // filter the files to only get the ones that match our naming scheme
-            $fileNames = array();
+            $fileNames = [];
             /** @var AbstractSeed[] $seeds */
-            $seeds = array();
+            $seeds = [];
 
             foreach ($phpFiles as $filePath) {
                 if (Util::isValidSeedFileName(basename($filePath))) {
@@ -812,7 +812,7 @@ class Manager
     {
         $config = $this->getConfig();
         $paths = $config->getSeedPaths();
-        $files = array();
+        $files = [];
 
         foreach ($paths as $path) {
             $files = array_merge(

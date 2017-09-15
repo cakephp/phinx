@@ -36,12 +36,12 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->environment = new Environment('test', array());
+        $this->environment = new Environment('test', []);
     }
 
     public function testConstructorWorksAsExpected()
     {
-        $env = new Environment('testenv', array('foo' => 'bar'));
+        $env = new Environment('testenv', ['foo' => 'bar']);
         $this->assertEquals('testenv', $env->getName());
         $this->assertArrayHasKey('foo', $env->getOptions());
     }
@@ -54,7 +54,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
     public function testSettingOptions()
     {
-        $this->environment->setOptions(array('foo' => 'bar'));
+        $this->environment->setOptions(['foo' => 'bar']);
         $this->assertArrayHasKey('foo', $this->environment->getOptions());
     }
 
@@ -64,7 +64,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidAdapter()
     {
-        $this->environment->setOptions(array('adapter' => 'fakeadapter'));
+        $this->environment->setOptions(['adapter' => 'fakeadapter']);
         $this->environment->getAdapter();
     }
 
@@ -78,18 +78,18 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
     public function testGetAdapterWithExistingPdoInstance()
     {
-        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', array(array('foo' => 'bar')));
+        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', [['foo' => 'bar']]);
         AdapterFactory::instance()->registerAdapter('pdomock', $adapter);
-        $this->environment->setOptions(array('connection' => new PDOMock()));
+        $this->environment->setOptions(['connection' => new PDOMock()]);
         $options = $this->environment->getAdapter()->getOptions();
         $this->assertEquals('pdomock', $options['adapter']);
     }
 
     public function testSetPdoAttributeToErrmodeException() {
         $pdoMock = new PDOMock();
-        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', array(array('foo' => 'bar')));
+        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', [['foo' => 'bar']]);
         AdapterFactory::instance()->registerAdapter('pdomock', $adapter);
-        $this->environment->setOptions(array('connection' => $pdoMock));
+        $this->environment->setOptions(['connection' => $pdoMock]);
         $options = $this->environment->getAdapter()->getOptions();
         $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $options['connection']->getAttribute(\PDO::ATTR_ERRMODE));
     }
@@ -100,13 +100,13 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetAdapterWithBadExistingPdoInstance()
     {
-        $this->environment->setOptions(array('connection' => new \stdClass()));
+        $this->environment->setOptions(['connection' => new \stdClass()]);
         $this->environment->getAdapter();
     }
 
     public function testTablePrefixAdapter()
     {
-        $this->environment->setOptions(array('table_prefix' => 'tbl_', 'adapter' => 'mysql'));
+        $this->environment->setOptions(['table_prefix' => 'tbl_', 'adapter' => 'mysql']);
         $this->assertInstanceOf('Phinx\Db\Adapter\TablePrefixAdapter', $this->environment->getAdapter());
 
         $tablePrefixAdapter = $this->environment->getAdapter();
@@ -128,7 +128,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $stub->expects($this->any())
              ->method('getVersions')
-             ->will($this->returnValue(array('20110301080000')));
+             ->will($this->returnValue(['20110301080000']));
 
         $this->environment->setAdapter($stub);
 
