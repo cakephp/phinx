@@ -3,3 +3,4 @@ parameters:
 		- '#Undefined variable: \$lastException#'
 		- '#Access to undefined constant PDO::SQLSRV_ATTR_ENCODING#'
 		- '#Call to an undefined method Phinx\\Migration\\MigrationInterface::change\(\)#'
+		- "#Casting to bool something that's already bool#"
