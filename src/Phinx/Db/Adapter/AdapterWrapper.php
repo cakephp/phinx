@@ -536,4 +536,12 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     {
         return $this->getAdapter()->castToBool($value);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getConnection()
+    {
+        return $this->getAdapter()->getConnection();
+    }
 }
