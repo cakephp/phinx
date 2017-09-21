@@ -529,10 +529,11 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
            ->setColumns(['ref_table_id'])
-           ->setReferencedColumns(['id']);
+           ->setReferencedColumns(['id'])
+           ->setConstraint('fk1');
 
         $this->adapter->addForeignKey($table, $fk);
-        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id'], 'fk1'));
     }
 
     public function dropForeignKey()
