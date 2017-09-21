@@ -211,7 +211,7 @@ abstract class AbstractAdapter implements AdapterInterface
     {
         try {
             $options = [
-                'id' => false,
+                'id'  => false,
                 'primary_key' => 'version'
             ];
 

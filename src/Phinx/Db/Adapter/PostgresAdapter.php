@@ -149,7 +149,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function quoteTableName($tableName)
     {
-        return $this->quoteSchemaName($this->getSchemaName()) . '.' . $this->quoteColumnName($tableName);
+        $parts = $this->getSchemaName($tableName);
+
+        return $this->quoteSchemaName($parts['schema']) . '.' . $this->quoteColumnName($parts['table']);
     }
 
     /**
@@ -165,14 +167,15 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
+        $parts  = $this->getSchemaName($tableName);
         $result = $this->getConnection()->query(
             sprintf(
                 'SELECT *
                 FROM information_schema.tables
                 WHERE table_schema = %s
-                AND lower(table_name) = lower(%s)',
-                $this->getConnection()->quote($this->getSchemaName()),
-                $this->getConnection()->quote($tableName)
+                AND table_name = %s',
+                $this->getConnection()->quote($parts['schema']),
+                $this->getConnection()->quote($parts['table'])
             )
         );
 
@@ -223,7 +226,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
          // set the primary key(s)
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
-            $sql .= sprintf(' CONSTRAINT %s_pkey PRIMARY KEY (', $table->getName());
+            $sql .= sprintf(' CONSTRAINT %s PRIMARY KEY (', $this->quoteColumnName($table->getName() . '_pkey'));
             if (is_string($options['primary_key'])) { // handle primary_key => 'id'
                 $sql .= $this->quoteColumnName($options['primary_key']);
             } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
@@ -306,14 +309,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumns($tableName)
     {
+        $parts   = $this->getSchemaName($tableName);
         $columns = [];
-        $sql = sprintf(
+        $sql     = sprintf(
             "SELECT column_name, data_type, udt_name, is_identity, is_nullable,
              column_default, character_maximum_length, numeric_precision, numeric_scale,
              datetime_precision
              FROM information_schema.columns
-             WHERE table_name ='%s'",
-            $tableName
+             WHERE table_schema = %s AND table_name = %s",
+            $this->getConnection()->quote($parts['schema']),
+            $this->getConnection()->quote($parts['table'])
         );
         $columnsInfo = $this->fetchAll($sql);
 
@@ -373,13 +378,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasColumn($tableName, $columnName)
     {
-        $sql = sprintf(
+        $parts = $this->getSchemaName($tableName);
+        $sql   = sprintf(
             "SELECT count(*)
             FROM information_schema.columns
-            WHERE table_schema = '%s' AND table_name = '%s' AND column_name = '%s'",
-            $this->getSchemaName(),
-            $tableName,
-            $columnName
+            WHERE table_schema = %s AND table_name = %s AND column_name = %s",
+            $this->getConnection()->quote($parts['schema']),
+            $this->getConnection()->quote($parts['table']),
+            $this->getConnection()->quote($columnName)
         );
 
         $result = $this->fetchRow($sql);
@@ -411,12 +417,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName)
     {
-        $sql = sprintf(
+        $parts = $this->getSchemaName($tableName);
+        $sql   = sprintf(
             "SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS column_exists
              FROM information_schema.columns
-             WHERE table_name ='%s' AND column_name = '%s'",
-            $tableName,
-            $columnName
+             WHERE table_schema = %s AND table_name = %s AND column_name = %s",
+            $this->getConnection()->quote($parts['schema']),
+            $this->getConnection()->quote($parts['table']),
+            $this->getConnection()->quote($columnName)
         );
 
         $result = $this->fetchRow($sql);
@@ -525,31 +533,40 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getIndexes($tableName)
     {
+        $parts = $this->getSchemaName($tableName);
+
         $indexes = [];
-        $sql = "SELECT
-            i.relname AS index_name,
-            a.attname AS column_name
-        FROM
-            pg_class t,
-            pg_class i,
-            pg_index ix,
-            pg_attribute a
-        WHERE
-            t.oid = ix.indrelid
-            AND i.oid = ix.indexrelid
-            AND a.attrelid = t.oid
-            AND a.attnum = ANY(ix.indkey)
-            AND t.relkind = 'r'
-            AND t.relname = '$tableName'
-        ORDER BY
-            t.relname,
-            i.relname;";
+        $sql     = sprintf(
+            "SELECT
+                i.relname AS index_name,
+                a.attname AS column_name
+            FROM
+                pg_class t,
+                pg_class i,
+                pg_index ix,
+                pg_attribute a,
+                pg_namespace nsp
+            WHERE
+                t.oid = ix.indrelid
+                AND i.oid = ix.indexrelid
+                AND a.attrelid = t.oid
+                AND a.attnum = ANY(ix.indkey)
+                AND t.relnamespace = nsp.oid
+                AND nsp.nspname = %s
+                AND t.relkind = 'r'
+                AND t.relname = %s
+            ORDER BY
+                t.relname,
+                i.relname",
+            $this->getConnection()->quote($parts['schema']),
+            $this->getConnection()->quote($parts['table'])
+        );
         $rows = $this->fetchAll($sql);
         foreach ($rows as $row) {
             if (!isset($indexes[$row['index_name']])) {
                 $indexes[$row['index_name']] = ['columns' => []];
             }
-            $indexes[$row['index_name']]['columns'][] = strtolower($row['column_name']);
+            $indexes[$row['index_name']]['columns'][] = $row['column_name'];
         }
 
         return $indexes;
@@ -563,7 +580,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if (is_string($columns)) {
             $columns = [$columns];
         }
-        $columns = array_map('strtolower', $columns);
         $indexes = $this->getIndexes($tableName);
         foreach ($indexes as $index) {
             if (array_diff($index['columns'], $columns) === array_diff($columns, $index['columns'])) {
@@ -610,8 +626,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $indexes = $this->getIndexes($tableName);
-        $columns = array_map('strtolower', $columns);
-
         foreach ($indexes as $indexName => $index) {
             $a = array_diff($columns, $index['columns']);
             if (empty($a)) {
@@ -676,8 +690,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getForeignKeys($tableName)
     {
+        $parts       = $this->getSchemaName($tableName);
         $foreignKeys = [];
-        $rows = $this->fetchAll(sprintf(
+        $rows        = $this->fetchAll(sprintf(
             "SELECT
                     tc.constraint_name,
                     tc.table_name, kcu.column_name,
@@ -687,9 +702,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     information_schema.table_constraints AS tc
                     JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
                     JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
-                WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s'
+                WHERE constraint_type = 'FOREIGN KEY' AND tc.table_schema = %s AND tc.table_name = %s
                 ORDER BY kcu.position_in_unique_constraint",
-            $tableName
+            $this->getConnection()->quote($parts['schema']),
+            $this->getConnection()->quote($parts['table'])
         ));
         foreach ($rows as $row) {
             $foreignKeys[$row['constraint_name']]['table'] = $row['table_name'];
@@ -721,7 +737,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $alter = sprintf(
             'DROP CONSTRAINT %s',
-            $constraint
+            $this->quoteColumnName($constraint)
         );
 
         return new AlterInstructions([$alter]);
@@ -734,17 +750,20 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $instructions = new AlterInstructions();
 
+        $parts = $this->getSchemaName($tableName);
+
         foreach ($columns as $column) {
             $rows = $this->fetchAll(sprintf(
                 "SELECT CONSTRAINT_NAME
                 FROM information_schema.KEY_COLUMN_USAGE
-                WHERE TABLE_SCHEMA = CURRENT_SCHEMA()
+                WHERE TABLE_SCHEMA = '%s'
                 AND TABLE_NAME IS NOT NULL
                 AND TABLE_NAME = '%s'
                 AND COLUMN_NAME = '%s'
                 ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
-                $tableName,
-                $column
+                $this->getConnection()->quote($parts['schema']),
+                $this->getConnection()->quote($parts['table']),
+                $this->getConnection()->quote($column)
             ));
 
             foreach ($rows as $row) {
@@ -904,9 +923,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasDatabase($databaseName)
+    public function hasDatabase($name)
     {
-        $sql = sprintf("SELECT count(*) FROM pg_database WHERE datname = '%s'", $databaseName);
+        $sql = sprintf("SELECT count(*) FROM pg_database WHERE datname = '%s'", $name);
         $result = $this->fetchRow($sql);
 
         return $result['count'] > 0;
@@ -1003,7 +1022,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Gets the PostgreSQL Column Comment Defininition for a column object.
+     * Gets the PostgreSQL Column Comment Definition for a column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
      * @param string $tableName Table name
@@ -1018,7 +1037,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         return sprintf(
             'COMMENT ON COLUMN %s.%s IS %s;',
-            $this->quoteSchemaName($tableName),
+            $this->quoteTableName($tableName),
             $this->quoteColumnName($column->getName()),
             $comment
         );
@@ -1042,7 +1061,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $def = sprintf(
             "CREATE %s INDEX %s ON %s (%s);",
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
-            $indexName,
+            $this->quoteColumnName($indexName),
             $this->quoteTableName($tableName),
             implode(',', array_map([$this, 'quoteColumnName'], $index->getColumns()))
         );
@@ -1059,9 +1078,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
     {
-        $constraintName = $foreignKey->getConstraint() ?: $tableName . '_' . implode('_', $foreignKey->getColumns());
+        $parts = $this->getSchemaName($tableName);
 
-        $def = ' CONSTRAINT "' . $constraintName . '" FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
+        $constraintName = $foreignKey->getConstraint() ?: $parts['table'] . '_' . implode('_', $foreignKey->getColumns());
+
+        $def = ' CONSTRAINT ' . $this->quoteColumnName($constraintName) . ' FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
         $def .= " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
         if ($foreignKey->getOnDelete()) {
             $def .= " ON DELETE {$foreignKey->getOnDelete()}";
@@ -1079,11 +1100,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function createSchemaTable()
     {
         // Create the public/custom schema if it doesn't already exist
-        if ($this->hasSchema($this->getSchemaName()) === false) {
-            $this->createSchema($this->getSchemaName());
+        if ($this->hasSchema($this->getGlobalSchemaName()) === false) {
+            $this->createSchema($this->getGlobalSchemaName());
         }
 
-        $this->fetchAll(sprintf('SET search_path TO %s', $this->getSchemaName()));
+        $this->fetchAll(sprintf('SET search_path TO %s', $this->getGlobalSchemaName()));
 
         parent::createSchemaTable();
     }
@@ -1111,8 +1132,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $sql = sprintf(
             "SELECT count(*)
              FROM pg_namespace
-             WHERE nspname = '%s'",
-            $schemaName
+             WHERE nspname = %s",
+            $this->getConnection()->quote($schemaName)
         );
         $result = $this->fetchRow($sql);
 
@@ -1197,11 +1218,29 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * @param  string $tableName
+     * @return array
+     */
+    private function getSchemaName($tableName)
+    {
+        $schema = $this->getGlobalSchemaName();
+        $table  = $tableName;
+        if (false !== strpos($tableName, '.')) {
+            list($schema, $table) = explode('.', $tableName);
+        }
+
+        return [
+            'schema' => $schema,
+            'table'  => $table,
+        ];
+    }
+
+    /**
      * Gets the schema name.
      *
      * @return string
      */
-    private function getSchemaName()
+    private function getGlobalSchemaName()
     {
         $options = $this->getOptions();
 

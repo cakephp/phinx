@@ -46,11 +46,11 @@ class PostgresAdapterTest extends TestCase
         }
 
         $options = [
-            'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
-            'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
-            'user' => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
-            'pass' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
-            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
+            'host'   => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
+            'name'   => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
+            'user'   => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
+            'pass'   => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
+            'port'   => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
             'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA
         ];
         $this->adapter = new PostgresAdapter($options, new ArrayInput([]), new NullOutput());
@@ -139,7 +139,7 @@ class PostgresAdapterTest extends TestCase
     public function testQuoteTableName()
     {
         $this->assertEquals('"public"."table"', $this->adapter->quoteTableName('table'));
-        $this->assertEquals('"public"."table.table"', $this->adapter->quoteTableName('table.table'));
+        $this->assertEquals('"table"."table"', $this->adapter->quoteTableName('table.table'));
     }
 
     public function testQuoteColumnName()
@@ -188,15 +188,15 @@ class PostgresAdapterTest extends TestCase
     public function testCreateTableWithMultiplePrimaryKeys()
     {
         $options = [
-            'id' => false,
-            'primary_key' => ['user_id', 'tag_id']
+            'id'            => false,
+            'primary_key'   => ['user_id', 'tag_id']
         ];
         $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
         $table->addColumn('user_id', 'integer')
               ->addColumn('tag_id', 'integer')
               ->save();
         $this->assertTrue($this->adapter->hasIndex('table1', ['user_id', 'tag_id']));
-        $this->assertTrue($this->adapter->hasIndex('table1', ['tag_id', 'USER_ID']));
+        $this->assertTrue($this->adapter->hasIndex('table1', ['tag_id', 'user_id']));
         $this->assertFalse($this->adapter->hasIndex('table1', ['tag_id', 'user_email']));
     }
 
@@ -1179,7 +1179,7 @@ class PostgresAdapterTest extends TestCase
             ->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT 'test', CONSTRAINT table1_pkey PRIMARY KEY ("id"));
+CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT 'test', CONSTRAINT "table1_pkey" PRIMARY KEY ("id"));
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query');
