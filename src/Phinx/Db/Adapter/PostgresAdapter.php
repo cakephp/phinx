@@ -188,6 +188,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
         $options = $table->getOptions();
+        $parts   = $this->getSchemaName($table->getName());
 
          // Add the default primary key
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
@@ -226,7 +227,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
          // set the primary key(s)
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
-            $sql .= sprintf(' CONSTRAINT %s PRIMARY KEY (', $this->quoteColumnName($table->getName() . '_pkey'));
+            $sql .= sprintf(' CONSTRAINT %s PRIMARY KEY (', $this->quoteColumnName($parts['table'] . '_pkey'));
             if (is_string($options['primary_key'])) { // handle primary_key => 'id'
                 $sql .= $this->quoteColumnName($options['primary_key']);
             } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
@@ -621,6 +622,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDropIndexByColumnsInstructions($tableName, $columns)
     {
+        $parts = $this->getSchemaName($tableName);
+
         if (is_string($columns)) {
             $columns = [$columns]; // str to array
         }
@@ -631,7 +634,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             if (empty($a)) {
                 return new AlterInstructions([], [sprintf(
                     'DROP INDEX IF EXISTS %s',
-                    $this->quoteColumnName($indexName)
+                    '"' . ($parts['schema'] . '".' . $this->quoteColumnName($indexName))
                 )]);
             }
         }
@@ -647,9 +650,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDropIndexByNameInstructions($tableName, $indexName)
     {
+        $parts = $this->getSchemaName($tableName);
+
         $sql = sprintf(
             'DROP INDEX IF EXISTS %s',
-            $this->quoteColumnName($indexName)
+            '"' . ($parts['schema'] . '".' . $this->quoteColumnName($indexName))
         );
 
         return new AlterInstructions([], [$sql]);
@@ -1052,11 +1057,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
     {
+        $parts = $this->getSchemaName($tableName);
+
         if (is_string($index->getName())) {
             $indexName = $index->getName();
         } else {
             $columnNames = $index->getColumns();
-            $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
+            if (is_string($columnNames)) {
+                $columnNames = [$columnNames];
+            }
+            $indexName = sprintf('%s_%s', $parts['table'], implode('_', $columnNames));
         }
         $def = sprintf(
             "CREATE %s INDEX %s ON %s (%s);",
