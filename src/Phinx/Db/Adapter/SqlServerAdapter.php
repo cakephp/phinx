@@ -1101,9 +1101,11 @@ SQL;
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
     {
-        $def = ' CONSTRAINT "';
-        $def .= $tableName . '_' . implode('_', $foreignKey->getColumns());
-        $def .= '" FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
+        $constraintName = $foreignKey->getConstraint()
+            ? $foreignKey->getConstraint()
+            : $tableName . '_' . implode('_', $foreignKey->getColumns());
+        $def = ' CONSTRAINT ' . $this->quoteColumnName($constraintName);
+        $def .= ' FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
         $def .= " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
         if ($foreignKey->getOnDelete()) {
             $def .= " ON DELETE {$foreignKey->getOnDelete()}";
