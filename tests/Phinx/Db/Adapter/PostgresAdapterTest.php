@@ -46,11 +46,11 @@ class PostgresAdapterTest extends TestCase
         }
 
         $options = [
-            'host'   => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
-            'name'   => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
-            'user'   => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
-            'pass'   => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
-            'port'   => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
+            'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
+            'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
+            'user' => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
+            'pass' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
+            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
             'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA
         ];
         $this->adapter = new PostgresAdapter($options, new ArrayInput([]), new NullOutput());
@@ -205,8 +205,8 @@ class PostgresAdapterTest extends TestCase
     public function testCreateTableWithMultiplePrimaryKeys()
     {
         $options = [
-            'id'            => false,
-            'primary_key'   => ['user_id', 'tag_id']
+            'id' => false,
+            'primary_key' => ['user_id', 'tag_id']
         ];
         $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
         $table->addColumn('user_id', 'integer')
@@ -222,7 +222,7 @@ class PostgresAdapterTest extends TestCase
         $this->adapter->createSchema('schema1');
 
         $options = [
-            'id'          => false,
+            'id' => false,
             'primary_key' => ['user_id', 'tag_id']
         ];
         $table = new \Phinx\Db\Table('schema1.table1', $options, $this->adapter);
@@ -723,7 +723,7 @@ class PostgresAdapterTest extends TestCase
         $columns = $this->adapter->getColumns('tschema.t');
         $this->assertCount(count($pendingColumns) + 1, $columns);
         for ($i = 0; $i++; $i < count($pendingColumns)) {
-            $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
+            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
         }
 
         $this->adapter->dropSchema('tschema');
@@ -1293,13 +1293,21 @@ class PostgresAdapterTest extends TestCase
     {
         $this->adapter->createSchema('schema_users');
 
-        $userId    = 'user';
+        $userId = 'user';
         $sessionId = 'session';
 
-        $local = new \Phinx\Db\Table('schema_users.users', ['primary_key' => $userId, 'id' => $userId], $this->adapter);
+        $local = new \Phinx\Db\Table(
+            'schema_users.users',
+            ['primary_key' => $userId, 'id' => $userId],
+            $this->adapter
+        );
         $local->create();
 
-        $foreign = new \Phinx\Db\Table('schema_users.sessions', ['primary_key' => $sessionId, 'id' => $sessionId], $this->adapter);
+        $foreign = new \Phinx\Db\Table(
+            'schema_users.sessions',
+            ['primary_key' => $sessionId, 'id' => $sessionId],
+            $this->adapter
+        );
         $foreign->addColumn('user', 'integer')
             ->addForeignKey('user', 'schema_users.users', $userId)
             ->create();
@@ -1314,13 +1322,21 @@ class PostgresAdapterTest extends TestCase
         $this->adapter->createSchema('schema_users');
         $this->adapter->createSchema('schema_sessions');
 
-        $userId    = 'user';
+        $userId = 'user';
         $sessionId = 'session';
 
-        $local = new \Phinx\Db\Table('schema_users.users', ['primary_key' => $userId, 'id' => $userId], $this->adapter);
+        $local = new \Phinx\Db\Table(
+            'schema_users.users',
+            ['primary_key' => $userId, 'id' => $userId],
+            $this->adapter
+        );
         $local->create();
 
-        $foreign = new \Phinx\Db\Table('schema_sessions.sessions', ['primary_key' => $sessionId, 'id' => $sessionId], $this->adapter);
+        $foreign = new \Phinx\Db\Table(
+            'schema_sessions.sessions',
+            ['primary_key' => $sessionId, 'id' => $sessionId],
+            $this->adapter
+        );
         $foreign->addColumn('user', 'integer')
             ->addForeignKey('user', 'schema_users.users', $userId)
             ->create();
@@ -1499,7 +1515,7 @@ class PostgresAdapterTest extends TestCase
     {
         $this->adapter->createSchema('schema1');
 
-        $table  = new \Phinx\Db\Table('schema1.table1', [], $this->adapter);
+        $table = new \Phinx\Db\Table('schema1.table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
             ->addColumn('column2', 'integer')
             ->insert([

@@ -167,7 +167,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        $parts  = $this->getSchemaName($tableName);
+        $parts = $this->getSchemaName($tableName);
         $result = $this->getConnection()->query(
             sprintf(
                 'SELECT *
@@ -188,7 +188,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
         $options = $table->getOptions();
-        $parts   = $this->getSchemaName($table->getName());
+        $parts = $this->getSchemaName($table->getName());
 
          // Add the default primary key
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
@@ -380,7 +380,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function hasColumn($tableName, $columnName)
     {
         $parts = $this->getSchemaName($tableName);
-        $sql   = sprintf(
+        $sql = sprintf(
             "SELECT count(*)
             FROM information_schema.columns
             WHERE table_schema = %s AND table_name = %s AND column_name = %s",
@@ -419,7 +419,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName)
     {
         $parts = $this->getSchemaName($tableName);
-        $sql   = sprintf(
+        $sql = sprintf(
             "SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS column_exists
              FROM information_schema.columns
              WHERE table_schema = %s AND table_name = %s AND column_name = %s",
@@ -537,7 +537,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $parts = $this->getSchemaName($tableName);
 
         $indexes = [];
-        $sql     = sprintf(
+        $sql = sprintf(
             "SELECT
                 i.relname AS index_name,
                 a.attname AS column_name
@@ -695,9 +695,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getForeignKeys($tableName)
     {
-        $parts       = $this->getSchemaName($tableName);
+        $parts = $this->getSchemaName($tableName);
         $foreignKeys = [];
-        $rows        = $this->fetchAll(sprintf(
+        $rows = $this->fetchAll(sprintf(
             "SELECT
                     tc.constraint_name,
                     tc.table_name, kcu.column_name,
@@ -1090,10 +1090,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $parts = $this->getSchemaName($tableName);
 
-        $constraintName = $foreignKey->getConstraint() ?: $parts['table'] . '_' . implode('_', $foreignKey->getColumns());
-
-        $def = ' CONSTRAINT ' . $this->quoteColumnName($constraintName) . ' FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
-        $def .= " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
+        $constraintName = $foreignKey->getConstraint() ?: ($parts['table'] . '_' . implode('_', $foreignKey->getColumns()) . '_fkey');
+        $def = ' CONSTRAINT ' . $this->quoteColumnName($constraintName)
+            . ' FOREIGN KEY ("'
+            . implode('", "', $foreignKey->getColumns())
+            . '")'
+            . " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\""
+            . implode('", "', $foreignKey->getReferencedColumns())
+            . '")';
         if ($foreignKey->getOnDelete()) {
             $def .= " ON DELETE {$foreignKey->getOnDelete()}";
         }
@@ -1228,20 +1232,20 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * @param  string $tableName
+     * @param string $tableName
      * @return array
      */
     private function getSchemaName($tableName)
     {
         $schema = $this->getGlobalSchemaName();
-        $table  = $tableName;
+        $table = $tableName;
         if (false !== strpos($tableName, '.')) {
             list($schema, $table) = explode('.', $tableName);
         }
 
         return [
             'schema' => $schema,
-            'table'  => $table,
+            'table' => $table,
         ];
     }
 
