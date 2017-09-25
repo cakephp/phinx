@@ -570,8 +570,8 @@ If you don't want to keep your migrations DBMS-agnostic you can use those custom
 through the ``addCustomColumn()`` method, which takes a column name, a type and an array of options,
 similar to ``addColumn()``.
 
-This method doe not run any validation on the type of the column, and instrucs Phinx ot use it exactly as
-supplied. Cusom column supports only the most common options, ``default`` and ``null``, which behave
+This method does not run any validation on the type of the column, and instrucs Phinx to use it exactly as
+supplied. Custom column supports only the most common options, ``default`` and ``null``, which behave
 exactly as they do when you use ``addColumn()``.
 
 You can see an example below showing how to add a ``citext`` column to an existing table if you use PostgreSQL.
