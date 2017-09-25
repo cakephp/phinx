@@ -69,10 +69,10 @@ abstract class AbstractAdapter implements AdapterInterface
     public function __construct(array $options, InputInterface $input = null, OutputInterface $output = null)
     {
         $this->setOptions($options);
-        if (null !== $input) {
+        if ($input !== null) {
             $this->setInput($input);
         }
-        if (null !== $output) {
+        if ($output !== null) {
             $this->setOutput($output);
         }
     }
@@ -85,7 +85,7 @@ abstract class AbstractAdapter implements AdapterInterface
         $this->options = $options;
 
         if (isset($options['default_migration_table'])) {
-        	$this->setSchemaTableName($options['default_migration_table']);
+            $this->setSchemaTableName($options['default_migration_table']);
         }
 
         return $this;
@@ -149,7 +149,7 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     public function getOutput()
     {
-        if (null === $this->output) {
+        if ($this->output === null) {
             $output = new NullOutput();
             $this->setOutput($output);
         }
@@ -232,7 +232,8 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function isValidColumnType(Column $column) {
+    public function isValidColumnType(Column $column)
+    {
         return in_array($column->getType(), $this->getColumnTypes());
     }
 

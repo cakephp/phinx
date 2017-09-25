@@ -195,7 +195,7 @@ abstract class AbstractCommand extends Command
 
         $useDefault = false;
 
-        if (null === $configFile || false === $configFile) {
+        if ($configFile === null || $configFile === false) {
             $useDefault = true;
         }
 
@@ -203,16 +203,16 @@ abstract class AbstractCommand extends Command
 
         // locate the phinx config file (default: phinx.yml)
         // TODO - In future walk the tree in reverse (max 10 levels)
-        $locator = new FileLocator(array(
+        $locator = new FileLocator([
             $cwd . DIRECTORY_SEPARATOR
-        ));
+        ]);
 
         if (!$useDefault) {
             // Locate() throws an exception if the file does not exist
             return $locator->locate($configFile, $cwd, $first = true);
         }
 
-        $possibleConfigFiles = array('phinx.php', 'phinx.json', 'phinx.yml');
+        $possibleConfigFiles = ['phinx.php', 'phinx.json', 'phinx.yml'];
         foreach ($possibleConfigFiles as $configFile) {
             try {
                 return $locator->locate($configFile, $cwd, $first = true);
@@ -239,7 +239,7 @@ abstract class AbstractCommand extends Command
         $parser = $input->getOption('parser');
 
         // If no parser is specified try to determine the correct one from the file extension.  Defaults to YAML
-        if (null === $parser) {
+        if ($parser === null) {
             $extension = pathinfo($configFilePath, PATHINFO_EXTENSION);
 
             switch (strtolower($extension)) {
@@ -282,7 +282,7 @@ abstract class AbstractCommand extends Command
      */
     protected function loadManager(InputInterface $input, OutputInterface $output)
     {
-        if (null === $this->getManager()) {
+        if ($this->getManager() === null) {
             $manager = new Manager($this->getConfig(), $input, $output);
             $this->setManager($manager);
         } else {

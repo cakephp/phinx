@@ -107,7 +107,7 @@ interface ConfigInterface extends \ArrayAccess
      *
      * @return string|false
      */
-     public function getTemplateFile();
+    public function getTemplateFile();
 
      /**
      * Get the template class name.

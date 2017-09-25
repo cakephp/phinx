@@ -94,8 +94,10 @@ class Environment
      */
     public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP)
     {
-        $startTime = time();
         $direction = ($direction === MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
+        $migration->setMigratingUp($direction === MigrationInterface::UP);
+
+        $startTime = time();
         $migration->setAdapter($this->getAdapter());
 
         // begin the transaction if the adapter supports it
@@ -103,12 +105,8 @@ class Environment
             $this->getAdapter()->beginTransaction();
         }
 
-        // notify migrations of current direction
-        $migration->setGoingUp($direction === MigrationInterface::UP);
-
         // Run the migration
         if (method_exists($migration, MigrationInterface::CHANGE)) {
-
             if ($direction === MigrationInterface::DOWN) {
                 // Create an instance of the ProxyAdapter so we can record all
                 // of the migration commands for reverse playback
@@ -263,7 +261,7 @@ class Environment
     }
 
     /**
-     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's 
+     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's
      * version_order option
      *
      * @return array

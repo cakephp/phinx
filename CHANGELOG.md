@@ -1,6 +1,13 @@
 # Version History
 
 
+**0.9.1** (Satruday, 9 September 2017)
+* Pull requests
+  * [#1164](https://github.com/robmorgan/phinx/pull/1164) Added a function to migration classes to determine migration direction
+* Bug fixes
+  * [#1173](https://github.com/cakephp/phinx/pull/1173) Fixing configuration item `default_migration_table`
+  * [#1170](https://github.com/cakephp/phinx/pull/1170) Fixed regression when setting the pdo object directly in the config
+
 **0.9.0** (Sunday, 3rd September 2017)
 * Documentation updates
 * Pull requests

@@ -259,7 +259,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
 
         $adapterStub->expects($this->exactly(1))
                     ->method('bulkinsert')
-                    ->with($table, array($data[0], $data[1], $moreData[0], $moreData[1]));
+                    ->with($table, [$data[0], $data[1], $moreData[0], $moreData[1]]);
 
         $table->insert($data)
               ->insert($moreData)

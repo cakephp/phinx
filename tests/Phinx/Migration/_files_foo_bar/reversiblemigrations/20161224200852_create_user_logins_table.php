@@ -18,7 +18,7 @@ class CreateUserLoginsTable extends AbstractMigration
               ->create();
 
         // add a foreign key back to the users table
-        $table->addForeignKey('user_id', 'users_foo_bar', array('id'))
+        $table->addForeignKey('user_id', 'users_foo_bar', ['id'])
               ->update();
     }
 

@@ -50,7 +50,7 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function setOptions(array $options)
     {
-        $this->options = $options;
+        parent::setOptions($options);
 
         if (isset($options['connection'])) {
             $this->setConnection($options['connection']);
@@ -73,17 +73,19 @@ abstract class PdoAdapter extends AbstractAdapter
         if (!$this->hasSchemaTable()) {
             $this->createSchemaTable();
         } else {
-            $table = new Table($this->getSchemaTableName(), array(), $this);
+            $table = new Table($this->getSchemaTableName(), [], $this);
             if (!$table->hasColumn('migration_name')) {
                 $table
-                    ->addColumn('migration_name', 'string',
-                        array('limit' => 100, 'after' => 'version', 'default' => null, 'null' => true)
+                    ->addColumn(
+                        'migration_name',
+                        'string',
+                        ['limit' => 100, 'after' => 'version', 'default' => null, 'null' => true]
                     )
                     ->save();
             }
             if (!$table->hasColumn('breakpoint')) {
                 $table
-                    ->addColumn('breakpoint', 'boolean', array('default' => false))
+                    ->addColumn('breakpoint', 'boolean', ['default' => false])
                     ->save();
             }
         }
@@ -98,7 +100,7 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function getConnection()
     {
-        if (null === $this->connection) {
+        if ($this->connection === null) {
             $this->connect();
         }
         return $this->connection;
@@ -156,7 +158,7 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function fetchAll($sql)
     {
-        $rows = array();
+        $rows = [];
         $result = $this->query($sql);
         while ($row = $result->fetch()) {
             $rows[] = $row;
@@ -175,7 +177,7 @@ abstract class PdoAdapter extends AbstractAdapter
         );
 
         $columns = array_keys($row);
-        $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
+        $sql .= "(". implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
         $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
 
         $stmt = $this->getConnection()->prepare($sql);
@@ -194,11 +196,11 @@ abstract class PdoAdapter extends AbstractAdapter
 
         $current = current($rows);
         $keys = array_keys($current);
-        $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $keys)) . ") VALUES";
+        $sql .= "(". implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ") VALUES";
 
-        $vals = array();
+        $vals = [];
         foreach ($rows as $row) {
-            foreach($row as $v) {
+            foreach ($row as $v) {
                 $vals[] = $v;
             }
         }
@@ -229,7 +231,7 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function getVersionLog()
     {
-        $result = array();
+        $result = [];
 
         switch ($this->options['version_order']) {
             case \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME:
@@ -243,7 +245,7 @@ abstract class PdoAdapter extends AbstractAdapter
         }
 
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s', $this->getSchemaTableName(), $orderBy));
-        foreach($rows as $version) {
+        foreach ($rows as $version) {
             $result[$version['version']] = $version;
         }
 
@@ -346,7 +348,7 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function getColumnTypes()
     {
-        return array(
+        return [
             'string',
             'char',
             'text',
@@ -368,7 +370,7 @@ abstract class PdoAdapter extends AbstractAdapter
             'point',
             'linestring',
             'polygon',
-        );
+        ];
     }
 
     /**

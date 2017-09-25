@@ -221,23 +221,23 @@ configuration file may be the computed output of a PHP file as a PHP array:
 .. code-block:: php
 
         <?php
-            return array(
-                "paths" => array(
+            return [
+                "paths" => [
                     "migrations" => "application/migrations"
-                ),
-                "environments" => array(
+                ],
+                "environments" => [
                     "default_migration_table" => "phinxlog",
                     "default_database" => "dev",
-                    "dev" => array(
+                    "dev" => [
                         "adapter" => "mysql",
                         "host" => $_ENV['DB_HOST'],
                         "name" => $_ENV['DB_NAME'],
                         "user" => $_ENV['DB_USER'],
                         "pass" => $_ENV['DB_PASS'],
                         "port" => $_ENV['DB_PORT']
-                    )
-                )
-            );
+                    ]
+                ]
+            ];
 
 Phinx auto-detects which language parser to use for files with ``*.yml`` and ``*.php`` extensions. The appropriate
 parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than ``"php"`` is treated as YAML.
@@ -248,19 +248,19 @@ the database name too, as Phinx requires this for certain methods such as ``hasT
 .. code-block:: php
 
         <?php
-            return array(
-                "paths" => array(
+            return [
+                "paths" => [
                     "migrations" => "application/migrations"
                 ),
-                "environments" => array(
+                "environments" => [
                     "default_migration_table" => "phinxlog",
                     "default_database" => "dev",
-                    "dev" => array(
+                    "dev" => [
                         "name" => "dev_db",
                         "connection" => $pdo_instance
-                    )
-                )
-            );
+                    ]
+                ]
+            ];
 
 Running Phinx in a Web App
 --------------------------

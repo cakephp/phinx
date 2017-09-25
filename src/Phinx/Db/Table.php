@@ -48,7 +48,7 @@ class Table
     /**
      * @var array
      */
-    protected $options = array();
+    protected $options = [];
 
     /**
      * @var AdapterInterface
@@ -58,22 +58,22 @@ class Table
     /**
      * @var array
      */
-    protected $columns = array();
+    protected $columns = [];
 
     /**
      * @var array
      */
-    protected $indexes = array();
+    protected $indexes = [];
 
     /**
      * @var ForeignKey[]
      */
-    protected $foreignKeys = array();
+    protected $foreignKeys = [];
 
     /**
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * Class Constuctor.
@@ -82,12 +82,12 @@ class Table
      * @param array $options Options
      * @param AdapterInterface $adapter Database Adapter
      */
-    public function __construct($name, $options = array(), AdapterInterface $adapter = null)
+    public function __construct($name, $options = [], AdapterInterface $adapter = null)
     {
         $this->setName($name);
         $this->setOptions($options);
 
-        if (null !== $adapter) {
+        if ($adapter !== null) {
             $this->setAdapter($adapter);
         }
     }
@@ -309,10 +309,10 @@ class Table
      */
     public function reset()
     {
-        $this->setPendingColumns(array());
-        $this->setIndexes(array());
-        $this->setForeignKeys(array());
-        $this->setData(array());
+        $this->setPendingColumns([]);
+        $this->setIndexes([]);
+        $this->setForeignKeys([]);
+        $this->setData([]);
     }
 
     /**
@@ -330,10 +330,10 @@ class Table
      * @throws \InvalidArgumentException
      * @return Table
      */
-    public function addColumn($columnName, $type = null, $options = array())
+    public function addColumn($columnName, $type = null, $options = [])
     {
         // we need an adapter set to add a column
-        if (null === $this->getAdapter()) {
+        if ($this->getAdapter() === null) {
             throw new \RuntimeException('An adapter must be specified to add a column.');
         }
 
@@ -423,7 +423,7 @@ class Table
      * @param array         $options       Options
      * @return Table
      */
-    public function changeColumn($columnName, $newColumnType, $options = array())
+    public function changeColumn($columnName, $newColumnType, $options = [])
     {
         // create a column object if one wasn't supplied
         if (!$newColumnType instanceof Column) {
@@ -435,7 +435,7 @@ class Table
         }
 
         // if the name was omitted use the existing column name
-        if (null === $newColumn->getName() || strlen($newColumn->getName()) === 0) {
+        if ($newColumn->getName() === null || strlen($newColumn->getName()) === 0) {
             $newColumn->setName($columnName);
         }
 
@@ -463,13 +463,13 @@ class Table
      * @param array $options Index Options
      * @return Table
      */
-    public function addIndex($columns, $options = array())
+    public function addIndex($columns, $options = [])
     {
         // create a new index object if strings or an array of strings were supplied
         if (!$columns instanceof Index) {
             $index = new Index();
             if (is_string($columns)) {
-                $columns = array($columns); // str to array
+                $columns = [$columns]; // str to array
             }
             $index->setColumns($columns);
             $index->setOptions($options);
@@ -529,16 +529,16 @@ class Table
      * @param array $options Options
      * @return Table
      */
-    public function addForeignKey($columns, $referencedTable, $referencedColumns = array('id'), $options = array())
+    public function addForeignKey($columns, $referencedTable, $referencedColumns = ['id'], $options = [])
     {
         if (is_string($referencedColumns)) {
-            $referencedColumns = array($referencedColumns); // str to array
+            $referencedColumns = [$referencedColumns]; // str to array
         }
         $fk = new ForeignKey();
         if ($referencedTable instanceof Table) {
             $fk->setReferencedTable($referencedTable);
         } else {
-            $fk->setReferencedTable(new Table($referencedTable, array(), $this->adapter));
+            $fk->setReferencedTable(new Table($referencedTable, [], $this->adapter));
         }
         $fk->setColumns($columns)
            ->setReferencedColumns($referencedColumns)
@@ -558,10 +558,10 @@ class Table
     public function dropForeignKey($columns, $constraint = null)
     {
         if (is_string($columns)) {
-            $columns = array($columns);
+            $columns = [$columns];
         }
         if ($constraint) {
-            $this->getAdapter()->dropForeignKey($this->getName(), array(), $constraint);
+            $this->getAdapter()->dropForeignKey($this->getName(), [], $constraint);
         } else {
             $this->getAdapter()->dropForeignKey($this->getName(), $columns);
         }
@@ -593,14 +593,14 @@ class Table
     {
         $createdAtColumnName = is_null($createdAtColumnName) ? 'created_at' : $createdAtColumnName;
         $updatedAtColumnName = is_null($updatedAtColumnName) ? 'updated_at' : $updatedAtColumnName;
-        $this->addColumn($createdAtColumnName, 'timestamp', array(
+        $this->addColumn($createdAtColumnName, 'timestamp', [
                 'default' => 'CURRENT_TIMESTAMP',
                 'update' => ''
-            ))
-             ->addColumn($updatedAtColumnName, 'timestamp', array(
+            ])
+             ->addColumn($updatedAtColumnName, 'timestamp', [
                 'null'    => true,
                 'default' => null
-             ));
+             ]);
 
         return $this;
     }
@@ -686,7 +686,7 @@ class Table
         $bulk = true;
         $row = current($rows);
         $c = array_keys($row);
-        foreach($this->getData() as $row) {
+        foreach ($this->getData() as $row) {
             $k = array_keys($row);
             if ($k != $c) {
                 $bulk = false;

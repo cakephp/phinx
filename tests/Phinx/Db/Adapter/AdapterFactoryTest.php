@@ -51,7 +51,7 @@ class AdapterFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetAdapter()
     {
-        $adapter = $this->factory->getAdapter('mysql', array());
+        $adapter = $this->factory->getAdapter('mysql', []);
 
         $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $adapter);
     }
@@ -62,7 +62,7 @@ class AdapterFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetAdapterFailure()
     {
-        $this->factory->getAdapter('bad', array());
+        $this->factory->getAdapter('bad', []);
     }
 
     public function testRegisterWrapper()

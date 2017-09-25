@@ -202,7 +202,7 @@ class Create extends AbstractCommand
         // Get the alternative template and static class options from the config, but only allow one of them.
         $defaultAltTemplate = $this->getConfig()->getTemplateFile();
         $defaultCreationClassName = $this->getConfig()->getTemplateClass();
-        if ($defaultAltTemplate && $defaultCreationClassName){
+        if ($defaultAltTemplate && $defaultCreationClassName) {
             throw new \InvalidArgumentException('Cannot define template:class and template:file at the same time');
         }
 
@@ -214,7 +214,7 @@ class Create extends AbstractCommand
         }
 
         // If no commandline options then use the defaults.
-        if (!$altTemplate && !$creationClassName){
+        if (!$altTemplate && !$creationClassName) {
             $altTemplate = $defaultAltTemplate;
             $creationClassName = $defaultCreationClassName;
         }
@@ -278,17 +278,17 @@ class Create extends AbstractCommand
         }
 
         // inject the class names appropriate to this migration
-        $classes = array(
-            '$namespaceDefinition' => null !== $namespace ? ('namespace ' . $namespace . ';') : '',
+        $classes = [
+            '$namespaceDefinition' => $namespace !== null ? ('namespace ' . $namespace . ';') : '',
             '$namespace'           => $namespace,
             '$useClassName'        => $this->getConfig()->getMigrationBaseClassName(false),
             '$className'           => $className,
             '$version'             => Util::getVersionFromFileName($fileName),
             '$baseClassName'       => $this->getConfig()->getMigrationBaseClassName(true),
-        );
+        ];
         $contents = strtr($contents, $classes);
 
-        if (false === file_put_contents($filePath, $contents)) {
+        if (file_put_contents($filePath, $contents) === false) {
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',
                 $path

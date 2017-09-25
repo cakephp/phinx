@@ -64,7 +64,7 @@ class Init extends Command
         // get the migration path from the config
         $path = $input->getArgument('path');
 
-        if (null === $path) {
+        if ($path === null) {
             $path = getcwd();
         }
 
@@ -95,7 +95,7 @@ class Init extends Command
             $contents = file_get_contents(__DIR__ . '/../../../../phinx.yml');
         }
 
-        if (false === file_put_contents($filePath, $contents)) {
+        if (file_put_contents($filePath, $contents) === false) {
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',
                 $path

@@ -492,7 +492,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function createDatabase($name, $options = array())
+    public function createDatabase($name, $options = [])
     {
         $this->getAdapter()->createDatabase($name, $options);
     }
@@ -535,5 +535,13 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function castToBool($value)
     {
         return $this->getAdapter()->castToBool($value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getConnection()
+    {
+        return $this->getAdapter()->getConnection();
     }
 }

@@ -86,9 +86,9 @@ interface AdapterInterface
     public function getVersions();
 
     /**
-     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's 
+     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's
      * version order option
-     * 
+     *
      * @return array
      */
     public function getVersionLog();
@@ -514,7 +514,7 @@ interface AdapterInterface
      * @param array $options Options
      * @return void
      */
-    public function createDatabase($name, $options = array());
+    public function createDatabase($name, $options = []);
 
     /**
      * Checks to see if a database exists.

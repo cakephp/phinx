@@ -12,7 +12,7 @@ class DirectionAwareReversibleUp extends AbstractMigration
             ])
             ->create();
 
-        if ($this->goingUp)
+        if ($this->isMigratingUp())
         {
             $this->insert('change_direction_test', [
                 [

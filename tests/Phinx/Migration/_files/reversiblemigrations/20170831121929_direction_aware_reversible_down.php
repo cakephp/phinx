@@ -13,7 +13,7 @@ class DirectionAwareReversibleDown extends AbstractMigration
             ])
             ->update();
 
-        if ($this->goingUp)
+        if ($this->isMigratingUp())
         {
             $this->execute("UPDATE change_direction_test
                 SET subthing = SUBSTRING(thing, LOCATE('_', thing) + 1),

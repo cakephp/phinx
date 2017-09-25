@@ -66,9 +66,11 @@ abstract class AbstractMigration implements MigrationInterface
     protected $input;
 
     /**
+     * Whether this migration is being applied or reverted
+     *
      * @var bool
      */
-    protected $goingUp;
+    protected $isMigratingUp = true;
 
     /**
      * Class Constructor.
@@ -80,10 +82,10 @@ abstract class AbstractMigration implements MigrationInterface
     final public function __construct($version, InputInterface $input = null, OutputInterface $output = null)
     {
         $this->version = $version;
-        if (!is_null($input)){
+        if (!is_null($input)) {
             $this->setInput($input);
         }
-        if (!is_null($output)){
+        if (!is_null($output)) {
             $this->setOutput($output);
         }
 
@@ -192,18 +194,18 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
-    public function setGoingUp($goingUp)
+    public function setMigratingUp($isMigratingUp)
     {
-        $this->goingUp = $goingUp;
+        $this->isMigratingUp = $isMigratingUp;
         return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getGoingUp()
+    public function isMigratingUp()
     {
-        return $this->goingUp;
+        return $this->isMigratingUp;
     }
 
     /**
@@ -245,7 +247,7 @@ abstract class AbstractMigration implements MigrationInterface
     {
         // convert to table object
         if (is_string($table)) {
-            $table = new Table($table, array(), $this->getAdapter());
+            $table = new Table($table, [], $this->getAdapter());
         }
         $table->insert($data)->save();
     }
@@ -277,7 +279,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
-    public function table($tableName, $options = array())
+    public function table($tableName, $options = [])
     {
         return new Table($tableName, $options, $this->getAdapter());
     }
