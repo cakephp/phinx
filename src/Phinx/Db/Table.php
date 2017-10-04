@@ -201,6 +201,7 @@ class Table
     public function setColumns($columns)
     {
         $this->setPendingColumns($columns);
+        return $this;
     }
 
     /**
