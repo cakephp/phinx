@@ -794,7 +794,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->assertQuerySql("SHOW FULL COLUMNS FROM `table_name`", $this->result);
 
         $this->assertExecuteSql(
-            'ALTER TABLE `table_name` CHANGE COLUMN `column_old` `column_new` int(15) NOT NULL AUTO_INCREMENT COMMENT \'Old Column\''
+            'ALTER TABLE `table_name` CHANGE COLUMN `column_old` `column_new` int(15) NOT NULL AUTO_INCREMENT' .
+            ' COMMENT \'Old Column\''
         );
         $this->adapter->renameColumn('table_name', 'column_old', 'column_new');
     }
