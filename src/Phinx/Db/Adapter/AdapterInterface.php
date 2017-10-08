@@ -73,6 +73,11 @@ interface AdapterInterface
     const PHINX_TYPE_ENUM           = 'enum';
     const PHINX_TYPE_SET            = 'set';
 
+    // only for postgresql so far
+    const PHINX_TYPE_CIDR      = 'cidr';
+    const PHINX_TYPE_INET      = 'inet';
+    const PHINX_TYPE_MACADDR   = 'macaddr';
+
     /**
      * Get all migrated version numbers.
      *
@@ -81,9 +86,9 @@ interface AdapterInterface
     public function getVersions();
 
     /**
-     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's 
+     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's
      * version order option
-     * 
+     *
      * @return array
      */
     public function getVersionLog();
@@ -253,7 +258,7 @@ interface AdapterInterface
      * Executes a SQL statement and returns the result as an array.
      *
      * @param string $sql SQL
-     * @return array
+     * @return mixed
      */
     public function query($sql);
 
@@ -281,6 +286,15 @@ interface AdapterInterface
      * @return void
      */
     public function insert(Table $table, $row);
+
+    /**
+     * Inserts data into a table in a bulk.
+     *
+     * @param Table $table where to insert data
+     * @param array $rows
+     * @return void
+     */
+    public function bulkinsert(Table $table, $rows);
 
     /**
      * Quotes a table name for use in a query.
@@ -500,7 +514,7 @@ interface AdapterInterface
      * @param array $options Options
      * @return void
      */
-    public function createDatabase($name, $options = array());
+    public function createDatabase($name, $options = []);
 
     /**
      * Checks to see if a database exists.
@@ -517,6 +531,24 @@ interface AdapterInterface
      * @return void
      */
     public function dropDatabase($name);
+
+    /**
+     * Creates the specified schema or throws an exception
+     * if there is no support for it.
+     *
+     * @param  string $schemaName Schema Name
+     * @return void
+     */
+    public function createSchema($schemaName = 'public');
+
+    /**
+     * Drops the specified schema table  or throws an exception
+     * if there is no support for it.
+     *
+     * @param string $schemaName Schema name
+     * @return void
+     */
+    public function dropSchema($schemaName);
 
     /**
      * Cast a value to a boolean appropriate for the adapter.

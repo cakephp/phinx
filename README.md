@@ -1,15 +1,17 @@
 # [Phinx](https://phinx.org): Simple PHP Database Migrations
 
-[![Build Status](https://travis-ci.org/robmorgan/phinx.png?branch=master)](https://travis-ci.org/robmorgan/phinx)
+[![Build Status](https://travis-ci.org/cakephp/phinx.png?branch=master)](https://travis-ci.org/cakephp/phinx)
 [![Build status](https://ci.appveyor.com/api/projects/status/9vag4892hfq6effr)](https://ci.appveyor.com/project/robmorgan/phinx)
-[![Code Coverage](https://scrutinizer-ci.com/g/robmorgan/phinx/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/robmorgan/phinx/)
+[![Code Coverage](https://codecov.io/gh/cakephp/phinx/branch/master/graph/badge.svg)](https://codecov.io/gh/cakephp/phinx)
 [![Latest Stable Version](https://poser.pugx.org/robmorgan/phinx/version.png)](https://packagist.org/packages/robmorgan/phinx)
 [![Total Downloads](https://poser.pugx.org/robmorgan/phinx/d/total.png)](https://packagist.org/packages/robmorgan/phinx)
 [![Join the chat at https://gitter.im/phinx-php/Lobby](https://badges.gitter.im/phinx-php/Lobby.svg)](https://gitter.im/phinx-php/Lobby)
 
+## Intro
+
 Phinx makes it ridiculously easy to manage the database migrations for your PHP app. In less than 5 minutes, you can install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or framework.
 
-**Check out http://docs.phinx.org ([EN](http://docs.phinx.org), [ZH](https://tsy12321.gitbooks.io/phinx-doc/)) for the comprehensive documentation.**
+**Check out https://book.cakephp.org/3.0/en/phinx.html ([EN](https://book.cakephp.org/3.0/en/phinx.html), [ZH](https://tsy12321.gitbooks.io/phinx-doc/)) for the comprehensive documentation.**
 
 ![phinxterm](https://cloud.githubusercontent.com/assets/178939/3887559/e6b5e524-21f2-11e4-8256-0ba6040725fc.gif)
 
@@ -70,7 +72,7 @@ You can also use the Box application to build Phinx as a Phar archive (https://b
 1. Clone Phinx from GitHub
 
     ```
-    git clone git://github.com/robmorgan/phinx.git
+    git clone https://github.com/cakephp/phinx.git
     cd phinx
     ```
 
@@ -100,7 +102,7 @@ You can also use the Box application to build Phinx as a Phar archive (https://b
 
 ## Documentation
 
-Check out http://docs.phinx.org for the comprehensive documentation.
+Check out https://book.cakephp.org/3.0/en/phinx.html for the comprehensive documentation.
 
 Other translations include:
 
@@ -112,7 +114,7 @@ Please read the [CONTRIBUTING](CONTRIBUTING.md) document.
 
 ## News & Updates
 
-Follow Rob (@\_rjm\_) on Twitter to stay up to date (http://twitter.com/_rjm_)
+Follow [@CakePHP](https://twitter.com/cakephp) on Twitter to stay up to date.
 
 ## Misc
 

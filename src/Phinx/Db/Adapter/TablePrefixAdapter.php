@@ -102,7 +102,7 @@ class TablePrefixAdapter extends AdapterWrapper
     public function truncateTable($tableName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
-        return parent::truncateTable($adapterTableName);
+        parent::truncateTable($adapterTableName);
     }
 
     /**
@@ -246,6 +246,17 @@ class TablePrefixAdapter extends AdapterWrapper
         $adapterTableName = $this->getAdapterTableName($table->getName());
         $adapterTable->setName($adapterTableName);
         parent::insert($adapterTable, $row);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function bulkinsert(Table $table, $rows)
+    {
+        $adapterTable = clone $table;
+        $adapterTableName = $this->getAdapterTableName($table->getName());
+        $adapterTable->setName($adapterTableName);
+        parent::bulkinsert($adapterTable, $rows);
     }
 
     /**

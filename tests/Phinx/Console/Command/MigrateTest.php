@@ -19,7 +19,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
     /**
      * @var ConfigInterface|array
      */
-    protected $config = array();
+    protected $config = [];
 
     /**
      * @var InputInterface $input
@@ -33,23 +33,23 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->config = new Config(array(
-            'paths' => array(
+        $this->config = new Config([
+            'paths' => [
                 'migrations' => __FILE__,
-            ),
-            'environments' => array(
+            ],
+            'environments' => [
                 'default_migration_table' => 'phinxlog',
                 'default_database' => 'development',
-                'development' => array(
+                'development' => [
                     'adapter' => 'mysql',
                     'host' => 'fakehost',
                     'name' => 'development',
                     'user' => '',
                     'pass' => '',
                     'port' => 3006,
-                )
-            )
-        ));
+                ]
+            ]
+        ]);
 
         $this->input = new ArrayInput([]);
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -75,7 +75,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $exitCode = $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
         $this->assertSame(0, $exitCode);
@@ -101,7 +101,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $exitCode = $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'), array('decorated' => false));
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
 
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
         $this->assertSame(1, $exitCode);
@@ -127,7 +127,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $exitCode = $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
         $this->assertSame(0, $exitCode);

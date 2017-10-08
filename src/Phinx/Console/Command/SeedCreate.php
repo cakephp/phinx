@@ -28,6 +28,7 @@
  */
 namespace Phinx\Console\Command;
 
+use Phinx\Config\NamespaceAwareInterface;
 use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -173,14 +174,19 @@ class SeedCreate extends AbstractCommand
 
         // inject the class names appropriate to this seeder
         $contents = file_get_contents($this->getSeedTemplateFilename());
-        $classes = array(
-            '$useClassName'  => 'Phinx\Seed\AbstractSeed',
-            '$className'     => $className,
-            '$baseClassName' => 'AbstractSeed',
-        );
+
+        $config = $this->getConfig();
+        $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath($path) : null;
+        $classes = [
+            '$namespaceDefinition' => $namespace !== null ? ('namespace ' . $namespace . ';') : '',
+            '$namespace'           => $namespace,
+            '$useClassName'        => 'Phinx\Seed\AbstractSeed',
+            '$className'           => $className,
+            '$baseClassName'       => 'AbstractSeed',
+        ];
         $contents = strtr($contents, $classes);
 
-        if (false === file_put_contents($filePath, $contents)) {
+        if (file_put_contents($filePath, $contents) === false) {
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',
                 $path

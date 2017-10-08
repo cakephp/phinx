@@ -47,8 +47,9 @@ class Migrate extends AbstractCommand
              ->setDescription('Migrate the database')
              ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
              ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to migrate to')
+             ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
              ->setHelp(
-<<<EOT
+                 <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
 
 <info>phinx migrate -e development</info>
@@ -75,7 +76,7 @@ EOT
         $environment = $input->getOption('environment');
         $date        = $input->getOption('date');
 
-        if (null === $environment) {
+        if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
@@ -107,7 +108,7 @@ EOT
 
         // run the migrations
         $start = microtime(true);
-        if (null !== $date) {
+        if ($date !== null) {
             $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
         } else {
             $this->getManager()->migrate($environment, $version);

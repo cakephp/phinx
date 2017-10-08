@@ -137,6 +137,22 @@ interface MigrationInterface
     public function getVersion();
 
     /**
+     * Sets whether this migration is being applied or reverted
+     *
+     * @param bool $isMigratingUp True if the migration is being applied
+     * @return MigrationInterface
+     */
+    public function setMigratingUp($isMigratingUp);
+
+    /**
+     * Gets whether this migration is being applied or reverted.
+     * True means that the migration is being applied.
+     *
+     * @return bool
+     */
+    public function isMigratingUp();
+
+    /**
      * Executes a SQL statement and returns the number of affected rows.
      *
      * @param string $sql SQL

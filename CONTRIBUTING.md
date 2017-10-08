@@ -60,6 +60,15 @@ Great, so you want to contribute. Let's get started:
 
 1. Open a pull request on the Github project page. Ensure the code is being merged into `master`.
 
+## Getting Started with docker
+
+If you do not wish to install MySQL and Postgres locally to run unit tests
+can use [docker-compose](https://docs.docker.com/compose/) which will start
+both database, install all development dependencies and run all unit tests.
+
+To get started, just run `docker-compose run --rm phinx`. It will download all
+images, build & start development container and switch you to it. So just install dependencies with `composer update --prefer-lowest` and run unittests with `vendor/bin/phpunit`.
+
 ## Documentation
 
 The Phinx documentation is stored in the **docs** directory using the [RestructedText](http://docutils.sourceforge.net/rst.html)

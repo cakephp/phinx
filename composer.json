@@ -19,6 +19,9 @@
         "name": "Richard Quadling",
         "email": "rquadling@gmail.com",
         "role": "Developer"
+    }, {
+        "name": "CakePHP Community",
+        "homepage": "https://github.com/cakephp/phinx/graphs/contributors"
     }],
     "require": {
         "php": ">=5.4",

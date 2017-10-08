@@ -28,6 +28,7 @@
  */
 namespace Phinx\Migration;
 
+use Phinx\Config\NamespaceAwareInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Config\ConfigInterface;
@@ -102,7 +103,7 @@ class Manager
     public function printStatus($environment, $format = null)
     {
         $output = $this->getOutput();
-        $migrations = array();
+        $migrations = [];
         $hasDownMigration = false;
         $hasMissingMigration = false;
         $migrations = $this->getMigrations();
@@ -128,7 +129,7 @@ class Manager
             $env = $this->getEnvironment($environment);
             $versions = $env->getVersionLog();
 
-            $maxNameLength = $versions ? max(array_map(function($version) {
+            $maxNameLength = $versions ? max(array_map(function ($version) {
                 return strlen($version['migration_name']);
             }, $versions)) : 0;
 
@@ -137,7 +138,7 @@ class Manager
             $hasMissingMigration = !empty($missingVersions);
 
             // get the migrations sorted in the same way as the versions
-            $sortedMigrations = array();
+            $sortedMigrations = [];
 
             foreach ($versions as $versionCreationTime => $version) {
                 if (isset($migrations[$versionCreationTime])) {
@@ -147,7 +148,7 @@ class Manager
             }
 
             if (empty($sortedMigrations) && !empty($missingVersions)) {
-                // this means we have no up migrations, so we write all the missing versions already so they show up 
+                // this means we have no up migrations, so we write all the missing versions already so they show up
                 // before any possible down migration
                 foreach ($missingVersions as $missingVersionCreationTime => $missingVersion) {
                     $this->printMissingVersion($missingVersion, $maxNameLength);
@@ -156,7 +157,7 @@ class Manager
                 }
             }
 
-            // any migration left in the migrations (ie. not unset when sorting the migrations by the version order) is 
+            // any migration left in the migrations (ie. not unset when sorting the migrations by the version order) is
             // a migration that is down, so we add them to the end of the sorted migrations list
             if (!empty($migrations)) {
                 $sortedMigrations = array_merge($sortedMigrations, $migrations);
@@ -174,7 +175,7 @@ class Manager
                         } else {
                             if ($missingVersion['start_time'] > $version['start_time']) {
                                 break;
-                            } elseif ($missingVersion['start_time'] == $version['start_time'] && 
+                            } elseif ($missingVersion['start_time'] == $version['start_time'] &&
                                 $missingVersion['version'] > $version['version']) {
                                 break;
                             }
@@ -194,14 +195,18 @@ class Manager
 
                 $output->writeln(sprintf(
                     '%s %14.0f  %19s  %19s  <comment>%s</comment>',
-                    $status, $migration->getVersion(), $version['start_time'], $version['end_time'], $migration->getName()
+                    $status,
+                    $migration->getVersion(),
+                    $version['start_time'],
+                    $version['end_time'],
+                    $migration->getName()
                 ));
 
-                if ($version && $version['breakpoint']){
+                if ($version && $version['breakpoint']) {
                     $output->writeln('         <error>BREAKPOINT SET</error>');
                 }
 
-                $migrations[] = array('migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName());
+                $migrations[] = ['migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName()];
                 unset($versions[$migration->getVersion()]);
             }
 
@@ -223,10 +228,10 @@ class Manager
             switch ($format) {
                 case 'json':
                     $output->writeln(json_encode(
-                        array(
+                        [
                             'pending_count' => count($this->getMigrations()),
                             'migrations' => $migrations
-                        )
+                        ]
                     ));
                     break;
                 default:
@@ -236,7 +241,7 @@ class Manager
 
         if ($hasMissingMigration) {
             return self::EXIT_STATUS_MISSING;
-        } else if ($hasDownMigration) {
+        } elseif ($hasDownMigration) {
             return self::EXIT_STATUS_DOWN;
         } else {
             return 0;
@@ -253,10 +258,13 @@ class Manager
     {
         $this->getOutput()->writeln(sprintf(
             '     <error>up</error>  %14.0f  %19s  %19s  <comment>%s</comment>  <error>** MISSING **</error>',
-            $version['version'], $version['start_time'], $version['end_time'], str_pad($version['migration_name'], $maxNameLength, ' ')
+            $version['version'],
+            $version['start_time'],
+            $version['end_time'],
+            str_pad($version['migration_name'], $maxNameLength, ' ')
         ));
 
-        if ($version && $version['breakpoint']){
+        if ($version && $version['breakpoint']) {
             $this->getOutput()->writeln('         <error>BREAKPOINT SET</error>');
         }
     }
@@ -274,7 +282,7 @@ class Manager
         $versions   = array_keys($this->getMigrations());
         $dateString = $dateTime->format('YmdHis');
 
-        $outstandingMigrations = array_filter($versions, function($version) use($dateString) {
+        $outstandingMigrations = array_filter($versions, function ($version) use ($dateString) {
             return $version <= $dateString;
         });
 
@@ -303,7 +311,7 @@ class Manager
             return;
         }
 
-        if (null === $version) {
+        if ($version === null) {
             $version = max(array_merge($versions, array_keys($migrations)));
         } else {
             if (0 != $version && !isset($migrations[$version])) {
@@ -407,7 +415,7 @@ class Manager
      * Rollback an environment to the specified version.
      *
      * @param string $environment Environment
-     * @param int $target
+     * @param int|string $target
      * @param bool $force
      * @param bool $targetMustMatchVersion
      * @return void
@@ -420,12 +428,8 @@ class Manager
         // note that the version log are also indexed by name with the proper ascending order according to the version order
         $executedVersions = $this->getEnvironment($environment)->getVersionLog();
 
-        if ($target === "0") {
-            $target = 0;
-        }
-
         // get a list of migrations sorted in the opposite way of the executed versions
-        $sortedMigrations = array();
+        $sortedMigrations = [];
 
         foreach ($executedVersions as $versionCreationTime => &$executedVersion) {
             // if we have a date (ie. the target must not match a version) and we are sorting by execution time, we
@@ -438,9 +442,27 @@ class Manager
             if (isset($migrations[$versionCreationTime])) {
                 array_unshift($sortedMigrations, $migrations[$versionCreationTime]);
             } else {
-                // this means the version is missing so we unset it so that we don't consider it when rolling back 
+                // this means the version is missing so we unset it so that we don't consider it when rolling back
                 // migrations (or choosing the last up version as target)
                 unset($executedVersions[$versionCreationTime]);
+            }
+        }
+
+        if ($target === 'all' || $target === '0') {
+            $target = 0;
+        } elseif (!is_numeric($target) && !is_null($target)) { // try to find a target version based on name
+            // search through the migrations using the name
+            $migrationNames = array_map(function ($item) {
+                return $item['migration_name'];
+            }, $executedVersions);
+            $found = array_search($target, $migrationNames);
+
+            // check on was found
+            if ($found !== false) {
+                $target = (string)$found;
+            } else {
+                $this->getOutput()->writeln("<error>No migration found with name ($target)</error>");
+                return;
             }
         }
 
@@ -452,10 +474,10 @@ class Manager
         }
 
         // If no target was supplied, revert the last migration
-        if (null === $target) {
+        if ($target === null) {
             // Get the migration before the last run migration
             $prev = count($executedVersionCreationTimes) - 2;
-            $target = $prev >= 0 ? $executedVersionCreationTimes[$prev] : $executedVersionCreationTimes[0];
+            $target = $prev >= 0 ? $executedVersionCreationTimes[$prev] : 0;
         }
 
         // If the target must match a version, check the target version exists
@@ -482,7 +504,7 @@ class Manager
                     }
                 }
 
-                if (0 != $executedVersion['breakpoint'] && !$force){
+                if (0 != $executedVersion['breakpoint'] && !$force) {
                     $this->getOutput()->writeln('<error>Breakpoint reached. Further rollbacks inhibited.</error>');
                     break;
                 }
@@ -507,7 +529,7 @@ class Manager
     {
         $seeds = $this->getSeeds();
 
-        if (null === $seed) {
+        if ($seed === null) {
             // run all seeders
             foreach ($seeds as $seeder) {
                 if (array_key_exists($seeder->getName(), $seeds)) {
@@ -530,7 +552,7 @@ class Manager
      * @param array $environments Environments
      * @return Manager
      */
-    public function setEnvironments($environments = array())
+    public function setEnvironments($environments = [])
     {
         $this->environments = $environments;
         return $this;
@@ -626,7 +648,7 @@ class Manager
     }
 
     /**
-     * Gets an array of the database migrations, indexed by migration name (aka creation time) and sorted in ascending 
+     * Gets an array of the database migrations, indexed by migration name (aka creation time) and sorted in ascending
      * order
      *
      * @throws \InvalidArgumentException
@@ -634,13 +656,13 @@ class Manager
      */
     public function getMigrations()
     {
-        if (null === $this->migrations) {
+        if ($this->migrations === null) {
             $phpFiles = $this->getMigrationFiles();
 
             // filter the files to only get the ones that match our naming scheme
-            $fileNames = array();
+            $fileNames = [];
             /** @var AbstractMigration[] $versions */
-            $versions = array();
+            $versions = [];
 
             foreach ($phpFiles as $filePath) {
                 if (Util::isValidMigrationFileName(basename($filePath))) {
@@ -650,8 +672,11 @@ class Manager
                         throw new \InvalidArgumentException(sprintf('Duplicate migration - "%s" has the same version as "%s"', $filePath, $versions[$version]->getVersion()));
                     }
 
+                    $config = $this->getConfig();
+                    $namespace = $config instanceof NamespaceAwareInterface ? $config->getMigrationNamespaceByPath(dirname($filePath)) : null;
+
                     // convert the filename to a class name
-                    $class = Util::mapFileNameToClassName(basename($filePath));
+                    $class = ($namespace === null ? '' : $namespace . '\\') . Util::mapFileNameToClassName(basename($filePath));
 
                     if (isset($fileNames[$class])) {
                         throw new \InvalidArgumentException(sprintf(
@@ -705,7 +730,7 @@ class Manager
     {
         $config = $this->getConfig();
         $paths = $config->getMigrationPaths();
-        $files = array();
+        $files = [];
 
         foreach ($paths as $path) {
             $files = array_merge(
@@ -737,18 +762,21 @@ class Manager
      */
     public function getSeeds()
     {
-        if (null === $this->seeds) {
+        if ($this->seeds === null) {
             $phpFiles = $this->getSeedFiles();
 
             // filter the files to only get the ones that match our naming scheme
-            $fileNames = array();
+            $fileNames = [];
             /** @var AbstractSeed[] $seeds */
-            $seeds = array();
+            $seeds = [];
 
             foreach ($phpFiles as $filePath) {
                 if (Util::isValidSeedFileName(basename($filePath))) {
+                    $config = $this->getConfig();
+                    $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath(dirname($filePath)) : null;
+
                     // convert the filename to a class name
-                    $class = pathinfo($filePath, PATHINFO_FILENAME);
+                    $class = ($namespace === null ? '' : $namespace . '\\') . pathinfo($filePath, PATHINFO_FILENAME);
                     $fileNames[$class] = basename($filePath);
 
                     // load the seed file
@@ -793,7 +821,7 @@ class Manager
     {
         $config = $this->getConfig();
         $paths = $config->getSeedPaths();
-        $files = array();
+        $files = [];
 
         foreach ($paths as $path) {
             $files = array_merge(
@@ -834,7 +862,8 @@ class Manager
      * @param int $version
      * @return void
      */
-    public function toggleBreakpoint($environment, $version){
+    public function toggleBreakpoint($environment, $version)
+    {
         $migrations = $this->getMigrations();
         $this->getMigrations();
         $env = $this->getEnvironment($environment);
@@ -844,7 +873,7 @@ class Manager
             return;
         }
 
-        if (null === $version) {
+        if ($version === null) {
             $lastVersion = end($versions);
             $version = $lastVersion['version'];
         }
@@ -874,7 +903,8 @@ class Manager
      * @param string $environment
      * @return void
      */
-    public function removeBreakpoints($environment){
+    public function removeBreakpoints($environment)
+    {
         $this->getOutput()->writeln(sprintf(
             ' %d breakpoints cleared.',
             $this->getEnvironment($environment)->getAdapter()->resetAllBreakpoints()

@@ -186,6 +186,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function bulkinsert(Table $table, $rows)
+    {
+        $this->getAdapter()->bulkinsert($table, $rows);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function fetchRow($sql)
     {
         return $this->getAdapter()->fetchRow($sql);
@@ -356,6 +364,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function truncateTable($tableName)
+    {
+        $this->getAdapter()->truncateTable($tableName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getColumns($tableName)
     {
         return $this->getAdapter()->getColumns($tableName);
@@ -476,7 +492,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function createDatabase($name, $options = array())
+    public function createDatabase($name, $options = [])
     {
         $this->getAdapter()->createDatabase($name, $options);
     }
@@ -500,8 +516,32 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function createSchema($schemaName = 'public')
+    {
+        $this->getAdapter()->createSchema($schemaName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropSchema($schemaName)
+    {
+        $this->getAdapter()->dropSchema($schemaName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function castToBool($value)
     {
         return $this->getAdapter()->castToBool($value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getConnection()
+    {
+        return $this->getAdapter()->getConnection();
     }
 }

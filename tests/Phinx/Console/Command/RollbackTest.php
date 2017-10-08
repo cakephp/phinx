@@ -19,7 +19,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
     /**
      * @var ConfigInterface|array
      */
-    protected $config = array();
+    protected $config = [];
 
     /**
      * @var InputInterface $input
@@ -38,23 +38,23 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->config = new Config(array(
-            'paths' => array(
+        $this->config = new Config([
+            'paths' => [
                 'migrations' => __FILE__,
-            ),
-            'environments' => array(
+            ],
+            'environments' => [
                 'default_migration_table' => 'phinxlog',
                 'default_database' => 'development',
-                'development' => array(
+                'development' => [
                     'adapter' => 'mysql',
                     'host' => 'fakehost',
                     'name' => 'development',
                     'user' => '',
                     'pass' => '',
                     'port' => 3006,
-                )
-            )
-        ));
+                ]
+            ]
+        ]);
 
         $this->input = new ArrayInput([]);
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -81,7 +81,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
         $display = $commandTester->getDisplay();
 
@@ -112,7 +112,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'), array('decorated' => false));
+        $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
     }
 
@@ -137,7 +137,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
     }
     
@@ -153,7 +153,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
-            ->setConstructorArgs(array($this->config, $this->input, $this->output))
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
 
         $managerStub->expects($this->once())
@@ -164,7 +164,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
         $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
     }
     
@@ -175,7 +175,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $date = '20160101';
         $target = '20160101000000';
         $rollbackStub = $this->getMockBuilder('\Phinx\Console\Command\Rollback')
-            ->setMethods(array('getTargetFromDate'))
+            ->setMethods(['getTargetFromDate'])
             ->getMock();
 
         $rollbackStub->expects($this->once())
@@ -190,7 +190,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
 
         // mock the manager class
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
-            ->setConstructorArgs(array($this->config, $this->input, $this->output))
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('rollback')
@@ -200,7 +200,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), '-d' => $date), array('decorated' => false));
+        $commandTester->execute(['command' => $command->getName(), '-d' => $date], ['decorated' => false]);
     }
 
     /**
@@ -270,7 +270,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         // mock the manager class
         $targetDate = '20150101';
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
-            ->setConstructorArgs(array($this->config, $this->input, $this->output))
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('rollback')
@@ -280,7 +280,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), '-d' => $targetDate), array('decorated' => false));
+        $commandTester->execute(['command' => $command->getName(), '-d' => $targetDate], ['decorated' => false]);
         $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
     }
 }

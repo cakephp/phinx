@@ -47,7 +47,7 @@ class SeedRun extends AbstractCommand
              ->setDescription('Run database seeders')
              ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
              ->setHelp(
-<<<EOT
+                 <<<EOT
 The <info>seed:run</info> command runs all available or individual seeders
 
 <info>phinx seed:run -e development</info>
@@ -73,7 +73,7 @@ EOT
         $seedSet     = $input->getOption('seed');
         $environment = $input->getOption('environment');
 
-        if (null === $environment) {
+        if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {

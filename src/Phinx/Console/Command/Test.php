@@ -51,7 +51,7 @@ class Test extends AbstractCommand
         $this->setName('test')
              ->setDescription('Verify the configuration file')
              ->setHelp(
-<<<EOT
+                 <<<EOT
 The <info>test</info> command verifies the YAML configuration file and optionally an environment
 
 <info>phinx test</info>
