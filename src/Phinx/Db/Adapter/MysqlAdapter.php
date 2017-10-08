@@ -414,8 +414,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameColumn($tableName, $columnName, $newColumnName)
     {
-
-        $this->startCommandTimer();
         $rows = $this->fetchAll(sprintf('SHOW FULL COLUMNS FROM %s', $this->quoteTableName($tableName)));
       
         foreach ($rows as $row) {

@@ -772,14 +772,14 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                          'Null'    => 'NO',
                          'Default' => '',
                          'Extra'   => 'auto_increment',
-                         'Comment' => 'Old Column');
+                         'Comment' => 'Old Column'];
 
         $column2 = ['Field'   => 'column2',
                          'Type'    => 'varchar(32)',
                          'Null'    => '',
                          'Default' => 'NULL',
                          'Extra'   => '',
-                         'Comment' => '');
+                         'Comment' => ''];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -793,9 +793,9 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
         $this->assertQuerySql("SHOW FULL COLUMNS FROM `table_name`", $this->result);
 
-
-        $this->assertExecuteSql('ALTER TABLE `table_name` CHANGE COLUMN `column_old` `column_new` int(15) NOT NULL AUTO_INCREMENT 
-                                COMMENT \'Old Column\'');
+        $this->assertExecuteSql(
+            'ALTER TABLE `table_name` CHANGE COLUMN `column_old` `column_new` int(15) NOT NULL AUTO_INCREMENT COMMENT \'Old Column\''
+        );
         $this->adapter->renameColumn('table_name', 'column_old', 'column_new');
     }
 
