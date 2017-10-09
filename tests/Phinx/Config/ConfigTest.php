@@ -178,19 +178,19 @@ class ConfigTest extends AbstractConfigTest
 
     public function testGetAliasEmptyAliasesEntry()
     {
-        $config = new \Phinx\Config\Config(['aliases'=> []]);
+        $config = new \Phinx\Config\Config(['aliases' => []]);
         $this->assertNull($config->getAlias('Short'));
     }
 
     public function testGetAliasInvalidAliasRequest()
     {
-        $config = new \Phinx\Config\Config(['aliases'=> ['Medium' => 'Some\Long\Classname']]);
+        $config = new \Phinx\Config\Config(['aliases' => ['Medium' => 'Some\Long\Classname']]);
         $this->assertNull($config->getAlias('Short'));
     }
 
     public function testGetAliasValidAliasRequest()
     {
-        $config = new \Phinx\Config\Config(['aliases'=> ['Short' => 'Some\Long\Classname']]);
+        $config = new \Phinx\Config\Config(['aliases' => ['Short' => 'Some\Long\Classname']]);
         $this->assertEquals('Some\Long\Classname', $config->getAlias('Short'));
     }
 

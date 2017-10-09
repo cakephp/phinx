@@ -462,6 +462,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table->hasIndex('email'));
         $this->adapter->dropIndex($table->getName(), 'email');
         $this->assertFalse($table->hasIndex('email'));
+
         return;
         // multiple column index
         $table2 = new \Phinx\Db\Table('table2', [], $this->adapter);

@@ -130,6 +130,7 @@ class Column
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -152,6 +153,7 @@ class Column
     public function setType($type)
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -168,12 +170,13 @@ class Column
     /**
      * Sets the column limit.
      *
-     * @param integer $limit
+     * @param int $limit
      * @return Column
      */
     public function setLimit($limit)
     {
         $this->limit = $limit;
+
         return $this;
     }
 
@@ -190,19 +193,20 @@ class Column
     /**
      * Sets whether the column allows nulls.
      *
-     * @param boolean $null
+     * @param bool $null
      * @return Column
      */
     public function setNull($null)
     {
-        $this->null = (bool) $null;
+        $this->null = (bool)$null;
+
         return $this;
     }
 
     /**
      * Gets whether the column allows nulls.
      *
-     * @return boolean
+     * @return bool
      */
     public function getNull()
     {
@@ -212,7 +216,7 @@ class Column
     /**
      * Does the column allow nulls?
      *
-     * @return boolean
+     * @return bool
      */
     public function isNull()
     {
@@ -228,6 +232,7 @@ class Column
     public function setDefault($default)
     {
         $this->default = $default;
+
         return $this;
     }
 
@@ -244,19 +249,20 @@ class Column
     /**
      * Sets whether or not the column is an identity column.
      *
-     * @param boolean $identity
+     * @param bool $identity
      * @return Column
      */
     public function setIdentity($identity)
     {
         $this->identity = $identity;
+
         return $this;
     }
 
     /**
      * Gets whether or not the column is an identity column.
      *
-     * @return boolean
+     * @return bool
      */
     public function getIdentity()
     {
@@ -266,7 +272,7 @@ class Column
     /**
      * Is the column an identity column?
      *
-     * @return boolean
+     * @return bool
      */
     public function isIdentity()
     {
@@ -282,6 +288,7 @@ class Column
     public function setAfter($after)
     {
         $this->after = $after;
+
         return $this;
     }
 
@@ -304,6 +311,7 @@ class Column
     public function setUpdate($update)
     {
         $this->update = $update;
+
         return $this;
     }
 
@@ -320,12 +328,13 @@ class Column
     /**
      * Sets the column precision for decimal.
      *
-     * @param integer $precision
+     * @param int $precision
      * @return Column
      */
     public function setPrecision($precision)
     {
         $this->precision = $precision;
+
         return $this;
     }
 
@@ -342,12 +351,13 @@ class Column
     /**
      * Sets the column scale for decimal.
      *
-     * @param integer $scale
+     * @param int $scale
      * @return Column
      */
     public function setScale($scale)
     {
         $this->scale = $scale;
+
         return $this;
     }
 
@@ -370,6 +380,7 @@ class Column
     public function setComment($comment)
     {
         $this->comment = $comment;
+
         return $this;
     }
 
@@ -391,14 +402,15 @@ class Column
      */
     public function setSigned($signed)
     {
-        $this->signed = (bool) $signed;
+        $this->signed = (bool)$signed;
+
         return $this;
     }
 
     /**
      * Gets whether field should be signed.
      *
-     * @return boolean
+     * @return bool
      */
     public function getSigned()
     {
@@ -408,7 +420,7 @@ class Column
     /**
      * Should the column be signed?
      *
-     * @return boolean
+     * @return bool
      */
     public function isSigned()
     {
@@ -424,14 +436,15 @@ class Column
      */
     public function setTimezone($timezone)
     {
-        $this->timezone = (bool) $timezone;
+        $this->timezone = (bool)$timezone;
+
         return $this;
     }
 
     /**
      * Gets whether field has a timezone identifier.
      *
-     * @return boolean
+     * @return bool
      */
     public function getTimezone()
     {
@@ -441,7 +454,7 @@ class Column
     /**
      * Should the column have a timezone?
      *
-     * @return boolean
+     * @return bool
      */
     public function isTimezone()
     {
@@ -458,6 +471,7 @@ class Column
     public function setProperties($properties)
     {
         $this->properties = $properties;
+
         return $this;
     }
 
@@ -484,6 +498,7 @@ class Column
             $values = preg_split('/,\s*/', $values);
         }
         $this->values = $values;
+
         return $this;
     }
 
@@ -627,6 +642,7 @@ class Column
             $method = 'set' . ucfirst($option);
             $this->$method($value);
         }
+
         return $this;
     }
 }

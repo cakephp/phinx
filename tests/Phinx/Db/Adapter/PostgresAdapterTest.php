@@ -14,7 +14,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     /**
      * Check if Postgres is enabled in the current PHP
      *
-     * @return boolean
+     * @return bool
      */
     private static function isPostgresAvailable()
     {
@@ -501,7 +501,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $columns = $this->adapter->getColumns('t');
         $this->assertCount(count($pendingColumns) + 1, $columns);
         for ($i = 0; $i++; $i < count($pendingColumns)) {
-            $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
+            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
         }
     }
 
@@ -1017,7 +1017,6 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
         $this->assertEquals(0, count($rows));
     }
-
 
     public function testDumpCreateTable()
     {

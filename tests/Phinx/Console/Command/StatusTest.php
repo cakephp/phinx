@@ -88,7 +88,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 
         $display = $commandTester->getDisplay();
         $this->assertRegExp('/no environment specified/', $display);
-        
+
         // note that the default order is by creation time
         $this->assertRegExp('/ordering by creation time/', $display);
     }

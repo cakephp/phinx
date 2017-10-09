@@ -77,6 +77,7 @@ class ForeignKey
     public function setColumns($columns)
     {
         $this->columns = is_string($columns) ? [$columns] : $columns;
+
         return $this;
     }
 
@@ -99,6 +100,7 @@ class ForeignKey
     public function setReferencedTable(Table $table)
     {
         $this->referencedTable = $table;
+
         return $this;
     }
 
@@ -121,6 +123,7 @@ class ForeignKey
     public function setReferencedColumns(array $referencedColumns)
     {
         $this->referencedColumns = $referencedColumns;
+
         return $this;
     }
 
@@ -143,6 +146,7 @@ class ForeignKey
     public function setOnDelete($onDelete)
     {
         $this->onDelete = $this->normalizeAction($onDelete);
+
         return $this;
     }
 
@@ -175,6 +179,7 @@ class ForeignKey
     public function setOnUpdate($onUpdate)
     {
         $this->onUpdate = $this->normalizeAction($onUpdate);
+
         return $this;
     }
 
@@ -187,6 +192,7 @@ class ForeignKey
     public function setConstraint($constraint)
     {
         $this->constraint = $constraint;
+
         return $this;
     }
 
@@ -244,6 +250,7 @@ class ForeignKey
         if (!defined($constantName)) {
             throw new \InvalidArgumentException('Unknown action passed: ' . $action);
         }
+
         return constant($constantName);
     }
 }

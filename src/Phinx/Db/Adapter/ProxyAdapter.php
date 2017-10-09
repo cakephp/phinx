@@ -80,7 +80,6 @@ class ProxyAdapter extends AdapterWrapper
         $this->recordCommand('dropTable', [$tableName]);
     }
 
-
     /**
      * {@inheritdoc}
      */
@@ -193,6 +192,7 @@ class ProxyAdapter extends AdapterWrapper
     public function setCommands($commands)
     {
         $this->commands = $commands;
+
         return $this;
     }
 

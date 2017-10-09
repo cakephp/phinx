@@ -54,6 +54,7 @@ class AdapterFactory
         if (!static::$instance) {
             static::$instance = new static();
         }
+
         return static::$instance;
     }
 
@@ -97,6 +98,7 @@ class AdapterFactory
             ));
         }
         $this->adapters[$name] = $class;
+
         return $this;
     }
 
@@ -115,6 +117,7 @@ class AdapterFactory
                 $name
             ));
         }
+
         return $this->adapters[$name];
     }
 
@@ -128,6 +131,7 @@ class AdapterFactory
     public function getAdapter($name, array $options)
     {
         $class = $this->getClass($name);
+
         return new $class($options);
     }
 
@@ -148,6 +152,7 @@ class AdapterFactory
             ));
         }
         $this->wrappers[$name] = $class;
+
         return $this;
     }
 
@@ -166,6 +171,7 @@ class AdapterFactory
                 $name
             ));
         }
+
         return $this->wrappers[$name];
     }
 
@@ -179,6 +185,7 @@ class AdapterFactory
     public function getWrapper($name, AdapterInterface $adapter)
     {
         $class = $this->getWrapperClass($name);
+
         return new $class($adapter);
     }
 }

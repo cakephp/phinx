@@ -53,6 +53,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             if (!class_exists('PDO') || !in_array('sqlsrv', \PDO::getAvailableDrivers(), true)) {
                 // try our connection via freetds (Mac/Linux)
                 $this->connectDblib();
+
                 return;
             }
 
@@ -120,7 +121,6 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $driverOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
-
 
         try {
             $db = new \PDO($dsn, $options['user'], $options['pass'], $driverOptions);
@@ -196,6 +196,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     public function hasTable($tableName)
     {
         $result = $this->fetchRow(sprintf('SELECT count(*) as [count] FROM information_schema.tables WHERE table_name = \'%s\';', $tableName));
+
         return $result['count'] > 0;
     }
 
@@ -301,6 +302,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 
         $comment = (strcasecmp($column->getComment(), 'NULL') !== 0) ? $this->getConnection()->quote($column->getComment()) : '\'\'';
         $command = $currentComment === false ? 'sp_addextendedproperty' : 'sp_updateextendedproperty';
+
         return sprintf(
             "EXECUTE %s N'MS_Description', N%s, N'SCHEMA', N'%s', N'TABLE', N'%s', N'COLUMN', N'%s';",
             $command,
@@ -407,7 +409,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         if (strtoupper($default) === 'NULL') {
             $default = null;
         } elseif (is_numeric($default)) {
-            $default = (int) $default;
+            $default = (int)$default;
         }
 
         return $default;
@@ -591,6 +593,7 @@ WHERE
     AND all_columns.name = '{$columnName}'";
 
         $rows = $this->fetchAll($sql);
+
         return empty($rows) ? false : $rows[0]['name'];
     }
 
@@ -607,6 +610,7 @@ ORDER BY IC.[key_ordinal];";
         foreach ($rows as $row) {
             $columns[] = strtolower($row['column_name']);
         }
+
         return $columns;
     }
 
@@ -704,6 +708,7 @@ ORDER BY T.[name], I.[index_id];";
                         $this->quoteTableName($tableName)
                     )
                 );
+
                 return;
             }
         }
@@ -725,6 +730,7 @@ ORDER BY T.[name], I.[index_id];";
                         $this->quoteTableName($tableName)
                     )
                 );
+
                 return;
             }
         }
@@ -743,6 +749,7 @@ ORDER BY T.[name], I.[index_id];";
             if (isset($foreignKeys[$constraint])) {
                 return !empty($foreignKeys[$constraint]);
             }
+
             return false;
         } else {
             foreach ($foreignKeys as $key) {
@@ -751,6 +758,7 @@ ORDER BY T.[name], I.[index_id];";
                     return true;
                 }
             }
+
             return false;
         }
     }
@@ -819,6 +827,7 @@ ORDER BY T.[name], I.[index_id];";
                     $constraint
                 )
             );
+
             return;
         } else {
             foreach ($columns as $column) {
@@ -1016,6 +1025,7 @@ SQL;
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
         }
+
         return isset($default) ? ' DEFAULT ' . $default : '';
     }
 
@@ -1138,6 +1148,7 @@ SQL;
     {
         $startTime = str_replace(' ', 'T', $startTime);
         $endTime = str_replace(' ', 'T', $endTime);
+
         return parent::migrated($migration, $direction, $startTime, $endTime);
     }
 }

@@ -171,6 +171,7 @@ class Environment
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -193,6 +194,7 @@ class Environment
     public function setOptions($options)
     {
         $this->options = $options;
+
         return $this;
     }
 
@@ -215,6 +217,7 @@ class Environment
     public function setInput(InputInterface $input)
     {
         $this->input = $input;
+
         return $this;
     }
 
@@ -237,6 +240,7 @@ class Environment
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+
         return $this;
     }
 
@@ -280,6 +284,7 @@ class Environment
     public function setCurrentVersion($version)
     {
         $this->currentVersion = $version;
+
         return $this;
     }
 
@@ -301,6 +306,7 @@ class Environment
         }
 
         $this->setCurrentVersion($version);
+
         return $this->currentVersion;
     }
 
@@ -313,6 +319,7 @@ class Environment
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
+
         return $this;
     }
 
@@ -378,6 +385,7 @@ class Environment
     public function setSchemaTableName($schemaTableName)
     {
         $this->schemaTableName = $schemaTableName;
+
         return $this;
     }
 

@@ -183,7 +183,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             array_unshift($columns, $column);
         }
 
-
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
@@ -360,7 +359,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         );
         $this->execute($sql);
 
-
         $sql = sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
             $tableName,
@@ -512,6 +510,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 $indexes[$tableName]['columns'][] = strtolower($indexItem['name']);
             }
         }
+
         return $indexes;
     }
 
@@ -560,7 +559,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         $indexColumnArray = [];
         foreach ($index->getColumns() as $column) {
-            $indexColumnArray []= sprintf('`%s` ASC', $column);
+            $indexColumnArray[] = sprintf('`%s` ASC', $column);
         }
         $indexColumns = implode(',', $indexColumnArray);
         $this->execute(
@@ -594,6 +593,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($index['index'])
                     )
                 );
+
                 return;
             }
         }
@@ -614,6 +614,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($indexName)
                     )
                 );
+
                 return;
             }
         }
@@ -633,6 +634,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (empty($a)) {
             return true;
         }
+
         return false;
     }
 
@@ -670,6 +672,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
         }
+
         return $foreignKeys;
     }
 
@@ -860,6 +863,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_GEOMETRY:
             case static::PHINX_TYPE_POLYGON:
                 return ['name' => 'text'];
+
                 return;
             case static::PHINX_TYPE_LINESTRING:
                 return ['name' => 'varchar', 'limit' => 255];
@@ -979,6 +983,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
         }
+
         return isset($default) ? ' DEFAULT ' . $default : '';
     }
 
@@ -1030,12 +1035,14 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if ($column->getComment()) {
             return ' /* ' . $column->getComment() . ' */ ';
         }
+
         return '';
     }
 
     /**
      * Gets the SQLite Index Definition for an Index object.
      *
+     * @param Table $table Table
      * @param Index $index Index
      * @return string
      */
@@ -1056,6 +1063,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $indexName .= 'index';
         }
         $def .= ' `' . $indexName . '`';
+
         return $def;
     }
 
@@ -1096,6 +1104,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 $def .= ' ON UPDATE ' . $foreignKey->getOnUpdate();
             }
         }
+
         return $def;
     }
 }
