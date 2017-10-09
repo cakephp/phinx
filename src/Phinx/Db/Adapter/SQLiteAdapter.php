@@ -1042,7 +1042,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Gets the SQLite Index Definition for an Index object.
      *
-     * @param Index $table Index
+     * @param Table $table Table
+     * @param Index $index Index
      * @return string
      */
     protected function getIndexSqlDefinition(Table $table, Index $index)
