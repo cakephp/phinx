@@ -40,6 +40,7 @@ use Phinx\Migration\MigrationInterface;
  * Adapter Interface.
  *
  * @author Rob Morgan <robbym@gmail.com>
+ * @method \PDO getConnection()
  */
 interface AdapterInterface
 {
