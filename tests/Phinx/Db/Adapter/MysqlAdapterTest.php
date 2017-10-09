@@ -173,7 +173,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('ntable', [], $this->adapter);
         $table->addColumn('realname', 'string')
               ->addColumn('tag_id', 'integer')
-              ->addForeignKey('tag_id', 'ntable_tag', 'id', ['delete'=> 'NO_ACTION', 'update'=> 'NO_ACTION'])
+              ->addForeignKey('tag_id', 'ntable_tag', 'id', ['delete' => 'NO_ACTION', 'update' => 'NO_ACTION'])
               ->save();
 
         $this->assertTrue($this->adapter->hasTable('ntable'));
@@ -512,7 +512,6 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("test1", $rows[1]['Default']);
     }
 
-
     public function testChangeColumnDefaultToZero()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
@@ -660,7 +659,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $columns = $this->adapter->getColumns('t');
         $this->assertCount(count($pendingColumns) + 1, $columns);
         for ($i = 0; $i++; $i < count($pendingColumns)) {
-            $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
+            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
         }
     }
 
@@ -672,7 +671,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $described = $this->adapter->describeTable('t');
 
-        $this->assertTrue(in_array($described['TABLE_TYPE'], ['VIEW','BASE TABLE']));
+        $this->assertTrue(in_array($described['TABLE_TYPE'], ['VIEW', 'BASE TABLE']));
         $this->assertEquals($described['TABLE_NAME'], 't');
         $this->assertEquals($described['TABLE_SCHEMA'], TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
         $this->assertEquals($described['TABLE_ROWS'], 0);
@@ -707,10 +706,9 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $columns = $this->adapter->getColumns('group');
         $this->assertCount(count($pendingColumns) + 1, $columns);
         for ($i = 0; $i++; $i < count($pendingColumns)) {
-            $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
+            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
         }
     }
-
 
     public function testAddIndex()
     {

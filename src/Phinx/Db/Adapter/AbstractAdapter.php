@@ -115,6 +115,7 @@ abstract class AbstractAdapter implements AdapterInterface
         if (!$this->hasOption($name)) {
             return null;
         }
+
         return $this->options[$name];
     }
 
@@ -124,6 +125,7 @@ abstract class AbstractAdapter implements AdapterInterface
     public function setInput(InputInterface $input)
     {
         $this->input = $input;
+
         return $this;
     }
 
@@ -141,6 +143,7 @@ abstract class AbstractAdapter implements AdapterInterface
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+
         return $this;
     }
 
@@ -153,6 +156,7 @@ abstract class AbstractAdapter implements AdapterInterface
             $output = new NullOutput();
             $this->setOutput($output);
         }
+
         return $this->output;
     }
 
@@ -187,6 +191,7 @@ abstract class AbstractAdapter implements AdapterInterface
     public function setSchemaTableName($schemaTableName)
     {
         $this->schemaTableName = $schemaTableName;
+
         return $this;
     }
 
@@ -240,7 +245,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * Determines if instead of executing queries a dump to standard output is needed
      *
-     * @return boolean
+     * @return bool
      */
     public function isDryRunEnabled()
     {

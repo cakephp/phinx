@@ -387,6 +387,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
         }
+
         return isset($default) ? ' DEFAULT ' . $default : '';
     }
 
@@ -433,6 +434,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $definition
                     )
                 );
+
                 return;
             }
         }
@@ -491,6 +493,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             }
             $indexes[$row['Key_name']]['columns'][] = strtolower($row['Column_name']);
         }
+
         return $indexes;
     }
 
@@ -566,6 +569,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($indexName)
                     )
                 );
+
                 return;
             }
         }
@@ -588,6 +592,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($indexName)
                     )
                 );
+
                 return;
             }
         }
@@ -606,6 +611,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             if (isset($foreignKeys[$constraint])) {
                 return !empty($foreignKeys[$constraint]);
             }
+
             return false;
         } else {
             foreach ($foreignKeys as $key) {
@@ -613,6 +619,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     return true;
                 }
             }
+
             return false;
         }
     }
@@ -646,6 +653,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_table'] = $row['REFERENCED_TABLE_NAME'];
             $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_columns'][] = $row['REFERENCED_COLUMN_NAME'];
         }
+
         return $foreignKeys;
     }
 
@@ -672,7 +680,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $columns = [$columns]; // str to array
         }
 
-
         if ($constraint) {
             $this->execute(
                 sprintf(
@@ -681,6 +688,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     $constraint
                 )
             );
+
             return;
         } else {
             foreach ($columns as $column) {
@@ -730,6 +738,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         }
                     }
                 }
+
                 return ['name' => 'text'];
                 break;
             case static::PHINX_TYPE_BINARY:
@@ -753,6 +762,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                         }
                     }
                 }
+
                 return ['name' => 'blob'];
                 break;
             case static::PHINX_TYPE_INTEGER:
@@ -775,12 +785,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                             if (isset($limits[$name])) {
                                 $def['limit'] = $limits[$name];
                             }
+
                             return $def;
                         }
                     }
                 } elseif (!$limit) {
                     $limit = 11;
                 }
+
                 return ['name' => 'int', 'limit' => $limit];
                 break;
             case static::PHINX_TYPE_BIG_INTEGER:
@@ -825,6 +837,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 if (!$limit || in_array($limit, [2, 4])) {
                     $limit = 4;
                 }
+
                 return ['name' => 'year', 'limit' => $limit];
                 break;
             case static::PHINX_TYPE_JSON:
@@ -853,10 +866,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $precision = null;
             $type = $matches[1];
             if (count($matches) > 2) {
-                $limit = $matches[3] ? (int) $matches[3] : null;
+                $limit = $matches[3] ? (int)$matches[3] : null;
             }
             if (count($matches) > 4) {
-                $precision = (int) $matches[5];
+                $precision = (int)$matches[5];
             }
             if ($type === 'tinyint' && $limit === 1) {
                 $type = static::PHINX_TYPE_BOOLEAN;
@@ -1013,7 +1026,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
         $def .= $column->getEncoding() ? ' CHARACTER SET ' . $column->getEncoding() : '';
         $def .= $column->getCollation() ? ' COLLATE ' . $column->getCollation() : '';
-        $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '' ;
+        $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '';
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
         $def .= $this->getDefaultValueDefinition($column->getDefault());
@@ -1090,6 +1103,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         if ($foreignKey->getOnUpdate()) {
             $def .= ' ON UPDATE ' . $foreignKey->getOnUpdate();
         }
+
         return $def;
     }
 

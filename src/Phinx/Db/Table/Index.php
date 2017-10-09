@@ -74,6 +74,7 @@ class Index
     public function setColumns($columns)
     {
         $this->columns = $columns;
+
         return $this;
     }
 
@@ -96,6 +97,7 @@ class Index
     public function setType($type)
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -118,6 +120,7 @@ class Index
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -134,12 +137,13 @@ class Index
     /**
      * Sets the index limit.
      *
-     * @param integer $limit
+     * @param int $limit
      * @return Index
      */
     public function setLimit($limit)
     {
         $this->limit = $limit;
+
         return $this;
     }
 
@@ -171,7 +175,7 @@ class Index
 
             // handle $options['unique']
             if (strcasecmp($option, self::UNIQUE) === 0) {
-                if ((bool) $value) {
+                if ((bool)$value) {
                     $this->setType(self::UNIQUE);
                 }
                 continue;
@@ -180,6 +184,7 @@ class Index
             $method = 'set' . ucfirst($option);
             $this->$method($value);
         }
+
         return $this;
     }
 }

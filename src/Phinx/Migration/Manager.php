@@ -252,7 +252,7 @@ class Manager
      * Print Missing Version
      *
      * @param array     $version        The missing version to print (in the format returned by Environment.getVersionLog).
-     * @param integer   $maxNameLength  The maximum migration name length.
+     * @param int   $maxNameLength  The maximum migration name length.
      */
     private function printMissingVersion($version, $maxNameLength)
     {
@@ -319,6 +319,7 @@ class Manager
                     '<comment>warning</comment> %s is not a valid version',
                     $version
                 ));
+
                 return;
             }
         }
@@ -462,6 +463,7 @@ class Manager
                 $target = (string)$found;
             } else {
                 $this->getOutput()->writeln("<error>No migration found with name ($target)</error>");
+
                 return;
             }
         }
@@ -470,6 +472,7 @@ class Manager
         $executedVersionCreationTimes = array_keys($executedVersions);
         if (empty($executedVersionCreationTimes) || $target == end($executedVersionCreationTimes)) {
             $this->getOutput()->writeln('<error>No migrations to rollback</error>');
+
             return;
         }
 
@@ -483,6 +486,7 @@ class Manager
         // If the target must match a version, check the target version exists
         if ($targetMustMatchVersion && 0 !== $target && !isset($migrations[$target])) {
             $this->getOutput()->writeln("<error>Target version ($target) not found</error>");
+
             return;
         }
 
@@ -555,6 +559,7 @@ class Manager
     public function setEnvironments($environments = [])
     {
         $this->environments = $environments;
+
         return $this;
     }
 
@@ -600,6 +605,7 @@ class Manager
     public function setInput(InputInterface $input)
     {
         $this->input = $input;
+
         return $this;
     }
 
@@ -622,6 +628,7 @@ class Manager
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+
         return $this;
     }
 
@@ -644,6 +651,7 @@ class Manager
     public function setMigrations(array $migrations)
     {
         $this->migrations = $migrations;
+
         return $this;
     }
 
@@ -751,6 +759,7 @@ class Manager
     public function setSeeds(array $seeds)
     {
         $this->seeds = $seeds;
+
         return $this;
     }
 
@@ -842,6 +851,7 @@ class Manager
     public function setConfig(ConfigInterface $config)
     {
         $this->config = $config;
+
         return $this;
     }
 
@@ -883,6 +893,7 @@ class Manager
                 '<comment>warning</comment> %s is not a valid version',
                 $version
             ));
+
             return;
         }
 

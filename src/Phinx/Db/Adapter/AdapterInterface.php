@@ -113,7 +113,7 @@ interface AdapterInterface
      * Check if an option has been set.
      *
      * @param  string $name
-     * @return boolean
+     * @return bool
      */
     public function hasOption($name);
 
@@ -186,7 +186,7 @@ interface AdapterInterface
      * Does the schema table exist?
      *
      * @deprecated use hasTable instead.
-     * @return boolean
+     * @return bool
      */
     public function hasSchemaTable();
 
@@ -222,7 +222,7 @@ interface AdapterInterface
     /**
      * Does the adapter support transactions?
      *
-     * @return boolean
+     * @return bool
      */
     public function hasTransactions();
 
@@ -317,7 +317,7 @@ interface AdapterInterface
      * Checks to see if a table exists.
      *
      * @param string $tableName Table Name
-     * @return boolean
+     * @return bool
      */
     public function hasTable($tableName);
 
@@ -346,7 +346,6 @@ interface AdapterInterface
      */
     public function dropTable($tableName);
 
-
     /**
      * Truncates the specified table
      *
@@ -368,7 +367,7 @@ interface AdapterInterface
      *
      * @param string $tableName  Table Name
      * @param string $columnName Column Name
-     * @return boolean
+     * @return bool
      */
     public function hasColumn($tableName, $columnName);
 
@@ -415,7 +414,7 @@ interface AdapterInterface
      *
      * @param string $tableName Table Name
      * @param mixed  $columns   Column(s)
-     * @return boolean
+     * @return bool
      */
     public function hasIndex($tableName, $columns);
 
@@ -424,7 +423,7 @@ interface AdapterInterface
      *
      * @param string $tableName Table Name
      * @param string $indexName
-     * @return boolean
+     * @return bool
      */
     public function hasIndexByName($tableName, $indexName);
 
@@ -461,7 +460,7 @@ interface AdapterInterface
      * @param string   $tableName
      * @param string[] $columns    Column(s)
      * @param string   $constraint Constraint name
-     * @return boolean
+     * @return bool
      */
     public function hasForeignKey($tableName, $columns, $constraint = null);
 
@@ -495,7 +494,7 @@ interface AdapterInterface
      * Checks that the given column is of a supported type.
      *
      * @param  Column $column
-     * @return boolean
+     * @return bool
      */
     public function isValidColumnType(Column $column);
 
@@ -503,7 +502,7 @@ interface AdapterInterface
      * Converts the Phinx logical type to the adapter's SQL type.
      *
      * @param string $type
-     * @param integer $limit
+     * @param int $limit
      * @return string[]
      */
     public function getSqlType($type, $limit = null);
@@ -521,7 +520,7 @@ interface AdapterInterface
      * Checks to see if a database exists.
      *
      * @param string $name Database Name
-     * @return boolean
+     * @return bool
      */
     public function hasDatabase($name);
 

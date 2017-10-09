@@ -150,7 +150,7 @@ interface SeedInterface
      * Checks to see if a table exists.
      *
      * @param string $tableName Table Name
-     * @return boolean
+     * @return bool
      */
     public function hasTable($tableName);
 

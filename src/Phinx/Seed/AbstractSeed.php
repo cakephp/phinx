@@ -100,6 +100,7 @@ abstract class AbstractSeed implements SeedInterface
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
+
         return $this;
     }
 
@@ -117,6 +118,7 @@ abstract class AbstractSeed implements SeedInterface
     public function setInput(InputInterface $input)
     {
         $this->input = $input;
+
         return $this;
     }
 
@@ -134,6 +136,7 @@ abstract class AbstractSeed implements SeedInterface
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+
         return $this;
     }
 

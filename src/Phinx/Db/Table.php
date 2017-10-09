@@ -100,6 +100,7 @@ class Table
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -122,6 +123,7 @@ class Table
     public function setOptions($options)
     {
         $this->options = $options;
+
         return $this;
     }
 
@@ -144,6 +146,7 @@ class Table
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
+
         return $this;
     }
 
@@ -160,7 +163,7 @@ class Table
     /**
      * Does the table exist?
      *
-     * @return boolean
+     * @return bool
      */
     public function exists()
     {
@@ -187,6 +190,7 @@ class Table
     {
         $this->getAdapter()->renameTable($this->getName(), $newTableName);
         $this->setName($newTableName);
+
         return $this;
     }
 
@@ -201,6 +205,7 @@ class Table
     public function setColumns($columns)
     {
         $this->setPendingColumns($columns);
+
         return $this;
     }
 
@@ -223,6 +228,7 @@ class Table
     public function setPendingColumns($columns)
     {
         $this->columns = $columns;
+
         return $this;
     }
 
@@ -245,6 +251,7 @@ class Table
     public function setIndexes($indexes)
     {
         $this->indexes = $indexes;
+
         return $this;
     }
 
@@ -267,6 +274,7 @@ class Table
     public function setForeignKeys($foreignKeys)
     {
         $this->foreignKeys = $foreignKeys;
+
         return $this;
     }
 
@@ -289,6 +297,7 @@ class Table
     public function setData($data)
     {
         $this->data = $data;
+
         return $this;
     }
 
@@ -357,6 +366,7 @@ class Table
         }
 
         $this->columns[] = $column;
+
         return $this;
     }
 
@@ -369,6 +379,7 @@ class Table
     public function removeColumn($columnName)
     {
         $this->getAdapter()->dropColumn($this->getName(), $columnName);
+
         return $this;
     }
 
@@ -382,6 +393,7 @@ class Table
     public function renameColumn($oldName, $newName)
     {
         $this->getAdapter()->renameColumn($this->getName(), $oldName, $newName);
+
         return $this;
     }
 
@@ -410,6 +422,7 @@ class Table
         }
 
         $this->getAdapter()->changeColumn($this->getName(), $columnName, $newColumn);
+
         return $this;
     }
 
@@ -417,7 +430,7 @@ class Table
      * Checks to see if a column exists.
      *
      * @param string $columnName Column Name
-     * @return boolean
+     * @return bool
      */
     public function hasColumn($columnName)
     {
@@ -448,6 +461,7 @@ class Table
         }
 
         $this->indexes[] = $index;
+
         return $this;
     }
 
@@ -460,6 +474,7 @@ class Table
     public function removeIndex($columns)
     {
         $this->getAdapter()->dropIndex($this->getName(), $columns);
+
         return $this;
     }
 
@@ -472,6 +487,7 @@ class Table
     public function removeIndexByName($name)
     {
         $this->getAdapter()->dropIndexByName($this->getName(), $name);
+
         return $this;
     }
 
@@ -480,7 +496,7 @@ class Table
      *
      * @param string|array $columns Columns
      * @param array        $options Options
-     * @return boolean
+     * @return bool
      */
     public function hasIndex($columns)
     {
@@ -544,7 +560,7 @@ class Table
      *
      * @param  string|array $columns    Column(s)
      * @param  null|string  $constraint Constraint names
-     * @return boolean
+     * @return bool
      */
     public function hasForeignKey($columns, $constraint = null)
     {
@@ -594,9 +610,11 @@ class Table
             foreach ($data as $row) {
                 $this->data[] = $row;
             }
+
             return $this;
         }
         $this->data[] = $data;
+
         return $this;
     }
 

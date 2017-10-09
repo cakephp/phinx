@@ -72,6 +72,7 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
             $input->setOption('configuration', $arg);
         }
         $command = new VoidCommand('void');
+
         return $command->locateConfigFile($input);
     }
 

@@ -93,6 +93,7 @@ EOT
             $output->writeln('<info>using database</info> ' . $envOptions['name']);
         } else {
             $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
+
             return;
         }
 

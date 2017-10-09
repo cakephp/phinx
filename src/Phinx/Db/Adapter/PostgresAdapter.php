@@ -248,7 +248,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
-
         // set the indexes
         $indexes = $table->getIndexes();
         if (!empty($indexes)) {
@@ -339,6 +338,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
             $columns[] = $column;
         }
+
         return $columns;
     }
 
@@ -357,7 +357,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         );
 
         $result = $this->fetchRow($sql);
-        return  $result['count'] > 0;
+
+        return $result['count'] > 0;
     }
 
     /**
@@ -388,7 +389,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $columnName
         );
         $result = $this->fetchRow($sql);
-        if (!(bool) $result['column_exists']) {
+        if (!(bool)$result['column_exists']) {
             throw new \InvalidArgumentException("The specified column does not exist: $columnName");
         }
         $this->execute(
@@ -519,6 +520,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
             $indexes[$row['index_name']]['columns'][] = strtolower($row['column_name']);
         }
+
         return $indexes;
     }
 
@@ -537,12 +539,13 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return true;
             }
         }
+
         return false;
     }
 
-     /**
-      * {@inheritdoc}
-      */
+    /**
+     * {@inheritdoc}
+     */
     public function hasIndexByName($tableName, $indexName)
     {
         $indexes = $this->getIndexes($tableName);
@@ -551,6 +554,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return true;
             }
         }
+
         return false;
     }
 
@@ -615,6 +619,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             if (isset($foreignKeys[$constraint])) {
                 return !empty($foreignKeys[$constraint]);
             }
+
             return false;
         } else {
             foreach ($foreignKeys as $key) {
@@ -623,6 +628,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     return true;
                 }
             }
+
             return false;
         }
     }
@@ -656,6 +662,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $foreignKeys[$row['constraint_name']]['referenced_table'] = $row['referenced_table_name'];
             $foreignKeys[$row['constraint_name']]['referenced_columns'][] = $row['referenced_column_name'];
         }
+
         return $foreignKeys;
     }
 
@@ -723,6 +730,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                         'limit' => static::INT_SMALL
                     ];
                 }
+
                 return ['name' => $type];
             case static::PHINX_TYPE_TEXT:
             case static::PHINX_TYPE_TIME:
@@ -862,7 +870,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $sql = sprintf("SELECT count(*) FROM pg_database WHERE datname = '%s'", $databaseName);
         $result = $this->fetchRow($sql);
-        return  $result['count'] > 0;
+
+        return $result['count'] > 0;
     }
 
     /**
@@ -888,6 +897,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
         }
+
         return isset($default) ? 'DEFAULT ' . $default : '';
     }
 
@@ -990,6 +1000,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $this->quoteTableName($tableName),
             implode(',', array_map([$this, 'quoteColumnName'], $index->getColumns()))
         );
+
         return $def;
     }
 
@@ -1014,6 +1025,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if ($foreignKey->getOnUpdate()) {
             $def .= " ON UPDATE {$foreignKey->getOnUpdate()}";
         }
+
         return $def;
     }
 
@@ -1048,7 +1060,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * Checks to see if a schema exists.
      *
      * @param string $schemaName Schema Name
-     * @return boolean
+     * @return bool
      */
     public function hasSchema($schemaName)
     {
@@ -1059,6 +1071,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $schemaName
         );
         $result = $this->fetchRow($sql);
+
         return $result['count'] > 0;
     }
 
@@ -1101,6 +1114,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         foreach ($items as $item) {
             $schemaNames[] = $item['schema_name'];
         }
+
         return $schemaNames;
     }
 
@@ -1134,6 +1148,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $baseType = $matches[1];
+
         return in_array($baseType, $this->getColumnTypes());
     }
 
@@ -1145,6 +1160,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     private function getSchemaName()
     {
         $options = $this->getOptions();
+
         return empty($options['schema']) ? 'public' : $options['schema'];
     }
 
@@ -1153,6 +1169,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function castToBool($value)
     {
-        return (bool) $value ? 'TRUE' : 'FALSE';
+        return (bool)$value ? 'TRUE' : 'FALSE';
     }
 }

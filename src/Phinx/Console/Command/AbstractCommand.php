@@ -126,6 +126,7 @@ abstract class AbstractCommand extends Command
     public function setConfig(ConfigInterface $config)
     {
         $this->config = $config;
+
         return $this;
     }
 
@@ -148,6 +149,7 @@ abstract class AbstractCommand extends Command
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
+
         return $this;
     }
 
@@ -170,6 +172,7 @@ abstract class AbstractCommand extends Command
     public function setManager(Manager $manager)
     {
         $this->manager = $manager;
+
         return $this;
     }
 

@@ -328,6 +328,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
                             ));
                         }
                     }
+
                     return true;
                 }
             ));

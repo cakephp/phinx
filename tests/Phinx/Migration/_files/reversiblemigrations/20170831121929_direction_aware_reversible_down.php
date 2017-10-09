@@ -13,15 +13,12 @@ class DirectionAwareReversibleDown extends AbstractMigration
             ])
             ->update();
 
-        if ($this->isMigratingUp())
-        {
+        if ($this->isMigratingUp()) {
             $this->execute("UPDATE change_direction_test
                 SET subthing = SUBSTRING(thing, LOCATE('_', thing) + 1),
                     thing = LEFT(thing, LOCATE('_', thing) - 1)
                 WHERE thing LIKE '%\\\\_%'");
-        }
-        else
-        {
+        } else {
             $this->execute("UPDATE change_direction_test
                 SET thing = CONCAT_WS('_', thing, subthing)");
         }

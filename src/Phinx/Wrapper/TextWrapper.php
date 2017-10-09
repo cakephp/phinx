@@ -83,7 +83,6 @@ class TextWrapper
         return $this->exit_code;
     }
 
-
     /**
      * Returns the output from running the "status" command.
      * @param  string $env environment name (optional)
@@ -101,6 +100,7 @@ class TextWrapper
         if ($this->hasOption('parser')) {
             $command += ['-p' => $this->getOption('parser')];
         }
+
         return $this->executeRun($command);
     }
 
@@ -125,6 +125,7 @@ class TextWrapper
         if ($target) {
             $command += ['-t' => $target];
         }
+
         return $this->executeRun($command);
     }
 
@@ -151,9 +152,10 @@ class TextWrapper
             $command += ['-t' => $target];
         }
         if ($seed) {
-            $seed = (array) $seed;
+            $seed = (array)$seed;
             $command += ['-s' => $seed];
         }
+
         return $this->executeRun($command);
     }
 
@@ -180,6 +182,7 @@ class TextWrapper
             // See http://docs.phinx.org/en/latest/commands.html#the-rollback-command
             $command += ['-t' => $target];
         }
+
         return $this->executeRun($command);
     }
 
@@ -205,6 +208,7 @@ class TextWrapper
         if (!isset($this->options[$key])) {
             return null;
         }
+
         return $this->options[$key];
     }
 
@@ -218,6 +222,7 @@ class TextWrapper
     public function setOption($key, $value)
     {
         $this->options[$key] = $value;
+
         return $this;
     }
 
