@@ -918,7 +918,7 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * Returns Phinx type by SQL type
      *
-     * @param $sqlTypeDef
+     * @param string $sqlType SQL Type definition
      * @throws \RuntimeException
      * @internal param string $sqlType SQL type
      * @returns string Phinx type

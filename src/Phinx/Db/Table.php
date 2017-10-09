@@ -594,7 +594,7 @@ class Table
     /**
      * Insert data into the table.
      *
-     * @param $data array of data in the form:
+     * @param array $data array of data in the form:
      *              array(
      *                  array("col1" => "value1", "col2" => "anotherValue1"),
      *                  array("col2" => "value2", "col2" => "anotherValue2"),
