@@ -40,14 +40,14 @@ use Phinx\Db\Adapter\AdapterInterface;
 class AdapterFactory
 {
     /**
-     * @var AdapterFactory
+     * @var \Phinx\Db\Adapter\AdapterFactory
      */
     protected static $instance;
 
     /**
      * Get the factory singleton instance.
      *
-     * @return AdapterFactory
+     * @return \Phinx\Db\Adapter\AdapterFactory
      */
     public static function instance()
     {
@@ -126,7 +126,7 @@ class AdapterFactory
      *
      * @param  string $name
      * @param  array  $options
-     * @return AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getAdapter($name, array $options)
     {
@@ -179,8 +179,8 @@ class AdapterFactory
      * Get a wrapper instance by name.
      *
      * @param  string $name
-     * @param  AdapterInterface $adapter
-     * @return AdapterInterface
+     * @param  \Phinx\Db\Adapter\AdapterInterface $adapter
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getWrapper($name, AdapterInterface $adapter)
     {

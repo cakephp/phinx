@@ -1007,7 +1007,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Gets the MySQL Column Definition for a Column object.
      *
-     * @param Column $column Column
+     * @param \Phinx\Db\Table\Column $column Column
      * @return string
      */
     protected function getColumnSqlDefinition(Column $column)
@@ -1045,7 +1045,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Gets the MySQL Index Definition for an Index object.
      *
-     * @param Index $index Index
+     * @param \Phinx\Db\Table\Index $index Index
      * @return string
      */
     protected function getIndexSqlDefinition(Index $index)
@@ -1078,7 +1078,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Gets the MySQL Foreign Key Definition for an ForeignKey object.
      *
-     * @param ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey)

@@ -69,7 +69,7 @@ class Index
      * Sets the index columns.
      *
      * @param array $columns
-     * @return Index
+     * @return \Phinx\Db\Table\Index
      */
     public function setColumns($columns)
     {
@@ -92,7 +92,7 @@ class Index
      * Sets the index type.
      *
      * @param string $type
-     * @return Index
+     * @return \Phinx\Db\Table\Index
      */
     public function setType($type)
     {
@@ -115,7 +115,7 @@ class Index
      * Sets the index name.
      *
      * @param string $name
-     * @return Index
+     * @return \Phinx\Db\Table\Index
      */
     public function setName($name)
     {
@@ -138,7 +138,7 @@ class Index
      * Sets the index limit.
      *
      * @param int $limit
-     * @return Index
+     * @return \Phinx\Db\Table\Index
      */
     public function setLimit($limit)
     {
@@ -162,7 +162,7 @@ class Index
      *
      * @param array $options Options
      * @throws \RuntimeException
-     * @return Index
+     * @return \Phinx\Db\Table\Index
      */
     public function setOptions($options)
     {

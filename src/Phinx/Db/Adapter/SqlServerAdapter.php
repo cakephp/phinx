@@ -290,7 +290,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Gets the SqlServer Column Comment Defininition for a column object.
      *
-     * @param Column $column    Column
+     * @param \Phinx\Db\Table\Column $column    Column
      * @param string $tableName Table name
      *
      * @return string
@@ -1032,7 +1032,7 @@ SQL;
     /**
      * Gets the SqlServer Column Definition for a Column object.
      *
-     * @param Column $column Column
+     * @param \Phinx\Db\Table\Column $column Column
      * @return string
      */
     protected function getColumnSqlDefinition(Column $column, $create = true)
@@ -1078,7 +1078,7 @@ SQL;
     /**
      * Gets the SqlServer Index Definition for an Index object.
      *
-     * @param Index $index Index
+     * @param \Phinx\Db\Table\Index $index Index
      * @return string
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
@@ -1106,7 +1106,7 @@ SQL;
     /**
      * Gets the SqlServer Foreign Key Definition for an ForeignKey object.
      *
-     * @param ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
@@ -1142,7 +1142,7 @@ SQL;
      * @param string $direction Direction
      * @param int $startTime Start Time
      * @param int $endTime End Time
-     * @return AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function migrated(\Phinx\Migration\MigrationInterface $migration, $direction, $startTime, $endTime)
     {

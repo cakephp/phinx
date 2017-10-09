@@ -74,7 +74,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      *
      * @param  string $configFilePath Path to the Yaml File
      * @throws \RuntimeException
-     * @return Config
+     * @return \Phinx\Config\Config
      */
     public static function fromYaml($configFilePath)
     {
@@ -96,7 +96,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      *
      * @param  string $configFilePath Path to the JSON File
      * @throws \RuntimeException
-     * @return Config
+     * @return \Phinx\Config\Config
      */
     public static function fromJson($configFilePath)
     {
@@ -116,7 +116,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      *
      * @param  string $configFilePath Path to the PHP File
      * @throws \RuntimeException
-     * @return Config
+     * @return \Phinx\Config\Config
      */
     public static function fromPhp($configFilePath)
     {

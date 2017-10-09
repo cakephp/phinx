@@ -187,7 +187,7 @@ class ProxyAdapter extends AdapterWrapper
      * Sets an array of recorded commands.
      *
      * @param array $commands Commands
-     * @return ProxyAdapter
+     * @return \Phinx\Db\Adapter\ProxyAdapter
      */
     public function setCommands($commands)
     {
@@ -209,7 +209,7 @@ class ProxyAdapter extends AdapterWrapper
     /**
      * Gets an array of the recorded commands in reverse.
      *
-     * @throws IrreversibleMigrationException if a command cannot be reversed.
+     * @throws \Phinx\Migration\IrreversibleMigrationException if a command cannot be reversed.
      * @return array
      */
     public function getInvertedCommands()

@@ -48,12 +48,12 @@ class Environment
     protected $options;
 
     /**
-     * @var InputInterface
+     * @var \Symfony\Component\Console\Input\InputInterface
      */
     protected $input;
 
     /**
-     * @var OutputInterface
+     * @var \Symfony\Component\Console\Output\OutputInterface
      */
     protected $output;
 
@@ -68,7 +68,7 @@ class Environment
     protected $schemaTableName = 'phinxlog';
 
     /**
-     * @var AdapterInterface
+     * @var \Phinx\Db\Adapter\AdapterInterface
      */
     protected $adapter;
 
@@ -77,7 +77,7 @@ class Environment
      *
      * @param string $name Environment Name
      * @param array $options Options
-     * @return Environment
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function __construct($name, $options)
     {
@@ -88,7 +88,7 @@ class Environment
     /**
      * Executes the specified migration on this environment.
      *
-     * @param MigrationInterface $migration Migration
+     * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @param string $direction Direction
      * @return void
      */
@@ -139,7 +139,7 @@ class Environment
     /**
      * Executes the specified seeder on this environment.
      *
-     * @param SeedInterface $seed
+     * @param \Phinx\Seed\SeedInterface $seed
      * @return void
      */
     public function executeSeed(SeedInterface $seed)
@@ -166,7 +166,7 @@ class Environment
      * Sets the environment's name.
      *
      * @param string $name Environment Name
-     * @return Environment
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setName($name)
     {
@@ -189,7 +189,7 @@ class Environment
      * Sets the environment's options.
      *
      * @param array $options Environment Options
-     * @return Environment
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setOptions($options)
     {
@@ -211,8 +211,8 @@ class Environment
     /**
      * Sets the console input.
      *
-     * @param InputInterface $input
-     * @return Environment
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setInput(InputInterface $input)
     {
@@ -224,7 +224,7 @@ class Environment
     /**
      * Gets the console input.
      *
-     * @return InputInterface
+     * @return \Symfony\Component\Console\Input\InputInterface
      */
     public function getInput()
     {
@@ -234,8 +234,8 @@ class Environment
     /**
      * Sets the console output.
      *
-     * @param OutputInterface $output Output
-     * @return Environment
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setOutput(OutputInterface $output)
     {
@@ -247,7 +247,7 @@ class Environment
     /**
      * Gets the console output.
      *
-     * @return OutputInterface
+     * @return \Symfony\Component\Console\Output\OutputInterface
      */
     public function getOutput()
     {
@@ -279,7 +279,7 @@ class Environment
      * Sets the current version of the environment.
      *
      * @param int $version Environment Version
-     * @return Environment
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setCurrentVersion($version)
     {
@@ -313,8 +313,8 @@ class Environment
     /**
      * Sets the database adapter.
      *
-     * @param AdapterInterface $adapter Database Adapter
-     * @return Environment
+     * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setAdapter(AdapterInterface $adapter)
     {
@@ -326,7 +326,7 @@ class Environment
     /**
      * Gets the database adapter.
      *
-     * @return AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getAdapter()
     {
@@ -380,7 +380,7 @@ class Environment
      * Sets the schema table name.
      *
      * @param string $schemaTableName Schema Table Name
-     * @return Environment
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setSchemaTableName($schemaTableName)
     {

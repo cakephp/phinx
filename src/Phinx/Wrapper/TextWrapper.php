@@ -40,7 +40,7 @@ use Symfony\Component\Console\Output\StreamOutput;
 class TextWrapper
 {
     /**
-     * @var PhinxApplication
+     * @var \Phinx\Console\PhinxApplication
      */
     private $app;
 
@@ -55,7 +55,7 @@ class TextWrapper
     private $exit_code;
 
     /**
-     * @param PhinxApplication $app
+     * @param \Phinx\Console\PhinxApplication $app
      * @param array $options
      */
     public function __construct(PhinxApplication $app, array $options = [])
@@ -67,7 +67,7 @@ class TextWrapper
     /**
      * Get the application instance.
      *
-     * @return PhinxApplication
+     * @return \Phinx\Console\PhinxApplication
      */
     public function getApp()
     {
