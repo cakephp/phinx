@@ -251,6 +251,6 @@ abstract class AbstractAdapter implements AdapterInterface
     {
         $input = $this->getInput();
 
-        return $input->hasOption('dry-run') ? $input->getOption('dry-run') : false;
+        return ($input && $input->hasOption('dry-run')) ? $input->getOption('dry-run') : false;
     }
 }
