@@ -63,7 +63,7 @@ abstract class PdoAdapter extends AbstractAdapter
      * Sets the database connection.
      *
      * @param \PDO $connection Connection
-     * @return AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function setConnection(\PDO $connection)
     {

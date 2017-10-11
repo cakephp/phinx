@@ -214,7 +214,7 @@ class Util
     /**
      * Expands a path with curly braces (if supported by the OS).
      *
-     * @param $path
+     * @param string $path
      * @return array
      */
     public static function glob($path)

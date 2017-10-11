@@ -125,7 +125,7 @@ class Column
      * Sets the column name.
      *
      * @param string $name
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setName($name)
     {
@@ -148,7 +148,7 @@ class Column
      * Sets the column type.
      *
      * @param string $type
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setType($type)
     {
@@ -171,7 +171,7 @@ class Column
      * Sets the column limit.
      *
      * @param int $limit
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setLimit($limit)
     {
@@ -194,7 +194,7 @@ class Column
      * Sets whether the column allows nulls.
      *
      * @param bool $null
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setNull($null)
     {
@@ -227,7 +227,7 @@ class Column
      * Sets the default column value.
      *
      * @param mixed $default
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setDefault($default)
     {
@@ -250,7 +250,7 @@ class Column
      * Sets whether or not the column is an identity column.
      *
      * @param bool $identity
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setIdentity($identity)
     {
@@ -283,7 +283,7 @@ class Column
      * Sets the name of the column to add this column after.
      *
      * @param string $after After
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setAfter($after)
     {
@@ -306,7 +306,7 @@ class Column
      * Sets the 'ON UPDATE' mysql column function.
      *
      * @param  string $update On Update function
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setUpdate($update)
     {
@@ -329,7 +329,7 @@ class Column
      * Sets the column precision for decimal.
      *
      * @param int $precision
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setPrecision($precision)
     {
@@ -352,7 +352,7 @@ class Column
      * Sets the column scale for decimal.
      *
      * @param int $scale
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setScale($scale)
     {
@@ -375,7 +375,7 @@ class Column
      * Sets the column comment.
      *
      * @param string $comment
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setComment($comment)
     {
@@ -398,7 +398,7 @@ class Column
      * Sets whether field should be signed.
      *
      * @param bool $signed
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setSigned($signed)
     {
@@ -432,7 +432,7 @@ class Column
      * Used for date/time columns only!
      *
      * @param bool $timezone
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setTimezone($timezone)
     {
@@ -466,7 +466,7 @@ class Column
      *
      * @param array $properties
      *
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setProperties($properties)
     {
@@ -490,7 +490,7 @@ class Column
      *
      * @param mixed (array|string) $values
      *
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setValues($values)
     {
@@ -622,7 +622,7 @@ class Column
      * Utility method that maps an array of column options to this objects methods.
      *
      * @param array $options Options
-     * @return Column
+     * @return \Phinx\Db\Table\Column
      */
     public function setOptions($options)
     {

@@ -44,7 +44,7 @@ class ForeignKey
     protected $columns = [];
 
     /**
-     * @var Table
+     * @var \Phinx\Db\Table
      */
     protected $referencedTable;
 
@@ -72,7 +72,7 @@ class ForeignKey
      * Sets the foreign key columns.
      *
      * @param array|string $columns
-     * @return ForeignKey
+     * @return \Phinx\Db\Table\ForeignKey
      */
     public function setColumns($columns)
     {
@@ -94,8 +94,8 @@ class ForeignKey
     /**
      * Sets the foreign key referenced table.
      *
-     * @param Table $table
-     * @return ForeignKey
+     * @param \Phinx\Db\Table $table
+     * @return \Phinx\Db\Table\ForeignKey
      */
     public function setReferencedTable(Table $table)
     {
@@ -107,7 +107,7 @@ class ForeignKey
     /**
      * Gets the foreign key referenced table.
      *
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function getReferencedTable()
     {
@@ -118,7 +118,7 @@ class ForeignKey
      * Sets the foreign key referenced columns.
      *
      * @param array $referencedColumns
-     * @return ForeignKey
+     * @return \Phinx\Db\Table\ForeignKey
      */
     public function setReferencedColumns(array $referencedColumns)
     {
@@ -141,7 +141,7 @@ class ForeignKey
      * Sets ON DELETE action for the foreign key.
      *
      * @param string $onDelete
-     * @return ForeignKey
+     * @return \Phinx\Db\Table\ForeignKey
      */
     public function setOnDelete($onDelete)
     {
@@ -174,7 +174,7 @@ class ForeignKey
      * Sets ON UPDATE action for the foreign key.
      *
      * @param string $onUpdate
-     * @return ForeignKey
+     * @return \Phinx\Db\Table\ForeignKey
      */
     public function setOnUpdate($onUpdate)
     {
@@ -187,7 +187,7 @@ class ForeignKey
      * Sets constraint for the foreign key.
      *
      * @param string $constraint
-     * @return ForeignKey
+     * @return \Phinx\Db\Table\ForeignKey
      */
     public function setConstraint($constraint)
     {
@@ -212,7 +212,7 @@ class ForeignKey
      * @param array $options Options
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     * @return ForeignKey
+     * @return \Phinx\Db\Table\ForeignKey
      */
     public function setOptions($options)
     {

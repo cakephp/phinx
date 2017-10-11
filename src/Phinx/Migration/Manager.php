@@ -40,17 +40,17 @@ use Phinx\Util\Util;
 class Manager
 {
     /**
-     * @var ConfigInterface
+     * @var \Phinx\Config\ConfigInterface
      */
     protected $config;
 
     /**
-     * @var InputInterface
+     * @var \Symfony\Component\Console\Input\InputInterface
      */
     protected $input;
 
     /**
-     * @var OutputInterface
+     * @var \Symfony\Component\Console\Output\OutputInterface
      */
     protected $output;
 
@@ -82,9 +82,9 @@ class Manager
     /**
      * Class Constructor.
      *
-     * @param ConfigInterface $config Configuration Object
-     * @param InputInterface $input Console Input
-     * @param OutputInterface $output Console Output
+     * @param \Phinx\Config\ConfigInterface $config Configuration Object
+     * @param \Symfony\Component\Console\Input\InputInterface $input Console Input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Console Output
      */
     public function __construct(ConfigInterface $config, InputInterface $input, OutputInterface $output)
     {
@@ -357,7 +357,7 @@ class Manager
      * Execute a migration against the specified environment.
      *
      * @param string $name Environment Name
-     * @param MigrationInterface $migration Migration
+     * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @param string $direction Direction
      * @return void
      */
@@ -387,7 +387,7 @@ class Manager
      * Execute a seeder against the specified environment.
      *
      * @param string $name Environment Name
-     * @param SeedInterface $seed Seed
+     * @param \Phinx\Seed\SeedInterface $seed Seed
      * @return void
      */
     public function executeSeed($name, SeedInterface $seed)
@@ -554,7 +554,7 @@ class Manager
      * Sets the environments.
      *
      * @param array $environments Environments
-     * @return Manager
+     * @return \Phinx\Migration\Manager
      */
     public function setEnvironments($environments = [])
     {
@@ -568,7 +568,7 @@ class Manager
      *
      * @param string $name Environment Name
      * @throws \InvalidArgumentException
-     * @return Environment
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function getEnvironment($name)
     {
@@ -599,8 +599,8 @@ class Manager
     /**
      * Sets the console input.
      *
-     * @param InputInterface $input Input
-     * @return Manager
+     * @param \Symfony\Component\Console\Input\InputInterface $input Input
+     * @return \Phinx\Migration\Manager
      */
     public function setInput(InputInterface $input)
     {
@@ -612,7 +612,7 @@ class Manager
     /**
      * Gets the console input.
      *
-     * @return InputInterface
+     * @return \Symfony\Component\Console\Input\InputInterface
      */
     public function getInput()
     {
@@ -622,8 +622,8 @@ class Manager
     /**
      * Sets the console output.
      *
-     * @param OutputInterface $output Output
-     * @return Manager
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @return \Phinx\Migration\Manager
      */
     public function setOutput(OutputInterface $output)
     {
@@ -635,7 +635,7 @@ class Manager
     /**
      * Gets the console output.
      *
-     * @return OutputInterface
+     * @return \Symfony\Component\Console\Output\OutputInterface
      */
     public function getOutput()
     {
@@ -646,7 +646,7 @@ class Manager
      * Sets the database migrations.
      *
      * @param array $migrations Migrations
-     * @return Manager
+     * @return \Phinx\Migration\Manager
      */
     public function setMigrations(array $migrations)
     {
@@ -660,7 +660,7 @@ class Manager
      * order
      *
      * @throws \InvalidArgumentException
-     * @return AbstractMigration[]
+     * @return \Phinx\Migration\AbstractMigration[]
      */
     public function getMigrations()
     {
@@ -669,7 +669,7 @@ class Manager
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = [];
-            /** @var AbstractMigration[] $versions */
+            /** @var \Phinx\Migration\AbstractMigration[] $versions */
             $versions = [];
 
             foreach ($phpFiles as $filePath) {
@@ -754,7 +754,7 @@ class Manager
      * Sets the database seeders.
      *
      * @param array $seeds Seeders
-     * @return Manager
+     * @return \Phinx\Migration\Manager
      */
     public function setSeeds(array $seeds)
     {
@@ -767,7 +767,7 @@ class Manager
      * Gets an array of database seeders.
      *
      * @throws \InvalidArgumentException
-     * @return AbstractSeed[]
+     * @return \Phinx\Seed\AbstractSeed[]
      */
     public function getSeeds()
     {
@@ -776,7 +776,7 @@ class Manager
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = [];
-            /** @var AbstractSeed[] $seeds */
+            /** @var \Phinx\Seed\AbstractSeed[] $seeds */
             $seeds = [];
 
             foreach ($phpFiles as $filePath) {
@@ -845,8 +845,8 @@ class Manager
     /**
      * Sets the config.
      *
-     * @param  ConfigInterface $config Configuration Object
-     * @return Manager
+     * @param  \Phinx\Config\ConfigInterface $config Configuration Object
+     * @return \Phinx\Migration\Manager
      */
     public function setConfig(ConfigInterface $config)
     {
@@ -858,7 +858,7 @@ class Manager
     /**
      * Gets the config.
      *
-     * @return ConfigInterface
+     * @return \Phinx\Config\ConfigInterface
      */
     public function getConfig()
     {

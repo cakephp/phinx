@@ -45,12 +45,12 @@ abstract class AbstractAdapter implements AdapterInterface
     protected $options = [];
 
     /**
-     * @var InputInterface
+     * @var \Symfony\Component\Console\Input\InputInterface
      */
     protected $input;
 
     /**
-     * @var OutputInterface
+     * @var \Symfony\Component\Console\Output\OutputInterface
      */
     protected $output;
 
@@ -63,8 +63,8 @@ abstract class AbstractAdapter implements AdapterInterface
      * Class Constructor.
      *
      * @param array $options Options
-     * @param InputInterface $input Input Interface
-     * @param OutputInterface  $output Output Interface
+     * @param \Symfony\Component\Console\Input\InputInterface $input Input Interface
+     * @param \Symfony\Component\Console\Output\OutputInterface  $output Output Interface
      */
     public function __construct(array $options, InputInterface $input = null, OutputInterface $output = null)
     {

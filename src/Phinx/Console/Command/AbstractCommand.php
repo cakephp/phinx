@@ -57,17 +57,17 @@ abstract class AbstractCommand extends Command
     const DEFAULT_SEED_TEMPLATE = '/../../Seed/Seed.template.php.dist';
 
     /**
-     * @var ConfigInterface
+     * @var \Phinx\Config\ConfigInterface
      */
     protected $config;
 
     /**
-     * @var AdapterInterface
+     * @var \Phinx\Db\Adapter\AdapterInterface
      */
     protected $adapter;
 
     /**
-     * @var Manager
+     * @var \Phinx\Migration\Manager
      */
     protected $manager;
 
@@ -83,8 +83,8 @@ abstract class AbstractCommand extends Command
     /**
      * Bootstrap Phinx.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @return void
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
@@ -120,8 +120,8 @@ abstract class AbstractCommand extends Command
     /**
      * Sets the config.
      *
-     * @param  ConfigInterface $config
-     * @return AbstractCommand
+     * @param  \Phinx\Config\ConfigInterface $config
+     * @return \Phinx\Console\Command\AbstractCommand
      */
     public function setConfig(ConfigInterface $config)
     {
@@ -133,7 +133,7 @@ abstract class AbstractCommand extends Command
     /**
      * Gets the config.
      *
-     * @return ConfigInterface
+     * @return \Phinx\Config\ConfigInterface
      */
     public function getConfig()
     {
@@ -143,8 +143,8 @@ abstract class AbstractCommand extends Command
     /**
      * Sets the database adapter.
      *
-     * @param AdapterInterface $adapter
-     * @return AbstractCommand
+     * @param \Phinx\Db\Adapter\AdapterInterface $adapter
+     * @return \Phinx\Console\Command\AbstractCommand
      */
     public function setAdapter(AdapterInterface $adapter)
     {
@@ -156,7 +156,7 @@ abstract class AbstractCommand extends Command
     /**
      * Gets the database adapter.
      *
-     * @return AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getAdapter()
     {
@@ -166,8 +166,8 @@ abstract class AbstractCommand extends Command
     /**
      * Sets the migration manager.
      *
-     * @param Manager $manager
-     * @return AbstractCommand
+     * @param \Phinx\Migration\Manager $manager
+     * @return \Phinx\Console\Command\AbstractCommand
      */
     public function setManager(Manager $manager)
     {
@@ -179,7 +179,7 @@ abstract class AbstractCommand extends Command
     /**
      * Gets the migration manager.
      *
-     * @return Manager
+     * @return \Phinx\Migration\Manager
      */
     public function getManager()
     {
@@ -189,7 +189,7 @@ abstract class AbstractCommand extends Command
     /**
      * Returns config file path
      *
-     * @param InputInterface $input
+     * @param \Symfony\Component\Console\Input\InputInterface $input
      * @return string
      */
     protected function locateConfigFile(InputInterface $input)
@@ -229,8 +229,8 @@ abstract class AbstractCommand extends Command
     /**
      * Parse the config file and load it into the config object
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @throws \InvalidArgumentException
      * @return void
      */
@@ -280,8 +280,8 @@ abstract class AbstractCommand extends Command
     /**
      * Load the migrations manager and inject the config
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      */
     protected function loadManager(InputInterface $input, OutputInterface $output)
     {

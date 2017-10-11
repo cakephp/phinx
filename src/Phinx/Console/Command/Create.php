@@ -76,7 +76,7 @@ class Create extends AbstractCommand
      * Get the confirmation question asking if the user wants to create the
      * migrations directory.
      *
-     * @return ConfirmationQuestion
+     * @return \Symfony\Component\Console\Question\ConfirmationQuestion
      */
     protected function getCreateMigrationDirectoryQuestion()
     {
@@ -87,7 +87,7 @@ class Create extends AbstractCommand
      * Get the question that allows the user to select which migration path to use.
      *
      * @param string[] $paths
-     * @return ChoiceQuestion
+     * @return \Symfony\Component\Console\Question\ChoiceQuestion
      */
     protected function getSelectMigrationPathQuestion(array $paths)
     {
@@ -97,8 +97,8 @@ class Create extends AbstractCommand
     /**
      * Returns the migration path to create the migration in.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @return mixed
      * @throws \Exception
      */
@@ -143,8 +143,8 @@ class Create extends AbstractCommand
     /**
      * Create the new migration.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @return void
