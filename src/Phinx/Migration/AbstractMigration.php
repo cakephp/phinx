@@ -92,8 +92,7 @@ abstract class AbstractMigration implements MigrationInterface
         InputInterface $input = null,
         OutputInterface $output = null,
         Environment $environment = null
-    )
-    {
+    ) {
         $this->version = $version;
         if (!is_null($input)) {
             $this->setInput($input);
