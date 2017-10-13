@@ -28,14 +28,14 @@
  */
 namespace Phinx\Migration;
 
-use Phinx\Config\NamespaceAwareInterface;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Phinx\Config\ConfigInterface;
+use Phinx\Config\NamespaceAwareInterface;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Seed\AbstractSeed;
 use Phinx\Seed\SeedInterface;
 use Phinx\Util\Util;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Manager
 {

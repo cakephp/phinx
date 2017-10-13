@@ -2,9 +2,9 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\Adapter\SqlServerAdapter;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
-use Phinx\Db\Adapter\SqlServerAdapter;
 
 class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 {
