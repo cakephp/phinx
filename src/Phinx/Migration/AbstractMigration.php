@@ -26,6 +26,7 @@
  * @package    Phinx
  * @subpackage Phinx\Migration
  */
+
 namespace Phinx\Migration;
 
 use Phinx\Db\Adapter\AdapterInterface;
@@ -84,9 +85,14 @@ abstract class AbstractMigration implements MigrationInterface
      * @param int $version Migration Version
      * @param \Symfony\Component\Console\Input\InputInterface|null $input
      * @param \Symfony\Component\Console\Output\OutputInterface|null $output
-     * @param Environment|null $environment
+     * @param \Phinx\Migration\Manager\Environment|null $environment
      */
-    final public function __construct($version, InputInterface $input = null, OutputInterface $output = null, Environment $environment = null)
+    final public function __construct(
+        $version,
+        InputInterface $input = null,
+        OutputInterface $output = null,
+        Environment $environment = null
+    )
     {
         $this->version = $version;
         if (!is_null($input)) {
@@ -95,7 +101,7 @@ abstract class AbstractMigration implements MigrationInterface
         if (!is_null($output)) {
             $this->setOutput($output);
         }
-        if (!is_null($environment)){
+        if (!is_null($environment)) {
             $this->setEnvironment($environment);
         }
 
