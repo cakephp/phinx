@@ -2,11 +2,11 @@
 
 namespace Test\Phinx\Db\Adapter;
 
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\NullOutput;
+use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
-use Phinx\Db\Adapter\MysqlAdapter;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 
 class PDOMock extends \PDO
 {

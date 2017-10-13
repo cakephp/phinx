@@ -28,16 +28,16 @@
  */
 namespace Phinx\Console\Command;
 
+use Phinx\Config\Config;
+use Phinx\Config\ConfigInterface;
+use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Migration\Manager;
 use Phinx\Util\Util;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Phinx\Config\Config;
-use Phinx\Config\ConfigInterface;
-use Phinx\Migration\Manager;
-use Phinx\Db\Adapter\AdapterInterface;
 
 /**
  * Abstract command, contains bootstrapping info
