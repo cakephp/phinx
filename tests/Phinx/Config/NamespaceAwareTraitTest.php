@@ -11,7 +11,7 @@ class NamespaceAwareTraitTest extends \PHPUnit_Framework_TestCase
             ->method('getMigrationPaths')
             ->will($this->returnValue([
                 __DIR__ . '/_files',
-                'Baz'     => __DIR__ . '/_rootDirectories/all/../OnlyPhp',
+                'Baz' => __DIR__ . '/_rootDirectories/all/../OnlyPhp',
                 'Foo\Bar' => __DIR__ . '/_rootDirectories/all',
             ]));
         /** @var \Phinx\Config\NamespaceAwareTrait $config */
@@ -29,7 +29,7 @@ class NamespaceAwareTraitTest extends \PHPUnit_Framework_TestCase
             ->method('getSeedPaths')
             ->will($this->returnValue([
                 __DIR__ . '/_files',
-                'Baz'     => __DIR__ . '/_rootDirectories/all/../OnlyPhp',
+                'Baz' => __DIR__ . '/_rootDirectories/all/../OnlyPhp',
                 'Foo\Bar' => __DIR__ . '/_rootDirectories/all',
             ]));
         /** @var \Phinx\Config\NamespaceAwareTrait $config */
