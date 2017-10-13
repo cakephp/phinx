@@ -279,7 +279,7 @@ class Manager
      */
     public function migrateToDateTime($environment, \DateTime $dateTime)
     {
-        $versions   = array_keys($this->getMigrations());
+        $versions = array_keys($this->getMigrations());
         $dateString = $dateTime->format('YmdHis');
 
         $outstandingMigrations = array_filter($versions, function ($version) use ($dateString) {

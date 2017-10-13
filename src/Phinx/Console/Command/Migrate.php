@@ -72,9 +72,9 @@ EOT
     {
         $this->bootstrap($input, $output);
 
-        $version     = $input->getOption('target');
+        $version = $input->getOption('target');
         $environment = $input->getOption('environment');
-        $date        = $input->getOption('date');
+        $date = $input->getOption('date');
 
         if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();

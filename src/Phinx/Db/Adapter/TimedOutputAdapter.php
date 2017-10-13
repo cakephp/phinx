@@ -88,7 +88,7 @@ class TimedOutputAdapter extends AdapterWrapper
                         },
                         $arg
                     );
-                    $outArr[] = '[' . implode(', ', $arg)  . ']';
+                    $outArr[] = '[' . implode(', ', $arg) . ']';
                     continue;
                 }
 

@@ -43,26 +43,26 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
     protected $signedColumnTypes = ['integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true, 'boolean' => true];
 
-    const TEXT_TINY    = 255;
-    const TEXT_SMALL   = 255; /* deprecated, alias of TEXT_TINY */
+    const TEXT_TINY = 255;
+    const TEXT_SMALL = 255; /* deprecated, alias of TEXT_TINY */
     const TEXT_REGULAR = 65535;
-    const TEXT_MEDIUM  = 16777215;
-    const TEXT_LONG    = 4294967295;
+    const TEXT_MEDIUM = 16777215;
+    const TEXT_LONG = 4294967295;
 
     // According to https://dev.mysql.com/doc/refman/5.0/en/blob.html BLOB sizes are the same as TEXT
-    const BLOB_TINY    = 255;
-    const BLOB_SMALL   = 255; /* deprecated, alias of BLOB_TINY */
+    const BLOB_TINY = 255;
+    const BLOB_SMALL = 255; /* deprecated, alias of BLOB_TINY */
     const BLOB_REGULAR = 65535;
-    const BLOB_MEDIUM  = 16777215;
-    const BLOB_LONG    = 4294967295;
+    const BLOB_MEDIUM = 16777215;
+    const BLOB_LONG = 4294967295;
 
-    const INT_TINY    = 255;
-    const INT_SMALL   = 65535;
-    const INT_MEDIUM  = 16777215;
+    const INT_TINY = 255;
+    const INT_SMALL = 65535;
+    const INT_MEDIUM = 16777215;
     const INT_REGULAR = 4294967295;
-    const INT_BIG     = 18446744073709551615;
+    const INT_BIG = 18446744073709551615;
 
-    const TYPE_YEAR   = 'year';
+    const TYPE_YEAR = 'year';
 
     /**
      * {@inheritdoc}
@@ -260,7 +260,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
             $sql .= ' PRIMARY KEY (';
-            if (is_string($options['primary_key'])) {       // handle primary_key => 'id'
+            if (is_string($options['primary_key'])) { // handle primary_key => 'id'
                 $sql .= $this->quoteColumnName($options['primary_key']);
             } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
                 // PHP 5.4 will allow access of $this, so we can call quoteColumnName() directly in the
@@ -277,7 +277,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             }
             $sql .= ')';
         } else {
-            $sql = substr(rtrim($sql), 0, -1);              // no primary keys
+            $sql = substr(rtrim($sql), 0, -1); // no primary keys
         }
 
         // set the indexes
@@ -727,10 +727,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 if ($limit) {
                     $sizes = [
                         // Order matters! Size must always be tested from longest to shortest!
-                        'longtext'   => static::TEXT_LONG,
+                        'longtext' => static::TEXT_LONG,
                         'mediumtext' => static::TEXT_MEDIUM,
-                        'text'       => static::TEXT_REGULAR,
-                        'tinytext'   => static::TEXT_SMALL,
+                        'text' => static::TEXT_REGULAR,
+                        'tinytext' => static::TEXT_SMALL,
                     ];
                     foreach ($sizes as $name => $length) {
                         if ($limit >= $length) {
@@ -751,10 +751,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 if ($limit) {
                     $sizes = [
                         // Order matters! Size must always be tested from longest to shortest!
-                        'longblob'   => static::BLOB_LONG,
+                        'longblob' => static::BLOB_LONG,
                         'mediumblob' => static::BLOB_MEDIUM,
-                        'blob'       => static::BLOB_REGULAR,
-                        'tinyblob'   => static::BLOB_SMALL,
+                        'blob' => static::BLOB_REGULAR,
+                        'tinyblob' => static::BLOB_SMALL,
                     ];
                     foreach ($sizes as $name => $length) {
                         if ($limit >= $length) {
@@ -769,14 +769,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 if ($limit && $limit >= static::INT_TINY) {
                     $sizes = [
                         // Order matters! Size must always be tested from longest to shortest!
-                        'bigint'    => static::INT_BIG,
-                        'int'       => static::INT_REGULAR,
+                        'bigint' => static::INT_BIG,
+                        'int' => static::INT_REGULAR,
                         'mediumint' => static::INT_MEDIUM,
-                        'smallint'  => static::INT_SMALL,
-                        'tinyint'   => static::INT_TINY,
+                        'smallint' => static::INT_SMALL,
+                        'tinyint' => static::INT_TINY,
                     ];
                     $limits = [
-                        'int'    => 11,
+                        'int' => 11,
                         'bigint' => 20,
                     ];
                     foreach ($sizes as $name => $length) {
@@ -892,15 +892,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     }
                     break;
                 case 'tinyint':
-                    $type  = static::PHINX_TYPE_INTEGER;
+                    $type = static::PHINX_TYPE_INTEGER;
                     $limit = static::INT_TINY;
                     break;
                 case 'smallint':
-                    $type  = static::PHINX_TYPE_INTEGER;
+                    $type = static::PHINX_TYPE_INTEGER;
                     $limit = static::INT_SMALL;
                     break;
                 case 'mediumint':
-                    $type  = static::PHINX_TYPE_INTEGER;
+                    $type = static::PHINX_TYPE_INTEGER;
                     $limit = static::INT_MEDIUM;
                     break;
                 case 'int':
@@ -919,27 +919,27 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     $type = static::PHINX_TYPE_BINARY;
                     break;
                 case 'tinyblob':
-                    $type  = static::PHINX_TYPE_BINARY;
+                    $type = static::PHINX_TYPE_BINARY;
                     $limit = static::BLOB_TINY;
                     break;
                 case 'mediumblob':
-                    $type  = static::PHINX_TYPE_BINARY;
+                    $type = static::PHINX_TYPE_BINARY;
                     $limit = static::BLOB_MEDIUM;
                     break;
                 case 'longblob':
-                    $type  = static::PHINX_TYPE_BINARY;
+                    $type = static::PHINX_TYPE_BINARY;
                     $limit = static::BLOB_LONG;
                     break;
                 case 'tinytext':
-                    $type  = static::PHINX_TYPE_TEXT;
+                    $type = static::PHINX_TYPE_TEXT;
                     $limit = static::TEXT_TINY;
                     break;
                 case 'mediumtext':
-                    $type  = static::PHINX_TYPE_TEXT;
+                    $type = static::PHINX_TYPE_TEXT;
                     $limit = static::TEXT_MEDIUM;
                     break;
                 case 'longtext':
-                    $type  = static::PHINX_TYPE_TEXT;
+                    $type = static::PHINX_TYPE_TEXT;
                     $limit = static::TEXT_LONG;
                     break;
             }
