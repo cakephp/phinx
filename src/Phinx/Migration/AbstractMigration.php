@@ -26,9 +26,11 @@
  * @package    Phinx
  * @subpackage Phinx\Migration
  */
+
 namespace Phinx\Migration;
 
 use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Migration\Manager\Environment;
 use Phinx\Db\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -66,6 +68,11 @@ abstract class AbstractMigration implements MigrationInterface
     protected $input;
 
     /**
+     * @var Environment
+     */
+    protected $environment;
+
+    /**
      * Whether this migration is being applied or reverted
      *
      * @var bool
@@ -75,18 +82,26 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * Class Constructor.
      *
-     * @param int $version Migration Version
+     * @param float $version Migration Version
      * @param \Symfony\Component\Console\Input\InputInterface|null $input
      * @param \Symfony\Component\Console\Output\OutputInterface|null $output
+     * @param \Phinx\Migration\Manager\Environment|null $environment
      */
-    final public function __construct($version, InputInterface $input = null, OutputInterface $output = null)
-    {
+    final public function __construct(
+        $version,
+        InputInterface $input = null,
+        OutputInterface $output = null,
+        Environment $environment = null
+    ) {
         $this->version = $version;
         if (!is_null($input)) {
             $this->setInput($input);
         }
         if (!is_null($output)) {
             $this->setOutput($output);
+        }
+        if (!is_null($environment)) {
+            $this->setEnvironment($environment);
         }
 
         $this->init();
@@ -131,6 +146,23 @@ abstract class AbstractMigration implements MigrationInterface
     public function getAdapter()
     {
         return $this->adapter;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setEnvironment(Environment $environment)
+    {
+        $this->environment = $environment;
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEnvironment()
+    {
+        return $this->environment;
     }
 
     /**
