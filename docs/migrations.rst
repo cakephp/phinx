@@ -10,6 +10,8 @@ your migrations using the Phinx PHP API, but raw SQL is also supported.
 
 Creating a New Migration
 ------------------------
+Generating a skeleton migration file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Let's start by creating a new Phinx migration. Run Phinx using the ``create``
 command:
@@ -19,8 +21,11 @@ command:
         $ php vendor/bin/phinx create MyNewMigration
 
 This will create a new migration in the format
-``YYYYMMDDHHMMSS_my_new_migration.php`` where the first 14 characters are
+``YYYYMMDDHHMMSS_my_new_migration.php``, where the first 14 characters are
 replaced with the current timestamp down to the second.
+
+If you have specified multiple migration paths, you will be asked to select
+which path to create the new migration in.
 
 Phinx automatically creates a skeleton migration file with a single method:
 
@@ -59,21 +64,18 @@ Phinx automatically creates a skeleton migration file with a single method:
             }
         }
 
-The AbstractMigration Class
----------------------------
-
 All Phinx migrations extend from the ``AbstractMigration`` class. This class
 provides the necessary support to create your database migrations. Database
-migrations can transform your database in many ways such as creating new
+migrations can transform your database in many ways, such as creating new
 tables, inserting rows, adding indexes and modifying columns.
 
 The Change Method
 ~~~~~~~~~~~~~~~~~
 
 Phinx 0.2.0 introduced a new feature called reversible migrations. This feature
-has now become the default migration method. With reversible migrations you only
-need to define the ``up`` logic and Phinx can figure out how to migrate down
-automatically for you. For example:
+has now become the default migration method. With reversible migrations, you
+only need to define the ``up`` logic, and Phinx can figure out how to migrate
+down automatically for you. For example:
 
 .. code-block:: php
 
@@ -117,9 +119,9 @@ automatically for you. For example:
             }
         }
 
-When executing this migration Phinx will create the ``user_logins`` table on
+When executing this migration, Phinx will create the ``user_logins`` table on
 the way up and automatically figure out how to drop the table on the way down.
-Please be aware that when a ``change`` method exists Phinx will automatically
+Please be aware that when a ``change`` method exists, Phinx will automatically
 ignore the ``up`` and ``down`` methods. If you need to use these methods it is
 recommended to create a separate migration file.
 
@@ -181,7 +183,8 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
                 $count = $this->execute('DELETE FROM users'); // returns the number of affected rows
 
                 // query()
-                $rows = $this->query('SELECT * FROM users'); // returns the result as an array
+                $stmt = $this->query('SELECT * FROM users'); // returns PDOStatement
+                $rows = $stmt->fetchAll(); // returns the result as an array
             }
 
             /**
@@ -201,6 +204,29 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
     the ``execute()`` command. This is especially important when using
     DELIMITERs during insertion of stored procedures or triggers which
     don't support DELIMITERs.
+
+.. warning::
+
+    When using ``execute()`` or ``query()`` with a batch of queries, PDO doesn't
+    throw an exception if there is an issue with one or more of the queries
+    in the batch.
+
+    As such, the entire batch is assumed to have passed without issue.
+
+    If Phinx was to iterate any potential result sets, looking to see if one
+    had an error, then Phinx would be denying access to all the results as there
+    is no facility in PDO to get a previous result set
+    `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`_ -
+    but no ``previousSet()``).
+
+    So, as a consequence, due to the design decision in PDO to not throw
+    an exception for batched queries, Phinx is unable to provide the fullest
+    support for error handling when batches of queries are supplied.
+
+    Fortunately though, all the features of PDO are available, so multiple batches
+    can be controlled within the migration by calling upon
+    `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`_
+    and examining `errorInfo <http://php.net/manual/en/pdostatement.errorinfo.php>`_.
 
 Fetching Rows
 -------------
@@ -262,7 +288,7 @@ insert methods in your migrations.
                 $singleRow = [
                     'id'    => 1,
                     'name'  => 'In Progress'
-                ]
+                ];
 
                 $table = $this->table('status');
                 $table->insert($singleRow);
@@ -340,10 +366,10 @@ object.
 The Save Method
 ~~~~~~~~~~~~~~~
 
-When working with the Table object Phinx stores certain operations in a
+When working with the Table object, Phinx stores certain operations in a
 pending changes cache.
 
-When in doubt it is recommended you call this method. It will commit any
+When in doubt, it is recommended you call this method. It will commit any
 pending changes to the database.
 
 Creating a Table
@@ -366,15 +392,15 @@ store a collection of users.
             public function up()
             {
                 $users = $this->table('users');
-                $users->addColumn('username', 'string', array('limit' => 20))
-                      ->addColumn('password', 'string', array('limit' => 40))
-                      ->addColumn('password_salt', 'string', array('limit' => 40))
-                      ->addColumn('email', 'string', array('limit' => 100))
-                      ->addColumn('first_name', 'string', array('limit' => 30))
-                      ->addColumn('last_name', 'string', array('limit' => 30))
+                $users->addColumn('username', 'string', ['limit' => 20])
+                      ->addColumn('password', 'string', ['limit' => 40])
+                      ->addColumn('password_salt', 'string', ['limit' => 40])
+                      ->addColumn('email', 'string', ['limit' => 100])
+                      ->addColumn('first_name', 'string', ['limit' => 30])
+                      ->addColumn('last_name', 'string', ['limit' => 30])
                       ->addColumn('created', 'datetime')
-                      ->addColumn('updated', 'datetime', array('null' => true))
-                      ->addIndex(array('username', 'email'), array('unique' => true))
+                      ->addColumn('updated', 'datetime', ['null' => true])
+                      ->addIndex(['username', 'email'], ['unique' => true])
                       ->save();
             }
 
@@ -397,10 +423,11 @@ Finally calling ``save()`` commits the changes to the database.
     table.
 
 The ``id`` option sets the name of the automatically created identity field, while the ``primary_key``
-option selects the field or fields used for primary key. The ``primary_key`` option always defaults to
-the value of ``id``. Both can be disabled by setting them to false.
+option selects the field or fields used for primary key. ``id`` will always override the ``primary_key``
+option unless it's set to false. If you don't need a primary key set ``id`` to false without
+specifying a ``primary_key``, and no primary key will be created.
 
-To specify an alternate primary key you can specify the ``primary_key`` option
+To specify an alternate primary key, you can specify the ``primary_key`` option
 when accessing the Table object. Let's disable the automatic ``id`` column and
 create a primary key using two columns instead:
 
@@ -417,7 +444,7 @@ create a primary key using two columns instead:
              */
             public function up()
             {
-                $table = $this->table('followers', array('id' => false, 'primary_key' => array('user_id', 'follower_id')));
+                $table = $this->table('followers', ['id' => false, 'primary_key' => ['user_id', 'follower_id']]);
                 $table->addColumn('user_id', 'integer')
                       ->addColumn('follower_id', 'integer')
                       ->addColumn('created', 'datetime')
@@ -449,9 +476,51 @@ To simply change the name of the primary key, we need to override the default ``
              */
             public function up()
             {
-                $table = $this->table('followers', array('id' => 'user_id'));
+                $table = $this->table('followers', ['id' => 'user_id']);
                 $table->addColumn('follower_id', 'integer')
-                      ->addColumn('created', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
+                      ->addColumn('created', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
+In addition, the MySQL adapter supports following options:
+
+========= ===========
+Option    Description
+========= ===========
+comment   set a text comment on the table
+engine    define table engine *(defaults to ``InnoDB``)*
+collation define table collation *(defaults to ``utf8_general_ci``)*
+signed    whether the primary key is ``signed``
+========= ===========
+
+By default the primary key is ``signed``.
+To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('followers', ['signed' => false]);
+                $table->addColumn('follower_id', 'integer')
+                      ->addColumn('created', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
                       ->save();
             }
 
@@ -486,7 +555,7 @@ Column types are specified as strings and can be one of:
 In addition, the MySQL adapter supports ``enum``, ``set``, ``blob`` and ``json`` column types.
 (``json`` in MySQL 5.7 and above)
 
-In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb`` and ``uuid`` column types
+In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
 
 For valid options, see the `Valid Column Options`_ below.
@@ -553,15 +622,15 @@ good idea to recreate the table again in the ``down()`` method.
             public function down()
             {
                 $users = $this->table('users');
-                $users->addColumn('username', 'string', array('limit' => 20))
-                      ->addColumn('password', 'string', array('limit' => 40))
-                      ->addColumn('password_salt', 'string', array('limit' => 40))
-                      ->addColumn('email', 'string', array('limit' => 100))
-                      ->addColumn('first_name', 'string', array('limit' => 30))
-                      ->addColumn('last_name', 'string', array('limit' => 30))
+                $users->addColumn('username', 'string', ['limit' => 20])
+                      ->addColumn('password', 'string', ['limit' => 40])
+                      ->addColumn('password_salt', 'string', ['limit' => 40])
+                      ->addColumn('email', 'string', ['limit' => 100])
+                      ->addColumn('first_name', 'string', ['limit' => 30])
+                      ->addColumn('last_name', 'string', ['limit' => 30])
                       ->addColumn('created', 'datetime')
-                      ->addColumn('updated', 'datetime', array('null' => true))
-                      ->addIndex(array('username', 'email'), array('unique' => true))
+                      ->addColumn('updated', 'datetime', ['null' => true])
+                      ->addIndex(['username', 'email'], ['unique' => true])
                       ->save();
             }
         }
@@ -624,7 +693,7 @@ Column types are specified as strings and can be one of:
 
 In addition, the MySQL adapter supports ``enum``, ``set`` and ``blob`` column types.
 
-In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb`` and ``uuid`` column types
+In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
 
 Valid Column Options
@@ -711,6 +780,15 @@ Option   Description
 signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
 ======== ===========
 
+For ``string`` and ``text`` columns:
+
+========= ===========
+Option    Description
+========= ===========
+collation set collation that differs from table defaults *(only applies to MySQL)*
+encoding  set character set that differs from table defaults *(only applies to MySQL)*
+========= ===========
+
 For foreign key definitions:
 
 ====== ===========
@@ -744,7 +822,7 @@ INT_SMALL    SMALLINT
 
          $table = $this->table('cart_items');
          $table->addColumn('user_id', 'integer')
-               ->addColumn('subtype_id', 'integer', array('limit' => PostgresAdapter::INT_SMALL))
+               ->addColumn('subtype_id', 'integer', ['limit' => PostgresAdapter::INT_SMALL])
                ->create();
 
 Limit Option and MySQL
@@ -780,9 +858,9 @@ INT_BIG      BIGINT
 
          $table = $this->table('cart_items');
          $table->addColumn('user_id', 'integer')
-               ->addColumn('product_id', 'integer', array('limit' => MysqlAdapter::INT_BIG))
-               ->addColumn('subtype_id', 'integer', array('limit' => MysqlAdapter::INT_SMALL))
-               ->addColumn('quantity', 'integer', array('limit' => MysqlAdapter::INT_TINY))
+               ->addColumn('product_id', 'integer', ['limit' => MysqlAdapter::INT_BIG])
+               ->addColumn('subtype_id', 'integer', ['limit' => MysqlAdapter::INT_SMALL])
+               ->addColumn('quantity', 'integer', ['limit' => MysqlAdapter::INT_TINY])
                ->create();
 
 
@@ -850,7 +928,7 @@ You can check if a table already has a certain column by using the
 Renaming a Column
 ~~~~~~~~~~~~~~~~~
 
-To rename a column access an instance of the Table object then call the
+To rename a column, access an instance of the Table object then call the
 ``renameColumn()`` method.
 
 .. code-block:: php
@@ -899,7 +977,7 @@ When adding a column you can dictate its position using the ``after`` option.
             public function change()
             {
                 $table = $this->table('users');
-                $table->addColumn('city', 'string', array('after' => 'email'))
+                $table->addColumn('city', 'string', ['after' => 'email'])
                       ->update();
             }
         }
@@ -948,7 +1026,7 @@ You can limit the maximum length of a column by using the ``limit`` option.
             public function change()
             {
                 $table = $this->table('tags');
-                $table->addColumn('short_name', 'string', array('limit' => 30))
+                $table->addColumn('short_name', 'string', ['limit' => 30])
                       ->update();
             }
         }
@@ -973,7 +1051,7 @@ See `Valid Column Types`_ and `Valid Column Options`_ for allowed values.
             public function up()
             {
                 $users = $this->table('users');
-                $users->changeColumn('email', 'string', array('limit' => 255))
+                $users->changeColumn('email', 'string', ['limit' => 255])
                       ->save();
             }
 
@@ -1007,7 +1085,7 @@ table object.
             {
                 $table = $this->table('users');
                 $table->addColumn('city', 'string')
-                      ->addIndex(array('city'))
+                      ->addIndex(['city'])
                       ->save();
             }
 
@@ -1040,7 +1118,9 @@ using the ``name`` parameter.
             {
                 $table = $this->table('users');
                 $table->addColumn('email', 'string')
-                      ->addIndex(array('email'), array('unique' => true, 'name' => 'idx_users_email'))
+                      ->addIndex(['email'], [
+                            'unique' => true, 
+                            'name' => 'idx_users_email'])
                       ->save();
             }
 
@@ -1090,8 +1170,8 @@ call this method for each index.
             public function up()
             {
                 $table = $this->table('users');
-                $table->removeIndex(array('email'));
-                
+                $table->removeIndex(['email']);
+
                 // alternatively, you can delete an index by its name, ie:
                 $table->removeIndexByName('idx_users_email');
             }
@@ -1135,7 +1215,7 @@ Let's add a foreign key to an example table:
 
                 $refTable = $this->table('tag_relationships');
                 $refTable->addColumn('tag_id', 'integer')
-                         ->addForeignKey('tag_id', 'tags', 'id', array('delete'=> 'SET_NULL', 'update'=> 'NO_ACTION'))
+                         ->addForeignKey('tag_id', 'tags', 'id', ['delete'=> 'SET_NULL', 'update'=> 'NO_ACTION'])
                          ->save();
 
             }
@@ -1150,6 +1230,7 @@ Let's add a foreign key to an example table:
         }
 
 "On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possibles values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.
+Constraint name can be changed with the 'constraint' option.
 
 It is also possible to pass ``addForeignKey()`` an array of columns.
 This allows us to establish a foreign key relationship to a table which uses a combined key.
@@ -1171,10 +1252,40 @@ This allows us to establish a foreign key relationship to a table which uses a c
                 $table->addColumn('user_id', 'integer')
                       ->addColumn('follower_id', 'integer')
                       ->addColumn('event_id', 'integer')
-                      ->addForeignKey(array('user_id', 'follower_id'),
+                      ->addForeignKey(['user_id', 'follower_id'],
                                       'followers',
-                                      array('user_id', 'follower_id'),
-                                      array('delete'=> 'NO_ACTION', 'update'=> 'NO_ACTION'))
+                                      ['user_id', 'follower_id'],
+                                      ['delete'=> 'NO_ACTION', 'update'=> 'NO_ACTION', 'constraint' => 'user_follower_id'])
+                      ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
+We can add named foreign keys using the ``constraint`` parameter. This feature is supported as of Phinx version 0.6.5
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $table = $this->table('your_table');
+                $table->addForeignKey('foreign_id', 'reference_table', ['id'],
+                                    ['constraint' => 'your_foreign_key_name']);
                       ->save();
             }
 
@@ -1218,7 +1329,7 @@ We can also easily check if a foreign key exists:
             }
         }
 
-Finally to delete a foreign key use the ``dropForeignKey`` method.
+Finally, to delete a foreign key, use the ``dropForeignKey`` method.
 
 .. code-block:: php
 

@@ -3,8 +3,8 @@
 namespace Test\Phinx\Console;
 
 use Phinx\Console\Command\AbstractCommand;
-use Symfony\Component\Console\Tester\ApplicationTester;
 use Phinx\Console\PhinxApplication;
+use Symfony\Component\Console\Tester\ApplicationTester;
 
 class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
 {
@@ -21,7 +21,7 @@ class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
         $app->setCatchExceptions(false);
 
         $appTester = new ApplicationTester($app);
-        $appTester->run(array('command' => $command));
+        $appTester->run(['command' => $command]);
         $stream = $appTester->getOutput()->getStream();
         rewind($stream);
 
@@ -30,8 +30,8 @@ class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
 
     public function provider()
     {
-        return array(
-            array('help', '/help \[options\] \[--\] \[<command_name>\]/')
-        );
+        return [
+            ['help', '/help \[options\] \[--\] \[<command_name>\]/']
+        ];
     }
 }

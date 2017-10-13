@@ -5,8 +5,8 @@ namespace Test\Phinx\Db\Adapter;
 use Phinx\Db\Adapter\PdoAdapter;
 use Phinx\Db\Adapter\ProxyAdapter;
 use Phinx\Db\Table;
-use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
+use Phinx\Db\Table\Index;
 use Phinx\Migration\IrreversibleMigrationException;
 
 class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
@@ -18,7 +18,9 @@ class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $stub = $this->getMock('\Phinx\Db\Adapter\PdoAdapter', array(), array(array()));
+        $stub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
 
         $this->adapter = new ProxyAdapter($stub);
     }
@@ -78,7 +80,7 @@ class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('atable');
         $index = new \Phinx\Db\Table\Index();
         $index->setType(\Phinx\Db\Table\Index::INDEX)
-              ->setColumns(array('email'));
+              ->setColumns(['email']);
 
         $this->adapter->addIndex($table, $index);
 
@@ -94,8 +96,8 @@ class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
         $refTable = new \Phinx\Db\Table('refTable');
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
-           ->setColumns(array('ref_table_id'))
-           ->setReferencedColumns(array('id'));
+           ->setColumns(['ref_table_id'])
+           ->setReferencedColumns(['id']);
 
         $this->adapter->addForeignKey($table, $fk);
 
@@ -111,7 +113,7 @@ class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetInvertedCommandsThrowsExceptionForIrreversibleCommand()
     {
-        $this->adapter->recordCommand('createDatabase', array('testdb'));
+        $this->adapter->recordCommand('createDatabase', ['testdb']);
         $this->adapter->getInvertedCommands();
     }
 }

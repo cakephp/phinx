@@ -28,10 +28,10 @@
  */
 namespace Phinx\Db;
 
-use Phinx\Db\Table\Column;
-use Phinx\Db\Table\Index;
-use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Table\Column;
+use Phinx\Db\Table\ForeignKey;
+use Phinx\Db\Table\Index;
 
 /**
  *
@@ -47,46 +47,46 @@ class Table
     /**
      * @var array
      */
-    protected $options = array();
+    protected $options = [];
 
     /**
-     * @var AdapterInterface
+     * @var \Phinx\Db\Adapter\AdapterInterface
      */
     protected $adapter;
 
     /**
      * @var array
      */
-    protected $columns = array();
+    protected $columns = [];
 
     /**
      * @var array
      */
-    protected $indexes = array();
+    protected $indexes = [];
 
     /**
-     * @var ForeignKey[]
+     * @var \Phinx\Db\Table\ForeignKey[]
      */
-    protected $foreignKeys = array();
+    protected $foreignKeys = [];
 
     /**
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * Class Constuctor.
      *
      * @param string $name Table Name
      * @param array $options Options
-     * @param AdapterInterface $adapter Database Adapter
+     * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
      */
-    public function __construct($name, $options = array(), AdapterInterface $adapter = null)
+    public function __construct($name, $options = [], AdapterInterface $adapter = null)
     {
         $this->setName($name);
         $this->setOptions($options);
 
-        if (null !== $adapter) {
+        if ($adapter !== null) {
             $this->setAdapter($adapter);
         }
     }
@@ -95,11 +95,12 @@ class Table
      * Sets the table name.
      *
      * @param string $name Table Name
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -117,11 +118,12 @@ class Table
      * Sets the table options.
      *
      * @param array $options
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function setOptions($options)
     {
         $this->options = $options;
+
         return $this;
     }
 
@@ -138,19 +140,20 @@ class Table
     /**
      * Sets the database adapter.
      *
-     * @param AdapterInterface $adapter Database Adapter
-     * @return Table
+     * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
+     * @return \Phinx\Db\Table
      */
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
+
         return $this;
     }
 
     /**
      * Gets the database adapter.
      *
-     * @return AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getAdapter()
     {
@@ -160,7 +163,7 @@ class Table
     /**
      * Does the table exist?
      *
-     * @return boolean
+     * @return bool
      */
     public function exists()
     {
@@ -181,12 +184,13 @@ class Table
      * Renames the database table.
      *
      * @param string $newTableName New Table Name
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function rename($newTableName)
     {
         $this->getAdapter()->renameTable($this->getName(), $newTableName);
         $this->setName($newTableName);
+
         return $this;
     }
 
@@ -196,17 +200,19 @@ class Table
      *
      * @deprecated
      * @param array $columns Columns
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function setColumns($columns)
     {
         $this->setPendingColumns($columns);
+
+        return $this;
     }
 
     /**
      * Gets an array of the table columns.
      *
-     * @return Column[]
+     * @return \Phinx\Db\Table\Column[]
      */
     public function getColumns()
     {
@@ -217,18 +223,19 @@ class Table
      * Sets an array of columns waiting to be committed.
      *
      * @param array $columns Columns
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function setPendingColumns($columns)
     {
         $this->columns = $columns;
+
         return $this;
     }
 
     /**
      * Gets an array of columns waiting to be committed.
      *
-     * @return Column[]
+     * @return \Phinx\Db\Table\Column[]
      */
     public function getPendingColumns()
     {
@@ -239,11 +246,12 @@ class Table
      * Sets an array of columns waiting to be indexed.
      *
      * @param array $indexes Indexes
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function setIndexes($indexes)
     {
         $this->indexes = $indexes;
+
         return $this;
     }
 
@@ -258,21 +266,22 @@ class Table
     }
 
     /**
-     * Gets an array of foreign keys waiting to be commited.
+     * Sets an array of foreign keys waiting to be commited.
      *
-     * @param ForeignKey[] $foreignKeys foreign keys
-     * @return Table
+     * @param \Phinx\Db\Table\ForeignKey[] $foreignKeys foreign keys
+     * @return \Phinx\Db\Table
      */
     public function setForeignKeys($foreignKeys)
     {
         $this->foreignKeys = $foreignKeys;
+
         return $this;
     }
 
     /**
      * Gets an array of foreign keys waiting to be commited.
      *
-     * @return array|ForeignKey[]
+     * @return array|\Phinx\Db\Table\ForeignKey[]
      */
     public function getForeignKeys()
     {
@@ -283,11 +292,12 @@ class Table
      * Sets an array of data to be inserted.
      *
      * @param array $data Data
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function setData($data)
     {
         $this->data = $data;
+
         return $this;
     }
 
@@ -308,10 +318,10 @@ class Table
      */
     public function reset()
     {
-        $this->setPendingColumns(array());
-        $this->setIndexes(array());
-        $this->setForeignKeys(array());
-        $this->setData(array());
+        $this->setPendingColumns([]);
+        $this->setIndexes([]);
+        $this->setForeignKeys([]);
+        $this->setData([]);
     }
 
     /**
@@ -322,17 +332,17 @@ class Table
      *
      * Valid options can be: limit, default, null, precision or scale.
      *
-     * @param string|Column $columnName Column Name
+     * @param string|\Phinx\Db\Table\Column $columnName Column Name
      * @param string $type Column Type
      * @param array $options Column Options
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     * @return Table
+     * @return \Phinx\Db\Table
      */
-    public function addColumn($columnName, $type = null, $options = array())
+    public function addColumn($columnName, $type = null, $options = [])
     {
         // we need an adapter set to add a column
-        if (null === $this->getAdapter()) {
+        if ($this->getAdapter() === null) {
             throw new \RuntimeException('An adapter must be specified to add a column.');
         }
 
@@ -356,6 +366,7 @@ class Table
         }
 
         $this->columns[] = $column;
+
         return $this;
     }
 
@@ -363,11 +374,12 @@ class Table
      * Remove a table column.
      *
      * @param string $columnName Column Name
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function removeColumn($columnName)
     {
         $this->getAdapter()->dropColumn($this->getName(), $columnName);
+
         return $this;
     }
 
@@ -376,11 +388,12 @@ class Table
      *
      * @param string $oldName Old Column Name
      * @param string $newName New Column Name
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function renameColumn($oldName, $newName)
     {
         $this->getAdapter()->renameColumn($this->getName(), $oldName, $newName);
+
         return $this;
     }
 
@@ -388,11 +401,11 @@ class Table
      * Change a table column type.
      *
      * @param string        $columnName    Column Name
-     * @param string|Column $newColumnType New Column Type
+     * @param string|\Phinx\Db\Table\Column $newColumnType New Column Type
      * @param array         $options       Options
-     * @return Table
+     * @return \Phinx\Db\Table
      */
-    public function changeColumn($columnName, $newColumnType, $options = array())
+    public function changeColumn($columnName, $newColumnType, $options = [])
     {
         // create a column object if one wasn't supplied
         if (!$newColumnType instanceof Column) {
@@ -404,11 +417,12 @@ class Table
         }
 
         // if the name was omitted use the existing column name
-        if (null === $newColumn->getName() || strlen($newColumn->getName()) === 0) {
+        if ($newColumn->getName() === null || strlen($newColumn->getName()) === 0) {
             $newColumn->setName($columnName);
         }
 
         $this->getAdapter()->changeColumn($this->getName(), $columnName, $newColumn);
+
         return $this;
     }
 
@@ -416,12 +430,11 @@ class Table
      * Checks to see if a column exists.
      *
      * @param string $columnName Column Name
-     * @param array $options Options
-     * @return boolean
+     * @return bool
      */
-    public function hasColumn($columnName, $options = array())
+    public function hasColumn($columnName)
     {
-        return $this->getAdapter()->hasColumn($this->getName(), $columnName, $options);
+        return $this->getAdapter()->hasColumn($this->getName(), $columnName);
     }
 
     /**
@@ -429,17 +442,17 @@ class Table
      *
      * In $options you can specific unique = true/false or name (index name).
      *
-     * @param string|array|Index $columns Table Column(s)
+     * @param string|array|\Phinx\Db\Table\Index $columns Table Column(s)
      * @param array $options Index Options
-     * @return Table
+     * @return \Phinx\Db\Table
      */
-    public function addIndex($columns, $options = array())
+    public function addIndex($columns, $options = [])
     {
         // create a new index object if strings or an array of strings were supplied
         if (!$columns instanceof Index) {
             $index = new Index();
             if (is_string($columns)) {
-                $columns = array($columns); // str to array
+                $columns = [$columns]; // str to array
             }
             $index->setColumns($columns);
             $index->setOptions($options);
@@ -448,6 +461,7 @@ class Table
         }
 
         $this->indexes[] = $index;
+
         return $this;
     }
 
@@ -455,12 +469,12 @@ class Table
      * Removes the given index from a table.
      *
      * @param array $columns Columns
-     * @param array $options Options
-     * @return Table
+     * @return \Phinx\Db\Table
      */
-    public function removeIndex($columns, $options = array())
+    public function removeIndex($columns)
     {
-        $this->getAdapter()->dropIndex($this->getName(), $columns, $options);
+        $this->getAdapter()->dropIndex($this->getName(), $columns);
+
         return $this;
     }
 
@@ -468,11 +482,12 @@ class Table
      * Removes the given index identified by its name from a table.
      *
      * @param string $name Index name
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function removeIndexByName($name)
     {
         $this->getAdapter()->dropIndexByName($this->getName(), $name);
+
         return $this;
     }
 
@@ -481,11 +496,11 @@ class Table
      *
      * @param string|array $columns Columns
      * @param array        $options Options
-     * @return boolean
+     * @return bool
      */
-    public function hasIndex($columns, $options = array())
+    public function hasIndex($columns)
     {
-        return $this->getAdapter()->hasIndex($this->getName(), $columns, $options);
+        return $this->getAdapter()->hasIndex($this->getName(), $columns);
     }
 
     /**
@@ -495,21 +510,21 @@ class Table
      * on_update, constraint = constraint name.
      *
      * @param string|array $columns Columns
-     * @param string|Table $referencedTable   Referenced Table
+     * @param string|\Phinx\Db\Table $referencedTable   Referenced Table
      * @param string|array $referencedColumns Referenced Columns
      * @param array $options Options
-     * @return Table
+     * @return \Phinx\Db\Table
      */
-    public function addForeignKey($columns, $referencedTable, $referencedColumns = array('id'), $options = array())
+    public function addForeignKey($columns, $referencedTable, $referencedColumns = ['id'], $options = [])
     {
         if (is_string($referencedColumns)) {
-            $referencedColumns = array($referencedColumns); // str to array
+            $referencedColumns = [$referencedColumns]; // str to array
         }
         $fk = new ForeignKey();
         if ($referencedTable instanceof Table) {
             $fk->setReferencedTable($referencedTable);
         } else {
-            $fk->setReferencedTable(new Table($referencedTable, array(), $this->adapter));
+            $fk->setReferencedTable(new Table($referencedTable, [], $this->adapter));
         }
         $fk->setColumns($columns)
            ->setReferencedColumns($referencedColumns)
@@ -524,15 +539,15 @@ class Table
      *
      * @param string|array $columns    Column(s)
      * @param null|string  $constraint Constraint names
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function dropForeignKey($columns, $constraint = null)
     {
         if (is_string($columns)) {
-            $columns = array($columns);
+            $columns = [$columns];
         }
         if ($constraint) {
-            $this->getAdapter()->dropForeignKey($this->getName(), array(), $constraint);
+            $this->getAdapter()->dropForeignKey($this->getName(), [], $constraint);
         } else {
             $this->getAdapter()->dropForeignKey($this->getName(), $columns);
         }
@@ -545,7 +560,7 @@ class Table
      *
      * @param  string|array $columns    Column(s)
      * @param  null|string  $constraint Constraint names
-     * @return boolean
+     * @return bool
      */
     public function hasForeignKey($columns, $constraint = null)
     {
@@ -558,20 +573,20 @@ class Table
      * @param string $createdAtColumnName
      * @param string $updatedAtColumnName
      *
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function addTimestamps($createdAtColumnName = 'created_at', $updatedAtColumnName = 'updated_at')
     {
         $createdAtColumnName = is_null($createdAtColumnName) ? 'created_at' : $createdAtColumnName;
         $updatedAtColumnName = is_null($updatedAtColumnName) ? 'updated_at' : $updatedAtColumnName;
-        $this->addColumn($createdAtColumnName, 'timestamp', array(
+        $this->addColumn($createdAtColumnName, 'timestamp', [
                 'default' => 'CURRENT_TIMESTAMP',
                 'update' => ''
-            ))
-             ->addColumn($updatedAtColumnName, 'timestamp', array(
+            ])
+             ->addColumn($updatedAtColumnName, 'timestamp', [
                 'null'    => true,
                 'default' => null
-             ));
+             ]);
 
         return $this;
     }
@@ -579,14 +594,14 @@ class Table
     /**
      * Insert data into the table.
      *
-     * @param $data array of data in the form:
+     * @param array $data array of data in the form:
      *              array(
      *                  array("col1" => "value1", "col2" => "anotherValue1"),
      *                  array("col2" => "value2", "col2" => "anotherValue2"),
      *              )
      *              or array("col1" => "value1", "col2" => "anotherValue1")
      *
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function insert($data)
     {
@@ -595,9 +610,11 @@ class Table
             foreach ($data as $row) {
                 $this->data[] = $row;
             }
+
             return $this;
         }
         $this->data[] = $data;
+
         return $this;
     }
 
@@ -649,9 +666,39 @@ class Table
      */
     public function saveData()
     {
-        foreach ($this->getData() as $row) {
-            $this->getAdapter()->insert($this, $row);
+        $rows = $this->getData();
+        if (empty($rows)) {
+            return;
         }
+
+        $bulk = true;
+        $row = current($rows);
+        $c = array_keys($row);
+        foreach ($this->getData() as $row) {
+            $k = array_keys($row);
+            if ($k != $c) {
+                $bulk = false;
+                break;
+            }
+        }
+
+        if ($bulk) {
+            $this->getAdapter()->bulkinsert($this, $this->getData());
+        } else {
+            foreach ($this->getData() as $row) {
+                $this->getAdapter()->insert($this, $row);
+            }
+        }
+    }
+
+    /**
+     * Truncates the table.
+     *
+     * @return void
+     */
+    public function truncate()
+    {
+        $this->getAdapter()->truncateTable($this->getName());
     }
 
     /**

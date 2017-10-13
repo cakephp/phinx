@@ -39,18 +39,17 @@ This means that:
    global $app;
    $pdo = $app->getDatabase()->getPdo();
 
-   return array('environments' =>
-            array(
+   return ['environments' => [
               'default_database' => 'development',
-              'development' => array(
+              'development' => [
                 'name' => 'devdb',
                 'connection' => $pdo
-              )
-            )
-          );
+              ]
+            ]
+          ];
 
-Migration Path
---------------
+Migration Paths
+---------------
 
 The first option specifies the path to your migration directory. Phinx uses
 ``%%PHINX_CONFIG_DIR%%/db/migrations`` by default.
@@ -67,6 +66,16 @@ need to add the following to the yaml configuration.
 
     paths:
         migrations: /your/full/path
+
+You can also provide multiple migration paths by using an array in your configuration:
+
+.. code-block:: yaml
+
+    paths:
+        migrations:
+            - application/module1/migrations
+            - application/module2/migrations
+
 
 You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 
@@ -94,8 +103,8 @@ setting ``migration_base_class`` in your config:
 
     migration_base_class: MyMagicalMigration
 
-Seed Path
----------
+Seed Paths
+----------
 
 The second option specifies the path to your seed directory. Phinx uses
 ``%%PHINX_CONFIG_DIR%%/db/seeds`` by default.
@@ -112,6 +121,16 @@ need to add the following to the yaml configuration.
 
     paths:
         seeds: /your/full/path
+
+You can also provide multiple seed paths by using an array in your configuration:
+
+.. code-block:: yaml
+
+    paths:
+        seeds:
+            - /your/full/path1
+            - /your/full/path2
+
 
 You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 
@@ -280,3 +299,12 @@ The aliased classes will still be required to implement the ``Phinx\Migration\Cr
     aliases:
         permission: \Namespace\Migrations\PermissionMigrationTemplateGenerator
         view: \Namespace\Migrations\ViewMigrationTemplateGenerator
+
+Version Order
+------
+
+When rolling back or printing the status of migrations, Phinx orders the executed migrations according to the 
+``version_order`` option, which can have the following values:
+
+* ``creation`` (the default): migrations are ordered by their creation time, which is also part of their filename.
+* ``execution``: migrations are ordered by their execution time, also known as start time.

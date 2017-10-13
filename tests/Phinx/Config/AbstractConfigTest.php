@@ -16,50 +16,72 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
     protected $migrationPath = null;
 
     /**
+     * @var string
+     */
+    protected $seedPath = null;
+
+    /**
      * Returns a sample configuration array for use with the unit tests.
      *
      * @return array
      */
     public function getConfigArray()
     {
-        return array(
-            'default' => array(
-                'paths' => array(
+        return [
+            'default' => [
+                'paths' => [
                     'migrations' => '%%PHINX_CONFIG_PATH%%/testmigrations2',
                     'seeds' => '%%PHINX_CONFIG_PATH%%/db/seeds',
-                )
-            ),
-            'paths' => array(
-                'migrations' => $this->getMigrationPath(),
-            ),
-            'templates' => array(
+                ]
+            ],
+            'paths' => [
+                'migrations' => $this->getMigrationPaths(),
+                'seeds' => $this->getSeedPaths()
+            ],
+            'templates' => [
                 'file' => '%%PHINX_CONFIG_PATH%%/tpl/testtemplate.txt',
                 'class' => '%%PHINX_CONFIG_PATH%%/tpl/testtemplate.php'
-            ),
-            'environments' => array(
+            ],
+            'environments' => [
                 'default_migration_table' => 'phinxlog',
                 'default_database' => 'testing',
-                'testing' => array(
+                'testing' => [
                     'adapter' => 'sqllite',
                     'wrapper' => 'testwrapper',
                     'path' => '%%PHINX_CONFIG_PATH%%/testdb/test.db'
-                ),
-                'production' => array(
+                ],
+                'production' => [
                     'adapter' => 'mysql'
-                )
-            )
-        );
+                ]
+            ]
+        ];
     }
 
     /**
-     * Generate dummy migration path
-     * @return string
+     * Generate dummy migration paths
+     *
+     * @return string[]
      */
-    protected function getMigrationPath()
+    protected function getMigrationPaths()
     {
         if (null === $this->migrationPath) {
             $this->migrationPath = uniqid('phinx', true);
         }
-        return $this->migrationPath;
+
+        return [$this->migrationPath];
+    }
+
+    /**
+     * Generate dummy seed paths
+     *
+     * @return string[]
+     */
+    protected function getSeedPaths()
+    {
+        if (null === $this->seedPath) {
+            $this->seedPath = uniqid('phinx', true);
+        }
+
+        return [$this->seedPath];
     }
 }
