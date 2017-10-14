@@ -70,7 +70,7 @@ EOT
     {
         $this->bootstrap($input, $output);
 
-        $seedSet     = $input->getOption('seed');
+        $seedSet = $input->getOption('seed');
         $environment = $input->getOption('environment');
 
         if ($environment === null) {

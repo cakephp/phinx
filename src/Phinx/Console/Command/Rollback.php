@@ -83,9 +83,9 @@ EOT
         $this->bootstrap($input, $output);
 
         $environment = $input->getOption('environment');
-        $version     = $input->getOption('target');
-        $date        = $input->getOption('date');
-        $force       = !!$input->getOption('force');
+        $version = $input->getOption('target');
+        $date = $input->getOption('date');
+        $force = !!$input->getOption('force');
 
         $config = $this->getConfig();
 

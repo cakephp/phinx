@@ -142,7 +142,7 @@ class SeedCreate extends AbstractCommand
         $path = $this->getSeedPath($input, $output);
 
         if (!file_exists($path)) {
-            $helper   = $this->getHelper('question');
+            $helper = $this->getHelper('question');
             $question = $this->getCreateSeedDirectoryQuestion();
 
             if ($helper->ask($input, $output, $question)) {
@@ -179,10 +179,10 @@ class SeedCreate extends AbstractCommand
         $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath($path) : null;
         $classes = [
             '$namespaceDefinition' => $namespace !== null ? ('namespace ' . $namespace . ';') : '',
-            '$namespace'           => $namespace,
-            '$useClassName'        => 'Phinx\Seed\AbstractSeed',
-            '$className'           => $className,
-            '$baseClassName'       => 'AbstractSeed',
+            '$namespace' => $namespace,
+            '$useClassName' => 'Phinx\Seed\AbstractSeed',
+            '$className' => $className,
+            '$baseClassName' => 'AbstractSeed',
         ];
         $contents = strtr($contents, $classes);
 

@@ -463,19 +463,23 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetColumns()
     {
-        $column1 = ['Field'   => 'column1',
-                         'Type'    => 'int(15)',
-                         'Null'    => 'NO',
-                         'Default' => '',
-                         'Key'     => 'PRI',
-                         'Extra'   => 'auto_increment'];
+        $column1 = [
+            'Field' => 'column1',
+            'Type' => 'int(15)',
+            'Null' => 'NO',
+            'Default' => '',
+            'Key' => 'PRI',
+            'Extra' => 'auto_increment'
+        ];
 
-        $column2 = ['Field'   => 'column2',
-                         'Type'    => 'varchar(32)',
-                         'Null'    => '',
-                         'Default' => 'NULL',
-                         'Key'     => '',
-                         'Extra'   => ''];
+        $column2 = [
+            'Field' => 'column2',
+            'Type' => 'varchar(32)',
+            'Null' => '',
+            'Default' => 'NULL',
+            'Key' => '',
+            'Extra' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -513,17 +517,21 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testHasColumnExists()
     {
-        $column1 = ['Field'   => 'column1',
-                         'Type'    => 'int(15)',
-                         'Null'    => 'NO',
-                         'Default' => '',
-                         'Extra'   => 'auto_increment'];
+        $column1 = [
+            'Field' => 'column1',
+            'Type' => 'int(15)',
+            'Null' => 'NO',
+            'Default' => '',
+            'Extra' => 'auto_increment'
+        ];
 
-        $column2 = ['Field'   => 'column2',
-                         'Type'    => 'varchar(32)',
-                         'Null'    => '',
-                         'Default' => 'NULL',
-                         'Extra'   => ''];
+        $column2 = [
+            'Field' => 'column2',
+            'Type' => 'varchar(32)',
+            'Null' => '',
+            'Default' => 'NULL',
+            'Extra' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -637,17 +645,21 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testHasColumnExistsCaseInsensitive()
     {
-        $column1 = ['Field'   => 'column1',
-                         'Type'    => 'int(15)',
-                         'Null'    => 'NO',
-                         'Default' => '',
-                         'Extra'   => 'auto_increment'];
+        $column1 = [
+            'Field' => 'column1',
+            'Type' => 'int(15)',
+            'Null' => 'NO',
+            'Default' => '',
+            'Extra' => 'auto_increment'
+        ];
 
-        $column2 = ['Field'   => 'column2',
-                         'Type'    => 'varchar(32)',
-                         'Null'    => '',
-                         'Default' => 'NULL',
-                         'Extra'   => ''];
+        $column2 = [
+            'Field' => 'column2',
+            'Type' => 'varchar(32)',
+            'Null' => '',
+            'Default' => 'NULL',
+            'Extra' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -666,17 +678,21 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testHasColumnNotExists()
     {
-        $column1 = ['Field'   => 'column1',
-                         'Type'    => 'int(15)',
-                         'Null'    => 'NO',
-                         'Default' => '',
-                         'Extra'   => 'auto_increment'];
+        $column1 = [
+            'Field' => 'column1',
+            'Type' => 'int(15)',
+            'Null' => 'NO',
+            'Default' => '',
+            'Extra' => 'auto_increment'
+        ];
 
-        $column2 = ['Field'   => 'column2',
-                         'Type'    => 'varchar(32)',
-                         'Null'    => '',
-                         'Default' => 'NULL',
-                         'Extra'   => ''];
+        $column2 = [
+            'Field' => 'column2',
+            'Type' => 'varchar(32)',
+            'Null' => '',
+            'Default' => 'NULL',
+            'Extra' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -760,17 +776,21 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testRenameColumnExists()
     {
-        $column1 = ['Field'   => 'column_old',
-                         'Type'    => 'int(15)',
-                         'Null'    => 'NO',
-                         'Default' => '',
-                         'Extra'   => 'auto_increment'];
+        $column1 = [
+            'Field' => 'column_old',
+            'Type' => 'int(15)',
+            'Null' => 'NO',
+            'Default' => '',
+            'Extra' => 'auto_increment'
+        ];
 
-        $column2 = ['Field'   => 'column2',
-                         'Type'    => 'varchar(32)',
-                         'Null'    => '',
-                         'Default' => 'NULL',
-                         'Extra'   => ''];
+        $column2 = [
+            'Field' => 'column2',
+            'Type' => 'varchar(32)',
+            'Null' => '',
+            'Default' => 'NULL',
+            'Extra' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -790,17 +810,21 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testRenameColumnNotExists()
     {
-        $column1 = ['Field'   => 'column1',
-                         'Type'    => 'int(15)',
-                         'Null'    => 'NO',
-                         'Default' => '',
-                         'Extra'   => 'auto_increment'];
+        $column1 = [
+            'Field' => 'column1',
+            'Type' => 'int(15)',
+            'Null' => 'NO',
+            'Default' => '',
+            'Extra' => 'auto_increment'
+        ];
 
-        $column2 = ['Field'   => 'column2',
-                         'Type'    => 'varchar(32)',
-                         'Null'    => '',
-                         'Default' => 'NULL',
-                         'Extra'   => ''];
+        $column2 = [
+            'Field' => 'column2',
+            'Type' => 'varchar(32)',
+            'Null' => '',
+            'Default' => 'NULL',
+            'Extra' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -1307,61 +1331,69 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     private function prepareCaseIndexes()
     {
-        $index1 = ['Table'   => 'table_name',
-                        'Non_unique'    => '0',
-                        'Key_name'    => 'PRIMARY',
-                        'Seq_in_index' => '1',
-                        'Column_name' => 'id',
-                        'Collation' => 'A',
-                        'Cardinality' => '0',
-                        'Sub_part' => 'NULL',
-                        'Packed' => 'NULL',
-                        'Null' => '',
-                        'Index_type' => 'BTREE',
-                        'Comment' => '',
-                        'Index_comment'   => ''];
+        $index1 = [
+            'Table' => 'table_name',
+            'Non_unique' => '0',
+            'Key_name' => 'PRIMARY',
+            'Seq_in_index' => '1',
+            'Column_name' => 'id',
+            'Collation' => 'A',
+            'Cardinality' => '0',
+            'Sub_part' => 'NULL',
+            'Packed' => 'NULL',
+            'Null' => '',
+            'Index_type' => 'BTREE',
+            'Comment' => '',
+            'Index_comment' => ''
+        ];
 
-        $index2 = ['Table'   => 'table_name',
-                        'Non_unique'    => '0',
-                        'Key_name'    => 'index_name',
-                        'Seq_in_index' => '1',
-                        'Column_name' => 'column_name',
-                        'Collation' => 'A',
-                        'Cardinality' => '0',
-                        'Sub_part' => 'NULL',
-                        'Packed' => 'NULL',
-                        'Null' => '',
-                        'Index_type' => 'BTREE',
-                        'Comment' => '',
-                        'Index_comment'   => ''];
+        $index2 = [
+            'Table' => 'table_name',
+            'Non_unique' => '0',
+            'Key_name' => 'index_name',
+            'Seq_in_index' => '1',
+            'Column_name' => 'column_name',
+            'Collation' => 'A',
+            'Cardinality' => '0',
+            'Sub_part' => 'NULL',
+            'Packed' => 'NULL',
+            'Null' => '',
+            'Index_type' => 'BTREE',
+            'Comment' => '',
+            'Index_comment' => ''
+        ];
 
-        $index3 = ['Table'   => 'table_name',
-                        'Non_unique'    => '0',
-                        'Key_name'    => 'multiple_index_name',
-                        'Seq_in_index' => '1',
-                        'Column_name' => 'column_name',
-                        'Collation' => 'A',
-                        'Cardinality' => '0',
-                        'Sub_part' => 'NULL',
-                        'Packed' => 'NULL',
-                        'Null' => '',
-                        'Index_type' => 'BTREE',
-                        'Comment' => '',
-                        'Index_comment'   => ''];
+        $index3 = [
+            'Table' => 'table_name',
+            'Non_unique' => '0',
+            'Key_name' => 'multiple_index_name',
+            'Seq_in_index' => '1',
+            'Column_name' => 'column_name',
+            'Collation' => 'A',
+            'Cardinality' => '0',
+            'Sub_part' => 'NULL',
+            'Packed' => 'NULL',
+            'Null' => '',
+            'Index_type' => 'BTREE',
+            'Comment' => '',
+            'Index_comment' => ''
+        ];
 
-        $index4 = ['Table'   => 'table_name',
-                        'Non_unique'    => '0',
-                        'Key_name'    => 'multiple_index_name',
-                        'Seq_in_index' => '2',
-                        'Column_name' => 'another_column_name',
-                        'Collation' => 'A',
-                        'Cardinality' => '0',
-                        'Sub_part' => 'NULL',
-                        'Packed' => 'NULL',
-                        'Null' => '',
-                        'Index_type' => 'BTREE',
-                        'Comment' => '',
-                        'Index_comment'   => ''];
+        $index4 = [
+            'Table' => 'table_name',
+            'Non_unique' => '0',
+            'Key_name' => 'multiple_index_name',
+            'Seq_in_index' => '2',
+            'Column_name' => 'another_column_name',
+            'Collation' => 'A',
+            'Cardinality' => '0',
+            'Sub_part' => 'NULL',
+            'Packed' => 'NULL',
+            'Null' => '',
+            'Index_type' => 'BTREE',
+            'Comment' => '',
+            'Index_comment' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -1488,23 +1520,29 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     private function prepareCaseForeignKeys()
     {
-        $fk = ['CONSTRAINT_NAME'         => 'fk1',
-                    'TABLE_NAME'              => 'table_name',
-                    'COLUMN_NAME'             => 'other_table_id',
-                    'REFERENCED_TABLE_NAME'   => 'other_table',
-                    'REFERENCED_COLUMN_NAME'  => 'id'];
+        $fk = [
+            'CONSTRAINT_NAME' => 'fk1',
+            'TABLE_NAME' => 'table_name',
+            'COLUMN_NAME' => 'other_table_id',
+            'REFERENCED_TABLE_NAME' => 'other_table',
+            'REFERENCED_COLUMN_NAME' => 'id'
+        ];
 
-        $fk1 = ['CONSTRAINT_NAME'         => 'fk2',
-                    'TABLE_NAME'              => 'table_name',
-                    'COLUMN_NAME'             => 'other_table_id',
-                    'REFERENCED_TABLE_NAME'   => 'other_table',
-                    'REFERENCED_COLUMN_NAME'  => 'id'];
+        $fk1 = [
+            'CONSTRAINT_NAME' => 'fk2',
+            'TABLE_NAME' => 'table_name',
+            'COLUMN_NAME' => 'other_table_id',
+            'REFERENCED_TABLE_NAME' => 'other_table',
+            'REFERENCED_COLUMN_NAME' => 'id'
+        ];
 
-        $fk2 = ['CONSTRAINT_NAME'         => 'fk2',
-                    'TABLE_NAME'              => 'table_name',
-                    'COLUMN_NAME'             => 'another_table_id',
-                    'REFERENCED_TABLE_NAME'   => 'other_table',
-                    'REFERENCED_COLUMN_NAME'  => 'id'];
+        $fk2 = [
+            'CONSTRAINT_NAME' => 'fk2',
+            'TABLE_NAME' => 'table_name',
+            'COLUMN_NAME' => 'another_table_id',
+            'REFERENCED_TABLE_NAME' => 'other_table',
+            'REFERENCED_COLUMN_NAME' => 'id'
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -1671,11 +1709,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testDropForeignKeyAsString()
     {
-        $fk = ['CONSTRAINT_NAME'         => 'fk1',
-                    'TABLE_NAME'              => 'table_name',
-                    'COLUMN_NAME'             => 'other_table_id',
-                    'REFERENCED_TABLE_NAME'   => 'other_table',
-                    'REFERENCED_COLUMN_NAME'  => 'id'];
+        $fk = [
+            'CONSTRAINT_NAME' => 'fk1',
+            'TABLE_NAME' => 'table_name',
+            'COLUMN_NAME' => 'other_table_id',
+            'REFERENCED_TABLE_NAME' => 'other_table',
+            'REFERENCED_COLUMN_NAME' => 'id'
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -1701,11 +1741,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function _testDropForeignKeyAsArray()
     {
-        $fk = ['CONSTRAINT_NAME'         => 'fk1',
-                    'TABLE_NAME'              => 'table_name',
-                    'COLUMN_NAME'             => 'other_table_id',
-                    'REFERENCED_TABLE_NAME'   => 'other_table',
-                    'REFERENCED_COLUMN_NAME'  => 'id'];
+        $fk = [
+            'CONSTRAINT_NAME' => 'fk1',
+            'TABLE_NAME' => 'table_name',
+            'COLUMN_NAME' => 'other_table_id',
+            'REFERENCED_TABLE_NAME' => 'other_table',
+            'REFERENCED_COLUMN_NAME' => 'id'
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')

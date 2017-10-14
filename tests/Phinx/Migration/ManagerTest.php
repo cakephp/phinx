@@ -105,12 +105,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
                 'default_migration_table' => 'phinxlog',
                 'default_database' => 'production',
                 'production' => [
-                    'adapter'   => 'mysql',
-                    'host'      => TESTS_PHINX_DB_ADAPTER_MYSQL_HOST,
-                    'name'      => TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
-                    'user'      => TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME,
-                    'pass'      => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
-                    'port'      => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT
+                    'adapter' => 'mysql',
+                    'host' => TESTS_PHINX_DB_ADAPTER_MYSQL_HOST,
+                    'name' => TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
+                    'user' => TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME,
+                    'pass' => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
+                    'port' => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT
                 ]
             ]
         ];

@@ -211,7 +211,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
             $sql .= sprintf(' CONSTRAINT %s_pkey PRIMARY KEY (', $table->getName());
-            if (is_string($options['primary_key'])) {       // handle primary_key => 'id'
+            if (is_string($options['primary_key'])) { // handle primary_key => 'id'
                 $sql .= $this->quoteColumnName($options['primary_key']);
             } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
                 // PHP 5.4 will allow access of $this, so we can call quoteColumnName() directly in the anonymous function,
@@ -228,7 +228,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
             $sql .= ')';
         } else {
-            $sql = substr(rtrim($sql), 0, -1);              // no primary keys
+            $sql = substr(rtrim($sql), 0, -1); // no primary keys
         }
 
         // set the foreign keys
