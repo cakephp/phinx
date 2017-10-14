@@ -150,7 +150,7 @@ class Index
     /**
      * Gets the index limit.
      *
-     * @return integer
+     * @return int
      */
     public function getLimit()
     {
