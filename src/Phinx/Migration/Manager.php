@@ -98,7 +98,7 @@ class Manager
      *
      * @param string $environment
      * @param null $format
-     * @return integer 0 if all migrations are up, or an error code
+     * @return int 0 if all migrations are up, or an error code
      */
     public function printStatus($environment, $format = null)
     {

@@ -183,7 +183,7 @@ class Column
     /**
      * Gets the column limit.
      *
-     * @return integer
+     * @return int
      */
     public function getLimit()
     {
@@ -341,7 +341,7 @@ class Column
     /**
      * Gets the column precision for decimal.
      *
-     * @return integer
+     * @return int
      */
     public function getPrecision()
     {
@@ -364,7 +364,7 @@ class Column
     /**
      * Gets the column scale for decimal.
      *
-     * @return integer
+     * @return int
      */
     public function getScale()
     {

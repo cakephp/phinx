@@ -76,7 +76,7 @@ class TextWrapper
 
     /**
      * Returns the exit code from the last run command.
-     * @return integer
+     * @return int
      */
     public function getExitCode()
     {
