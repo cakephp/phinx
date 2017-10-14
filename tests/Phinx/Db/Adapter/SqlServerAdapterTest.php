@@ -2,9 +2,9 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\Adapter\SqlServerAdapter;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
-use Phinx\Db\Adapter\SqlServerAdapter;
 
 class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -462,6 +462,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($table->hasIndex('email'));
         $this->adapter->dropIndex($table->getName(), 'email');
         $this->assertFalse($table->hasIndex('email'));
+
         return;
         // multiple column index
         $table2 = new \Phinx\Db\Table('table2', [], $this->adapter);

@@ -2,19 +2,19 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\Adapter\PostgresAdapter;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
-use Phinx\Db\Adapter\PostgresAdapter;
 
 class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * Check if Postgres is enabled in the current PHP
      *
-     * @return boolean
+     * @return bool
      */
     private static function isPostgresAvailable()
     {
@@ -180,8 +180,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
     public function testCreateTableWithMultiplePrimaryKeys()
     {
         $options = [
-            'id'            => false,
-            'primary_key'   => ['user_id', 'tag_id']
+            'id' => false,
+            'primary_key' => ['user_id', 'tag_id']
         ];
         $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
         $table->addColumn('user_id', 'integer')
@@ -501,7 +501,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $columns = $this->adapter->getColumns('t');
         $this->assertCount(count($pendingColumns) + 1, $columns);
         for ($i = 0; $i++; $i < count($pendingColumns)) {
-            $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
+            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
         }
     }
 
@@ -1017,7 +1017,6 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
         $this->assertEquals(0, count($rows));
     }
-
 
     public function testDumpCreateTable()
     {

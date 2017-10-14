@@ -30,8 +30,8 @@ namespace Phinx\Db\Adapter;
 
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
-use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
+use Phinx\Db\Table\Index;
 
 /**
  * Table prefix/suffix adapter.
@@ -56,6 +56,7 @@ class TablePrefixAdapter extends AdapterWrapper
     public function hasTable($tableName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
+
         return parent::hasTable($adapterTableName);
     }
 
@@ -111,6 +112,7 @@ class TablePrefixAdapter extends AdapterWrapper
     public function getColumns($tableName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
+
         return parent::getColumns($adapterTableName);
     }
 
@@ -120,6 +122,7 @@ class TablePrefixAdapter extends AdapterWrapper
     public function hasColumn($tableName, $columnName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
+
         return parent::hasColumn($adapterTableName, $columnName);
     }
 
@@ -149,6 +152,7 @@ class TablePrefixAdapter extends AdapterWrapper
     public function changeColumn($tableName, $columnName, Column $newColumn)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
+
         return parent::changeColumn($adapterTableName, $columnName, $newColumn);
     }
 
@@ -167,6 +171,7 @@ class TablePrefixAdapter extends AdapterWrapper
     public function hasIndex($tableName, $columns)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
+
         return parent::hasIndex($adapterTableName, $columns);
     }
 
@@ -176,6 +181,7 @@ class TablePrefixAdapter extends AdapterWrapper
     public function hasIndexByName($tableName, $indexName)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
+
         return parent::hasIndexByName($adapterTableName, $indexName);
     }
 
@@ -214,6 +220,7 @@ class TablePrefixAdapter extends AdapterWrapper
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
+
         return parent::hasForeignKey($adapterTableName, $columns, $constraint);
     }
 
@@ -266,7 +273,7 @@ class TablePrefixAdapter extends AdapterWrapper
      */
     public function getPrefix()
     {
-        return (string) $this->getOption('table_prefix');
+        return (string)$this->getOption('table_prefix');
     }
 
     /**
@@ -276,7 +283,7 @@ class TablePrefixAdapter extends AdapterWrapper
      */
     public function getSuffix()
     {
-        return (string) $this->getOption('table_suffix');
+        return (string)$this->getOption('table_suffix');
     }
 
     /**

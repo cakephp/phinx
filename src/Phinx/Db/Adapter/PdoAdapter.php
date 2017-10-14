@@ -63,7 +63,7 @@ abstract class PdoAdapter extends AbstractAdapter
      * Sets the database connection.
      *
      * @param \PDO $connection Connection
-     * @return AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function setConnection(\PDO $connection)
     {
@@ -103,6 +103,7 @@ abstract class PdoAdapter extends AbstractAdapter
         if ($this->connection === null) {
             $this->connect();
         }
+
         return $this->connection;
     }
 
@@ -127,6 +128,7 @@ abstract class PdoAdapter extends AbstractAdapter
     {
         if ($this->isDryRunEnabled()) {
             $this->getOutput()->writeln($sql);
+
             return 0;
         }
 
@@ -150,6 +152,7 @@ abstract class PdoAdapter extends AbstractAdapter
     public function fetchRow($sql)
     {
         $result = $this->query($sql);
+
         return $result->fetch();
     }
 
@@ -163,6 +166,7 @@ abstract class PdoAdapter extends AbstractAdapter
         while ($row = $result->fetch()) {
             $rows[] = $row;
         }
+
         return $rows;
     }
 
@@ -378,6 +382,6 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function castToBool($value)
     {
-        return (bool) $value ? 1 : 0;
+        return (bool)$value ? 1 : 0;
     }
 }

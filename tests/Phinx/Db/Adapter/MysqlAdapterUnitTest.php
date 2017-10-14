@@ -2,11 +2,11 @@
 
 namespace Test\Phinx\Db\Adapter;
 
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\NullOutput;
+use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
-use Phinx\Db\Adapter\MysqlAdapter;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 
 class PDOMock extends \PDO
 {
@@ -62,7 +62,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
     private $adapter;
 
     private $conn;
-    
+
     private $result;
 
     public function setUp()
@@ -110,14 +110,12 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->assertQuerySql($expectedSql, $this->result);
     }
 
-
     public function testDisconnect()
     {
         $this->assertNotNull($this->adapter->getConnection());
         $this->adapter->disconnect();
         $this->assertNull($this->adapter->getConnection());
     }
-
 
     // database related tests
 
@@ -167,7 +165,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
     public function testCreateDatabaseWithCharsetAndCollation()
     {
         $this->assertExecuteSql("CREATE DATABASE `database_name` DEFAULT CHARACTER SET `latin1` COLLATE `latin1_swedish_ci`");
-        $this->adapter->createDatabase('database_name', ['charset' => 'latin1', 'collation'=>'latin1_swedish_ci']);
+        $this->adapter->createDatabase('database_name', ['charset' => 'latin1', 'collation' => 'latin1_swedish_ci']);
     }
 
     public function testHasTransactions()
@@ -197,7 +195,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testDescribeTable()
     {
-        $this->adapter->setOptions(['name'=>'database_name']);
+        $this->adapter->setOptions(['name' => 'database_name']);
 
         $expectedSql = "SELECT *
              FROM information_schema.tables
@@ -234,7 +232,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testHasTableExists()
     {
-        $this->adapter->setOptions(['name'=>'database_name']);
+        $this->adapter->setOptions(['name' => 'database_name']);
         $this->result->expects($this->once())
                      ->method('fetch')
                      ->will($this->returnValue(['somecontent']));
@@ -247,7 +245,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testHasTableNotExists()
     {
-        $this->adapter->setOptions(['name'=>'database_name']);
+        $this->adapter->setOptions(['name' => 'database_name']);
         $this->result->expects($this->once())
                      ->method('fetch')
                      ->will($this->returnValue([]));
@@ -285,7 +283,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(['getName', 'getOptions', 'getPendingColumns', 'getIndexes', 'getForeignKeys'])
                       ->getMock();
 
-        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue([$column1,$column2]));
+        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue([$column1, $column2]));
         $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
         $table->expects($this->any())->method('getOptions')->will($this->returnValue([]));
         $table->expects($this->any())->method('getIndexes')->will($this->returnValue([]));
@@ -324,7 +322,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->getMock();
 
         $tableOptions = ['id' => 'column_name2'];
-        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue([$column1,$column2]));
+        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue([$column1, $column2]));
         $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
         $table->expects($this->any())->method('getOptions')->will($this->returnValue($tableOptions));
         $table->expects($this->any())->method('getIndexes')->will($this->returnValue([]));
@@ -363,7 +361,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->getMock();
 
         $tableOptions = ['signed' => false];
-        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue([$column1,$column2]));
+        $table->expects($this->any())->method('getPendingColumns')->will($this->returnValue([$column1, $column2]));
         $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
         $table->expects($this->any())->method('getOptions')->will($this->returnValue($tableOptions));
         $table->expects($this->any())->method('getIndexes')->will($this->returnValue([]));
@@ -382,7 +380,6 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->getMock();
         $refTable->expects($this->any())->method('getName')->will($this->returnValue('other_table'));
 
-
         $table = $this->getMockBuilder('Phinx\Db\Table')
                       ->disableOriginalConstructor()
                       ->setMethods(['getName', 'getOptions', 'getPendingColumns', 'getIndexes', 'getForeignKeys'])
@@ -390,8 +387,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
         $tableOptions = ['collation' => 'latin1_swedish_ci',
                               'engine' => 'MyISAM',
-                              'id' => ['ref_id','other_table_id'],
-                              'primary_key' => ['ref_id','other_table_id'],
+                              'id' => ['ref_id', 'other_table_id'],
+                              'primary_key' => ['ref_id', 'other_table_id'],
                               'comment' => "Table Comment"];
         $this->conn->expects($this->any())->method('quote')->with('Table Comment')->will($this->returnValue('`Table Comment`'));
 
@@ -455,7 +452,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $table->expects($this->any())->method('getIndexes')->will($this->returnValue([$index]));
         $table->expects($this->any())->method('getForeignKeys')->will($this->returnValue([$foreignkey]));
 
-        $expectedSql ='CREATE TABLE `table_name` (`column_name` VARCHAR(255) NOT NULL, `other_table_id` INT(11) NOT NULL, `ref_id` INT(11) NOT NULL, PRIMARY KEY (`ref_id`,`other_table_id`),  KEY (`column_name`),  CONSTRAINT `fk1` FOREIGN KEY (`other_table_id`) REFERENCES `other_table` (`id`)) ENGINE = MyISAM CHARACTER SET latin1 COLLATE latin1_swedish_ci COMMENT=`Table Comment`;';
+        $expectedSql = 'CREATE TABLE `table_name` (`column_name` VARCHAR(255) NOT NULL, `other_table_id` INT(11) NOT NULL, `ref_id` INT(11) NOT NULL, PRIMARY KEY (`ref_id`,`other_table_id`),  KEY (`column_name`),  CONSTRAINT `fk1` FOREIGN KEY (`other_table_id`) REFERENCES `other_table` (`id`)) ENGINE = MyISAM CHARACTER SET latin1 COLLATE latin1_swedish_ci COMMENT=`Table Comment`;';
         $this->assertExecuteSql($expectedSql);
         $this->adapter->createTable($table);
     }
@@ -466,19 +463,23 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetColumns()
     {
-        $column1 = ['Field'   => 'column1',
-                         'Type'    => 'int(15)',
-                         'Null'    => 'NO',
-                         'Default' => '',
-                         'Key'     => 'PRI',
-                         'Extra'   => 'auto_increment'];
+        $column1 = [
+            'Field' => 'column1',
+            'Type' => 'int(15)',
+            'Null' => 'NO',
+            'Default' => '',
+            'Key' => 'PRI',
+            'Extra' => 'auto_increment'
+        ];
 
-        $column2 = ['Field'   => 'column2',
-                         'Type'    => 'varchar(32)',
-                         'Null'    => '',
-                         'Default' => 'NULL',
-                         'Key'     => '',
-                         'Extra'   => ''];
+        $column2 = [
+            'Field' => 'column2',
+            'Type' => 'varchar(32)',
+            'Null' => '',
+            'Default' => 'NULL',
+            'Key' => '',
+            'Extra' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -512,22 +513,25 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($columns[1]->getIdentity());
     }
 
-
     // column related tests
 
     public function testHasColumnExists()
     {
-        $column1 = ['Field'   => 'column1',
-                         'Type'    => 'int(15)',
-                         'Null'    => 'NO',
-                         'Default' => '',
-                         'Extra'   => 'auto_increment'];
+        $column1 = [
+            'Field' => 'column1',
+            'Type' => 'int(15)',
+            'Null' => 'NO',
+            'Default' => '',
+            'Extra' => 'auto_increment'
+        ];
 
-        $column2 = ['Field'   => 'column2',
-                         'Type'    => 'varchar(32)',
-                         'Null'    => '',
-                         'Default' => 'NULL',
-                         'Extra'   => ''];
+        $column2 = [
+            'Field' => 'column2',
+            'Type' => 'varchar(32)',
+            'Null' => '',
+            'Default' => 'NULL',
+            'Extra' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -641,17 +645,21 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testHasColumnExistsCaseInsensitive()
     {
-        $column1 = ['Field'   => 'column1',
-                         'Type'    => 'int(15)',
-                         'Null'    => 'NO',
-                         'Default' => '',
-                         'Extra'   => 'auto_increment'];
+        $column1 = [
+            'Field' => 'column1',
+            'Type' => 'int(15)',
+            'Null' => 'NO',
+            'Default' => '',
+            'Extra' => 'auto_increment'
+        ];
 
-        $column2 = ['Field'   => 'column2',
-                         'Type'    => 'varchar(32)',
-                         'Null'    => '',
-                         'Default' => 'NULL',
-                         'Extra'   => ''];
+        $column2 = [
+            'Field' => 'column2',
+            'Type' => 'varchar(32)',
+            'Null' => '',
+            'Default' => 'NULL',
+            'Extra' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -670,17 +678,21 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testHasColumnNotExists()
     {
-        $column1 = ['Field'   => 'column1',
-                         'Type'    => 'int(15)',
-                         'Null'    => 'NO',
-                         'Default' => '',
-                         'Extra'   => 'auto_increment'];
+        $column1 = [
+            'Field' => 'column1',
+            'Type' => 'int(15)',
+            'Null' => 'NO',
+            'Default' => '',
+            'Extra' => 'auto_increment'
+        ];
 
-        $column2 = ['Field'   => 'column2',
-                         'Type'    => 'varchar(32)',
-                         'Null'    => '',
-                         'Default' => 'NULL',
-                         'Extra'   => ''];
+        $column2 = [
+            'Field' => 'column2',
+            'Type' => 'varchar(32)',
+            'Null' => '',
+            'Default' => 'NULL',
+            'Extra' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -703,7 +715,6 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->adapter->dropColumn('table_name', 'column1');
     }
 
-
     public function testAddColumn()
     {
         $table = $this->getMockBuilder('Phinx\Db\Table')
@@ -711,7 +722,6 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(['getName'])
                       ->getMock();
         $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
-
 
         $column = $this->getMockBuilder('Phinx\Db\Table\Column')
                       ->disableOriginalConstructor()
@@ -734,7 +744,6 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                       ->setMethods(['getName'])
                       ->getMock();
         $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
-
 
         $column = $this->getMockBuilder('Phinx\Db\Table\Column')
                       ->disableOriginalConstructor()
@@ -767,19 +776,21 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testRenameColumnExists()
     {
-        $column1 = ['Field'   => 'column_old',
-                         'Type'    => 'int(15)',
-                         'Null'    => 'NO',
-                         'Default' => '',
-                         'Extra'   => 'auto_increment',
-                         'Comment' => 'Old Column'];
+        $column1 = [
+            'Field' => 'column_old',
+            'Type' => 'int(15)',
+            'Null' => 'NO',
+            'Default' => '',
+            'Extra' => 'auto_increment'
+        ];
 
-        $column2 = ['Field'   => 'column2',
-                         'Type'    => 'varchar(32)',
-                         'Null'    => '',
-                         'Default' => 'NULL',
-                         'Extra'   => '',
-                         'Comment' => ''];
+        $column2 = [
+            'Field' => 'column2',
+            'Type' => 'varchar(32)',
+            'Null' => '',
+            'Default' => 'NULL',
+            'Extra' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -802,17 +813,21 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testRenameColumnNotExists()
     {
-        $column1 = ['Field'   => 'column1',
-                         'Type'    => 'int(15)',
-                         'Null'    => 'NO',
-                         'Default' => '',
-                         'Extra'   => 'auto_increment'];
+        $column1 = [
+            'Field' => 'column1',
+            'Type' => 'int(15)',
+            'Null' => 'NO',
+            'Default' => '',
+            'Extra' => 'auto_increment'
+        ];
 
-        $column2 = ['Field'   => 'column2',
-                         'Type'    => 'varchar(32)',
-                         'Null'    => '',
-                         'Default' => 'NULL',
-                         'Extra'   => ''];
+        $column2 = [
+            'Field' => 'column2',
+            'Type' => 'varchar(32)',
+            'Null' => '',
+            'Default' => 'NULL',
+            'Extra' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -825,7 +840,6 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                      ->will($this->returnValue(null));
 
         $this->assertQuerySql("SHOW FULL COLUMNS FROM `table_name`", $this->result);
-
 
         $this->setExpectedException('\InvalidArgumentException', 'The specified column doesn\'t exist: column_old');
         $this->adapter->renameColumn('table_name', 'column_old', 'column_new');
@@ -870,7 +884,6 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(' DEFAULT `str`', $this->adapter->getDefaultValueDefinition('str'));
     }
 
-
     public function testGetSqlTypeExists()
     {
         $this->assertEquals(
@@ -893,7 +906,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             ['name' => 'tinytext'],
-            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_TINY+1)
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_TINY + 1)
         );
         $this->assertEquals(
             ['name' => 'text'],
@@ -901,7 +914,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             ['name' => 'text'],
-            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_REGULAR+1)
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_REGULAR + 1)
         );
         $this->assertEquals(
             ['name' => 'mediumtext'],
@@ -909,7 +922,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             ['name' => 'mediumtext'],
-            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_MEDIUM+1)
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_MEDIUM + 1)
         );
         $this->assertEquals(
             ['name' => 'longtext'],
@@ -917,7 +930,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             ['name' => 'longtext'],
-            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_LONG+1)
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TEXT, MysqlAdapter::TEXT_LONG + 1)
         );
 
         //blob combinations
@@ -931,7 +944,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             ['name' => 'tinyblob'],
-            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_TINY+1)
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_TINY + 1)
         );
         $this->assertEquals(
             ['name' => 'blob'],
@@ -939,7 +952,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             ['name' => 'blob'],
-            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_REGULAR+1)
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_REGULAR + 1)
         );
         $this->assertEquals(
             ['name' => 'mediumblob'],
@@ -947,7 +960,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             ['name' => 'mediumblob'],
-            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_MEDIUM+1)
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_MEDIUM + 1)
         );
         $this->assertEquals(
             ['name' => 'longblob'],
@@ -955,7 +968,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             ['name' => 'longblob'],
-            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_LONG+1)
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_BLOB, MysqlAdapter::BLOB_LONG + 1)
         );
 
         $this->assertEquals(
@@ -991,7 +1004,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             ['name' => 'tinyint'],
-            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_TINY+1)
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_TINY + 1)
         );
         $this->assertEquals(
             ['name' => 'smallint'],
@@ -999,7 +1012,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             ['name' => 'smallint'],
-            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_SMALL+1)
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_SMALL + 1)
         );
         $this->assertEquals(
             ['name' => 'mediumint'],
@@ -1007,7 +1020,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             ['name' => 'mediumint'],
-            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_MEDIUM+1)
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_MEDIUM + 1)
         );
         $this->assertEquals(
             ['name' => 'int', 'limit' => 11],
@@ -1015,15 +1028,15 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             ['name' => 'int', 'limit' => 11],
-            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_REGULAR+1)
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_REGULAR + 1)
         );
         $this->assertEquals(
-            ['name' => 'bigint', 'limit'=> 20],
+            ['name' => 'bigint', 'limit' => 20],
             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_BIG)
         );
         $this->assertEquals(
-            ['name' => 'bigint', 'limit'=> 20],
-            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_BIG+1)
+            ['name' => 'bigint', 'limit' => 20],
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_INTEGER, MysqlAdapter::INT_BIG + 1)
         );
 
         $this->assertEquals(
@@ -1242,7 +1255,6 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-
     public function testPhinxTypeExistsWithLimitNull()
     {
         $this->assertEquals(
@@ -1322,61 +1334,69 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     private function prepareCaseIndexes()
     {
-        $index1 = ['Table'   => 'table_name',
-                        'Non_unique'    => '0',
-                        'Key_name'    => 'PRIMARY',
-                        'Seq_in_index' => '1',
-                        'Column_name' => 'id',
-                        'Collation' => 'A',
-                        'Cardinality' => '0',
-                        'Sub_part' => 'NULL',
-                        'Packed' => 'NULL',
-                        'Null' => '',
-                        'Index_type' => 'BTREE',
-                        'Comment' => '',
-                        'Index_comment'   => ''];
+        $index1 = [
+            'Table' => 'table_name',
+            'Non_unique' => '0',
+            'Key_name' => 'PRIMARY',
+            'Seq_in_index' => '1',
+            'Column_name' => 'id',
+            'Collation' => 'A',
+            'Cardinality' => '0',
+            'Sub_part' => 'NULL',
+            'Packed' => 'NULL',
+            'Null' => '',
+            'Index_type' => 'BTREE',
+            'Comment' => '',
+            'Index_comment' => ''
+        ];
 
-        $index2 = ['Table'   => 'table_name',
-                        'Non_unique'    => '0',
-                        'Key_name'    => 'index_name',
-                        'Seq_in_index' => '1',
-                        'Column_name' => 'column_name',
-                        'Collation' => 'A',
-                        'Cardinality' => '0',
-                        'Sub_part' => 'NULL',
-                        'Packed' => 'NULL',
-                        'Null' => '',
-                        'Index_type' => 'BTREE',
-                        'Comment' => '',
-                        'Index_comment'   => ''];
+        $index2 = [
+            'Table' => 'table_name',
+            'Non_unique' => '0',
+            'Key_name' => 'index_name',
+            'Seq_in_index' => '1',
+            'Column_name' => 'column_name',
+            'Collation' => 'A',
+            'Cardinality' => '0',
+            'Sub_part' => 'NULL',
+            'Packed' => 'NULL',
+            'Null' => '',
+            'Index_type' => 'BTREE',
+            'Comment' => '',
+            'Index_comment' => ''
+        ];
 
-        $index3 = ['Table'   => 'table_name',
-                        'Non_unique'    => '0',
-                        'Key_name'    => 'multiple_index_name',
-                        'Seq_in_index' => '1',
-                        'Column_name' => 'column_name',
-                        'Collation' => 'A',
-                        'Cardinality' => '0',
-                        'Sub_part' => 'NULL',
-                        'Packed' => 'NULL',
-                        'Null' => '',
-                        'Index_type' => 'BTREE',
-                        'Comment' => '',
-                        'Index_comment'   => ''];
+        $index3 = [
+            'Table' => 'table_name',
+            'Non_unique' => '0',
+            'Key_name' => 'multiple_index_name',
+            'Seq_in_index' => '1',
+            'Column_name' => 'column_name',
+            'Collation' => 'A',
+            'Cardinality' => '0',
+            'Sub_part' => 'NULL',
+            'Packed' => 'NULL',
+            'Null' => '',
+            'Index_type' => 'BTREE',
+            'Comment' => '',
+            'Index_comment' => ''
+        ];
 
-        $index4 = ['Table'   => 'table_name',
-                        'Non_unique'    => '0',
-                        'Key_name'    => 'multiple_index_name',
-                        'Seq_in_index' => '2',
-                        'Column_name' => 'another_column_name',
-                        'Collation' => 'A',
-                        'Cardinality' => '0',
-                        'Sub_part' => 'NULL',
-                        'Packed' => 'NULL',
-                        'Null' => '',
-                        'Index_type' => 'BTREE',
-                        'Comment' => '',
-                        'Index_comment'   => ''];
+        $index4 = [
+            'Table' => 'table_name',
+            'Non_unique' => '0',
+            'Key_name' => 'multiple_index_name',
+            'Seq_in_index' => '2',
+            'Column_name' => 'another_column_name',
+            'Collation' => 'A',
+            'Cardinality' => '0',
+            'Sub_part' => 'NULL',
+            'Packed' => 'NULL',
+            'Null' => '',
+            'Index_type' => 'BTREE',
+            'Comment' => '',
+            'Index_comment' => ''
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -1399,6 +1419,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
                      ->will($this->returnValue(null));
 
         $this->assertQuerySql("SHOW INDEXES FROM `table_name`", $this->result);
+
         return [$index1, $index2, $index3, $index4];
     }
 
@@ -1413,7 +1434,6 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['columns' => [$index2['Column_name']]], $indexes[$index2['Key_name']]);
         $this->assertEquals(['columns' => [$index3['Column_name'], $index4['Column_name']]], $indexes[$index3['Key_name']]);
     }
-
 
     public function testHasIndexExistsAsString()
     {
@@ -1468,13 +1488,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $table->expects($this->any())->method('getName')->will($this->returnValue('table_name'));
 
-
         $index = $this->getMockBuilder('Phinx\Db\Table\Index')
             ->disableOriginalConstructor()
             ->setMethods($methods)
             ->getMock();
 
         $index->expects($this->any())->method('getColumns')->will($this->returnValue(['column_name']));
+
         return [$table, $index];
     }
 
@@ -1503,24 +1523,29 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     private function prepareCaseForeignKeys()
     {
-        $fk = ['CONSTRAINT_NAME'         => 'fk1',
-                    'TABLE_NAME'              => 'table_name',
-                    'COLUMN_NAME'             => 'other_table_id',
-                    'REFERENCED_TABLE_NAME'   => 'other_table',
-                    'REFERENCED_COLUMN_NAME'  => 'id'];
+        $fk = [
+            'CONSTRAINT_NAME' => 'fk1',
+            'TABLE_NAME' => 'table_name',
+            'COLUMN_NAME' => 'other_table_id',
+            'REFERENCED_TABLE_NAME' => 'other_table',
+            'REFERENCED_COLUMN_NAME' => 'id'
+        ];
 
+        $fk1 = [
+            'CONSTRAINT_NAME' => 'fk2',
+            'TABLE_NAME' => 'table_name',
+            'COLUMN_NAME' => 'other_table_id',
+            'REFERENCED_TABLE_NAME' => 'other_table',
+            'REFERENCED_COLUMN_NAME' => 'id'
+        ];
 
-        $fk1 = ['CONSTRAINT_NAME'         => 'fk2',
-                    'TABLE_NAME'              => 'table_name',
-                    'COLUMN_NAME'             => 'other_table_id',
-                    'REFERENCED_TABLE_NAME'   => 'other_table',
-                    'REFERENCED_COLUMN_NAME'  => 'id'];
-
-        $fk2 = ['CONSTRAINT_NAME'         => 'fk2',
-                    'TABLE_NAME'              => 'table_name',
-                    'COLUMN_NAME'             => 'another_table_id',
-                    'REFERENCED_TABLE_NAME'   => 'other_table',
-                    'REFERENCED_COLUMN_NAME'  => 'id'];
+        $fk2 = [
+            'CONSTRAINT_NAME' => 'fk2',
+            'TABLE_NAME' => 'table_name',
+            'COLUMN_NAME' => 'another_table_id',
+            'REFERENCED_TABLE_NAME' => 'other_table',
+            'REFERENCED_COLUMN_NAME' => 'id'
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -1550,6 +1575,7 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
               AND TABLE_NAME = \'table_name\'
             ORDER BY POSITION_IN_UNIQUE_CONSTRAINT';
         $this->assertQuerySql($expectedSql, $this->result);
+
         return [$fk, $fk1, $fk2];
     }
 
@@ -1649,7 +1675,6 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->adapter->addForeignKey($table, $foreignkey);
     }
 
-
     public function testAddForeignKeyComplete()
     {
         $table = $this->getMockBuilder('Phinx\Db\Table')
@@ -1687,11 +1712,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function testDropForeignKeyAsString()
     {
-        $fk = ['CONSTRAINT_NAME'         => 'fk1',
-                    'TABLE_NAME'              => 'table_name',
-                    'COLUMN_NAME'             => 'other_table_id',
-                    'REFERENCED_TABLE_NAME'   => 'other_table',
-                    'REFERENCED_COLUMN_NAME'  => 'id'];
+        $fk = [
+            'CONSTRAINT_NAME' => 'fk1',
+            'TABLE_NAME' => 'table_name',
+            'COLUMN_NAME' => 'other_table_id',
+            'REFERENCED_TABLE_NAME' => 'other_table',
+            'REFERENCED_COLUMN_NAME' => 'id'
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')
@@ -1717,11 +1744,13 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
     public function _testDropForeignKeyAsArray()
     {
-        $fk = ['CONSTRAINT_NAME'         => 'fk1',
-                    'TABLE_NAME'              => 'table_name',
-                    'COLUMN_NAME'             => 'other_table_id',
-                    'REFERENCED_TABLE_NAME'   => 'other_table',
-                    'REFERENCED_COLUMN_NAME'  => 'id'];
+        $fk = [
+            'CONSTRAINT_NAME' => 'fk1',
+            'TABLE_NAME' => 'table_name',
+            'COLUMN_NAME' => 'other_table_id',
+            'REFERENCED_TABLE_NAME' => 'other_table',
+            'REFERENCED_COLUMN_NAME' => 'id'
+        ];
 
         $this->result->expects($this->at(0))
                      ->method('fetch')

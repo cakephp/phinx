@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -9,7 +10,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\StreamOutput;
-use Phinx\Db\Adapter\AdapterInterface;
 
 class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -90,9 +90,9 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         }
 
         $options = [
-            'name'        => TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
-            'user'        => TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME,
-            'pass'        => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
+            'name' => TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
+            'user' => TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME,
+            'pass' => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
             'unix_socket' => TESTS_PHINX_DB_ADAPTER_MYSQL_UNIX_SOCKET,
         ];
 
@@ -173,7 +173,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('ntable', [], $this->adapter);
         $table->addColumn('realname', 'string')
               ->addColumn('tag_id', 'integer')
-              ->addForeignKey('tag_id', 'ntable_tag', 'id', ['delete'=> 'NO_ACTION', 'update'=> 'NO_ACTION'])
+              ->addForeignKey('tag_id', 'ntable_tag', 'id', ['delete' => 'NO_ACTION', 'update' => 'NO_ACTION'])
               ->save();
 
         $this->assertTrue($this->adapter->hasTable('ntable'));
@@ -228,8 +228,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
     public function testCreateTableWithMultiplePrimaryKeys()
     {
         $options = [
-            'id'            => false,
-            'primary_key'   => ['user_id', 'tag_id']
+            'id' => false,
+            'primary_key' => ['user_id', 'tag_id']
         ];
         $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
         $table->addColumn('user_id', 'integer')
@@ -512,7 +512,6 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("test1", $rows[1]['Default']);
     }
 
-
     public function testChangeColumnDefaultToZero()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
@@ -660,7 +659,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $columns = $this->adapter->getColumns('t');
         $this->assertCount(count($pendingColumns) + 1, $columns);
         for ($i = 0; $i++; $i < count($pendingColumns)) {
-            $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
+            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
         }
     }
 
@@ -672,7 +671,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $described = $this->adapter->describeTable('t');
 
-        $this->assertTrue(in_array($described['TABLE_TYPE'], ['VIEW','BASE TABLE']));
+        $this->assertTrue(in_array($described['TABLE_TYPE'], ['VIEW', 'BASE TABLE']));
         $this->assertEquals($described['TABLE_NAME'], 't');
         $this->assertEquals($described['TABLE_SCHEMA'], TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
         $this->assertEquals($described['TABLE_ROWS'], 0);
@@ -707,10 +706,9 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $columns = $this->adapter->getColumns('group');
         $this->assertCount(count($pendingColumns) + 1, $columns);
         for ($i = 0; $i++; $i < count($pendingColumns)) {
-            $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
+            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
         }
     }
-
 
     public function testAddIndex()
     {

@@ -69,11 +69,12 @@ class Index
      * Sets the index columns.
      *
      * @param array $columns
-     * @return Index
+     * @return \Phinx\Db\Table\Index
      */
     public function setColumns($columns)
     {
         $this->columns = $columns;
+
         return $this;
     }
 
@@ -91,11 +92,12 @@ class Index
      * Sets the index type.
      *
      * @param string $type
-     * @return Index
+     * @return \Phinx\Db\Table\Index
      */
     public function setType($type)
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -113,11 +115,12 @@ class Index
      * Sets the index name.
      *
      * @param string $name
-     * @return Index
+     * @return \Phinx\Db\Table\Index
      */
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -134,12 +137,13 @@ class Index
     /**
      * Sets the index limit.
      *
-     * @param integer $limit
-     * @return Index
+     * @param int $limit
+     * @return \Phinx\Db\Table\Index
      */
     public function setLimit($limit)
     {
         $this->limit = $limit;
+
         return $this;
     }
 
@@ -158,7 +162,7 @@ class Index
      *
      * @param array $options Options
      * @throws \RuntimeException
-     * @return Index
+     * @return \Phinx\Db\Table\Index
      */
     public function setOptions($options)
     {
@@ -171,7 +175,7 @@ class Index
 
             // handle $options['unique']
             if (strcasecmp($option, self::UNIQUE) === 0) {
-                if ((bool) $value) {
+                if ((bool)$value) {
                     $this->setType(self::UNIQUE);
                 }
                 continue;
@@ -180,6 +184,7 @@ class Index
             $method = 'set' . ucfirst($option);
             $this->$method($value);
         }
+
         return $this;
     }
 }

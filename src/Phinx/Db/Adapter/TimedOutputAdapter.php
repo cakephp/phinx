@@ -56,6 +56,7 @@ class TimedOutputAdapter extends AdapterWrapper
     public function startCommandTimer()
     {
         $started = microtime(true);
+
         return function () use ($started) {
             $end = microtime(true);
             if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
@@ -87,13 +88,14 @@ class TimedOutputAdapter extends AdapterWrapper
                         },
                         $arg
                     );
-                    $outArr[] = '[' . implode(', ', $arg)  . ']';
+                    $outArr[] = '[' . implode(', ', $arg) . ']';
                     continue;
                 }
 
                 $outArr[] = '\'' . $arg . '\'';
             }
             $this->getOutput()->writeln(' -- ' . $command . '(' . implode(', ', $outArr) . ')');
+
             return;
         }
 

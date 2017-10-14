@@ -2,12 +2,12 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\Adapter\SQLiteAdapter;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
-use Phinx\Db\Adapter\SQLiteAdapter;
 
 class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -129,8 +129,8 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
     public function testCreateTableWithMultiplePrimaryKeys()
     {
         $options = [
-            'id'            => false,
-            'primary_key'   => ['user_id', 'tag_id']
+            'id' => false,
+            'primary_key' => ['user_id', 'tag_id']
         ];
         $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
         $table->addColumn('user_id', 'integer')
@@ -426,7 +426,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $columns = $this->adapter->getColumns('t');
         $this->assertCount(count($pendingColumns) + 1, $columns);
         for ($i = 0; $i++; $i < count($pendingColumns)) {
-            $this->assertEquals($pendingColumns[$i], $columns[$i+1]);
+            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
         }
     }
 
@@ -623,7 +623,6 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('\RuntimeException', 'Column type ?int? is not supported');
         $this->adapter->getPhinxType('?int?');
     }
-
 
     public function testAddIndexTwoTablesSameIndex()
     {

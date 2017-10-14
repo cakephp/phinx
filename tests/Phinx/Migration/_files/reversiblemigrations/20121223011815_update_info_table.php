@@ -20,7 +20,6 @@ class UpdateInfoTable extends AbstractMigration
      */
     public function up()
     {
-
     }
 
     /**
@@ -28,6 +27,5 @@ class UpdateInfoTable extends AbstractMigration
      */
     public function down()
     {
-
     }
 }

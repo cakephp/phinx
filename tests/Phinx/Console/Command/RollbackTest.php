@@ -2,17 +2,17 @@
 
 namespace Test\Phinx\Console\Command;
 
+use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
+use Phinx\Console\Command\Rollback;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
 use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\StreamOutput;
-use Phinx\Config\Config;
-use Phinx\Console\Command\Rollback;
+use Symfony\Component\Console\Tester\CommandTester;
 
 class RollbackTest extends \PHPUnit_Framework_TestCase
 {
@@ -140,7 +140,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
     }
-    
+
     public function testStartTimeVersionOrder()
     {
         $application = new \Phinx\Console\PhinxApplication('testing');
@@ -167,7 +167,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
         $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
     }
-    
+
     public function testWithDate()
     {
         $application = new \Phinx\Console\PhinxApplication('testing');
@@ -236,7 +236,6 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-
     /**
      * @dataProvider getTargetFromDateThrowsExceptionDataProvider
      * @expectedException InvalidArgumentException
@@ -247,7 +246,7 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $rollbackCommand = new Rollback();
         $rollbackCommand->getTargetFromDate($invalidDate);
     }
-    
+
     public function getTargetFromDateThrowsExceptionDataProvider()
     {
         return [

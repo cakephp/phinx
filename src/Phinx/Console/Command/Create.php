@@ -76,7 +76,7 @@ class Create extends AbstractCommand
      * Get the confirmation question asking if the user wants to create the
      * migrations directory.
      *
-     * @return ConfirmationQuestion
+     * @return \Symfony\Component\Console\Question\ConfirmationQuestion
      */
     protected function getCreateMigrationDirectoryQuestion()
     {
@@ -87,7 +87,7 @@ class Create extends AbstractCommand
      * Get the question that allows the user to select which migration path to use.
      *
      * @param string[] $paths
-     * @return ChoiceQuestion
+     * @return \Symfony\Component\Console\Question\ChoiceQuestion
      */
     protected function getSelectMigrationPathQuestion(array $paths)
     {
@@ -97,8 +97,8 @@ class Create extends AbstractCommand
     /**
      * Returns the migration path to create the migration in.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @return mixed
      * @throws \Exception
      */
@@ -143,8 +143,8 @@ class Create extends AbstractCommand
     /**
      * Create the new migration.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @return void
@@ -157,7 +157,7 @@ class Create extends AbstractCommand
         $path = $this->getMigrationPath($input, $output);
 
         if (!file_exists($path)) {
-            $helper   = $this->getHelper('question');
+            $helper = $this->getHelper('question');
             $question = $this->getCreateMigrationDirectoryQuestion();
 
             if ($helper->ask($input, $output, $question)) {
@@ -228,7 +228,7 @@ class Create extends AbstractCommand
         }
 
         // Verify that the template creation class (or the aliased class) exists and that it implements the required interface.
-        $aliasedClassName  = null;
+        $aliasedClassName = null;
         if ($creationClassName) {
             // Supplied class does not exist, is it aliased?
             if (!class_exists($creationClassName)) {
@@ -280,11 +280,11 @@ class Create extends AbstractCommand
         // inject the class names appropriate to this migration
         $classes = [
             '$namespaceDefinition' => $namespace !== null ? ('namespace ' . $namespace . ';') : '',
-            '$namespace'           => $namespace,
-            '$useClassName'        => $this->getConfig()->getMigrationBaseClassName(false),
-            '$className'           => $className,
-            '$version'             => Util::getVersionFromFileName($fileName),
-            '$baseClassName'       => $this->getConfig()->getMigrationBaseClassName(true),
+            '$namespace' => $namespace,
+            '$useClassName' => $this->getConfig()->getMigrationBaseClassName(false),
+            '$className' => $className,
+            '$version' => Util::getVersionFromFileName($fileName),
+            '$baseClassName' => $this->getConfig()->getMigrationBaseClassName(true),
         ];
         $contents = strtr($contents, $classes);
 

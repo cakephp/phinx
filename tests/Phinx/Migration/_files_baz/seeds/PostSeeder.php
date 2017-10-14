@@ -10,11 +10,11 @@ class PostSeeder extends AbstractSeed
     {
         $data = [
             [
-                'body'    => 'foo',
+                'body' => 'foo',
                 'created' => date('Y-m-d H:i:s'),
             ],
             [
-                'body'    => 'bar',
+                'body' => 'bar',
                 'created' => date('Y-m-d H:i:s'),
             ]
         ];

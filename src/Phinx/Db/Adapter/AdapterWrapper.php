@@ -30,8 +30,8 @@ namespace Phinx\Db\Adapter;
 
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
-use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
+use Phinx\Db\Table\Index;
 use Phinx\Migration\MigrationInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -47,7 +47,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
 {
     /**
-     * @var AdapterInterface
+     * @var \Phinx\Db\Adapter\AdapterInterface
      */
     protected $adapter;
 
@@ -65,6 +65,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
+
         return $this;
     }
 
@@ -82,6 +83,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function setOptions(array $options)
     {
         $this->adapter->setOptions($options);
+
         return $this;
     }
 
@@ -115,6 +117,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function setInput(InputInterface $input)
     {
         $this->adapter->setInput($input);
+
         return $this;
     }
 
@@ -132,6 +135,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function setOutput(OutputInterface $output)
     {
         $this->adapter->setOutput($output);
+
         return $this;
     }
 
@@ -229,6 +233,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
     {
         $this->getAdapter()->migrated($migration, $direction, $startTime, $endTime);
+
         return $this;
     }
 
@@ -238,6 +243,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function toggleBreakpoint(MigrationInterface $migration)
     {
         $this->getAdapter()->toggleBreakpoint($migration);
+
         return $this;
     }
 

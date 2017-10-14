@@ -40,7 +40,7 @@ use Symfony\Component\Console\Output\StreamOutput;
 class TextWrapper
 {
     /**
-     * @var PhinxApplication
+     * @var \Phinx\Console\PhinxApplication
      */
     private $app;
 
@@ -55,7 +55,7 @@ class TextWrapper
     private $exit_code;
 
     /**
-     * @param PhinxApplication $app
+     * @param \Phinx\Console\PhinxApplication $app
      * @param array $options
      */
     public function __construct(PhinxApplication $app, array $options = [])
@@ -67,7 +67,7 @@ class TextWrapper
     /**
      * Get the application instance.
      *
-     * @return PhinxApplication
+     * @return \Phinx\Console\PhinxApplication
      */
     public function getApp()
     {
@@ -82,7 +82,6 @@ class TextWrapper
     {
         return $this->exit_code;
     }
-
 
     /**
      * Returns the output from running the "status" command.
@@ -101,6 +100,7 @@ class TextWrapper
         if ($this->hasOption('parser')) {
             $command += ['-p' => $this->getOption('parser')];
         }
+
         return $this->executeRun($command);
     }
 
@@ -125,6 +125,7 @@ class TextWrapper
         if ($target) {
             $command += ['-t' => $target];
         }
+
         return $this->executeRun($command);
     }
 
@@ -151,9 +152,10 @@ class TextWrapper
             $command += ['-t' => $target];
         }
         if ($seed) {
-            $seed = (array) $seed;
+            $seed = (array)$seed;
             $command += ['-s' => $seed];
         }
+
         return $this->executeRun($command);
     }
 
@@ -180,6 +182,7 @@ class TextWrapper
             // See http://docs.phinx.org/en/latest/commands.html#the-rollback-command
             $command += ['-t' => $target];
         }
+
         return $this->executeRun($command);
     }
 
@@ -205,6 +208,7 @@ class TextWrapper
         if (!isset($this->options[$key])) {
             return null;
         }
+
         return $this->options[$key];
     }
 
@@ -218,6 +222,7 @@ class TextWrapper
     public function setOption($key, $value)
     {
         $this->options[$key] = $value;
+
         return $this;
     }
 

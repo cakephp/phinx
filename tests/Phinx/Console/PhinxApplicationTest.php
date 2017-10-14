@@ -3,8 +3,8 @@
 namespace Test\Phinx\Console;
 
 use Phinx\Console\Command\AbstractCommand;
-use Symfony\Component\Console\Tester\ApplicationTester;
 use Phinx\Console\PhinxApplication;
+use Symfony\Component\Console\Tester\ApplicationTester;
 
 class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
 {

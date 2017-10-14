@@ -30,8 +30,8 @@ namespace Phinx\Db\Adapter;
 
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
-use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
+use Phinx\Db\Table\Index;
 
 /**
  * Phinx SQLite Adapter.
@@ -183,7 +183,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             array_unshift($columns, $column);
         }
 
-
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
@@ -194,7 +193,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
             $sql .= ' PRIMARY KEY (';
-            if (is_string($options['primary_key'])) {       // handle primary_key => 'id'
+            if (is_string($options['primary_key'])) { // handle primary_key => 'id'
                 $sql .= $this->quoteColumnName($options['primary_key']);
             } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
                 // PHP 5.4 will allow access of $this, so we can call quoteColumnName() directly in the anonymous function,
@@ -211,7 +210,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
             $sql .= ')';
         } else {
-            $sql = substr(rtrim($sql), 0, -1);              // no primary keys
+            $sql = substr(rtrim($sql), 0, -1); // no primary keys
         }
 
         // set the foreign keys
@@ -359,7 +358,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $sql
         );
         $this->execute($sql);
-
 
         $sql = sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
@@ -512,6 +510,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 $indexes[$tableName]['columns'][] = strtolower($indexItem['name']);
             }
         }
+
         return $indexes;
     }
 
@@ -560,7 +559,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         $indexColumnArray = [];
         foreach ($index->getColumns() as $column) {
-            $indexColumnArray []= sprintf('`%s` ASC', $column);
+            $indexColumnArray[] = sprintf('`%s` ASC', $column);
         }
         $indexColumns = implode(',', $indexColumnArray);
         $this->execute(
@@ -594,6 +593,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($index['index'])
                     )
                 );
+
                 return;
             }
         }
@@ -614,6 +614,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($indexName)
                     )
                 );
+
                 return;
             }
         }
@@ -633,6 +634,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (empty($a)) {
             return true;
         }
+
         return false;
     }
 
@@ -670,6 +672,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
         }
+
         return $foreignKeys;
     }
 
@@ -860,6 +863,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_GEOMETRY:
             case static::PHINX_TYPE_POLYGON:
                 return ['name' => 'text'];
+
                 return;
             case static::PHINX_TYPE_LINESTRING:
                 return ['name' => 'varchar', 'limit' => 255];
@@ -979,13 +983,14 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
         }
+
         return isset($default) ? ' DEFAULT ' . $default : '';
     }
 
     /**
      * Gets the SQLite Column Definition for a Column object.
      *
-     * @param Column $column Column
+     * @param \Phinx\Db\Table\Column $column Column
      * @return string
      */
     protected function getColumnSqlDefinition(Column $column)
@@ -1022,7 +1027,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Gets the comment Definition for a Column object.
      *
-     * @param Column $column Column
+     * @param \Phinx\Db\Table\Column $column Column
      * @return string
      */
     protected function getCommentDefinition(Column $column)
@@ -1030,13 +1035,15 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if ($column->getComment()) {
             return ' /* ' . $column->getComment() . ' */ ';
         }
+
         return '';
     }
 
     /**
      * Gets the SQLite Index Definition for an Index object.
      *
-     * @param Index $index Index
+     * @param \Phinx\Db\Table $table Table
+     * @param \Phinx\Db\Table\Index $index Index
      * @return string
      */
     protected function getIndexSqlDefinition(Table $table, Index $index)
@@ -1056,6 +1063,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $indexName .= 'index';
         }
         $def .= ' `' . $indexName . '`';
+
         return $def;
     }
 
@@ -1070,7 +1078,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Gets the SQLite Foreign Key Definition for an ForeignKey object.
      *
-     * @param ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey)
@@ -1096,6 +1104,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 $def .= ' ON UPDATE ' . $foreignKey->getOnUpdate();
             }
         }
+
         return $def;
     }
 }
