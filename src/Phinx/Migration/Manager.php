@@ -235,7 +235,7 @@ class Manager
                     ));
                     break;
                 default:
-                    $output->writeln('<info>Unsupported format: '.$format.'</info>');
+                    $output->writeln('<info>Unsupported format: ' . $format . '</info>');
             }
         }
 
@@ -365,9 +365,9 @@ class Manager
     {
         $this->getOutput()->writeln('');
         $this->getOutput()->writeln(
-            ' =='
-            . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
-            . ' <comment>' . ($direction === MigrationInterface::UP ? 'migrating' : 'reverting') . '</comment>'
+            ' ==' .
+            ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>' .
+            ' <comment>' . ($direction === MigrationInterface::UP ? 'migrating' : 'reverting') . '</comment>'
         );
 
         // Execute the migration and log the time elapsed.
@@ -376,10 +376,10 @@ class Manager
         $end = microtime(true);
 
         $this->getOutput()->writeln(
-            ' =='
-            . ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>'
-            . ' <comment>' . ($direction === MigrationInterface::UP ? 'migrated' : 'reverted')
-            . ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
+            ' ==' .
+            ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>' .
+            ' <comment>' . ($direction === MigrationInterface::UP ? 'migrated' : 'reverted') .
+            ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
         );
     }
 
@@ -394,9 +394,9 @@ class Manager
     {
         $this->getOutput()->writeln('');
         $this->getOutput()->writeln(
-            ' =='
-            . ' <info>' . $seed->getName() . ':</info>'
-            . ' <comment>seeding</comment>'
+            ' ==' .
+            ' <info>' . $seed->getName() . ':</info>' .
+            ' <comment>seeding</comment>'
         );
 
         // Execute the seeder and log the time elapsed.
@@ -405,10 +405,10 @@ class Manager
         $end = microtime(true);
 
         $this->getOutput()->writeln(
-            ' =='
-            . ' <info>' . $seed->getName() . ':</info>'
-            . ' <comment>seeded'
-            . ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
+            ' ==' .
+            ' <info>' . $seed->getName() . ':</info>' .
+            ' <comment>seeded' .
+            ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
         );
     }
 

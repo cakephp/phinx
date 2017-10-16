@@ -165,7 +165,6 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateTableWithForeignKeys()
     {
-
         $tag_table = new \Phinx\Db\Table('ntable_tag', [], $this->adapter);
         $tag_table->addColumn('realname', 'string')
                   ->save();

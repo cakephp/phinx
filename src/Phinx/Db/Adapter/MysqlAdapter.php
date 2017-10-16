@@ -440,8 +440,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
 
         throw new \InvalidArgumentException(sprintf(
-            'The specified column doesn\'t exist: '
-            . $columnName
+            'The specified column doesn\'t exist: ' .
+            $columnName
         ));
     }
 
