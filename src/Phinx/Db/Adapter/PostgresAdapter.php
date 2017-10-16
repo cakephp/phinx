@@ -143,7 +143,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function quoteColumnName($columnName)
     {
-        return '"'. $columnName . '"';
+        return '"' . $columnName . '"';
     }
 
     /**
@@ -767,16 +767,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             // with SRID 4326.
             case static::PHINX_TYPE_GEOMETRY:
                 return ['name' => 'geography', 'type' => 'geometry', 'srid' => 4326];
-                break;
             case static::PHINX_TYPE_POINT:
                 return ['name' => 'geography', 'type' => 'point', 'srid' => 4326];
-                break;
             case static::PHINX_TYPE_LINESTRING:
                 return ['name' => 'geography', 'type' => 'linestring', 'srid' => 4326];
-                break;
             case static::PHINX_TYPE_POLYGON:
                 return ['name' => 'geography', 'type' => 'polygon', 'srid' => 4326];
-                break;
             default:
                 if ($this->isArrayType($type)) {
                     return ['name' => $type];
@@ -827,7 +823,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return static::PHINX_TYPE_FLOAT;
             case 'bytea':
                 return static::PHINX_TYPE_BINARY;
-                break;
             case 'time':
             case 'timetz':
             case 'time with time zone':

@@ -861,42 +861,30 @@ ORDER BY T.[name], I.[index_id];";
         switch ($type) {
             case static::PHINX_TYPE_STRING:
                 return ['name' => 'nvarchar', 'limit' => 255];
-                break;
             case static::PHINX_TYPE_CHAR:
                 return ['name' => 'nchar', 'limit' => 255];
-                break;
             case static::PHINX_TYPE_TEXT:
                 return ['name' => 'ntext'];
-                break;
             case static::PHINX_TYPE_INTEGER:
                 return ['name' => 'int'];
-                break;
             case static::PHINX_TYPE_BIG_INTEGER:
                 return ['name' => 'bigint'];
-                break;
             case static::PHINX_TYPE_FLOAT:
                 return ['name' => 'float'];
-                break;
             case static::PHINX_TYPE_DECIMAL:
                 return ['name' => 'decimal'];
-                break;
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIMESTAMP:
                 return ['name' => 'datetime'];
-                break;
             case static::PHINX_TYPE_TIME:
                 return ['name' => 'time'];
-                break;
             case static::PHINX_TYPE_DATE:
                 return ['name' => 'date'];
-                break;
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
                 return ['name' => 'varbinary'];
-                break;
             case static::PHINX_TYPE_BOOLEAN:
                 return ['name' => 'bit'];
-                break;
             case static::PHINX_TYPE_UUID:
                 return ['name' => 'uniqueidentifier'];
             case static::PHINX_TYPE_FILESTREAM:
@@ -909,7 +897,6 @@ ORDER BY T.[name], I.[index_id];";
                 // SQL Server stores all spatial data using a single data type.
                 // Specific types (point, polygon, etc) are set at insert time.
                 return ['name' => 'geography'];
-                break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
         }
@@ -951,7 +938,6 @@ ORDER BY T.[name], I.[index_id];";
             case 'image':
             case 'varbinary':
                 return static::PHINX_TYPE_BINARY;
-                break;
             case 'time':
                 return static::PHINX_TYPE_TIME;
             case 'date':

@@ -30,7 +30,6 @@ namespace Phinx\Db\Adapter;
 
 use BadMethodCallException;
 use Phinx\Db\Table;
-use Phinx\Db\Table\Column;
 use Phinx\Migration\MigrationInterface;
 
 /**
@@ -181,7 +180,7 @@ abstract class PdoAdapter extends AbstractAdapter
         );
 
         $columns = array_keys($row);
-        $sql .= "(". implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
+        $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
         $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
 
         $stmt = $this->getConnection()->prepare($sql);
@@ -200,7 +199,7 @@ abstract class PdoAdapter extends AbstractAdapter
 
         $current = current($rows);
         $keys = array_keys($current);
-        $sql .= "(". implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ") VALUES";
+        $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ") VALUES";
 
         $vals = [];
         foreach ($rows as $row) {

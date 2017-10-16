@@ -28,8 +28,6 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Adapter\AdapterInterface;
-
 /**
  * Adapter factory and registry.
  *

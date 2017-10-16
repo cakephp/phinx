@@ -49,7 +49,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
             $this->assertInstanceOf(
                 'InvalidArgumentException',
                 $e,
-                'Expected exception of type InvalidArgumentException, got '.get_class($e)
+                'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
             $this->assertRegExp('/^An invalid column type /', $e->getMessage());
         }
@@ -78,7 +78,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
             $this->assertInstanceOf(
                 'RuntimeException',
                 $e,
-                'Expected exception of type RuntimeException, got '.get_class($e)
+                'Expected exception of type RuntimeException, got ' . get_class($e)
             );
             $this->assertRegExp('/An adapter must be specified to add a column./', $e->getMessage());
         }

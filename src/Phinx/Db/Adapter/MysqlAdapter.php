@@ -440,8 +440,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
 
         throw new \InvalidArgumentException(sprintf(
-            'The specified column doesn\'t exist: '
-            . $columnName
+            'The specified column doesn\'t exist: ' .
+            $columnName
         ));
     }
 
@@ -719,10 +719,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         switch ($type) {
             case static::PHINX_TYPE_STRING:
                 return ['name' => 'varchar', 'limit' => $limit ? $limit : 255];
-                break;
             case static::PHINX_TYPE_CHAR:
                 return ['name' => 'char', 'limit' => $limit ? $limit : 255];
-                break;
             case static::PHINX_TYPE_TEXT:
                 if ($limit) {
                     $sizes = [
@@ -740,13 +738,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 }
 
                 return ['name' => 'text'];
-                break;
             case static::PHINX_TYPE_BINARY:
                 return ['name' => 'binary', 'limit' => $limit ? $limit : 255];
-                break;
             case static::PHINX_TYPE_VARBINARY:
                 return ['name' => 'varbinary', 'limit' => $limit ? $limit : 255];
-                break;
             case static::PHINX_TYPE_BLOB:
                 if ($limit) {
                     $sizes = [
@@ -764,7 +759,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 }
 
                 return ['name' => 'blob'];
-                break;
             case static::PHINX_TYPE_INTEGER:
                 if ($limit && $limit >= static::INT_TINY) {
                     $sizes = [
@@ -794,34 +788,24 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 }
 
                 return ['name' => 'int', 'limit' => $limit];
-                break;
             case static::PHINX_TYPE_BIG_INTEGER:
                 return ['name' => 'bigint', 'limit' => 20];
-                break;
             case static::PHINX_TYPE_FLOAT:
                 return ['name' => 'float'];
-                break;
             case static::PHINX_TYPE_DECIMAL:
                 return ['name' => 'decimal'];
-                break;
             case static::PHINX_TYPE_DOUBLE:
                 return ['name' => 'double'];
-                break;
             case static::PHINX_TYPE_DATETIME:
                 return ['name' => 'datetime'];
-                break;
             case static::PHINX_TYPE_TIMESTAMP:
                 return ['name' => 'timestamp'];
-                break;
             case static::PHINX_TYPE_TIME:
                 return ['name' => 'time'];
-                break;
             case static::PHINX_TYPE_DATE:
                 return ['name' => 'date'];
-                break;
             case static::PHINX_TYPE_BOOLEAN:
                 return ['name' => 'tinyint', 'limit' => 1];
-                break;
             case static::PHINX_TYPE_UUID:
                 return ['name' => 'char', 'limit' => 36];
             // Geospatial database types
@@ -832,20 +816,16 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return ['name' => $type];
             case static::PHINX_TYPE_ENUM:
                 return ['name' => 'enum'];
-                break;
             case static::PHINX_TYPE_SET:
                 return ['name' => 'set'];
-                break;
             case static::TYPE_YEAR:
                 if (!$limit || in_array($limit, [2, 4])) {
                     $limit = 4;
                 }
 
                 return ['name' => 'year', 'limit' => $limit];
-                break;
             case static::PHINX_TYPE_JSON:
                 return ['name' => 'json'];
-                break;
             default:
                 throw new \RuntimeException('The type: "' . $type . '" is not supported.');
         }
