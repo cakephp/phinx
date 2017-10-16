@@ -360,6 +360,7 @@ abstract class PdoAdapter extends AbstractAdapter
             'biginteger',
             'float',
             'decimal',
+            'double',
             'datetime',
             'timestamp',
             'time',

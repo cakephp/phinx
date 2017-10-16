@@ -834,6 +834,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_DECIMAL:
                 return ['name' => 'decimal'];
                 break;
+            case static::PHINX_TYPE_DOUBLE:
+                return ['name' => 'double'];
+                break;
             case static::PHINX_TYPE_DATETIME:
                 return ['name' => 'datetime'];
                 break;
