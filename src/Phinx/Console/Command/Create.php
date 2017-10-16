@@ -29,7 +29,6 @@
 namespace Phinx\Console\Command;
 
 use Phinx\Config\NamespaceAwareInterface;
-use Phinx\Migration\CreationInterface;
 use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
