@@ -40,8 +40,14 @@ use Phinx\Db\Table\Index;
  */
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
-
-    protected $signedColumnTypes = ['integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true, 'double' => true, 'boolean' => true];
+    protected $signedColumnTypes = [
+        'integer' => true,
+        'biginteger' => true,
+        'float' => true,
+        'decimal' => true,
+        'double' => true,
+        'boolean' => true,
+    ];
 
     const TEXT_TINY = 255;
     const TEXT_SMALL = 255; /* deprecated, alias of TEXT_TINY */
