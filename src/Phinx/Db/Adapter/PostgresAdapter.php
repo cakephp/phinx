@@ -914,8 +914,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             if (static::PHINX_TYPE_DECIMAL === $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
                 $buffer[] = sprintf(
                     '(%s, %s)',
-                    $column->getPrecision() ? $column->getPrecision() : $sqlType['precision'],
-                    $column->getScale() ? $column->getScale() : $sqlType['scale']
+                    $column->getPrecision() ?: $sqlType['precision'],
+                    $column->getScale() ?: $sqlType['scale']
                 );
             } elseif (in_array($sqlType['name'], ['geography'])) {
                 // geography type must be written with geometry type and srid, like this: geography(POLYGON,4326)
@@ -926,7 +926,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 );
             } elseif (!in_array($sqlType['name'], ['integer', 'smallint', 'bigint'])) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
-                    $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
+                    $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
                 }
             }
 
@@ -1008,9 +1008,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
     {
-        $constraintName = $foreignKey->getConstraint()
-            ? $foreignKey->getConstraint()
-            : $tableName . '_' . implode('_', $foreignKey->getColumns());
+        $constraintName = $foreignKey->getConstraint() ?: $tableName . '_' . implode('_', $foreignKey->getColumns());
 
         $def = ' CONSTRAINT "' . $constraintName . '" FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
         $def .= " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
