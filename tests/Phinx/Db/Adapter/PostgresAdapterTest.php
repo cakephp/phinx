@@ -746,7 +746,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'field1\''
         );
@@ -766,7 +766,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
             AND cols.table_name=\'user\'
             AND cols.column_name = \'index\''
         );
@@ -796,7 +796,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'field1\''
         );
@@ -822,7 +822,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'field1\''
         );
@@ -850,7 +850,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'comment1\''
         );
@@ -863,7 +863,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'comment2\''
         );
@@ -892,7 +892,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\''. TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE .'\'
+            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
             AND cols.table_name=\'widgets\'
             AND cols.column_name = \'transport\''
         );

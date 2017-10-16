@@ -379,9 +379,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
 
         // note that the order is important: missing migrations should appear before down migrations
-        $this->assertRegExp('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*'.PHP_EOL.
-            '\s*up  20120815145812  2012-01-16 18:35:40  2012-01-16 18:35:41  Example   *\*\* MISSING \*\*'.PHP_EOL.
-            '\s*down  20120111235330                                            TestMigration'.PHP_EOL.
+        $this->assertRegExp('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*' . PHP_EOL .
+            '\s*up  20120815145812  2012-01-16 18:35:40  2012-01-16 18:35:41  Example   *\*\* MISSING \*\*' . PHP_EOL .
+            '\s*down  20120111235330                                            TestMigration' . PHP_EOL .
             '\s*down  20120116183504                                            TestMigration2/', $outputStr);
     }
 
@@ -424,9 +424,9 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
 
         // note that the order is important: missing migrations should appear before down migrations
-        $this->assertRegExp('/\s*up  20160103083300  2016-01-11 23:53:36  2016-01-11 23:53:37  *\*\* MISSING \*\*'.PHP_EOL.
-            '\s*up  20160815145812  2016-01-16 18:35:40  2016-01-16 18:35:41  Example   *\*\* MISSING \*\*'.PHP_EOL.
-            '\s*down  20160111235330                                            Foo\\\\Bar\\\\TestMigration'.PHP_EOL.
+        $this->assertRegExp('/\s*up  20160103083300  2016-01-11 23:53:36  2016-01-11 23:53:37  *\*\* MISSING \*\*' . PHP_EOL .
+            '\s*up  20160815145812  2016-01-16 18:35:40  2016-01-16 18:35:41  Example   *\*\* MISSING \*\*' . PHP_EOL .
+            '\s*down  20160111235330                                            Foo\\\\Bar\\\\TestMigration' . PHP_EOL .
             '\s*down  20160116183504                                            Foo\\\\Bar\\\\TestMigration2/', $outputStr);
     }
 
@@ -469,13 +469,13 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
 
         // note that the order is important: missing migrations should appear before down migrations
-        $this->assertRegExp('/\s*up  20160103083300  2016-01-11 23:53:36  2016-01-11 23:53:37  *\*\* MISSING \*\*'.PHP_EOL.
-            '\s*up  20160815145812  2016-01-16 18:35:40  2016-01-16 18:35:41  Example   *\*\* MISSING \*\*'.PHP_EOL.
-            '\s*down  20120111235330                                            TestMigration'.PHP_EOL.
-            '\s*down  20120116183504                                            TestMigration2'.PHP_EOL.
-            '\s*down  20150111235330                                            Baz\\\\TestMigration'.PHP_EOL.
-            '\s*down  20150116183504                                            Baz\\\\TestMigration2'.PHP_EOL.
-            '\s*down  20160111235330                                            Foo\\\\Bar\\\\TestMigration'.PHP_EOL.
+        $this->assertRegExp('/\s*up  20160103083300  2016-01-11 23:53:36  2016-01-11 23:53:37  *\*\* MISSING \*\*' . PHP_EOL .
+            '\s*up  20160815145812  2016-01-16 18:35:40  2016-01-16 18:35:41  Example   *\*\* MISSING \*\*' . PHP_EOL .
+            '\s*down  20120111235330                                            TestMigration' . PHP_EOL .
+            '\s*down  20120116183504                                            TestMigration2' . PHP_EOL .
+            '\s*down  20150111235330                                            Baz\\\\TestMigration' . PHP_EOL .
+            '\s*down  20150116183504                                            Baz\\\\TestMigration2' . PHP_EOL .
+            '\s*down  20160111235330                                            Foo\\\\Bar\\\\TestMigration' . PHP_EOL .
             '\s*down  20160116183504                                            Foo\\\\Bar\\\\TestMigration2/', $outputStr);
     }
 
@@ -525,8 +525,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
 
         // note that the order is important: missing migrations should appear before down migrations
-        $this->assertRegExp('/\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration'.PHP_EOL.
-            '\s*up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2'.PHP_EOL.
+        $this->assertRegExp('/\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration' . PHP_EOL .
+            '\s*up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2' . PHP_EOL .
             '\s*up  20120120145114  2012-01-20 14:51:14  2012-01-20 14:51:14  Example   *\*\* MISSING \*\*/', $outputStr);
     }
 
@@ -577,8 +577,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
 
         // note that the order is important: missing migrations should appear before down migrations
-        $this->assertRegExp('/\s*up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration'.PHP_EOL.
-            '\s*up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration2'.PHP_EOL.
+        $this->assertRegExp('/\s*up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration' . PHP_EOL .
+            '\s*up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration2' . PHP_EOL .
             '\s*up  20160120145114  2016-01-20 14:51:14  2016-01-20 14:51:14  Example   *\*\* MISSING \*\*/', $outputStr);
     }
 
@@ -662,12 +662,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         // note that the order is important: missing migrations should appear before down migrations
         $this->assertRegExp(
-            '/\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration'.PHP_EOL.
-            '\s*up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2'.PHP_EOL.
-            '\s*up  20150111235330  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\\\TestMigration'.PHP_EOL.
-            '\s*up  20150116183504  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\\\TestMigration2'.PHP_EOL.
-            '\s*up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration'.PHP_EOL.
-            '\s*up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration2'.PHP_EOL.
+            '/\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration' . PHP_EOL .
+            '\s*up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2' . PHP_EOL .
+            '\s*up  20150111235330  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\\\TestMigration' . PHP_EOL .
+            '\s*up  20150116183504  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\\\TestMigration2' . PHP_EOL .
+            '\s*up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration' . PHP_EOL .
+            '\s*up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration2' . PHP_EOL .
             '\s*up  20170120145114  2017-01-20 14:51:14  2017-01-20 14:51:14  Example   *\*\* MISSING \*\*/',
             $outputStr
         );
@@ -817,14 +817,14 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
         $this->assertRegExp(
-            '/\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration'.PHP_EOL.
-            '\s*up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2'.PHP_EOL.
+            '/\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration' . PHP_EOL .
+            '\s*up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2' . PHP_EOL .
             '\s*up  20150111235330  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\\\TestMigration/',
             $outputStr
         );
         $this->assertRegExp(
-            '/\s*down  20150116183504                                            Baz\\\\TestMigration2'.PHP_EOL.
-            '\s*down  20160111235330                                            Foo\\\\Bar\\\\TestMigration'.PHP_EOL.
+            '/\s*down  20150116183504                                            Baz\\\\TestMigration2' . PHP_EOL .
+            '\s*down  20160111235330                                            Foo\\\\Bar\\\\TestMigration' . PHP_EOL .
             '\s*down  20160116183504                                            Foo\\\\Bar\\\\TestMigration2/',
             $outputStr
         );
@@ -874,8 +874,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         // note that the order is important: missing migrations should appear before down migrations (and in the right
         // place with regard to other up non-missing migrations)
-        $this->assertRegExp('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*'.PHP_EOL.
-            '\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration'.PHP_EOL.
+        $this->assertRegExp('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*' . PHP_EOL .
+            '\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration' . PHP_EOL .
             '\s*down  20120116183504                                            TestMigration2/', $outputStr);
     }
 
@@ -916,8 +916,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         // note that the order is important: missing migrations should appear before down migrations (and in the right
         // place with regard to other up non-missing migrations)
-        $this->assertRegExp('/\s*up  20160103083300  2016-01-11 23:53:36  2016-01-11 23:53:37  *\*\* MISSING \*\*'.PHP_EOL.
-            '\s*up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration'.PHP_EOL.
+        $this->assertRegExp('/\s*up  20160103083300  2016-01-11 23:53:36  2016-01-11 23:53:37  *\*\* MISSING \*\*' . PHP_EOL .
+            '\s*up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration' . PHP_EOL .
             '\s*down  20160116183504                                            Foo\\\\Bar\\\\TestMigration2/', $outputStr);
     }
 
@@ -975,12 +975,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         // note that the order is important: missing migrations should appear before down migrations (and in the right
         // place with regard to other up non-missing migrations)
-        $this->assertRegExp('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*'.PHP_EOL.
-            '\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration'.PHP_EOL.
-            '\s*up  20120116183504  2012-01-16 18:35:43  2012-01-16 18:35:44  TestMigration2'.PHP_EOL.
-            '\s*up  20150111235330  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\\\TestMigration'.PHP_EOL.
-            '\s*down  20150116183504                                            Baz\\\\TestMigration2'.PHP_EOL.
-            '\s*down  20160111235330                                            Foo\\\\Bar\\\\TestMigration'.PHP_EOL.
+        $this->assertRegExp('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*' . PHP_EOL .
+            '\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration' . PHP_EOL .
+            '\s*up  20120116183504  2012-01-16 18:35:43  2012-01-16 18:35:44  TestMigration2' . PHP_EOL .
+            '\s*up  20150111235330  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\\\TestMigration' . PHP_EOL .
+            '\s*down  20150116183504                                            Baz\\\\TestMigration2' . PHP_EOL .
+            '\s*down  20160111235330                                            Foo\\\\Bar\\\\TestMigration' . PHP_EOL .
             '\s*down  20160116183504                                            Foo\\\\Bar\\\\TestMigration2/', $outputStr);
     }
 
@@ -1229,7 +1229,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback".PHP_EOL, $output);
+            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1263,7 +1263,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback".PHP_EOL, $output);
+            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1297,7 +1297,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback".PHP_EOL, $output);
+            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1330,7 +1330,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback".PHP_EOL, $output);
+            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1364,7 +1364,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback".PHP_EOL, $output);
+            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1398,7 +1398,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback".PHP_EOL, $output);
+            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1569,7 +1569,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $output = stream_get_contents($this->manager->getOutput()->getStream());
 
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback".PHP_EOL, $output);
+            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1611,7 +1611,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $output = stream_get_contents($this->manager->getOutput()->getStream());
 
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback".PHP_EOL, $output);
+            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1781,7 +1781,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback".PHP_EOL, $output);
+            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1820,7 +1820,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback".PHP_EOL, $output);
+            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1859,7 +1859,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback".PHP_EOL, $output);
+            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
