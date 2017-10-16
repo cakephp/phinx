@@ -44,10 +44,10 @@ $wrap = new Phinx\Wrapper\TextWrapper($app);
 
 // Mapping of route names to commands.
 $routes = [
-    'status'   => 'getStatus',
-    'migrate'  => 'getMigrate',
+    'status' => 'getStatus',
+    'migrate' => 'getMigrate',
     'rollback' => 'getRollback',
-    ];
+];
 
 // Extract the requested command from the URL, default to "status".
 $command = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
@@ -63,15 +63,15 @@ if (!isset($routes[$command])) {
 }
 
 // Get the environment and target version parameters.
-$env    = isset($_GET['e']) ? $_GET['e'] : null;
+$env = isset($_GET['e']) ? $_GET['e'] : null;
 $target = isset($_GET['t']) ? $_GET['t'] : null;
 
 // Check if debugging is enabled.
-$debug  = !empty($_GET['debug']) && filter_var($_GET['debug'], FILTER_VALIDATE_BOOLEAN);
+$debug = !empty($_GET['debug']) && filter_var($_GET['debug'], FILTER_VALIDATE_BOOLEAN);
 
 // Execute the command and determine if it was successful.
 $output = call_user_func([$wrap, $routes[$command]], $env, $target);
-$error  = $wrap->getExitCode() > 0;
+$error = $wrap->getExitCode() > 0;
 
 // Finally, display the output of the command.
 header('Content-Type: text/plain', true, $error ? 500 : 200);
