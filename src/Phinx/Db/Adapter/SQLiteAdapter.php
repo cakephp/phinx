@@ -873,7 +873,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $precision = null;
             $type = $matches[1];
             if (count($matches) > 2) {
-                $limit = $matches[3] ? $matches[3] : null;
+                $limit = $matches[3] ?: null;
             }
             if (count($matches) > 4) {
                 $precision = $matches[5];
@@ -986,7 +986,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
         $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits);
         if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
-            $def .= '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')';
+            $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
         }
         if (($values = $column->getValues()) && is_array($values)) {
             $def .= " CHECK({$column->getName()} IN ('" . implode("', '", $values) . "'))";

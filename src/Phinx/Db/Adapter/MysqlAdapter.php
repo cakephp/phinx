@@ -718,9 +718,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         switch ($type) {
             case static::PHINX_TYPE_STRING:
-                return ['name' => 'varchar', 'limit' => $limit ? $limit : 255];
+                return ['name' => 'varchar', 'limit' => $limit ?: 255];
             case static::PHINX_TYPE_CHAR:
-                return ['name' => 'char', 'limit' => $limit ? $limit : 255];
+                return ['name' => 'char', 'limit' => $limit ?: 255];
             case static::PHINX_TYPE_TEXT:
                 if ($limit) {
                     $sizes = [
@@ -739,9 +739,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
                 return ['name' => 'text'];
             case static::PHINX_TYPE_BINARY:
-                return ['name' => 'binary', 'limit' => $limit ? $limit : 255];
+                return ['name' => 'binary', 'limit' => $limit ?: 255];
             case static::PHINX_TYPE_VARBINARY:
-                return ['name' => 'varbinary', 'limit' => $limit ? $limit : 255];
+                return ['name' => 'varbinary', 'limit' => $limit ?: 255];
             case static::PHINX_TYPE_BLOB:
                 if ($limit) {
                     $sizes = [
