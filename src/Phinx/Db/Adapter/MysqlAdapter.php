@@ -263,17 +263,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             if (is_string($options['primary_key'])) { // handle primary_key => 'id'
                 $sql .= $this->quoteColumnName($options['primary_key']);
             } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
-                // PHP 5.4 will allow access of $this, so we can call quoteColumnName() directly in the
-                // anonymous function, but for now just hard-code the adapter quotes
-                $sql .= implode(
-                    ',',
-                    array_map(
-                        function ($v) {
-                            return '`' . $v . '`';
-                        },
-                        $options['primary_key']
-                    )
-                );
+                $sql .= implode(',', array_map([$this, 'quoteColumnName'], $options['primary_key']));
             }
             $sql .= ')';
         } else {
