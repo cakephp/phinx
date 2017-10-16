@@ -815,44 +815,31 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         switch ($type) {
             case static::PHINX_TYPE_STRING:
                 return ['name' => 'varchar', 'limit' => 255];
-                break;
             case static::PHINX_TYPE_CHAR:
                 return ['name' => 'char', 'limit' => 255];
-                break;
             case static::PHINX_TYPE_TEXT:
                 return ['name' => 'text'];
-                break;
             case static::PHINX_TYPE_INTEGER:
                 return ['name' => 'integer'];
-                break;
             case static::PHINX_TYPE_BIG_INTEGER:
                 return ['name' => 'bigint'];
-                break;
             case static::PHINX_TYPE_FLOAT:
                 return ['name' => 'float'];
-                break;
             case static::PHINX_TYPE_DECIMAL:
                 return ['name' => 'decimal'];
-                break;
             case static::PHINX_TYPE_DATETIME:
                 return ['name' => 'datetime'];
-                break;
             case static::PHINX_TYPE_TIMESTAMP:
                 return ['name' => 'datetime'];
-                break;
             case static::PHINX_TYPE_TIME:
                 return ['name' => 'time'];
-                break;
             case static::PHINX_TYPE_DATE:
                 return ['name' => 'date'];
-                break;
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
                 return ['name' => 'blob'];
-                break;
             case static::PHINX_TYPE_BOOLEAN:
                 return ['name' => 'boolean'];
-                break;
             case static::PHINX_TYPE_UUID:
                 return ['name' => 'char', 'limit' => 36];
             case static::PHINX_TYPE_ENUM:
@@ -863,11 +850,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_GEOMETRY:
             case static::PHINX_TYPE_POLYGON:
                 return ['name' => 'text'];
-
-                return;
             case static::PHINX_TYPE_LINESTRING:
                 return ['name' => 'varchar', 'limit' => 255];
-                break;
             case static::PHINX_TYPE_POINT:
                 return ['name' => 'float'];
             default:
