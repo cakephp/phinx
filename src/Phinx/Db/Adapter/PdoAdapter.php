@@ -30,7 +30,6 @@ namespace Phinx\Db\Adapter;
 
 use BadMethodCallException;
 use Phinx\Db\Table;
-use Phinx\Db\Table\Column;
 use Phinx\Migration\MigrationInterface;
 
 /**
