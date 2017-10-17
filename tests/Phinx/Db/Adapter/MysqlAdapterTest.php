@@ -413,6 +413,28 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('int(11) unsigned', $rows[1]['Type']);
     }
 
+    public function testAddDoubleColumnWithDefaultSigned()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('foo', 'double')
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('double', $rows[1]['Type']);
+    }
+
+    public function testAddDoubleColumnWithSignedEqualsFalse()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('foo', 'double', ['signed' => false])
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('double unsigned', $rows[1]['Type']);
+    }
+
     public function testAddBooleanColumnWithSignedEqualsFalse()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);

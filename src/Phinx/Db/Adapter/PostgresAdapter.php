@@ -821,6 +821,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'real':
             case 'float4':
                 return static::PHINX_TYPE_FLOAT;
+            case 'double precision':
+                return static::PHINX_TYPE_DOUBLE;
             case 'bytea':
                 return static::PHINX_TYPE_BINARY;
             case 'time':

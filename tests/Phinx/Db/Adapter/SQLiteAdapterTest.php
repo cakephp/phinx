@@ -252,6 +252,16 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("''", $rows[1]['dflt_value']);
     }
 
+    public function testAddDoubleColumn()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn('foo', 'double')
+              ->save();
+        $rows = $this->adapter->fetchAll(sprintf('pragma table_info(%s)', 'table1'));
+        $this->assertEquals('DOUBLE', $rows[1]['type']);
+    }
+
     public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
