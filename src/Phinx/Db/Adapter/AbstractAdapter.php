@@ -253,4 +253,16 @@ abstract class AbstractAdapter implements AdapterInterface
 
         return ($input && $input->hasOption('dry-run')) ? $input->getOption('dry-run') : false;
     }
+
+    /**
+     * Determines whether to print the executed queries in the console
+     *
+     * @return bool
+     */
+    public function isVerbosityEnabled()
+    {
+        $output = $this->getOutput();
+
+        return OutputInterface::VERBOSITY_VERBOSE === $output->getVerbosity();
+    }
 }

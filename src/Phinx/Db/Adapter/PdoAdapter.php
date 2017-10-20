@@ -31,7 +31,6 @@ namespace Phinx\Db\Adapter;
 use BadMethodCallException;
 use Phinx\Db\Table;
 use Phinx\Migration\MigrationInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Phinx PDO Adapter.
@@ -132,7 +131,7 @@ abstract class PdoAdapter extends AbstractAdapter
             return 0;
         }
 
-        if (OutputInterface::VERBOSITY_VERBOSE === $this->getOutput()->getVerbosity()) {
+        if ($this->isVerbosityEnabled()) {
             $this->getOutput()->writeln($sql);
         }
 
@@ -147,7 +146,7 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function query($sql)
     {
-        if (OutputInterface::VERBOSITY_VERBOSE === $this->getOutput()->getVerbosity()) {
+        if ($this->isVerbosityEnabled()) {
             $this->getOutput()->writeln($sql);
         }
 
