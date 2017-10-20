@@ -4,7 +4,7 @@
 Installation
 ============
 
-Phinx should be installed using Composer. Composer is a tool for dependency
+Phinx should be installed using Composer, which is a tool for dependency
 management in PHP. Please visit the `Composer <https://getcomposer.org/>`_ 
 website for more information.
 
@@ -18,13 +18,7 @@ To install Phinx, simply require it using Composer:
 
     php composer.phar require robmorgan/phinx
 
-Then run Composer:
-
-.. code-block:: bash
-
-    php composer.phar install --no-dev
-
-Create a folder in your project directory called ``migrations`` with adequate permissions.
+Create folders in your project following the structure ``db/migrations`` with adequate permissions.
 It is where your migration files will live and should be writable.
 
 Phinx can now be executed from within your project:

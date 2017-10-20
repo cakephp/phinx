@@ -23,7 +23,7 @@ class CreateTest extends \PHPUnit_Framework_TestCase
     /**
      * @var ConfigInterface|array
      */
-    protected $config = array();
+    protected $config = [];
 
     /**
      * @var InputInterface $input
@@ -37,29 +37,31 @@ class CreateTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        @mkdir(sys_get_temp_dir().DIRECTORY_SEPARATOR.'migrations', 0777, true);
+        @mkdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations', 0777, true);
         $this->config = new Config(
-            array(
-                'paths' => array(
-                    'migrations' => sys_get_temp_dir().DIRECTORY_SEPARATOR.'migrations',
-                ),
-                'environments' => array(
+            [
+                'paths' => [
+                    'migrations' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations',
+                ],
+                'environments' => [
                     'default_migration_table' => 'phinxlog',
                     'default_database' => 'development',
-                    'development' => array(
+                    'development' => [
                         'adapter' => 'mysql',
                         'host' => 'fakehost',
                         'name' => 'development',
                         'user' => '',
                         'pass' => '',
                         'port' => 3006,
-                    ),
-                ),
-            )
+                    ],
+                ],
+            ]
         );
 
-        foreach (glob($this->config->getMigrationPath().'/*.*') as $migration) {
-            unlink($migration);
+        foreach ($this->config->getMigrationPaths() as $path) {
+            foreach (glob($path . '/*.*') as $migration) {
+                unlink($migration);
+            }
         }
 
         $this->input = new ArrayInput([]);
@@ -75,21 +77,54 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $application = new PhinxApplication('testing');
         $application->add(new Create());
 
-        /** @var Create $command $command */
+        /** @var Create $command */
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), 'name' => 'MyDuplicateMigration'));
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
         sleep(1.01); // need at least a second due to file naming scheme
-        $commandTester->execute(array('command' => $command->getName(), 'name' => 'MyDuplicateMigration'));
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage The migration class name "Foo\Bar\MyDuplicateMigration" already exists
+     */
+    public function testExecuteWithDuplicateMigrationNamesWithNamespace()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $config = clone $this->config;
+        $config['paths'] = [
+            'migrations' => [
+                'Foo\Bar' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations',
+            ],
+        ];
+        $command->setConfig($config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
+        sleep(1.01); // need at least a second due to file naming scheme
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
+    }
 
     /**
      * @expectedException \Exception
@@ -104,13 +139,15 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), 'name' => 'MyFailingMigration', '--template' => 'MyTemplate', '--class' => 'MyTemplateClass'));
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyFailingMigration', '--template' => 'MyTemplate', '--class' => 'MyTemplateClass']);
     }
 
     /**
@@ -126,49 +163,51 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
 
-        $this->config['templates'] = array(
+        $this->config['templates'] = [
             'file' => 'MyTemplate',
             'class' => 'MyTemplateClass',
-        );
+        ];
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), 'name' => 'MyFailingMigration'));
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyFailingMigration']);
     }
 
     public function provideFailingTemplateGenerator()
     {
-        return array(
-            array(
-                array(
-                    'templates' => array(
+        return [
+            [
+                [
+                    'templates' => [
                         'class' => '\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface',
-                    ),
-                ),
-                array(),
+                    ],
+                ],
+                [],
                 'The class "\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface" does not implement the required interface "Phinx\Migration\CreationInterface"',
-            ),
-            array(
-                array(),
-                array('--class' => '\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface'),
+            ],
+            [
+                [],
+                ['--class' => '\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface'],
                 'The class "\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface" does not implement the required interface "Phinx\Migration\CreationInterface"',
-            ),
-            array(
-                array(
-                    'aliases' => array(
+            ],
+            [
+                [
+                    'aliases' => [
                         'PoorInterface' => '\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface',
-                    ),
-                ),
-                array(
+                    ],
+                ],
+                [
                     '--class' => 'PoorInterface',
-                ),
+                ],
                 'The class "\Test\Phinx\Console\Command\TemplateGenerators\DoesNotImplementRequiredInterface" via the alias "PoorInterface" does not implement the required interface "Phinx\Migration\CreationInterface"',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -186,7 +225,9 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
 
         foreach ($config as $key => $value) {
             $this->config[$key] = $value;
@@ -198,40 +239,40 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
 
         $this->setExpectedException('\InvalidArgumentException', $exceptionMessage);
-        $commandLine = array_merge(array('command' => $command->getName(), 'name' => 'MyFailingMigration'), $commandLine);
+        $commandLine = array_merge(['command' => $command->getName(), 'name' => 'MyFailingMigration'], $commandLine);
         $commandTester->execute($commandLine);
     }
 
     public function provideNullTemplateGenerator()
     {
-        return array(
-            array(
-                array(
-                    'templates' => array(
+        return [
+            [
+                [
+                    'templates' => [
                         'class' => '\Test\Phinx\Console\Command\TemplateGenerators\NullGenerator',
-                    ),
-                ),
-                array('name' => 'Null1'),
-            ),
-            array(
-                array(),
-                array(
+                    ],
+                ],
+                ['name' => 'Null1'],
+            ],
+            [
+                [],
+                [
                     'name' => 'Null2',
                     '--class' => '\Test\Phinx\Console\Command\TemplateGenerators\NullGenerator'
-                ),
-            ),
-            array(
-                array(
-                    'aliases' => array(
+                ],
+            ],
+            [
+                [
+                    'aliases' => [
                         'NullGen' => '\Test\Phinx\Console\Command\TemplateGenerators\NullGenerator',
-                    ),
-                ),
-                array(
+                    ],
+                ],
+                [
                     'name' => 'Null3',
                     '--class' => 'NullGen',
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     /**
@@ -248,7 +289,9 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
 
         foreach ($config as $key => $value) {
             $this->config[$key] = $value;
@@ -259,40 +302,40 @@ class CreateTest extends \PHPUnit_Framework_TestCase
 
         $commandTester = new CommandTester($command);
 
-        $commandLine = array_merge(array('command' => $command->getName()), $commandLine);
+        $commandLine = array_merge(['command' => $command->getName()], $commandLine);
         $commandTester->execute($commandLine);
     }
 
     public function provideSimpleTemplateGenerator()
     {
-        return array(
-            array(
-                array(
-                    'templates' => array(
+        return [
+            [
+                [
+                    'templates' => [
                         'class' => '\Test\Phinx\Console\Command\TemplateGenerators\SimpleGenerator',
-                    ),
-                ),
-                array('name' => 'Simple1'),
-            ),
-            array(
-                array(),
-                array(
+                    ],
+                ],
+                ['name' => 'Simple1'],
+            ],
+            [
+                [],
+                [
                     'name' => 'Simple2',
                     '--class' => '\Test\Phinx\Console\Command\TemplateGenerators\SimpleGenerator'
-                ),
-            ),
-            array(
-                array(
-                    'aliases' => array(
+                ],
+            ],
+            [
+                [
+                    'aliases' => [
                         'SimpleGen' => '\Test\Phinx\Console\Command\TemplateGenerators\SimpleGenerator',
-                    ),
-                ),
-                array(
+                    ],
+                ],
+                [
                     'name' => 'Simple3',
                     '--class' => 'SimpleGen',
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     /**
@@ -309,7 +352,9 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMock('\Phinx\Migration\Manager', array(), array($this->config, $this->input, $this->output));
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
 
         foreach ($config as $key => $value) {
             $this->config[$key] = $value;
@@ -320,8 +365,8 @@ class CreateTest extends \PHPUnit_Framework_TestCase
 
         $commandTester = new CommandTester($command);
 
-        $commandLine = array_merge(array('command' => $command->getName()), $commandLine);
-        $commandTester->execute($commandLine, array('decorated' => false));
+        $commandLine = array_merge(['command' => $command->getName()], $commandLine);
+        $commandTester->execute($commandLine, ['decorated' => false]);
 
         // Get output.
         preg_match('`created (?P<MigrationFilename>.+(?P<Version>\d{14}).*?)\s`', $commandTester->getDisplay(), $match);

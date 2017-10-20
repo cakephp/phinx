@@ -3,69 +3,56 @@ shallow_clone: false
 platform: 'x86'
 clone_folder: C:\projects\phinx
 environment:
-  global:
-    PHP: "C:/PHP"
-    TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED: true
-    TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST: .\SQL2012SP1
-    TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME: "sa"
-    TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD: "Password12!"
-    TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE: "phinxtesting"
+  TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED: true
+  TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST: localhost
+  TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME: sa
+  TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD: Password12!
+  TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE: phinxtesting
+  TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT: 1433
   matrix:
       - db: 2012
+        php_ddl: 56_nts
+        php_zip: php-5.6.28-nts-Win32-VC11-x86.zip
         db_dsn: 'sqlserver://sa:Password12!@.\SQL2012SP1/phinxtesting?MultipleActiveResultSets=false'
+        dependencies: lowest
+        sqlsrv: https://download.microsoft.com/download/C/D/B/CDB0A3BB-600E-42ED-8D5E-E4630C905371/SQLSRV32.EXE
+
 services:
   - mssql2012sp1
+
+cache:
+    - '%LOCALAPPDATA%\Composer\files -> composer.lock'
+
 init:
-  - SET PATH=C:\php\;%PATH%
+    - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;%PATH%
+    - SET COMPOSER_NO_INTERACTION=1
+    - SET PHP=1
+    - SET ANSICON=121x90 (121x90)
+
 install:
-  - cd c:\
-  - ps: Start-FileDownload 'http://ci.cakephp.org/php.zip'
-  - 7z x php.zip -oc:\php
-  - cd c:\php
-  - copy php.ini-production php.ini
-  - echo date.timezone="UTC" >> php.ini
-  - echo extension_dir=ext >> php.ini
-  - echo extension=php_openssl.dll >> php.ini
-  - echo extension=php_sqlsrv.dll >> php.ini
-  - echo extension=php_pdo_sqlsrv.dll >> php.ini
-  - cd C:\projects\phinx
-  - php -r "readfile('https://getcomposer.org/installer');" | php
-  - php composer.phar install --prefer-dist --no-interaction --dev
-before_test:
-# This script solves the "Database 'model' is being recovered. Waiting until recovery is finished."
-# This solution comes from https://gist.github.com/jonathanhickford/1cb0d6665adab8b9c664
-# and is follow by http://help.appveyor.com/discussions/suggestions/264-database-mssqlsystemresource-is-being-recovered-waiting-for-sql-server-to-start
-- ps: >-
-    $tries = 5;
+    - IF EXIST c:\tools\php (SET PHP=0)
+    - appveyor DownloadFile http://windows.php.net/downloads/releases/archives/%php_zip% -FileName php.zip
+    - appveyor DownloadFile %sqlsrv% -FileName sqlsrv.exe
+    - 7z x php.zip -oc:\tools\php
+    - 7z x sqlsrv.exe -oc:\tools\php\ext
+    - cd c:\tools\php
+    - IF %PHP%==1 copy php.ini-production php.ini /Y
+    - IF %PHP%==1 echo date.timezone="UTC" >> php.ini
+    - IF %PHP%==1 echo extension_dir=ext >> php.ini
+    - IF %PHP%==1 echo extension=php_openssl.dll >> php.ini
+    - IF %PHP%==1 echo extension=php_mbstring.dll >> php.ini
+    - IF %PHP%==1 echo extension=php_fileinfo.dll >> php.ini
+    - IF %PHP%==1 echo extension=php_sqlsrv_%php_ddl%.dll >> php.ini
+    - IF %PHP%==1 echo extension=php_pdo_sqlsrv_%php_ddl%.dll >> php.ini
+    - IF %PHP%==1 echo @php %%~dp0composer.phar %%* > composer.bat
+    - appveyor-retry appveyor DownloadFile https://getcomposer.org/composer.phar
+    - cd c:\projects\phinx
+    - IF %dependencies%==lowest appveyor-retry composer update --prefer-lowest --no-progress --profile -n
+    - IF %dependencies%==current appveyor-retry composer install --no-progress --profile
+    - IF %dependencies%==highest appveyor-retry composer update --no-progress --profile -n
+    - composer show
 
-    $pause = 10; # Seconds to wait between tries
-
-    While ($tries -gt 0) {
-      try {
-        $ServerConnectionString = "Data Source=(local)\SQL2012SP1;Initial Catalog=master;User Id=sa;PWD=Password12!";
-        $ServerConnection = new-object system.data.SqlClient.SqlConnection($ServerConnectionString);
-        $query = "exec sp_configure 'clr enabled', 1;`n"
-        $query = $query + "RECONFIGURE;`n"
-        $cmd = new-object system.data.sqlclient.sqlcommand($query, $ServerConnection);
-        $ServerConnection.Open();
-        "Running:"
-        $query
-        if ($cmd.ExecuteNonQuery() -ne -1) {
-          "SQL Error";
-        } else {
-          "Success"
-        }
-        $ServerConnection.Close();
-        $tries = 0;
-      } catch {
-        "Error:"
-        $_.Exception.Message
-        "Retry in $pause seconds.  Attempts left: $tries";
-        Start-Sleep -s $pause;
-      }
-      $tries = $tries -1;
-    }
 test_script:
-  - sqlcmd -S ".\SQL2012SP1" -U sa -P Password12! -Q "create database %TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE%;"
-  - cd C:\projects\phinx
-  - vendor\bin\phpunit.bat --no-configuration --bootstrap tests/phpunit-bootstrap.php tests/
+  - sqlcmd -S localhost,1433 -U sa -P Password12! -Q "create database phinxtesting;"
+  - cd c:\projects\phinx
+  - vendor/bin/phpunit --no-configuration --bootstrap tests/phpunit-bootstrap.php tests/

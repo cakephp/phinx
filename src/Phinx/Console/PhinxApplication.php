@@ -28,10 +28,10 @@
  */
 namespace Phinx\Console;
 
+use Phinx\Console\Command;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Phinx\Console\Command;
 
 /**
  * Phinx console application.
@@ -47,11 +47,11 @@ class PhinxApplication extends Application
      *
      * @param string $version The Application Version
      */
-    public function __construct($version = '0.6.5')
+    public function __construct($version = '0.8.1')
     {
-        parent::__construct('Phinx by Rob Morgan - https://phinx.org.', $version);
+        parent::__construct('Phinx by CakePHP - https://phinx.org.', $version);
 
-        $this->addCommands(array(
+        $this->addCommands([
             new Command\Init(),
             new Command\Create(),
             new Command\Migrate(),
@@ -61,21 +61,21 @@ class PhinxApplication extends Application
             new Command\Test(),
             new Command\SeedCreate(),
             new Command\SeedRun(),
-        ));
+        ]);
     }
 
     /**
      * Runs the current application.
      *
-     * @param InputInterface $input An Input instance
-     * @param OutputInterface $output An Output instance
-     * @return integer 0 if everything went fine, or an error code
+     * @param \Symfony\Component\Console\Input\InputInterface $input An Input instance
+     * @param \Symfony\Component\Console\Output\OutputInterface $output An Output instance
+     * @return int 0 if everything went fine, or an error code
      */
     public function doRun(InputInterface $input, OutputInterface $output)
     {
         // always show the version information except when the user invokes the help
         // command as that already does it
-        if (false === $input->hasParameterOption(array('--help', '-h')) && null !== $input->getFirstArgument()) {
+        if ($input->hasParameterOption(['--help', '-h']) === false && $input->getFirstArgument() !== null) {
             $output->writeln($this->getLongVersion());
             $output->writeln('');
         }

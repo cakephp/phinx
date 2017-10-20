@@ -24,12 +24,12 @@ class InitTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('init');
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array(
+        $commandTester->execute([
             'command' => $command->getName(),
             'path' => sys_get_temp_dir()
-        ), array(
+        ], [
             'decorated' => false
-        ));
+        ]);
 
         $this->assertRegExp(
             '/created (.*)phinx.yml(.*)/',
@@ -55,11 +55,11 @@ class InitTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('init');
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array(
+        $commandTester->execute([
             'command' => $command->getName(),
             'path' => sys_get_temp_dir()
-        ), array(
+        ], [
             'decorated' => false
-        ));
+        ]);
     }
 }

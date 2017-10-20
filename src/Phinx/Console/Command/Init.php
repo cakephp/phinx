@@ -29,8 +29,8 @@
 namespace Phinx\Console\Command;
 
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Init extends Command
@@ -53,8 +53,8 @@ class Init extends Command
     /**
      * Initializes the application.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @return void
@@ -64,7 +64,7 @@ class Init extends Command
         // get the migration path from the config
         $path = $input->getArgument('path');
 
-        if (null === $path) {
+        if ($path === null) {
             $path = getcwd();
         }
 
@@ -95,7 +95,7 @@ class Init extends Command
             $contents = file_get_contents(__DIR__ . '/../../../../phinx.yml');
         }
 
-        if (false === file_put_contents($filePath, $contents)) {
+        if (file_put_contents($filePath, $contents) === false) {
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',
                 $path

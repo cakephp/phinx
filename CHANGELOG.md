@@ -1,6 +1,93 @@
 # Version History
 
-**0.6.5** (Thursday, 27 October 2016)
+
+**0.9.1** (Satruday, 9 September 2017)
+* Pull requests
+  * [#1164](https://github.com/robmorgan/phinx/pull/1164) Added a function to migration classes to determine migration direction
+* Bug fixes
+  * [#1173](https://github.com/cakephp/phinx/pull/1173) Fixing configuration item `default_migration_table`
+  * [#1170](https://github.com/cakephp/phinx/pull/1170) Fixed regression when setting the pdo object directly in the config
+
+**0.9.0** (Sunday, 3rd September 2017)
+* Documentation updates
+* Pull requests
+  * [#1122](https://github.com/robmorgan/phinx/pull/1129) SQL exceptions will now produce PHP exceptions
+  * [#1053](https://github.com/robmorgan/phinx/pull/1053) Docker Development Kickstarter
+  * [#945](https://github.com/robmorgan/phinx/pull/945) Rollback --target using migration name
+  * [#1070](https://github.com/robmorgan/phinx/pull/1070) Supporting namespaces in configuration, Migrations and Seeds
+  * [#1155](https://github.com/robmorgan/phinx/pull/1155) Fill up column values from schema
+  * [#1148](https://github.com/robmorgan/phinx/pull/1148) When execute command `seed:run`, insert all data to a table in a bulk
+* Bug fixes
+  * [#1111](https://github.com/cakephp/phinx/pull/1111) Fixed error when calling truncateTable() method
+  * [#1117](https://github.com/cakephp/phinx/pull/1117) Quote column names in the addIndex() method for PostgresSQL
+  * [#1126](https://github.com/robmorgan/phinx/pull/1126) Fix invalid changeColumn regex causing deletions
+  * [#1093](https://github.com/robmorgan/phinx/pull/1093) Fix issue with dropColumn command in SQLite
+  * [#1091](https://github.com/robmorgan/phinx/pull/1091) Fix pgsql quoting in comment clause
+  * [#1094](https://github.com/robmorgan/phinx/pull/1094) Fix varchar to datetime error
+
+**0.8.1** (Monday, 5th June 2017)
+* Documentation updates
+* Pull requests
+  * [#768](https://github.com/robmorgan/phinx/pull/768) Support for MySQL unsigned primary keys
+  * [#1104](https://github.com/robmorgan/phinx/pull/1029) Removed support for HHVM
+  * [#1082](https://github.com/robmorgan/phinx/pull/1082) Fixed paths displayed in text output
+  * [#1055](https://github.com/robmorgan/phinx/pull/1055) Text wrapper improvements
+  * [#1056](https://github.com/robmorgan/phinx/pull/1056) Update Input/OutputInterface on cached Manager
+* Bug fixes
+  * [#1060](https://github.com/robmorgan/phinx/pull/1060) Fixed rollback on only one migration
+
+**0.8.0** (Tuesday, 28th February 2017)
+* Documentation updates
+* New features
+  * [#1045](https://github.com/robmorgan/phinx/pull/1045) Rollbacks by start time - Thanks to [Daniel Gomes](https://github.com/daniel-gomes-sociomantic).
+
+Please see [UPGRAGE_0.8](https://github.com/robmorgan/phinx/blob/master/UPGRADE_0.8.md) for additional details regarding [#1045](https://github.com/robmorgan/phinx/pull/1045)  
+
+**0.7.2** (Tuesday, 28th February 2017)
+
+* Bug fixes
+  * [#1041](https://github.com/robmorgan/phinx/pull/1041) Quote new column name in renameColumn in PostgresAdapter
+  * [#1048](https://github.com/robmorgan/phinx/pull/1048) Do not allow the start_time to be updated when setting a breakpoint
+
+**0.7.1** (Sunday, 19th February 2017)
+
+* Documentation updates
+* New features
+  * [#978](https://github.com/robmorgan/phinx/pull/978) Add table truncate method
+* Pull requests
+  * [#1029](https://github.com/robmorgan/phinx/pull/1029) Add vendor to Phinx path to align with other docs
+
+**0.7.0** (Friday, 10th February 2017)
+
+* Documentation updates
+* New features
+  * [#885](https://github.com/robmorgan/phinx/pull/885) Add `collation` and `encoding` options for MySQL text and char columns
+* Pull requests
+  * [#813](https://github.com/robmorgan/phinx/pull/813) Fix SQLite data insertion
+  * [#867](https://github.com/robmorgan/phinx/pull/867) Improve Postgres geography types creation
+  * [#966](https://github.com/robmorgan/phinx/pull/966) Remove unused variable
+  * [#973](https://github.com/robmorgan/phinx/pull/973) Improve documentation grammar
+  * [#979](https://github.com/robmorgan/phinx/pull/979) Add `.gitattributes` to exclude tests on Composer export
+  * [#983](https://github.com/robmorgan/phinx/pull/983) Document changing a foreign key constraint name
+  * [#1001](https://github.com/robmorgan/phinx/pull/1001) Cleanup phpunit mock warnings
+  * [#1007](https://github.com/robmorgan/phinx/pull/1007) Integrate PHPStan and fix issues discovered
+  * [#1020](https://github.com/robmorgan/phinx/pull/1020) Document adding named foreign keys
+  * [#1028](https://github.com/robmorgan/phinx/pull/1028) Add docs about MySQL table specific options
+  * [#1033](https://github.com/robmorgan/phinx/pull/1033) Add PHP 7.1 to Travis CI
+
+**0.6.6** (Monday, 23rd January 2017)
+
+* Documentation updates
+* New Features
+  * [#943](https://github.com/robmorgan/phinx/pull/943) Adding hint on migration name in CamelCase
+* Bug fixes
+  * [#813](https://github.com/robmorgan/phinx/pull/813) fix(pdo_sqlite): Correctly handles data insertions
+  * [#956](https://github.com/robmorgan/phinx/pull/956) Fix seed command accepting string
+  * [#1002](https://github.com/robmorgan/phinx/pull/1002) Fix Appveyor builds
+  * [#1006](https://github.com/robmorgan/phinx/pull/1006) Fix update column with , in definition (SQLite)
+* Development branch changed to `master`
+
+**0.6.5** (Thursday, 27th October 2016)
 
 * Documentation updates
 * Pull requests
@@ -51,7 +138,7 @@
 
 **0.5.5** (Friday, 17th May 2016)
 
-* Fix support for running multiple seeders 
+* Fix support for running multiple seeders
 * Bug fix for migration template source - defaults and command line
 * Bug fixes
 
@@ -140,17 +227,17 @@
 * SQLite migration fixes
 * Documentation improvements
 
-**0.4.3** (Monday, 23rd Feburary 2015)
+**0.4.3** (Monday, 23rd February 2015)
 
 * Postgres bugfix for modifying column DEFAULTs
 * MySQL bugfix for setting column INTEGER lengths
 * SQLite bugfix for creating multiple indexes with similar names
 
-**0.4.2.1** (Saturday, 7th Feburary 2015)
+**0.4.2.1** (Saturday, 7th February 2015)
 
 * Proper release, updated docs
 
-**0.4.2** (Friday, 6th Feburary 2015)
+**0.4.2** (Friday, 6th February 2015)
 
 * Postgres support for `json` columns added
 * MySQL support for `enum` and `set` columns added

@@ -6,16 +6,16 @@ class UserSeeder extends AbstractSeed
 {
     public function run()
     {
-        $data = array(
-            array(
-                'name'    => 'foo',
+        $data = [
+            [
+                'name' => 'foo',
                 'created' => date('Y-m-d H:i:s'),
-            ),
-            array(
-                'name'    => 'bar',
+            ],
+            [
+                'name' => 'bar',
                 'created' => date('Y-m-d H:i:s'),
-            )
-        );
+            ]
+        ];
 
         $users = $this->table('users');
         $users->insert($data)

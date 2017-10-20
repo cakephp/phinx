@@ -29,6 +29,7 @@
 namespace Phinx\Console\Command;
 
 use Phinx\Migration\Manager\Environment;
+use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -50,7 +51,7 @@ class Test extends AbstractCommand
         $this->setName('test')
              ->setDescription('Verify the configuration file')
              ->setHelp(
-<<<EOT
+                 <<<EOT
 The <info>test</info> command verifies the YAML configuration file and optionally an environment
 
 <info>phinx test</info>
@@ -63,8 +64,8 @@ EOT
     /**
      * Verify configuration file
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @return void
@@ -74,7 +75,17 @@ EOT
         $this->loadConfig($input, $output);
         $this->loadManager($input, $output);
 
-        $this->verifyMigrationDirectory($this->getConfig()->getMigrationPath());
+        // Verify the migrations path(s)
+        array_map(
+            [$this, 'verifyMigrationDirectory'],
+            Util::globAll($this->getConfig()->getMigrationPaths())
+        );
+
+        // Verify the seed path(s)
+        array_map(
+            [$this, 'verifySeedDirectory'],
+            Util::globAll($this->getConfig()->getSeedPaths())
+        );
 
         $envName = $input->getOption('environment');
         if ($envName) {

@@ -17,7 +17,9 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testConstructEmptyArguments()
     {
-        $config = new Config(array());
+        $config = new Config([]);
+        // this option is set to its default value when not being passed in the constructor, so we can ignore it
+        unset($config['version_order']);
         $this->assertAttributeEmpty('values', $config);
         $this->assertAttributeEquals(null, 'configFilePath', $config);
         $this->assertNull($config->getConfigFilePath());
@@ -51,7 +53,7 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testHasEnvironmentDoesntHave()
     {
-        $config = new Config(array());
+        $config = new Config([]);
         $this->assertFalse($config->hasEnvironment('dummy'));
     }
 
@@ -69,7 +71,7 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testGetEnvironmentsNotSet()
     {
-        $config = new Config(array());
+        $config = new Config([]);
         $this->assertNull($config->getEnvironments());
     }
 
@@ -102,7 +104,7 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testArrayAccessMethods()
     {
-        $config = new Config(array());
+        $config = new Config([]);
         $config['foo'] = 'bar';
         $this->assertEquals('bar', $config['foo']);
         $this->assertTrue(isset($config['foo']));
@@ -117,7 +119,7 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testUndefinedArrayAccess()
     {
-        $config = new Config(array());
+        $config = new Config([]);
         $config['foo'];
     }
 
@@ -126,7 +128,7 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testGetMigrationBaseClassNameGetsDefaultBaseClass()
     {
-        $config = new Config(array());
+        $config = new Config([]);
         $this->assertEquals('AbstractMigration', $config->getMigrationBaseClassName());
     }
 
@@ -135,7 +137,7 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testGetMigrationBaseClassNameGetsDefaultBaseClassWithNamespace()
     {
-        $config = new Config(array());
+        $config = new Config([]);
         $this->assertEquals('Phinx\Migration\AbstractMigration', $config->getMigrationBaseClassName(false));
     }
 
@@ -144,7 +146,7 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testGetMigrationBaseClassNameGetsAlternativeBaseClass()
     {
-        $config = new Config(array('migration_base_class' => 'Phinx\Migration\AlternativeAbstractMigration'));
+        $config = new Config(['migration_base_class' => 'Phinx\Migration\AlternativeAbstractMigration']);
         $this->assertEquals('AlternativeAbstractMigration', $config->getMigrationBaseClassName());
     }
 
@@ -153,7 +155,7 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testGetMigrationBaseClassNameGetsAlternativeBaseClassWithNamespace()
     {
-        $config = new Config(array('migration_base_class' => 'Phinx\Migration\AlternativeAbstractMigration'));
+        $config = new Config(['migration_base_class' => 'Phinx\Migration\AlternativeAbstractMigration']);
         $this->assertEquals('Phinx\Migration\AlternativeAbstractMigration', $config->getMigrationBaseClassName(false));
     }
 
@@ -163,50 +165,53 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testGetTemplateValuesFalseOnEmpty()
     {
-        $config = new \Phinx\Config\Config(array());
+        $config = new \Phinx\Config\Config([]);
         $this->assertFalse($config->getTemplateFile());
         $this->assertFalse($config->getTemplateClass());
     }
 
     public function testGetAliasNoAliasesEntry()
     {
-        $config = new \Phinx\Config\Config(array());
+        $config = new \Phinx\Config\Config([]);
         $this->assertNull($config->getAlias('Short'));
     }
 
     public function testGetAliasEmptyAliasesEntry()
     {
-        $config = new \Phinx\Config\Config(array('aliases'=> array()));
+        $config = new \Phinx\Config\Config(['aliases' => []]);
         $this->assertNull($config->getAlias('Short'));
     }
 
     public function testGetAliasInvalidAliasRequest()
     {
-        $config = new \Phinx\Config\Config(array('aliases'=> array('Medium' => 'Some\Long\Classname')));
+        $config = new \Phinx\Config\Config(['aliases' => ['Medium' => 'Some\Long\Classname']]);
         $this->assertNull($config->getAlias('Short'));
     }
 
     public function testGetAliasValidAliasRequest()
     {
-        $config = new \Phinx\Config\Config(array('aliases'=> array('Short' => 'Some\Long\Classname')));
+        $config = new \Phinx\Config\Config(['aliases' => ['Short' => 'Some\Long\Classname']]);
         $this->assertEquals('Some\Long\Classname', $config->getAlias('Short'));
     }
 
     public function testGetSeedPath()
     {
-        $config = new \Phinx\Config\Config(array('paths' => array('seeds' => 'db/seeds')));
-        $this->assertEquals('db/seeds', $config->getSeedPath());
+        $config = new \Phinx\Config\Config(['paths' => ['seeds' => 'db/seeds']]);
+        $this->assertEquals(['db/seeds'], $config->getSeedPaths());
+
+        $config = new \Phinx\Config\Config(['paths' => ['seeds' => ['db/seeds1', 'db/seeds2']]]);
+        $this->assertEquals(['db/seeds1', 'db/seeds2'], $config->getSeedPaths());
     }
 
     /**
-     * @covers \Phinx\Config\Config::getSeedPath
+     * @covers \Phinx\Config\Config::getSeedPaths
      * @expectedException \UnexpectedValueException
      * @expectedExceptionMessage Seeds path missing from config file
      */
     public function testGetSeedPathThrowsException()
     {
-        $config = new \Phinx\Config\Config(array());
-        $this->assertEquals('db/seeds', $config->getSeedPath());
+        $config = new \Phinx\Config\Config([]);
+        $this->assertEquals('db/seeds', $config->getSeedPaths());
     }
 
     /**
@@ -217,7 +222,7 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testGetMigrationBaseClassNameNoNamespace()
     {
-        $config = new Config(array('migration_base_class' => 'BaseMigration'));
+        $config = new Config(['migration_base_class' => 'BaseMigration']);
         $this->assertEquals('BaseMigration', $config->getMigrationBaseClassName());
     }
 
@@ -229,7 +234,53 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testGetMigrationBaseClassNameNoNamespaceNoDrop()
     {
-        $config = new Config(array('migration_base_class' => 'BaseMigration'));
+        $config = new Config(['migration_base_class' => 'BaseMigration']);
         $this->assertEquals('BaseMigration', $config->getMigrationBaseClassName(false));
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::getVersionOrder
+     */
+    public function testGetVersionOrder()
+    {
+        $config = new \Phinx\Config\Config([]);
+        $config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $this->assertEquals(\Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, $config->getVersionOrder());
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::isVersionOrderCreationTime
+     * @dataProvider isVersionOrderCreationTimeDataProvider
+     */
+    public function testIsVersionOrderCreationTime($versionOrder, $expected)
+    {
+        // get config stub
+        $configStub = $this->getMockBuilder('\Phinx\Config\Config')
+            ->setMethods(['getVersionOrder'])
+            ->setConstructorArgs([[]])
+            ->getMock();
+
+        $configStub->expects($this->once())
+            ->method('getVersionOrder')
+            ->will($this->returnValue($versionOrder));
+
+        $this->assertEquals($expected, $configStub->isVersionOrderCreationTime());
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::isVersionOrderCreationTime
+     */
+    public function isVersionOrderCreationTimeDataProvider()
+    {
+        return [
+            'With Creation Time Version Order' =>
+            [
+                \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME, true
+            ],
+            'With Execution Time Version Order' =>
+            [
+                \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, false
+            ],
+        ];
     }
 }
