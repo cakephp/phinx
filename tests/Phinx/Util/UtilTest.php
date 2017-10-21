@@ -49,8 +49,8 @@ class UtilTest extends \PHPUnit_Framework_TestCase
     public function testMapClassNameToFileName()
     {
         $expectedResults = [
-            'CamelCase87afterSomeBooze'   => '/^\d{14}_camel_case87after_some_booze\.php$/',
-            'CreateUserTable'             => '/^\d{14}_create_user_table\.php$/',
+            'CamelCase87afterSomeBooze' => '/^\d{14}_camel_case87after_some_booze\.php$/',
+            'CreateUserTable' => '/^\d{14}_create_user_table\.php$/',
             'LimitResourceNamesTo30Chars' => '/^\d{14}_limit_resource_names_to30_chars\.php$/',
         ];
 
@@ -62,8 +62,8 @@ class UtilTest extends \PHPUnit_Framework_TestCase
     public function testMapFileNameToClassName()
     {
         $expectedResults = [
-            '20150902094024_create_user_table.php'    => 'CreateUserTable',
-            '20150902102548_my_first_migration2.php'  => 'MyFirstMigration2',
+            '20150902094024_create_user_table.php' => 'CreateUserTable',
+            '20150902102548_my_first_migration2.php' => 'MyFirstMigration2',
         ];
 
         foreach ($expectedResults as $input => $expectedResult) {
@@ -74,11 +74,11 @@ class UtilTest extends \PHPUnit_Framework_TestCase
     public function testisValidPhinxClassName()
     {
         $expectedResults = [
-            'CAmelCase'         => false,
-            'CreateUserTable'   => true,
-            'UserSeeder'        => true,
-            'Test'              => true,
-            'test'              => false
+            'CAmelCase' => false,
+            'CreateUserTable' => true,
+            'UserSeeder' => true,
+            'Test' => true,
+            'test' => false
         ];
 
         foreach ($expectedResults as $input => $expectedResult) {

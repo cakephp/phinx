@@ -74,7 +74,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      *
      * @param  string $configFilePath Path to the Yaml File
      * @throws \RuntimeException
-     * @return Config
+     * @return \Phinx\Config\Config
      */
     public static function fromYaml($configFilePath)
     {
@@ -87,6 +87,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
                 $configFilePath
             ));
         }
+
         return new static($configArray, $configFilePath);
     }
 
@@ -95,7 +96,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      *
      * @param  string $configFilePath Path to the JSON File
      * @throws \RuntimeException
-     * @return Config
+     * @return \Phinx\Config\Config
      */
     public static function fromJson($configFilePath)
     {
@@ -106,6 +107,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
                 $configFilePath
             ));
         }
+
         return new static($configArray, $configFilePath);
     }
 
@@ -114,7 +116,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      *
      * @param  string $configFilePath Path to the PHP File
      * @throws \RuntimeException
-     * @return Config
+     * @return \Phinx\Config\Config
      */
     public static function fromPhp($configFilePath)
     {
@@ -215,6 +217,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         // else default to the first available one
         if (is_array($this->getEnvironments()) && count($this->getEnvironments()) > 0) {
             $names = array_keys($this->getEnvironments());
+
             return $names[0];
         }
 
@@ -256,7 +259,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * Gets the base class name for migrations.
      *
-     * @param boolean $dropNamespace Return the base migration class name without the namespace.
+     * @param bool $dropNamespace Return the base migration class name without the namespace.
      * @return string
      */
     public function getMigrationBaseClassName($dropNamespace = true)
@@ -327,7 +330,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * Is version order creation time?
      *
-     * @return boolean
+     * @return bool
      */
     public function isVersionOrderCreationTime()
     {
@@ -335,8 +338,6 @@ class Config implements ConfigInterface, NamespaceAwareInterface
 
         return $versionOrder == self::VERSION_ORDER_CREATION_TIME;
     }
-
-
 
     /**
      * Replace tokens in the specified array.
@@ -387,6 +388,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             }
             $out[$name] = $value;
         }
+
         return $out;
     }
 

@@ -61,7 +61,7 @@ class SeedCreate extends AbstractCommand
      * Get the confirmation question asking if the user wants to create the
      * seeds directory.
      *
-     * @return ConfirmationQuestion
+     * @return \Symfony\Component\Console\Question\ConfirmationQuestion
      */
     protected function getCreateSeedDirectoryQuestion()
     {
@@ -72,7 +72,7 @@ class SeedCreate extends AbstractCommand
      * Get the question that allows the user to select which seed path to use.
      *
      * @param string[] $paths
-     * @return ChoiceQuestion
+     * @return \Symfony\Component\Console\Question\ChoiceQuestion
      */
     protected function getSelectSeedPathQuestion(array $paths)
     {
@@ -82,8 +82,8 @@ class SeedCreate extends AbstractCommand
     /**
      * Returns the seed path to create the seeder in.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @return mixed
      * @throws \Exception
      */
@@ -128,8 +128,8 @@ class SeedCreate extends AbstractCommand
     /**
      * Create the new seeder.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @return void
@@ -142,7 +142,7 @@ class SeedCreate extends AbstractCommand
         $path = $this->getSeedPath($input, $output);
 
         if (!file_exists($path)) {
-            $helper   = $this->getHelper('question');
+            $helper = $this->getHelper('question');
             $question = $this->getCreateSeedDirectoryQuestion();
 
             if ($helper->ask($input, $output, $question)) {
@@ -179,10 +179,10 @@ class SeedCreate extends AbstractCommand
         $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath($path) : null;
         $classes = [
             '$namespaceDefinition' => $namespace !== null ? ('namespace ' . $namespace . ';') : '',
-            '$namespace'           => $namespace,
-            '$useClassName'        => 'Phinx\Seed\AbstractSeed',
-            '$className'           => $className,
-            '$baseClassName'       => 'AbstractSeed',
+            '$namespace' => $namespace,
+            '$useClassName' => 'Phinx\Seed\AbstractSeed',
+            '$className' => $className,
+            '$baseClassName' => 'AbstractSeed',
         ];
         $contents = strtr($contents, $classes);
 

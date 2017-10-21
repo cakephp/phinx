@@ -30,8 +30,8 @@ namespace Phinx\Db\Adapter;
 
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
-use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
+use Phinx\Db\Table\Index;
 use Phinx\Migration\IrreversibleMigrationException;
 
 /**
@@ -79,7 +79,6 @@ class ProxyAdapter extends AdapterWrapper
     {
         $this->recordCommand('dropTable', [$tableName]);
     }
-
 
     /**
      * {@inheritdoc}
@@ -179,7 +178,7 @@ class ProxyAdapter extends AdapterWrapper
     public function recordCommand($name, $arguments)
     {
         $this->commands[] = [
-            'name'      => $name,
+            'name' => $name,
             'arguments' => $arguments
         ];
     }
@@ -188,11 +187,12 @@ class ProxyAdapter extends AdapterWrapper
      * Sets an array of recorded commands.
      *
      * @param array $commands Commands
-     * @return ProxyAdapter
+     * @return \Phinx\Db\Adapter\ProxyAdapter
      */
     public function setCommands($commands)
     {
         $this->commands = $commands;
+
         return $this;
     }
 
@@ -209,7 +209,7 @@ class ProxyAdapter extends AdapterWrapper
     /**
      * Gets an array of the recorded commands in reverse.
      *
-     * @throws IrreversibleMigrationException if a command cannot be reversed.
+     * @throws \Phinx\Migration\IrreversibleMigrationException if a command cannot be reversed.
      * @return array
      */
     public function getInvertedCommands()
@@ -233,7 +233,7 @@ class ProxyAdapter extends AdapterWrapper
             $invertMethod = 'invert' . ucfirst($command['name']);
             $invertedCommand = $this->$invertMethod($command['arguments']);
             $invCommands[] = [
-                'name'      => $invertedCommand['name'],
+                'name' => $invertedCommand['name'],
                 'arguments' => $invertedCommand['arguments']
             ];
         }

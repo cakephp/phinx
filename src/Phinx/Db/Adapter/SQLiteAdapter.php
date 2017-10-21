@@ -30,8 +30,8 @@ namespace Phinx\Db\Adapter;
 
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
-use Phinx\Db\Table\Index;
 use Phinx\Db\Table\ForeignKey;
+use Phinx\Db\Table\Index;
 
 /**
  * Phinx SQLite Adapter.
@@ -183,7 +183,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             array_unshift($columns, $column);
         }
 
-
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
@@ -194,24 +193,14 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
             $sql .= ' PRIMARY KEY (';
-            if (is_string($options['primary_key'])) {       // handle primary_key => 'id'
+            if (is_string($options['primary_key'])) { // handle primary_key => 'id'
                 $sql .= $this->quoteColumnName($options['primary_key']);
             } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
-                // PHP 5.4 will allow access of $this, so we can call quoteColumnName() directly in the anonymous function,
-                // but for now just hard-code the adapter quotes
-                $sql .= implode(
-                    ',',
-                    array_map(
-                        function ($v) {
-                            return '`' . $v . '`';
-                        },
-                        $options['primary_key']
-                    )
-                );
+                $sql .= implode(',', array_map([$this, 'quoteColumnName'], $options['primary_key']));
             }
             $sql .= ')';
         } else {
-            $sql = substr(rtrim($sql), 0, -1);              // no primary keys
+            $sql = substr(rtrim($sql), 0, -1); // no primary keys
         }
 
         // set the foreign keys
@@ -360,7 +349,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         );
         $this->execute($sql);
 
-
         $sql = sprintf(
             'INSERT INTO %s(%s) SELECT %s FROM %s',
             $tableName,
@@ -379,7 +367,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function changeColumn($tableName, $columnName, Column $newColumn)
     {
-
         // TODO: DRY this up....
         $tmpTableName = 'tmp_' . $tableName;
 
@@ -512,6 +499,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 $indexes[$tableName]['columns'][] = strtolower($indexItem['name']);
             }
         }
+
         return $indexes;
     }
 
@@ -560,7 +548,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         $indexColumnArray = [];
         foreach ($index->getColumns() as $column) {
-            $indexColumnArray []= sprintf('`%s` ASC', $column);
+            $indexColumnArray[] = sprintf('`%s` ASC', $column);
         }
         $indexColumns = implode(',', $indexColumnArray);
         $this->execute(
@@ -594,6 +582,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($index['index'])
                     )
                 );
+
                 return;
             }
         }
@@ -614,6 +603,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                         $this->quoteColumnName($indexName)
                     )
                 );
+
                 return;
             }
         }
@@ -633,6 +623,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (empty($a)) {
             return true;
         }
+
         return false;
     }
 
@@ -670,6 +661,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
         }
+
         return $foreignKeys;
     }
 
@@ -786,7 +778,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         );
 
         $columns = array_keys($row);
-        $sql .= "(". implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
+        $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
         $sql .= " VALUES ";
 
         $sql .= "(" . implode(', ', array_map(function ($value) {
@@ -812,44 +804,31 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         switch ($type) {
             case static::PHINX_TYPE_STRING:
                 return ['name' => 'varchar', 'limit' => 255];
-                break;
             case static::PHINX_TYPE_CHAR:
                 return ['name' => 'char', 'limit' => 255];
-                break;
             case static::PHINX_TYPE_TEXT:
                 return ['name' => 'text'];
-                break;
             case static::PHINX_TYPE_INTEGER:
                 return ['name' => 'integer'];
-                break;
             case static::PHINX_TYPE_BIG_INTEGER:
                 return ['name' => 'bigint'];
-                break;
             case static::PHINX_TYPE_FLOAT:
                 return ['name' => 'float'];
-                break;
             case static::PHINX_TYPE_DECIMAL:
                 return ['name' => 'decimal'];
-                break;
             case static::PHINX_TYPE_DATETIME:
                 return ['name' => 'datetime'];
-                break;
             case static::PHINX_TYPE_TIMESTAMP:
                 return ['name' => 'datetime'];
-                break;
             case static::PHINX_TYPE_TIME:
                 return ['name' => 'time'];
-                break;
             case static::PHINX_TYPE_DATE:
                 return ['name' => 'date'];
-                break;
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
                 return ['name' => 'blob'];
-                break;
             case static::PHINX_TYPE_BOOLEAN:
                 return ['name' => 'boolean'];
-                break;
             case static::PHINX_TYPE_UUID:
                 return ['name' => 'char', 'limit' => 36];
             case static::PHINX_TYPE_ENUM:
@@ -860,10 +839,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_GEOMETRY:
             case static::PHINX_TYPE_POLYGON:
                 return ['name' => 'text'];
-                return;
             case static::PHINX_TYPE_LINESTRING:
                 return ['name' => 'varchar', 'limit' => 255];
-                break;
             case static::PHINX_TYPE_POINT:
                 return ['name' => 'float'];
             default:
@@ -886,7 +863,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $precision = null;
             $type = $matches[1];
             if (count($matches) > 2) {
-                $limit = $matches[3] ? $matches[3] : null;
+                $limit = $matches[3] ?: null;
             }
             if (count($matches) > 4) {
                 $precision = $matches[5];
@@ -967,9 +944,26 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * Get the definition for a `DEFAULT` statement.
+     *
+     * @param  mixed $default
+     * @return string
+     */
+    protected function getDefaultValueDefinition($default)
+    {
+        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+            $default = $this->getConnection()->quote($default);
+        } elseif (is_bool($default)) {
+            $default = $this->castToBool($default);
+        }
+
+        return isset($default) ? ' DEFAULT ' . $default : '';
+    }
+
+    /**
      * Gets the SQLite Column Definition for a Column object.
      *
-     * @param Column $column Column
+     * @param \Phinx\Db\Table\Column $column Column
      * @return string
      */
     protected function getColumnSqlDefinition(Column $column)
@@ -986,7 +980,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
             $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits);
             if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
-                $def .= '(' . ($column->getLimit() ? $column->getLimit() : $sqlType['limit']) . ')';
+                $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
             }
             if (($values = $column->getValues()) && is_array($values)) {
                 $def .= " CHECK({$column->getName()} IN ('" . implode("', '", $values) . "'))";
@@ -1013,7 +1007,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Gets the comment Definition for a Column object.
      *
-     * @param Column $column Column
+     * @param \Phinx\Db\Table\Column $column Column
      * @return string
      */
     protected function getCommentDefinition(Column $column)
@@ -1021,13 +1015,15 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if ($column->getComment()) {
             return ' /* ' . $column->getComment() . ' */ ';
         }
+
         return '';
     }
 
     /**
      * Gets the SQLite Index Definition for an Index object.
      *
-     * @param Index $index Index
+     * @param \Phinx\Db\Table $table Table
+     * @param \Phinx\Db\Table\Index $index Index
      * @return string
      */
     protected function getIndexSqlDefinition(Table $table, Index $index)
@@ -1047,6 +1043,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $indexName .= 'index';
         }
         $def .= ' `' . $indexName . '`';
+
         return $def;
     }
 
@@ -1061,7 +1058,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Gets the SQLite Foreign Key Definition for an ForeignKey object.
      *
-     * @param ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey)
@@ -1087,6 +1084,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 $def .= ' ON UPDATE ' . $foreignKey->getOnUpdate();
             }
         }
+
         return $def;
     }
 }

@@ -30,7 +30,6 @@ namespace Phinx\Db\Adapter;
 
 use BadMethodCallException;
 use Phinx\Db\Table;
-use Phinx\Db\Table\Column;
 use Phinx\Migration\MigrationInterface;
 
 /**
@@ -63,7 +62,7 @@ abstract class PdoAdapter extends AbstractAdapter
      * Sets the database connection.
      *
      * @param \PDO $connection Connection
-     * @return AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function setConnection(\PDO $connection)
     {
@@ -103,6 +102,7 @@ abstract class PdoAdapter extends AbstractAdapter
         if ($this->connection === null) {
             $this->connect();
         }
+
         return $this->connection;
     }
 
@@ -127,6 +127,7 @@ abstract class PdoAdapter extends AbstractAdapter
     {
         if ($this->isDryRunEnabled()) {
             $this->getOutput()->writeln($sql);
+
             return 0;
         }
 
@@ -150,6 +151,7 @@ abstract class PdoAdapter extends AbstractAdapter
     public function fetchRow($sql)
     {
         $result = $this->query($sql);
+
         return $result->fetch();
     }
 
@@ -163,6 +165,7 @@ abstract class PdoAdapter extends AbstractAdapter
         while ($row = $result->fetch()) {
             $rows[] = $row;
         }
+
         return $rows;
     }
 
@@ -177,7 +180,7 @@ abstract class PdoAdapter extends AbstractAdapter
         );
 
         $columns = array_keys($row);
-        $sql .= "(". implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
+        $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
         $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
 
         $stmt = $this->getConnection()->prepare($sql);
@@ -196,7 +199,7 @@ abstract class PdoAdapter extends AbstractAdapter
 
         $current = current($rows);
         $keys = array_keys($current);
-        $sql .= "(". implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ") VALUES";
+        $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ") VALUES";
 
         $vals = [];
         foreach ($rows as $row) {
@@ -378,7 +381,7 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function castToBool($value)
     {
-        return (bool) $value ? 1 : 0;
+        return (bool)$value ? 1 : 0;
     }
 
     /**

@@ -28,8 +28,6 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Adapter\AdapterInterface;
-
 /**
  * Adapter factory and registry.
  *
@@ -40,20 +38,21 @@ use Phinx\Db\Adapter\AdapterInterface;
 class AdapterFactory
 {
     /**
-     * @var AdapterFactory
+     * @var \Phinx\Db\Adapter\AdapterFactory
      */
     protected static $instance;
 
     /**
      * Get the factory singleton instance.
      *
-     * @return AdapterFactory
+     * @return \Phinx\Db\Adapter\AdapterFactory
      */
     public static function instance()
     {
         if (!static::$instance) {
             static::$instance = new static();
         }
+
         return static::$instance;
     }
 
@@ -63,8 +62,8 @@ class AdapterFactory
      * @var array
      */
     protected $adapters = [
-        'mysql'  => 'Phinx\Db\Adapter\MysqlAdapter',
-        'pgsql'  => 'Phinx\Db\Adapter\PostgresAdapter',
+        'mysql' => 'Phinx\Db\Adapter\MysqlAdapter',
+        'pgsql' => 'Phinx\Db\Adapter\PostgresAdapter',
         'sqlite' => 'Phinx\Db\Adapter\SQLiteAdapter',
         'sqlsrv' => 'Phinx\Db\Adapter\SqlServerAdapter',
     ];
@@ -76,8 +75,8 @@ class AdapterFactory
      */
     protected $wrappers = [
         'prefix' => 'Phinx\Db\Adapter\TablePrefixAdapter',
-        'proxy'  => 'Phinx\Db\Adapter\ProxyAdapter',
-        'timed'  => 'Phinx\Db\Adapter\TimedOutputAdapter',
+        'proxy' => 'Phinx\Db\Adapter\ProxyAdapter',
+        'timed' => 'Phinx\Db\Adapter\TimedOutputAdapter',
     ];
 
     /**
@@ -97,6 +96,7 @@ class AdapterFactory
             ));
         }
         $this->adapters[$name] = $class;
+
         return $this;
     }
 
@@ -115,6 +115,7 @@ class AdapterFactory
                 $name
             ));
         }
+
         return $this->adapters[$name];
     }
 
@@ -123,11 +124,12 @@ class AdapterFactory
      *
      * @param  string $name
      * @param  array  $options
-     * @return AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getAdapter($name, array $options)
     {
         $class = $this->getClass($name);
+
         return new $class($options);
     }
 
@@ -148,6 +150,7 @@ class AdapterFactory
             ));
         }
         $this->wrappers[$name] = $class;
+
         return $this;
     }
 
@@ -166,6 +169,7 @@ class AdapterFactory
                 $name
             ));
         }
+
         return $this->wrappers[$name];
     }
 
@@ -173,12 +177,13 @@ class AdapterFactory
      * Get a wrapper instance by name.
      *
      * @param  string $name
-     * @param  AdapterInterface $adapter
-     * @return AdapterInterface
+     * @param  \Phinx\Db\Adapter\AdapterInterface $adapter
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getWrapper($name, AdapterInterface $adapter)
     {
         $class = $this->getWrapperClass($name);
+
         return new $class($adapter);
     }
 }

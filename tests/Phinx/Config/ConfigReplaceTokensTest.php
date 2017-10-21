@@ -55,15 +55,15 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
         ]);
 
         $this->assertContains(
-            static::$server['PHINX_TEST_VAR_1'].'', // force convert to string
+            static::$server['PHINX_TEST_VAR_1'] . '', // force convert to string
             $config->offsetGet('some-var-1')
         );
         $this->assertNotContains(
-            static::$server['NON_PHINX_TEST_VAR_1'].'', // force convert to string
+            static::$server['NON_PHINX_TEST_VAR_1'] . '', // force convert to string
             $config->offsetGet('some-var-2')
         );
         $this->assertContains(
-            static::$server['PHINX_TEST_VAR_2'].'', // force convert to string
+            static::$server['PHINX_TEST_VAR_2'] . '', // force convert to string
             $config->offsetGet('some-var-3')
         );
     }
@@ -86,15 +86,15 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
         $folding = $config->offsetGet('folding');
 
         $this->assertContains(
-            static::$server['PHINX_TEST_VAR_1'].'', // force convert to string
+            static::$server['PHINX_TEST_VAR_1'] . '', // force convert to string
             $folding['some-var-1']
         );
         $this->assertNotContains(
-            static::$server['NON_PHINX_TEST_VAR_1'].'', // force convert to string
+            static::$server['NON_PHINX_TEST_VAR_1'] . '', // force convert to string
             $folding['some-var-2']
         );
         $this->assertContains(
-            static::$server['PHINX_TEST_VAR_2'].'', // force convert to string
+            static::$server['PHINX_TEST_VAR_2'] . '', // force convert to string
             $folding['some-var-3']
         );
     }

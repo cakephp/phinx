@@ -37,11 +37,11 @@ class CreateTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        @mkdir(sys_get_temp_dir().DIRECTORY_SEPARATOR.'migrations', 0777, true);
+        @mkdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations', 0777, true);
         $this->config = new Config(
             [
                 'paths' => [
-                    'migrations' => sys_get_temp_dir().DIRECTORY_SEPARATOR.'migrations',
+                    'migrations' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations',
                 ],
                 'environments' => [
                     'default_migration_table' => 'phinxlog',
@@ -59,7 +59,7 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         );
 
         foreach ($this->config->getMigrationPaths() as $path) {
-            foreach (glob($path.'/*.*') as $migration) {
+            foreach (glob($path . '/*.*') as $migration) {
                 unlink($migration);
             }
         }
@@ -114,7 +114,7 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $config = clone $this->config;
         $config['paths'] = [
             'migrations' => [
-                'Foo\Bar' => sys_get_temp_dir().DIRECTORY_SEPARATOR.'migrations',
+                'Foo\Bar' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations',
             ],
         ];
         $command->setConfig($config);

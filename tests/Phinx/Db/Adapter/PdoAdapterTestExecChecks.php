@@ -11,6 +11,27 @@ class PdoAdapterTestPDOMock extends \PDO
     }
 }
 
+/**
+ * A mock PDO that stores its last exec()'d SQL that can be retrieved for queries.
+ *
+ * This exists as $this->getMockForAbstractClass('\PDO') fails under PHP5.4 and
+ * an older PHPUnit; a PDO instance cannot be serialised.
+ */
+class PdoAdapterTestPDOMockWithExecChecks extends PdoAdapterTestPDOMock
+{
+    private $sql;
+
+    public function exec($sql)
+    {
+        $this->sql = $sql;
+    }
+
+    public function getExecutedSqlForTest()
+    {
+        return $this->sql;
+    }
+}
+
 class PdoAdapterTest extends \PHPUnit_Framework_TestCase
 {
     private $adapter;
@@ -131,5 +152,19 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         );
 
         $adapter->getVersionLog();
+    }
+
+    /**
+     * Tests that execute() can be called on the adapter, and that the SQL is passed through to the PDO.
+     */
+    public function testExecuteCanBeCalled()
+    {
+        $pdo = new PdoAdapterTestPDOMockWithExecChecks();
+
+        $this->adapter->setConnection($pdo);
+
+        $this->adapter->execute('SELECT 1');
+
+        $this->assertSame('SELECT 1', $pdo->getExecutedSqlForTest());
     }
 }
