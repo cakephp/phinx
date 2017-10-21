@@ -385,7 +385,7 @@ class Table
      * @param array $options Column Options
      * @return Table
      */
-    public function addCustomColumn($columnName, $type = null, $options = array())
+    public function addCustomColumn($columnName, $type = null, $options = [])
     {
         // create a new CustomColumn object if only strings were supplied
         if (!$columnName instanceof CustomColumn) {
@@ -398,6 +398,7 @@ class Table
         }
 
         $this->columns[] = $column;
+
         return $this;
     }
 

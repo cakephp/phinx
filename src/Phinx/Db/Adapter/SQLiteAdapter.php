@@ -946,7 +946,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Get the definition for a `DEFAULT` statement.
      *
-     * @param  mixed $default
+     * @param  mixed $default Default value
      * @return string
      */
     protected function getDefaultValueDefinition($default)

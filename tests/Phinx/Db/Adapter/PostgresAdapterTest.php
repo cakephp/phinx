@@ -951,7 +951,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testCustomColumn()
     {
-        $table = new \Phinx\Db\Table('citable', array('id' => false), $this->adapter);
+        $table = new \Phinx\Db\Table('citable', ['id' => false], $this->adapter);
         $table
             ->addCustomColumn('insensitive', 'citext')
             ->save();

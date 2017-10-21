@@ -397,6 +397,7 @@ abstract class PdoAdapter extends AbstractAdapter
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
         }
+
         return isset($default) ? " DEFAULT $default" : '';
     }
 }

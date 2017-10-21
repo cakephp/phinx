@@ -991,7 +991,7 @@ SQL;
     /**
      * Get the defintion for a `DEFAULT` statement.
      *
-     * @param  mixed $default
+     * @param  mixed $default Default value
      * @return string
      */
     protected function getDefaultValueDefinition($default)
@@ -1013,13 +1013,11 @@ SQL;
      */
     protected function getColumnSqlDefinition(Column $column, $create = true)
     {
-        $buffer = array();
+        $buffer = [];
         $isCustomColumn = $column instanceof Table\CustomColumn;
         if ($isCustomColumn) {
             $buffer[] = $column->getType();
         } else {
-            $buffer = [];
-
             $sqlType = $this->getSqlType($column->getType());
             $buffer[] = strtoupper($sqlType['name']);
             // integers cant have limits in SQlServer
