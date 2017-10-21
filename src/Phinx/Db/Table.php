@@ -353,6 +353,8 @@ class Table
             $column->setName($columnName);
             $column->setType($type);
             $column->setOptions($options); // map options to column methods
+        } elseif ($columnName instanceof CustomColumn) {
+            return $this->addCustomColumn($columnName, $type, $options);
         } else {
             $column = $columnName;
         }
