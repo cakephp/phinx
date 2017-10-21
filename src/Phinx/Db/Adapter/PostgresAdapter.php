@@ -890,7 +890,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $default = $this->castToBool($default);
         }
 
-        return isset($default) ? 'DEFAULT ' . $default : '';
+        return isset($default) ? ' DEFAULT ' . $default : '';
     }
 
     /**
