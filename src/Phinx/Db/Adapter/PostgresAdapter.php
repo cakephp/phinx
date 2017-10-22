@@ -430,7 +430,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     'ALTER TABLE %s ALTER COLUMN %s SET %s',
                     $this->quoteTableName($tableName),
                     $this->quoteColumnName($columnName),
-                    $this->getDefaultValueDefinition($newColumn->getDefault())
+                    $this->getDefaultValueDefinition($newColumn->getDefault(), $newColumn->getType())
                 )
             );
         } else {
@@ -875,12 +875,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * @param  mixed $default
      * @return string
      */
-    protected function getDefaultValueDefinition($default)
+    protected function getDefaultValueDefinition($default, $columnType)
     {
         if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
+        } elseif ($columnType === static::PHINX_TYPE_BOOLEAN) {
+            $default = $this->castToBool((bool)$default);
         }
 
         return isset($default) ? 'DEFAULT ' . $default : '';
@@ -914,7 +916,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     strtoupper($sqlType['type']),
                     $sqlType['srid']
                 );
-            } elseif (!in_array($sqlType['name'], ['integer', 'smallint', 'bigint'])) {
+            } elseif (!in_array($sqlType['name'], ['integer', 'smallint', 'bigint', 'boolean'])) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
                 }
@@ -932,7 +934,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
 
         if (!is_null($column->getDefault())) {
-            $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
+            $buffer[] = $this->getDefaultValueDefinition($column->getDefault(), $column->getType());
         }
 
         return implode(' ', $buffer);

@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\PostgresAdapter;
+use Phinx\Db\Table\Column;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
@@ -295,6 +296,40 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
                 $this->assertEquals('false', $column->getDefault());
             }
         }
+    }
+
+    public function testAddColumnWithBooleanIgnoreLimitCastDefault()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn('limit_bool_true', 'boolean', [
+            'default' => 1,
+            'limit' => 1,
+            'null' => false,
+        ]);
+        $table->addColumn('limit_bool_false', 'boolean', [
+            'default' => 0,
+            'limit' => 0,
+            'null' => false,
+        ]);
+        $table->save();
+
+        $columns = $this->adapter->getColumns('table1');
+        $this->assertCount(3, $columns);
+        /**
+         * @var Column $column
+         */
+        $column = $columns[1];
+        $this->assertSame('limit_bool_true', $column->getName());
+        $this->assertNotNull($column->getDefault());
+        $this->assertSame('true', $column->getDefault());
+        $this->assertNull($column->getLimit());
+
+        $column = $columns[2];
+        $this->assertSame('limit_bool_false', $column->getName());
+        $this->assertNotNull($column->getDefault());
+        $this->assertSame('false', $column->getDefault());
+        $this->assertNull($column->getLimit());
     }
 
     public function testAddDecimalWithPrecisionAndScale()
