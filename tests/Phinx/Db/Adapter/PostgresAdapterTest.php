@@ -564,7 +564,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testDropIndex()
     {
-         // single column index
+        // single column index
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
               ->addIndex('email')
