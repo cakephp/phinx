@@ -872,7 +872,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Get the defintion for a `DEFAULT` statement.
      *
-     * @param  mixed $default
+     * @param mixed $default default value
+     * @param string $columnType column type added
      * @return string
      */
     protected function getDefaultValueDefinition($default, $columnType)
