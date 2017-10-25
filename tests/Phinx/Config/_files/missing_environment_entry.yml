@@ -1,5 +1,5 @@
 paths:
-    migrations: %%PHINX_CONFIG_DIR%%/db/migrations
+    migrations: '%%PHINX_CONFIG_DIR%%/db/migrations'
 
 environments:
     default_migration_table: phinxlog
