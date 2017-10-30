@@ -36,6 +36,40 @@ use Phinx\Db\Adapter\AdapterInterface;
  */
 class Column
 {
+    const BIG_INTEGER = 'BIGINTEGER';
+    const BINARY = 'BINARY';
+    const BOOLEAN = 'BOOLEAN';
+    const BOOL = 'BOOLEAN';
+    const CHAR = 'CHAR';
+    const DATE = 'DATE';
+    const DATETIME = 'DATETIME';
+    const DECIMAL = 'DECIMAL';
+    const FLOAT = 'FLOAT';
+    const INTEGER = 'INTEGER';
+    const STRING = 'STRING';
+    const TEXT = 'TEXT';
+    const TIME = 'TIME';
+    const TIMESTAMP = 'TIMESTAMP';
+    const UUID = 'UUID';
+    /** MySQL-only column type */
+    const ENUM = 'ENUM';
+    /** MySQL-only column type */
+    const SET = 'SET';
+    /** MySQL-only column type */
+    const BLOB = 'BLOB';
+    /** MySQL/Postgres-only column type */
+    const JSON = 'JSON';
+    /** Postgres-only column type */
+    const SMALLINT = 'SMALLINT';
+    /** Postgres-only column type */
+    const JSONB = 'JSONB';
+    /** Postgres-only column type */
+    const CIDR = 'CIDR';
+    /** Postgres-only column type */
+    const INET = 'INET';
+    /** Postgres-only column type */
+    const MACADDR = 'MACADDR';
+
     /**
      * @var string
      */
