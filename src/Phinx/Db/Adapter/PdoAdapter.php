@@ -45,20 +45,6 @@ abstract class PdoAdapter extends AbstractAdapter
     protected $connection;
 
     /**
-     * {@inheritdoc}
-     */
-    public function setOptions(array $options)
-    {
-        parent::setOptions($options);
-
-        if (isset($options['connection'])) {
-            $this->setConnection($options['connection']);
-        }
-
-        return $this;
-    }
-
-    /**
      * Sets the database connection.
      *
      * @param \PDO $connection Connection
@@ -100,7 +86,11 @@ abstract class PdoAdapter extends AbstractAdapter
     public function getConnection()
     {
         if ($this->connection === null) {
-            $this->connect();
+            if (isset($options['connection'])) {
+                $this->setConnection($options['connection']);
+            } else {
+                $this->connect();
+            }
         }
 
         return $this->connection;
