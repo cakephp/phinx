@@ -84,7 +84,7 @@ EOT
         $environment = $input->getOption('environment');
         $version = $input->getOption('target');
         $date = $input->getOption('date');
-        $force = !!$input->getOption('force');
+        $force = (bool)$input->getOption('force');
 
         $config = $this->getConfig();
 
