@@ -7,7 +7,8 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 
 class ListTest extends \PHPUnit_Framework_TestCase
 {
-    public function testVersionInfo() {
+    public function testVersionInfo()
+    {
         $application = new PhinxApplication();
         $application->setAutoExit(false); // Set autoExit to false when testing
         $application->setCatchExceptions(false);
@@ -19,5 +20,4 @@ class ListTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(1, substr_count(stream_get_contents($stream), 'Phinx by CakePHP - https://phinx.org'));
     }
-
 }
