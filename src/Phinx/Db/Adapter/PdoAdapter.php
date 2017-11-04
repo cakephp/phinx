@@ -264,7 +264,7 @@ abstract class PdoAdapter extends AbstractAdapter
             // up
             $sql = sprintf(
                 "INSERT INTO %s (%s, %s, %s, %s, %s) VALUES ('%s', '%s', '%s', '%s', %s);",
-                $this->getSchemaTableName(),
+                $this->quoteTableName($this->getSchemaTableName()),
                 $this->quoteColumnName('version'),
                 $this->quoteColumnName('migration_name'),
                 $this->quoteColumnName('start_time'),
@@ -282,7 +282,7 @@ abstract class PdoAdapter extends AbstractAdapter
             // down
             $sql = sprintf(
                 "DELETE FROM %s WHERE %s = '%s'",
-                $this->getSchemaTableName(),
+                $this->quoteTableName($this->getSchemaTableName()),
                 $this->quoteColumnName('version'),
                 $migration->getVersion()
             );
