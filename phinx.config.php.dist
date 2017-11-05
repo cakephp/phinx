@@ -1,8 +1,11 @@
 <?php
 
+// keep this to load the dotenv package
+// only if the config file is used
 $dotenv = new Dotenv\Dotenv(__DIR__);
 $dotenv->load();
 
+// return the configuration
 return [
     'paths' => [
         'migrations' => __DIR__ . '/migrations',
@@ -11,18 +14,19 @@ return [
         'default_migration_table' => 'phinxlog',
         'default_database' => getenv('APP_ENV'),
         'develop' => [
-            'adapter' => getenv('DB_ADAPTER'),
-            'host' => getenv('DB_HOST'),
-            'name' => getenv('DB_NAME'),
-            'user' => getenv('DB_USER'),
-            'pass' => getenv('DB_PASS'),
-            'port' => getenv('DB_PORT'),
+            'adapter' => getenv('DB_ADAPTER_DEV'),
+            'host' => getenv('DB_HOST_DEV'),
+            'name' => getenv('DB_NAME_DEV'),
+            'user' => getenv('DB_USER_DEV'),
+            'pass' => getenv('DB_PASS_DEV'),
+            'port' => getenv('DB_PORT_DEV'),
         ],
 
         /**
         // add more environments here
 
         // 'production' => [
+        //    'adapter' => getenv('DB_ADAPTER_PROD'),
         //     etc...
         // ]
 
