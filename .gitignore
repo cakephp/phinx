@@ -36,3 +36,9 @@ phpunit.xml
 
 # sqlite test database
 phinx_testing.sqlite3
+
+# ignore dotenv .env file
+.env
+
+# ignore config file - copy from the phinx.config.php.dist file
+*.config.php

@@ -27,7 +27,8 @@
         "php": ">=5.4",
         "symfony/console": "~2.8|~3.0|~4.0",
         "symfony/config": "~2.8|~3.0|~4.0",
-        "symfony/yaml": "~2.8|~3.0|~4.0"
+        "symfony/yaml": "~2.8|~3.0|~4.0",
+        "vlucas/phpdotenv": "^2.4"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.8.26|^5.0",
