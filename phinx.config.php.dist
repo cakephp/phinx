@@ -1,5 +1,7 @@
 <?php
 
+// copy this file to phinx.config.php, or your preferred name/location
+
 // keep this to load the dotenv package
 // only if the config file is used
 $dotenv = new Dotenv\Dotenv(__DIR__);
