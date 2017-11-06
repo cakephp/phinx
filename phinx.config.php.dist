@@ -2,10 +2,11 @@
 
 // copy this file to phinx.config.php, or your preferred name/location
 
-// keep this to load the dotenv package
+// keep this here to load the dotenv package
 // only if the config file is used
-$dotenv = new Dotenv\Dotenv(__DIR__);
-$dotenv->load();
+$Loader = (new josegonzalez\Dotenv\Loader(__DIR__ . '/.env'))
+    ->parse()
+    ->putenv();
 
 // return the configuration
 return [
