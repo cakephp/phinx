@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\PdoAdapter;
+use PHPUnit\Framework\TestCase;
 
 class PdoAdapterTestPDOMock extends \PDO
 {
@@ -32,7 +33,7 @@ class PdoAdapterTestPDOMockWithExecChecks extends PdoAdapterTestPDOMock
     }
 }
 
-class PdoAdapterTest extends \PHPUnit_Framework_TestCase
+class PdoAdapterTest extends TestCase
 {
     private $adapter;
 

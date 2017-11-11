@@ -3,10 +3,11 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\SqlServerAdapter;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
-class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
+class SqlServerAdapterTest extends TestCase
 {
     /**
      * @var \Phinx\Db\Adapter\SqlServerAdapter

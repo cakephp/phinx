@@ -4,9 +4,10 @@ namespace Test\Phinx\Console\Command;
 
 use Phinx\Console\Command\Init;
 use Phinx\Console\PhinxApplication;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class InitTest extends \PHPUnit_Framework_TestCase
+class InitTest extends TestCase
 {
     protected function setUp()
     {
