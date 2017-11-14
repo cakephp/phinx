@@ -245,21 +245,35 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      */
     public function getMigrationPaths($environment = null, $adapter = null)
     {
+        $paths = [];
+
         if (!isset($this->values['default_paths']['migrations'])) {
             throw new \UnexpectedValueException('Default migrations path missing from config file');
         }
 
         if (is_string($this->values['default_paths']['migrations'])) {
-            $this->values['default_paths']['migrations'] = [$this->values['default_paths']['migrations']];
+            $paths []= $this->values['default_paths']['migrations'];
         }
 
         if ($environment !== null && $adapter !== null) {
             if (isset($this->values['environments'][$environment][$adapter]['paths']['migrations'])) {
                 return [$this->values['environments'][$environment][$adapter]['paths']['migrations']];
             }
+        } else {
+            $environments = array_keys($this->values['environments']);
+            foreach ($environments as $env) {
+                if (is_array($this->values['environments'][$env])) {
+                    foreach ($this->values['environments'][$env] as $adapter => $properties) {
+                        if (!is_array($properties)) {
+                            continue;
+                        }
+                        $paths []= $this->values['environments'][$env][$adapter]['paths']['migrations'];
+                    }
+                }
+            }
         }
 
-        return $this->values['default_paths']['migrations'];
+        return $paths;
     }
 
     /**

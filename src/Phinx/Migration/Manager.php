@@ -382,7 +382,12 @@ class Manager
 
         // Execute the migration and log the time elapsed.
         $start = microtime(true);
-        $this->getEnvironment($name)->executeMigration($migration, $direction);
+
+        if ($this->getAdapter()) {
+            $this->getEnvironment($name)[$this->getAdapter()]->executeMigration($migration, $direction);    
+        } else {
+            $this->getEnvironment($name)->executeMigration($migration, $direction);
+        }
         $end = microtime(true);
 
         $this->getOutput()->writeln(
