@@ -70,6 +70,7 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
         $this->bootstrap($input, $output);
 
         $version = $input->getOption('target');
@@ -84,37 +85,49 @@ EOT
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
-        if (isset($envOptions['adapter'])) {
-            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
-        }
 
-        if (isset($envOptions['wrapper'])) {
-            $output->writeln('<info>using wrapper</info> ' . $envOptions['wrapper']);
-        }
 
-        if (isset($envOptions['name'])) {
-            $output->writeln('<info>using database</info> ' . $envOptions['name']);
-        } else {
-            $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
+        foreach ($envOptions as $adapter => $adapterOptions) {
 
-            return 1;
-        }
+            if (!is_array($adapterOptions)) {
+                continue;
+            }
 
-        if (isset($envOptions['table_prefix'])) {
-            $output->writeln('<info>using table prefix</info> ' . $envOptions['table_prefix']);
-        }
-        if (isset($envOptions['table_suffix'])) {
-            $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
-        }
+            if (isset($adapterOptions['adapter'])) {
+                $output->writeln('<info>using adapter</info> ' . $adapterOptions['adapter']);
+            }
 
-        // run the migrations
-        $start = microtime(true);
-        if ($date !== null) {
-            $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
-        } else {
-            $this->getManager()->migrate($environment, $version);
+            if (isset($adapterOptions['wrapper'])) {
+                $output->writeln('<info>using wrapper</info> ' . $adapterOptions['wrapper']);
+            }
+
+            if (isset($adapterOptions['name'])) {
+                $output->writeln('<info>using database</info> ' . $adapterOptions['name']);
+            } else {
+                $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
+
+                return 1;
+            }
+
+            if (isset($adapterOptions['table_prefix'])) {
+                $output->writeln('<info>using table prefix</info> ' . $adapterOptions['table_prefix']);
+            }
+            if (isset($adapterOptions['table_suffix'])) {
+                $output->writeln('<info>using table suffix</info> ' . $adapterOptions['table_suffix']);
+            }
+
+            // run the migrations
+            $start = microtime(true);
+
+            $this->getManager()->setEnvironment($environment)->setAdapter($adapter);
+            if ($date !== null) {
+                $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
+            } else {
+                $this->getManager()->migrate($environment, $version);
+            }
+            $end = microtime(true);
+
         }
-        $end = microtime(true);
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');

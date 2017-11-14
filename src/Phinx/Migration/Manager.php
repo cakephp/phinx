@@ -60,6 +60,16 @@ class Manager
     protected $environments;
 
     /**
+     * @var string
+     */
+    protected $environment;
+
+    /**
+     * @var string
+     */
+    protected $adapter;
+
+    /**
      * @var array
      */
     protected $migrations;
@@ -551,6 +561,40 @@ class Manager
     }
 
     /**
+     * Set the adapter property
+     *
+     * @param string $adapter
+     * @return \Phinx\Migration\Manager
+     */
+    public function setAdapter($adapter)
+    {
+        $this->adapter = $adapter;
+        return $this;
+    }
+
+    /**
+     * Get the adapter property
+     *
+     * @return string
+     */ 
+    public function getAdapter()
+    {
+        return $this->adapter;
+    }
+
+    /**
+     * Set the environment property
+     *
+     * @param string $environment
+     * @return \Phinx\Migration\Manager
+     */
+    public function setEnvironment($environment)
+    {
+        $this->environmentName = $environment;
+        return $this;
+    }
+
+    /**
      * Sets the environments.
      *
      * @param array $environments Environments
@@ -586,10 +630,11 @@ class Manager
 
         // create an environment instance and cache it
         $envOptions = $this->getConfig()->getEnvironment($name);
-        $envOptions['version_order'] = $this->getConfig()->getVersionOrder();
+        $envOptions = $envOptions[$this->getAdapter()];
 
+        $envOptions['version_order'] = $this->getConfig()->getVersionOrder();
         $environment = new Environment($name, $envOptions);
-        $this->environments[$name] = $environment;
+        $this->environments[$name][$this->getAdapter()] = $environment;
         $environment->setInput($this->getInput());
         $environment->setOutput($this->getOutput());
 
@@ -737,7 +782,7 @@ class Manager
     protected function getMigrationFiles()
     {
         $config = $this->getConfig();
-        $paths = $config->getMigrationPaths();
+        $paths = $config->getMigrationPaths($this->environmentName, $this->getAdapter());
         $files = [];
 
         foreach ($paths as $path) {
