@@ -245,15 +245,15 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      */
     public function getMigrationPaths()
     {
-        if (!isset($this->values['paths']['migrations'])) {
+        if (!isset($this->values['default_paths']['migrations'])) {
             throw new \UnexpectedValueException('Migrations path missing from config file');
         }
 
-        if (is_string($this->values['paths']['migrations'])) {
-            $this->values['paths']['migrations'] = [$this->values['paths']['migrations']];
+        if (is_string($this->values['default_paths']['migrations'])) {
+            $this->values['default_paths']['migrations'] = [$this->values['default_paths']['migrations']];
         }
 
-        return $this->values['paths']['migrations'];
+        return $this->values['default_paths']['migrations'];
     }
 
     /**
