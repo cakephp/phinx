@@ -86,35 +86,13 @@ EOT
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
 
-
         foreach ($envOptions as $dbReference => $adapterOptions) {
 
-            if (!is_array($adapterOptions)) {
+            if (!is_array($adapterOptions)) {//@todo handle old format option
                 continue;
             }
 
-            if (isset($adapterOptions['adapter'])) {
-                $output->writeln('<info>using adapter</info> ' . $adapterOptions['adapter']);
-            }
-
-            if (isset($adapterOptions['wrapper'])) {
-                $output->writeln('<info>using wrapper</info> ' . $adapterOptions['wrapper']);
-            }
-
-            if (isset($adapterOptions['name'])) {
-                $output->writeln('<info>using database</info> ' . $adapterOptions['name']);
-            } else {
-                $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
-
-                return 1;
-            }
-
-            if (isset($adapterOptions['table_prefix'])) {
-                $output->writeln('<info>using table prefix</info> ' . $adapterOptions['table_prefix']);
-            }
-            if (isset($adapterOptions['table_suffix'])) {
-                $output->writeln('<info>using table suffix</info> ' . $adapterOptions['table_suffix']);
-            }
+            $this->outputEnvironmentInfo($adapterOptions, $output);
 
             // run the migrations
             $start = microtime(true);
@@ -132,5 +110,40 @@ EOT
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
 
         return 0;
+    }
+
+    /**
+     * Output the database information
+     *
+     * @param array $info
+     * @param OutputInterface $output
+     * @return null
+     */
+    public function outputEnvironmentInfo(array $info, OutputInterface $output)
+    {
+
+        if (isset($info['adapter'])) {
+            $output->writeln('<info>using adapter</info> ' . $info['adapter']);
+        }
+
+        if (isset($info['wrapper'])) {
+            $output->writeln('<info>using wrapper</info> ' . $info['wrapper']);
+        }
+
+        if (isset($info['name'])) {
+            $output->writeln('<info>using database</info> ' . $info['name']);
+        } else {
+            $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
+
+            return 1;
+        }
+
+        if (isset($info['table_prefix'])) {
+            $output->writeln('<info>using table prefix</info> ' . $info['table_prefix']);
+        }
+        if (isset($info['table_suffix'])) {
+            $output->writeln('<info>using table suffix</info> ' . $info['table_suffix']);
+        }
+
     }
 }
