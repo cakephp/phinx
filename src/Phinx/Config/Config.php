@@ -243,7 +243,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * {@inheritdoc}
      */
-    public function getMigrationPaths($environment = null, $adapter = null)
+    public function getMigrationPaths($environment = null, $dbReference = null)
     {
         $paths = [];
 
@@ -255,19 +255,20 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             $paths []= $this->values['default_paths']['migrations'];
         }
 
-        if ($environment !== null && $adapter !== null) {
-            if (isset($this->values['environments'][$environment][$adapter]['paths']['migrations'])) {
-                return [$this->values['environments'][$environment][$adapter]['paths']['migrations']];
+        if ($environment !== null && $dbReference !== null) {
+            $environment = $this->getEnvironment($environment);
+            if (isset($environment[$dbReference]['paths']['migrations'])) {
+                return [$environment[$dbReference]['paths']['migrations']];
             }
         } else {
             $environments = array_keys($this->values['environments']);
             foreach ($environments as $env) {
                 if (is_array($this->values['environments'][$env])) {
-                    foreach ($this->values['environments'][$env] as $adapter => $properties) {
+                    foreach ($this->values['environments'][$env] as $dbReference => $properties) {
                         if (!is_array($properties)) {
                             continue;
                         }
-                        $paths []= $this->values['environments'][$env][$adapter]['paths']['migrations'];
+                        $paths []= $this->values['environments'][$env][$dbReference]['paths']['migrations'];
                     }
                 }
             }

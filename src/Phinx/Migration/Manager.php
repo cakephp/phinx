@@ -382,9 +382,8 @@ class Manager
 
         // Execute the migration and log the time elapsed.
         $start = microtime(true);
-
-        if ($this->getAdapter()) {
-            $this->getEnvironment($name)[$this->getAdapter()]->executeMigration($migration, $direction);    
+        if ($this->getDbRef()) {
+            $this->getEnvironment($name)->executeMigration($migration, $direction);    
         } else {
             $this->getEnvironment($name)->executeMigration($migration, $direction);
         }
@@ -566,14 +565,14 @@ class Manager
     }
 
     /**
-     * Set the adapter property
+     * Set the dbRef property
      *
-     * @param string $adapter
+     * @param string $ref
      * @return \Phinx\Migration\Manager
      */
-    public function setAdapter($adapter)
+    public function setDbRef($ref)
     {
-        $this->adapter = $adapter;
+        $this->dbRef = $ref;
         return $this;
     }
 
@@ -582,9 +581,9 @@ class Manager
      *
      * @return string
      */ 
-    public function getAdapter()
+    public function getDbRef()
     {
-        return $this->adapter;
+        return $this->dbRef;
     }
 
     /**
@@ -609,8 +608,8 @@ class Manager
      */
     public function getEnvironment($name)
     {
-        if (isset($this->environments[$name])) {
-            return $this->environments[$name];
+        if (isset($this->environments[$name][$this->getDbRef()])) {
+            return $this->environments[$name][$this->getDbRef()];
         }
 
         // check the environment exists
@@ -623,11 +622,11 @@ class Manager
 
         // create an environment instance and cache it
         $envOptions = $this->getConfig()->getEnvironment($name);
-        $envOptions = $envOptions[$this->getAdapter()];
+        $envOptions = $envOptions[$this->getDbRef()];
 
         $envOptions['version_order'] = $this->getConfig()->getVersionOrder();
         $environment = new Environment($name, $envOptions);
-        $this->environments[$name][$this->getAdapter()] = $environment;
+        $this->environments[$name][$this->getDbRef()] = $environment;
         $environment->setInput($this->getInput());
         $environment->setOutput($this->getOutput());
 
@@ -776,7 +775,7 @@ class Manager
     {
         $config = $this->getConfig();
         $environment = $this->getInput()->getOption('environment');
-        $paths = $config->getMigrationPaths($environment, $this->getAdapter());
+        $paths = $config->getMigrationPaths($environment, $this->getDbRef());
         $files = [];
 
         foreach ($paths as $path) {

@@ -87,7 +87,7 @@ EOT
         $envOptions = $this->getConfig()->getEnvironment($environment);
 
 
-        foreach ($envOptions as $adapter => $adapterOptions) {
+        foreach ($envOptions as $dbReference => $adapterOptions) {
 
             if (!is_array($adapterOptions)) {
                 continue;
@@ -118,8 +118,7 @@ EOT
 
             // run the migrations
             $start = microtime(true);
-
-            $this->getManager()->setAdapter($adapter);
+            $this->getManager()->setDbRef($dbReference);
             if ($date !== null) {
                 $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
             } else {

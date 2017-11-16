@@ -91,9 +91,11 @@ interface ConfigInterface extends \ArrayAccess
     /**
      * Gets the paths to search for migration files.
      *
+     * @param string $environment
+     * @param string $dbReference
      * @return string[]
      */
-    public function getMigrationPaths();
+    public function getMigrationPaths($environment = null, $dbReference = null);
 
     /**
      * Gets the paths to search for seed files.
