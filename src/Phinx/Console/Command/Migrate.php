@@ -119,7 +119,7 @@ EOT
             // run the migrations
             $start = microtime(true);
 
-            $this->getManager()->setEnvironment($environment)->setAdapter($adapter);
+            $this->getManager()->setAdapter($adapter);
             if ($date !== null) {
                 $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
             } else {

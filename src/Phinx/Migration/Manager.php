@@ -588,18 +588,6 @@ class Manager
     }
 
     /**
-     * Set the environment property
-     *
-     * @param string $environment
-     * @return \Phinx\Migration\Manager
-     */
-    public function setEnvironment($environment)
-    {
-        $this->environmentName = $environment;
-        return $this;
-    }
-
-    /**
      * Sets the environments.
      *
      * @param array $environments Environments
@@ -787,7 +775,8 @@ class Manager
     protected function getMigrationFiles()
     {
         $config = $this->getConfig();
-        $paths = $config->getMigrationPaths($this->environmentName, $this->getAdapter());
+        $environment = $this->getInput()->getOption('environment');
+        $paths = $config->getMigrationPaths($environment, $this->getAdapter());
         $files = [];
 
         foreach ($paths as $path) {
