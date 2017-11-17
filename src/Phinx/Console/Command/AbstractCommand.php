@@ -344,6 +344,45 @@ abstract class AbstractCommand extends Command
     }
 
     /**
+     * Output the database information
+     *
+     * @param array $info
+     * @param OutputInterface $output
+     * @return null
+     */
+    public function outputEnvironmentInfo(array $info, OutputInterface $output)
+    {
+
+        if (isset($info['adapter'])) {
+            $output->writeln('<info>using adapter</info> ' . $info['adapter']);
+        }
+
+        if (isset($info['wrapper'])) {
+            $output->writeln('<info>using wrapper</info> ' . $info['wrapper']);
+        }
+
+        if (isset($info['id'])) {
+            $output->writeln('<info>using name</info> ' . $info['id']);
+        }
+
+        if (isset($info['name'])) {
+            $output->writeln('<info>using database</info> ' . $info['name']);
+        } else {
+            $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
+
+            return 1;
+        }
+
+        if (isset($info['table_prefix'])) {
+            $output->writeln('<info>using table prefix</info> ' . $info['table_prefix']);
+        }
+        if (isset($info['table_suffix'])) {
+            $output->writeln('<info>using table suffix</info> ' . $info['table_suffix']);
+        }
+
+    }
+
+    /**
      * Returns the migration template filename.
      *
      * @return string

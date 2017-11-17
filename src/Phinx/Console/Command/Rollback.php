@@ -96,36 +96,35 @@ EOT
         }
 
         $envOptions = $config->getEnvironment($environment);
-        if (isset($envOptions['adapter'])) {
-            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
+
+        foreach ($envOptions as $dbRef => $adapterOptions) {
+
+            if (!is_array($adapterOptions)) {
+                continue;
+            }
+
+            $this->outputEnvironmentInfo($adapterOptions, $output);
+
+            $versionOrder = $this->getConfig()->getVersionOrder();
+            $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
+
+            // rollback the specified environment
+            if ($date === null) {
+                $targetMustMatchVersion = true;
+                $target = $version;
+            } else {
+                $targetMustMatchVersion = false;
+                $target = $this->getTargetFromDate($date);
+            }
+
+            $start = microtime(true);
+            $this->getManager()->setDbRef($dbRef)->rollback($environment, $target, $force, $targetMustMatchVersion);
+            $end = microtime(true);
+
+            $output->writeln('');
+            $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+
         }
-
-        if (isset($envOptions['wrapper'])) {
-            $output->writeln('<info>using wrapper</info> ' . $envOptions['wrapper']);
-        }
-
-        if (isset($envOptions['name'])) {
-            $output->writeln('<info>using database</info> ' . $envOptions['name']);
-        }
-
-        $versionOrder = $this->getConfig()->getVersionOrder();
-        $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
-
-        // rollback the specified environment
-        if ($date === null) {
-            $targetMustMatchVersion = true;
-            $target = $version;
-        } else {
-            $targetMustMatchVersion = false;
-            $target = $this->getTargetFromDate($date);
-        }
-
-        $start = microtime(true);
-        $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion);
-        $end = microtime(true);
-
-        $output->writeln('');
-        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
     }
 
     /**

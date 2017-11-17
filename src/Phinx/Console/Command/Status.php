@@ -84,7 +84,13 @@ EOT
 
         $output->writeln('<info>ordering by </info>' . $this->getConfig()->getVersionOrder() . " time");
 
-        // print the status
-        return $this->getManager()->printStatus($environment, $format);
+        $envOptions = $this->getConfig()->getEnvironment($environment);
+
+        foreach ($envOptions as $dbRef => $adapterOptions) {
+            if (!is_array($adapterOptions)) {
+                continue;
+            }
+            $this->getManager()->setDbRef($dbRef)->printStatus($environment, $format);
+        }
     }
 }

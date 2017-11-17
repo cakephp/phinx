@@ -293,17 +293,39 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * {@inheritdoc}
      */
-    public function getSeedPaths()
+    public function getSeedPaths($environment = null, $dbReference = null)
     {
-        if (!isset($this->values['paths']['seeds'])) {
+
+        $paths = [];
+
+        if (!isset($this->values['default_paths']['seeds'])) {
             throw new \UnexpectedValueException('Seeds path missing from config file');
         }
 
-        if (is_string($this->values['paths']['seeds'])) {
-            $this->values['paths']['seeds'] = [$this->values['paths']['seeds']];
+        if (is_string($this->values['default_paths']['seeds'])) {
+            $path []= $this->values['default_paths']['seeds'];
         }
 
-        return $this->values['paths']['seeds'];
+        if ($environment !== null && $dbReference !== null) {
+            $environment = $this->getEnvironment($environment);
+            if (isset($environment[$dbReference]['paths']['seeds'])) {
+                return [$environment[$dbReference]['paths']['seeds']];
+            }
+        } else {
+            $environments = array_keys($this->values['environments']);
+            foreach ($environments as $env) {
+                if (is_array($this->values['environments'][$env])) {
+                    foreach ($this->values['environments'][$env] as $dbReference => $properties) {
+                        if (!is_array($properties)) {
+                            continue;
+                        }
+                        $paths []= $this->values['environments'][$env][$dbReference]['paths']['seeds'];
+                    }
+                }
+            }
+        }
+
+        return $paths;
     }
 
     /**

@@ -382,11 +382,7 @@ class Manager
 
         // Execute the migration and log the time elapsed.
         $start = microtime(true);
-        if ($this->getDbRef()) {
-            $this->getEnvironment($name)->executeMigration($migration, $direction);    
-        } else {
-            $this->getEnvironment($name)->executeMigration($migration, $direction);
-        }
+        $this->getEnvironment($name)->executeMigration($migration, $direction);
         $end = microtime(true);
 
         $this->getOutput()->writeln(
@@ -416,6 +412,7 @@ class Manager
         // Execute the seeder and log the time elapsed.
         $start = microtime(true);
         $this->getEnvironment($name)->executeSeed($seed);
+
         $end = microtime(true);
 
         $this->getOutput()->writeln(
@@ -552,12 +549,14 @@ class Manager
             foreach ($seeds as $seeder) {
                 if (array_key_exists($seeder->getName(), $seeds)) {
                     $this->executeSeed($environment, $seeder);
+                    unset($this->seeds[$seeder->getName()]);
                 }
             }
         } else {
             // run only one seeder
             if (array_key_exists($seed, $seeds)) {
                 $this->executeSeed($environment, $seeds[$seed]);
+                unset($this->seeds[$seed]);
             } else {
                 throw new \InvalidArgumentException(sprintf('The seed class "%s" does not exist', $seed));
             }
@@ -867,7 +866,9 @@ class Manager
     protected function getSeedFiles()
     {
         $config = $this->getConfig();
-        $paths = $config->getSeedPaths();
+        $environment = $this->getInput()->getOption('environment');
+        $paths = $config->getSeedPaths($environment, $this->getDbRef());
+
         $files = [];
 
         foreach ($paths as $path) {
