@@ -96,17 +96,12 @@ EOT
         }
 
         $envOptions = $config->getEnvironment($environment);
-
+        unset($envOptions['default_migration_table']);
+        unset($envOptions['default_database']);
+        
+        $start = microtime(true);
+        
         foreach ($envOptions as $dbRef => $adapterOptions) {
-
-            if (!is_array($adapterOptions)) {
-                continue;
-            }
-
-            $this->outputEnvironmentInfo($adapterOptions, $output);
-
-            $versionOrder = $this->getConfig()->getVersionOrder();
-            $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
 
             // rollback the specified environment
             if ($date === null) {
@@ -117,14 +112,25 @@ EOT
                 $target = $this->getTargetFromDate($date);
             }
 
-            $start = microtime(true);
-            $this->getManager()->setDbRef($dbRef)->rollback($environment, $target, $force, $targetMustMatchVersion);
-            $end = microtime(true);
+            if (!is_array($adapterOptions)) {
+                $this->outputEnvironmentInfo($envOptions, $output);
+                $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion);
+                break;
+            }
 
-            $output->writeln('');
-            $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+            $this->outputEnvironmentInfo($adapterOptions, $output);
+
+            $versionOrder = $this->getConfig()->getVersionOrder();
+            $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
+            
+            $this->getManager()->setDbRef($dbRef)->rollback($environment, $target, $force, $targetMustMatchVersion);
 
         }
+
+        $end = microtime(true);
+
+        $output->writeln('');
+        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
     }
 
     /**

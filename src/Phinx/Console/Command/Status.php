@@ -85,10 +85,13 @@ EOT
         $output->writeln('<info>ordering by </info>' . $this->getConfig()->getVersionOrder() . " time");
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
+        unset($envOptions['default_migration_table']);
+        unset($envOptions['default_database']);
 
         foreach ($envOptions as $dbRef => $adapterOptions) {
             if (!is_array($adapterOptions)) {
-                continue;
+                $this->getManager()->printStatus($environment, $format);
+                break;
             }
             $this->getManager()->setDbRef($dbRef)->printStatus($environment, $format);
         }
