@@ -178,6 +178,37 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * {@inheritdoc}
      */
+    public function getStorageConfigs(array $envOptions)
+    {
+
+        $configs = [];
+
+        if (isset($envOptions['default_database'])) {
+            unset($envOptions['default_database']);
+        }
+
+        if (isset($envOptions['default_migration_table'])) {
+            unset($envOptions['default_migration_table']);
+        }
+
+        if (count($envOptions) > 0) {
+            foreach ($envOptions as $dbRef => $adapterOptions) {
+                if (!is_array($adapterOptions)) {
+                    $configs []= $envOptions;
+                    break;
+                } else {
+                    $configs []= array_merge($adapterOptions, ['dbRef' => $dbRef]);
+                }
+            }
+        }
+
+        return $configs;
+
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasEnvironment($name)
     {
         return ($this->getEnvironment($name) !== null);

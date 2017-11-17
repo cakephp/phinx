@@ -57,6 +57,14 @@ interface ConfigInterface extends \ArrayAccess
     public function getEnvironment($name);
 
     /**
+     * Takes combined envOptions and flattens
+     *
+     * @param array $envOptions
+     * @return array
+     */
+    public function getStorageConfigs(array $envOptions);
+
+    /**
      * Does the specified environment exist in the configuration file?
      *
      * @param string $name Environment Name

@@ -96,12 +96,11 @@ EOT
         }
 
         $envOptions = $config->getEnvironment($environment);
-        unset($envOptions['default_migration_table']);
-        unset($envOptions['default_database']);
+        $databases = $config->getStorageConfigs($envOptions);
         
         $start = microtime(true);
         
-        foreach ($envOptions as $dbRef => $adapterOptions) {
+        foreach ($databases as $adapterOptions) {
 
             // rollback the specified environment
             if ($date === null) {
@@ -112,10 +111,8 @@ EOT
                 $target = $this->getTargetFromDate($date);
             }
 
-            if (!is_array($adapterOptions)) {
-                $this->outputEnvironmentInfo($envOptions, $output);
-                $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion);
-                break;
+            if (isset($adapterOptions['dbRef'])) {
+                $this->getManager()->setDbRef($adapterOptions['dbRef']);
             }
 
             $this->outputEnvironmentInfo($adapterOptions, $output);
@@ -123,7 +120,7 @@ EOT
             $versionOrder = $this->getConfig()->getVersionOrder();
             $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
             
-            $this->getManager()->setDbRef($dbRef)->rollback($environment, $target, $force, $targetMustMatchVersion);
+            $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion);
 
         }
 
