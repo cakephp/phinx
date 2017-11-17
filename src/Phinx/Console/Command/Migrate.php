@@ -85,26 +85,19 @@ EOT
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
-        unset($envOptions['default_migration_table']);
-        unset($envOptions['default_database']);
+        $databases = $this->getConfig()->getStorageConfigs($envOptions);
+
         // run the migrations
         $start = microtime(true);
 
-        foreach ($envOptions as $dbRef => $adapterOptions) {
+        foreach ($databases as $adapterOptions) {
 
-            if (!is_array($adapterOptions)) {//@todo handle old format option
-                $this->outputEnvironmentInfo($envOptions, $output);
-                if ($date !== null) {
-                    $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
-                } else {
-                    $this->getManager()->migrate($environment, $version);
-                }
-                break;
+            if (isset($adapterOptions['dbRef'])) {
+                $this->getManager()->setDbRef($adapterOptions['dbRef']);
             }
 
             $this->outputEnvironmentInfo($adapterOptions, $output);
 
-            $this->getManager()->setDbRef($dbRef);
             if ($date !== null) {
                 $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
             } else {

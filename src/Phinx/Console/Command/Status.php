@@ -85,15 +85,18 @@ EOT
         $output->writeln('<info>ordering by </info>' . $this->getConfig()->getVersionOrder() . " time");
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
-        unset($envOptions['default_migration_table']);
-        unset($envOptions['default_database']);
+        $databases = $this->getConfig()->getStorageConfigs($envOptions);
 
-        foreach ($envOptions as $dbRef => $adapterOptions) {
-            if (!is_array($adapterOptions)) {
-                $this->getManager()->printStatus($environment, $format);
-                break;
+        // run the migrations
+        $start = microtime(true);
+
+        foreach ($databases as $adapterOptions) {
+
+            if (isset($adapterOptions['dbRef'])) {
+                $this->getManager()->setDbRef($adapterOptions['dbRef']);
             }
-            $this->getManager()->setDbRef($dbRef)->printStatus($environment, $format);
+
+            $this->getManager()->printStatus($environment, $format);
         }
     }
 }

@@ -81,28 +81,17 @@ EOT
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
+        $databases = $this->getConfig()->getStorageConfigs($envOptions);
+
         $start = microtime(true);
 
-        foreach ($envOptions as $dbRef => $adapterOptions) {
+        foreach ($databases as $adapterOptions) {
 
-            if (!is_array($adapterOptions)) {
-                $this->outputEnvironmentInfo($envOptions, $output);
-                if (empty($seedSet)) {
-                    // run all the seed(ers)
-                    $this->getManager()->seed($environment);
-                } else {
-                    // run seed(ers) specified in a comma-separated list of classes
-                    foreach ($seedSet as $seed) {
-                        $this->getManager()->seed($environment, trim($seed));
-                    }
-                }
-
-                break;
+            if (isset($adapterOptions['dbRef'])) {
+                $this->getManager()->setDbRef($adapterOptions['dbRef']);
             }
         
             $this->outputEnvironmentInfo($adapterOptions, $output);
-
-            $this->getManager()->setDbRef($dbRef);
 
             if (empty($seedSet)) {
                 // run all the seed(ers)
