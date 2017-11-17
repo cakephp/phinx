@@ -303,7 +303,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         }
 
         if (is_string($this->values['default_paths']['seeds'])) {
-            $path []= $this->values['default_paths']['seeds'];
+            $paths[]= $this->values['default_paths']['seeds'];
         }
 
         if ($environment !== null && $dbReference !== null) {
@@ -311,7 +311,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             if (isset($environment[$dbReference]['paths']['seeds'])) {
                 return [$environment[$dbReference]['paths']['seeds']];
             }
-        } else {
+        } elseif (is_null($environment) && is_null($dbReference)) {
             $environments = array_keys($this->values['environments']);
             foreach ($environments as $env) {
                 if (is_array($this->values['environments'][$env])) {

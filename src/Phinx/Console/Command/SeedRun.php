@@ -81,16 +81,26 @@ EOT
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
+        $start = microtime(true);
 
         foreach ($envOptions as $dbRef => $adapterOptions) {
 
             if (!is_array($adapterOptions)) {
-                continue;
+                $this->outputEnvironmentInfo($envOptions, $output);
+                if (empty($seedSet)) {
+                    // run all the seed(ers)
+                    $this->getManager()->seed($environment);
+                } else {
+                    // run seed(ers) specified in a comma-separated list of classes
+                    foreach ($seedSet as $seed) {
+                        $this->getManager()->seed($environment, trim($seed));
+                    }
+                }
+
+                break;
             }
         
             $this->outputEnvironmentInfo($adapterOptions, $output);
-
-            $start = microtime(true);
 
             $this->getManager()->setDbRef($dbRef);
 
@@ -104,11 +114,12 @@ EOT
                 }
             }
 
-            $end = microtime(true);
-
-            $output->writeln('');
-            $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
-
         }
+
+        $end = microtime(true);
+
+        $output->writeln('');
+        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+
     }
 }
