@@ -260,7 +260,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             if (isset($environment[$dbReference]['paths']['migrations'])) {
                 return [$environment[$dbReference]['paths']['migrations']];
             }
-        } else {
+        } elseif (is_null($environment) && is_null($dbReference)) {
             $environments = array_keys($this->values['environments']);
             foreach ($environments as $env) {
                 if (is_array($this->values['environments'][$env])) {

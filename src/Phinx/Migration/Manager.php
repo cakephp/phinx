@@ -607,6 +607,95 @@ class Manager
      */
     public function getEnvironment($name)
     {
+        if ($this->getDbRef() !== null) {
+            return $this->getMultiEnvironment($name);
+        }
+
+        return $this->getSingleEnvironment($name);
+    }
+
+    /**
+     * Gets the manager class for the given environment when given as a single instance.
+     *
+     * @param string $name Environment Name
+     * @throws \InvalidArgumentException
+     * @return \Phinx\Migration\Manager\Environment
+     */
+    public function getSingleEnvironment($name)
+    {
+
+        if (isset($this->environments[$name])) {
+            return $this->environments[$name];
+        }
+
+        // check the environment exists
+        if (!$this->getConfig()->hasEnvironment($name)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The environment "%s" does not exist',
+                $name
+            ));
+        }
+
+        // create an environment instance and cache it
+        $envOptions = $this->getConfig()->getEnvironment($name);
+
+        $envOptions['version_order'] = $this->getConfig()->getVersionOrder();
+        $environment = new Environment($name, $envOptions);
+        $this->environments[$name] = $environment;
+
+        $environment->setInput($this->getInput());
+        $environment->setOutput($this->getOutput());
+
+        return $environment;
+
+    }
+
+    /**
+     * Gets the manager class for the given environment when used as part of a mulitple deployment.
+     *
+     * @param string $name Environment Name
+     * @throws \InvalidArgumentException
+     * @return \Phinx\Migration\Manager\Environment
+     */
+    public function getMultiEnvironment($name)
+    {
+
+        if (isset($this->environments[$name][$this->getDbRef()])) {
+            return $this->environments[$name][$this->getDbRef()];
+        }
+
+        // check the environment exists
+        if (!$this->getConfig()->hasEnvironment($name)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The environment "%s" does not exist',
+                $name
+            ));
+        }
+
+        // create an environment instance and cache it
+        $envOptions = $this->getConfig()->getEnvironment($name);
+        $envOptions = $envOptions[$this->getDbRef()];
+
+        $envOptions['version_order'] = $this->getConfig()->getVersionOrder();
+        $environment = new Environment($name, $envOptions);
+        $this->environments[$name][$this->getDbRef()] = $environment;
+
+        $environment->setInput($this->getInput());
+        $environment->setOutput($this->getOutput());
+
+        return $environment;
+
+    }
+
+    /**
+     * Gets the manager class for the given environment.
+     *
+     * @param string $name Environment Name
+     * @throws \InvalidArgumentException
+     * @return \Phinx\Migration\Manager\Environment
+     */
+    /*public function getEnvironment($name)
+    {
         if (isset($this->environments[$name][$this->getDbRef()])) {
             return $this->environments[$name][$this->getDbRef()];
         }
@@ -630,7 +719,7 @@ class Manager
         $environment->setOutput($this->getOutput());
 
         return $environment;
-    }
+    }*/
 
     /**
      * Sets the console input.

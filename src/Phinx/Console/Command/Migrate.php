@@ -85,35 +85,35 @@ EOT
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
+        unset($envOptions['default_migration_table']);
+        unset($envOptions['default_database']);
+        // run the migrations
+        $start = microtime(true);
 
         foreach ($envOptions as $dbRef => $adapterOptions) {
 
             if (!is_array($adapterOptions)) {//@todo handle old format option
-                // run the migrations
-                $start = microtime(true);
+                $this->outputEnvironmentInfo($envOptions, $output);
                 if ($date !== null) {
                     $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
                 } else {
                     $this->getManager()->migrate($environment, $version);
                 }
-                $end = microtime(true);
-                continue;
+                break;
             }
 
             $this->outputEnvironmentInfo($adapterOptions, $output);
 
-            // run the migrations
-            $start = microtime(true);
             $this->getManager()->setDbRef($dbRef);
             if ($date !== null) {
                 $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
             } else {
                 $this->getManager()->migrate($environment, $version);
             }
-            $end = microtime(true);
 
         }
 
+        $end = microtime(true);
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
 
