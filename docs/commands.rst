@@ -101,6 +101,12 @@ for short.
 
         $ phinx migrate -e development -t 20110103081132
 
+Use ``--dry-run`` to print the queries to standard output without executing them
+
+.. code-block:: bash
+
+        $ phinx migrate --dry-run
+
 The Rollback Command
 --------------------
 
@@ -127,12 +133,37 @@ Specifying 0 as the target version will revert all migrations.
 
         $ phinx rollback -e development -t 0
 
+To rollback all migrations to a specific date then use the ``--date``
+parameter or ``-d`` for short.
+
+.. code-block:: bash
+
+        $ phinx rollback -e development -d 2012
+        $ phinx rollback -e development -d 201201
+        $ phinx rollback -e development -d 20120103
+        $ phinx rollback -e development -d 2012010312
+        $ phinx rollback -e development -d 201201031205
+        $ phinx rollback -e development -d 20120103120530
+
 If a breakpoint is set, blocking further rollbacks, you can override the
 breakpoint using the ``--force`` parameter or ``-f`` for short.
 
 .. code-block:: bash
 
         $ phinx rollback -e development -t 0 -f
+
+Use ``--dry-run`` to print the queries to standard output without executing them
+
+.. code-block:: bash
+
+        $ phinx rollback --dry-run
+
+.. note::
+
+        When rolling back, Phinx orders the executed migrations using 
+        the order specified in the ``version_order`` option of your 
+        ``phinx.yml`` file.
+        Please see the :doc:`Configuration <configuration>` chapter for more information.
 
 The Status Command
 ------------------
@@ -190,23 +221,23 @@ configuration file may be the computed output of a PHP file as a PHP array:
 .. code-block:: php
 
         <?php
-            return array(
-                "paths" => array(
+            return [
+                "paths" => [
                     "migrations" => "application/migrations"
-                ),
-                "environments" => array(
+                ],
+                "environments" => [
                     "default_migration_table" => "phinxlog",
                     "default_database" => "dev",
-                    "dev" => array(
+                    "dev" => [
                         "adapter" => "mysql",
                         "host" => $_ENV['DB_HOST'],
                         "name" => $_ENV['DB_NAME'],
                         "user" => $_ENV['DB_USER'],
                         "pass" => $_ENV['DB_PASS'],
                         "port" => $_ENV['DB_PORT']
-                    )
-                )
-            );
+                    ]
+                ]
+            ];
 
 Phinx auto-detects which language parser to use for files with ``*.yml`` and ``*.php`` extensions. The appropriate
 parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than ``"php"`` is treated as YAML.
@@ -217,19 +248,19 @@ the database name too, as Phinx requires this for certain methods such as ``hasT
 .. code-block:: php
 
         <?php
-            return array(
-                "paths" => array(
+            return [
+                "paths" => [
                     "migrations" => "application/migrations"
                 ),
-                "environments" => array(
+                "environments" => [
                     "default_migration_table" => "phinxlog",
                     "default_database" => "dev",
-                    "dev" => array(
+                    "dev" => [
                         "name" => "dev_db",
                         "connection" => $pdo_instance
-                    )
-                )
-            );
+                    ]
+                ]
+            ];
 
 Running Phinx in a Web App
 --------------------------
@@ -253,3 +284,51 @@ and to rollback use `<http://localhost:8000/rollback>`__.
         To modify configuration variables at runtime and override ``%%PHINX_DBNAME%%``
         or other another dynamic option, set ``$_SERVER['PHINX_DBNAME']`` before
         running commands. Available options are documented in the Configuration page.
+
+Using Phinx with PHPUnit
+--------------------------
+
+Phinx can be used within your unit tests to prepare or seed the database. You can use it programatically :
+
+.. code-block:: php
+
+        public function setUp ()
+        {
+          $app = new PhinxApplication();
+          $app->setAutoExit(false);
+          $app->run(new StringInput('migrate'), new NullOutput());
+        }
+
+If you use a memory database, you'll need to give Phinx a specific PDO instance. You can interact with Phinx directly using the Manager class : 
+
+.. code-block:: php
+
+        use PDO;
+        use Phinx\Config\Config;
+        use Phinx\Migration\Manager;
+        use PHPUnit\Framework\TestCase;
+        use Symfony\Component\Console\Input\StringInput;
+        use Symfony\Component\Console\Output\NullOutput;
+
+        class DatabaseTestCase extends TestCase {
+                
+            public function setUp ()
+            {
+                $pdo = new PDO('sqlite::memory:', null, null, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                ]);
+                $configArray = require('phinx.php');
+                $configArray['environments']['test'] = [
+                    'adapter'    => 'sqlite',
+                    'connection' => $pdo
+                ];
+                $config = new Config($configArray);
+                $manager = new Manager($config, new StringInput(' '), new NullOutput());
+                $manager->migrate('test');
+                $manager->seed('test');
+                // You can change default fetch mode after the seeding
+                $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+                $this->pdo = $pdo;
+            }
+
+        }

@@ -2,24 +2,24 @@
 
 namespace Test\Phinx\Console\Command;
 
+use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
+use Phinx\Console\Command\SeedCreate;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
 use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\StreamOutput;
-use Phinx\Config\Config;
-use Phinx\Console\Command\SeedCreate;
+use Symfony\Component\Console\Tester\CommandTester;
 
 class SeedCreateTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var ConfigInterface|array
      */
-    protected $config = array();
+    protected $config = [];
 
     /**
      * @var InputInterface $input
@@ -33,24 +33,24 @@ class SeedCreateTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->config = new Config(array(
-            'paths' => array(
+        $this->config = new Config([
+            'paths' => [
                 'migrations' => sys_get_temp_dir(),
                 'seeds' => sys_get_temp_dir(),
-            ),
-            'environments' => array(
+            ],
+            'environments' => [
                 'default_migration_table' => 'phinxlog',
                 'default_database' => 'development',
-                'development' => array(
+                'development' => [
                     'adapter' => 'mysql',
                     'host' => 'fakehost',
                     'name' => 'development',
                     'user' => '',
                     'pass' => '',
                     'port' => 3006,
-                )
-            )
-        ));
+                ]
+            ]
+        ]);
 
         $this->input = new ArrayInput([]);
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -78,8 +78,8 @@ class SeedCreateTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), 'name' => 'MyDuplicateSeeder'), array('decorated' => false));
-        $commandTester->execute(array('command' => $command->getName(), 'name' => 'MyDuplicateSeeder'), array('decorated' => false));
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateSeeder'], ['decorated' => false]);
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateSeeder'], ['decorated' => false]);
     }
 
     /**
@@ -104,6 +104,6 @@ class SeedCreateTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), 'name' => 'badseedname'), array('decorated' => false));
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'badseedname'], ['decorated' => false]);
     }
 }

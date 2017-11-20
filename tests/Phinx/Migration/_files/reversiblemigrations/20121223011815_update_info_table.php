@@ -11,7 +11,7 @@ class UpdateInfoTable extends AbstractMigration
     {
         // info table
         $info = $this->table('info');
-        $info->addColumn('password', 'string', array('limit' => 40))
+        $info->addColumn('password', 'string', ['limit' => 40])
              ->update();
     }
 
@@ -20,7 +20,6 @@ class UpdateInfoTable extends AbstractMigration
      */
     public function up()
     {
-
     }
 
     /**
@@ -28,6 +27,5 @@ class UpdateInfoTable extends AbstractMigration
      */
     public function down()
     {
-
     }
 }

@@ -39,15 +39,14 @@ This means that:
    global $app;
    $pdo = $app->getDatabase()->getPdo();
 
-   return array('environments' =>
-            array(
+   return ['environments' => [
               'default_database' => 'development',
-              'development' => array(
+              'development' => [
                 'name' => 'devdb',
                 'connection' => $pdo
-              )
-            )
-          );
+              ]
+            ]
+          ];
 
 Migration Paths
 ---------------
@@ -83,7 +82,7 @@ You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 .. code-block:: yaml
 
     paths:
-        migrations: %%PHINX_CONFIG_DIR%%/your/relative/path
+        migrations: '%%PHINX_CONFIG_DIR%%/your/relative/path'
 
 Migrations are captured with ``glob``, so you can define a pattern for multiple
 directories.
@@ -91,7 +90,7 @@ directories.
 .. code-block:: yaml
 
     paths:
-        migrations: %%PHINX_CONFIG_DIR%%/module/*/{data,scripts}/migrations
+        migrations: '%%PHINX_CONFIG_DIR%%/module/*/{data,scripts}/migrations'
 
 Custom Migration Base
 ---------------------
@@ -138,7 +137,7 @@ You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 .. code-block:: yaml
 
     paths:
-        seeds: %%PHINX_CONFIG_DIR%%/your/relative/path
+        seeds: '%%PHINX_CONFIG_DIR%%/your/relative/path'
 
 Environments
 ------------
@@ -220,7 +219,7 @@ External Variables
 Phinx will automatically grab any environment variable prefixed with ``PHINX_``
 and make it available as a token in the config file. The token will have
 exactly the same name as the variable but you must access it by wrapping two
-``%%`` symbols on either side. e.g: ``%%PHINX_DBUSER%%``. This is especially
+``%%`` symbols on either side. e.g: ``'%%PHINX_DBUSER%%'``. This is especially
 useful if you wish to store your secret database credentials directly on the
 server and not in a version control system. This feature can be easily
 demonstrated by the following example:
@@ -232,10 +231,10 @@ demonstrated by the following example:
         default_database: development
         production:
             adapter: mysql
-            host: %%PHINX_DBHOST%%
-            name: %%PHINX_DBNAME%%
-            user: %%PHINX_DBUSER%%
-            pass: %%PHINX_DBPASS%%
+            host: '%%PHINX_DBHOST%%'
+            name: '%%PHINX_DBNAME%%'
+            user: '%%PHINX_DBUSER%%'
+            pass: '%%PHINX_DBPASS%%'
             port: 3306
             charset: utf8
 
@@ -300,3 +299,12 @@ The aliased classes will still be required to implement the ``Phinx\Migration\Cr
     aliases:
         permission: \Namespace\Migrations\PermissionMigrationTemplateGenerator
         view: \Namespace\Migrations\ViewMigrationTemplateGenerator
+
+Version Order
+------
+
+When rolling back or printing the status of migrations, Phinx orders the executed migrations according to the 
+``version_order`` option, which can have the following values:
+
+* ``creation`` (the default): migrations are ordered by their creation time, which is also part of their filename.
+* ``execution``: migrations are ordered by their execution time, also known as start time.

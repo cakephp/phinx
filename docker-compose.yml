@@ -1,0 +1,23 @@
+version: "2"
+services:
+    phinx:
+        build: .
+        volumes:
+            - .:/src
+        links:
+            - mysql
+            - postgres
+        command: bash
+        environment:
+            - TESTS_PHINX_DB_ADAPTER_MYSQL_HOST=mysql
+            - TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST=postgres
+    mysql:
+        image: mysql:5.5
+        environment:
+            - MYSQL_DATABASE=phinx_testing
+            - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    postgres:
+        image: postgres:9.2
+        environment:
+            - POSTGRES_DB=phinx_testing
+

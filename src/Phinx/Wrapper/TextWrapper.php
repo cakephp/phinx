@@ -40,14 +40,14 @@ use Symfony\Component\Console\Output\StreamOutput;
 class TextWrapper
 {
     /**
-     * @var PhinxApplication
+     * @var \Phinx\Console\PhinxApplication
      */
     private $app;
 
     /**
      * @var array
      */
-    private $options = array();
+    private $options = [];
 
     /**
      * @var integer
@@ -55,15 +55,11 @@ class TextWrapper
     private $exit_code;
 
     /**
-     * @param PhinxApplication $app
+     * @param \Phinx\Console\PhinxApplication $app
      * @param array $options
      */
-    public function __construct(PhinxApplication $app, array $options = array())
+    public function __construct(PhinxApplication $app, array $options = [])
     {
-        $options += array(
-            'environment' => 'development',
-        );
-
         $this->app = $app;
         $this->options = $options;
     }
@@ -71,7 +67,7 @@ class TextWrapper
     /**
      * Get the application instance.
      *
-     * @return PhinxApplication
+     * @return \Phinx\Console\PhinxApplication
      */
     public function getApp()
     {
@@ -80,13 +76,12 @@ class TextWrapper
 
     /**
      * Returns the exit code from the last run command.
-     * @return integer
+     * @return int
      */
     public function getExitCode()
     {
         return $this->exit_code;
     }
-
 
     /**
      * Returns the output from running the "status" command.
@@ -95,12 +90,17 @@ class TextWrapper
      */
     public function getStatus($env = null)
     {
-        $command = array(
-            'status',
-            '-e' => $env ?: $this->getOption('environment'),
-            '-c' => $this->getOption('configuration'),
-            '-p' => $this->getOption('parser')
-        );
+        $command = ['status'];
+        if ($env ?: $this->hasOption('environment')) {
+            $command += ['-e' => $env ?: $this->getOption('environment')];
+        }
+        if ($this->hasOption('configuration')) {
+            $command += ['-c' => $this->getOption('configuration')];
+        }
+        if ($this->hasOption('parser')) {
+            $command += ['-p' => $this->getOption('parser')];
+        }
+
         return $this->executeRun($command);
     }
 
@@ -112,15 +112,20 @@ class TextWrapper
      */
     public function getMigrate($env = null, $target = null)
     {
-        $command = array(
-            'migrate',
-            '-e' => $env ?: $this->getOption('environment'),
-            '-c' => $this->getOption('configuration'),
-            '-p' => $this->getOption('parser')
-        );
-        if ($target) {
-            $command += array('-t' => $target);
+        $command = ['migrate'];
+        if ($env ?: $this->hasOption('environment')) {
+            $command += ['-e' => $env ?: $this->getOption('environment')];
         }
+        if ($this->hasOption('configuration')) {
+            $command += ['-c' => $this->getOption('configuration')];
+        }
+        if ($this->hasOption('parser')) {
+            $command += ['-p' => $this->getOption('parser')];
+        }
+        if ($target) {
+            $command += ['-t' => $target];
+        }
+
         return $this->executeRun($command);
     }
 
@@ -133,19 +138,24 @@ class TextWrapper
      */
     public function getSeed($env = null, $target = null, $seed = null)
     {
-        $command = array (
-            'seed:run',
-            '-e' => $env?: $this->getOption('environment'),
-            '-c' => $this->getOption('configuration'),
-            '-p' => $this->getOption('parser')
-        );
+        $command = ['seed:run'];
+        if ($env ?: $this->hasOption('environment')) {
+            $command += ['-e' => $env ?: $this->getOption('environment')];
+        }
+        if ($this->hasOption('configuration')) {
+            $command += ['-c' => $this->getOption('configuration')];
+        }
+        if ($this->hasOption('parser')) {
+            $command += ['-p' => $this->getOption('parser')];
+        }
         if ($target) {
-            $command += array('-t' => $target);
+            $command += ['-t' => $target];
         }
         if ($seed) {
-            $seed = (array) $seed;
-            $command += array('-s' => $seed);
+            $seed = (array)$seed;
+            $command += ['-s' => $seed];
         }
+
         return $this->executeRun($command);
     }
 
@@ -157,31 +167,48 @@ class TextWrapper
      */
     public function getRollback($env = null, $target = null)
     {
-        $command = array(
-            'rollback',
-            '-e' => $env ?: $this->getOption('environment'),
-            '-c' => $this->getOption('configuration'),
-            '-p' => $this->getOption('parser')
-        );
+        $command = ['rollback'];
+        if ($env ?: $this->hasOption('environment')) {
+            $command += ['-e' => $env ?: $this->getOption('environment')];
+        }
+        if ($this->hasOption('configuration')) {
+            $command += ['-c' => $this->getOption('configuration')];
+        }
+        if ($this->hasOption('parser')) {
+            $command += ['-p' => $this->getOption('parser')];
+        }
         if (isset($target)) {
             // Need to use isset() with rollback, because -t0 is a valid option!
             // See http://docs.phinx.org/en/latest/commands.html#the-rollback-command
-            $command += array('-t' => $target);
+            $command += ['-t' => $target];
         }
+
         return $this->executeRun($command);
+    }
+
+    /**
+     * Check option from options array
+     *
+     * @param  string $key
+     * @return bool
+     */
+    protected function hasOption($key)
+    {
+        return isset($this->options[$key]);
     }
 
     /**
      * Get option from options array
      *
      * @param  string $key
-     * @return string
+     * @return string|null
      */
     protected function getOption($key)
     {
         if (!isset($this->options[$key])) {
             return null;
         }
+
         return $this->options[$key];
     }
 
@@ -195,6 +222,7 @@ class TextWrapper
     public function setOption($key, $value)
     {
         $this->options[$key] = $value;
+
         return $this;
     }
 

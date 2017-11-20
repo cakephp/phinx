@@ -21,10 +21,10 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $options = array(
+        $options = [
             'table_prefix' => 'pre_',
             'table_suffix' => '_suf',
-        );
+        ];
 
         $this->mock = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
             ->setConstructorArgs([[]])
@@ -191,7 +191,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testHasIndex()
     {
-        $columns = array();
+        $columns = [];
 
         $this->mock
             ->expects($this->once())
@@ -206,19 +206,17 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testDropIndex()
     {
-        $columns = array();
-        $options = null;
+        $columns = [];
 
         $this->mock
             ->expects($this->once())
             ->method('dropIndex')
             ->with(
                 $this->equalTo('pre_table_suf'),
-                $this->equalTo($columns),
-                $this->equalTo($options)
+                $this->equalTo($columns)
             );
 
-        $this->adapter->dropIndex('table', $columns, $options);
+        $this->adapter->dropIndex('table', $columns);
     }
 
     public function testDropIndexByName()
@@ -236,7 +234,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testHasForeignKey()
     {
-        $columns = array();
+        $columns = [];
         $constraint = null;
 
         $this->mock
@@ -271,7 +269,7 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testDropForeignKey()
     {
-        $columns = array();
+        $columns = [];
         $constraint = null;
 
         $this->mock
@@ -293,16 +291,16 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
             ->method('isValidColumnType')
             ->with($this->callback(
                 function ($column) {
-                    return in_array($column->getType(), array('string', 'integer'));
+                    return in_array($column->getType(), ['string', 'integer']);
                 }
             ))
             ->will($this->returnValue(true));
 
-        $table = new Table('table', array(), $this->adapter);
+        $table = new Table('table', [], $this->adapter);
         $table
             ->addColumn('bar', 'string')
             ->addColumn('relation', 'integer')
-            ->addForeignKey('relation', 'target_table', array('id'));
+            ->addForeignKey('relation', 'target_table', ['id']);
 
         $this->mock
             ->expects($this->once())
@@ -330,28 +328,29 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
                             ));
                         }
                     }
+
                     return true;
                 }
             ));
 
         $table->create();
     }
-    
+
     public function testInsertData()
     {
-        $row = array('column1' => 'value3');
-        
+        $row = ['column1' => 'value3'];
+
         $this->mock
             ->expects($this->once())
-            ->method('insert')
+            ->method('bulkinsert')
             ->with($this->callback(
                 function ($table) {
                     return $table->getName() == 'pre_table_suf';
                 },
                 $this->equalTo($row)
             ));
-        
-        $table = new Table('table', array(), $this->adapter);
+
+        $table = new Table('table', [], $this->adapter);
         $table->insert($row)
               ->save();
     }

@@ -1,2 +1,5 @@
-tools:
-  external_code_coverage: true
+checks:
+  php: true
+
+filter:
+  paths: ['src/*']

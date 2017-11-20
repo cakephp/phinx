@@ -28,7 +28,7 @@
  */
 namespace Phinx\Console\Command;
 
-use Phinx\Migration\CreationInterface;
+use Phinx\Config\NamespaceAwareInterface;
 use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -75,7 +75,7 @@ class Create extends AbstractCommand
      * Get the confirmation question asking if the user wants to create the
      * migrations directory.
      *
-     * @return ConfirmationQuestion
+     * @return \Symfony\Component\Console\Question\ConfirmationQuestion
      */
     protected function getCreateMigrationDirectoryQuestion()
     {
@@ -86,7 +86,7 @@ class Create extends AbstractCommand
      * Get the question that allows the user to select which migration path to use.
      *
      * @param string[] $paths
-     * @return ChoiceQuestion
+     * @return \Symfony\Component\Console\Question\ChoiceQuestion
      */
     protected function getSelectMigrationPathQuestion(array $paths)
     {
@@ -95,9 +95,9 @@ class Create extends AbstractCommand
 
     /**
      * Returns the migration path to create the migration in.
-     * 
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     *
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @return mixed
      * @throws \Exception
      */
@@ -142,8 +142,8 @@ class Create extends AbstractCommand
     /**
      * Create the new migration.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @return void
@@ -156,7 +156,7 @@ class Create extends AbstractCommand
         $path = $this->getMigrationPath($input, $output);
 
         if (!file_exists($path)) {
-            $helper   = $this->getHelper('question');
+            $helper = $this->getHelper('question');
             $question = $this->getCreateMigrationDirectoryQuestion();
 
             if ($helper->ask($input, $output, $question)) {
@@ -165,6 +165,9 @@ class Create extends AbstractCommand
         }
 
         $this->verifyMigrationDirectory($path);
+
+        $config = $this->getConfig();
+        $namespace = $config instanceof NamespaceAwareInterface ? $config->getMigrationNamespaceByPath($path) : null;
 
         $path = realpath($path);
         $className = $input->getArgument('name');
@@ -178,7 +181,8 @@ class Create extends AbstractCommand
 
         if (!Util::isUniqueMigrationClassName($className, $path)) {
             throw new \InvalidArgumentException(sprintf(
-                'The migration class name "%s" already exists',
+                'The migration class name "%s%s" already exists',
+                $namespace ? ($namespace . '\\') : '',
                 $className
             ));
         }
@@ -197,7 +201,7 @@ class Create extends AbstractCommand
         // Get the alternative template and static class options from the config, but only allow one of them.
         $defaultAltTemplate = $this->getConfig()->getTemplateFile();
         $defaultCreationClassName = $this->getConfig()->getTemplateClass();
-        if ($defaultAltTemplate && $defaultCreationClassName){
+        if ($defaultAltTemplate && $defaultCreationClassName) {
             throw new \InvalidArgumentException('Cannot define template:class and template:file at the same time');
         }
 
@@ -209,7 +213,7 @@ class Create extends AbstractCommand
         }
 
         // If no commandline options then use the defaults.
-        if (!$altTemplate && !$creationClassName){
+        if (!$altTemplate && !$creationClassName) {
             $altTemplate = $defaultAltTemplate;
             $creationClassName = $defaultCreationClassName;
         }
@@ -223,7 +227,7 @@ class Create extends AbstractCommand
         }
 
         // Verify that the template creation class (or the aliased class) exists and that it implements the required interface.
-        $aliasedClassName  = null;
+        $aliasedClassName = null;
         if ($creationClassName) {
             // Supplied class does not exist, is it aliased?
             if (!class_exists($creationClassName)) {
@@ -273,15 +277,17 @@ class Create extends AbstractCommand
         }
 
         // inject the class names appropriate to this migration
-        $classes = array(
-            '$useClassName'  => $this->getConfig()->getMigrationBaseClassName(false),
-            '$className'     => $className,
-            '$version'       => Util::getVersionFromFileName($fileName),
+        $classes = [
+            '$namespaceDefinition' => $namespace !== null ? ('namespace ' . $namespace . ';') : '',
+            '$namespace' => $namespace,
+            '$useClassName' => $this->getConfig()->getMigrationBaseClassName(false),
+            '$className' => $className,
+            '$version' => Util::getVersionFromFileName($fileName),
             '$baseClassName' => $this->getConfig()->getMigrationBaseClassName(true),
-        );
+        ];
         $contents = strtr($contents, $classes);
 
-        if (false === file_put_contents($filePath, $contents)) {
+        if (file_put_contents($filePath, $contents) === false) {
             throw new \RuntimeException(sprintf(
                 'The file "%s" could not be written to',
                 $path
@@ -289,7 +295,7 @@ class Create extends AbstractCommand
         }
 
         // Do we need to do the post creation call to the creation class?
-        if ($creationClassName) {
+        if (isset($creationClass)) {
             $creationClass->postMigrationCreation($filePath, $className, $this->getConfig()->getMigrationBaseClassName());
         }
 
@@ -303,6 +309,6 @@ class Create extends AbstractCommand
             $output->writeln('<info>using default template</info>');
         }
 
-        $output->writeln('<info>created</info> ' . str_replace(getcwd(), '', $filePath));
+        $output->writeln('<info>created</info> ' . str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $filePath));
     }
 }

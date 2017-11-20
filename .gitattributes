@@ -11,4 +11,11 @@
 /docs export-ignore
 /tests export-ignore
 /.* export-ignore
+/appveyor.yml export-ignore
+/box.json export-ignore
+/CONTRIBUTING.md export-ignore
+/docker-compose.yml export-ignore
+/Dockerfile export-ignore
+/phpcs.xml.dist export-ignore
+/phpstan.neon export-ignore
 /phpunit.xml.dist export-ignore

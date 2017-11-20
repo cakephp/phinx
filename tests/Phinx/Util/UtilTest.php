@@ -13,15 +13,15 @@ class UtilTest extends \PHPUnit_Framework_TestCase
 
     public function testGetExistingMigrationClassNames()
     {
-        $expectedResults = array(
+        $expectedResults = [
             'TestMigration',
             'TestMigration2',
-        );
+        ];
 
         $existingClassNames = Util::getExistingMigrationClassNames($this->getCorrectedPath(__DIR__ . '/_files/migrations'));
         $this->assertCount(count($expectedResults), $existingClassNames);
         foreach ($expectedResults as $expectedResult) {
-            $this->arrayHasKey($expectedResult, $existingClassNames);
+            $this->assertContains($expectedResult, $existingClassNames);
         }
     }
 
@@ -48,11 +48,11 @@ class UtilTest extends \PHPUnit_Framework_TestCase
 
     public function testMapClassNameToFileName()
     {
-        $expectedResults = array(
-            'CamelCase87afterSomeBooze'   => '/^\d{14}_camel_case87after_some_booze\.php$/',
-            'CreateUserTable'             => '/^\d{14}_create_user_table\.php$/',
+        $expectedResults = [
+            'CamelCase87afterSomeBooze' => '/^\d{14}_camel_case87after_some_booze\.php$/',
+            'CreateUserTable' => '/^\d{14}_create_user_table\.php$/',
             'LimitResourceNamesTo30Chars' => '/^\d{14}_limit_resource_names_to30_chars\.php$/',
-        );
+        ];
 
         foreach ($expectedResults as $input => $expectedResult) {
             $this->assertRegExp($expectedResult, Util::mapClassNameToFileName($input));
@@ -61,10 +61,10 @@ class UtilTest extends \PHPUnit_Framework_TestCase
 
     public function testMapFileNameToClassName()
     {
-        $expectedResults = array(
-            '20150902094024_create_user_table.php'    => 'CreateUserTable',
-            '20150902102548_my_first_migration2.php'  => 'MyFirstMigration2',
-        );
+        $expectedResults = [
+            '20150902094024_create_user_table.php' => 'CreateUserTable',
+            '20150902102548_my_first_migration2.php' => 'MyFirstMigration2',
+        ];
 
         foreach ($expectedResults as $input => $expectedResult) {
             $this->assertEquals($expectedResult, Util::mapFileNameToClassName($input));
@@ -73,13 +73,13 @@ class UtilTest extends \PHPUnit_Framework_TestCase
 
     public function testisValidPhinxClassName()
     {
-        $expectedResults = array(
-            'CAmelCase'         => false,
-            'CreateUserTable'   => true,
-            'UserSeeder'        => true,
-            'Test'              => true,
-            'test'              => false
-        );
+        $expectedResults = [
+            'CAmelCase' => false,
+            'CreateUserTable' => true,
+            'UserSeeder' => true,
+            'Test' => true,
+            'test' => false
+        ];
 
         foreach ($expectedResults as $input => $expectedResult) {
             $this->assertEquals($expectedResult, Util::isValidPhinxClassName($input));
@@ -101,16 +101,15 @@ class UtilTest extends \PHPUnit_Framework_TestCase
 
     public function testGlobAll()
     {
-        $files = Util::globAll(array(
+        $files = Util::globAll([
             __DIR__ . '/_files/migrations/*.php',
             __DIR__ . '/_files/migrations/subdirectory/*.txt'
-        ));
+        ]);
 
         $this->assertCount(4, $files);
         $this->assertEquals('20120111235330_test_migration.php', basename($files[0]));
         $this->assertEquals('20120116183504_test_migration_2.php', basename($files[1]));
         $this->assertEquals('not_a_migration.php', basename($files[2]));
         $this->assertEquals('empty.txt', basename($files[3]));
-
     }
 }
