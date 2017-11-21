@@ -278,12 +278,12 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     {
         $paths = [];
 
-        if (!isset($this->values['default_paths']['migrations'])) {
+        if (!isset($this->values['paths']['migrations'])) {
             throw new \UnexpectedValueException('Default migrations path missing from config file');
         }
 
-        if (is_string($this->values['default_paths']['migrations'])) {
-            $paths []= $this->values['default_paths']['migrations'];
+        if (is_string($this->values['paths']['migrations'])) {
+            $paths []= $this->values['paths']['migrations'];
         }
 
         if ($environment !== null && $dbReference !== null) {
@@ -329,12 +329,12 @@ class Config implements ConfigInterface, NamespaceAwareInterface
 
         $paths = [];
 
-        if (!isset($this->values['default_paths']['seeds'])) {
+        if (!isset($this->values['paths']['seeds'])) {
             throw new \UnexpectedValueException('Seeds path missing from config file');
         }
 
-        if (is_string($this->values['default_paths']['seeds'])) {
-            $paths[]= $this->values['default_paths']['seeds'];
+        if (is_string($this->values['paths']['seeds'])) {
+            $paths[]= $this->values['paths']['seeds'];
         }
 
         if ($environment !== null && $dbReference !== null) {

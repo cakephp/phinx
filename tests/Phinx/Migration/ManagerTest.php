@@ -43,10 +43,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         if (empty($paths)) {
             $paths = [
-                'migrations' => [
+                'default_migrations' => [
                     'Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/migrations'),
                 ],
-                'seeds' => [
+                'default_seeds' => [
                     'Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/seeds'),
                 ],
             ];
@@ -61,12 +61,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         if (empty($paths)) {
             $paths = [
-                'migrations' => [
+                'default_migrations' => [
                     $this->getCorrectedPath(__DIR__ . '/_files/migrations'),
                     'Baz' => $this->getCorrectedPath(__DIR__ . '/_files_baz/migrations'),
                     'Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/migrations'),
                 ],
-                'seeds' => [
+                'default_seeds' => [
                     $this->getCorrectedPath(__DIR__ . '/_files/seeds'),
                     'Baz' => $this->getCorrectedPath(__DIR__ . '/_files_baz/seeds'),
                     'Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/seeds'),
