@@ -349,14 +349,16 @@ class Config implements ConfigInterface, NamespaceAwareInterface
                 return [$environment[$dbReference]['paths']['seeds']];
             }
         } elseif (is_null($environment) && is_null($dbReference)) {
-            $environments = array_keys($this->values['environments']);
-            foreach ($environments as $env) {
-                if (is_array($this->values['environments'][$env])) {
-                    foreach ($this->values['environments'][$env] as $dbReference => $properties) {
-                        if (!is_array($properties)) {
-                            continue;
+            if (is_array($this->values['environments'])) {
+                $environments = array_keys($this->values['environments']);
+                foreach ($environments as $env) {
+                    if (is_array($this->values['environments'][$env])) {
+                        foreach ($this->values['environments'][$env] as $dbReference => $properties) {
+                            if (!is_array($properties)) {
+                                continue;
+                            }
+                            $paths []= $this->values['environments'][$env][$dbReference]['paths']['seeds'];
                         }
-                        $paths []= $this->values['environments'][$env][$dbReference]['paths']['seeds'];
                     }
                 }
             }
