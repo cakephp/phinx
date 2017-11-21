@@ -32,13 +32,8 @@ class ConfigSeedPathsTest extends AbstractConfigTest
 
     public function testGetSeedPathConvertsStringToArray()
     {
-        $values = [
-            'paths' => [
-                'seeds' => '/test'
-            ]
-        ];
-
-        $config = new Config($values);
+       
+        $config = new Config($this->getConfigArray());
         $paths = $config->getSeedPaths();
 
         $this->assertTrue(is_array($paths));
