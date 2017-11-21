@@ -89,8 +89,9 @@ EOT
 
         // run the migrations
         $start = microtime(true);
-
         foreach ($databases as $adapterOptions) {
+
+            $this->getManager()->setMigrations(null);
 
             if (isset($adapterOptions['dbRef'])) {
                 $this->getManager()->setDbRef($adapterOptions['dbRef']);

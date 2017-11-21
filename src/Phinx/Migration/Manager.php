@@ -312,7 +312,7 @@ class Manager
      */
     public function migrate($environment, $version = null)
     {
-        $this->setEnvironmentName($environmentName);
+        $this->setEnvironmentName($environment);
         $migrations = $this->getMigrations();
         $env = $this->getEnvironment($environment);
         $versions = $env->getVersions();
@@ -752,7 +752,7 @@ class Manager
      * @param array $migrations Migrations
      * @return \Phinx\Migration\Manager
      */
-    public function setMigrations(array $migrations)
+    public function setMigrations(array $migrations = null)
     {
         $this->migrations = $migrations;
 
@@ -770,7 +770,6 @@ class Manager
     {
         if ($this->migrations === null) {
             $phpFiles = $this->getMigrationFiles();
-
             // filter the files to only get the ones that match our naming scheme
             $fileNames = [];
             /** @var \Phinx\Migration\AbstractMigration[] $versions */

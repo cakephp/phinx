@@ -283,7 +283,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         }
 
         if (is_string($this->values['paths']['migrations'])) {
-            $paths []= $this->values['paths']['migrations'];
+            $this->values['paths']['migrations'] = [$this->values['paths']['migrations']];
         }
 
         if ($environment !== null && $dbReference !== null) {
@@ -294,6 +294,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         } elseif (is_null($environment) && is_null($dbReference)) {
             if (is_array($this->values['environments'])) {
                 $environments = array_keys($this->values['environments']);
+
                 foreach ($environments as $env) {
                     if (is_array($this->values['environments'][$env])) {
                         foreach ($this->values['environments'][$env] as $dbReference => $properties) {
@@ -304,10 +305,13 @@ class Config implements ConfigInterface, NamespaceAwareInterface
                         }
                     }
                 }
+                if (count($paths) > 0) {
+                    $this->values['paths']['migrations']= $paths;
+                }
             }
         }
 
-        return $paths;
+        return $this->values['paths']['migrations'];
     }
 
     /**
@@ -336,7 +340,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         }
 
         if (is_string($this->values['paths']['seeds'])) {
-            $paths[]= $this->values['paths']['seeds'];
+            $this->values['paths']['seeds'] = [$this->values['paths']['seeds']];
         }
 
         if ($environment !== null && $dbReference !== null) {
@@ -356,9 +360,12 @@ class Config implements ConfigInterface, NamespaceAwareInterface
                     }
                 }
             }
+            if (count($paths) > 0) {
+                $this->values['paths']['seeds']= $paths;
+            }
         }
 
-        return $paths;
+        return $this->values['paths']['seeds'];
     }
 
     /**
