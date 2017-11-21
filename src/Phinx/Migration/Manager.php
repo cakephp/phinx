@@ -62,7 +62,7 @@ class Manager
     /**
      * @var string
      */
-    protected $environment;
+    protected $environmentName;
 
     /**
      * @var string
@@ -312,6 +312,7 @@ class Manager
      */
     public function migrate($environment, $version = null)
     {
+        $this->setEnvironmentName($environmentName);
         $migrations = $this->getMigrations();
         $env = $this->getEnvironment($environment);
         $versions = $env->getVersions();
@@ -542,6 +543,7 @@ class Manager
      */
     public function seed($environment, $seed = null)
     {
+        $this->setEnvironmentName($environment);
         $seeds = $this->getSeeds();
 
         if ($seed === null) {
@@ -612,6 +614,17 @@ class Manager
         }
 
         return $this->getSingleEnvironment($name);
+    }
+
+    public function setEnvironmentName($name)
+    {
+        $this->environmentName = $name;
+        return $this;
+    }
+
+    public function getEnvironmentName()
+    {
+        return $this->environmentName;
     }
 
     /**
@@ -686,40 +699,6 @@ class Manager
         return $environment;
 
     }
-
-    /**
-     * Gets the manager class for the given environment.
-     *
-     * @param string $name Environment Name
-     * @throws \InvalidArgumentException
-     * @return \Phinx\Migration\Manager\Environment
-     */
-    /*public function getEnvironment($name)
-    {
-        if (isset($this->environments[$name][$this->getDbRef()])) {
-            return $this->environments[$name][$this->getDbRef()];
-        }
-
-        // check the environment exists
-        if (!$this->getConfig()->hasEnvironment($name)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The environment "%s" does not exist',
-                $name
-            ));
-        }
-
-        // create an environment instance and cache it
-        $envOptions = $this->getConfig()->getEnvironment($name);
-        $envOptions = $envOptions[$this->getDbRef()];
-
-        $envOptions['version_order'] = $this->getConfig()->getVersionOrder();
-        $environment = new Environment($name, $envOptions);
-        $this->environments[$name][$this->getDbRef()] = $environment;
-        $environment->setInput($this->getInput());
-        $environment->setOutput($this->getOutput());
-
-        return $environment;
-    }*/
 
     /**
      * Sets the console input.
@@ -862,8 +841,7 @@ class Manager
     protected function getMigrationFiles()
     {
         $config = $this->getConfig();
-        $environment = $this->getInput()->getOption('environment');
-        $paths = $config->getMigrationPaths($environment, $this->getDbRef());
+        $paths = $config->getMigrationPaths($this->getEnvironmentName(), $this->getDbRef());
         $files = [];
 
         foreach ($paths as $path) {
@@ -955,8 +933,7 @@ class Manager
     protected function getSeedFiles()
     {
         $config = $this->getConfig();
-        $environment = $this->getInput()->getOption('environment');
-        $paths = $config->getSeedPaths($environment, $this->getDbRef());
+        $paths = $config->getSeedPaths($this->getEnvironmentName(), $this->getDbRef());
 
         $files = [];
 
