@@ -33,6 +33,15 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
+
+        $this->getConfig();
+        $this->input = new ArrayInput([]);
+        $this->output = new StreamOutput(fopen('php://memory', 'a', false));
+    }
+
+    public function getConfig()
+    {
+
         $this->config = new Config([
             'paths' => [
                 'migrations' => __FILE__,
@@ -51,8 +60,41 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $this->input = new ArrayInput([]);
-        $this->output = new StreamOutput(fopen('php://memory', 'a', false));
+    }
+
+    public function getMultiDbConfig()
+    {
+
+        $config = new Config([
+            'paths' => [
+                'migrations' => __FILE__,
+            ],
+            'environments' => [
+                'default_migration_table' => 'phinxlog',
+                'default_database' => 'development',
+                'development' => [
+                    'db1' => [
+                        'adapter' => 'mysql',
+                        'host' => 'fakehost',
+                        'name' => 'development',
+                        'user' => '',
+                        'pass' => '',
+                        'port' => 3006,
+                    ],
+                    'db2' => [
+                        'adapter' => 'mysql',
+                        'host' => 'fakehost',
+                        'name' => 'development_2',
+                        'user' => '',
+                        'pass' => '',
+                        'port' => 3006,
+                    ],
+                ],
+            ]
+        ]);
+
+        return $config;
+
     }
 
     public function testExecute()
@@ -78,6 +120,31 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
+        $this->assertSame(0, $exitCode);
+    }
+
+    public function testExecuteWithMultiDb()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Migrate());
+
+        /** @var Migrate $command */
+        $command = $application->find('migrate');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->any())
+                    ->method('migrate');
+        $command->setConfig($this->getMultiDbConfig());
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+
+        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
         $this->assertSame(0, $exitCode);
     }
 
