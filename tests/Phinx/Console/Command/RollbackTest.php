@@ -106,14 +106,14 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('rollback')
-                    ->with('fakeenv', null, false, true);
+                    ->with('development', null, false, true);
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
-        $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
+        $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
     }
 
     public function testDatabaseNameSpecified()

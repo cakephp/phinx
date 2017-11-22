@@ -108,16 +108,16 @@ class StatusTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('printStatus')
-                    ->with('fakeenv', null)
+                    ->with('development', null)
                     ->will($this->returnValue(0));
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $return = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
+        $return = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
         $this->assertEquals(0, $return);
-        $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
+        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
     }
 
     public function testFormatSpecified()

@@ -101,8 +101,8 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
-        $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
+        $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
     }
 
     public function testDatabaseNameSpecified()

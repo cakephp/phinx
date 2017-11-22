@@ -47,7 +47,7 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
                     'user' => '',
                     'pass' => '',
                     'port' => 3006,
-                ]
+                ],
             ]
         ]);
 
@@ -96,15 +96,14 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $managerStub->expects($this->any())
                     ->method('migrate');
-
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
 
-        $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
-        $this->assertSame(1, $exitCode);
+        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
+        $this->assertSame(0, $exitCode);
     }
 
     public function testDatabaseNameSpecified()
