@@ -60,6 +60,41 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
     }
 
+    protected function getMultiDbConfig()
+    {
+
+        $config = new Config([
+            'paths' => [
+                'migrations' => __FILE__,
+            ],
+            'environments' => [
+                'default_migration_table' => 'phinxlog',
+                'default_database' => 'development',
+                'development' => [
+                    'db1' => [
+                        'adapter' => 'mysql',
+                        'host' => 'fakehost',
+                        'name' => 'development',
+                        'user' => '',
+                        'pass' => '',
+                        'port' => 3006,
+                    ],
+                    'db2' => [
+                        'adapter' => 'mysql',
+                        'host' => 'fakehost',
+                        'name' => 'development_2',
+                        'user' => '',
+                        'pass' => '',
+                        'port' => 3006,
+                    ],
+                ],
+            ]
+        ]);
+
+        return $config;
+
+    }
+
     public function testExecute()
     {
         $application = new PhinxApplication('testing');
@@ -78,6 +113,37 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false, true);
 
         $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+
+        $display = $commandTester->getDisplay();
+
+        $this->assertRegExp('/no environment specified/', $display);
+
+        // note that the default order is by creation time
+        $this->assertRegExp('/ordering by creation time/', $display);
+    }
+
+    public function testExecuteWithMultiDb()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        /** @var Rollback $command */
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->getMultiDbConfig(), $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->exactly(2))
+                    ->method('rollback')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false, true);
+
+        $command->setConfig($this->getMultiDbConfig());
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
@@ -116,6 +182,31 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
     }
 
+    public function testExecuteWithEnvironmentOptionWithMultiDb()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        /** @var Rollback $command */
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->getMultiDbConfig(), $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->exactly(2))
+                    ->method('rollback')
+                    ->with('development', null, false, true);
+
+        $command->setConfig($this->getMultiDbConfig());
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
+    }
+
     public function testDatabaseNameSpecified()
     {
         $application = new PhinxApplication('testing');
@@ -141,6 +232,33 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
     }
 
+    public function testDatabaseNameSpecifiedWithMultiDb()
+    {
+
+        $application = new PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        /** @var Rollback $command */
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->getMultiDbConfig(), $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->exactly(2))
+                    ->method('rollback')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false);
+
+        $command->setConfig($this->getMultiDbConfig());
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+        $this->assertRegExp('/using database development/', $commandTester->getDisplay());
+
+    }
+
     public function testStartTimeVersionOrder()
     {
         $application = new \Phinx\Console\PhinxApplication('testing');
@@ -161,6 +279,34 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false, true);
 
         $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+        $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
+    }
+
+    public function testStartTimeVersionOrderWithMultiDb()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        // setup dependencies
+        $config = $this->getMultiDbConfig();
+        $config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$config, $this->input, $this->output])
+            ->getMock();
+
+        $managerStub->expects($this->exactly(2))
+                    ->method('rollback')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false, true);
+
+        $command->setConfig($config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
@@ -197,6 +343,41 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, $target, false, false);
 
         $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), '-d' => $date], ['decorated' => false]);
+    }
+
+    public function testWithDateWithMultiDb()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+
+        $date = '20160101';
+        $target = '20160101000000';
+        $rollbackStub = $this->getMockBuilder('\Phinx\Console\Command\Rollback')
+            ->setMethods(['getTargetFromDate'])
+            ->getMock();
+
+        $rollbackStub->expects($this->exactly(2))
+                    ->method('getTargetFromDate')
+                    ->with($date)
+                    ->will($this->returnValue($target));
+
+        $application->add($rollbackStub);
+
+        // setup dependencies
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->getMultiDbConfig(), $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->exactly(2))
+                    ->method('rollback')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, $target, false, false);
+
+        $command->setConfig($this->getMultiDbConfig());
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
@@ -276,6 +457,34 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, '20150101000000', false, false);
 
         $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), '-d' => $targetDate], ['decorated' => false]);
+        $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
+    }
+
+    public function testStarTimeVersionOrderWithDateWithMultiDb()
+    {
+        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        // setup dependencies
+        $config = $this->getMultiDbConfig();
+        $config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        $targetDate = '20150101';
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->exactly(2))
+                    ->method('rollback')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, '20150101000000', false, false);
+
+        $command->setConfig($config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
