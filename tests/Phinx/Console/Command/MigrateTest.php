@@ -173,6 +173,31 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(0, $exitCode);
     }
 
+    public function testExecuteWithEnvironmentOptionWithMultiDb()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Migrate());
+
+        /** @var Migrate $command */
+        $command = $application->find('migrate');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->getMultiDbConfig(), $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->any())
+                    ->method('migrate');
+        $command->setConfig($this->getMultiDbConfig());
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+
+        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
+        $this->assertSame(0, $exitCode);
+    }
+
     public function testDatabaseNameSpecified()
     {
         $application = new PhinxApplication('testing');
@@ -190,6 +215,32 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
                     ->method('migrate');
 
         $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+
+        $this->assertRegExp('/using database development/', $commandTester->getDisplay());
+        $this->assertSame(0, $exitCode);
+    }
+
+    public function testDatabaseNameSpecifiedWithMultiDb()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Migrate());
+
+        /** @var Migrate $command */
+        $command = $application->find('migrate');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->getMultiDbConfig(), $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->exactly(2))
+                    ->method('migrate');
+
+        $command->setConfig($this->getMultiDbConfig());
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
