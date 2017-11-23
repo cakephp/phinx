@@ -204,33 +204,25 @@ class CreateTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs([$this->configMultiDb, $this->input, $this->output])
             ->getMock();
 
-        $config = new Config(
-            [
-                'paths' => [
-                    'migrations' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'db1' . DIRECTORY_SEPARATOR . 'migrations',
-                ],
-                'environments' => [
-                    'default_migration_table' => 'phinxlog',
-                    'default_database' => 'development',
-                    'development' => [
-                        'db1' => [
-                            'paths' => [
-                                'migrations' => [
-                                    'Foo\\Bar' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'db1' . DIRECTORY_SEPARATOR . 'migrations',
-                                ],
-                                'seeds' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'db1' . DIRECTORY_SEPARATOR . 'migrations',
-                            ],
-                            'adapter' => 'mysql',
-                            'host' => 'fakehost',
-                            'name' => 'development',
-                            'user' => '',
-                            'pass' => '',
-                            'port' => 3006,
+        $config = clone $this->configMultiDb;
+        $config['environments']= [
+            'development' => [
+                'db1' => [
+                    'paths' => [
+                        'migrations' => [
+                            'Foo\\Bar' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'db1' . DIRECTORY_SEPARATOR . 'migrations',
                         ],
+                        'seeds' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'db1' . DIRECTORY_SEPARATOR . 'migrations',
                     ],
+                    'adapter' => 'mysql',
+                    'host' => 'fakehost',
+                    'name' => 'development',
+                    'user' => '',
+                    'pass' => '',
+                    'port' => 3006,
                 ],
             ]
-        );
+        ];
 
         $command->setConfig($config);
         $command->setManager($managerStub);
