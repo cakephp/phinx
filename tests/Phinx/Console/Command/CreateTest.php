@@ -25,6 +25,8 @@ class CreateTest extends \PHPUnit_Framework_TestCase
      */
     protected $config = [];
 
+    protected $configMultiDb = [];
+
     /**
      * @var InputInterface $input
      */
@@ -64,6 +66,39 @@ class CreateTest extends \PHPUnit_Framework_TestCase
             }
         }
 
+        @mkdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . '/db1/migrations', 0777, true);
+        $this->configMultiDb = new Config(
+            [
+                'paths' => [
+                    'migrations' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations',
+                ],
+                'environments' => [
+                    'default_migration_table' => 'phinxlog',
+                    'default_database' => 'development',
+                    'development' => [
+                        'db1' => [
+                            'paths' => [
+                                'migrations' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'db1' . DIRECTORY_SEPARATOR . 'migrations',
+                                'seeds' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'db1' . DIRECTORY_SEPARATOR . 'migrations',
+                            ],
+                            'adapter' => 'mysql',
+                            'host' => 'fakehost',
+                            'name' => 'development',
+                            'user' => '',
+                            'pass' => '',
+                            'port' => 3006,
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        foreach ($this->configMultiDb->getMigrationPaths() as $path) {
+            foreach (glob($path . '/*.*') as $migration) {
+                unlink($migration);
+            }
+        }
+
         $this->input = new ArrayInput([]);
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
     }
@@ -96,6 +131,32 @@ class CreateTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage The migration class name "MyDuplicateMigration" already exists
+     */
+    public function testExecuteWithDuplicateMigrationNamesWithMultDbConfig()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->configMultiDb, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->configMultiDb);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
+        sleep(1.01); // need at least a second due to file naming scheme
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The migration class name "Foo\Bar\MyDuplicateMigration" already exists
      */
     public function testExecuteWithDuplicateMigrationNamesWithNamespace()
@@ -117,6 +178,60 @@ class CreateTest extends \PHPUnit_Framework_TestCase
                 'Foo\Bar' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations',
             ],
         ];
+        $command->setConfig($config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
+        sleep(1.01); // need at least a second due to file naming scheme
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage The migration class name "Foo\Bar\MyDuplicateMigration" already exists
+     */
+    public function testExecuteWithDuplicateMigrationNamesWithNamespaceWithMultiDb()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->configMultiDb, $this->input, $this->output])
+            ->getMock();
+
+        $config = new Config(
+            [
+                'paths' => [
+                    'migrations' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'db1' . DIRECTORY_SEPARATOR . 'migrations',
+                ],
+                'environments' => [
+                    'default_migration_table' => 'phinxlog',
+                    'default_database' => 'development',
+                    'development' => [
+                        'db1' => [
+                            'paths' => [
+                                'migrations' => [
+                                    'Foo\\Bar' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'db1' . DIRECTORY_SEPARATOR . 'migrations',
+                                ],
+                                'seeds' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'db1' . DIRECTORY_SEPARATOR . 'migrations',
+                            ],
+                            'adapter' => 'mysql',
+                            'host' => 'fakehost',
+                            'name' => 'development',
+                            'user' => '',
+                            'pass' => '',
+                            'port' => 3006,
+                        ],
+                    ],
+                ],
+            ]
+        );
+
         $command->setConfig($config);
         $command->setManager($managerStub);
 
