@@ -285,7 +285,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         if (is_string($this->values['paths']['migrations'])) {
             $this->values['paths']['migrations'] = [$this->values['paths']['migrations']];
         }
-        
+
         if ($environment !== null && $dbReference !== null) {
             $environment = $this->getEnvironment($environment);
             if (isset($environment[$dbReference]['paths']['migrations'])) {
@@ -364,7 +364,14 @@ class Config implements ConfigInterface, NamespaceAwareInterface
                             if (!is_array($properties)) {
                                 continue;
                             }
-                            $paths []= $this->values['environments'][$env][$dbReference]['paths']['seeds'];
+
+                            if (!is_array($this->values['environments'][$env][$dbReference]['paths']['seeds'])) {
+                                $paths []= $this->values['environments'][$env][$dbReference]['paths']['seeds'];
+                            } else {
+                                foreach ($this->values['environments'][$env][$dbReference]['paths']['seeds'] as $namespace => $migrationPath) {
+                                    $paths[$namespace]= $migrationPath;
+                                }
+                            }
                         }
                     }
                 }
