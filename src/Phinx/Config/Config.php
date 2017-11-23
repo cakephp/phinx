@@ -363,7 +363,17 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         if ($environment !== null && $dbReference !== null) {
             $environment = $this->getEnvironment($environment);
             if (isset($environment[$dbReference]['paths']['seeds'])) {
-                return [$environment[$dbReference]['paths']['seeds']];
+
+                if (!is_array($environment[$dbReference]['paths']['seeds'])) {
+                    return [$environment[$dbReference]['paths']['seeds']];
+                } else {
+                    foreach ($environment[$dbReference]['paths']['seeds'] as $namespace => $seedPath) {
+                        $paths[$namespace]= $seedPath;
+                    }
+                    if (count($paths) > 0) {
+                        $this->values['paths']['seeds']= $paths;
+                    }
+                }
             }
         } elseif (is_null($environment) && is_null($dbReference)) {
             if (is_array($this->values['environments'])) {
