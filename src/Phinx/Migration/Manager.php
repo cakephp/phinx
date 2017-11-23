@@ -112,6 +112,7 @@ class Manager
      */
     public function printStatus($environment, $format = null)
     {
+        $this->setEnvironmentName($environment);
         $output = $this->getOutput();
         $migrations = [];
         $hasDownMigration = false;
@@ -672,7 +673,6 @@ class Manager
      */
     public function getMultiEnvironment($name)
     {
-
         if (isset($this->environments[$name][$this->getDbRef()])) {
             return $this->environments[$name][$this->getDbRef()];
         }
