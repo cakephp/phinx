@@ -56,6 +56,48 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
     }
 
+    protected function getMultiDbConfig()
+    {
+
+        $config = new Config([
+            'paths' => [
+                'migrations' => __FILE__,
+                'seeds' => __FILE__,
+            ],
+            'environments' => [
+                'default_migration_table' => 'phinxlog',
+                'default_database' => 'development',
+                'development' => [
+                    'db1' => [
+                        'paths' => [
+                            'seeds' => __FILE__,
+                        ],
+                        'adapter' => 'mysql',
+                        'host' => 'fakehost',
+                        'name' => 'development',
+                        'user' => '',
+                        'pass' => '',
+                        'port' => 3006,
+                    ],
+                    'db2' => [
+                        'paths' => [
+                            'seeds' => __FILE__,
+                        ],
+                        'adapter' => 'mysql',
+                        'host' => 'fakehost',
+                        'name' => 'development_2',
+                        'user' => '',
+                        'pass' => '',
+                        'port' => 3006,
+                    ],
+                ],
+            ]
+        ]);
+
+        return $config;
+
+    }
+
     public function testExecute()
     {
         $application = new PhinxApplication('testing');
@@ -73,6 +115,31 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
                     ->method('seed')->with($this->identicalTo('development'), $this->identicalTo(null));
 
         $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+
+        $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
+    }
+
+    public function testExecuteWithMultiDb()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new SeedRun());
+
+        /** @var SeedRun $command */
+        $command = $application->find('seed:run');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->getMultiDbConfig(), $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->exactly(2))
+                    ->method('seed')->with($this->identicalTo('development'), $this->identicalTo(null));
+
+        $command->setConfig($this->getMultiDbConfig());
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
@@ -105,6 +172,30 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
     }
 
+    public function testExecuteWithEnvironmentOptionWithMultiDb()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new SeedRun());
+
+        /** @var SeedRun $command */
+        $command = $application->find('seed:run');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->getMultiDbConfig(), $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->any())
+                    ->method('migrate');
+
+        $command->setConfig($this->getMultiDbConfig());
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
+    }
+
     public function testDatabaseNameSpecified()
     {
         $application = new PhinxApplication('testing');
@@ -122,6 +213,30 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
                     ->method('seed');
 
         $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+        $this->assertRegExp('/using database development/', $commandTester->getDisplay());
+    }
+
+    public function testDatabaseNameSpecifiedWithMultiDb()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new SeedRun());
+
+        /** @var SeedRun $command */
+        $command = $application->find('seed:run');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->getMultiDbConfig(), $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->exactly(2))
+                    ->method('seed');
+
+        $command->setConfig($this->getMultiDbConfig());
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
@@ -150,6 +265,41 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
                     );
 
         $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(
+            [
+                'command' => $command->getName(),
+                '--seed' => ['One', 'Two', 'Three'],
+            ],
+            ['decorated' => false]
+        );
+
+        $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
+    }
+
+    public function testExecuteMultipleSeedersWithMultiDb()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new SeedRun());
+
+        /** @var SeedRun $command */
+        $command = $application->find('seed:run');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->getMultiDbConfig(), $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->exactly(6))
+                    ->method('seed')->withConsecutive(
+                        [$this->identicalTo('development'), $this->identicalTo('One')],
+                        [$this->identicalTo('development'), $this->identicalTo('Two')],
+                        [$this->identicalTo('development'), $this->identicalTo('Three')]
+                    );
+
+        $command->setConfig($this->getMultiDbConfig());
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
