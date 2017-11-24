@@ -587,7 +587,7 @@ class Manager
      * Get the adapter property
      *
      * @return string
-     */ 
+     */
     public function getDbRef()
     {
         return $this->dbRef;
@@ -666,7 +666,6 @@ class Manager
         $environment->setOutput($this->getOutput());
 
         return $environment;
-
     }
 
     /**
@@ -702,7 +701,6 @@ class Manager
         $environment->setOutput($this->getOutput());
 
         return $environment;
-
     }
 
     /**

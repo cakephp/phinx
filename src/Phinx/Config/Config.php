@@ -203,7 +203,6 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         }
 
         return $configs;
-
     }
 
     /**
@@ -287,7 +286,6 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         }
 
         if ($environment !== null && $dbReference !== null) {
-
             $environment = $this->getEnvironment($environment);
             if (isset($environment[$dbReference]['paths']['migrations'])) {
                 if (!is_array($environment[$dbReference]['paths']['migrations'])) {
@@ -363,7 +361,6 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         if ($environment !== null && $dbReference !== null) {
             $environment = $this->getEnvironment($environment);
             if (isset($environment[$dbReference]['paths']['seeds'])) {
-
                 if (!is_array($environment[$dbReference]['paths']['seeds'])) {
                     return [$environment[$dbReference]['paths']['seeds']];
                 } else {

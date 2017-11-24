@@ -379,7 +379,6 @@ abstract class AbstractCommand extends Command
         if (isset($info['table_suffix'])) {
             $output->writeln('<info>using table suffix</info> ' . $info['table_suffix']);
         }
-
     }
 
     /**

@@ -101,7 +101,6 @@ EOT
         $start = microtime(true);
         
         foreach ($databases as $adapterOptions) {
-
             // rollback the specified environment
             if ($date === null) {
                 $targetMustMatchVersion = true;
@@ -121,7 +120,6 @@ EOT
             $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
             
             $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion);
-
         }
 
         $end = microtime(true);

@@ -99,11 +99,8 @@ EOT
                     $this->getManager()->seed($environment, trim($seed));
                 }
             }
-
         } else {
-
             foreach ($databases as $adapterOptions) {
-
                 $this->getManager()->setSeeds(null);
 
                 if (isset($adapterOptions['dbRef'])) {
@@ -121,15 +118,12 @@ EOT
                         $this->getManager()->seed($environment, trim($seed));
                     }
                 }
-
             }
-
         }
 
         $end = microtime(true);
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
-
     }
 }
