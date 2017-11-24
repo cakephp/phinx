@@ -46,6 +46,7 @@ class SeedRun extends AbstractCommand
         $this->setName('seed:run')
              ->setDescription('Run database seeders')
              ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
+             ->addOption('--database', '-d', InputOption::VALUE_REQUIRED, 'What is the db reference required?')
              ->setHelp(
                  <<<EOT
 The <info>seed:run</info> command runs all available or individual seeders
@@ -53,6 +54,7 @@ The <info>seed:run</info> command runs all available or individual seeders
 <info>phinx seed:run -e development</info>
 <info>phinx seed:run -e development -s UserSeeder</info>
 <info>phinx seed:run -e development -s UserSeeder -s PermissionSeeder -s LogSeeder</info>
+<info>phinx seed:run -e development -s UserSeeder -d databaseReference
 <info>phinx seed:run -e development -v</info>
 
 EOT
@@ -72,6 +74,7 @@ EOT
 
         $seedSet = $input->getOption('seed');
         $environment = $input->getOption('environment');
+        $dbRef = $input->getOption('database');
 
         if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -82,17 +85,11 @@ EOT
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
         $databases = $this->getConfig()->getStorageConfigs($envOptions);
-
         $start = microtime(true);
 
-        foreach ($databases as $adapterOptions) {
-
-            if (isset($adapterOptions['dbRef'])) {
-                $this->getManager()->setDbRef($adapterOptions['dbRef']);
-            }
-        
-            $this->outputEnvironmentInfo($adapterOptions, $output);
-
+        if (!is_null($dbRef)) {
+            $this->getManager()->setDbRef($dbRef);
+            $this->outputEnvironmentInfo($databases[$dbRef], $output);
             if (empty($seedSet)) {
                 // run all the seed(ers)
                 $this->getManager()->seed($environment);
@@ -101,6 +98,30 @@ EOT
                 foreach ($seedSet as $seed) {
                     $this->getManager()->seed($environment, trim($seed));
                 }
+            }
+
+        } else {
+
+            foreach ($databases as $adapterOptions) {
+
+                $this->getManager()->setSeeds(null);
+
+                if (isset($adapterOptions['dbRef'])) {
+                    $this->getManager()->setDbRef($adapterOptions['dbRef']);
+                }
+
+                $this->outputEnvironmentInfo($adapterOptions, $output);
+
+                if (empty($seedSet)) {
+                    // run all the seed(ers)
+                    $this->getManager()->seed($environment);
+                } else {
+                    // run seed(ers) specified in a comma-separated list of classes
+                    foreach ($seedSet as $seed) {
+                        $this->getManager()->seed($environment, trim($seed));
+                    }
+                }
+
             }
 
         }

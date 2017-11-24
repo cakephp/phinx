@@ -194,10 +194,10 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         if (count($envOptions) > 0) {
             foreach ($envOptions as $dbRef => $adapterOptions) {
                 if (!is_array($adapterOptions)) {
-                    $configs []= $envOptions;
+                    $configs [$dbRef]= $envOptions;
                     break;
                 } else {
-                    $configs []= array_merge($adapterOptions, ['dbRef' => $dbRef]);
+                    $configs [$dbRef]= array_merge($adapterOptions, ['dbRef' => $dbRef]);
                 }
             }
         }

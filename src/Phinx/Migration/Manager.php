@@ -864,7 +864,7 @@ class Manager
      * @param array $seeds Seeders
      * @return \Phinx\Migration\Manager
      */
-    public function setSeeds(array $seeds)
+    public function setSeeds(array $seeds = null)
     {
         $this->seeds = $seeds;
 
