@@ -302,7 +302,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
                 }
             }
         } elseif (is_null($environment) && is_null($dbReference)) {
-            if (is_array($this->values['environments'])) {
+            if (isset($this->values['environments']) && is_array($this->values['environments'])) {
                 $environments = array_keys($this->values['environments']);
 
                 foreach ($environments as $env) {
@@ -312,7 +312,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
                                 continue;
                             }
 
-                            if (!is_array($this->values['environments'][$env][$dbReference]['paths']['migrations'])) {
+                            if (isset($this->values['environments'][$env][$dbReference]['paths']) && !is_array($this->values['environments'][$env][$dbReference]['paths']['migrations'])) {
                                 $paths []= $this->values['environments'][$env][$dbReference]['paths']['migrations'];
                             } else {
                                 foreach ($this->values['environments'][$env][$dbReference]['paths']['migrations'] as $namespace => $migrationPath) {
@@ -376,7 +376,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
                 }
             }
         } elseif (is_null($environment) && is_null($dbReference)) {
-            if (is_array($this->values['environments'])) {
+            if (isset($this->values['environments']) && is_array($this->values['environments'])) {
                 $environments = array_keys($this->values['environments']);
                 foreach ($environments as $env) {
                     if (is_array($this->values['environments'][$env])) {
