@@ -288,6 +288,7 @@ class ConfigTest extends AbstractConfigTest
     {
         $config = new Config($this->getConfigArrayWithMultiDb());
         $envOptions = $config->getEnvironment('testing');
+        $envOptions['default_database']= __FILE__;
         $multiEnvOptions = $config->getStorageConfigs($envOptions);
         $this->assertArrayHasKey('db1', $multiEnvOptions);
     }
