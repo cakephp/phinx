@@ -73,6 +73,9 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
                 'development' => [
                     'db1' => [
                         'adapter' => 'mysql',
+                        'paths' => [
+                            'migrations' => __FILE__,
+                        ],
                         'host' => 'fakehost',
                         'name' => 'development',
                         'user' => '',
@@ -81,6 +84,9 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
                     ],
                     'db2' => [
                         'adapter' => 'mysql',
+                        'paths' => [
+                            'migrations' => __FILE__,
+                        ],
                         'host' => 'fakehost',
                         'name' => 'development_2',
                         'user' => '',

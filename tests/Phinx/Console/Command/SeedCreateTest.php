@@ -71,6 +71,7 @@ class SeedCreateTest extends \PHPUnit_Framework_TestCase
                 'development' => [
                     'db1' => [
                         'paths' => [
+                            'migrations' => sys_get_temp_dir(),
                             'seeds' => sys_get_temp_dir()  . DIRECTORY_SEPARATOR . 'db1' . DIRECTORY_SEPARATOR . 'seeds',
                         ],
                         'adapter' => 'mysql',
@@ -82,6 +83,7 @@ class SeedCreateTest extends \PHPUnit_Framework_TestCase
                     ],
                     'db2' => [
                         'paths' => [
+                            'migrations' => sys_get_temp_dir(),
                             'seeds' => sys_get_temp_dir()  . DIRECTORY_SEPARATOR . 'db2' . DIRECTORY_SEPARATOR . 'seeds',
                         ],
                         'adapter' => 'mysql',

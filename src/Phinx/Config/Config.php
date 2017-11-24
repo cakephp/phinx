@@ -312,7 +312,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
                                 continue;
                             }
 
-                            if (!isset($this->values['environments'][$env][$dbReference]['paths']) || !is_array($this->values['environments'][$env][$dbReference]['paths']['migrations'])) {
+                            if (!is_array($this->values['environments'][$env][$dbReference]['paths']['migrations'])) {
                                 $paths []= $this->values['environments'][$env][$dbReference]['paths']['migrations'];
                             } else {
                                 foreach ($this->values['environments'][$env][$dbReference]['paths']['migrations'] as $namespace => $migrationPath) {

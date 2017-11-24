@@ -74,6 +74,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
                 'development' => [
                     'db1' => [
                         'paths' => [
+                            'migrations' => __FILE__,
                             'seeds' => __FILE__,
                         ],
                         'adapter' => 'mysql',
@@ -85,6 +86,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
                     ],
                     'db2' => [
                         'paths' => [
+                            'migrations' => __FILE__,
                             'seeds' => __FILE__,
                         ],
                         'adapter' => 'mysql',
