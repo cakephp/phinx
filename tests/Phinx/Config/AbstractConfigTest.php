@@ -18,7 +18,27 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
     /**
      * @var string
      */
+    protected $migrationPathWithMultiDb = null;
+
+    /**
+     * @var string
+     */
+    protected $migrationPathWithMultiDbAsString = null;
+
+    /**
+     * @var string
+     */
     protected $seedPath = null;
+
+    /**
+     * @var string
+     */
+    protected $seedPathWithMultiDb = null;
+
+    /**
+     * @var string
+     */
+    protected $seedPathWithMultiDbAsString = null;
 
     /**
      * Returns a sample configuration array for use with the unit tests.
@@ -82,12 +102,19 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
                         'adapter' => 'sqllite',
                         'wrapper' => 'testwrapper',
                         'paths' => [
-                            'migrations' => '%%PHINX_CONFIG_PATH%%/testdb/test.db'
+                            'migrations' => $this->getMigrationPathsWithMultiDb(),
+                            'seeds' => $this->getSeedPathsWithMultiDb()
                         ],
                     ]
                 ],
                 'production' => [
-                    'adapter' => 'mysql'
+                    'db1' => [
+                        'adapter' => 'mysql',
+                        'paths' => [
+                            'migrations' => $this->getMigrationPathsWithMultiDbAsString(),
+                            'seeds' => $this->getSeedPathsWithMultiDbAsString()
+                        ],
+                    ]
                 ]
             ]
         ];
@@ -107,6 +134,24 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
         return [$this->migrationPath];
     }
 
+    protected function getMigrationPathsWithMultiDb()
+    {
+        if (null === $this->migrationPathWithMultiDb) {
+            $this->migrationPathWithMultiDb = uniqid('phinx', true);
+        }
+
+        return [$this->migrationPathWithMultiDb];
+    }
+
+    protected function getMigrationPathsWithMultiDbAsString()
+    {
+        if (null === $this->migrationPathWithMultiDbAsString) {
+            $this->migrationPathWithMultiDbAsString = uniqid('phinx', true);
+        }
+
+        return $this->migrationPathWithMultiDbAsString;
+    }
+
     /**
      * Generate dummy seed paths
      *
@@ -119,5 +164,33 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
         }
 
         return [$this->seedPath];
+    }
+
+    /**
+     * Generate dummy seed paths
+     *
+     * @return string[]
+     */
+    protected function getSeedPathsWithMultiDb()
+    {
+        if (null === $this->seedPathWithMultiDb) {
+            $this->seedPathWithMultiDb = uniqid('phinx', true);
+        }
+
+        return [$this->seedPathWithMultiDb];
+    }
+
+    /**
+     * Generate dummy seed paths
+     *
+     * @return string[]
+     */
+    protected function getSeedPathsWithMultiDbAsString()
+    {
+        if (null === $this->seedPathWithMultiDbAsString) {
+            $this->seedPathWithMultiDbAsString = uniqid('phinx', true);
+        }
+
+        return $this->seedPathWithMultiDbAsString;
     }
 }

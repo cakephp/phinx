@@ -30,6 +30,16 @@ class ConfigMigrationPathsTest extends AbstractConfigTest
         $this->assertEquals($this->getMigrationPaths(), $config->getMigrationPaths());
     }
 
+    /**
+     * Normal behavior
+     */
+    public function testGetMigrationPathsWithMultiDb()
+    {
+        $config = new Config($this->getConfigArrayWithMultiDb());
+        $this->assertEquals($this->getMigrationPathsWithMultiDb(), $config->getMigrationPaths('testing', 'db1'));
+        $this->assertEquals([$this->getMigrationPathsWithMultiDbAsString()], $config->getMigrationPaths('production', 'db1'));
+    }
+
     public function testGetMigrationPathConvertsStringToArray()
     {
         $values = [

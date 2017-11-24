@@ -63,7 +63,7 @@ class SeedCreateTest extends \PHPUnit_Framework_TestCase
         $config = new Config([
             'paths' => [
                 'migrations' => sys_get_temp_dir(),
-                'seeds' => sys_get_temp_dir(),
+                'seeds' => sys_get_temp_dir()  . DIRECTORY_SEPARATOR . 'db1' . DIRECTORY_SEPARATOR . 'seeds',
             ],
             'environments' => [
                 'default_migration_table' => 'phinxlog',

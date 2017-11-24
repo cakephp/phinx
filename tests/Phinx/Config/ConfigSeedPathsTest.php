@@ -30,6 +30,16 @@ class ConfigSeedPathsTest extends AbstractConfigTest
         $this->assertEquals($this->getSeedPaths(), $config->getSeedPaths());
     }
 
+    /**
+     * Normal behavior
+     */
+    public function testGetSeedPathsWithMultiDb()
+    {
+        $config = new Config($this->getConfigArrayWithMultiDb());
+        $this->assertEquals($this->getSeedPathsWithMultiDb(), $config->getSeedPaths('testing', 'db1'));
+        $this->assertEquals([$this->getSeedPathsWithMultiDbAsString()], $config->getSeedPaths('production', 'db1'));
+    }
+
     public function testGetSeedPathConvertsStringToArray()
     {
        
