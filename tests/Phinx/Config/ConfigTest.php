@@ -283,4 +283,12 @@ class ConfigTest extends AbstractConfigTest
             ],
         ];
     }
+
+    public function testGetStorageSpecificConfig()
+    {
+        $config = new Config($this->getConfigArrayWithMultiDb());
+        $envOptions = $config->getEnvironment('testing');
+        $multiEnvOptions = $config->getStorageConfigs($envOptions);
+        $this->assertArrayHasKey('db1', $multiEnvOptions);
+    }
 }

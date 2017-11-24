@@ -121,6 +121,13 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->manager->getOutput() instanceof StreamOutput);
     }
 
+    public function testSetDbRef()
+    {
+        $reference = 'TestReference';
+        $this->manager->setDbRef($reference);
+        $this->assertEquals($reference, $this->manager->getDbRef());
+    }
+
     public function testPrintStatusMethod()
     {
         // stub environment

@@ -57,6 +57,42 @@ abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    public function getConfigArrayWithMultiDb()
+    {
+        return [
+            'default' => [
+                'paths' => [
+                    'migrations' => '%%PHINX_CONFIG_PATH%%/testmigrations2',
+                    'seeds' => '%%PHINX_CONFIG_PATH%%/db/seeds',
+                ]
+            ],
+            'paths' => [
+                'migrations' => $this->getMigrationPaths(),
+                'seeds' => $this->getSeedPaths()
+            ],
+            'templates' => [
+                'file' => '%%PHINX_CONFIG_PATH%%/tpl/testtemplate.txt',
+                'class' => '%%PHINX_CONFIG_PATH%%/tpl/testtemplate.php'
+            ],
+            'environments' => [
+                'default_migration_table' => 'phinxlog',
+                'default_database' => 'testing',
+                'testing' => [
+                    'db1' => [
+                        'adapter' => 'sqllite',
+                        'wrapper' => 'testwrapper',
+                        'paths' => [
+                            'migrations' => '%%PHINX_CONFIG_PATH%%/testdb/test.db'
+                        ],
+                    ]
+                ],
+                'production' => [
+                    'adapter' => 'mysql'
+                ]
+            ]
+        ];
+    }
+
     /**
      * Generate dummy migration paths
      *
