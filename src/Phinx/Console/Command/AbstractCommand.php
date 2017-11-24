@@ -348,7 +348,7 @@ abstract class AbstractCommand extends Command
      *
      * @param array $info
      * @param OutputInterface $output
-     * @return null
+     * @return null|int
      */
     public function outputEnvironmentInfo(array $info, OutputInterface $output)
     {

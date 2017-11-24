@@ -62,6 +62,11 @@ class Manager
     /**
      * @var string
      */
+    protected $dbRef;
+
+    /**
+     * @var string
+     */
     protected $environmentName;
 
     /**

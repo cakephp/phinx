@@ -110,7 +110,7 @@ interface ConfigInterface extends \ArrayAccess
      *
      * @return string[]
      */
-    public function getSeedPaths();
+    public function getSeedPaths($environment = null, $dbReference = null);
 
     /**
      * Get the template file name.
