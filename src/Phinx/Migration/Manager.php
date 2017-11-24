@@ -849,6 +849,11 @@ class Manager
                 Util::glob($path . DIRECTORY_SEPARATOR . '*.php')
             );
         }
+        // glob() can return the same file multiple times
+        // This will cause the migration to fail with a
+        // false assumption of duplicate migrations
+        // http://php.net/manual/en/function.glob.php#110340
+        $files = array_unique($files);
 
         return $files;
     }
@@ -942,6 +947,11 @@ class Manager
                 Util::glob($path . DIRECTORY_SEPARATOR . '*.php')
             );
         }
+        // glob() can return the same file multiple times
+        // This will cause the migration to fail with a
+        // false assumption of duplicate migrations
+        // http://php.net/manual/en/function.glob.php#110340
+        $files = array_unique($files);
 
         return $files;
     }
