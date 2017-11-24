@@ -77,6 +77,9 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
                         'adapter' => 'mysql',
                         'host' => 'fakehost',
                         'name' => 'development',
+                        'paths' => [
+                            'migrations' => __FILE__,
+                        ],
                         'user' => '',
                         'pass' => '',
                         'port' => 3006,
@@ -85,6 +88,9 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
                         'adapter' => 'mysql',
                         'host' => 'fakehost',
                         'name' => 'development_2',
+                        'paths' => [
+                            'migrations' => __FILE__,
+                        ],
                         'user' => '',
                         'pass' => '',
                         'port' => 3006,
