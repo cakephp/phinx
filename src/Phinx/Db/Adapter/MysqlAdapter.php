@@ -211,7 +211,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         // Add the default primary key
         $columns = $table->getPendingColumns();
 
-        if(!isset($options['id']) || $options['id'] !== false){
+        if (!isset($options['id']) || $options['id'] !== false) {
             $column = new Column();
             $columnName = isset($options['id']) && is_string($options['id']) ? $options['id'] : 'id';
             $column->setName($columnName)
