@@ -210,25 +210,17 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         // Add the default primary key
         $columns = $table->getPendingColumns();
-        if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
+
+        if(!isset($options['id']) || $options['id'] !== false){
             $column = new Column();
-            $column->setName('id')
+            $columnName = isset($options['id']) && is_string($options['id']) ? $options['id'] : 'id';
+            $column->setName($columnName)
                    ->setType('integer')
-                   ->setSigned(isset($options['signed']) ? $options['signed'] : true)
+                   ->setSigned(isset($options['signed']) ? (bool)$options['signed'] : true)
                    ->setIdentity(true);
 
             array_unshift($columns, $column);
-            $options['primary_key'] = 'id';
-        } elseif (isset($options['id']) && is_string($options['id'])) {
-            // Handle id => "field_name" to support AUTO_INCREMENT
-            $column = new Column();
-            $column->setName($options['id'])
-                   ->setType('integer')
-                   ->setSigned(isset($options['signed']) ? $options['signed'] : true)
-                   ->setIdentity(true);
-
-            array_unshift($columns, $column);
-            $options['primary_key'] = $options['id'];
+            $options['primary_key'] = $columnName;
         }
 
         // TODO - process table options like collation etc
@@ -328,12 +320,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $columnInfo) {
             $phinxType = $this->getPhinxType($columnInfo['Type']);
-
             $column = new Column();
             $column->setName($columnInfo['Field'])
                    ->setNull($columnInfo['Null'] !== 'NO')
                    ->setDefault($columnInfo['Default'])
                    ->setType($phinxType['name'])
+                   ->setSigned($phinxType['signed'])
                    ->setLimit($phinxType['limit']);
 
             if ($columnInfo['Extra'] === 'auto_increment') {
@@ -837,6 +829,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $limit = null;
             $precision = null;
             $type = $matches[1];
+            $signed = strpos($sqlTypeDef, 'unsigned') === false;
             if (count($matches) > 2) {
                 $limit = $matches[3] ? (int)$matches[3] : null;
             }
@@ -922,7 +915,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $phinxType = [
                 'name' => $type,
                 'limit' => $limit,
-                'precision' => $precision
+                'precision' => $precision,
+                'signed' => $signed
             ];
 
             if (static::PHINX_TYPE_ENUM == $type) {

@@ -207,6 +207,26 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
 
+    public function testCreateTableUnsignedIdColumn()
+    {
+        $table = new \Phinx\Db\Table('ntable', ['signed' => false], $this->adapter);
+        $table->save();
+
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertFalse($this->adapter->getColumns('ntable')[0]->getSigned());
+    }
+
+    public function testCreateTableCustomUnsignedIdColumn()
+    {
+        $table = new \Phinx\Db\Table('ntable', ['id' => 'custom_id', 'signed' => false], $this->adapter);
+        $table->save();
+
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'custom_id'));
+        $this->assertFalse($this->adapter->getColumns('ntable')[0]->getSigned());
+    }
+
     public function testCreateTableWithNoOptions()
     {
         $this->markTestIncomplete();
