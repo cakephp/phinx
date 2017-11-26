@@ -769,6 +769,54 @@ class Manager
     }
 
     /**
+     * Get seed dependencies instances from seed dependency array
+     *
+     * @param AbstractSeed $seed Seed
+     *
+     * @return AbstractSeed[]
+     */
+    private function getSeedDependenciesInstances(AbstractSeed $seed)
+    {
+        $dependenciesInstances = [];
+        $dependencies = $seed->getDependencies();
+        if (!empty($dependencies)) {
+            foreach ($dependencies as $dependency) {
+                foreach ($this->seeds as $seed) {
+                    if (get_class($seed) === $dependency) {
+                        $dependenciesInstances[get_class($seed)] = $seed;
+                    }
+                }
+            }
+        }
+
+        return $dependenciesInstances;
+    }
+
+    /**
+     * Order seeds by dependencies
+     *
+     * @param AbstractSeed[] $seeds Seeds
+     *
+     * @return AbstractSeed[]
+     */
+    private function orderSeedsByDependencies(array $seeds)
+    {
+        $orderedSeeds = [];
+        foreach ($seeds as $seed) {
+            $key = get_class($seed);
+            $dependencies = $this->getSeedDependenciesInstances($seed);
+            if (!empty($dependencies)) {
+                $orderedSeeds[$key] = $seed;
+                $orderedSeeds = array_merge($this->orderSeedsByDependencies($dependencies), $orderedSeeds);
+            } else {
+                $orderedSeeds[$key] = $seed;
+            }
+        }
+
+        return $orderedSeeds;
+    }
+
+    /**
      * Gets an array of database seeders.
      *
      * @throws \InvalidArgumentException
@@ -823,6 +871,7 @@ class Manager
             $this->setSeeds($seeds);
         }
 
+        $this->seeds = $this->orderSeedsByDependencies($this->seeds);
         return $this->seeds;
     }
 
