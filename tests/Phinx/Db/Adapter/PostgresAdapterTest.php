@@ -297,6 +297,36 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testAddColumnWithComment()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+
+        $this->assertFalse($table->hasColumn('email'));
+
+        $table->addColumn('email', 'string', ['comment' => $comment = 'Comments from column "email"'])
+              ->save();
+
+        $this->assertTrue($table->hasColumn('email'));
+
+        $row = $this->adapter->fetchRow(
+            'SELECT
+                (select pg_catalog.col_description(oid,cols.ordinal_position::int)
+            from pg_catalog.pg_class c
+            where c.relname=cols.table_name ) as column_comment
+            FROM information_schema.columns cols
+            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
+            AND cols.table_name=\'table1\'
+            AND cols.column_name = \'email\''
+        );
+
+        $this->assertEquals(
+            $comment,
+            $row['column_comment'],
+            'The column comment was not set when you used addColumn()'
+        );
+    }
+
     public function testAddDecimalWithPrecisionAndScale()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
