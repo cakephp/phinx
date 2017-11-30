@@ -206,6 +206,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             'engine' => 'InnoDB',
             'collation' => 'utf8_general_ci'
         ];
+
+        // use the default options, overriden by the environment options, overriden by the table options (especialy for charset & collation)
+        $defaultOptions = array_merge($defaultOptions, $this->options);
+
         $options = array_merge($defaultOptions, $table->getOptions());
 
         // Add the default primary key
