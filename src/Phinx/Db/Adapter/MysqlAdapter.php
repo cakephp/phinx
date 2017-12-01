@@ -61,6 +61,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     const INT_MEDIUM = 16777215;
     const INT_REGULAR = 4294967295;
     const INT_BIG = 18446744073709551615;
+    
+    const BIT = 64;
 
     const TYPE_YEAR = 'year';
 
@@ -749,6 +751,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 }
 
                 return ['name' => 'blob'];
+            case static::PHINX_TYPE_BIT:
+                return ['name' => 'bit', 'limit' => $limit ? $limit : 64];
             case static::PHINX_TYPE_INTEGER:
                 if ($limit && $limit >= static::INT_TINY) {
                     $sizes = [
@@ -886,6 +890,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     }
                     $type = static::PHINX_TYPE_BIG_INTEGER;
                     break;
+                case 'bit':
+                    $type = static::PHINX_TYPE_BIT;
+                    if ($limit === 64) {
+                        $limit = null;
+                    }
+                     break;
                 case 'blob':
                     $type = static::PHINX_TYPE_BINARY;
                     break;

@@ -49,6 +49,7 @@ interface AdapterInterface
     const PHINX_TYPE_TEXT = 'text';
     const PHINX_TYPE_INTEGER = 'integer';
     const PHINX_TYPE_BIG_INTEGER = 'biginteger';
+    const PHINX_TYPE_BIT = 'bit';
     const PHINX_TYPE_FLOAT = 'float';
     const PHINX_TYPE_DECIMAL = 'decimal';
     const PHINX_TYPE_DATETIME = 'datetime';
