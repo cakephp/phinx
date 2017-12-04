@@ -61,7 +61,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     const INT_MEDIUM = 16777215;
     const INT_REGULAR = 4294967295;
     const INT_BIG = 18446744073709551615;
-    
+
     const BIT = 64;
 
     const TYPE_YEAR = 'year';
@@ -895,7 +895,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     if ($limit === 64) {
                         $limit = null;
                     }
-                     break;
+                    break;
                 case 'blob':
                     $type = static::PHINX_TYPE_BINARY;
                     break;
