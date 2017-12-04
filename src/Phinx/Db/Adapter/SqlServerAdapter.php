@@ -1043,6 +1043,7 @@ SQL;
         $noLimits = [
             'bigint',
             'int',
+            'smallint',
             'tinyint'
         ];
         if (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
