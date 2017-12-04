@@ -846,7 +846,7 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * {@inheritdoc}
      */
-    public function getSqlType($type, $limit = null)
+    public function getSqlType($type, $limit = null, $properties = null)
     {
         switch ($type) {
             case static::PHINX_TYPE_STRING:
@@ -865,6 +865,16 @@ ORDER BY T.[name], I.[index_id];";
                 return ['name' => 'decimal'];
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIMESTAMP:
+                if (isset($properties['sql_type'])) {
+                    $type = ['name' => $properties['sql_type']];
+
+                    if ($limit !== null) {
+                        $type['limit'] = $limit;
+                    }
+
+                    return $type;
+                }
+
                 return ['name' => 'datetime'];
             case static::PHINX_TYPE_TIME:
                 return ['name' => 'time'];
@@ -933,6 +943,7 @@ ORDER BY T.[name], I.[index_id];";
             case 'date':
                 return static::PHINX_TYPE_DATE;
             case 'datetime':
+            case 'datetime2':
             case 'timestamp':
                 return static::PHINX_TYPE_DATETIME;
             case 'bit':
@@ -1015,7 +1026,7 @@ SQL;
     {
         $buffer = [];
 
-        $sqlType = $this->getSqlType($column->getType());
+        $sqlType = $this->getSqlType($column->getType(), $column->getLimit(), $column->getProperties());
         $buffer[] = strtoupper($sqlType['name']);
         // integers cant have limits in SQlServer
         $noLimits = [
