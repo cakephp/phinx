@@ -44,6 +44,12 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 
     protected $signedColumnTypes = ['integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true];
 
+    const INT_TINY = 255;
+    const INT_SMALL = 65535;
+    const INT_MEDIUM = 16777215;
+    const INT_REGULAR = 4294967295;
+    const INT_BIG = 18446744073709551615;
+
     /**
      * {@inheritdoc}
      */
@@ -856,6 +862,22 @@ ORDER BY T.[name], I.[index_id];";
             case static::PHINX_TYPE_TEXT:
                 return ['name' => 'ntext'];
             case static::PHINX_TYPE_INTEGER:
+                if ($limit && $limit >= static::INT_TINY) {
+                    $sizes = [
+                        // Order matters! Size must always be tested from longest to shortest!
+                        'bigint' => static::INT_BIG,
+                        'int' => static::INT_REGULAR,
+                        'mediumint' => static::INT_MEDIUM,
+                        'smallint' => static::INT_SMALL,
+                        'tinyint' => static::INT_TINY,
+                    ];
+                    foreach ($sizes as $name => $length) {
+                        if ($limit >= $length) {
+                            return ['name' => $name];
+                        }
+                    }
+                }
+
                 return ['name' => 'int'];
             case static::PHINX_TYPE_BIG_INTEGER:
                 return ['name' => 'bigint'];
@@ -1015,7 +1037,7 @@ SQL;
     {
         $buffer = [];
 
-        $sqlType = $this->getSqlType($column->getType());
+        $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
         $buffer[] = strtoupper($sqlType['name']);
         // integers cant have limits in SQlServer
         $noLimits = [

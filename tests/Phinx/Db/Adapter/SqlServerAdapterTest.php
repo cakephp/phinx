@@ -761,4 +761,55 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
         $this->assertEquals(0, count($rows));
     }
+
+    public function testBigIntegerColumn()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'integer', ['limit' => SqlServerAdapter::INT_BIG])
+            ->save();
+        $columns = $table->getColumns();
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('bigint', $sqlType['name']);
+    }
+
+    public function testMediumIntegerColumn()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'integer', ['limit' => SqlServerAdapter::INT_MEDIUM])
+            ->save();
+        $columns = $table->getColumns();
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('mediumint', $sqlType['name']);
+    }
+
+    public function testSmallIntegerColumn()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'integer', ['limit' => SqlServerAdapter::INT_SMALL])
+            ->save();
+        $columns = $table->getColumns();
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('smallint', $sqlType['name']);
+    }
+
+    public function testTinyIntegerColumn()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'integer', ['limit' => SqlServerAdapter::INT_TINY])
+            ->save();
+        $columns = $table->getColumns();
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals('tinyint', $sqlType['name']);
+    }
+
+    public function testIntegerColumnLimit()
+    {
+        $limit = 8;
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'integer', ['limit' => $limit])
+            ->save();
+        $columns = $table->getColumns();
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals($limit, $sqlType['limit']);
+    }
 }
