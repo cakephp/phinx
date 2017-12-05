@@ -710,7 +710,7 @@ limit   set maximum length for strings, also hints column types in adapters (see
 length  alias for ``limit``
 default set default value or action
 null    allow ``NULL`` values (should not be used with primary keys!)
-after   specify the column that a new column should be placed after
+after   specify the column that a new column should be placed after *(only applies to MySQL)*
 comment set a text comment on the column
 ======= ===========
 
