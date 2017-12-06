@@ -162,7 +162,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($tableComment, $comment['table_comment'], 'Dont set table comment correctly');
     }
 
-    public function testCreateTableWithCollation(){
+    public function testCreateTableWithCollation()
+    {
         $saveAdapter = $this->adapter;
 
         $options = [
@@ -180,8 +181,8 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
             ->save();
 
         $rows = $this->adapter->fetchAll(sprintf(
-           "SELECT table_collation FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='%s' AND table_name='ntable'",
-           TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
+            "SELECT table_collation FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='%s' AND table_name='ntable'",
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
         ));
         $collation = $rows[0];
         $this->adapter->dropTable("ntable");
