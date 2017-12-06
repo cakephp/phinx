@@ -9,7 +9,6 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
-use Symfony\Component\Console\Output\StreamOutput;
 
 class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -161,6 +160,37 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $comment = $rows[0];
 
         $this->assertEquals($tableComment, $comment['table_comment'], 'Dont set table comment correctly');
+    }
+
+    public function testCreateTableWithCollation()
+    {
+        $saveAdapter = $this->adapter;
+
+        $options = [
+            'host' => TESTS_PHINX_DB_ADAPTER_MYSQL_HOST,
+            'name' => TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
+            'user' => TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME,
+            'pass' => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
+            'port' => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT,
+            'collation' => 'utf8mb4_general_ci'
+        ];
+        $this->adapter = new MysqlAdapter($options, new ArrayInput([]), new NullOutput());
+
+        $table = new \Phinx\Db\Table('ntable', [], $this->adapter);
+        $table->addColumn('realname', 'string')
+            ->save();
+
+        $rows = $this->adapter->fetchAll(sprintf(
+            "SELECT table_collation FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='%s' AND table_name='ntable'",
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
+        ));
+        $collation = $rows[0];
+        $this->adapter->dropTable("ntable");
+
+        $this->adapter->disconnect();
+        $this->adapter = $saveAdapter;
+
+        $this->assertEquals("utf8mb4_general_ci", $collation['table_collation']);
     }
 
     public function testCreateTableWithForeignKeys()
