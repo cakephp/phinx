@@ -40,7 +40,7 @@
         "ext-pdo_mysql": "Needed to support MySQL adapter",
         "ext-pdo_pgsql": "Needed to support PostgreSQL adapter",
         "ext-pdo_sqlite": "Needed to support SQLite adapter",
-        "ext-pdo_sqlite": "Needed to support SQL Server/ SQL Azure adapter"
+        "ext-pdo_sqlsrv": "Needed to support SQL Server/ SQL Azure adapter"
     },
     "autoload": {
         "psr-4": {
