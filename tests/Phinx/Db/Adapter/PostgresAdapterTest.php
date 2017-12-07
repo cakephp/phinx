@@ -335,6 +335,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             ['array_json2d', 'json[][]'],
             ['array_json3d', 'json[][][]'],
             ['array_uuid', 'uuid[]'],
+            ['array_interval', 'interval[]'],
         ];
     }
 
@@ -495,7 +496,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column11', 'boolean')
               ->addColumn('column12', 'datetime')
               ->addColumn('column13', 'binary')
-              ->addColumn('column14', 'string', ['limit' => 10]);
+              ->addColumn('column14', 'string', ['limit' => 10])
+              ->addColumn('column15', 'interval');
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -713,6 +715,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp without time zone'));
 
         $this->assertEquals('uuid', $this->adapter->getPhinxType('uuid'));
+
+        $this->assertEquals('interval', $this->adapter->getPhinxType('interval'));
     }
 
     public function testCreateTableWithComment()
