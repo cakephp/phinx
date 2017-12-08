@@ -1026,7 +1026,7 @@ SQL;
         if (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
             $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
         }
-        if ($column->getPrecision() && $column->getScale()) {
+        if (is_int($column->getPrecision()) && is_int($column->getScale())) {
             $buffer[] = '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         }
 

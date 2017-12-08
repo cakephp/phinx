@@ -987,7 +987,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         $def = '';
         $def .= strtoupper($sqlType['name']);
-        if ($column->getPrecision() && $column->getScale()) {
+        if (is_int($column->getPrecision()) && is_int($column->getScale())) {
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         } elseif (isset($sqlType['limit'])) {
             $def .= '(' . $sqlType['limit'] . ')';

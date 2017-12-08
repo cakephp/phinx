@@ -971,7 +971,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $sqlType = $this->getSqlType($column->getType());
         $def = '';
         $def .= strtoupper($sqlType['name']);
-        if ($column->getPrecision() && $column->getScale()) {
+        if (is_int($column->getPrecision()) && is_int($column->getScale())) {
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         }
         $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits);

@@ -901,7 +901,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
             $buffer[] = strtoupper($sqlType['name']);
             // integers cant have limits in postgres
-            if (static::PHINX_TYPE_DECIMAL === $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
+            if (static::PHINX_TYPE_DECIMAL === $sqlType['name'] && (is_int($column->getPrecision()) || is_int($column->getScale())) {
                 $buffer[] = sprintf(
                     '(%s, %s)',
                     $column->getPrecision() ?: $sqlType['precision'],
