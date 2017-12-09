@@ -495,8 +495,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
         $columns = $this->adapter->getColumns("table_name");
 
-        $this->assertTrue(is_array($columns));
-        $this->assertEquals(2, count($columns));
+        $this->assertInternalType('array', $columns);
+        $this->assertCount(2, $columns);
 
         $this->assertEquals('column1', $columns[0]->getName());
         $this->assertInstanceOf('Phinx\Db\Table\Column', $columns[0]);
@@ -1425,8 +1425,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         list($index1, $index2, $index3, $index4) = $this->prepareCaseIndexes();
         $indexes = $this->adapter->getIndexes("table_name");
 
-        $this->assertTrue(is_array($indexes));
-        $this->assertEquals(3, count($indexes));
+        $this->assertInternalType('array', $indexes);
+        $this->assertCount(3, $indexes);
         $this->assertEquals(['columns' => [$index1['Column_name']]], $indexes[$index1['Key_name']]);
         $this->assertEquals(['columns' => [$index2['Column_name']]], $indexes[$index2['Key_name']]);
         $this->assertEquals(['columns' => [$index3['Column_name'], $index4['Column_name']]], $indexes[$index3['Key_name']]);
@@ -1581,8 +1581,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         list($fk, $fk1, $fk2) = $this->prepareCaseForeignKeys();
         $foreignkeys = $this->adapter->getForeignKeys("table_name");
 
-        $this->assertTrue(is_array($foreignkeys));
-        $this->assertEquals(2, count($foreignkeys));
+        $this->assertInternalType('array', $foreignkeys);
+        $this->assertCount(2, $foreignkeys);
         $this->assertEquals('table_name', $foreignkeys['fk1']['table']);
         $this->assertEquals(['other_table_id'], $foreignkeys['fk1']['columns']);
         $this->assertEquals('other_table', $foreignkeys['fk1']['referenced_table']);

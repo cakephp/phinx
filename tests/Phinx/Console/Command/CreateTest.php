@@ -374,11 +374,8 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         // Was migration created?
         $this->assertFileExists($match['MigrationFilename'], 'Failed to create migration file from template generator');
 
-        // Get migration.
-        $actualMigration = file_get_contents($match['MigrationFilename']);
-
         // Does the migration match our expectation?
         $expectedMigration = "useClassName Phinx\\Migration\\AbstractMigration / className {$commandLine['name']} / version {$match['Version']} / baseClassName AbstractMigration";
-        $this->assertSame($expectedMigration, $actualMigration, 'Failed to create migration file from template generator correctly.');
+        $this->assertStringEqualsFile($match['MigrationFilename'], $expectedMigration, 'Failed to create migration file from template generator correctly.');
     }
 }

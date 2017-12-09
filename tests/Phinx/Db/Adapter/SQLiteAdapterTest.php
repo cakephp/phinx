@@ -42,7 +42,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testConnection()
     {
-        $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
     }
 
     public function testBeginTransaction()
@@ -782,7 +782,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         // load table info
         $columns = $this->adapter->getColumns("table1");
 
-        $this->assertEquals(count($columns), 5);
+        $this->assertCount(5, $columns);
 
         $aa = $columns[1];
         $bb = $columns[2];
@@ -824,10 +824,10 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
               ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertEquals(2, count($rows));
+        $this->assertCount(2, $rows);
         $table->truncate();
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertEquals(0, count($rows));
+        $this->assertCount(0, $rows);
     }
 
     public function testDumpCreateTable()

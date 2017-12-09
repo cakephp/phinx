@@ -118,7 +118,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testInstantiation()
     {
-        $this->assertTrue($this->manager->getOutput() instanceof StreamOutput);
+        $this->assertInstanceOf(
+            'Symfony\Component\Console\Output\StreamOutput',
+            $this->manager->getOutput()
+        );
     }
 
     public function testPrintStatusMethod()
@@ -1169,7 +1172,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGettingAValidEnvironment()
     {
-        $this->assertTrue($this->manager->getEnvironment('production') instanceof Environment);
+        $this->assertInstanceOf(
+            'Phinx\Migration\Manager\Environment',
+            $this->manager->getEnvironment('production')
+        );
     }
 
     /**

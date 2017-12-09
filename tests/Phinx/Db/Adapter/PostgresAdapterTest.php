@@ -69,7 +69,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testConnection()
     {
-        $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
     }
 
     public function testConnectionWithoutPort()
@@ -77,7 +77,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $options = $this->adapter->getOptions();
         unset($options['port']);
         $this->adapter->setOptions($options);
-        $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
     }
 
     public function testConnectionWithInvalidCredentials()
@@ -1012,10 +1012,10 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
               ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertEquals(2, count($rows));
+        $this->assertCount(2, $rows);
         $table->truncate();
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertEquals(0, count($rows));
+        $this->assertCount(0, $rows);
     }
 
     public function testDumpCreateTable()
