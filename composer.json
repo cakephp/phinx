@@ -25,6 +25,9 @@
     }],
     "require": {
         "php": ">=5.4",
+        "ext-ctype": "*",
+        "ext-mbstring": "*",
+        "ext-pdo": "*",
         "symfony/console": "~2.8|~3.0|~4.0",
         "symfony/config": "~2.8|~3.0|~4.0",
         "symfony/yaml": "~2.8|~3.0|~4.0"
@@ -32,6 +35,12 @@
     "require-dev": {
         "phpunit/phpunit": "^4.8.26|^5.0",
         "cakephp/cakephp-codesniffer": "^3.0"
+    },
+    "suggest": {
+        "ext-pdo_mysql": "Needed to support MySQL adapter",
+        "ext-pdo_pgsql": "Needed to support PostgreSQL adapter",
+        "ext-pdo_sqlite": "Needed to support SQLite adapter",
+        "ext-pdo_sqlsrv": "Needed to support SQL Server/ SQL Azure adapter"
     },
     "autoload": {
         "psr-4": {
