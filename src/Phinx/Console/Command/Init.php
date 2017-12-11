@@ -28,6 +28,8 @@
  */
 namespace Phinx\Console\Command;
 
+use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,6 +37,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Init extends Command
 {
+    const FILE_NAME = 'phinx.yml';
+
     /**
      * {@inheritdoc}
      */
@@ -53,41 +57,65 @@ class Init extends Command
     /**
      * Initializes the application.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @throws \RuntimeException
-     * @throws \InvalidArgumentException
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $path = $this->resolvePath($input);
+        $this->writeConfig($path);
+
+        $output->writeln("<info>created</info> {$path}");
+    }
+
+    /**
+     * Return valid $path for Phing's config file.
+     *
+     * @param InputInterface $input
+     *
+     * @return string
+     */
+    protected function resolvePath(InputInterface $input)
+    {
         // get the migration path from the config
         $path = $input->getArgument('path');
 
-        if ($path === null) {
-            $path = getcwd();
+        // Fallback
+        if (empty($path)) {
+            $path = getcwd() . DIRECTORY_SEPARATOR . self::FILE_NAME;
         }
 
-        $path = realpath($path);
-
-        if (!is_writable($path)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The directory "%s" is not writable',
-                $path
-            ));
+        // Adding file name if necessary
+        if (is_dir($path)) {
+            $path .= DIRECTORY_SEPARATOR . self::FILE_NAME;
         }
 
-        // Compute the file path
-        $fileName = 'phinx.yml'; // TODO - maybe in the future we allow custom config names.
-        $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
-
-        if (file_exists($filePath)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The file "%s" already exists',
-                $filePath
-            ));
+        // Check if path is available
+        $dirname = dirname($path);
+        if (is_dir($dirname) && !is_file($path)) {
+            return $path;
         }
 
+        // Path is valid, but file already exists
+        if (is_file($path)) {
+            throw new InvalidArgumentException('Config file already exists.');
+        }
+
+        // Dir is invalid
+        throw new InvalidArgumentException('Invalid path for config file.');
+    }
+
+    /**
+     * Writes Phing's config in provided $path
+     *
+     * @param string $path
+     */
+    protected function writeConfig($path)
+    {
         // load the config template
         if (is_dir(__DIR__ . '/../../../data/Phinx')) {
             $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/phinx.yml');
@@ -95,13 +123,11 @@ class Init extends Command
             $contents = file_get_contents(__DIR__ . '/../../../../phinx.yml');
         }
 
-        if (file_put_contents($filePath, $contents) === false) {
-            throw new \RuntimeException(sprintf(
+        if (file_put_contents($path, $contents) === false) {
+            throw new RuntimeException(sprintf(
                 'The file "%s" could not be written to',
                 $path
             ));
         }
-
-        $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
     }
 }
