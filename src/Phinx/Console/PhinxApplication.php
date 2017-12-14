@@ -32,6 +32,7 @@ use Phinx\Console\Command;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Phinx console application.
@@ -44,12 +45,15 @@ class PhinxApplication extends Application
      * Class Constructor.
      *
      * Initialize the Phinx console application.
-     *
-     * @param string $version The Application Version
      */
-    public function __construct($version = '0.8.1')
+    public function __construct()
     {
-        parent::__construct('Phinx by CakePHP - https://phinx.org.', $version);
+        parent::__construct('Phinx by CakePHP - https://phinx.org.');
+
+        $versionFile = file_get_contents('version.yml');
+        $versionArray = Yaml::parse($versionFile);
+        $version = $versionArray['major'] . '.' . $versionArray['minor'] . '.' . $versionArray['revision'];
+        parent::setVersion($version);
 
         $this->addCommands([
             new Command\Init(),
