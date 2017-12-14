@@ -255,6 +255,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $optionsStr .= sprintf(" COMMENT=%s ", $this->getConnection()->quote($options['comment']));
         }
 
+        if (isset($options['row_format'])) {
+            $optionsStr .= sprintf(" ROW_FORMAT = %s ", $options['row_format']);
+        }
+
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
@@ -290,6 +294,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $sql .= ') ' . $optionsStr;
         $sql = rtrim($sql) . ';';
 
+        print_r($sql);
         // execute the sql
         $this->execute($sql);
     }
