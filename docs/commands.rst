@@ -79,7 +79,21 @@ project directory.
 .. code-block:: bash
 
         $ cd yourapp
-        $ phinx init .
+        $ phinx init
+
+Optionally you can specify a custom location for Phing's config file:
+
+.. code-block:: bash
+
+        $ cd yourapp
+        $ phinx init ./custom/location/
+
+You can also specify a custom file name:
+
+.. code-block:: bash
+
+        $ cd yourapp
+        $ phinx init custom-config.yml
 
 Open this file in your text editor to setup your project configuration. Please
 see the :doc:`Configuration <configuration>` chapter for more information.
