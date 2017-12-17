@@ -16,39 +16,54 @@ class InitTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testConfigIsWritten()
+    protected function writeConfig($configName = '')
     {
         $application = new PhinxApplication('testing');
         $application->add(new Init());
-
-        $command = $application->find('init');
-
+        $command       = $application->find("init");
         $commandTester = new CommandTester($command);
+        $fullPath      = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $configName;
+
         $commandTester->execute([
             'command' => $command->getName(),
-            'path' => sys_get_temp_dir()
+            'path'    => $fullPath,
         ], [
-            'decorated' => false
+            'decorated' => false,
         ]);
 
         $this->assertRegExp(
-            '/created (.*)phinx.yml(.*)/',
+            sprintf('|created %s|', $fullPath),
             $commandTester->getDisplay()
         );
 
         $this->assertFileExists(
-            sys_get_temp_dir() . '/phinx.yml',
+            $fullPath,
             'Phinx configuration not existent'
         );
     }
 
+    public function testDefaultConfigIsWritten()
+    {
+        $this->writeConfig();
+    }
+
+    public function testConfigIsWritten()
+    {
+        $this->writeConfig('phinx.yml');
+    }
+
+    public function testCustomNameConfigIsWritten()
+    {
+        $this->writeConfig(uniqid() . '.yml');
+    }
+
     /**
      * @expectedException              \InvalidArgumentException
-     * @expectedExceptionMessageRegExp /The file "(.*)" already exists/
+     * @expectedExceptionMessageRegExp /Config file already exists./
      */
     public function testThrowsExceptionWhenConfigFilePresent()
     {
-        touch(sys_get_temp_dir() . '/phinx.yml');
+        touch(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.yml');
         $application = new PhinxApplication('testing');
         $application->add(new Init());
 
@@ -57,9 +72,29 @@ class InitTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'path' => sys_get_temp_dir()
+            'path'    => sys_get_temp_dir(),
         ], [
-            'decorated' => false
+            'decorated' => false,
+        ]);
+    }
+
+    /**
+     * @expectedException              \InvalidArgumentException
+     * @expectedExceptionMessageRegExp /Invalid path for config file./
+     */
+    public function testThrowsExceptionWhenInvalidDir()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Init());
+
+        $command = $application->find('init');
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'path'    => '/this/dir/does/not/exists',
+        ], [
+            'decorated' => false,
         ]);
     }
 }
