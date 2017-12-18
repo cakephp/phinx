@@ -186,6 +186,7 @@ abstract class PdoAdapter extends AbstractAdapter
      *
      * @param Table $table  The table where to insert the data
      * @param array $row    The data to be inserted as assoc array column name -> value
+     * @return void
      */
     private function doInsert(Table $table, $row)
     {
@@ -207,6 +208,7 @@ abstract class PdoAdapter extends AbstractAdapter
      *
      * @param Table $table  The table where to insert the data
      * @param array $row    The data to be inserted as assoc array column name -> value
+     * @return void
      */
     private function dryRunInsert(Table $table, $row)
     {
@@ -225,7 +227,7 @@ abstract class PdoAdapter extends AbstractAdapter
     /**
      * Quotes a database value.
      *
-     * @param mixed $value
+     * @param mixed $value  The value to quote
      * @return mixed
      */
     private function quoteValue($value)
@@ -258,6 +260,7 @@ abstract class PdoAdapter extends AbstractAdapter
      *
      * @param Table $table  The table where to insert the data
      * @param array $rows   The data as array
+     * @return void
      */
     private function doBulkinsert(Table $table, $rows)
     {
@@ -293,6 +296,7 @@ abstract class PdoAdapter extends AbstractAdapter
      *
      * @param Table $table  The table where to insert the data
      * @param array $rows   The data as array
+     * @return void
      */
     private function dryRunBulkInsert(Table $table, $rows)
     {
@@ -312,7 +316,7 @@ abstract class PdoAdapter extends AbstractAdapter
             }
         }
 
-        $values = array_map(function($row) {
+        $values = array_map(function ($row) {
             return '(' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ')';
         }, $rows);
 
