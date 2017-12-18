@@ -566,7 +566,7 @@ class Manager
                 $this->executeSeed($environment, $seeds[$seed]);
                 unset($this->seeds[$seed]);
             } else {
-                throw new \InvalidArgumentException(sprintf('The seed class "%s" does not exist', $seed));
+                $this->getOutput()->writeln(sprintf('<error>The seed class "%s" does not exist</error>', $seed));
             }
         }
     }
