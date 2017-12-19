@@ -5,6 +5,7 @@ namespace Test\Phinx\Db\Adapter;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
@@ -54,7 +55,7 @@ class MysqlAdapterTester extends MysqlAdapter
     }
 }
 
-class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
+class MysqlAdapterUnitTest extends TestCase
 {
     /**
      * @var MysqlAdapterTester
@@ -808,6 +809,10 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->adapter->renameColumn('table_name', 'column_old', 'column_new');
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The specified column doesn't exist: column_old
+     */
     public function testRenameColumnNotExists()
     {
         $column1 = [
@@ -838,7 +843,6 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
         $this->assertQuerySql("DESCRIBE `table_name`", $this->result);
 
-        $this->setExpectedException('\InvalidArgumentException', 'The specified column doesn\'t exist: column_old');
         $this->adapter->renameColumn('table_name', 'column_old', 'column_new');
     }
 
@@ -1094,9 +1098,12 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The type: "fake" is not supported.
+     */
     public function testGetSqlTypeNotExists()
     {
-        $this->setExpectedException('\RuntimeException', 'The type: "fake" is not supported.');
         $this->adapter->getSqlType('fake');
     }
 
@@ -1276,15 +1283,21 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The type: "fake" is not supported.
+     */
     public function testPhinxTypeNotValidType()
     {
-        $this->setExpectedException('\RuntimeException', 'The type: "fake" is not supported.');
         $this->adapter->getPhinxType('fake');
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Column type ?int? is not supported
+     */
     public function testPhinxTypeNotValidTypeRegex()
     {
-        $this->setExpectedException('\RuntimeException', 'Column type ?int? is not supported');
         $this->adapter->getPhinxType('?int?');
     }
 

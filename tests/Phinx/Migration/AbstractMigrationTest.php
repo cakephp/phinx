@@ -4,8 +4,9 @@ namespace Test\Phinx\Migration;
 
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Table;
+use PHPUnit\Framework\TestCase;
 
-class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
+class AbstractMigrationTest extends TestCase
 {
     public function testUp()
     {

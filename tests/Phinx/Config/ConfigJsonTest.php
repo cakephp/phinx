@@ -2,14 +2,15 @@
 
 namespace Test\Phinx\Config;
 
-use \Phinx\Config\Config;
+use Phinx\Config\Config;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ConfigJsonTest
  * @package Test\Phinx\Config
  * @group config
  */
-class ConfigJsonTest extends \PHPUnit_Framework_TestCase
+class ConfigJsonTest extends TestCase
 {
     /**
      * @covers \Phinx\Config\Config::fromJson

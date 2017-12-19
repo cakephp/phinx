@@ -3,13 +3,14 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\PostgresAdapter;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 
-class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
+class PostgresAdapterTest extends TestCase
 {
     /**
      * Check if Postgres is enabled in the current PHP

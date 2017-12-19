@@ -3,8 +3,9 @@
 namespace Test\Phinx\Db\Table;
 
 use Phinx\Db\Table\Column;
+use PHPUnit\Framework\TestCase;
 
-class ColumnTest extends \PHPUnit_Framework_TestCase
+class ColumnTest extends TestCase
 {
     /**
      * @expectedException \RuntimeException

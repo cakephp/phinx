@@ -2,14 +2,15 @@
 
 namespace Test\Phinx\Config;
 
-use \Phinx\Config\Config;
+use Phinx\Config\Config;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ConfigPhpTest
  * @package Test\Phinx\Config
  * @group config
  */
-class ConfigPhpTest extends \PHPUnit_Framework_TestCase
+class ConfigPhpTest extends TestCase
 {
     /**
      * @covers \Phinx\Config\Config::fromPhp
