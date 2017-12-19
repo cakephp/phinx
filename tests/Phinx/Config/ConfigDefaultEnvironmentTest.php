@@ -2,7 +2,7 @@
 
 namespace Test\Phinx\Config;
 
-use \Phinx\Config\Config;
+use Phinx\Config\Config;
 
 /**
  * Class ConfigDefaultEnvironmentTest

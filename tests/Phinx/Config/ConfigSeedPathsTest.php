@@ -2,7 +2,7 @@
 
 namespace Test\Phinx\Config;
 
-use \Phinx\Config\Config;
+use Phinx\Config\Config;
 
 /**
  * Class ConfigSeedPathsTest
@@ -46,7 +46,7 @@ class ConfigSeedPathsTest extends AbstractConfigTest
         $config = new Config($this->getConfigArray());
         $paths = $config->getSeedPaths();
 
-        $this->assertTrue(is_array($paths));
-        $this->assertTrue(count($paths) === 1);
+        $this->assertInternalType('array', $paths);
+        $this->assertCount(1, $paths);
     }
 }

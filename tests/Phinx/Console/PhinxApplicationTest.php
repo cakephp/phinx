@@ -4,9 +4,10 @@ namespace Test\Phinx\Console;
 
 use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\PhinxApplication;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
-class PhinxApplicationTest extends \PHPUnit_Framework_TestCase
+class PhinxApplicationTest extends TestCase
 {
     /**
      * @dataProvider provider

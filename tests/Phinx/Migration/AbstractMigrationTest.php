@@ -4,8 +4,9 @@ namespace Test\Phinx\Migration;
 
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Table;
+use PHPUnit\Framework\TestCase;
 
-class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
+class AbstractMigrationTest extends TestCase
 {
     public function testUp()
     {
@@ -34,7 +35,10 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
         // test methods
         $this->assertNull($migrationStub->getAdapter());
         $migrationStub->setAdapter($adapterStub);
-        $this->assertTrue($migrationStub->getAdapter() instanceof AdapterInterface);
+        $this->assertInstanceOf(
+            'Phinx\Db\Adapter\AdapterInterface',
+            $migrationStub->getAdapter()
+        );
     }
 
     public function testSetOutputMethods()
@@ -86,7 +90,7 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
     public function testGetName()
     {
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', [0]);
-        $this->assertFalse(!(strpos($migrationStub->getName(), 'AbstractMigration')));
+        $this->assertContains('AbstractMigration', $migrationStub->getName());
     }
 
     public function testVersionMethods()
@@ -245,7 +249,10 @@ class AbstractMigrationTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $migrationStub->setAdapter($adapterStub);
 
-        $this->assertTrue($migrationStub->table('test_table') instanceof Table);
+        $this->assertInstanceOf(
+            'Phinx\Db\Table',
+            $migrationStub->table('test_table')
+        );
     }
 
     public function testDropTableMethod()

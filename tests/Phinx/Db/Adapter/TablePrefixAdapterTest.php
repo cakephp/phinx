@@ -6,8 +6,9 @@ use Phinx\Db\Adapter\TablePrefixAdapter;
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
+use PHPUnit\Framework\TestCase;
 
-class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
+class TablePrefixAdapterTest extends TestCase
 {
     /**
      * @var \Phinx\Db\Adapter\TablePrefixAdapter
