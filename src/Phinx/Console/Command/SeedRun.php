@@ -58,7 +58,7 @@ The <info>seed:run</info> command runs all available or individual seeders
 <info>phinx seed:run -e development -v</info>
 
 EOT
-            );
+             );
     }
 
     /**
