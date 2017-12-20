@@ -5413,6 +5413,14 @@ class ManagerTest extends TestCase
         $this->assertContains('Foo\Bar\UserSeeder', $output);
     }
 
+    public function testOrderSeeds()
+    {
+        $seeds = array_values($this->manager->getSeeds());
+        $this->assertInstanceOf('UserSeeder', $seeds[0]);
+        $this->assertInstanceOf('GSeeder', $seeds[1]);
+        $this->assertInstanceOf('PostSeeder', $seeds[2]);
+    }
+
     public function testGettingInputObject()
     {
         $migrations = $this->manager->getMigrations();
