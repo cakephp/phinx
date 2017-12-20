@@ -833,6 +833,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 return ['name' => 'char', 'limit' => 36];
             case static::PHINX_TYPE_ENUM:
                 return ['name' => 'enum'];
+            case static::PHINX_TYPE_JSON:
+            case static::PHINX_TYPE_JSONB:
+                return ['name' => 'text'];
             // Geospatial database types
             // No specific data types exist in SQLite, instead all geospatial
             // functionality is handled in the client. See also: SpatiaLite.
@@ -1045,7 +1048,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), ['enum']);
+        return array_merge(parent::getColumnTypes(), ['enum', 'json', 'jsonb']);
     }
 
     /**
