@@ -5365,10 +5365,6 @@ class ManagerTest extends TestCase
         $this->assertContains('Baz\UserSeeder', $output);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The seed class "NonExistentSeeder" does not exist
-     */
     public function testExecuteANonExistentSeedWorksAsExpected()
     {
         // stub environment
@@ -5379,13 +5375,9 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv', 'NonExistentSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('UserSeeder', $output);
+        $this->assertContains('NonExistentSeeder', $output);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The seed class "Foo\Bar\NonExistentSeeder" does not exist
-     */
     public function testExecuteANonExistentSeedWorksAsExpectedWithNamespace()
     {
         // stub environment
@@ -5397,13 +5389,9 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv', 'Foo\Bar\NonExistentSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('Foo\Bar\UserSeeder', $output);
+        $this->assertContains('Foo\Bar\NonExistentSeeder', $output);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The seed class "Baz\NonExistentSeeder" does not exist
-     */
     public function testExecuteANonExistentSeedWorksAsExpectedWithMixedNamespace()
     {
         // stub environment
@@ -5412,12 +5400,11 @@ class ManagerTest extends TestCase
             ->getMock();
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $this->manager->setEnvironments(['mockenv' => $envStub]);
-        $this->manager->seed('mockenv', 'Baz\NonExistentSeeder');
+        $this->manager->seed('mockenv', 'Foo\Baz\NonExistentSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('UserSeeder', $output);
-        $this->assertContains('Baz\UserSeeder', $output);
-        $this->assertContains('Foo\Bar\UserSeeder', $output);
+        $this->assertContains('Baz\NonExistentSeeder', $output);
+        $this->assertContains('Foo\Baz\NonExistentSeeder', $output);
     }
 
     public function testGettingInputObject()
