@@ -20,13 +20,13 @@ class InitTest extends \PHPUnit_Framework_TestCase
     {
         $application = new PhinxApplication('testing');
         $application->add(new Init());
-        $command       = $application->find("init");
+        $command = $application->find("init");
         $commandTester = new CommandTester($command);
-        $fullPath      = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $configName;
+        $fullPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $configName;
 
         $commandTester->execute([
             'command' => $command->getName(),
-            'path'    => $fullPath,
+            'path' => $fullPath,
         ], [
             'decorated' => false,
         ]);
@@ -72,7 +72,7 @@ class InitTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'path'    => sys_get_temp_dir(),
+            'path' => sys_get_temp_dir(),
         ], [
             'decorated' => false,
         ]);
@@ -92,7 +92,7 @@ class InitTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'path'    => '/this/dir/does/not/exists',
+            'path' => '/this/dir/does/not/exists',
         ], [
             'decorated' => false,
         ]);

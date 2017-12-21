@@ -57,8 +57,8 @@ class Init extends Command
     /**
      * Initializes the application.
      *
-     * @param InputInterface  $input
-     * @param OutputInterface $output
+     * @param InputInterface  $input  Interface implemented by all input classes.
+     * @param OutputInterface $output Interface implemented by all output classes.
      *
      * @throws RuntimeException
      * @throws InvalidArgumentException
@@ -75,7 +75,7 @@ class Init extends Command
     /**
      * Return valid $path for Phing's config file.
      *
-     * @param InputInterface $input
+     * @param InputInterface $input Interface implemented by all input classes.
      *
      * @return string
      */
@@ -112,7 +112,9 @@ class Init extends Command
     /**
      * Writes Phing's config in provided $path
      *
-     * @param string $path
+     * @param string $path Location for new config file
+     *
+     * @return void
      */
     protected function writeConfig($path)
     {
