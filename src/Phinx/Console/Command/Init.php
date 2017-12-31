@@ -57,11 +57,11 @@ class Init extends Command
     /**
      * Initializes the application.
      *
-     * @param InputInterface  $input  Interface implemented by all input classes.
-     * @param OutputInterface $output Interface implemented by all output classes.
+     * @param \Symfony\Component\Console\Input\InputInterface   $input  Interface implemented by all input classes.
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Interface implemented by all output classes.
      *
-     * @throws RuntimeException
-     * @throws InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -73,9 +73,9 @@ class Init extends Command
     }
 
     /**
-     * Return valid $path for Phing's config file.
+     * Return valid $path for Phinx's config file.
      *
-     * @param InputInterface $input Interface implemented by all input classes.
+     * @param \Symfony\Component\Console\Input\InputInterface $input Interface implemented by all input classes.
      *
      * @return string
      */
@@ -85,7 +85,7 @@ class Init extends Command
         $path = $input->getArgument('path');
 
         // Fallback
-        if (empty($path)) {
+        if (!$path) {
             $path = getcwd() . DIRECTORY_SEPARATOR . self::FILE_NAME;
         }
 
@@ -102,15 +102,15 @@ class Init extends Command
 
         // Path is valid, but file already exists
         if (is_file($path)) {
-            throw new InvalidArgumentException('Config file already exists.');
+            throw new InvalidArgumentException('Config file "$path" already exists.');
         }
 
         // Dir is invalid
-        throw new InvalidArgumentException('Invalid path for config file.');
+        throw new InvalidArgumentException('Invalid path "$path" for config file.');
     }
 
     /**
-     * Writes Phing's config in provided $path
+     * Writes Phinx's config in provided $path
      *
      * @param string $path Location for new config file
      *

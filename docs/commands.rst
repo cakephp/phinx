@@ -81,7 +81,7 @@ project directory.
         $ cd yourapp
         $ phinx init
 
-Optionally you can specify a custom location for Phing's config file:
+Optionally you can specify a custom location for Phinx's config file:
 
 .. code-block:: bash
 

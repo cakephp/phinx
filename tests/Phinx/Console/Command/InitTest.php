@@ -31,8 +31,8 @@ class InitTest extends \PHPUnit_Framework_TestCase
             'decorated' => false,
         ]);
 
-        $this->assertRegExp(
-            sprintf('|created %s|', $fullPath),
+        $this->assertContains(
+            "created $fullPath",
             $commandTester->getDisplay()
         );
 
@@ -59,7 +59,7 @@ class InitTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException              \InvalidArgumentException
-     * @expectedExceptionMessageRegExp /Config file already exists./
+     * @expectedExceptionMessageRegExp /Config file ".*" already exists./
      */
     public function testThrowsExceptionWhenConfigFilePresent()
     {
@@ -80,7 +80,7 @@ class InitTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException              \InvalidArgumentException
-     * @expectedExceptionMessageRegExp /Invalid path for config file./
+     * @expectedExceptionMessageRegExp /Invalid path ".*" for config file./
      */
     public function testThrowsExceptionWhenInvalidDir()
     {
