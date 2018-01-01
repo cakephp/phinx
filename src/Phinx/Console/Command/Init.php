@@ -112,12 +112,23 @@ class Init extends Command
     /**
      * Writes Phinx's config in provided $path
      *
-     * @param string $path Location for new config file
+     * @param string $path Config file's path.
      *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      * @return void
      */
     protected function writeConfig($path)
     {
+        // Check if dir is writable
+        $dirname = dirname($path);
+        if (!is_writable($dirname)) {
+            throw new InvalidArgumentException(sprintf(
+                'The directory "%s" is not writable',
+                $dirname
+            ));
+        }
+
         // load the config template
         if (is_dir(__DIR__ . '/../../../data/Phinx')) {
             $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/phinx.yml');
