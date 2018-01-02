@@ -179,7 +179,7 @@ abstract class AbstractCommand extends Command
     /**
      * Gets the migration manager.
      *
-     * @return \Phinx\Migration\Manager
+     * @return \Phinx\Migration\Manager|null
      */
     public function getManager()
     {
