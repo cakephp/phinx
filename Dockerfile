@@ -1,4 +1,4 @@
-FROM php:5.4
+FROM php:7.0
 
 # system dependecies
 RUN apt-get update && apt-get install -y \
