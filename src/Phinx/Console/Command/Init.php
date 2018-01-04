@@ -102,11 +102,17 @@ class Init extends Command
 
         // Path is valid, but file already exists
         if (is_file($path)) {
-            throw new InvalidArgumentException('Config file "$path" already exists.');
+            throw new InvalidArgumentException(sprintf(
+                'Config file "%s" already exists.',
+                $path
+            ));
         }
 
         // Dir is invalid
-        throw new InvalidArgumentException('Invalid path "$path" for config file.');
+        throw new InvalidArgumentException(sprintf(
+            'Invalid path "%s" for config file.',
+            $path
+        ));
     }
 
     /**
