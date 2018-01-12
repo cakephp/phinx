@@ -652,6 +652,28 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($table2->hasIndex('email'));
     }
 
+    public function testModifyingTableRetainsTriggers()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+              ->save();
+
+        // Because creating triggers isn't part of the interface (of course),
+        // we need to manually add a trigger to this table.
+        $this->adapter->execute('
+            CREATE TRIGGER trigger1 AFTER INSERT ON table1
+            FOR EACH ROW BEGIN
+                UPDATE table1 SET email = null;
+            END;');
+
+        $triggerQuery = 'select * from sqlite_master where type = "trigger" and name = "trigger1" and tbl_name = "table1";';
+        $this->assertEquals(1, count($this->adapter->fetchAll($triggerQuery)));
+
+        $table->renameColumn('email', 'user_email');
+
+        $this->assertEquals(1, count($this->adapter->fetchAll($triggerQuery)));
+    }
+
     public function testBulkInsertData()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);

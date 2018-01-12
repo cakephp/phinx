@@ -358,7 +358,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         );
 
         $this->execute($sql);
-
+        $this->migrateTriggers($tmpTableName, $tableName);
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
     }
 
@@ -415,6 +415,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         );
 
         $this->execute($sql);
+        $this->migrateTriggers($tmpTableName, $tableName);
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
     }
 
@@ -476,7 +477,36 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         );
 
         $this->execute($sql);
+        $this->migrateTriggers($tmpTableName, $tableName);
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
+    }
+
+    /**
+     * Moves the triggers from one temporary table to another. Useful when the
+     * operation you are about to perform requires DROP'ing the table.
+     *
+     * @param  string $oldTableName The previous temporary table name
+     * @param  string $newTableName The new table name
+     * @return void
+     */
+    protected function migrateTriggers($oldTableName, $newTableName)
+    {
+        $rows = $this->fetchAll(sprintf(
+            'select * from sqlite_master where type = "trigger" and tbl_name = "%s";',
+            $oldTableName
+        ));
+
+        foreach ($rows as $row) {
+            $newTrigger = preg_replace(
+                sprintf('/%s/i', preg_quote($oldTableName)),
+                $newTableName,
+                $row['sql'],
+                1
+            );
+
+            $this->execute(sprintf('DROP TRIGGER %s', $this->quoteTableName($row['name'])));
+            $this->execute($newTrigger);
+        }
     }
 
     /**
@@ -703,6 +733,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         );
 
         $this->execute($sql);
+        $this->migrateTriggers($tmpTableName, $table->getName());
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
     }
 
@@ -764,6 +795,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         );
 
         $this->execute($sql);
+        $this->migrateTriggers($tmpTableName, $tableName);
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
     }
 
