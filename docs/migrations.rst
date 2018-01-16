@@ -57,6 +57,9 @@ Phinx automatically creates a skeleton migration file with a single method:
              *
              * Remember to call "create()" or "update()" and NOT "save()" when working
              * with the Table class.
+             *
+             * @throws \InvalidArgumentException
+             * @throws \RuntimeException
              */
             public function change()
             {
