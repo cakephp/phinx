@@ -923,8 +923,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     $sqlType['srid']
                 );
             } elseif (!in_array($sqlType['name'], ['integer', 'smallint', 'bigint'])) {
-                if ($column->getLimit() || isset($sqlType['limit'])) {
-                    $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
+                if ($column->getLimit() !== null || isset($sqlType['limit'])) {
+                    $buffer[] = sprintf('(%s)', ($column->getLimit() !== null) ? $column->getLimit() : $sqlType['limit']);
                 }
             }
 
