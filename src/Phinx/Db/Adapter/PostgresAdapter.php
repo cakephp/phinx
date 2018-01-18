@@ -885,7 +885,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDefaultValueDefinition($default)
     {
-        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default && !preg_match('/^uuid_.*\(.*\)$/', $default)) {
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
