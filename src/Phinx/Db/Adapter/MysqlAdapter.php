@@ -32,6 +32,7 @@ use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
+use Phinx\Util\Literal;
 
 /**
  * Phinx MySQL Adapter.
@@ -362,23 +363,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
 
         return false;
-    }
-
-    /**
-     * Get the defintion for a `DEFAULT` statement.
-     *
-     * @param  mixed $default Default value
-     * @return string
-     */
-    protected function getDefaultValueDefinition($default)
-    {
-        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
-            $default = $this->getConnection()->quote($default);
-        } elseif (is_bool($default)) {
-            $default = $this->castToBool($default);
-        }
-
-        return isset($default) ? ' DEFAULT ' . $default : '';
     }
 
     /**
@@ -983,29 +967,25 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getColumnSqlDefinition(Column $column)
     {
-        $isCustomColumn = $column instanceof Table\CustomColumn;
-        if ($isCustomColumn) {
-            $def = $column->getType();
+        if ($column->getType() instanceof Literal) {
+            $def = (string) $column->getType();
         } else {
-            $def = '';
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
-            $def .= strtoupper($sqlType['name']);
-            if ($column->getPrecision() && $column->getScale()) {
-                $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
-            } elseif (isset($sqlType['limit'])) {
-                $def .= '(' . $sqlType['limit'] . ')';
-            }
-            if (($values = $column->getValues()) && is_array($values)) {
-                $def .= "('" . implode("', '", $values) . "')";
-            }
-            $def .= $column->getEncoding() ? ' CHARACTER SET ' . $column->getEncoding() : '';
-            $def .= $column->getCollation() ? ' COLLATE ' . $column->getCollation() : '';
-            $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '';
+            $def = strtoupper($sqlType['name']);
         }
+        if ($column->getPrecision() && $column->getScale()) {
+            $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
+        } elseif (isset($sqlType['limit'])) {
+            $def .= '(' . $sqlType['limit'] . ')';
+        }
+        if (($values = $column->getValues()) && is_array($values)) {
+            $def .= "('" . implode("', '", $values) . "')";
+        }
+        $def .= $column->getEncoding() ? ' CHARACTER SET ' . $column->getEncoding() : '';
+        $def .= $column->getCollation() ? ' COLLATE ' . $column->getCollation() : '';
+        $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '';
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
-        if (!$isCustomColumn) {
-            $def .= $column->isIdentity() ? ' AUTO_INCREMENT' : '';
-        }
+        $def .= $column->isIdentity() ? ' AUTO_INCREMENT' : '';
         $def .= $this->getDefaultValueDefinition($column->getDefault());
 
         if ($column->getComment()) {

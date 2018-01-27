@@ -989,23 +989,6 @@ SQL;
     }
 
     /**
-     * Get the defintion for a `DEFAULT` statement.
-     *
-     * @param  mixed $default Default value
-     * @return string
-     */
-    protected function getDefaultValueDefinition($default)
-    {
-        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
-            $default = $this->getConnection()->quote($default);
-        } elseif (is_bool($default)) {
-            $default = $this->castToBool($default);
-        }
-
-        return isset($default) ? ' DEFAULT ' . $default : '';
-    }
-
-    /**
      * Gets the SqlServer Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
@@ -1014,9 +997,8 @@ SQL;
     protected function getColumnSqlDefinition(Column $column, $create = true)
     {
         $buffer = [];
-        $isCustomColumn = $column instanceof Table\CustomColumn;
-        if ($isCustomColumn) {
-            $buffer[] = $column->getType();
+        if ($column->getType() instanceof Literal) {
+            $buffer[] = (string) $column->getType();
         } else {
             $sqlType = $this->getSqlType($column->getType());
             $buffer[] = strtoupper($sqlType['name']);
@@ -1029,26 +1011,26 @@ SQL;
             if (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
                 $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
             }
-            if ($column->getPrecision() && $column->getScale()) {
-                $buffer[] = '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
-            }
-            $properties = $column->getProperties();
-            $buffer[] = $column->getType() === 'filestream' ? 'FILESTREAM' : '';
-            $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';
+        }
+        if ($column->getPrecision() && $column->getScale()) {
+            $buffer[] = '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
+        }
+        $properties = $column->getProperties();
+        $buffer[] = $column->getType() === 'filestream' ? 'FILESTREAM' : '';
+        $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';
 
-            $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
+        $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
 
-            if ($create === true) {
-                if ($column->getDefault() === null && $column->isNull()) {
-                    $buffer[] = ' DEFAULT NULL';
-                } else {
-                    $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
-                }
+        if ($create === true) {
+            if ($column->getDefault() === null && $column->isNull()) {
+                $buffer[] = ' DEFAULT NULL';
+            } else {
+                $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
             }
+        }
 
-            if ($column->isIdentity()) {
-                $buffer[] = 'IDENTITY(1, 1)';
-            }
+        if ($column->isIdentity()) {
+            $buffer[] = 'IDENTITY(1, 1)';
         }
 
         return implode(' ', $buffer);

@@ -30,7 +30,6 @@ namespace Phinx\Db;
 
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Table\Column;
-use Phinx\Db\Table\CustomColumn;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
 
@@ -334,7 +333,7 @@ class Table
      * Valid options can be: limit, default, null, precision or scale.
      *
      * @param string|\Phinx\Db\Table\Column $columnName Column Name
-     * @param string $type Column Type
+     * @param string|\Phinx\Util\Literal $type Column Type
      * @param array $options Column Options
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
@@ -353,50 +352,17 @@ class Table
             $column->setName($columnName);
             $column->setType($type);
             $column->setOptions($options); // map options to column methods
-        } elseif ($columnName instanceof CustomColumn) {
-            return $this->addCustomColumn($columnName, $type, $options);
         } else {
             $column = $columnName;
         }
 
         // Delegate to Adapters to check column type
-        if (!$this->getAdapter()->isValidColumnType($column)) {
+        if (is_string($type) && !$this->getAdapter()->isValidColumnType($column)) {
             throw new \InvalidArgumentException(sprintf(
                 'An invalid column type "%s" was specified for column "%s".',
                 $column->getType(),
                 $column->getName()
             ));
-        }
-
-        $this->columns[] = $column;
-
-        return $this;
-    }
-
-    /**
-     * Add a table column with a custom type definition.
-     *
-     * Type can be any string that you expect your DBMS to understand
-     *
-     * Valid options can be:  default or null.
-     *
-     * For widely supported types @see addColumn
-     *
-     * @param string|CustomColumn $columnName Column Name
-     * @param string $type Column Type
-     * @param array $options Column Options
-     * @return Table
-     */
-    public function addCustomColumn($columnName, $type = null, $options = [])
-    {
-        // create a new CustomColumn object if only strings were supplied
-        if (!$columnName instanceof CustomColumn) {
-            $column = new CustomColumn();
-            $column->setName($columnName);
-            $column->setType($type);
-            $column->setOptions($options); // map options to column methods
-        } else {
-            $column = $columnName;
         }
 
         $this->columns[] = $column;
@@ -435,7 +401,7 @@ class Table
      * Change a table column type.
      *
      * @param string        $columnName    Column Name
-     * @param string|\Phinx\Db\Table\Column $newColumnType New Column Type
+     * @param string|\Phinx\Db\Table\Column|\Phinx\Util\Literal $newColumnType New Column Type
      * @param array         $options       Options
      * @return \Phinx\Db\Table
      */

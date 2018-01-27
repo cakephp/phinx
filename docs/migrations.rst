@@ -51,7 +51,6 @@ Phinx automatically creates a skeleton migration file with a single method:
              *    createTable
              *    renameTable
              *    addColumn
-             *    addCustomColumn
              *    renameColumn
              *    addIndex
              *    addForeignKey
@@ -138,7 +137,6 @@ Phinx can only reverse the following commands:
 -  createTable
 -  renameTable
 -  addColumn
--  addCustomColumn
 -  renameColumn
 -  addIndex
 -  addForeignKey
@@ -562,33 +560,39 @@ In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb``, ``
 
 For valid options, see the `Valid Column Options`_ below.
 
-Custom Column Types
+Custom Column Types & Default Values
 ~~~~~~~~~~~~~~~~~~~
 
-Some DBMS systems (e.g. PostgreSQL) provide additional column types specific to them.
+Some DBMS systems provide additional column types and default values that are specific to them.
 If you don't want to keep your migrations DBMS-agnostic you can use those custom types in your migrations
-through the ``addCustomColumn()`` method, which takes a column name, a type and an array of options,
-similar to ``addColumn()``.
+through the ``\Phinx\Util\Literal::from`` method, which takes a string as its only argument, and returns an
+instance of ``\Phinx\Util\Literal``. When Phinx encounters this value as a column's type it knows not to
+run any validation on it and to use it exactly as supplied without escaping. This also works for ``default``
+values.
 
-This method does not run any validation on the type of the column, and instrucs Phinx to use it exactly as
-supplied. Custom column supports only the most common options, ``default`` and ``null``, which behave
-exactly as they do when you use ``addColumn()``.
-
-You can see an example below showing how to add a ``citext`` column to an existing table if you use PostgreSQL.
-This method is supported in the MySQL, PostgreSQL, SQLite and Sql Server adapters.
+You can see an example below showing how to add a ``citext`` column as well as a column whose default value
+is a function, in PostgreSQL. This method of preventing the built-in escaping is supported in all adapters.
 
 .. code-block:: php
 
         <?php
 
         use Phinx\Migration\AbstractMigration;
+        use Phinx\Util\Literal;
 
-        class AddHexColorMigration extends AbstractMigration
+        class AddSomeColumns extends AbstractMigration
         {
             public function change()
             {
                 $this->table('users')
-                      ->addCustomColumn('username', 'citext')
+                      ->addColumn('username', Literal::from('citext'))
+                      ->addColumn('uniqid', 'uuid', [
+                          'default' => Literal::from('uuid_generate_v4()')
+                      ])
+                      ->addColumn('creation', 'timestamp', [
+                          'timezone' => true,
+                          'default' => Literal::from('now()')
+                      ])
                       ->save();
             }
         }

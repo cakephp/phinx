@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\PostgresAdapter;
+use Phinx\Util\Literal;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
@@ -298,6 +299,38 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             if ($column->getName() == 'default_false') {
                 $this->assertNotNull($column->getDefault());
                 $this->assertEquals('false', $column->getDefault());
+            }
+        }
+    }
+
+    public function testAddColumnWithDefaultLiteral()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn('default_ts', 'timestamp', ['default' => Literal::from('now()')])
+              ->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() == 'default_ts') {
+                $this->assertNotNull($column->getDefault());
+                $this->assertEquals('now()', (string) $column->getDefault());
+            }
+        }
+    }
+
+    public function testAddColumnWithLiteralType()
+    {
+        $table = new \Phinx\Db\Table('citable', ['id' => false], $this->adapter);
+        $table
+            ->addColumn('insensitive', Literal::from('citext'))
+            ->save();
+
+        $this->assertTrue($this->adapter->hasColumn('citable', 'insensitive'));
+
+        $columns = $this->adapter->getColumns('citable');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'insensitive') {
+                $this->assertEquals('citext', (string) $column->getType(), 'column: ' . $column->getName());
             }
         }
     }
@@ -946,21 +979,6 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             } else {
                 $this->assertTrue($column->isTimezone(), 'column: ' . $column->getName());
             }
-        }
-    }
-
-    public function testCustomColumn()
-    {
-        $table = new \Phinx\Db\Table('citable', ['id' => false], $this->adapter);
-        $table
-            ->addCustomColumn('insensitive', 'citext')
-            ->save();
-
-        $this->assertTrue($this->adapter->hasColumn('citable', 'insensitive'));
-
-        $columns = $this->adapter->getColumns('citable');
-        foreach ($columns as $column) {
-            $this->assertEquals('citext', $column->getType(), 'column: ' . $column->getName());
         }
     }
 

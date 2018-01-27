@@ -944,23 +944,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Get the definition for a `DEFAULT` statement.
-     *
-     * @param  mixed $default Default value
-     * @return string
-     */
-    protected function getDefaultValueDefinition($default)
-    {
-        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
-            $default = $this->getConnection()->quote($default);
-        } elseif (is_bool($default)) {
-            $default = $this->castToBool($default);
-        }
-
-        return isset($default) ? ' DEFAULT ' . $default : '';
-    }
-
-    /**
      * Gets the SQLite Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
@@ -968,23 +951,21 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getColumnSqlDefinition(Column $column)
     {
-        $isCustomColumn = $column instanceof Table\CustomColumn;
-        if ($isCustomColumn) {
-            $def = $column->getType();
+        if ($column->getType() instanceof Literal) {
+            $def = (string) $column->getType();
         } else {
             $sqlType = $this->getSqlType($column->getType());
-            $def = '';
-            $def .= strtoupper($sqlType['name']);
-            if ($column->getPrecision() && $column->getScale()) {
-                $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
-            }
-            $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits);
-            if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
-                $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
-            }
-            if (($values = $column->getValues()) && is_array($values)) {
-                $def .= " CHECK({$column->getName()} IN ('" . implode("', '", $values) . "'))";
-            }
+            $def = strtoupper($sqlType['name']);
+        }
+        if ($column->getPrecision() && $column->getScale()) {
+            $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
+        }
+        $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits);
+        if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
+            $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
+        }
+        if (($values = $column->getValues()) && is_array($values)) {
+            $def .= " CHECK({$column->getName()} IN ('" . implode("', '", $values) . "'))";
         }
 
         $default = $column->getDefault();
