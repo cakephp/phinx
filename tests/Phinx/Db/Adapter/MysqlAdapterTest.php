@@ -423,7 +423,7 @@ class MysqlAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
-        $table->addColumn('default_ts', 'boolean', ['default' => Literal::from('CURRENT_TIMESTAMP')])
+        $table->addColumn('default_ts', 'timestamp', ['default' => Literal::from('CURRENT_TIMESTAMP')])
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals('CURRENT_TIMESTAMP', $rows[1]['Default']);

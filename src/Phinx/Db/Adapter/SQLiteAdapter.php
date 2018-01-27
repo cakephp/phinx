@@ -32,6 +32,7 @@ use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
+use Phinx\Util\Literal;
 
 /**
  * Phinx SQLite Adapter.
@@ -951,18 +952,20 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getColumnSqlDefinition(Column $column)
     {
-        if ($column->getType() instanceof Literal) {
+        $isLiteralType = $column->getType() instanceof Literal;
+        if ($isLiteralType) {
             $def = (string)$column->getType();
         } else {
             $sqlType = $this->getSqlType($column->getType());
             $def = strtoupper($sqlType['name']);
+
+            $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits);
+            if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
+                $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
+            }
         }
         if ($column->getPrecision() && $column->getScale()) {
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
-        }
-        $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits);
-        if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
-            $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
         }
         if (($values = $column->getValues()) && is_array($values)) {
             $def .= " CHECK({$column->getName()} IN ('" . implode("', '", $values) . "'))";
@@ -972,9 +975,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $def .= ($column->isNull() || is_null($default)) ? ' NULL' : ' NOT NULL';
         $def .= $this->getDefaultValueDefinition($default);
-        if (!$isCustomColumn) {
-            $def .= $column->isIdentity() ? ' PRIMARY KEY AUTOINCREMENT' : '';
-        }
+        $def .= $column->isIdentity() ? ' PRIMARY KEY AUTOINCREMENT' : '';
 
         if ($column->getUpdate()) {
             $def .= ' ON UPDATE ' . $column->getUpdate();

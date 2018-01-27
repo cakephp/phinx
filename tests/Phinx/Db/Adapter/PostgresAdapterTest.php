@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\PostgresAdapter;
+use Phinx\Db\Table\Column;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -264,7 +265,7 @@ class PostgresAdapterTest extends TestCase
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
             if ($column->getName() == 'default_zero') {
-                $this->assertEquals("'test'::character varying", $column->getDefault());
+                $this->assertEquals("test", $column->getDefault());
             }
         }
     }
@@ -328,6 +329,7 @@ class PostgresAdapterTest extends TestCase
 
         $this->assertTrue($this->adapter->hasColumn('citable', 'insensitive'));
 
+        /** @var $columns Column[] */
         $columns = $this->adapter->getColumns('citable');
         foreach ($columns as $column) {
             if ($column->getName() === 'insensitive') {

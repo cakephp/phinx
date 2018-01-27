@@ -318,7 +318,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $columnType = $this->getPhinxType($columnInfo['data_type']);
             }
             // If the default value begins with a ' or looks like a function mark it as literal
-            if (strpos($columnInfo['column_default'], "'") === 0 || preg_match('/^\D[a-z_\d]*\(.*\)$/', $columnInfo['column_default'])) {
+            if (isset($columnInfo['column_default'][0]) && $columnInfo['column_default'][0] === "'") {
+                if (preg_match('/^\'(.*)\'::[^:]+$/', $columnInfo['column_default'], $match)) {
+                    // '' and \' are replaced with a single '
+                    $columnDefault = preg_replace('/[\'\\\\]\'/', "'", $match[1]);
+                } else {
+                    $columnDefault = Literal::from($columnInfo['column_default']);
+                }
+            } elseif (preg_match('/^\D[a-z_\d]*\(.*\)$/', $columnInfo['column_default'])) {
                 $columnDefault = Literal::from($columnInfo['column_default']);
             } else {
                 $columnDefault = $columnInfo['column_default'];
@@ -902,13 +909,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $buffer = [];
         if ($column->isIdentity()) {
             $buffer[] = $column->getType() == 'biginteger' ? 'BIGSERIAL' : 'SERIAL';
+        } elseif ($column->getType() instanceof Literal) {
+            $buffer[] = (string)$column->getType();
         } else {
-            if ($column->getType() instanceof Literal) {
-                $buffer[] = (string)$column->getType();
-            } else {
-                $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
-                $buffer[] = strtoupper($sqlType['name']);
-            }
+            $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
+            $buffer[] = strtoupper($sqlType['name']);
+
             // integers cant have limits in postgres
             if (static::PHINX_TYPE_DECIMAL === $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
                 $buffer[] = sprintf(

@@ -357,7 +357,7 @@ class Table
         }
 
         // Delegate to Adapters to check column type
-        if (is_string($type) && !$this->getAdapter()->isValidColumnType($column)) {
+        if (!$this->getAdapter()->isValidColumnType($column)) {
             throw new \InvalidArgumentException(sprintf(
                 'An invalid column type "%s" was specified for column "%s".',
                 $column->getType(),

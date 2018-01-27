@@ -160,7 +160,7 @@ class Column
     /**
      * Gets the column type.
      *
-     * @return string
+     * @return string|\Phinx\Util\Literal
      */
     public function getType()
     {
