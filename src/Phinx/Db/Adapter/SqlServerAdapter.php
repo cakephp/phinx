@@ -998,7 +998,7 @@ SQL;
     {
         $buffer = [];
         if ($column->getType() instanceof Literal) {
-            $buffer[] = (string) $column->getType();
+            $buffer[] = (string)$column->getType();
         } else {
             $sqlType = $this->getSqlType($column->getType());
             $buffer[] = strtoupper($sqlType['name']);

@@ -952,7 +952,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     protected function getColumnSqlDefinition(Column $column)
     {
         if ($column->getType() instanceof Literal) {
-            $def = (string) $column->getType();
+            $def = (string)$column->getType();
         } else {
             $sqlType = $this->getSqlType($column->getType());
             $def = strtoupper($sqlType['name']);

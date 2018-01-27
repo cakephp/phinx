@@ -313,7 +313,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         foreach ($columns as $column) {
             if ($column->getName() == 'default_ts') {
                 $this->assertNotNull($column->getDefault());
-                $this->assertEquals('now()', (string) $column->getDefault());
+                $this->assertEquals('now()', (string)$column->getDefault());
             }
         }
     }
@@ -330,7 +330,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $columns = $this->adapter->getColumns('citable');
         foreach ($columns as $column) {
             if ($column->getName() === 'insensitive') {
-                $this->assertEquals('citext', (string) $column->getType(), 'column: ' . $column->getName());
+                $this->assertEquals('citext', (string)$column->getType(), 'column: ' . $column->getName());
             }
         }
     }

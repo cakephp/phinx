@@ -147,7 +147,7 @@ class Column
     /**
      * Sets the column type.
      *
-     * @param string|\Phinx\Util\Literal $type
+     * @param string|\Phinx\Util\Literal $type Column type
      * @return \Phinx\Db\Table\Column
      */
     public function setType($type)
