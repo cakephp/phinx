@@ -746,6 +746,11 @@ class Manager
                 Util::glob($path . DIRECTORY_SEPARATOR . '*.php')
             );
         }
+        // glob() can return the same file multiple times
+        // This will cause the migration to fail with a
+        // false assumption of duplicate migrations
+        // http://php.net/manual/en/function.glob.php#110340
+        $files = array_unique($files);
 
         return $files;
     }
@@ -761,6 +766,54 @@ class Manager
         $this->seeds = $seeds;
 
         return $this;
+    }
+
+    /**
+     * Get seed dependencies instances from seed dependency array
+     *
+     * @param AbstractSeed $seed Seed
+     *
+     * @return AbstractSeed[]
+     */
+    private function getSeedDependenciesInstances(AbstractSeed $seed)
+    {
+        $dependenciesInstances = [];
+        $dependencies = $seed->getDependencies();
+        if (!empty($dependencies)) {
+            foreach ($dependencies as $dependency) {
+                foreach ($this->seeds as $seed) {
+                    if (get_class($seed) === $dependency) {
+                        $dependenciesInstances[get_class($seed)] = $seed;
+                    }
+                }
+            }
+        }
+
+        return $dependenciesInstances;
+    }
+
+    /**
+     * Order seeds by dependencies
+     *
+     * @param AbstractSeed[] $seeds Seeds
+     *
+     * @return AbstractSeed[]
+     */
+    private function orderSeedsByDependencies(array $seeds)
+    {
+        $orderedSeeds = [];
+        foreach ($seeds as $seed) {
+            $key = get_class($seed);
+            $dependencies = $this->getSeedDependenciesInstances($seed);
+            if (!empty($dependencies)) {
+                $orderedSeeds[$key] = $seed;
+                $orderedSeeds = array_merge($this->orderSeedsByDependencies($dependencies), $orderedSeeds);
+            } else {
+                $orderedSeeds[$key] = $seed;
+            }
+        }
+
+        return $orderedSeeds;
     }
 
     /**
@@ -818,6 +871,7 @@ class Manager
             $this->setSeeds($seeds);
         }
 
+        $this->seeds = $this->orderSeedsByDependencies($this->seeds);
         return $this->seeds;
     }
 
@@ -838,6 +892,11 @@ class Manager
                 Util::glob($path . DIRECTORY_SEPARATOR . '*.php')
             );
         }
+        // glob() can return the same file multiple times
+        // This will cause the migration to fail with a
+        // false assumption of duplicate migrations
+        // http://php.net/manual/en/function.glob.php#110340
+        $files = array_unique($files);
 
         return $files;
     }

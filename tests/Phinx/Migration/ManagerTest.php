@@ -5,12 +5,13 @@ namespace Test\Phinx\Migration;
 use Phinx\Config\Config;
 use Phinx\Migration\Manager;
 use Phinx\Migration\Manager\Environment;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 
-class ManagerTest extends \PHPUnit_Framework_TestCase
+class ManagerTest extends TestCase
 {
     /** @var Config */
     protected $config;
@@ -118,7 +119,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testInstantiation()
     {
-        $this->assertTrue($this->manager->getOutput() instanceof StreamOutput);
+        $this->assertInstanceOf(
+            'Symfony\Component\Console\Output\StreamOutput',
+            $this->manager->getOutput()
+        );
     }
 
     public function testPrintStatusMethod()
@@ -1169,7 +1173,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGettingAValidEnvironment()
     {
-        $this->assertTrue($this->manager->getEnvironment('production') instanceof Environment);
+        $this->assertInstanceOf(
+            'Phinx\Migration\Manager\Environment',
+            $this->manager->getEnvironment('production')
+        );
     }
 
     /**
@@ -5406,6 +5413,14 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('Foo\Bar\UserSeeder', $output);
     }
 
+    public function testOrderSeeds()
+    {
+        $seeds = array_values($this->manager->getSeeds());
+        $this->assertInstanceOf('UserSeeder', $seeds[0]);
+        $this->assertInstanceOf('GSeeder', $seeds[1]);
+        $this->assertInstanceOf('PostSeeder', $seeds[2]);
+    }
+
     public function testGettingInputObject()
     {
         $migrations = $this->manager->getMigrations();
@@ -5689,6 +5704,23 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $output = stream_get_contents($this->manager->getOutput()->getStream());
 
         $this->assertContains('is not a valid version', $output);
+    }
+
+    public function setExpectedException($exceptionName, $exceptionMessage = '', $exceptionCode = null)
+    {
+        if (method_exists($this, 'expectException')) {
+            //PHPUnit 5+
+            $this->expectException($exceptionName);
+            if ($exceptionMessage !== '') {
+                $this->expectExceptionMessage($exceptionMessage);
+            }
+            if ($exceptionCode !== null) {
+                $this->expectExceptionCode($exceptionCode);
+            }
+        } else {
+            //PHPUnit 4
+            parent::setExpectedException($exceptionName, $exceptionMessage, $exceptionCode);
+        }
     }
 }
 

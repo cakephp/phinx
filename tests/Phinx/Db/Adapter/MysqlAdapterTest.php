@@ -5,6 +5,7 @@ namespace Test\Phinx\Db\Adapter;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Util\Literal;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
@@ -12,7 +13,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\StreamOutput;
 
-class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
+class MysqlAdapterTest extends TestCase
 {
     /**
      * @var \Phinx\Db\Adapter\MysqlAdapter
@@ -49,7 +50,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testConnection()
     {
-        $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
     }
 
     public function testConnectionWithoutPort()
@@ -57,7 +58,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $options = $this->adapter->getOptions();
         unset($options['port']);
         $this->adapter->setOptions($options);
-        $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
     }
 
     public function testConnectionWithInvalidCredentials()
@@ -299,6 +300,32 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasTable('ntable'));
         $row = $this->adapter->fetchRow(sprintf("SHOW TABLE STATUS WHERE Name = '%s'", 'ntable'));
         $this->assertEquals('MyISAM', $row['Engine']);
+    }
+
+    public function testCreateTableAndInheritDefaultCollation()
+    {
+        $options = [
+            'host' => TESTS_PHINX_DB_ADAPTER_MYSQL_HOST,
+            'name' => TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
+            'user' => TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME,
+            'pass' => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
+            'port' => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT,
+            'charset' => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+        ];
+        $adapter = new MysqlAdapter($options, new ArrayInput([]), new NullOutput());
+
+        // Ensure the database is empty and the adapter is in a disconnected state
+        $adapter->dropDatabase($options['name']);
+        $adapter->createDatabase($options['name']);
+        $adapter->disconnect();
+
+        $table = new \Phinx\Db\Table('table_with_default_collation', [], $adapter);
+        $table->addColumn('name', 'string')
+              ->save();
+        $this->assertTrue($adapter->hasTable('table_with_default_collation'));
+        $row = $adapter->fetchRow(sprintf("SHOW TABLE STATUS WHERE Name = '%s'", 'table_with_default_collation'));
+        $this->assertEquals('utf8_unicode_ci', $row['Collation']);
     }
 
     public function testCreateTableWithLatin1Collate()
@@ -681,7 +708,7 @@ class MysqlAdapterTest extends \PHPUnit_Framework_TestCase
 
         $described = $this->adapter->describeTable('t');
 
-        $this->assertTrue(in_array($described['TABLE_TYPE'], ['VIEW', 'BASE TABLE']));
+        $this->assertContains($described['TABLE_TYPE'], ['VIEW', 'BASE TABLE']);
         $this->assertEquals($described['TABLE_NAME'], 't');
         $this->assertEquals($described['TABLE_SCHEMA'], TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
         $this->assertEquals($described['TABLE_ROWS'], 0);

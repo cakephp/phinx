@@ -4,13 +4,14 @@ namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\PostgresAdapter;
 use Phinx\Util\Literal;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 
-class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
+class PostgresAdapterTest extends TestCase
 {
     /**
      * Check if Postgres is enabled in the current PHP
@@ -75,7 +76,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testConnection()
     {
-        $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
     }
 
     public function testConnectionWithoutPort()
@@ -83,7 +84,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $options = $this->adapter->getOptions();
         unset($options['port']);
         $this->adapter->setOptions($options);
-        $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
     }
 
     public function testConnectionWithInvalidCredentials()
@@ -335,6 +336,36 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testAddColumnWithComment()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+
+        $this->assertFalse($table->hasColumn('email'));
+
+        $table->addColumn('email', 'string', ['comment' => $comment = 'Comments from column "email"'])
+              ->save();
+
+        $this->assertTrue($table->hasColumn('email'));
+
+        $row = $this->adapter->fetchRow(
+            'SELECT
+                (select pg_catalog.col_description(oid,cols.ordinal_position::int)
+            from pg_catalog.pg_class c
+            where c.relname=cols.table_name ) as column_comment
+            FROM information_schema.columns cols
+            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
+            AND cols.table_name=\'table1\'
+            AND cols.column_name = \'email\''
+        );
+
+        $this->assertEquals(
+            $comment,
+            $row['column_comment'],
+            'The column comment was not set when you used addColumn()'
+        );
+    }
+
     public function testAddDecimalWithPrecisionAndScale()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -373,6 +404,7 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
             ['array_json2d', 'json[][]'],
             ['array_json3d', 'json[][][]'],
             ['array_uuid', 'uuid[]'],
+            ['array_interval', 'interval[]'],
         ];
     }
 
@@ -533,7 +565,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
               ->addColumn('column11', 'boolean')
               ->addColumn('column12', 'datetime')
               ->addColumn('column13', 'binary')
-              ->addColumn('column14', 'string', ['limit' => 10]);
+              ->addColumn('column14', 'string', ['limit' => 10])
+              ->addColumn('column15', 'interval');
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -751,6 +784,8 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp without time zone'));
 
         $this->assertEquals('uuid', $this->adapter->getPhinxType('uuid'));
+
+        $this->assertEquals('interval', $this->adapter->getPhinxType('interval'));
     }
 
     public function testCreateTableWithComment()
@@ -1050,10 +1085,10 @@ class PostgresAdapterTest extends \PHPUnit_Framework_TestCase
               ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertEquals(2, count($rows));
+        $this->assertCount(2, $rows);
         $table->truncate();
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertEquals(0, count($rows));
+        $this->assertCount(0, $rows);
     }
 
     public function testDumpCreateTable()

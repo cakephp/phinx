@@ -3,8 +3,9 @@
 namespace Test\Phinx\Db\Table;
 
 use Phinx\Db\Table\Index;
+use PHPUnit\Framework\TestCase;
 
-class IndexTest extends \PHPUnit_Framework_TestCase
+class IndexTest extends TestCase
 {
     /**
      * @expectedException \RuntimeException
