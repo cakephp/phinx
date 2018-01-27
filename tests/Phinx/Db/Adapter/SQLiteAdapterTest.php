@@ -421,7 +421,8 @@ class SQLiteAdapterTest extends TestCase
               ->addColumn('column12', 'boolean')
               ->addColumn('column13', 'string', ['limit' => 10])
               ->addColumn('column15', 'integer', ['limit' => 10])
-              ->addColumn('column16', 'enum', ['values' => ['a', 'b', 'c']]);
+              ->addColumn('column16', 'enum', ['values' => ['a', 'b', 'c']])
+              ->addColumn('column17', 'json');
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
