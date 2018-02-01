@@ -367,7 +367,7 @@ class MysqlAdapterTest extends TestCase
         $column_definitions = $this->adapter->getColumns('ntable');
         foreach ($column_definitions as $column_definition) {
             if ($column_definition->getName() === 'named_id') {
-               $this->assertFalse($column_definition->getSigned());
+                $this->assertFalse($column_definition->getSigned());
             }
         }
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
