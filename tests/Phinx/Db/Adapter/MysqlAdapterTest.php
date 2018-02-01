@@ -341,10 +341,35 @@ class MysqlAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('ntable', ['signed' => false], $this->adapter);
         $table->addColumn('realname', 'string')
+            ->addColumn('email', 'integer')
+            ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+        $column_definitions = $this->adapter->getColumns('ntable');
+        foreach ($column_definitions as $column_definition) {
+            if ($column_definition->getName() === 'id') {
+                $this->assertFalse($column_definition->getSigned());
+            }
+        }
+    }
+
+    public function testCreateTableWithUnsignedNamedPK()
+    {
+        $table = new \Phinx\Db\Table('ntable', ['id' => 'named_id', 'signed' => false], $this->adapter);
+        $table->addColumn('realname', 'string')
               ->addColumn('email', 'integer')
               ->save();
         $this->assertTrue($this->adapter->hasTable('ntable'));
-        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'named_id'));
+        $column_definitions = $this->adapter->getColumns('ntable');
+        foreach ($column_definitions as $column_definition) {
+            if ($column_definition->getName() === 'named_id') {
+               $this->assertFalse($column_definition->getSigned());
+            }
+        }
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
