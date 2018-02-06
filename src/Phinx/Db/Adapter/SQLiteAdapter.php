@@ -187,6 +187,20 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
             $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
+
+            if (isset($options['primary_key']) && $column->getIdentity()) {
+                //remove column from the primary key array as it is already defined as an autoincrement
+                //primary id
+                $identityColumnIndex = array_search($column->getName(), $options['primary_key']);
+                if ($identityColumnIndex !== false) {
+                    unset($options['primary_key'][$identityColumnIndex]);
+
+                    if (empty($options['primary_key'])) {
+                        //The last primary key has been removed
+                        unset($options['primary_key']);
+                    }
+                }
+            }
         }
 
         // set the primary key(s)
