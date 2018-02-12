@@ -3,8 +3,9 @@
 namespace Test\Phinx\Db\Table;
 
 use Phinx\Db\Table\ForeignKey;
+use PHPUnit\Framework\TestCase;
 
-class ForeignKeyTest extends \PHPUnit_Framework_TestCase
+class ForeignKeyTest extends TestCase
 {
 
     /**

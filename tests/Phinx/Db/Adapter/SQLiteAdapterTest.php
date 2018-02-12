@@ -3,13 +3,14 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\SQLiteAdapter;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 
-class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
+class SQLiteAdapterTest extends TestCase
 {
     /**
      * @var \Phinx\Db\Adapter\SQLiteAdapter
@@ -612,15 +613,21 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/\/\* Comments from "column1" \*\//', $sql);
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The type: "fake" is not supported.
+     */
     public function testPhinxTypeNotValidType()
     {
-        $this->setExpectedException('\RuntimeException', 'The type: "fake" is not supported.');
         $this->adapter->getPhinxType('fake');
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Column type ?int? is not supported
+     */
     public function testPhinxTypeNotValidTypeRegex()
     {
-        $this->setExpectedException('\RuntimeException', 'Column type ?int? is not supported');
         $this->adapter->getPhinxType('?int?');
     }
 
