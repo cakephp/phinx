@@ -180,18 +180,14 @@ abstract class PdoAdapter extends AbstractAdapter
         );
         $columns = array_keys($row);
         $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ')';
-        
+
         if ($this->isDryRunEnabled()) {
-            
             $sql .= ' VALUES (' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ');';
             $this->output->writeln($sql);
-            
         } else {
-
             $sql .= ' VALUES (' . implode(', ', array_fill(0, count($columns), '?')) . ')';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute(array_values($row));
-            
         }
     }
 
@@ -226,17 +222,14 @@ abstract class PdoAdapter extends AbstractAdapter
         $current = current($rows);
         $keys = array_keys($current);
         $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ') VALUES ';
-        
+
         if ($this->isDryRunEnabled()) {
-            
             $values = array_map(function ($row) {
                 return '(' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ')';
             }, $rows);
             $sql .= implode(', ', $values) . ';';
             $this->output->writeln($sql);
-            
         } else {
-
             $count_keys = count($keys);
             $query = '(' . implode(', ', array_fill(0, $count_keys, '?')) . ')';
             $count_vars = count($rows);
@@ -244,15 +237,14 @@ abstract class PdoAdapter extends AbstractAdapter
             $sql .= implode(',', $queries);
             $stmt = $this->getConnection()->prepare($sql);
             $vals = [];
-            
+
             foreach ($rows as $row) {
                 foreach ($row as $v) {
                     $vals[] = $v;
                 }
             }
-            
+
             $stmt->execute($vals);
-            
         }
     }
 
