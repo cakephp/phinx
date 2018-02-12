@@ -174,54 +174,25 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function insert(Table $table, $row)
     {
+        $sql = sprintf(
+            'INSERT INTO %s ',
+            $this->quoteTableName($table->getName())
+        );
+        $columns = array_keys($row);
+        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ')';
+        
         if ($this->isDryRunEnabled()) {
-            $this->dryRunInsert($table, $row);
+            
+            $sql .= ' VALUES (' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ');';
+            $this->output->writeln($sql);
+            
         } else {
-            $this->doInsert($table, $row);
+
+            $sql .= ' VALUES (' . implode(', ', array_fill(0, count($columns), '?')) . ')';
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute(array_values($row));
+            
         }
-    }
-
-    /**
-     * Inserts data into the table.
-     *
-     * @param Table $table  The table where to insert the data
-     * @param array $row    The data to be inserted as assoc array column name -> value
-     * @return void
-     */
-    private function doInsert(Table $table, $row)
-    {
-        $sql = sprintf(
-            'INSERT INTO %s ',
-            $this->quoteTableName($table->getName())
-        );
-
-        $columns = array_keys($row);
-        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ')';
-        $sql .= ' VALUES (' . implode(', ', array_fill(0, count($columns), '?')) . ')';
-
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->execute(array_values($row));
-    }
-
-    /**
-     * Dumps the insert SQL statement.
-     *
-     * @param Table $table  The table where to insert the data
-     * @param array $row    The data to be inserted as assoc array column name -> value
-     * @return void
-     */
-    private function dryRunInsert(Table $table, $row)
-    {
-        $sql = sprintf(
-            'INSERT INTO %s ',
-            $this->quoteTableName($table->getName())
-        );
-
-        $columns = array_keys($row);
-        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ')';
-        $sql .= ' VALUES (' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ');';
-
-        $this->output->writeln($sql);
     }
 
     /**
@@ -248,81 +219,41 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function bulkinsert(Table $table, $rows)
     {
+        $sql = sprintf(
+            'INSERT INTO %s ',
+            $this->quoteTableName($table->getName())
+        );
+        $current = current($rows);
+        $keys = array_keys($current);
+        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ') VALUES ';
+        
         if ($this->isDryRunEnabled()) {
-            $this->dryRunBulkInsert($table, $rows);
+            
+            $values = array_map(function ($row) {
+                return '(' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ')';
+            }, $rows);
+            $sql .= implode(', ', $values) . ';';
+            $this->output->writeln($sql);
+            
         } else {
-            $this->doBulkinsert($table, $rows);
-        }
-    }
 
-    /**
-     * Bulk inserts data into the table.
-     *
-     * @param Table $table  The table where to insert the data
-     * @param array $rows   The data as array
-     * @return void
-     */
-    private function doBulkinsert(Table $table, $rows)
-    {
-        $sql = sprintf(
-            'INSERT INTO %s ',
-            $this->quoteTableName($table->getName())
-        );
-
-        $current = current($rows);
-        $keys = array_keys($current);
-        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ') VALUES ';
-
-        $vals = [];
-        foreach ($rows as $row) {
-            foreach ($row as $v) {
-                $vals[] = $v;
+            $count_keys = count($keys);
+            $query = '(' . implode(', ', array_fill(0, $count_keys, '?')) . ')';
+            $count_vars = count($rows);
+            $queries = array_fill(0, $count_vars, $query);
+            $sql .= implode(',', $queries);
+            $stmt = $this->getConnection()->prepare($sql);
+            $vals = [];
+            
+            foreach ($rows as $row) {
+                foreach ($row as $v) {
+                    $vals[] = $v;
+                }
             }
+            
+            $stmt->execute($vals);
+            
         }
-
-        $count_keys = count($keys);
-        $query = '(' . implode(', ', array_fill(0, $count_keys, '?')) . ')';
-
-        $count_vars = count($rows);
-        $queries = array_fill(0, $count_vars, $query);
-        $sql .= implode(',', $queries);
-
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->execute($vals);
-    }
-
-    /**
-     * Dump the bulk insert statement.
-     *
-     * @param Table $table  The table where to insert the data
-     * @param array $rows   The data as array
-     * @return void
-     */
-    private function dryRunBulkInsert(Table $table, $rows)
-    {
-        $sql = sprintf(
-            'INSERT INTO %s ',
-            $this->quoteTableName($table->getName())
-        );
-
-        $current = current($rows);
-        $keys = array_keys($current);
-        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ') VALUES ';
-
-        $vals = [];
-        foreach ($rows as $row) {
-            foreach ($row as $v) {
-                $vals[] = $v;
-            }
-        }
-
-        $values = array_map(function ($row) {
-            return '(' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ')';
-        }, $rows);
-
-        $sql .= implode(', ', $values) . ';';
-
-        $this->output->writeln($sql);
     }
 
     /**
