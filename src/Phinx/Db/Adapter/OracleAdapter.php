@@ -185,7 +185,6 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         // Add the default primary key
         $columns = $table->getPendingColumns();
 
-        //TODO FAZER O CREATE TABLE E MUDAR OS TIPOS DAS COLUNAS PARA CRIAR TABELA.
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
             $column = new Column();
             $column->setName('id')
@@ -245,13 +244,38 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
             $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
         }
 
+        $this->execute($sql);
+
         // set the indexes
         $indexes = $table->getIndexes();
-        foreach ($indexes as $index) {
-            $sql .= $this->getIndexSqlDefinition($index, $table->getName());
+        if(!empty($indexes))
+        {
+            foreach ($indexes as $index) {
+                $sql = $this->getIndexSqlDefinition($index, $table->getName());
+                $this->execute($sql);
+            }
         }
-        // execute the sql
-        $this->execute($sql);
+
+        if(!$this->hasSequence($table->getName()))
+        {
+            $sql = "CREATE SEQUENCE SQ_".$table->getName()." MINVALUE 1 MAXVALUE 99999999999999999 INCREMENT BY 1";
+            $this->execute($sql);
+        }
+    }
+
+    /**
+     * Verify if the table has a Sequence for primary Key
+     *
+     * @param string $tableName Table name
+     *
+     * @return boolean
+     */
+    public function hasSequence($tableName)
+    {
+        $sql = sprintf("SELECT COUNT(*) as COUNT FROM user_sequences WHERE sequence_name = '%s'", strtoupper("SQ_".$tableName));
+        $result = $this->fetchRow($sql);
+
+        return $result['COUNT'] > 0;
     }
 
     /**
@@ -562,23 +586,6 @@ WHERE
         return empty($rows) ? false : $rows[0]['name'];
     }
 
-    protected function getIndexColums($tableId, $indexId)
-    {
-        $sql = "SELECT AC.[name] AS [column_name]
-FROM sys.[index_columns] IC
-  INNER JOIN sys.[all_columns] AC ON IC.[column_id] = AC.[column_id]
-WHERE AC.[object_id] = {$tableId} AND IC.[index_id] = {$indexId}  AND IC.[object_id] = {$tableId}
-ORDER BY IC.[key_ordinal];";
-
-        $rows = $this->fetchAll($sql);
-        $columns = [];
-        foreach ($rows as $row) {
-            $columns[] = strtolower($row['column_name']);
-        }
-
-        return $columns;
-    }
-
     /**
      * Get an array of indexes from a particular table.
      *
@@ -588,16 +595,14 @@ ORDER BY IC.[key_ordinal];";
     public function getIndexes($tableName)
     {
         $indexes = [];
-        $sql = "SELECT I.[name] AS [index_name], I.[index_id] as [index_id], T.[object_id] as [table_id]
-FROM sys.[tables] AS T
-  INNER JOIN sys.[indexes] I ON T.[object_id] = I.[object_id]
-WHERE T.[is_ms_shipped] = 0 AND I.[type_desc] <> 'HEAP'  AND T.[name] = '{$tableName}'
-ORDER BY T.[name], I.[index_id];";
+        $sql = "SELECT index_owner as owner, index_name, column_name FROM ALL_IND_COLUMNS WHERE TABLE_NAME = '$tableName'";
 
         $rows = $this->fetchAll($sql);
         foreach ($rows as $row) {
-            $columns = $this->getIndexColums($row['table_id'], $row['index_id']);
-            $indexes[$row['index_name']] = ['columns' => $columns];
+            if (!isset($indexes[$row['INDEX_NAME']])) {
+                $indexes[$row['INDEX_NAME']] = ['columns' => []];
+            }
+            $indexes[$row['INDEX_NAME']]['columns'][] = strtolower($row['COLUMN_NAME']);
         }
 
         return $indexes;
@@ -608,11 +613,11 @@ ORDER BY T.[name], I.[index_id];";
      */
     public function hasIndex($tableName, $columns)
     {
+
         if (is_string($columns)) {
             $columns = [$columns]; // str to array
         }
 
-        $columns = array_map('strtolower', $columns);
         $indexes = $this->getIndexes($tableName);
 
         foreach ($indexes as $index) {
@@ -1027,10 +1032,6 @@ SQL;
 
         $buffer[] = $column->isNull() ? '' : 'NOT NULL';
 
-        if ($column->isIdentity()) {
-            $buffer[] = 'IDENTITY(1, 1)';
-        }
-
         return implode(' ', $buffer);
     }
 
@@ -1052,11 +1053,11 @@ SQL;
             $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         }
         $def = sprintf(
-            "CREATE %s INDEX %s ON %s (%s);",
+            "CREATE %s INDEX %s ON %s (%s)",
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
             $this->quoteTableName($tableName),
-            '[' . implode('],[', $index->getColumns()) . ']'
+            '"' . implode('],[', $index->getColumns()) . '"'
         );
 
         return $def;

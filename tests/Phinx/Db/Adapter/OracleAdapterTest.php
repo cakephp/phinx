@@ -27,7 +27,6 @@ class OracleAdapterTest extends TestCase
 
         $options = [
             'host' => TESTS_PHINX_DB_ADAPTER_ORACLE_HOST,
-            'connectionString' => TESTS_PHINX_DB_ADAPTER_ORACLE_CONNECTION_STRING,
             'user' => TESTS_PHINX_DB_ADAPTER_ORACLE_USERNAME,
             'pass' => TESTS_PHINX_DB_ADAPTER_ORACLE_PASSWORD,
             'port' => TESTS_PHINX_DB_ADAPTER_ORACLE_PORT,
@@ -38,8 +37,8 @@ class OracleAdapterTest extends TestCase
         $this->adapter->getConnection();
 
         // ensure the database is empty for each test
-        $this->adapter->dropDatabase($options['connectionString']);
-        $this->adapter->createDatabase($options['connectionString']);
+//        $this->adapter->dropDatabase($options['connectionString']);
+//        $this->adapter->createDatabase($options['connectionString']);
 
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
@@ -55,152 +54,163 @@ class OracleAdapterTest extends TestCase
         $this->assertInstanceOf('PDO', $this->adapter->getConnection());
     }
 
-//    public function testConnectionWithoutPort()
-//    {
-//        $options = $this->adapter->getOptions();
-//        unset($options['port']);
-//        $this->adapter->setOptions($options);
-//        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
-//    }
-//
-//    public function testConnectionWithInvalidCredentials()
-//    {
-//        $options = [
-//            'host' => TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST,
-//            'name' => TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE,
-//            'port' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT,
-//            'user' => 'invaliduser',
-//            'pass' => 'invalidpass'
-//        ];
-//
-//        try {
-//            $adapter = new SqlServerAdapter($options, new ArrayInput([]), new NullOutput());
-//            $adapter->connect();
-//            $this->fail('Expected the adapter to throw an exception');
-//        } catch (\InvalidArgumentException $e) {
-//            $this->assertInstanceOf(
-//                'InvalidArgumentException',
-//                $e,
-//                'Expected exception of type InvalidArgumentException, got ' . get_class($e)
-//            );
-//            $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
-//        }
-//    }
-//
-//    public function testCreatingTheSchemaTableOnConnect()
-//    {
-//        $this->adapter->connect();
-//        $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
-//        $this->adapter->dropTable($this->adapter->getSchemaTableName());
-//        $this->assertFalse($this->adapter->hasTable($this->adapter->getSchemaTableName()));
-//        $this->adapter->disconnect();
-//        $this->adapter->connect();
-//        $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
-//    }
-//
-//    public function testSchemaTableIsCreatedWithPrimaryKey()
-//    {
-//        $this->adapter->connect();
-//        $table = new \Phinx\Db\Table($this->adapter->getSchemaTableName(), [], $this->adapter);
-//        $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), ['version']));
-//    }
-//
-//    public function testQuoteTableName()
-//    {
-//        $this->assertEquals('[test_table]', $this->adapter->quoteTableName('test_table'));
-//    }
-//
-//    public function testQuoteColumnName()
-//    {
-//        $this->assertEquals('[test_column]', $this->adapter->quoteColumnName('test_column'));
-//    }
-//
-//    public function testCreateTable()
-//    {
-//        $table = new \Phinx\Db\Table('ntable', [], $this->adapter);
-//        $table->addColumn('realname', 'string')
-//            ->addColumn('email', 'integer')
-//            ->save();
-//        $this->assertTrue($this->adapter->hasTable('ntable'));
-//        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
-//        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
-//        $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
-//        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
-//    }
-//
-//    public function testCreateTableCustomIdColumn()
-//    {
-//        $table = new \Phinx\Db\Table('ntable', ['id' => 'custom_id'], $this->adapter);
-//        $table->addColumn('realname', 'string')
-//            ->addColumn('email', 'integer')
-//            ->save();
-//        $this->assertTrue($this->adapter->hasTable('ntable'));
-//        $this->assertTrue($this->adapter->hasColumn('ntable', 'custom_id'));
-//        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
-//        $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
-//        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
-//    }
-//
-//    public function testCreateTableWithNoPrimaryKey()
-//    {
-//        $options = [
-//            'id' => false
-//        ];
-//        $table = new \Phinx\Db\Table('atable', $options, $this->adapter);
-//        $table->addColumn('user_id', 'integer')
-//            ->save();
-//        $this->assertFalse($this->adapter->hasColumn('atable', 'id'));
-//    }
-//
-//    public function testCreateTableWithMultiplePrimaryKeys()
-//    {
-//        $options = [
-//            'id' => false,
-//            'primary_key' => ['user_id', 'tag_id']
-//        ];
-//        $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
-//        $table->addColumn('user_id', 'integer')
-//            ->addColumn('tag_id', 'integer')
-//            ->save();
-//        $this->assertTrue($this->adapter->hasIndex('table1', ['user_id', 'tag_id']));
-//        $this->assertTrue($this->adapter->hasIndex('table1', ['tag_id', 'USER_ID']));
-//        $this->assertFalse($this->adapter->hasIndex('table1', ['tag_id', 'user_email']));
-//    }
-//
-//    public function testCreateTableWithMultipleIndexes()
-//    {
-//        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-//        $table->addColumn('email', 'string')
-//            ->addColumn('name', 'string')
-//            ->addIndex('email')
-//            ->addIndex('name')
-//            ->save();
-//        $this->assertTrue($this->adapter->hasIndex('table1', ['email']));
-//        $this->assertTrue($this->adapter->hasIndex('table1', ['name']));
-//        $this->assertFalse($this->adapter->hasIndex('table1', ['email', 'user_email']));
-//        $this->assertFalse($this->adapter->hasIndex('table1', ['email', 'user_name']));
-//    }
-//
-//    public function testCreateTableWithUniqueIndexes()
-//    {
-//        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-//        $table->addColumn('email', 'string')
-//            ->addIndex('email', ['unique' => true])
-//            ->save();
-//        $this->assertTrue($this->adapter->hasIndex('table1', ['email']));
-//        $this->assertFalse($this->adapter->hasIndex('table1', ['email', 'user_email']));
-//    }
-//
-//    public function testCreateTableWithNamedIndexes()
-//    {
-//        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-//        $table->addColumn('email', 'string')
-//            ->addIndex('email', ['name' => 'myemailindex'])
-//            ->save();
-//        $this->assertTrue($this->adapter->hasIndex('table1', ['email']));
-//        $this->assertFalse($this->adapter->hasIndex('table1', ['email', 'user_email']));
-//        $this->assertTrue($this->adapter->hasIndexByName('table1', 'myemailindex'));
-//    }
+    public function testConnectionWithoutPort()
+    {
+        $options = $this->adapter->getOptions();
+        unset($options['port']);
+        $this->adapter->setOptions($options);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
+    }
+
+    public function testConnectionWithInvalidCredentials()
+    {
+        $options = [
+            'host' => TESTS_PHINX_DB_ADAPTER_ORACLE_HOST,
+            'user' => 'invaliduser',
+            'pass' => 'invalidpass',
+            'port' => TESTS_PHINX_DB_ADAPTER_ORACLE_PORT,
+            'sid' => TESTS_PHINX_DB_ADAPTER_ORACLE_SID
+        ];
+
+        try {
+            $adapter = new OracleAdapter($options, new ArrayInput([]), new NullOutput());
+            $adapter->connect();
+            $this->fail('Expected the adapter to throw an exception');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertInstanceOf(
+                'InvalidArgumentException',
+                $e,
+                'Expected exception of type InvalidArgumentException, got ' . get_class($e)
+            );
+            $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
+        }
+    }
+
+    public function testCreatingTheSchemaTableOnConnect()
+    {
+        $this->adapter->connect();
+        $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
+        $this->adapter->dropTable($this->adapter->getSchemaTableName());
+        $this->assertFalse($this->adapter->hasTable($this->adapter->getSchemaTableName()));
+        $this->adapter->disconnect();
+        $this->adapter->connect();
+        $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
+    }
+
+    public function testSchemaTableIsCreatedWithPrimaryKey()
+    {
+        $this->adapter->connect();
+        $table = new \Phinx\Db\Table($this->adapter->getSchemaTableName(), [], $this->adapter);
+        $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), ['version']));
+    }
+
+    public function testQuoteTableName()
+    {
+        $this->assertEquals('"test_table"', $this->adapter->quoteTableName('test_table'));
+    }
+
+    public function testQuoteColumnName()
+    {
+        $this->assertEquals('"test_column"', $this->adapter->quoteColumnName('test_column'));
+    }
+
+    public function testCreateTable()
+    {
+        $table = new \Phinx\Db\Table('ntable', [], $this->adapter);
+        $table->addColumn('realname', 'string')
+            ->addColumn('email', 'integer')
+            ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+        $this->adapter->dropTable('ntable');
+    }
+
+    public function testCreateTableCustomIdColumn()
+    {
+        $table = new \Phinx\Db\Table('ntable', ['id' => 'custom_id'], $this->adapter);
+        $table->addColumn('realname', 'string')
+            ->addColumn('email', 'integer')
+            ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'custom_id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+        $this->adapter->dropTable('ntable');
+    }
+
+    public function testCreateTableWithNoPrimaryKey()
+    {
+        $options = [
+            'id' => false
+        ];
+        $table = new \Phinx\Db\Table('atable', $options, $this->adapter);
+        $table->addColumn('user_id', 'integer')
+            ->save();
+        $this->assertFalse($this->adapter->hasColumn('atable', 'id'));
+        $this->adapter->dropTable('atable');
+    }
+
+    public function testCreateTableWithMultiplePrimaryKeys()
+    {
+        $options = [
+            'id' => false,
+            'primary_key' => ['user_id', 'tag_id']
+        ];
+        $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
+        $table->addColumn('user_id', 'integer')
+            ->addColumn('tag_id', 'integer')
+            ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', ['user_id', 'tag_id']));
+        $this->assertFalse($this->adapter->hasIndex('table1', ['tag_id', 'user_email']));
+
+        $this->adapter->dropTable('table1');
+    }
+
+    public function testCreateTableWithMultipleIndexes()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+            ->addColumn('name', 'string')
+            ->addIndex('email')
+            ->addIndex('name')
+            ->save();
+
+        $this->assertTrue($this->adapter->hasIndex('table1', ['email']));
+        $this->assertTrue($this->adapter->hasIndex('table1', ['name']));
+        $this->assertFalse($this->adapter->hasIndex('table1', ['email', 'user_email']));
+        $this->assertFalse($this->adapter->hasIndex('table1', ['email', 'user_name']));
+
+        $this->adapter->dropTable('table1');
+    }
+
+    public function testCreateTableWithUniqueIndexes()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+            ->addIndex('email', ['unique' => true])
+            ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', ['email']));
+        $this->assertFalse($this->adapter->hasIndex('table1', ['email', 'user_email']));
+
+        $this->adapter->dropTable('table1');
+    }
+
+    public function testCreateTableWithNamedIndexes()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+            ->addIndex('email', ['name' => 'myemailindex'])
+            ->save();
+        $this->assertTrue($this->adapter->hasIndex('table1', ['email']));
+        $this->assertFalse($this->adapter->hasIndex('table1', ['email', 'user_email']));
+        $this->assertTrue($this->adapter->hasIndexByName('table1', strtoupper('myemailindex')));
+
+        $this->adapter->dropTable('table1');
+    }
 //
 //    public function testRenameTable()
 //    {

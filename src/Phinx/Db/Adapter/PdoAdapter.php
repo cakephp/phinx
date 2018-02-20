@@ -68,7 +68,6 @@ abstract class PdoAdapter extends AbstractAdapter
     {
         $this->connection = $connection;
         // Create the schema table if it doesn't already exist
-
         if (!$this->hasSchemaTable()) {
             $this->createSchemaTable();
         } else {
