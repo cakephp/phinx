@@ -163,7 +163,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
      */
     public function quoteColumnName($columnName)
     {
-        return '[' . str_replace(']', '\]', $columnName) . ']';
+        return '"' . str_replace(']', '"', $columnName) . '"';
     }
 
     /**
@@ -184,8 +184,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
 
         // Add the default primary key
         $columns = $table->getPendingColumns();
-        var_dump($options);
-        exit();
+
         //TODO FAZER O CREATE TABLE E MUDAR OS TIPOS DAS COLUNAS PARA CRIAR TABELA.
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
             $column = new Column();
@@ -210,6 +209,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         $sqlBuffer = [];
         $columnsWithComments = [];
+
         foreach ($columns as $column) {
             $sqlBuffer[] = $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column);
 
@@ -238,7 +238,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $sql .= implode(', ', $sqlBuffer);
-        $sql .= ');';
+        $sql .= ')';
 
         // process column comments
         foreach ($columnsWithComments as $column) {
@@ -250,7 +250,6 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         foreach ($indexes as $index) {
             $sql .= $this->getIndexSqlDefinition($index, $table->getName());
         }
-
         // execute the sql
         $this->execute($sql);
     }
@@ -388,16 +387,14 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasColumn($tableName, $columnName)
     {
-        $sql = sprintf(
-            "SELECT count(*) as [count]
-             FROM information_schema.columns
-             WHERE table_name = '%s' AND column_name = '%s'",
+        $sql = sprintf("select count(*) as count from ALL_TAB_COLUMNS 
+            where table_name = '%s' and column_name = '%s'",
             $tableName,
             $columnName
         );
-        $result = $this->fetchRow($sql);
 
-        return $result['count'] > 0;
+        $result = $this->fetchRow($sql);
+        return $result['COUNT'] > 0;
     }
 
     /**
@@ -826,35 +823,40 @@ ORDER BY T.[name], I.[index_id];";
      */
     public function getSqlType($type, $limit = null)
     {
+//      reference: https://docs.oracle.com/cd/B19306_01/gateways.102/b14270/apa.htm
         switch ($type) {
             case static::PHINX_TYPE_STRING:
-                return ['name' => 'nvarchar', 'limit' => 255];
+                return ['name' => 'VARCHAR2', 'limit' => 255];
             case static::PHINX_TYPE_CHAR:
-                return ['name' => 'nchar', 'limit' => 255];
+                return ['name' => 'CHAR', 'limit' => 255];
             case static::PHINX_TYPE_TEXT:
-                return ['name' => 'ntext'];
+                return ['name' => 'LONG'];
             case static::PHINX_TYPE_INTEGER:
-                return ['name' => 'int'];
+                return ['name' => 'NUMBER', 'precision' => 10];
             case static::PHINX_TYPE_BIG_INTEGER:
-                return ['name' => 'bigint'];
+                return ['name' => 'NUMBER', 'precision' => 19];
             case static::PHINX_TYPE_FLOAT:
-                return ['name' => 'float'];
+                return ['name' => 'FLOAT', 'precision' => 49];
             case static::PHINX_TYPE_DECIMAL:
-                return ['name' => 'decimal'];
+                return ['name' => 'NUMBER'];
             case static::PHINX_TYPE_DATETIME:
+                return ['name' => 'DATE'];
             case static::PHINX_TYPE_TIMESTAMP:
-                return ['name' => 'datetime'];
+                return ['name' => 'TIMESTAMP'];
             case static::PHINX_TYPE_TIME:
                 return ['name' => 'time'];
             case static::PHINX_TYPE_DATE:
-                return ['name' => 'date'];
+                return ['name' => 'DATE'];
             case static::PHINX_TYPE_BLOB:
+                return ['name' => 'BLOB'];
+            case 'CLOB':
+                return ['name' => 'CLOB'];
             case static::PHINX_TYPE_BINARY:
-                return ['name' => 'varbinary'];
+                return ['name' => 'RAW'];
             case static::PHINX_TYPE_BOOLEAN:
-                return ['name' => 'bit'];
+                return ['name' => 'NUMBER', 'precision' => 1];
             case static::PHINX_TYPE_UUID:
-                return ['name' => 'uniqueidentifier'];
+                return ['name' => 'RAW', 'precision' => 16, 'default' => 'SYS_GUID()'];
             case static::PHINX_TYPE_FILESTREAM:
                 return ['name' => 'varbinary', 'limit' => 'max'];
             // Geospatial database types
@@ -927,6 +929,7 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * {@inheritdoc}
      */
+    //    TODO
     public function createDatabase($name, $options = [])
     {
         if (isset($options['collation'])) {
@@ -955,6 +958,7 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * {@inheritdoc}
      */
+//    TODO
     public function dropDatabase($name)
     {
         $sql = <<<SQL
@@ -994,25 +998,24 @@ SQL;
         $buffer = [];
 
         $sqlType = $this->getSqlType($column->getType());
+
         $buffer[] = strtoupper($sqlType['name']);
-        // integers cant have limits in SQlServer
+        // integers cant have limits in Oracle
         $noLimits = [
-            'bigint',
-            'int',
-            'tinyint'
+            static::PHINX_TYPE_INTEGER,
+            static::PHINX_TYPE_BIG_INTEGER,
+            static::PHINX_TYPE_FLOAT,
+            static::PHINX_TYPE_UUID,
+            static::PHINX_TYPE_BOOLEAN
         ];
-        if (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
+        if (!in_array($column->getType(), $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
             $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
         }
         if ($column->getPrecision() && $column->getScale()) {
             $buffer[] = '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         }
 
-        $properties = $column->getProperties();
-        $buffer[] = $column->getType() === 'filestream' ? 'FILESTREAM' : '';
-        $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';
-
-        $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
+//        $properties = $column->getProperties();
 
         if ($create === true) {
             if ($column->getDefault() === null && $column->isNull()) {
@@ -1021,6 +1024,8 @@ SQL;
                 $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
             }
         }
+
+        $buffer[] = $column->isNull() ? '' : 'NOT NULL';
 
         if ($column->isIdentity()) {
             $buffer[] = 'IDENTITY(1, 1)';

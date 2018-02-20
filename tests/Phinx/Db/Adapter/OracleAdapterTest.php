@@ -36,23 +36,7 @@ class OracleAdapterTest extends TestCase
 
         $this->adapter = new OracleAdapter($options, new ArrayInput([]), new NullOutput());
         $this->adapter->getConnection();
-//        $sqlQuery = 'SELECT CD_USUARIO AS \'TESTE\' FROM CAD_USU';
-        var_dump('aaaa');
 
-//        $stmt = $conn->prepare('SELECT * FROM CAD_USU');
-        exit();
-        $stmt->execute(array($stmt));
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $stmt->closeCursor();
-        var_dump($results);
-        exit();
-//        $sql = $this->adapter->query($sqlQuery);
-        foreach ($this->adapter->query($sqlQuery) as $row) {
-            var_dump($row);
-        }
-
-
-        exit();
         // ensure the database is empty for each test
         $this->adapter->dropDatabase($options['connectionString']);
         $this->adapter->createDatabase($options['connectionString']);
