@@ -38,6 +38,7 @@ use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
+use phpDocumentor\Reflection\Types\Null_;
 
 /**
  * Phinx SqlServer Adapter.
@@ -243,7 +244,6 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         foreach ($columnsWithComments as $column) {
             $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
         }
-
         $this->execute($sql);
 
         // set the indexes
@@ -309,7 +309,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
      */
     public function renameTable($tableName, $newTableName)
     {
-        $this->execute(sprintf('EXEC sp_rename \'%s\', \'%s\'', $tableName, $newTableName));
+        $this->execute(sprintf('alter table "%s" rename to "%s"', $tableName, $newTableName));
     }
 
     /**
@@ -335,21 +335,12 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
 
     public function getColumnComment($tableName, $columnName)
     {
-        $sql = sprintf("SELECT cast(extended_properties.[value] as nvarchar(4000)) comment
-  FROM sys.schemas
- INNER JOIN sys.tables
-    ON schemas.schema_id = tables.schema_id
- INNER JOIN sys.columns
-    ON tables.object_id = columns.object_id
- INNER JOIN sys.extended_properties
-    ON tables.object_id = extended_properties.major_id
-   AND columns.column_id = extended_properties.minor_id
-   AND extended_properties.name = 'MS_Description'
-   WHERE schemas.[name] = '%s' AND tables.[name] = '%s' AND columns.[name] = '%s'", $this->schema, $tableName, $columnName);
+        $sql = sprintf("select COMMENTS from ALL_COL_COMMENTS WHERE COLUMN_NAME = '%s' and TABLE_NAME = '%s'",
+            $columnName, $tableName);
         $row = $this->fetchRow($sql);
 
-        if ($row) {
-            return $row['comment'];
+        if ($row['COMMENTS'] != 'NULL') {
+            return $row['COMMENTS'];
         }
 
         return false;
@@ -361,33 +352,28 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
     public function getColumns($tableName)
     {
         $columns = [];
-        $sql = sprintf(
-            "SELECT DISTINCT TABLE_SCHEMA AS [schema], TABLE_NAME as [table_name], COLUMN_NAME AS [name], DATA_TYPE AS [type],
-            IS_NULLABLE AS [null], COLUMN_DEFAULT AS [default],
-            CHARACTER_MAXIMUM_LENGTH AS [char_length],
-            NUMERIC_PRECISION AS [precision],
-            NUMERIC_SCALE AS [scale], ORDINAL_POSITION AS [ordinal_position],
-            COLUMNPROPERTY(object_id(TABLE_NAME), COLUMN_NAME, 'IsIdentity') as [identity]
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = '%s'
-        ORDER BY ordinal_position",
-            $tableName
-        );
+
+        $sql = sprintf("select TABLE_NAME \"TABLE_NAME\", COLUMN_NAME \"NAME\", DATA_TYPE \"TYPE\", NULLABLE \"NULL\", DATA_DEFAULT \"DEFAULT\",
+            DATA_LENGTH \"CHAR_LENGTH\", DATA_PRECISION \"PRECISION\", DATA_SCALE \"SCALE\", COLUMN_ID \"ORDINAL_POSITION\"
+            FROM ALL_TAB_COLUMNS WHERE table_name = '%s'", $tableName);
+
         $rows = $this->fetchAll($sql);
+
         foreach ($rows as $columnInfo) {
             $column = new Column();
-            $column->setName($columnInfo['name'])
-                ->setType($this->getPhinxType($columnInfo['type']))
-                ->setNull($columnInfo['null'] !== 'NO')
-                ->setDefault($this->parseDefault($columnInfo['default']))
-                ->setIdentity($columnInfo['identity'] === '1')
-                ->setComment($this->getColumnComment($columnInfo['table_name'], $columnInfo['name']));
+            $column->setName($columnInfo['NAME'])
+                ->setType($this->getPhinxType($columnInfo['TYPE'], $columnInfo['PRECISION']))
+                ->setNull($columnInfo['NULL'] !== 'N')
+                ->setDefault($columnInfo['DEFAULT'])
+//                TODO VERIFICAR SE É PRIMARY KEY
+//                ->setIdentity($columnInfo['identity'] === '1')
+                ->setComment($this->getColumnComment($columnInfo['TABLE_NAME'], $columnInfo['NAME']));
 
-            if (!empty($columnInfo['char_length'])) {
-                $column->setLimit($columnInfo['char_length']);
+            if (!empty($columnInfo['CHAR_LENGTH'])) {
+                $column->setLimit($columnInfo['CHAR_LENGTH']);
             }
 
-            $columns[$columnInfo['name']] = $column;
+            $columns[$columnInfo['NAME']] = $column;
         }
 
         return $columns;
@@ -444,10 +430,11 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         if (!$this->hasColumn($tableName, $columnName)) {
             throw new \InvalidArgumentException("The specified column does not exist: $columnName");
         }
-        $this->renameDefault($tableName, $columnName, $newColumnName);
+//        $this->renameDefault($tableName, $columnName, $newColumnName);
+
         $this->execute(
             sprintf(
-                "EXECUTE sp_rename N'%s.%s', N'%s', 'COLUMN' ",
+                "alter table \"%s\" rename column \"%s\" TO \"%s\"",
                 $tableName,
                 $columnName,
                 $newColumnName
@@ -472,51 +459,25 @@ SQL;
         ));
     }
 
-    public function changeDefault($tableName, Column $newColumn)
-    {
-        $constraintName = "DF_{$tableName}_{$newColumn->getName()}";
-        $default = $newColumn->getDefault();
-
-        if ($default === null) {
-            $default = 'DEFAULT NULL';
-        } else {
-            $default = $this->getDefaultValueDefinition($default);
-        }
-
-        if (empty($default)) {
-            return;
-        }
-
-        $this->execute(sprintf(
-            'ALTER TABLE %s ADD CONSTRAINT %s %s FOR %s',
-            $this->quoteTableName($tableName),
-            $constraintName,
-            $default,
-            $this->quoteColumnName($newColumn->getName())
-        ));
-    }
-
     /**
      * {@inheritdoc}
      */
     public function changeColumn($tableName, $columnName, Column $newColumn)
     {
         $columns = $this->getColumns($tableName);
-        $changeDefault = $newColumn->getDefault() !== $columns[$columnName]->getDefault() || $newColumn->getType() !== $columns[$columnName]->getType();
+
         if ($columnName !== $newColumn->getName()) {
             $this->renameColumn($tableName, $columnName, $newColumn->getName());
         }
 
-        if ($changeDefault) {
-            $this->dropDefaultConstraint($tableName, $newColumn->getName());
-        }
+        $setNullSql = ($newColumn->isNull() == $columns[$columnName]->isNull() ? false : true);
 
         $this->execute(
             sprintf(
-                'ALTER TABLE %s ALTER COLUMN %s %s',
+                'ALTER TABLE %s MODIFY(%s %s)',
                 $this->quoteTableName($tableName),
                 $this->quoteColumnName($newColumn->getName()),
-                $this->getColumnSqlDefinition($newColumn, false)
+                $this->getColumnSqlDefinition($newColumn, false, $setNullSql)
             )
         );
         // change column comment if needed
@@ -525,9 +486,6 @@ SQL;
             $this->execute($sql);
         }
 
-        if ($changeDefault) {
-            $this->changeDefault($tableName, $newColumn);
-        }
     }
 
     /**
@@ -544,46 +502,6 @@ SQL;
                 $this->quoteColumnName($columnName)
             )
         );
-    }
-
-    protected function dropDefaultConstraint($tableName, $columnName)
-    {
-        $defaultConstraint = $this->getDefaultConstraint($tableName, $columnName);
-
-        if (!$defaultConstraint) {
-            return;
-        }
-
-        $this->dropForeignKey($tableName, $columnName, $defaultConstraint);
-    }
-
-    protected function getDefaultConstraint($tableName, $columnName)
-    {
-        $sql = "SELECT
-    default_constraints.name
-FROM
-    sys.all_columns
-
-        INNER JOIN
-    sys.tables
-        ON all_columns.object_id = tables.object_id
-
-        INNER JOIN
-    sys.schemas
-        ON tables.schema_id = schemas.schema_id
-
-        INNER JOIN
-    sys.default_constraints
-        ON all_columns.default_object_id = default_constraints.object_id
-
-WHERE
-        schemas.name = 'dbo'
-    AND tables.name = '{$tableName}'
-    AND all_columns.name = '{$columnName}'";
-
-        $rows = $this->fetchAll($sql);
-
-        return empty($rows) ? false : $rows[0]['name'];
     }
 
     /**
@@ -885,47 +803,49 @@ WHERE
      * @internal param string $sqlType SQL type
      * @returns string Phinx type
      */
-    public function getPhinxType($sqlType)
+    public function getPhinxType($sqlType, $precision)
     {
         switch ($sqlType) {
-            case 'nvarchar':
-            case 'varchar':
+            case 'VARCHAR2':
                 return static::PHINX_TYPE_STRING;
-            case 'char':
-            case 'nchar':
+            case 'CHAR':
                 return static::PHINX_TYPE_CHAR;
-            case 'text':
-            case 'ntext':
+            case 'LONG':
                 return static::PHINX_TYPE_TEXT;
-            case 'int':
-            case 'integer':
+            case 'NUMBER' AND $precision == 10:
                 return static::PHINX_TYPE_INTEGER;
-            case 'decimal':
-            case 'numeric':
-            case 'money':
-                return static::PHINX_TYPE_DECIMAL;
-            case 'bigint':
+            case 'NUMBER' AND $precision == 19:
                 return static::PHINX_TYPE_BIG_INTEGER;
-            case 'real':
-            case 'float':
+            case 'NUMBER' AND $precision == 49:
                 return static::PHINX_TYPE_FLOAT;
-            case 'binary':
-            case 'image':
-            case 'varbinary':
-                return static::PHINX_TYPE_BINARY;
-            case 'time':
+            case 'TIMESTAMP':
+                return static::PHINX_TYPE_TIMESTAMP;
+            case 'TIME':
                 return static::PHINX_TYPE_TIME;
-            case 'date':
+            case 'DATE':
                 return static::PHINX_TYPE_DATE;
-            case 'datetime':
-            case 'timestamp':
-                return static::PHINX_TYPE_DATETIME;
-            case 'bit':
-                return static::PHINX_TYPE_BOOLEAN;
-            case 'uniqueidentifier':
+            case 'BLOB':
+                return static::PHINX_TYPE_BLOB;
+            case 'CLOB':
+                return 'CLOB';
+            case 'RAW' and $precision = 16:
                 return static::PHINX_TYPE_UUID;
-            case 'filestream':
-                return static::PHINX_TYPE_FILESTREAM;
+            case 'RAW':
+                return static::PHINX_TYPE_BLOB;
+            case 'NUMBER' and $precision = 1:
+                return static::PHINX_TYPE_BOOLEAN;
+            case 'NUMBER':
+                return static::PHINX_TYPE_DECIMAL;
+            case static::PHINX_TYPE_FILESTREAM:
+                return ['name' => 'varbinary', 'limit' => 'max'];
+            // Geospatial database types
+            case static::PHINX_TYPE_GEOMETRY:
+            case static::PHINX_TYPE_POINT:
+            case static::PHINX_TYPE_LINESTRING:
+            case static::PHINX_TYPE_POLYGON:
+                // SQL Server stores all spatial data using a single data type.
+                // Specific types (point, polygon, etc) are set at insert time.
+                return ['name' => 'geography'];
             default:
                 throw new \RuntimeException('The SqlServer type: "' . $sqlType . '" is not supported');
         }
@@ -998,7 +918,7 @@ SQL;
      * @param \Phinx\Db\Table\Column $column Column
      * @return string
      */
-    protected function getColumnSqlDefinition(Column $column, $create = true)
+    protected function getColumnSqlDefinition(Column $column, $create = true, $setNullSql = true)
     {
         $buffer = [];
 
@@ -1020,17 +940,15 @@ SQL;
             $buffer[] = '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         }
 
-//        $properties = $column->getProperties();
-
-        if ($create === true) {
-            if ($column->getDefault() === null && $column->isNull()) {
-                $buffer[] = ' DEFAULT NULL';
-            } else {
-                $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
-            }
+        if ($column->getDefault() === null && $column->isNull()) {
+            $buffer[] = ' DEFAULT NULL';
+        } else {
+            $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
         }
 
-        $buffer[] = $column->isNull() ? '' : 'NOT NULL';
+        if($setNullSql){
+            $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
+        }
 
         return implode(' ', $buffer);
     }
