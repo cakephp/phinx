@@ -101,7 +101,7 @@ class OracleAdapterTest extends TestCase
     {
         $this->adapter->connect();
         $table = new \Phinx\Db\Table($this->adapter->getSchemaTableName(), [], $this->adapter);
-        $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), ['version']));
+        $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), ['VERSION']));
     }
 
     public function testQuoteTableName()
@@ -158,14 +158,14 @@ class OracleAdapterTest extends TestCase
     {
         $options = [
             'id' => false,
-            'primary_key' => ['user_id', 'tag_id']
+            'primary_key' => ['USER_ID', 'TAG_ID']
         ];
         $table = new \Phinx\Db\Table('TABLE1', $options, $this->adapter);
-        $table->addColumn('user_id', 'integer')
-            ->addColumn('tag_id', 'integer')
+        $table->addColumn('USER_ID', 'integer')
+            ->addColumn('TAG_ID', 'integer')
             ->save();
-        $this->assertTrue($this->adapter->hasIndex('TABLE1', ['user_id', 'tag_id']));
-        $this->assertFalse($this->adapter->hasIndex('TABLE1', ['tag_id', 'user_email']));
+        $this->assertTrue($this->adapter->hasIndex('TABLE1', ['USER_ID', 'TAG_ID']));
+        $this->assertFalse($this->adapter->hasIndex('TABLE1', ['TAG_ID', 'USER_EMAIL']));
 
         $this->adapter->dropTable('TABLE1');
     }
@@ -173,16 +173,16 @@ class OracleAdapterTest extends TestCase
     public function testCreateTableWithMultipleIndexes()
     {
         $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-        $table->addColumn('email', 'string')
-            ->addColumn('name', 'string')
-            ->addIndex('email')
-            ->addIndex('name')
+        $table->addColumn('EMAIL', 'string')
+            ->addColumn('NAME', 'string')
+            ->addIndex('EMAIL')
+            ->addIndex('NAME')
             ->save();
 
-        $this->assertTrue($this->adapter->hasIndex('TABLE1', ['email']));
-        $this->assertTrue($this->adapter->hasIndex('TABLE1', ['name']));
-        $this->assertFalse($this->adapter->hasIndex('TABLE1', ['email', 'user_email']));
-        $this->assertFalse($this->adapter->hasIndex('TABLE1', ['email', 'user_name']));
+        $this->assertTrue($this->adapter->hasIndex('TABLE1', ['EMAIL']));
+        $this->assertTrue($this->adapter->hasIndex('TABLE1', ['NAME']));
+        $this->assertFalse($this->adapter->hasIndex('TABLE1', ['EMAIL', 'USER_EMAIL']));
+        $this->assertFalse($this->adapter->hasIndex('TABLE1', ['email', 'USER_NAME']));
 
         $this->adapter->dropTable('TABLE1');
     }
@@ -190,11 +190,11 @@ class OracleAdapterTest extends TestCase
     public function testCreateTableWithUniqueIndexes()
     {
         $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-        $table->addColumn('email', 'string')
-            ->addIndex('email', ['unique' => true])
+        $table->addColumn('EMAIL', 'string')
+            ->addIndex('EMAIL', ['unique' => true])
             ->save();
-        $this->assertTrue($this->adapter->hasIndex('TABLE1', ['email']));
-        $this->assertFalse($this->adapter->hasIndex('TABLE1', ['email', 'user_email']));
+        $this->assertTrue($this->adapter->hasIndex('TABLE1', ['EMAIL']));
+        $this->assertFalse($this->adapter->hasIndex('TABLE1', ['EMAIL', 'USER_EMAIL']));
 
         $this->adapter->dropTable('TABLE1');
     }
@@ -202,12 +202,12 @@ class OracleAdapterTest extends TestCase
     public function testCreateTableWithNamedIndexes()
     {
         $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-        $table->addColumn('email', 'string')
-            ->addIndex('email', ['name' => 'myemailindex'])
+        $table->addColumn('EMAIL', 'string')
+            ->addIndex('EMAIL', ['name' => 'MYEMAILINDEX'])
             ->save();
-        $this->assertTrue($this->adapter->hasIndex('TABLE1', ['email']));
-        $this->assertFalse($this->adapter->hasIndex('TABLE1', ['email', 'user_email']));
-        $this->assertTrue($this->adapter->hasIndexByName('TABLE1', strtoupper('myemailindex')));
+        $this->assertTrue($this->adapter->hasIndex('TABLE1', ['EMAIL']));
+        $this->assertFalse($this->adapter->hasIndex('TABLE1', ['EMAIL', 'USER_EMAIL']));
+        $this->assertTrue($this->adapter->hasIndexByName('TABLE1', strtoupper('MYEMAILINDEX')));
 
         $this->adapter->dropTable('TABLE1');
     }
@@ -461,7 +461,9 @@ class OracleAdapterTest extends TestCase
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('T');
+
         $this->adapter->dropTable('T');
+
         $this->assertCount(count($pendingColumns) + 1, $columns);
         for ($i = 0; $i++; $i < count($pendingColumns)) {
             $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
@@ -476,118 +478,135 @@ class OracleAdapterTest extends TestCase
     public function testAddIndex()
     {
         $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-        $table->addColumn('email', 'string')
+        $table->addColumn('EMAIL', 'string')
             ->save();
-        $this->assertFalse($table->hasIndex('email'));
-        $table->addIndex('email')
+        $this->assertFalse($table->hasIndex('EMAIL'));
+        $table->addIndex('EMAIL')
             ->save();
-        $this->assertTrue($table->hasIndex('email'));
+
+        $this->assertTrue($table->hasIndex('EMAIL'));
+        $this->adapter->dropTable('TABLE1');
     }
 
-//    public function testGetIndexes()
-//    {
-//        // single column index
-//        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-//        $table->addColumn('email', 'string')
-//            ->addColumn('username', 'string')
-//            ->addIndex('email')
-//            ->addIndex(['email', 'username'], ['unique' => true, 'name' => 'email_username'])
-//            ->save();
-//
-//        $indexes = $this->adapter->getIndexes('TABLE1');
-//        $this->assertArrayHasKey('PK_TABLE1', $indexes);
-//        $this->assertArrayHasKey('TABLE1_email', $indexes);
-//        $this->assertArrayHasKey('email_username', $indexes);
-//
-//        $this->assertEquals(['id'], $indexes['PK_TABLE1']['columns']);
-//        $this->assertEquals(['email'], $indexes['TABLE1_email']['columns']);
-//        $this->assertEquals(['email', 'username'], $indexes['email_username']['columns']);
-//    }
-//
-//    public function testDropIndex()
-//    {
-//        // single column index
-//        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-//        $table->addColumn('email', 'string')
-//            ->addIndex('email')
-//            ->save();
-//        $this->assertTrue($table->hasIndex('email'));
-//        $this->adapter->dropIndex($table->getName(), 'email');
-//        $this->assertFalse($table->hasIndex('email'));
-//
-//        // multiple column index
-//        $TABLE2 = new \Phinx\Db\Table('TABLE2', [], $this->adapter);
-//        $TABLE2->addColumn('fname', 'string')
-//            ->addColumn('lname', 'string')
-//            ->addIndex(['fname', 'lname'])
-//            ->save();
-//        $this->assertTrue($TABLE2->hasIndex(['fname', 'lname']));
-//        $this->adapter->dropIndex($TABLE2->getName(), ['fname', 'lname']);
-//        $this->assertFalse($TABLE2->hasIndex(['fname', 'lname']));
-//
-//        // index with name specified, but dropping it by column name
-//        $table3 = new \Phinx\Db\Table('table3', [], $this->adapter);
-//        $table3->addColumn('email', 'string')
-//            ->addIndex('email', ['name' => 'someindexname'])
-//            ->save();
-//        $this->assertTrue($table3->hasIndex('email'));
-//        $this->adapter->dropIndex($table3->getName(), 'email');
-//        $this->assertFalse($table3->hasIndex('email'));
-//
-//        // multiple column index with name specified
-//        $table4 = new \Phinx\Db\Table('table4', [], $this->adapter);
-//        $table4->addColumn('fname', 'string')
-//            ->addColumn('lname', 'string')
-//            ->addIndex(['fname', 'lname'], ['name' => 'multiname'])
-//            ->save();
-//        $this->assertTrue($table4->hasIndex(['fname', 'lname']));
-//        $this->adapter->dropIndex($table4->getName(), ['fname', 'lname']);
-//        $this->assertFalse($table4->hasIndex(['fname', 'lname']));
-//    }
-//
-//    public function testDropIndexByName()
-//    {
-//        // single column index
-//        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-//        $table->addColumn('email', 'string')
-//            ->addIndex('email', ['name' => 'myemailindex'])
-//            ->save();
-//        $this->assertTrue($table->hasIndex('email'));
-//        $this->adapter->dropIndexByName($table->getName(), 'myemailindex');
-//        $this->assertFalse($table->hasIndex('email'));
-//
-//        // multiple column index
-//        $TABLE2 = new \Phinx\Db\Table('TABLE2', [], $this->adapter);
-//        $TABLE2->addColumn('fname', 'string')
-//            ->addColumn('lname', 'string')
-//            ->addIndex(
-//                ['fname', 'lname'],
-//                ['name' => 'twocolumnuniqueindex', 'unique' => true]
-//            )
-//            ->save();
-//        $this->assertTrue($TABLE2->hasIndex(['fname', 'lname']));
-//        $this->adapter->dropIndexByName($TABLE2->getName(), 'twocolumnuniqueindex');
-//        $this->assertFalse($TABLE2->hasIndex(['fname', 'lname']));
-//    }
-//
-//    public function testAddForeignKey()
-//    {
-//        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
-//        $refTable->addColumn('field1', 'string')->save();
-//
-//        $table = new \Phinx\Db\Table('table', [], $this->adapter);
-//        $table->addColumn('ref_table_id', 'integer')->save();
-//
-//        $fk = new \Phinx\Db\Table\ForeignKey();
-//        $fk->setReferencedTable($refTable)
-//            ->setColumns(['ref_table_id'])
-//            ->setReferencedColumns(['id'])
-//            ->setConstraint('fk1');
-//
-//        $this->adapter->addForeignKey($table, $fk);
-//        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id'], 'fk1'));
-//    }
-//
+    public function testGetIndexes()
+    {
+        // single column index
+        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
+        $table->addColumn('EMAIL', 'string')
+            ->addColumn('USERNAME', 'string')
+            ->addIndex('EMAIL')
+            ->addIndex(['EMAIL', 'USERNAME'], ['unique' => true, 'name' => 'EMAIL_USERNAME'])
+            ->save();
+
+        $indexes = $this->adapter->getIndexes('TABLE1');
+
+        $this->adapter->dropTable('TABLE1');
+
+        $this->assertArrayHasKey('PK_TABLE1', $indexes);
+        $this->assertArrayHasKey('TABLE1_EMAIL', $indexes);
+        $this->assertArrayHasKey('EMAIL_USERNAME', $indexes);
+
+        $this->assertEquals(['ID'], $indexes['PK_TABLE1']['columns']);
+        $this->assertEquals(['EMAIL'], $indexes['TABLE1_EMAIL']['columns']);
+        $this->assertEquals(['EMAIL', 'USERNAME'], $indexes['EMAIL_USERNAME']['columns']);
+    }
+
+    public function testDropIndex()
+    {
+        // single column index
+        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
+        $table->addColumn('EMAIL', 'string')
+            ->addIndex('EMAIL')
+            ->save();
+        $this->assertTrue($table->hasIndex('EMAIL'));
+        $this->adapter->dropIndex($table->getName(), 'EMAIL');
+        $this->assertFalse($table->hasIndex('EMAIL'));
+
+        // multiple column index
+        $TABLE2 = new \Phinx\Db\Table('TABLE2', [], $this->adapter);
+        $TABLE2->addColumn('FNAME', 'string')
+            ->addColumn('LNAME', 'string')
+            ->addIndex(['FNAME', 'LNAME'])
+            ->save();
+        $this->assertTrue($TABLE2->hasIndex(['FNAME', 'LNAME']));
+        $this->adapter->dropIndex($TABLE2->getName(), ['FNAME', 'LNAME']);
+        $this->assertFalse($TABLE2->hasIndex(['FNAME', 'LNAME']));
+
+        // index with name specified, but dropping it by column name
+        $table3 = new \Phinx\Db\Table('TABLE3', [], $this->adapter);
+        $table3->addColumn('EMAIL', 'string')
+            ->addIndex('EMAIL', ['name' => 'SOMEINDEXNAME'])
+            ->save();
+        $this->assertTrue($table3->hasIndex('EMAIL'));
+        $this->adapter->dropIndex($table3->getName(), 'EMAIL');
+        $this->assertFalse($table3->hasIndex('EMAIL'));
+
+        // multiple column index with name specified
+        $table4 = new \Phinx\Db\Table('TABLE4', [], $this->adapter);
+        $table4->addColumn('FNAME', 'string')
+            ->addColumn('LNAME', 'string')
+            ->addIndex(['FNAME', 'LNAME'], ['name' => 'multiname'])
+            ->save();
+        $this->assertTrue($table4->hasIndex(['FNAME', 'LNAME']));
+        $this->adapter->dropIndex($table4->getName(), ['FNAME', 'LNAME']);
+        $this->assertFalse($table4->hasIndex(['FNAME', 'LNAME']));
+
+        $this->adapter->dropTable('TABLE1');
+        $this->adapter->dropTable('TABLE2');
+        $this->adapter->dropTable('TABLE3');
+        $this->adapter->dropTable('TABLE4');
+
+    }
+
+    public function testDropIndexByName()
+    {
+        // single column index
+        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
+        $table->addColumn('EMAIL', 'string')
+            ->addIndex('EMAIL', ['name' => 'MYEMAILINDEX'])
+            ->save();
+        $this->assertTrue($table->hasIndex('EMAIL'));
+        $this->adapter->dropIndexByName($table->getName(), 'MYEMAILINDEX');
+        $this->assertFalse($table->hasIndex('EMAIL'));
+
+        // multiple column index
+        $TABLE2 = new \Phinx\Db\Table('TABLE2', [], $this->adapter);
+        $TABLE2->addColumn('FNAME', 'string')
+            ->addColumn('LNAME', 'string')
+            ->addIndex(
+                ['FNAME', 'LNAME'],
+                ['name' => 'TWOCOLUMNINIQUEINDEX', 'unique' => true]
+            )
+            ->save();
+        $this->assertTrue($TABLE2->hasIndex(['FNAME', 'LNAME']));
+        $this->adapter->dropIndexByName($TABLE2->getName(), 'TWOCOLUMNINIQUEINDEX');
+        $this->assertFalse($TABLE2->hasIndex(['FNAME', 'LNAME']));
+
+        $this->adapter->dropTable('TABLE1');
+        $this->adapter->dropTable('TABLE2');
+    }
+
+    public function testAddForeignKey()
+    {
+        $refTable = new \Phinx\Db\Table('TEF_TABLE', [], $this->adapter);
+        $refTable->addColumn('FIELD1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('TABLE', [], $this->adapter);
+        $table->addColumn('TEF_TABLE_ID', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+            ->setColumns(['TEF_TABLE_ID'])
+            ->setReferencedColumns(['id'])
+            ->setConstraint('fk1');
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['TEF_TABLE_ID'], 'fk1'));
+
+        $this->adapter->dropTable('TEF_TABLE');
+        $this->adapter->dropTable('TABLE');
+    }
+
 //    public function dropForeignKey()
 //    {
 //        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);

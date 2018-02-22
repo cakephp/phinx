@@ -245,9 +245,9 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
             $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
         }
         $this->execute($sql);
-
         // set the indexes
         $indexes = $table->getIndexes();
+
         if(!empty($indexes))
         {
             foreach ($indexes as $index) {
@@ -523,7 +523,7 @@ SQL;
             if (!isset($indexes[$row['INDEX_NAME']])) {
                 $indexes[$row['INDEX_NAME']] = ['columns' => []];
             }
-            $indexes[$row['INDEX_NAME']]['columns'][] = strtolower($row['COLUMN_NAME']);
+            $indexes[$row['INDEX_NAME']]['columns'][] = strtoupper($row['COLUMN_NAME']);
         }
 
         return $indexes;
@@ -540,7 +540,6 @@ SQL;
         }
 
         $indexes = $this->getIndexes($tableName);
-
         foreach ($indexes as $index) {
             $a = array_diff($columns, $index['columns']);
 
@@ -587,16 +586,15 @@ SQL;
         }
 
         $indexes = $this->getIndexes($tableName);
-        $columns = array_map('strtolower', $columns);
+        $columns = array_map('strtoupper', $columns);
 
         foreach ($indexes as $indexName => $index) {
             $a = array_diff($columns, $index['columns']);
             if (empty($a)) {
                 $this->execute(
                     sprintf(
-                        'DROP INDEX %s ON %s',
-                        $this->quoteColumnName($indexName),
-                        $this->quoteTableName($tableName)
+                        'DROP INDEX %s',
+                        $this->quoteColumnName($indexName)
                     )
                 );
 
@@ -616,7 +614,7 @@ SQL;
             if ($name === $indexName) {
                 $this->execute(
                     sprintf(
-                        'DROP INDEX %s ON %s',
+                        'DROP INDEX %s',
                         $this->quoteColumnName($indexName),
                         $this->quoteTableName($tableName)
                     )
@@ -979,7 +977,7 @@ SQL;
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
             $this->quoteTableName($tableName),
-            '"' . implode('],[', $index->getColumns()) . '"'
+            '"' . implode('","', $index->getColumns()) . '"'
         );
 
         return $def;
