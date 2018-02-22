@@ -279,8 +279,7 @@ class OracleAdapterTest extends TestCase
         $columns = $this->adapter->getColumns('TABLE1');
         foreach ($columns as $column) {
             if ($column->getName() == 'default_null') {
-                $null_ = (trim($column->getDefault()) == 'NULL' ? null : (trim($column->getDefault())));
-                $this->assertNull($null_);
+                $this->assertNull($column->getDefault());
             }
         }
 
@@ -405,6 +404,7 @@ class OracleAdapterTest extends TestCase
         $table = new \Phinx\Db\Table('T', [], $this->adapter);
         $table->addColumn('column1', 'string', ['null' => true, 'default' => 'test'])
             ->save();
+
         $newColumn1 = new \Phinx\Db\Table\Column();
         $newColumn1
             ->setType('string')
@@ -413,77 +413,77 @@ class OracleAdapterTest extends TestCase
         $columns = $this->adapter->getColumns('T');
 
         $this->adapter->dropTable('T');
-        var_dump($columns['column1']);
+
         $this->assertNull($columns['column1']->getDefault());
-
-
     }
 
-//    public function testChangeColumnDefaultToZero()
-//    {
-//        $table = new \Phinx\Db\Table('t', [], $this->adapter);
-//        $table->addColumn('column1', 'integer')
-//            ->save();
-//        $newColumn1 = new \Phinx\Db\Table\Column();
-//        $newColumn1
-//            ->setType('string')
-//            ->setDefault(0);
-//        $table->changeColumn('column1', $newColumn1);
-//        $columns = $this->adapter->getColumns('t');
-//        $this->assertSame(0, $columns['column1']->getDefault());
-//    }
-//
-//    public function testDropColumn()
-//    {
-//        $table = new \Phinx\Db\Table('t', [], $this->adapter);
-//        $table->addColumn('column1', 'string')
-//            ->save();
-//        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
-//        $this->adapter->dropColumn('t', 'column1');
-//        $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
-//    }
-//
-//    public function testGetColumns()
-//    {
-//        $table = new \Phinx\Db\Table('t', [], $this->adapter);
-//        $table->addColumn('column1', 'string', ['null' => true, 'default' => null])
-//            ->addColumn('column2', 'integer', ['default' => 0])
-//            ->addColumn('column3', 'biginteger', ['default' => 5])
-//            ->addColumn('column4', 'text', ['default' => 'text'])
-//            ->addColumn('column5', 'float')
-//            ->addColumn('column6', 'decimal')
-//            ->addColumn('column7', 'time')
-//            ->addColumn('column8', 'timestamp')
-//            ->addColumn('column9', 'date')
-//            ->addColumn('column10', 'boolean')
-//            ->addColumn('column11', 'datetime')
-//            ->addColumn('column12', 'binary')
-//            ->addColumn('column13', 'string', ['limit' => 10]);
-//        $pendingColumns = $table->getPendingColumns();
-//        $table->save();
-//        $columns = $this->adapter->getColumns('t');
-//        $this->assertCount(count($pendingColumns) + 1, $columns);
-//        for ($i = 0; $i++; $i < count($pendingColumns)) {
-//            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
-//        }
-//
-//        $this->assertNull($columns['column1']->getDefault());
-//        $this->assertSame(0, $columns['column2']->getDefault());
-//        $this->assertSame(5, $columns['column3']->getDefault());
-//        $this->assertSame('text', $columns['column4']->getDefault());
-//    }
-//
-//    public function testAddIndex()
-//    {
-//        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-//        $table->addColumn('email', 'string')
-//            ->save();
-//        $this->assertFalse($table->hasIndex('email'));
-//        $table->addIndex('email')
-//            ->save();
-//        $this->assertTrue($table->hasIndex('email'));
-//    }
-//
+    public function testChangeColumnDefaultToZero()
+    {
+        $table = new \Phinx\Db\Table('T', [], $this->adapter);
+        $table->addColumn('column1', 'integer')
+            ->save();
+        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1
+            ->setType('string')
+            ->setDefault(0);
+        $table->changeColumn('column1', $newColumn1);
+        $columns = $this->adapter->getColumns('T');
+        $this->adapter->dropTable('T');
+        $this->assertSame(0, (int) $columns['column1']->getDefault());
+    }
+
+    public function testDropColumn()
+    {
+        $table = new \Phinx\Db\Table('T', [], $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->save();
+        $this->assertTrue($this->adapter->hasColumn('T', 'column1'));
+        $this->adapter->dropColumn('T', 'column1');
+        $this->adapter->dropTable('T');
+        $this->assertFalse($this->adapter->hasColumn('T', 'column1'));
+    }
+
+    public function testGetColumns()
+    {
+        $table = new \Phinx\Db\Table('T', [], $this->adapter);
+        $table->addColumn('column1', 'string', ['null' => true, 'default' => null])
+            ->addColumn('column2', 'integer', ['default' => 0])
+            ->addColumn('column3', 'biginteger', ['default' => 5])
+            ->addColumn('column4', 'text', ['default' => 'text'])
+            ->addColumn('column5', 'float')
+            ->addColumn('column6', 'decimal')
+            ->addColumn('column8', 'timestamp')
+            ->addColumn('column9', 'date')
+            ->addColumn('column10', 'boolean')
+            ->addColumn('column11', 'datetime')
+            ->addColumn('column12', 'binary')
+            ->addColumn('column13', 'string', ['limit' => 10]);
+        $pendingColumns = $table->getPendingColumns();
+        $table->save();
+        $columns = $this->adapter->getColumns('T');
+        $this->adapter->dropTable('T');
+        $this->assertCount(count($pendingColumns) + 1, $columns);
+        for ($i = 0; $i++; $i < count($pendingColumns)) {
+            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
+        }
+
+        $this->assertNull($columns['column1']->getDefault());
+        $this->assertSame(0, (int) $columns['column2']->getDefault());
+        $this->assertSame(5, (int) $columns['column3']->getDefault());
+        $this->assertSame("'text'", $columns['column4']->getDefault());
+    }
+
+    public function testAddIndex()
+    {
+        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+            ->save();
+        $this->assertFalse($table->hasIndex('email'));
+        $table->addIndex('email')
+            ->save();
+        $this->assertTrue($table->hasIndex('email'));
+    }
+
 //    public function testGetIndexes()
 //    {
 //        // single column index

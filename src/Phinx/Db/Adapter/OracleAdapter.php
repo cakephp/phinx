@@ -360,11 +360,16 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         $rows = $this->fetchAll($sql);
 
         foreach ($rows as $columnInfo) {
+            $default = NULL;
+            if(trim($columnInfo['DEFAULT']) != 'NULL'){
+                $default = trim($columnInfo['DEFAULT']);
+            }
+
             $column = new Column();
             $column->setName($columnInfo['NAME'])
                 ->setType($this->getPhinxType($columnInfo['TYPE'], $columnInfo['PRECISION']))
                 ->setNull($columnInfo['NULL'] !== 'N')
-                ->setDefault($columnInfo['DEFAULT'])
+                ->setDefault($default)
 //                TODO VERIFICAR SE É PRIMARY KEY
 //                ->setIdentity($columnInfo['identity'] === '1')
                 ->setComment($this->getColumnComment($columnInfo['TABLE_NAME'], $columnInfo['NAME']));
@@ -493,8 +498,6 @@ SQL;
      */
     public function dropColumn($tableName, $columnName)
     {
-        $this->dropDefaultConstraint($tableName, $columnName);
-
         $this->execute(
             sprintf(
                 'ALTER TABLE %s DROP COLUMN %s',
@@ -775,11 +778,11 @@ SQL;
             case 'CLOB':
                 return ['name' => 'CLOB'];
             case static::PHINX_TYPE_BINARY:
-                return ['name' => 'RAW'];
+                return ['name' => 'RAW', 'limit' => 2000];
             case static::PHINX_TYPE_BOOLEAN:
                 return ['name' => 'NUMBER', 'precision' => 1];
             case static::PHINX_TYPE_UUID:
-                return ['name' => 'RAW', 'precision' => 16, 'default' => 'SYS_GUID()'];
+                return ['name' => 'RAW', 'precision' => 16, 'default' => 'SYS_GUID()', 'limit' => 2000];
             case static::PHINX_TYPE_FILESTREAM:
                 return ['name' => 'varbinary', 'limit' => 'max'];
             // Geospatial database types
@@ -906,10 +909,11 @@ SQL;
         if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
+
             $default = $this->castToBool($default);
         }
 
-        return isset($default) ? ' DEFAULT ' . $default : '';
+        return isset($default) ? ' DEFAULT ' . $default : 'DEFAULT NULL';
     }
 
     /**
