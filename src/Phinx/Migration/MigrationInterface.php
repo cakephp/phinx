@@ -128,14 +128,6 @@ interface MigrationInterface
     public function getEnvironment();
 
     /**
-     * Set the migration's environment parameter
-     *
-     * @param string $environment Environment
-     * @return \Phinx\Migration\MigrationInterface
-     */
-    public function setEnvironment($environment);
-
-    /**
      * Sets the migration version number.
      *
      * @param float $version Version

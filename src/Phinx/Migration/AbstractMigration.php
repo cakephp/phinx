@@ -196,16 +196,6 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
-    public function setEnvironment($environment)
-    {
-        $this->environment = $environment;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function setVersion($version)
     {
         $this->version = $version;

@@ -40,14 +40,11 @@ class AbstractMigrationTest extends TestCase
         );
     }
 
-    public function testGetSetEnvironment()
+    public function testGetEnvironment()
     {
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
         $this->assertEquals('mockenv', $migrationStub->getEnvironment());
-
-        $migrationStub->setEnvironment('mock_env');
-        $this->assertEquals('mock_env', $migrationStub->getEnvironment());
     }
 
     public function testSetOutputMethods()
