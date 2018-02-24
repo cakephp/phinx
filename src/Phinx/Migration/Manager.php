@@ -659,7 +659,7 @@ class Manager
      * Gets an array of the database migrations, indexed by migration name (aka creation time) and sorted in ascending
      * order
      *
-     * @param string $environment
+     * @param string $environment Environment
      * @throws \InvalidArgumentException
      * @return \Phinx\Migration\AbstractMigration[]
      */

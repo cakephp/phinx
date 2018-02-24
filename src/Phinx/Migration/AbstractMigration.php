@@ -186,7 +186,7 @@ abstract class AbstractMigration implements MigrationInterface
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getEnvironment()
     {
@@ -194,11 +194,13 @@ abstract class AbstractMigration implements MigrationInterface
     }
 
     /**
-     * @param string $environment
+     * {@inheritdoc}
      */
     public function setEnvironment($environment)
     {
         $this->environment = $environment;
+
+        return $this;
     }
 
     /**
