@@ -106,7 +106,7 @@ class Manager
         $migrations = [];
         $hasDownMigration = false;
         $hasMissingMigration = false;
-        $migrations = $this->getMigrations();
+        $migrations = $this->getMigrations($environment);
         if (count($migrations)) {
             // TODO - rewrite using Symfony Table Helper as we already have this library
             // included and it will fix formatting issues (e.g drawing the lines)
@@ -229,7 +229,7 @@ class Manager
                 case 'json':
                     $output->writeln(json_encode(
                         [
-                            'pending_count' => count($this->getMigrations()),
+                            'pending_count' => count($this->getMigrations($environment)),
                             'migrations' => $migrations
                         ]
                     ));
@@ -279,7 +279,7 @@ class Manager
      */
     public function migrateToDateTime($environment, \DateTime $dateTime)
     {
-        $versions = array_keys($this->getMigrations());
+        $versions = array_keys($this->getMigrations($environment));
         $dateString = $dateTime->format('YmdHis');
 
         $outstandingMigrations = array_filter($versions, function ($version) use ($dateString) {
@@ -302,7 +302,7 @@ class Manager
      */
     public function migrate($environment, $version = null)
     {
-        $migrations = $this->getMigrations();
+        $migrations = $this->getMigrations($environment);
         $env = $this->getEnvironment($environment);
         $versions = $env->getVersions();
         $current = $env->getCurrentVersion();
@@ -424,7 +424,7 @@ class Manager
     public function rollback($environment, $target = null, $force = false, $targetMustMatchVersion = true)
     {
         // note that the migrations are indexed by name (aka creation time) in ascending order
-        $migrations = $this->getMigrations();
+        $migrations = $this->getMigrations($environment);
 
         // note that the version log are also indexed by name with the proper ascending order according to the version order
         $executedVersions = $this->getEnvironment($environment)->getVersionLog();
@@ -659,10 +659,11 @@ class Manager
      * Gets an array of the database migrations, indexed by migration name (aka creation time) and sorted in ascending
      * order
      *
+     * @param string $environment Environment
      * @throws \InvalidArgumentException
      * @return \Phinx\Migration\AbstractMigration[]
      */
-    public function getMigrations()
+    public function getMigrations($environment)
     {
         if ($this->migrations === null) {
             $phpFiles = $this->getMigrationFiles();
@@ -708,7 +709,7 @@ class Manager
                     }
 
                     // instantiate it
-                    $migration = new $class($version, $this->getInput(), $this->getOutput());
+                    $migration = new $class($environment, $version, $this->getInput(), $this->getOutput());
 
                     if (!($migration instanceof AbstractMigration)) {
                         throw new \InvalidArgumentException(sprintf(
@@ -933,8 +934,8 @@ class Manager
      */
     public function toggleBreakpoint($environment, $version)
     {
-        $migrations = $this->getMigrations();
-        $this->getMigrations();
+        $migrations = $this->getMigrations($environment);
+        $this->getMigrations($environment);
         $env = $this->getEnvironment($environment);
         $versions = $env->getVersionLog();
 
