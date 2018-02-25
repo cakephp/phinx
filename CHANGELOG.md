@@ -1,5 +1,15 @@
 # Version History
 
+**0.9.2** (Saturday, 23 December 2017)
+* Pull requests
+  * [#1169](https://github.com/cakephp/phinx/pull/1169) Apply default collation on tables as per documentation
+  * [#1214](https://github.com/cakephp/phinx/pull/1214) Simplify multiple primary key quoting
+  * [#1238](https://github.com/cakephp/phinx/pull/1238) Support PHPUnit 6
+  * [#1244](https://github.com/cakephp/phinx/pull/1244) Add ordered seeds feature
+  * [#1246](https://github.com/cakephp/phinx/pull/1246) Added saving column's comment for PostgresAdapter when you add column
+* Bug fixes
+  * [#1181](https://github.com/cakephp/phinx/pull/1181) Fix "Fatal: hasOption() on null" error
+  * [#1198](https://github.com/cakephp/phinx/pull/1198) Fix chainability for the setColumns call
 
 **0.9.1** (Satruday, 9 September 2017)
 * Pull requests
@@ -41,7 +51,7 @@
 * New features
   * [#1045](https://github.com/robmorgan/phinx/pull/1045) Rollbacks by start time - Thanks to [Daniel Gomes](https://github.com/daniel-gomes-sociomantic).
 
-Please see [UPGRAGE_0.8](https://github.com/robmorgan/phinx/blob/master/UPGRADE_0.8.md) for additional details regarding [#1045](https://github.com/robmorgan/phinx/pull/1045)  
+Please see [UPGRAGE_0.8](https://github.com/robmorgan/phinx/blob/master/UPGRADE_0.8.md) for additional details regarding [#1045](https://github.com/robmorgan/phinx/pull/1045)
 
 **0.7.2** (Tuesday, 28th February 2017)
 

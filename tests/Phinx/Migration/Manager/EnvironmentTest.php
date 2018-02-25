@@ -6,6 +6,7 @@ use Phinx\Db\Adapter\AdapterFactory;
 use Phinx\Db\Adapter\PdoAdapter;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Migration\MigrationInterface;
+use PHPUnit\Framework\TestCase;
 
 class PDOMock extends \PDO
 {
@@ -26,7 +27,7 @@ class PDOMock extends \PDO
     }
 }
 
-class EnvironmentTest extends \PHPUnit_Framework_TestCase
+class EnvironmentTest extends TestCase
 {
     /**
      * @var \Phinx\Migration\Manager\Environment
@@ -149,7 +150,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // up
         $upMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20110301080000'])
+            ->setConstructorArgs(['mockenv', '20110301080000'])
             ->setMethods(['up'])
             ->getMock();
         $upMigration->expects($this->once())
@@ -172,7 +173,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // down
         $downMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20110301080000'])
+            ->setConstructorArgs(['mockenv', '20110301080000'])
             ->setMethods(['down'])
             ->getMock();
         $downMigration->expects($this->once())
@@ -201,7 +202,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // migrate
         $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20110301080000'])
+            ->setConstructorArgs(['mockenv', '20110301080000'])
             ->setMethods(['up'])
             ->getMock();
         $migration->expects($this->once())
@@ -224,7 +225,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // migration
         $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20130301080000'])
+            ->setConstructorArgs(['mockenv', '20130301080000'])
             ->setMethods(['change'])
             ->getMock();
         $migration->expects($this->once())
@@ -247,7 +248,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // migration
         $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20130301080000'])
+            ->setConstructorArgs(['mockenv', '20130301080000'])
             ->setMethods(['change'])
             ->getMock();
         $migration->expects($this->once())

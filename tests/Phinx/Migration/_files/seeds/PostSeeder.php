@@ -21,4 +21,12 @@ class PostSeeder extends AbstractSeed
         $posts->insert($data)
               ->save();
     }
+
+    public function getDependencies()
+    {
+        return [
+            'UserSeeder',
+            'GSeeder',
+        ];
+    }
 }

@@ -357,11 +357,15 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function addColumn(Table $table, Column $column)
     {
         $sql = sprintf(
-            'ALTER TABLE %s ADD %s %s',
+            'ALTER TABLE %s ADD %s %s;',
             $this->quoteTableName($table->getName()),
             $this->quoteColumnName($column->getName()),
             $this->getColumnSqlDefinition($column)
         );
+
+        if ($column->getComment()) {
+            $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
+        }
 
         $this->execute($sql);
     }
@@ -749,6 +753,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
                 return ['name' => 'bytea'];
+            case static::PHINX_TYPE_INTERVAL:
+                return ['name' => 'interval'];
             // Geospatial database types
             // Spatial storage in Postgres is done via the PostGIS extension,
             // which enables the use of the "geography" type in combination
@@ -811,6 +817,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return static::PHINX_TYPE_FLOAT;
             case 'bytea':
                 return static::PHINX_TYPE_BINARY;
+            case 'interval':
+                return static::PHINX_TYPE_INTERVAL;
             case 'time':
             case 'timetz':
             case 'time with time zone':
@@ -1109,7 +1117,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), ['json', 'jsonb', 'cidr', 'inet', 'macaddr']);
+        return array_merge(parent::getColumnTypes(), ['json', 'jsonb', 'cidr', 'inet', 'macaddr', 'interval']);
     }
 
     /**

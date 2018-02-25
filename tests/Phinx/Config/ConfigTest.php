@@ -2,7 +2,7 @@
 
 namespace Test\Phinx\Config;
 
-use \Phinx\Config\Config;
+use Phinx\Config\Config;
 
 /**
  * Class ConfigTest
@@ -21,7 +21,7 @@ class ConfigTest extends AbstractConfigTest
         // this option is set to its default value when not being passed in the constructor, so we can ignore it
         unset($config['version_order']);
         $this->assertAttributeEmpty('values', $config);
-        $this->assertAttributeEquals(null, 'configFilePath', $config);
+        $this->assertAttributeEmpty('configFilePath', $config);
         $this->assertNull($config->getConfigFilePath());
     }
 
@@ -33,7 +33,7 @@ class ConfigTest extends AbstractConfigTest
     {
         $config = new Config($this->getConfigArray());
         $this->assertAttributeNotEmpty('values', $config);
-        $this->assertAttributeEquals(null, 'configFilePath', $config);
+        $this->assertAttributeEmpty('configFilePath', $config);
         $this->assertNull($config->getConfigFilePath());
     }
 
@@ -43,7 +43,7 @@ class ConfigTest extends AbstractConfigTest
     public function testGetEnvironmentsMethod()
     {
         $config = new Config($this->getConfigArray());
-        $this->assertEquals(2, count($config->getEnvironments()));
+        $this->assertCount(2, $config->getEnvironments());
         $this->assertArrayHasKey('testing', $config->getEnvironments());
         $this->assertArrayHasKey('production', $config->getEnvironments());
     }
@@ -107,9 +107,9 @@ class ConfigTest extends AbstractConfigTest
         $config = new Config([]);
         $config['foo'] = 'bar';
         $this->assertEquals('bar', $config['foo']);
-        $this->assertTrue(isset($config['foo']));
+        $this->assertArrayHasKey('foo', $config);
         unset($config['foo']);
-        $this->assertFalse(isset($config['foo']));
+        $this->assertArrayNotHasKey('foo', $config);
     }
 
     /**

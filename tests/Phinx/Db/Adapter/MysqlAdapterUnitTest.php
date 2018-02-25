@@ -5,6 +5,7 @@ namespace Test\Phinx\Db\Adapter;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
@@ -54,7 +55,7 @@ class MysqlAdapterTester extends MysqlAdapter
     }
 }
 
-class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
+class MysqlAdapterUnitTest extends TestCase
 {
     /**
      * @var MysqlAdapterTester
@@ -495,8 +496,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
         $columns = $this->adapter->getColumns("table_name");
 
-        $this->assertTrue(is_array($columns));
-        $this->assertEquals(2, count($columns));
+        $this->assertInternalType('array', $columns);
+        $this->assertCount(2, $columns);
 
         $this->assertEquals('column1', $columns[0]->getName());
         $this->assertInstanceOf('Phinx\Db\Table\Column', $columns[0]);
@@ -808,6 +809,10 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         $this->adapter->renameColumn('table_name', 'column_old', 'column_new');
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The specified column doesn't exist: column_old
+     */
     public function testRenameColumnNotExists()
     {
         $column1 = [
@@ -838,7 +843,6 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
 
         $this->assertQuerySql("DESCRIBE `table_name`", $this->result);
 
-        $this->setExpectedException('\InvalidArgumentException', 'The specified column doesn\'t exist: column_old');
         $this->adapter->renameColumn('table_name', 'column_old', 'column_new');
     }
 
@@ -1094,9 +1098,12 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The type: "fake" is not supported.
+     */
     public function testGetSqlTypeNotExists()
     {
-        $this->setExpectedException('\RuntimeException', 'The type: "fake" is not supported.');
         $this->adapter->getSqlType('fake');
     }
 
@@ -1276,15 +1283,21 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The type: "fake" is not supported.
+     */
     public function testPhinxTypeNotValidType()
     {
-        $this->setExpectedException('\RuntimeException', 'The type: "fake" is not supported.');
         $this->adapter->getPhinxType('fake');
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Column type ?int? is not supported
+     */
     public function testPhinxTypeNotValidTypeRegex()
     {
-        $this->setExpectedException('\RuntimeException', 'Column type ?int? is not supported');
         $this->adapter->getPhinxType('?int?');
     }
 
@@ -1425,8 +1438,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         list($index1, $index2, $index3, $index4) = $this->prepareCaseIndexes();
         $indexes = $this->adapter->getIndexes("table_name");
 
-        $this->assertTrue(is_array($indexes));
-        $this->assertEquals(3, count($indexes));
+        $this->assertInternalType('array', $indexes);
+        $this->assertCount(3, $indexes);
         $this->assertEquals(['columns' => [$index1['Column_name']]], $indexes[$index1['Key_name']]);
         $this->assertEquals(['columns' => [$index2['Column_name']]], $indexes[$index2['Key_name']]);
         $this->assertEquals(['columns' => [$index3['Column_name'], $index4['Column_name']]], $indexes[$index3['Key_name']]);
@@ -1581,8 +1594,8 @@ class MysqlAdapterUnitTest extends \PHPUnit_Framework_TestCase
         list($fk, $fk1, $fk2) = $this->prepareCaseForeignKeys();
         $foreignkeys = $this->adapter->getForeignKeys("table_name");
 
-        $this->assertTrue(is_array($foreignkeys));
-        $this->assertEquals(2, count($foreignkeys));
+        $this->assertInternalType('array', $foreignkeys);
+        $this->assertCount(2, $foreignkeys);
         $this->assertEquals('table_name', $foreignkeys['fk1']['table']);
         $this->assertEquals(['other_table_id'], $foreignkeys['fk1']['columns']);
         $this->assertEquals('other_table', $foreignkeys['fk1']['referenced_table']);
