@@ -239,12 +239,12 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
 
         $sql .= implode(', ', $sqlBuffer);
         $sql .= ')';
-
-        // process column comments
-        foreach ($columnsWithComments as $column) {
-            $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
-        }
         $this->execute($sql);
+        // process column comments
+        foreach ($columnsWithComments as $key => $column) {
+            $sql = $this->getColumnCommentSqlDefinition($column, $table->getName());
+            $this->execute($sql);
+        }
         // set the indexes
         $indexes = $table->getIndexes();
 
@@ -289,18 +289,15 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
     protected function getColumnCommentSqlDefinition(Column $column, $tableName)
     {
         // passing 'null' is to remove column comment
-        $currentComment = $this->getColumnComment($tableName, $column->getName());
+//        $currentComment = $this->getColumnComment($tableName, $column->getName());
 
-        $comment = (strcasecmp($column->getComment(), 'NULL') !== 0) ? $this->getConnection()->quote($column->getComment()) : '\'\'';
-        $command = $currentComment === false ? 'sp_addextendedproperty' : 'sp_updateextendedproperty';
+        $comment = (strcasecmp($column->getComment(), 'NULL') !== 0) ? $column->getComment() : '';
 
         return sprintf(
-            "EXECUTE %s N'MS_Description', N%s, N'SCHEMA', N'%s', N'TABLE', N'%s', N'COLUMN', N'%s';",
-            $command,
-            $comment,
-            $this->schema,
+            "COMMENT ON COLUMN \"%s\".\"%s\" IS '%s'",
             $tableName,
-            $column->getName()
+            $column->getName(),
+            $comment
         );
     }
 
@@ -488,6 +485,7 @@ SQL;
         // change column comment if needed
         if ($newColumn->getComment()) {
             $sql = $this->getColumnCommentSqlDefinition($newColumn, $tableName);
+            echo $sql;
             $this->execute($sql);
         }
 
@@ -634,6 +632,7 @@ SQL;
             $columns = [$columns]; // str to array
         }
         $foreignKeys = $this->getForeignKeys($tableName);
+
         if ($constraint) {
             if (isset($foreignKeys[$constraint])) {
                 return !empty($foreignKeys[$constraint]);
@@ -642,7 +641,7 @@ SQL;
             return false;
         } else {
             foreach ($foreignKeys as $key) {
-                $a = array_diff($columns, $key['columns']);
+                $a = array_diff($columns, $key['COLUMNS']);
                 if (empty($a)) {
                     return true;
                 }
@@ -662,24 +661,20 @@ SQL;
     {
         $foreignKeys = [];
         $rows = $this->fetchAll(sprintf(
-            "SELECT
-                    tc.constraint_name,
-                    tc.table_name, kcu.column_name,
-                    ccu.table_name AS referenced_table_name,
-                    ccu.column_name AS referenced_column_name
-                FROM
-                    information_schema.table_constraints AS tc
-                    JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
-                    JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
-                WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s'
-                ORDER BY kcu.ordinal_position",
+            "SELECT a.CONSTRAINT_NAME, a.TABLE_NAME, b.COLUMN_NAME, 
+                    (SELECT c.TABLE_NAME from ALL_CONS_COLUMNS c WHERE c.CONSTRAINT_NAME = a.R_CONSTRAINT_NAME) referenced_table_name,
+                    (SELECT c.COLUMN_NAME from ALL_CONS_COLUMNS c WHERE c.CONSTRAINT_NAME = a.R_CONSTRAINT_NAME) referenced_column_name
+                    FROM all_constraints a JOIN ALL_CONS_COLUMNS b ON a.CONSTRAINT_NAME = b.CONSTRAINT_NAME
+                    WHERE a.table_name = '%s'
+                    AND CONSTRAINT_TYPE = 'R'",
             $tableName
         ));
+
         foreach ($rows as $row) {
-            $foreignKeys[$row['constraint_name']]['table'] = $row['table_name'];
-            $foreignKeys[$row['constraint_name']]['columns'][] = $row['column_name'];
-            $foreignKeys[$row['constraint_name']]['referenced_table'] = $row['referenced_table_name'];
-            $foreignKeys[$row['constraint_name']]['referenced_columns'][] = $row['referenced_column_name'];
+            $foreignKeys[$row['CONSTRAINT_NAME']]['TABLE'] = $row['TABLE_NAME'];
+            $foreignKeys[$row['CONSTRAINT_NAME']]['COLUMNS'][] = $row['COLUMN_NAME'];
+            $foreignKeys[$row['CONSTRAINT_NAME']]['REFERENCED_TABLE'] = $row['REFERENCED_TABLE_NAME'];
+            $foreignKeys[$row['CONSTRAINT_NAME']]['REFERENCED_COLUMNS'][] = $row['REFERENCED_COLUMN_NAME'];
         }
 
         return $foreignKeys;
@@ -804,52 +799,42 @@ SQL;
      * @internal param string $sqlType SQL type
      * @returns string Phinx type
      */
-    public function getPhinxType($sqlType, $precision)
+    public function getPhinxType($sqlType, $precision = null)
     {
-        switch ($sqlType) {
-            case 'VARCHAR2':
-                return static::PHINX_TYPE_STRING;
-            case 'CHAR':
-                return static::PHINX_TYPE_CHAR;
-            case 'LONG':
-                return static::PHINX_TYPE_TEXT;
-            case 'NUMBER' AND $precision == 10:
-                return static::PHINX_TYPE_INTEGER;
-            case 'NUMBER' AND $precision == 19:
-                return static::PHINX_TYPE_BIG_INTEGER;
-            case 'NUMBER' AND $precision == 49:
-                return static::PHINX_TYPE_FLOAT;
-            case 'TIMESTAMP':
-                return static::PHINX_TYPE_TIMESTAMP;
-            case 'TIME':
-                return static::PHINX_TYPE_TIME;
-            case 'DATE':
-                return static::PHINX_TYPE_DATE;
-            case 'BLOB':
-                return static::PHINX_TYPE_BLOB;
-            case 'CLOB':
-                return 'CLOB';
-            case 'RAW' and $precision = 16:
-                return static::PHINX_TYPE_UUID;
-            case 'RAW':
-                return static::PHINX_TYPE_BLOB;
-            case 'NUMBER' and $precision = 1:
-                return static::PHINX_TYPE_BOOLEAN;
-            case 'NUMBER':
-                return static::PHINX_TYPE_DECIMAL;
-            case static::PHINX_TYPE_FILESTREAM:
-                return ['name' => 'varbinary', 'limit' => 'max'];
-            // Geospatial database types
-            case static::PHINX_TYPE_GEOMETRY:
-            case static::PHINX_TYPE_POINT:
-            case static::PHINX_TYPE_LINESTRING:
-            case static::PHINX_TYPE_POLYGON:
-                // SQL Server stores all spatial data using a single data type.
-                // Specific types (point, polygon, etc) are set at insert time.
-                return ['name' => 'geography'];
-            default:
-                throw new \RuntimeException('The SqlServer type: "' . $sqlType . '" is not supported');
+        if($sqlType === 'VARCHAR2'){
+            return static::PHINX_TYPE_STRING;
+        } elseif($sqlType === 'CHAR'){
+            return static::PHINX_TYPE_CHAR;
+        } elseif($sqlType == 'LONG') {
+            return static::PHINX_TYPE_TEXT;
+        } elseif($sqlType === 'NUMBER' AND $precision === 10) {
+            return static::PHINX_TYPE_INTEGER;
+        } elseif($sqlType === 'NUMBER' AND $precision === 19) {
+            return static::PHINX_TYPE_BIG_INTEGER;
+        } elseif($sqlType === 'FLOAT') {
+            return static::PHINX_TYPE_FLOAT;
+        } elseif ($sqlType === 'TIMESTAMP(6)') {
+            return static::PHINX_TYPE_TIMESTAMP;
+        } elseif ($sqlType === 'TIME') {
+            return static::PHINX_TYPE_TIME;
+        } elseif ($sqlType === 'DATE') {
+            return static::PHINX_TYPE_DATE;
+        } elseif ($sqlType === 'BLOB') {
+            return static::PHINX_TYPE_BLOB;
+        } elseif ($sqlType === 'CLOB') {
+            return 'CLOB';
+        } elseif ($sqlType === 'RAW' AND $precision === 16) {
+            return static::PHINX_TYPE_UUID;
+        } elseif ($sqlType === 'RAW') {
+            return static::PHINX_TYPE_BLOB;
+        } elseif ($sqlType === 'NUMBER' AND $precision === 1) {
+            return static::PHINX_TYPE_BOOLEAN;
+        } elseif ($sqlType === 'NUMBER') {
+            return static::PHINX_TYPE_DECIMAL;
+        } else{
+            throw new \RuntimeException('The SqlServer type: "' . $sqlType . '" is not supported');
         }
+        //TODO Geospatial database types and Filestream type
     }
 
     /**

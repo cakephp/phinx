@@ -603,35 +603,39 @@ class OracleAdapterTest extends TestCase
         $this->adapter->addForeignKey($table, $fk);
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['TEF_TABLE_ID'], 'fk1'));
 
-        $this->adapter->dropTable('TEF_TABLE');
         $this->adapter->dropTable('TABLE');
+        $this->adapter->dropTable('TEF_TABLE');
     }
 
-//    public function dropForeignKey()
-//    {
-//        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
-//        $refTable->addColumn('field1', 'string')->save();
-//
-//        $table = new \Phinx\Db\Table('table', [], $this->adapter);
-//        $table->addColumn('ref_table_id', 'integer')->save();
-//
-//        $fk = new \Phinx\Db\Table\ForeignKey();
-//        $fk->setReferencedTable($refTable)
-//            ->setColumns(['ref_table_id'])
-//            ->setReferencedColumns(['id']);
-//
-//        $this->adapter->addForeignKey($table, $fk);
-//        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
-//        $this->adapter->dropForeignKey($table->getName(), ['ref_table_id']);
-//        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
-//    }
-//
+    public function dropForeignKey()
+    {
+        $refTable = new \Phinx\Db\Table('TEF_TABLE', [], $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('TABLE', [], $this->adapter);
+        $table->addColumn('TEF_TABLE_ID', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+            ->setColumns(['TEF_TABLE_ID'])
+            ->setReferencedColumns(['id']);
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['TEF_TABLE_ID']));
+        $this->adapter->dropForeignKey($table->getName(), ['TEF_TABLE_ID']);
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['TEF_TABLE_ID']));
+
+        $this->adapter->dropTable('TABLE');
+        $this->adapter->dropTable('TEF_TABLE');
+    }
+
+    //TODO PEDIR ACESSO PARA AS CONFIGURAÇÕES DE TABELA NO SCHEMA PARA TESTES
 //    public function testHasDatabase()
 //    {
 //        $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
 //        $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE));
 //    }
-//
+    //TODO PEDIR ACESSO PARA AS CONFIGURAÇÕES DE TABELA NO SCHEMA PARA TESTES
 //    public function testDropDatabase()
 //    {
 //        $this->assertFalse($this->adapter->hasDatabase('phinx_temp_database'));
@@ -639,89 +643,91 @@ class OracleAdapterTest extends TestCase
 //        $this->assertTrue($this->adapter->hasDatabase('phinx_temp_database'));
 //        $this->adapter->dropDatabase('phinx_temp_database');
 //    }
-//
-//    /**
-//     * @expectedException \RuntimeException
-//     * @expectedExceptionMessage The type: "idontexist" is not supported
-//     */
-//    public function testInvalidSqlType()
-//    {
-//        $this->adapter->getSqlType('idontexist');
-//    }
-//
-//    public function testGetPhinxType()
-//    {
-//        $this->assertEquals('integer', $this->adapter->getPhinxType('int'));
-//        $this->assertEquals('integer', $this->adapter->getPhinxType('integer'));
-//
-//        $this->assertEquals('biginteger', $this->adapter->getPhinxType('bigint'));
-//
-//        $this->assertEquals('decimal', $this->adapter->getPhinxType('decimal'));
-//        $this->assertEquals('decimal', $this->adapter->getPhinxType('numeric'));
-//
-//        $this->assertEquals('float', $this->adapter->getPhinxType('real'));
-//
-//        $this->assertEquals('boolean', $this->adapter->getPhinxType('bit'));
-//
-//        $this->assertEquals('string', $this->adapter->getPhinxType('varchar'));
-//        $this->assertEquals('string', $this->adapter->getPhinxType('nvarchar'));
-//        $this->assertEquals('char', $this->adapter->getPhinxType('char'));
-//        $this->assertEquals('char', $this->adapter->getPhinxType('nchar'));
-//
-//        $this->assertEquals('text', $this->adapter->getPhinxType('text'));
-//
-//        $this->assertEquals('datetime', $this->adapter->getPhinxType('timestamp'));
-//
-//        $this->assertEquals('date', $this->adapter->getPhinxType('date'));
-//
-//        $this->assertEquals('datetime', $this->adapter->getPhinxType('datetime'));
-//    }
-//
-//    public function testAddColumnComment()
-//    {
-//        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-//        $table->addColumn('field1', 'string', ['comment' => $comment = 'Comments from column "field1"'])
-//            ->save();
-//
-//        $resultComment = $this->adapter->getColumnComment('TABLE1', 'field1');
-//
-//        $this->assertEquals($comment, $resultComment, 'Dont set column comment correctly');
-//    }
-//
-//    /**
-//     * @dependss testAddColumnComment
-//     */
-//    public function testChangeColumnComment()
-//    {
-//        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-//        $table->addColumn('field1', 'string', ['comment' => 'Comments from column "field1"'])
-//            ->save();
-//
-//        $table->changeColumn('field1', 'string', ['comment' => $comment = 'New Comments from column "field1"'])
-//            ->save();
-//
-//        $resultComment = $this->adapter->getColumnComment('TABLE1', 'field1');
-//
-//        $this->assertEquals($comment, $resultComment, 'Dont change column comment correctly');
-//    }
-//
-//    /**
-//     * @depends testAddColumnComment
-//     */
-//    public function testRemoveColumnComment()
-//    {
-//        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-//        $table->addColumn('field1', 'string', ['comment' => 'Comments from column "field1"'])
-//            ->save();
-//
-//        $table->changeColumn('field1', 'string', ['comment' => 'null'])
-//            ->save();
-//
-//        $resultComment = $this->adapter->getColumnComment('TABLE1', 'field1');
-//
-//        $this->assertEmpty($resultComment, 'Dont remove column comment correctly');
-//    }
-//
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage The type: "idontexist" is not supported
+     */
+    public function testInvalidSqlType()
+    {
+        $this->adapter->getSqlType('idontexist');
+    }
+
+    public function testGetPhinxType()
+    {
+        $this->assertEquals('integer', $this->adapter->getPhinxType('NUMBER', 10));
+
+        $this->assertEquals('biginteger', $this->adapter->getPhinxType('NUMBER', 19));
+
+        $this->assertEquals('decimal', $this->adapter->getPhinxType('NUMBER'));
+
+        $this->assertEquals('float', $this->adapter->getPhinxType('FLOAT'));
+
+        $this->assertEquals('boolean', $this->adapter->getPhinxType('NUMBER', 1));
+
+        $this->assertEquals('string', $this->adapter->getPhinxType('VARCHAR2'));
+
+        $this->assertEquals('char', $this->adapter->getPhinxType('CHAR'));
+
+        $this->assertEquals('text', $this->adapter->getPhinxType('LONG'));
+
+        $this->assertEquals('timestamp', $this->adapter->getPhinxType('TIMESTAMP(6)'));
+
+        $this->assertEquals('date', $this->adapter->getPhinxType('DATE'));
+
+        $this->assertEquals('blob', $this->adapter->getPhinxType('BLOB'));
+
+        $this->assertEquals('CLOB', $this->adapter->getPhinxType('CLOB'));
+
+    }
+
+    public function testAddColumnComment()
+    {
+        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
+        $table->addColumn('field1', 'string', ['comment' => $comment = 'Comments from column "field1"'])
+            ->save();
+
+        $resultComment = $this->adapter->getColumnComment('TABLE1', 'field1');
+
+        $this->adapter->dropTable('TABLE1');
+        $this->assertEquals($comment, $resultComment, 'Dont set column comment correctly');
+    }
+
+    /**
+     * @dependss testAddColumnComment
+     */
+    public function testChangeColumnComment()
+    {
+        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
+        $table->addColumn('field1', 'string', ['comment' => 'Comments from column "field1"'])
+            ->save();
+
+        $table->changeColumn('field1', 'string', ['comment' => $comment = 'New Comments from column "field1"'])
+            ->save();
+
+        $resultComment = $this->adapter->getColumnComment('TABLE1', 'field1');
+        $this->adapter->dropTable('TABLE1');
+        $this->assertEquals($comment, $resultComment, 'Dont change column comment correctly');
+    }
+
+    /**
+     * @depends testAddColumnComment
+     */
+    public function testRemoveColumnComment()
+    {
+        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
+        $table->addColumn('field1', 'string', ['comment' => 'Comments from column "field1"'])
+            ->save();
+
+        $table->changeColumn('field1', 'string', ['comment' => 'null'])
+            ->save();
+
+        $resultComment = $this->adapter->getColumnComment('TABLE1', 'field1');
+        $this->adapter->dropTable('TABLE1');
+
+        $this->assertEmpty($resultComment, 'Dont remove column comment correctly');
+    }
+
 //    /**
 //     * Test that column names are properly escaped when creating Foreign Keys
 //     */
