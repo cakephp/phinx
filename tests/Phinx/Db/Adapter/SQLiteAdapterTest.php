@@ -52,8 +52,38 @@ class SQLiteAdapterTest extends TestCase
             ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $this->adapter->beginTransaction();
 
-        $this->assertTrue(true, 'Transaction query succeeded');
+        $this->assertTrue(
+            $this->adapter->getConnection()->inTransaction(),
+            "Underlying PDO instance did not detect new transaction"
+        );
     }
+
+    public function testRollbackTransaction()
+    {
+        $this->adapter->getConnection()
+            ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $this->adapter->beginTransaction();
+        $this->adapter->rollbackTransaction();
+
+        $this->assertFalse(
+            $this->adapter->getConnection()->inTransaction(),
+            "Underlying PDO instance did not detect rolled back transaction"
+        );
+    }
+
+    public function testCommitTransactionTransaction()
+    {
+        $this->adapter->getConnection()
+            ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $this->adapter->beginTransaction();
+        $this->adapter->commitTransaction();
+
+        $this->assertFalse(
+            $this->adapter->getConnection()->inTransaction(),
+            "Underlying PDO instance didn't detect committed transaction"
+        );
+    }
+
 
     public function testCreatingTheSchemaTableOnConnect()
     {
