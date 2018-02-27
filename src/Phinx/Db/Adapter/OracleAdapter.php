@@ -72,31 +72,6 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
                 $dsn = "oci:dbname=//".$options['host'].":".$options['port']."/".$options['sid']."";
             }
 
-//        $conn=oci_connect($options['user'], $options['pass'], $dsn);
-//
-//        if (!$conn) {
-//            $e = oci_error();   // For oci_connect errors do not pass a handle
-//            trigger_error(
-//                htmlentities(
-//                    sprintf(
-//                        'There was a problem connecting to the database: %s',
-//                        $e['message']
-//                    )
-//                ),
-//                E_USER_ERROR
-//            );
-//        }
-//        else{
-//            $this->setConnection($db);
-//        }
-
-
-//        $driverOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
-//
-//        // charset support
-//        if (isset($options['charset'])) {
-//            $driverOptions[\PDO::SQLSRV_ATTR_ENCODING] = $options['charset'];
-//        }
             $driverOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
 
             try {
@@ -239,6 +214,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
 
         $sql .= implode(', ', $sqlBuffer);
         $sql .= ')';
+
         $this->execute($sql);
         // process column comments
         foreach ($columnsWithComments as $key => $column) {
@@ -274,7 +250,6 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
     {
         $sql = sprintf("SELECT COUNT(*) as COUNT FROM user_sequences WHERE sequence_name = '%s'", strtoupper("SQ_".$tableName));
         $result = $this->fetchRow($sql);
-
         return $result['COUNT'] > 0;
     }
 
@@ -288,9 +263,6 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getColumnCommentSqlDefinition(Column $column, $tableName)
     {
-        // passing 'null' is to remove column comment
-//        $currentComment = $this->getColumnComment($tableName, $column->getName());
-
         $comment = (strcasecmp($column->getComment(), 'NULL') !== 0) ? $column->getComment() : '';
 
         return sprintf(
@@ -307,6 +279,15 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
     public function renameTable($tableName, $newTableName)
     {
         $this->execute(sprintf('alter table "%s" rename to "%s"', $tableName, $newTableName));
+
+        if(!$this->hasSequence("SQ_" . strtoupper($newTableName))){
+            $this->renameSequence("SQ_" . strtoupper($tableName), "SQ_" . strtoupper($newTableName));
+        }
+    }
+
+    public function renameSequence($sequenceName, $newSequenceName)
+    {
+        $this->execute(sprintf('rename "%s" to "%s"', $sequenceName, $newSequenceName));
     }
 
     /**
@@ -315,6 +296,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
     public function dropTable($tableName)
     {
         $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
+        $this->execute(sprintf('DROP SEQUENCE %s', $this->quoteTableName(strtoupper("SQ_" . $tableName))));
     }
 
     /**
@@ -485,7 +467,6 @@ SQL;
         // change column comment if needed
         if ($newColumn->getComment()) {
             $sql = $this->getColumnCommentSqlDefinition($newColumn, $tableName);
-            echo $sql;
             $this->execute($sql);
         }
 
@@ -1013,5 +994,38 @@ SQL;
         $endTime = str_replace(' ', 'T', $endTime);
 
         return parent::migrated($migration, $direction, $startTime, $endTime);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function bulkinsert(Table $table, $rows)
+    {
+        $sql = "INSERT ALL ";
+
+        $vals = [];
+        foreach ($rows as $row) {
+            $sql .= sprintf(
+                "INSERT INTO %s ",
+                $this->quoteTableName($table->getName())
+            );
+
+            $keys = array_keys($row);
+            $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ") VALUES";
+
+            foreach ($row as $v) {
+                $vals[] = $v;
+            }
+
+            $count_keys = count($keys);
+            $query = " (" . implode(', ', array_fill(0, $count_keys, '?')) . ") ";
+
+            $queries = array_fill(0, 1, $query);
+            $sql .= implode(',', $queries);
+        }
+        $sql .= "SELECT 1 FROM DUAL";
+
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute($vals);
     }
 }

@@ -95,6 +95,7 @@ class OracleAdapterTest extends TestCase
         $this->adapter->disconnect();
         $this->adapter->connect();
         $this->assertTrue($this->adapter->hasTable($this->adapter->getSchemaTableName()));
+        $this->adapter->dropTable($this->adapter->getSchemaTableName());
     }
 
     public function testSchemaTableIsCreatedWithPrimaryKey()
@@ -728,48 +729,52 @@ class OracleAdapterTest extends TestCase
         $this->assertEmpty($resultComment, 'Dont remove column comment correctly');
     }
 
-//    /**
-//     * Test that column names are properly escaped when creating Foreign Keys
-//     */
-//    public function testForignKeysArePropertlyEscaped()
-//    {
-//        $userId = 'user';
-//        $sessionId = 'session';
-//
-//        $local = new \Phinx\Db\Table('users', ['primary_key' => $userId, 'id' => $userId], $this->adapter);
-//        $local->create();
-//
-//        $foreign = new \Phinx\Db\Table('sessions', ['primary_key' => $sessionId, 'id' => $sessionId], $this->adapter);
-//        $foreign->addColumn('user', 'integer')
-//            ->addForeignKey('user', 'users', $userId)
-//            ->create();
-//
-//        $this->assertTrue($foreign->hasForeignKey('user'));
-//    }
-//
-//    public function testBulkInsertData()
-//    {
-//        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-//        $table->addColumn('column1', 'string')
-//            ->addColumn('column2', 'integer')
-//            ->insert([
-//                [
-//                    'column1' => 'value1',
-//                    'column2' => 1,
-//                ],
-//                [
-//                    'column1' => 'value2',
-//                    'column2' => 2,
-//                ]
-//            ])
-//            ->insert(
-//                [
-//                    'column1' => 'value3',
-//                    'column2' => 3,
-//                ]
-//            );
-//        $this->adapter->createTable($table);
-//        $this->adapter->bulkinsert($table, $table->getData());
+    /**
+     * Test that column names are properly escaped when creating Foreign Keys
+     */
+    public function testForignKeysArePropertlyEscaped()
+    {
+        $userId = 'USER123';
+        $sessionId = 'SESSION123';
+
+        $local = new \Phinx\Db\Table('USERS', ['primary_key' => $userId, 'id' => $userId], $this->adapter);
+        $local->create();
+
+        $foreign = new \Phinx\Db\Table('SESSIONS123', ['primary_key' => $sessionId, 'id' => $sessionId], $this->adapter);
+        $foreign->addColumn('USER123', 'integer')
+            ->addForeignKey('USER123', 'USERS', $userId, ['constraint' => 'USER_SESSION_ID'])
+            ->create();
+
+        $this->assertTrue($foreign->hasForeignKey('USER123'));
+
+        $this->adapter->dropTable('SESSIONS123');
+        $this->adapter->dropTable('USERS');
+
+    }
+
+    public function testBulkInsertData()
+    {
+        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->insert([
+                [
+                    'column1' => 'value1',
+                    'column2' => 1,
+                ],
+                [
+                    'column1' => 'value2',
+                    'column2' => 2,
+                ]
+            ])
+            ->insert(
+                [
+                    'column1' => 'value3',
+                    'column2' => 3,
+                ]
+            );
+        $this->adapter->createTable($table);
+        $this->adapter->bulkinsert($table, $table->getData());
 //        $table->reset();
 //
 //        $rows = $this->adapter->fetchAll('SELECT * FROM TABLE1');
@@ -780,8 +785,11 @@ class OracleAdapterTest extends TestCase
 //        $this->assertEquals(1, $rows[0]['column2']);
 //        $this->assertEquals(2, $rows[1]['column2']);
 //        $this->assertEquals(3, $rows[2]['column2']);
-//    }
-//
+
+        $this->adapter->dropTable('TABLE1');
+
+    }
+
 //    public function testInsertData()
 //    {
 //        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
