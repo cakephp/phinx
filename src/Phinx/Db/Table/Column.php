@@ -598,7 +598,7 @@ class Column
     /**
      * Sets whether or not the column is a virtual/not-stored (generated) column.
      *
-     * @param bool $virtual
+     * @param bool $virtual whether column is generated with using virtual approach
      * @return \Phinx\Db\Table\Column
      */
     public function setVirtual($virtual)
@@ -631,7 +631,7 @@ class Column
     /**
      * Sets whether or not the column is a stored (generated) column.
      *
-     * @param bool $stored
+     * @param bool $stored whether column is generated with using stored approach
      * @return \Phinx\Db\Table\Column
      */
     public function setStored($stored)
@@ -664,7 +664,7 @@ class Column
     /**
      * Sets the column expression.
      *
-     * @param string $expression
+     * @param string $expression the expression used to compute generated column values
      * @throws \UnexpectedValueException If expression not allowed for non-generated (virtual or stored) column
      * @return \Phinx\Db\Table\Column
      */
