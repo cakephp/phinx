@@ -344,6 +344,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $column->setIdentity(true);
             }
 
+            if ($columnInfo['Extra'] === 'VIRTUAL GENERATED') {
+                $column->setVirtual(true);
+            }
+
+            if ($columnInfo['Extra'] === 'VIRTUAL STORED') {
+                $column->setStored(true);
+            }
+
             if (isset($phinxType['values'])) {
                 $column->setValues($phinxType['values']);
             }
@@ -992,17 +1000,26 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         $def = '';
         $def .= strtoupper($sqlType['name']);
+
         if ($column->getPrecision() && $column->getScale()) {
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         } elseif (isset($sqlType['limit'])) {
             $def .= '(' . $sqlType['limit'] . ')';
         }
+
         if (($values = $column->getValues()) && is_array($values)) {
             $def .= "('" . implode("', '", $values) . "')";
         }
+
         $def .= $column->getEncoding() ? ' CHARACTER SET ' . $column->getEncoding() : '';
         $def .= $column->getCollation() ? ' COLLATE ' . $column->getCollation() : '';
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '';
+
+        if (($column->isVirtual() || $column->isStored()) && $column->getExpression()) {
+            $def .= ' GENERATED ALWAYS AS (' . $this->getConnection()->quote($column->getExpression()) . ')';
+            $def .= $column->isStored() ? ' STORED' : ' VIRTUAL';
+        }
+
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= ($column->isIdentity()) ? ' AUTO_INCREMENT' : '';
         $def .= $this->getDefaultValueDefinition($column->getDefault());

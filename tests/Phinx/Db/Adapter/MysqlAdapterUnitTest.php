@@ -608,6 +608,47 @@ class MysqlAdapterUnitTest extends TestCase
         );
     }
 
+    public function testGetColumnSqlDefinitionVirtualWithComment()
+    {
+        $this->conn->expects($this->at(0))
+            ->method('quote')
+            ->with($this->equalTo("CONCAT(column1_name, ' ', column2_name)"))
+            ->will($this->returnValue("CONCAT(column1_name, ` `, column2_name)"));
+
+        $this->conn->expects($this->at(1))
+            ->method('quote')
+            ->with($this->equalTo('Custom Comment'))
+            ->will($this->returnValue("`Custom Comment`"));
+
+        $column = $this->getMockBuilder('Phinx\Db\Table\Column')
+                      ->disableOriginalConstructor()
+                      ->setMethods([
+                          'getName',
+                          'getType',
+                          'getAfter',
+                          'getLimit',
+                          'getVirtual',
+                          'getExpression',
+                          'getComment',
+                      ])
+                      ->getMock();
+
+        $column->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column->expects($this->any())->method('getType')->will($this->returnValue('string'));
+        $column->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column->expects($this->any())->method('getLimit')->will($this->returnValue('255'));
+        $column->expects($this->any())->method('getVirtual')->will($this->returnValue(true));
+        $column->expects($this->any())->method('getExpression')->will(
+            $this->returnValue("CONCAT(column1_name, ' ', column2_name)")
+        );
+        $column->expects($this->any())->method('getComment')->will($this->returnValue('Custom Comment'));
+
+        $this->assertEquals(
+            "VARCHAR(255) GENERATED ALWAYS AS (CONCAT(column1_name, ` `, column2_name)) VIRTUAL NOT NULL COMMENT `Custom Comment`",
+            $this->adapter->getColumnSqlDefinition($column)
+        );
+    }
+
     public function testGetColumnSqlDefinitionComplete()
     {
         $this->conn->expects($this->once())

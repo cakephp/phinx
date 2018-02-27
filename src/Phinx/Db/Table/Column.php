@@ -122,6 +122,21 @@ class Column
     protected $values;
 
     /**
+     * @var boolean
+     */
+    protected $virtual = false;
+
+    /**
+     * @var boolean
+     */
+    protected $stored = false;
+
+    /**
+     * @var string
+     */
+    protected $expression;
+
+    /**
      * Sets the column name.
      *
      * @param string $name
@@ -581,6 +596,100 @@ class Column
     }
 
     /**
+     * Sets whether or not the column is a virtual/not-stored (generated) column.
+     *
+     * @param bool $virtual
+     * @return \Phinx\Db\Table\Column
+     */
+    public function setVirtual($virtual)
+    {
+        $this->virtual = $virtual;
+
+        return $this;
+    }
+
+    /**
+     * Gets whether or not the column is a virtual/not-stored (generated) column.
+     *
+     * @return bool
+     */
+    public function getVirtual()
+    {
+        return $this->virtual;
+    }
+
+    /**
+     * Is the column a virtual/not-stored (generated) column?
+     *
+     * @return bool
+     */
+    public function isVirtual()
+    {
+        return $this->getVirtual();
+    }
+
+    /**
+     * Sets whether or not the column is a stored (generated) column.
+     *
+     * @param bool $stored
+     * @return \Phinx\Db\Table\Column
+     */
+    public function setStored($stored)
+    {
+        $this->stored = $stored;
+
+        return $this;
+    }
+
+    /**
+     * Gets whether or not the column is a stored (generated) column.
+     *
+     * @return bool
+     */
+    public function getStored()
+    {
+        return $this->stored;
+    }
+
+    /**
+     * Is the column a stored (generated) column?
+     *
+     * @return bool
+     */
+    public function isStored()
+    {
+        return $this->getStored();
+    }
+
+    /**
+     * Sets the column expression.
+     *
+     * @param string $expression
+     * @throws \UnexpectedValueException If expression not allowed for non-generated (virtual or stored) column
+     * @return \Phinx\Db\Table\Column
+     */
+    public function setExpression($expression)
+    {
+        if (!$this->isVirtual() && !$this->isStored()) {
+            throw new \UnexpectedValueException('Expression may be set only for virtual or stored column');
+        }
+
+        $this->expression = $expression;
+
+        return $this;
+    }
+
+    /**
+     * Gets the column expression.
+     *
+     * @return string
+     */
+    public function getExpression()
+    {
+        return $this->expression;
+    }
+
+    /**
      * Gets all allowed options. Each option must have a corresponding `setFoo` method.
      *
      * @return array
@@ -603,6 +712,9 @@ class Column
             'values',
             'collation',
             'encoding',
+            'virtual',
+            'stored',
+            'expression',
         ];
     }
 
@@ -615,6 +727,7 @@ class Column
     {
         return [
             'length' => 'limit',
+            'generated' => 'virtual',
         ];
     }
 
