@@ -802,37 +802,29 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     public function getSqlType($type, $limit = null)
     {
         switch ($type) {
+            case static::PHINX_TYPE_TEXT:
+            case static::PHINX_TYPE_INTEGER:
+            case static::PHINX_TYPE_FLOAT:
+            case static::PHINX_TYPE_DECIMAL:
+            case static::PHINX_TYPE_DATETIME:
+            case static::PHINX_TYPE_TIME:
+            case static::PHINX_TYPE_DATE:
+            case static::PHINX_TYPE_BLOB:
+            case static::PHINX_TYPE_BOOLEAN:
+            case static::PHINX_TYPE_ENUM:
+                return ['name' => $type];
             case static::PHINX_TYPE_STRING:
                 return ['name' => 'varchar', 'limit' => 255];
             case static::PHINX_TYPE_CHAR:
                 return ['name' => 'char', 'limit' => 255];
-            case static::PHINX_TYPE_TEXT:
-                return ['name' => 'text'];
-            case static::PHINX_TYPE_INTEGER:
-                return ['name' => 'integer'];
             case static::PHINX_TYPE_BIG_INTEGER:
                 return ['name' => 'bigint'];
-            case static::PHINX_TYPE_FLOAT:
-                return ['name' => 'float'];
-            case static::PHINX_TYPE_DECIMAL:
-                return ['name' => 'decimal'];
-            case static::PHINX_TYPE_DATETIME:
-                return ['name' => 'datetime'];
             case static::PHINX_TYPE_TIMESTAMP:
                 return ['name' => 'datetime'];
-            case static::PHINX_TYPE_TIME:
-                return ['name' => 'time'];
-            case static::PHINX_TYPE_DATE:
-                return ['name' => 'date'];
-            case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
                 return ['name' => 'blob'];
-            case static::PHINX_TYPE_BOOLEAN:
-                return ['name' => 'boolean'];
             case static::PHINX_TYPE_UUID:
                 return ['name' => 'char', 'limit' => 36];
-            case static::PHINX_TYPE_ENUM:
-                return ['name' => 'enum'];
             // Geospatial database types
             // No specific data types exist in SQLite, instead all geospatial
             // functionality is handled in the client. See also: SpatiaLite.

@@ -849,6 +849,12 @@ ORDER BY T.[name], I.[index_id];";
     public function getSqlType($type, $limit = null)
     {
         switch ($type) {
+            case static::PHINX_TYPE_FLOAT:
+            case static::PHINX_TYPE_DECIMAL:
+            case static::PHINX_TYPE_DATETIME:
+            case static::PHINX_TYPE_TIME:
+            case static::PHINX_TYPE_DATE:
+                return ['name' => $type];
             case static::PHINX_TYPE_STRING:
                 return ['name' => 'nvarchar', 'limit' => 255];
             case static::PHINX_TYPE_CHAR:
@@ -859,17 +865,8 @@ ORDER BY T.[name], I.[index_id];";
                 return ['name' => 'int'];
             case static::PHINX_TYPE_BIG_INTEGER:
                 return ['name' => 'bigint'];
-            case static::PHINX_TYPE_FLOAT:
-                return ['name' => 'float'];
-            case static::PHINX_TYPE_DECIMAL:
-                return ['name' => 'decimal'];
-            case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIMESTAMP:
                 return ['name' => 'datetime'];
-            case static::PHINX_TYPE_TIME:
-                return ['name' => 'time'];
-            case static::PHINX_TYPE_DATE:
-                return ['name' => 'date'];
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
                 return ['name' => 'varbinary'];
