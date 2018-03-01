@@ -7,8 +7,9 @@ use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Adapter\PostgresAdapter;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Adapter\SqlServerAdapter;
+use PHPUnit\Framework\TestCase;
 
-class TableTest extends \PHPUnit_Framework_TestCase
+class TableTest extends TestCase
 {
     public function provideTimestampColumnNames()
     {

@@ -3,8 +3,9 @@
 namespace Test\Phinx\Util;
 
 use Phinx\Util\Util;
+use PHPUnit\Framework\TestCase;
 
-class UtilTest extends \PHPUnit_Framework_TestCase
+class UtilTest extends TestCase
 {
     private function getCorrectedPath($path)
     {

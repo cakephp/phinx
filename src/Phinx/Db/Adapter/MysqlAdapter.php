@@ -206,7 +206,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             'engine' => 'InnoDB',
             'collation' => 'utf8_general_ci'
         ];
-        $options = array_merge($defaultOptions, $table->getOptions());
+
+        $options = array_merge(
+            $defaultOptions,
+            array_intersect_key($this->getOptions(), $defaultOptions),
+            $table->getOptions()
+        );
 
         // Add the default primary key
         $columns = $table->getPendingColumns();

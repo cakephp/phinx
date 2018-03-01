@@ -47,8 +47,11 @@ class PhinxApplication extends Application
      *
      * @param string $version The Application Version
      */
-    public function __construct($version = '0.8.1')
+    public function __construct()
     {
+        $composerConfig = json_decode(file_get_contents(__DIR__ . '/../../../composer.json'));
+        $version = $composerConfig->version;
+
         parent::__construct('Phinx by CakePHP - https://phinx.org.', $version);
 
         $this->addCommands([
@@ -75,7 +78,7 @@ class PhinxApplication extends Application
     {
         // always show the version information except when the user invokes the help
         // command as that already does it
-        if ($input->hasParameterOption(['--help', '-h']) === false && $input->getFirstArgument() !== null) {
+        if ($input->hasParameterOption(['--help', '-h']) === false && $input->getFirstArgument() !== null && $input->getFirstArgument() !== 'list') {
             $output->writeln($this->getLongVersion());
             $output->writeln('');
         }

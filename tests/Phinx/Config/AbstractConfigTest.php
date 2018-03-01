@@ -2,13 +2,15 @@
 
 namespace Test\Phinx\Config;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * Class AbstractConfigTest
  * @package Test\Phinx\Config
  * @group config
  * @coversNothing
  */
-abstract class AbstractConfigTest extends \PHPUnit_Framework_TestCase
+abstract class AbstractConfigTest extends TestCase
 {
     /**
      * @var string

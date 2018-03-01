@@ -5,12 +5,13 @@ namespace Test\Phinx\Migration;
 use Phinx\Config\Config;
 use Phinx\Migration\Manager;
 use Phinx\Migration\Manager\Environment;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 
-class ManagerTest extends \PHPUnit_Framework_TestCase
+class ManagerTest extends TestCase
 {
     /** @var Config */
     protected $config;
@@ -118,7 +119,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testInstantiation()
     {
-        $this->assertTrue($this->manager->getOutput() instanceof StreamOutput);
+        $this->assertInstanceOf(
+            'Symfony\Component\Console\Output\StreamOutput',
+            $this->manager->getOutput()
+        );
     }
 
     public function testPrintStatusMethod()
@@ -1071,7 +1075,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions')]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithDuplicateMigrationVersionsWithNamespace()
@@ -1082,7 +1086,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => ['Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/duplicateversions')]]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithDuplicateMigrationVersionsWithMixedNamespace()
@@ -1098,7 +1102,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ]
         ]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithDuplicateMigrationNames()
@@ -1109,7 +1113,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicatenames')]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithDuplicateMigrationNamesWithNamespace()
@@ -1120,7 +1124,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => ['Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/duplicatenames')]]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithInvalidMigrationClassName()
@@ -1131,7 +1135,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname')]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithInvalidMigrationClassNameWithNamespace()
@@ -1142,7 +1146,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => ['Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/invalidclassname')]]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithClassThatDoesntExtendAbstractMigration()
@@ -1153,7 +1157,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass')]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithClassThatDoesntExtendAbstractMigrationWithNamespace()
@@ -1164,12 +1168,15 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => ['Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/invalidsuperclass')]]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGettingAValidEnvironment()
     {
-        $this->assertTrue($this->manager->getEnvironment('production') instanceof Environment);
+        $this->assertInstanceOf(
+            'Phinx\Migration\Manager\Environment',
+            $this->manager->getEnvironment('production')
+        );
     }
 
     /**
@@ -5406,9 +5413,17 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('Foo\Bar\UserSeeder', $output);
     }
 
+    public function testOrderSeeds()
+    {
+        $seeds = array_values($this->manager->getSeeds());
+        $this->assertInstanceOf('UserSeeder', $seeds[0]);
+        $this->assertInstanceOf('GSeeder', $seeds[1]);
+        $this->assertInstanceOf('PostSeeder', $seeds[2]);
+    }
+
     public function testGettingInputObject()
     {
-        $migrations = $this->manager->getMigrations();
+        $migrations = $this->manager->getMigrations('mockenv');
         $seeds = $this->manager->getSeeds();
         $inputObject = $this->manager->getInput();
         $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $inputObject);
@@ -5423,7 +5438,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGettingOutputObject()
     {
-        $migrations = $this->manager->getMigrations();
+        $migrations = $this->manager->getMigrations('mockenv');
         $seeds = $this->manager->getSeeds();
         $outputObject = $this->manager->getOutput();
         $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $outputObject);
@@ -5689,6 +5704,23 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $output = stream_get_contents($this->manager->getOutput()->getStream());
 
         $this->assertContains('is not a valid version', $output);
+    }
+
+    public function setExpectedException($exceptionName, $exceptionMessage = '', $exceptionCode = null)
+    {
+        if (method_exists($this, 'expectException')) {
+            //PHPUnit 5+
+            $this->expectException($exceptionName);
+            if ($exceptionMessage !== '') {
+                $this->expectExceptionMessage($exceptionMessage);
+            }
+            if ($exceptionCode !== null) {
+                $this->expectExceptionCode($exceptionCode);
+            }
+        } else {
+            //PHPUnit 4
+            parent::setExpectedException($exceptionName, $exceptionMessage, $exceptionCode);
+        }
     }
 }
 
