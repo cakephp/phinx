@@ -586,6 +586,25 @@ class MysqlAdapterUnitTest extends TestCase
         );
     }
 
+    public function testGetColumnSqlDefinitionDouble()
+    {
+        $column = $this->getMockBuilder('Phinx\Db\Table\Column')
+                      ->disableOriginalConstructor()
+                      ->setMethods([ 'getName', 'getAfter', 'getType', 'getLimit', 'setLimit', 'getScale', 'getPrecision'])
+                      ->getMock();
+
+        $column->expects($this->any())->method('getName')->will($this->returnValue('column_name'));
+        $column->expects($this->any())->method('getType')->will($this->returnValue('double'));
+        $column->expects($this->any())->method('getAfter')->will($this->returnValue(null));
+        $column->expects($this->any())->method('getPrecision')->will($this->returnValue('8'));
+        $column->expects($this->any())->method('getScale')->will($this->returnValue('3'));
+
+        $this->assertEquals(
+            "DOUBLE(8,3) NOT NULL",
+            $this->adapter->getColumnSqlDefinition($column)
+        );
+    }
+
     /**
      * @todo must enter in code that removes limit
      */
@@ -1045,6 +1064,10 @@ class MysqlAdapterUnitTest extends TestCase
             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_FLOAT)
         );
         $this->assertEquals(
+            ['name' => 'double'],
+            $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_DOUBLE)
+        );
+        $this->assertEquals(
             ['name' => 'decimal'],
             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_DECIMAL)
         );
@@ -1150,6 +1173,10 @@ class MysqlAdapterUnitTest extends TestCase
             $this->adapter->getPhinxType('float')
         );
         $this->assertEquals(
+            ['name' => MysqlAdapter::PHINX_TYPE_DOUBLE, 'limit' => null, 'precision' => null],
+            $this->adapter->getPhinxType('double')
+        );
+        $this->assertEquals(
             ['name' => MysqlAdapter::PHINX_TYPE_DECIMAL, 'limit' => null, 'precision' => null],
             $this->adapter->getPhinxType('decimal')
         );
@@ -1248,6 +1275,10 @@ class MysqlAdapterUnitTest extends TestCase
         $this->assertEquals(
             ['name' => MysqlAdapter::PHINX_TYPE_FLOAT, 'limit' => 8, 'precision' => 2],
             $this->adapter->getPhinxType('float(8,2)')
+        );
+        $this->assertEquals(
+            ['name' => MysqlAdapter::PHINX_TYPE_DOUBLE, 'limit' => 8, 'precision' => 2],
+            $this->adapter->getPhinxType('double(8,2)')
         );
         $this->assertEquals(
             ['name' => MysqlAdapter::PHINX_TYPE_DECIMAL, 'limit' => 8, 'precision' => 2],

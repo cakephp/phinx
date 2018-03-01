@@ -40,8 +40,14 @@ use Phinx\Db\Table\Index;
  */
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
-
-    protected $signedColumnTypes = ['integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true, 'boolean' => true];
+    protected $signedColumnTypes = [
+        'integer' => true,
+        'biginteger' => true,
+        'float' => true,
+        'decimal' => true,
+        'double' => true,
+        'boolean' => true,
+    ];
 
     const TEXT_TINY = 255;
     const TEXT_SMALL = 255; /* deprecated, alias of TEXT_TINY */
@@ -791,6 +797,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return ['name' => 'float'];
             case static::PHINX_TYPE_DECIMAL:
                 return ['name' => 'decimal'];
+            case static::PHINX_TYPE_DOUBLE:
+                return ['name' => 'double'];
             case static::PHINX_TYPE_DATETIME:
                 return ['name' => 'datetime'];
             case static::PHINX_TYPE_TIMESTAMP:
