@@ -495,12 +495,22 @@ class Table
      * Checks to see if an index exists.
      *
      * @param string|array $columns Columns
-     * @param array        $options Options
      * @return bool
      */
     public function hasIndex($columns)
     {
         return $this->getAdapter()->hasIndex($this->getName(), $columns);
+    }
+
+    /**
+     * Checks to see if an index specified by name exists.
+     *
+     * @param string $indexName
+     * @return bool
+     */
+    public function hasIndexByName($indexName)
+    {
+        return $this->getAdapter()->hasIndexByName($this->getName(), $indexName);
     }
 
     /**
