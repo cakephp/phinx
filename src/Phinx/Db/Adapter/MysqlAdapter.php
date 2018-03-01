@@ -229,6 +229,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $column = new Column();
             $column->setName($options['id'])
                    ->setType('integer')
+                   ->setSigned(isset($options['signed']) ? $options['signed'] : true)
                    ->setIdentity(true);
 
             array_unshift($columns, $column);
@@ -338,6 +339,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                    ->setNull($columnInfo['Null'] !== 'NO')
                    ->setDefault($columnInfo['Default'])
                    ->setType($phinxType['name'])
+                   ->setSigned(strpos($columnInfo['Type'], 'unsigned') === false)
                    ->setLimit($phinxType['limit']);
 
             if ($columnInfo['Extra'] === 'auto_increment') {
