@@ -775,75 +775,79 @@ class OracleAdapterTest extends TestCase
             );
         $this->adapter->createTable($table);
         $this->adapter->bulkinsert($table, $table->getData());
-//        $table->reset();
-//
-//        $rows = $this->adapter->fetchAll('SELECT * FROM TABLE1');
-//
-//        $this->assertEquals('value1', $rows[0]['column1']);
-//        $this->assertEquals('value2', $rows[1]['column1']);
-//        $this->assertEquals('value3', $rows[2]['column1']);
-//        $this->assertEquals(1, $rows[0]['column2']);
-//        $this->assertEquals(2, $rows[1]['column2']);
-//        $this->assertEquals(3, $rows[2]['column2']);
+        $table->reset();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM TABLE1');
+
+        $this->assertEquals('value1', $rows[0]['column1']);
+        $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals('value3', $rows[2]['column1']);
+        $this->assertEquals(1, $rows[0]['column2']);
+        $this->assertEquals(2, $rows[1]['column2']);
+        $this->assertEquals(3, $rows[2]['column2']);
 
         $this->adapter->dropTable('TABLE1');
 
     }
 
-//    public function testInsertData()
-//    {
-//        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-//        $table->addColumn('column1', 'string')
-//            ->addColumn('column2', 'integer')
-//            ->insert([
-//                [
-//                    'column1' => 'value1',
-//                    'column2' => 1,
-//                ],
-//                [
-//                    'column1' => 'value2',
-//                    'column2' => 2,
-//                ]
-//            ])
-//            ->insert(
-//                [
-//                    'column1' => 'value3',
-//                    'column2' => 3,
-//                ]
-//            )
-//            ->save();
-//
-//        $rows = $this->adapter->fetchAll('SELECT * FROM TABLE1');
-//
-//        $this->assertEquals('value1', $rows[0]['column1']);
-//        $this->assertEquals('value2', $rows[1]['column1']);
-//        $this->assertEquals('value3', $rows[2]['column1']);
-//        $this->assertEquals(1, $rows[0]['column2']);
-//        $this->assertEquals(2, $rows[1]['column2']);
-//        $this->assertEquals(3, $rows[2]['column2']);
-//    }
-//
-//    public function testTruncateTable()
-//    {
-//        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
-//        $table->addColumn('column1', 'string')
-//            ->addColumn('column2', 'integer')
-//            ->insert([
-//                [
-//                    'column1' => 'value1',
-//                    'column2' => 1,
-//                ],
-//                [
-//                    'column1' => 'value2',
-//                    'column2' => 2,
-//                ]
-//            ])
-//            ->save();
-//
-//        $rows = $this->adapter->fetchAll('SELECT * FROM TABLE1');
-//        $this->assertCount(2, $rows);
-//        $table->truncate();
-//        $rows = $this->adapter->fetchAll('SELECT * FROM TABLE1');
-//        $this->assertCount(0, $rows);
-//    }
+    public function testInsertData()
+    {
+        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->insert([
+                [
+                    'column1' => 'value1',
+                    'column2' => 1,
+                ],
+                [
+                    'column1' => 'value2',
+                    'column2' => 2,
+                ]
+            ])
+            ->insert(
+                [
+                    'column1' => 'value3',
+                    'column2' => 3,
+                ]
+            )
+            ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM TABLE1');
+
+        $this->assertEquals('value1', $rows[0]['column1']);
+        $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals('value3', $rows[2]['column1']);
+        $this->assertEquals(1, $rows[0]['column2']);
+        $this->assertEquals(2, $rows[1]['column2']);
+        $this->assertEquals(3, $rows[2]['column2']);
+
+        $this->adapter->dropTable('TABLE1');
+    }
+
+    public function testTruncateTable()
+    {
+        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->insert([
+                [
+                    'column1' => 'value1',
+                    'column2' => 1,
+                ],
+                [
+                    'column1' => 'value2',
+                    'column2' => 2,
+                ]
+            ])
+            ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM TABLE1');
+        $this->assertCount(2, $rows);
+        $table->truncate();
+        $rows = $this->adapter->fetchAll('SELECT * FROM TABLE1');
+        $this->assertCount(0, $rows);
+
+        $this->adapter->dropTable('TABLE1');
+    }
 }

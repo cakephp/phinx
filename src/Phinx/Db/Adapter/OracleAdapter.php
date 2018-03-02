@@ -38,10 +38,9 @@ use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
-use phpDocumentor\Reflection\Types\Null_;
 
 /**
- * Phinx SqlServer Adapter.
+ * Phinx Oracle Adapter.
  *
  * @author Felipe Maia <felipepqm@gmail.com>
  */
@@ -254,7 +253,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Gets the SqlServer Column Comment Defininition for a column object.
+     * Gets the Oracle Column Comment Defininition for a column object.
      *
      * @param \Phinx\Db\Table\Column $column    Column
      * @param string $tableName Table name
@@ -638,7 +637,7 @@ SQL;
      * @param string $tableName Table Name
      * @return array
      */
-    protected function getForeignKeys($tableName)
+    protected function getForeignKeys($tableName, $type = 'R')
     {
         $foreignKeys = [];
         $rows = $this->fetchAll(sprintf(
@@ -647,8 +646,9 @@ SQL;
                     (SELECT c.COLUMN_NAME from ALL_CONS_COLUMNS c WHERE c.CONSTRAINT_NAME = a.R_CONSTRAINT_NAME) referenced_column_name
                     FROM all_constraints a JOIN ALL_CONS_COLUMNS b ON a.CONSTRAINT_NAME = b.CONSTRAINT_NAME
                     WHERE a.table_name = '%s'
-                    AND CONSTRAINT_TYPE = 'R'",
-            $tableName
+                    AND CONSTRAINT_TYPE = '%s'",
+            $tableName,
+            $type
         ));
 
         foreach ($rows as $row) {
@@ -813,7 +813,7 @@ SQL;
         } elseif ($sqlType === 'NUMBER') {
             return static::PHINX_TYPE_DECIMAL;
         } else{
-            throw new \RuntimeException('The SqlServer type: "' . $sqlType . '" is not supported');
+            throw new \RuntimeException('The Oracle type: "' . $sqlType . '" is not supported');
         }
         //TODO Geospatial database types and Filestream type
     }
@@ -881,7 +881,7 @@ SQL;
     }
 
     /**
-     * Gets the SqlServer Column Definition for a Column object.
+     * Gets the Oracle Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
      * @return string
@@ -922,7 +922,7 @@ SQL;
     }
 
     /**
-     * Gets the SqlServer Index Definition for an Index object.
+     * Gets the Oracle Index Definition for an Index object.
      *
      * @param \Phinx\Db\Table\Index $index Index
      * @return string
@@ -950,7 +950,7 @@ SQL;
     }
 
     /**
-     * Gets the SqlServer Foreign Key Definition for an ForeignKey object.
+     * Gets the Oracle Foreign Key Definition for an ForeignKey object.
      *
      * @param \Phinx\Db\Table\ForeignKey $foreignKey
      * @return string
@@ -1004,10 +1004,18 @@ SQL;
         $sql = "INSERT ALL ";
 
         $vals = [];
-        foreach ($rows as $row) {
+        $tableName = $table->getName();
+        $primaryKeyColumn = current($this->getForeignKeys($tableName, 'P'));
+        $sequenceNextVal = $this->getNextValSequence('SQ_' . $tableName);
+//        buscar sequence e primary key padrão para incrementar PK com a SEQUENCE.NEXTVAL
+
+        foreach ($rows as $key => $row) {
+            $pk = ($sequenceNextVal + $key);
+            $row[$primaryKeyColumn['COLUMNS'][0]] = (int) $pk;
+
             $sql .= sprintf(
-                "INSERT INTO %s ",
-                $this->quoteTableName($table->getName())
+                "INTO %s ",
+                $this->quoteTableName($tableName)
             );
 
             $keys = array_keys($row);
@@ -1024,8 +1032,14 @@ SQL;
             $sql .= implode(',', $queries);
         }
         $sql .= "SELECT 1 FROM DUAL";
-
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute($vals);
+    }
+
+    protected function getNextValSequence($sequence)
+    {
+        $sql = "SELECT %s.NEXTVAL FROM DUAL";
+        $rows = $this->fetchAll(sprintf($sql, $sequence));
+        return $rows[0]['NEXTVAL'];
     }
 }
