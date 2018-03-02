@@ -122,12 +122,12 @@ class Column
     protected $values;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $virtual = false;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $stored = false;
 
