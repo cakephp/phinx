@@ -45,7 +45,7 @@ class PhinxApplication extends Application
      *
      * Initialize the Phinx console application.
      *
-     * @param string $version The Application Version, if null, use version out of composer.json file
+     * @param string|null $version The Application Version, if null, use version out of composer.json file
      */
     public function __construct($version = null)
     {
