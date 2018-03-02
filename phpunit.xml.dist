@@ -15,6 +15,13 @@
     * repository.
     -->
     <php>
+        <!-- Oracle -->
+        <env name="TESTS_PHINX_DB_ADAPTER_ORACLE_ENABLED" value="false"/>
+        <env name="TESTS_PHINX_DB_ADAPTER_ORACLE_HOST" value="localhost"/>
+        <env name="TESTS_PHINX_DB_ADAPTER_ORACLE_SID" value="SID"/>
+        <env name="TESTS_PHINX_DB_ADAPTER_ORACLE_USERNAME" value="USER"/>
+        <env name="TESTS_PHINX_DB_ADAPTER_ORACLE_PASSWORD" value="PASS"/>
+        <env name="TESTS_PHINX_DB_ADAPTER_ORACLE_PORT" value="1521"/>
         <!-- SqlServer -->
         <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED" value="false"/>
         <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST" value="localhost"/>
