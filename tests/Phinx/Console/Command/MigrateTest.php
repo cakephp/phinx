@@ -134,7 +134,8 @@ class MigrateTest extends TestCase
         $this->assertSame(0, $exitCode);
     }
 
-    public function testFakeMigrate() {
+    public function testFakeMigrate()
+    {
         $application = new PhinxApplication('testing');
         $application->add(new Migrate());
 
@@ -157,6 +158,5 @@ class MigrateTest extends TestCase
 
         $this->assertRegExp('/warning performing fake migrations/', $commandTester->getDisplay());
         $this->assertSame(0, $exitCode);
-
     }
 }

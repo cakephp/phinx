@@ -299,8 +299,8 @@ class Manager
      * Migrate an environment to the specified version.
      *
      * @param string $environment Environment
-     * @param int    $version
-     * @param bool   $fake flag that if true, we just record running the migration, but not actually do the migration
+     * @param int    $version     version to migrate to
+     * @param bool   $fake        flag that if true, we just record running the migration, but not actually do the migration
      * @return void
      */
     public function migrate($environment, $version = null, $fake = false)

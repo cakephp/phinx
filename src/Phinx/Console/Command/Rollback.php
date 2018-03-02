@@ -86,7 +86,7 @@ EOT
         $version = $input->getOption('target');
         $date = $input->getOption('date');
         $force = (bool)$input->getOption('force');
-        $fake = (bool) $input->getOption('fake');
+        $fake = (bool)$input->getOption('fake');
 
         $config = $this->getConfig();
 

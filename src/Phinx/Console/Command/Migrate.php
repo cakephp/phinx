@@ -76,7 +76,7 @@ EOT
         $version = $input->getOption('target');
         $environment = $input->getOption('environment');
         $date = $input->getOption('date');
-        $fake = (bool) $input->getOption('fake');
+        $fake = (bool)$input->getOption('fake');
 
         if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
