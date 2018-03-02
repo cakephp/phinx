@@ -45,12 +45,14 @@ class PhinxApplication extends Application
      *
      * Initialize the Phinx console application.
      *
-     * @param string $version The Application Version
+     * @param string $version The Application Version, if null, use version out of composer.json file
      */
-    public function __construct()
+    public function __construct($version = null)
     {
-        $composerConfig = json_decode(file_get_contents(__DIR__ . '/../../../composer.json'));
-        $version = $composerConfig->version;
+        if ($version === null) {
+            $composerConfig = json_decode(file_get_contents(__DIR__ . '/../../../composer.json'));
+            $version = $composerConfig->version;
+        }
 
         parent::__construct('Phinx by CakePHP - https://phinx.org.', $version);
 
