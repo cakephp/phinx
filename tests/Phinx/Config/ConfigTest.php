@@ -97,6 +97,24 @@ class ConfigTest extends AbstractConfigTest
     }
 
     /**
+     * @covers \Phinx\Config\Config::getDataDomain
+     */
+    public function testGetDataDomainMethod()
+    {
+        $config = new Config($this->getConfigArray());
+        $this->assertInternalType('array', $config->getDataDomain());
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::getDataDomain
+     */
+    public function testDoesNotThrowsWithEmptyDataDomain()
+    {
+        $config = new Config([]);
+        $this->assertNull($config->getDataDomain());
+    }
+
+    /**
      * @covers \Phinx\Config\Config::offsetGet
      * @covers \Phinx\Config\Config::offsetSet
      * @covers \Phinx\Config\Config::offsetExists

@@ -117,6 +117,13 @@ interface ConfigInterface extends \ArrayAccess
     public function getTemplateClass();
 
     /**
+     * Get the data domain array.
+     *
+     * @return array[]|null
+     */
+    public function getDataDomain();
+
+    /**
      * Get the version order.
      *
      * @return string

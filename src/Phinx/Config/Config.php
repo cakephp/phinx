@@ -314,6 +314,14 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getDataDomain()
+    {
+        return @$this->values['data_domain'];
+    }
+
+    /**
      * Get the version order.
      *
      * @return string

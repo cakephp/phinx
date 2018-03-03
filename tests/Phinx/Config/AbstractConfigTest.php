@@ -55,6 +55,13 @@ abstract class AbstractConfigTest extends TestCase
                 'production' => [
                     'adapter' => 'mysql'
                 ]
+            ],
+            'data_domain' => [
+                'phone_number' => [
+                    'type' => 'string',
+                    'null' => true,
+                    'length' => 15
+                ]
             ]
         ];
     }
