@@ -2,10 +2,11 @@
 
 namespace Test\Phinx\Console\Command;
 
+use PHPUnit\Framework\TestCase;
 use Phinx\Console\PhinxApplication;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
-class ListTest extends \PHPUnit_Framework_TestCase
+class ListTest extends TestCase
 {
     public function testVersionInfo()
     {
