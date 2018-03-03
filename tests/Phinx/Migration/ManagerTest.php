@@ -113,6 +113,13 @@ class ManagerTest extends TestCase
                     'pass' => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
                     'port' => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT
                 ]
+            ],
+            'data_domain' => [
+                'phone_number' => [
+                    'type' => 'string',
+                    'null' => true,
+                    'length' => 15
+                ]
             ]
         ];
     }
@@ -123,6 +130,17 @@ class ManagerTest extends TestCase
             'Symfony\Component\Console\Output\StreamOutput',
             $this->manager->getOutput()
         );
+    }
+
+    /**
+     *
+     */
+    public function testEnvironmentInheritsDataDomainOptions()
+    {
+        foreach ($this->config->getEnvironments() as $name => $opts) {
+            $env = $this->manager->getEnvironment($name);
+            $this->assertArrayHasKey('data_domain', $env->getOptions());
+        }
     }
 
     public function testPrintStatusMethod()
