@@ -11,9 +11,11 @@ class InitTest extends TestCase
 {
     protected function setUp()
     {
-        $file = sys_get_temp_dir() . '/phinx.yml';
-        if (is_file($file)) {
-            unlink($file);
+        foreach (['.yml', '.json', '.php'] as $format) {
+            $file = sys_get_temp_dir() . '/phinx'. $format;
+            if (is_file($file)) {
+                unlink($file);
+            }
         }
     }
 
@@ -25,12 +27,16 @@ class InitTest extends TestCase
         $commandTester = new CommandTester($command);
         $fullPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $configName;
 
-        $commandTester->execute([
+        $command = [
             'command' => $command->getName(),
             'path' => $fullPath,
-        ], [
-            'decorated' => false,
-        ]);
+        ];
+
+        if ($configName !== '') {
+            $command['--format'] = pathinfo($configName, PATHINFO_EXTENSION);
+        }
+
+        $commandTester->execute($command, ['decorated' => false]);
 
         $this->assertContains(
             "created $fullPath",
@@ -46,16 +52,32 @@ class InitTest extends TestCase
     public function testDefaultConfigIsWritten()
     {
         $this->writeConfig();
+        $this->assertFileExists(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.yml', 'Default format was not yaml');
     }
 
-    public function testConfigIsWritten()
+    public function formatDataProvider()
     {
-        $this->writeConfig('phinx.yml');
+        return [['.yml'], ['.json'], ['.php']];
     }
 
-    public function testCustomNameConfigIsWritten()
+    /**
+     * @dataProvider formatDataProvider
+     *
+     * @param string $format format to use for file
+     */
+    public function testConfigIsWritten($format)
     {
-        $this->writeConfig(uniqid() . '.yml');
+        $this->writeConfig('phinx' . $format);
+    }
+
+    /**
+     * @dataProvider formatDataProvider
+     *
+     * @param string $format format to use for file
+     */
+    public function testCustomNameConfigIsWritten($format)
+    {
+        $this->writeConfig(uniqid() . $format);
     }
 
     /**
@@ -96,6 +118,27 @@ class InitTest extends TestCase
             'path' => '/this/dir/does/not/exists',
         ], [
             'decorated' => false,
+        ]);
+    }
+
+    /**
+     * @expectedException              \InvalidArgumentException
+     * @expectedExceptionMessageRegExp /Invalid format "invalid". Format must be either yml, json, or php./
+     */
+    public function testThrowsExceptionWhenInvalidFormat()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Init());
+
+        $command = $application->find('init');
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'path' => sys_get_temp_dir() . DIRECTORY_SEPARATOR,
+            '--format' => 'invalid'
+        ], [
+            'decorated' => false
         ]);
     }
 }
