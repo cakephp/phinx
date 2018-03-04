@@ -12,7 +12,7 @@ class InitTest extends TestCase
     protected function setUp()
     {
         foreach (['.yml', '.json', '.php'] as $format) {
-            $file = sys_get_temp_dir() . '/phinx'. $format;
+            $file = sys_get_temp_dir() . '/phinx' . $format;
             if (is_file($file)) {
                 unlink($file);
             }

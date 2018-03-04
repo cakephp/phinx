@@ -46,8 +46,8 @@ class Init extends Command
     {
         $this->setName('init')
             ->setDescription('Initialize the application for Phinx')
-            ->addArgument('path', InputArgument::OPTIONAL, 'Which path should we initialize for Phinx?')
             ->addOption('--format', '-f', InputArgument::OPTIONAL, 'What format should we use to initialize?', 'yml')
+            ->addArgument('path', InputArgument::OPTIONAL, 'Which path should we initialize for Phinx?')
             ->setHelp(sprintf(
                 '%sInitializes the application for Phinx%s',
                 PHP_EOL,
@@ -147,8 +147,8 @@ class Init extends Command
         }
 
         // load the config template
-        if (is_dir(__DIR__ . '/../../../data')) {
-            $contents = file_get_contents(__DIR__ . '/../../../data/'.self::FILE_NAME . '.' . $format . '.dist');
+        if (is_dir(__DIR__ . '/../../../data/Phinx')) {
+            $contents = file_get_contents(__DIR__ . '/../../../data/Phinx' . self::FILE_NAME . '.' . $format . '.dist');
         } elseif ($format === 'yml') {
             $contents = file_get_contents(__DIR__ . '/../../../../' . self::FILE_NAME . '.' . $format);
         } else {
