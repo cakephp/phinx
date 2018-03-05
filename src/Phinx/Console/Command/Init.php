@@ -148,7 +148,7 @@ class Init extends Command
 
         // load the config template
         if (is_dir(__DIR__ . '/../../../data/Phinx')) {
-            $contents = file_get_contents(__DIR__ . '/../../../data/Phinx' . self::FILE_NAME . '.' . $format . '.dist');
+            $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/' . self::FILE_NAME . '.' . $format . '.dist');
         } elseif ($format === 'yml') {
             $contents = file_get_contents(__DIR__ . '/../../../../' . self::FILE_NAME . '.' . $format);
         } else {
