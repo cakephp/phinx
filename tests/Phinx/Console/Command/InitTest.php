@@ -80,6 +80,30 @@ class InitTest extends TestCase
         $this->writeConfig(uniqid() . $format);
     }
 
+    public function testDefaults() {
+        $current_dir = getcwd();
+        chdir(sys_get_temp_dir());
+
+        $application = new PhinxApplication('testing');
+        $application->add(new Init());
+
+        $command = $application->find('init');
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+        $this->assertRegExp(
+            "/created (.*)\/phinx.yml\\n/",
+            $commandTester->getDisplay()
+        );
+
+        $this->assertFileExists(
+            'phinx.yml',
+            'Phinx configuration not existent'
+        );
+
+        chdir($current_dir);
+    }
+
     /**
      * @expectedException              \InvalidArgumentException
      * @expectedExceptionMessageRegExp /Config file ".*" already exists./
