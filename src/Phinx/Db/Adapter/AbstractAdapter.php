@@ -60,6 +60,11 @@ abstract class AbstractAdapter implements AdapterInterface
     protected $schemaTableName = 'phinxlog';
 
     /**
+     * @var array
+     */
+    protected $dataDomain = [];
+
+    /**
      * Class Constructor.
      *
      * @param array $options Options
@@ -86,6 +91,10 @@ abstract class AbstractAdapter implements AdapterInterface
 
         if (isset($options['default_migration_table'])) {
             $this->setSchemaTableName($options['default_migration_table']);
+        }
+
+        if (isset($options['data_domain'])) {
+            $this->setDataDomain($options['data_domain']);
         }
 
         return $this;
@@ -191,6 +200,77 @@ abstract class AbstractAdapter implements AdapterInterface
     public function setSchemaTableName($schemaTableName)
     {
         $this->schemaTableName = $schemaTableName;
+
+        return $this;
+    }
+
+    /**
+     * Gets the data domain.
+     *
+     * @return array
+     */
+    public function getDataDomain()
+    {
+        return $this->dataDomain;
+    }
+
+    /**
+     * Sets the data domain.
+     *
+     * @param array $schemaTableName Array for the data domain
+     * @return $this
+     */
+    public function setDataDomain($dataDomain)
+    {
+        $this->dataDomain = [];
+
+        // Iterate over data domain field definitions and perform an initial
+        // simple normalization. We make sure the definition as a base 'type'
+        // and it is compatible with the base Phinx types.
+        foreach ($dataDomain as $type => $options) {
+            if (!isset($options['type'])) {
+                throw new \InvalidArgumentException(sprintf(
+                    'You must specify a type for data domain type "%s".',
+                    $type
+                ));
+            }
+
+            if (!in_array($options['type'], $this->getColumnTypes())) {
+                throw new \InvalidArgumentException(sprintf(
+                    'An invalid column type "%s" was specified for data domain type "%s".',
+                    $options['type'],
+                    $type
+                ));
+            }
+
+            $internal_type = $options['type'];
+            unset($options['type']);
+
+            // Do a simple replacement for the 'length' / 'limit' option and
+            // detect hinting values for 'limit'.
+            if (isset($options['length'])) {
+                $options['limit'] = $options['length'];
+                unset($options['length']);
+            }
+
+            if (isset($options['limit']) && is_string($options['limit'])) {
+                if (defined('static::'.$options['limit'])) {
+                    $options['limit'] = constant('static::'.$options['limit']);
+                } else {
+                    throw new \InvalidArgumentException(sprintf(
+                        'An invalid limit value "%s" was specified for data domain type "%s".',
+                        $options['limit'],
+                        $type
+                    ));
+                }
+            }
+
+            // Save the data domain types in a more suitable format
+            $this->dataDomain[$type] = [
+                'type' => $internal_type,
+                'options' => $options
+            ];
+        }
 
         return $this;
     }
