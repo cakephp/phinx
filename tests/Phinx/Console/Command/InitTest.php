@@ -80,7 +80,8 @@ class InitTest extends TestCase
         $this->writeConfig(uniqid() . $format);
     }
 
-    public function testDefaults() {
+    public function testDefaults()
+    {
         $current_dir = getcwd();
         chdir(sys_get_temp_dir());
 
