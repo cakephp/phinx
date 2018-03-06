@@ -137,4 +137,42 @@ class DataDomainTest extends TestCase
         $mysql_adapter = new MysqlAdapter(['data_domain' => $data_domain]);
     }
 
+    /**
+     *
+     */
+    public function testCreatesColumnWithDataDomain()
+    {
+        $data_domain = [
+            'phone_number' => [
+                'type' => 'string',
+                'length' => 19
+            ]
+        ];
+
+        $adapter = new MysqlAdapter(['data_domain' => $data_domain]);
+        $column = $adapter->getColumnForType('phone', 'phone_number', []);
+
+        $this->assertEquals('string', $column->getType());
+        $this->assertEquals(19, $column->getLimit());
+    }
+
+    /**
+     *
+     */
+    public function testLocalOptionsOverridesDataDomainOptions()
+    {
+        $data_domain = [
+            'phone_number' => [
+                'type' => 'string',
+                'length' => 19
+            ]
+        ];
+
+        $adapter = new MysqlAdapter(['data_domain' => $data_domain]);
+        $column = $adapter->getColumnForType('phone', 'phone_number', ['length' => 30]);
+
+        $this->assertEquals('string', $column->getType());
+        $this->assertEquals(30, $column->getLimit());
+    }
+
 }

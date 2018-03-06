@@ -224,7 +224,7 @@ abstract class AbstractAdapter implements AdapterInterface
     {
         $this->dataDomain = [];
 
-        // Iterate over data domain field definitions and perform an initial
+        // Iterate over data domain field definitions and perform initial and
         // simple normalization. We make sure the definition as a base 'type'
         // and it is compatible with the base Phinx types.
         foreach ($dataDomain as $type => $options) {
@@ -273,6 +273,31 @@ abstract class AbstractAdapter implements AdapterInterface
         }
 
         return $this;
+    }
+
+    /**
+     * Returns a new Phinx\Db\Table\Column using the existent data domain.
+     *
+     * @param string $columnName The desired column name
+     * @param string $type The type for the column. Can be a data domain type.
+     * @param array $options Options array
+     * @return Phinx\Db\Table\Column
+     */
+    public function getColumnForType($columnName, $type, $options)
+    {
+        $column = new Column();
+        $column->setName($columnName);
+
+        if (array_key_exists($type, $this->getDataDomain())) {
+            $column->setType($this->dataDomain[$type]['type']);
+            $column->setOptions($this->dataDomain[$type]['options']);
+        } else {
+            $column->setType($type);
+        }
+
+        $column->setOptions($options);
+
+        return $column;
     }
 
     /**

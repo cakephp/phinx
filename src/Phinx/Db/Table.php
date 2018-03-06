@@ -348,10 +348,7 @@ class Table
 
         // create a new column object if only strings were supplied
         if (!$columnName instanceof Column) {
-            $column = new Column();
-            $column->setName($columnName);
-            $column->setType($type);
-            $column->setOptions($options); // map options to column methods
+            $column = $this->getAdapter()->getColumnForType($columnName, $type, $options);
         } else {
             $column = $columnName;
         }
@@ -409,9 +406,7 @@ class Table
     {
         // create a column object if one wasn't supplied
         if (!$newColumnType instanceof Column) {
-            $newColumn = new Column();
-            $newColumn->setType($newColumnType);
-            $newColumn->setOptions($options);
+            $newColumn = $this->getAdapter()->getColumnForType($columnName, $newColumnType, $options);
         } else {
             $newColumn = $newColumnType;
         }

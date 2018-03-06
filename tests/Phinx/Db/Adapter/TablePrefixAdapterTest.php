@@ -42,6 +42,19 @@ class TablePrefixAdapterTest extends TestCase
                 return $options[$option];
             }));
 
+
+        $this->mock
+            ->expects($this->any())
+            ->method('getColumnForType')
+            ->will($this->returnCallback(function ($name, $type, $options) {
+                $col = new Column();
+                $col->setName($name);
+                $col->setType($type);
+                $col->setOptions($options);
+
+                return $col;
+            }));
+
         $this->adapter = new TablePrefixAdapter($this->mock);
     }
 

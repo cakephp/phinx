@@ -7,6 +7,7 @@ use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Adapter\PostgresAdapter;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Adapter\SqlServerAdapter;
+use Phinx\Db\Table\Column;
 use PHPUnit\Framework\TestCase;
 
 class TableTest extends TestCase
@@ -188,6 +189,19 @@ class TableTest extends TestCase
             ->getMock();
         $adapterStub->expects($this->once())
                     ->method('changeColumn');
+
+        $adapterStub
+            ->expects($this->any())
+            ->method('getColumnForType')
+            ->will($this->returnCallback(function ($name, $type, $options) {
+                $col = new Column();
+                $col->setName($name);
+                $col->setType($type);
+                $col->setOptions($options);
+
+                return $col;
+            }));
+
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
         $table->changeColumn('test1', 'text', ['null' => false]);
     }
