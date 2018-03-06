@@ -704,7 +704,8 @@ class MysqlAdapterTest extends TestCase
               ->addColumn('column19', 'polygon')
               ->addColumn('column20', 'uuid')
               ->addColumn('column21', 'set', ['values' => "one, two"])
-              ->addColumn('column22', 'enum', ['values' => ['three', 'four']]);
+              ->addColumn('column22', 'enum', ['values' => ['three', 'four']])
+              ->addColumn('column23', 'bit');
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -751,7 +752,8 @@ class MysqlAdapterTest extends TestCase
               ->addColumn('column19', 'polygon')
               ->addColumn('column20', 'uuid')
               ->addColumn('column21', 'set', ['values' => "one, two"])
-              ->addColumn('column22', 'enum', ['values' => ['three', 'four']]);
+              ->addColumn('column22', 'enum', ['values' => ['three', 'four']])
+              ->addColumn('column23', 'bit');
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('group');

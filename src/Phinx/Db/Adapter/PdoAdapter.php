@@ -357,6 +357,7 @@ abstract class PdoAdapter extends AbstractAdapter
             'text',
             'integer',
             'biginteger',
+            'bit',
             'float',
             'decimal',
             'datetime',
