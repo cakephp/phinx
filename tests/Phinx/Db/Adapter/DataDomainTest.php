@@ -122,6 +122,25 @@ class DataDomainTest extends TestCase
     /**
      *
      */
+    public function testCreatesTypeFromPhinxConstant()
+    {
+        $data_domain = [
+            'prime' => [
+                'type' => 'PHINX_TYPE_INTEGER',
+                'limit' => 'INT_BIG'
+            ]
+        ];
+
+        $mysql_adapter = new MysqlAdapter(['data_domain' => $data_domain]);
+        $dd = $mysql_adapter->getDataDomain();
+
+        $this->assertEquals(MysqlAdapter::PHINX_TYPE_INTEGER, $dd['prime']['type']);
+        $this->assertEquals(MysqlAdapter::INT_BIG, $dd['prime']['options']['limit']);
+    }
+
+    /**
+     *
+     */
     public function testThrowsErrorForInvalidMysqlLimit()
     {
         $this->expectException('\InvalidArgumentException');

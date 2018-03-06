@@ -235,6 +235,11 @@ abstract class AbstractAdapter implements AdapterInterface
                 ));
             }
 
+            // Replace type if it's the name of a Phinx constant
+            if (defined('static::'.$options['type'])) {
+                $options['type'] = constant('static::'.$options['type']);
+            }
+
             if (!in_array($options['type'], $this->getColumnTypes())) {
                 throw new \InvalidArgumentException(sprintf(
                     'An invalid column type "%s" was specified for data domain type "%s".',
@@ -253,7 +258,7 @@ abstract class AbstractAdapter implements AdapterInterface
                 unset($options['length']);
             }
 
-            if (isset($options['limit']) && is_string($options['limit'])) {
+            if (isset($options['limit']) && !is_numeric($options['limit'])) {
                 if (defined('static::'.$options['limit'])) {
                     $options['limit'] = constant('static::'.$options['limit']);
                 } else {
