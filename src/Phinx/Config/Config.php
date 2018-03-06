@@ -319,7 +319,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     public function getDataDomain()
     {
         if (!isset($this->values['data_domain'])) {
-            return false;
+            return [];
         }
 
         return $this->values['data_domain'];

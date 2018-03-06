@@ -108,10 +108,11 @@ class ConfigTest extends AbstractConfigTest
     /**
      * @covers \Phinx\Config\Config::getDataDomain
      */
-    public function testDoesNotThrowsWithEmptyDataDomain()
+    public function testReturnsEmptyArrayWithEmptyDataDomain()
     {
         $config = new Config([]);
-        $this->assertFalse($config->getDataDomain());
+        $this->assertInternalType('array', $config->getDataDomain());
+        $this->assertCount(0, $config->getDataDomain());
     }
 
     /**

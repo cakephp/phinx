@@ -119,7 +119,7 @@ interface ConfigInterface extends \ArrayAccess
     /**
      * Get the data domain array.
      *
-     * @return array[]|false
+     * @return array[]
      */
     public function getDataDomain();
 
