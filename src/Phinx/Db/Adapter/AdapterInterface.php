@@ -157,6 +157,16 @@ interface AdapterInterface
     public function getOutput();
 
     /**
+     * Returns a new Phinx\Db\Table\Column using the existent data domain.
+     *
+     * @param string $columnName The desired column name
+     * @param string $type The type for the column. Can be a data domain type.
+     * @param array $options Options array
+     * @return \Phinx\Db\Table\Column
+     */
+    public function getColumnForType($columnName, $type, $options);
+
+    /**
      * Records a migration being run.
      *
      * @param \Phinx\Migration\MigrationInterface $migration Migration

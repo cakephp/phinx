@@ -12,13 +12,11 @@ class DataDomainTest extends TestCase
 {
 
     /**
-     *
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage You must specify a type for data domain type "phone_number".
      */
     public function testThrowsIfNoTypeSpecified()
     {
-        $this->expectException('\InvalidArgumentException');
-        $this->expectExceptionMessage('You must specify a type for data domain type "phone_number".');
-
         $data_domain = [
             "phone_number" => [
                 "length" => 19
@@ -29,16 +27,14 @@ class DataDomainTest extends TestCase
     }
 
     /**
-     *
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage An invalid column type "str" was specified for data domain type "phone_number".
      */
     public function testThrowsIfInvalidBaseType()
     {
-        $this->expectException('\InvalidArgumentException');
-        $this->expectExceptionMessage('An invalid column type "str" was specified for data domain type "phone_number".');
-
         $data_domain = [
             'phone_number' => [
-                'type' => 'str',    // _Must be_ an invalid Phinx type
+                'type' => 'str', // _Must be_ an invalid Phinx type
                 'length' => 19
             ]
         ];
@@ -139,13 +135,11 @@ class DataDomainTest extends TestCase
     }
 
     /**
-     *
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage An invalid limit value "BIG_SUR" was specified for data domain type "prime".
      */
     public function testThrowsErrorForInvalidMysqlLimit()
     {
-        $this->expectException('\InvalidArgumentException');
-        $this->expectExceptionMessage('An invalid limit value "BIG_SUR" was specified for data domain type "prime".');
-
         $data_domain = [
             'prime' => [
                 'type' => 'integer',
@@ -193,5 +187,4 @@ class DataDomainTest extends TestCase
         $this->assertEquals('string', $column->getType());
         $this->assertEquals(30, $column->getLimit());
     }
-
 }

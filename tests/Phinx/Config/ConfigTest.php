@@ -111,7 +111,7 @@ class ConfigTest extends AbstractConfigTest
     public function testDoesNotThrowsWithEmptyDataDomain()
     {
         $config = new Config([]);
-        $this->assertNull($config->getDataDomain());
+        $this->assertFalse($config->getDataDomain());
     }
 
     /**

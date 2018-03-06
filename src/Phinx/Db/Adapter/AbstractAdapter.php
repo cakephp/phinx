@@ -217,7 +217,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * Sets the data domain.
      *
-     * @param array $schemaTableName Array for the data domain
+     * @param array $dataDomain Array for the data domain
      * @return $this
      */
     public function setDataDomain($dataDomain)
@@ -236,8 +236,8 @@ abstract class AbstractAdapter implements AdapterInterface
             }
 
             // Replace type if it's the name of a Phinx constant
-            if (defined('static::'.$options['type'])) {
-                $options['type'] = constant('static::'.$options['type']);
+            if (defined('static::' . $options['type'])) {
+                $options['type'] = constant('static::' . $options['type']);
             }
 
             if (!in_array($options['type'], $this->getColumnTypes())) {
@@ -259,8 +259,8 @@ abstract class AbstractAdapter implements AdapterInterface
             }
 
             if (isset($options['limit']) && !is_numeric($options['limit'])) {
-                if (defined('static::'.$options['limit'])) {
-                    $options['limit'] = constant('static::'.$options['limit']);
+                if (defined('static::' . $options['limit'])) {
+                    $options['limit'] = constant('static::' . $options['limit']);
                 } else {
                     throw new \InvalidArgumentException(sprintf(
                         'An invalid limit value "%s" was specified for data domain type "%s".',
@@ -281,12 +281,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * Returns a new Phinx\Db\Table\Column using the existent data domain.
-     *
-     * @param string $columnName The desired column name
-     * @param string $type The type for the column. Can be a data domain type.
-     * @param array $options Options array
-     * @return Phinx\Db\Table\Column
+     * {@inheritdoc}
      */
     public function getColumnForType($columnName, $type, $options)
     {

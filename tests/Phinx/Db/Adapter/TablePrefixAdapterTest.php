@@ -42,7 +42,6 @@ class TablePrefixAdapterTest extends TestCase
                 return $options[$option];
             }));
 
-
         $this->mock
             ->expects($this->any())
             ->method('getColumnForType')

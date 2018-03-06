@@ -2,8 +2,8 @@
 
 namespace Test\Phinx\Console\Command;
 
-use PHPUnit\Framework\TestCase;
 use Phinx\Console\PhinxApplication;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
 class ListTest extends TestCase
