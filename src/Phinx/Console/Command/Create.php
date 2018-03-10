@@ -29,6 +29,7 @@
 namespace Phinx\Console\Command;
 
 use Phinx\Config\NamespaceAwareInterface;
+use Phinx\Migration\CreationInterface;
 use Phinx\Migration\MigrationDefinition;
 use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputArgument;
@@ -270,6 +271,7 @@ class Create extends AbstractCommand
         // Determine the appropriate mechanism to get the template
         if ($creationClassName) {
             // Get the template from the creation class
+            /* @var CreationInterface $creationClass */
             $creationClass = new $creationClassName($input, $output);
             $contents = $creationClass->getMigrationTemplate();
         } else {
@@ -283,7 +285,7 @@ class Create extends AbstractCommand
             '$namespace' => $namespace,
             '$useClassName' => $this->getConfig()->getMigrationBaseClassName(false),
             '$className' => $className,
-            '$version' => Util::getVersionFromFileName($fileName),
+            '$version' => $definition->getVersion(),
             '$baseClassName' => $this->getConfig()->getMigrationBaseClassName(true),
         ];
         $contents = strtr($contents, $classes);

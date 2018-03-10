@@ -127,6 +127,35 @@ class CreateTest extends TestCase
         $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
     }
 
+    public function testExecuteWithoutAMigrationName()
+    {
+        $exceptionThrown = false;
+
+        try {
+            $application = new PhinxApplication('testing');
+            $application->add(new Create());
+
+            /** @var Create $command */
+            $command = $application->find('create');
+
+            /** @var Manager $managerStub mock the manager class */
+            $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+                ->setConstructorArgs([$this->config, $this->input, $this->output])
+                ->getMock();
+
+            $command->setConfig($this->config);
+            $command->setManager($managerStub);
+
+            $commandTester = new CommandTester($command);
+            $commandTester->execute(['command' => $command->getName(), 'name' => null]);
+            sleep(1.01); // need at least a second due to file naming scheme
+        } catch (\Exception $e) {
+            $exceptionThrown = true;
+        }
+
+        $this->assertFalse($exceptionThrown);
+    }
+
     /**
      * @expectedException \Exception
      * @expectedExceptionMessage Cannot use --template and --class at the same time
