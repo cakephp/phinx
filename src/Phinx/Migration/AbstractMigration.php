@@ -28,8 +28,8 @@
  */
 namespace Phinx\Migration;
 
-use Phinx\Db\Table;
 use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -46,39 +46,54 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class AbstractMigration implements MigrationInterface
 {
     /**
+     * @var string
+     */
+    protected $environment;
+    /**
      * @var float
      */
     protected $version;
 
     /**
-     * @var AdapterInterface
+     * @var \Phinx\Db\Adapter\AdapterInterface
      */
     protected $adapter;
 
     /**
-     * @var OutputInterface
+     * @var \Symfony\Component\Console\Output\OutputInterface
      */
     protected $output;
 
     /**
-     * @var InputInterface
+     * @var \Symfony\Component\Console\Input\InputInterface
      */
     protected $input;
 
     /**
+     * Whether this migration is being applied or reverted
+     *
+     * @var bool
+     */
+    protected $isMigratingUp = true;
+
+    /**
      * Class Constructor.
      *
+     * @param string $environment Environment Detected
      * @param int $version Migration Version
-     * @param InputInterface|null $input
-     * @param OutputInterface|null $output
+     * @param \Symfony\Component\Console\Input\InputInterface|null $input
+     * @param \Symfony\Component\Console\Output\OutputInterface|null $output
      */
-    final public function __construct($version, InputInterface $input = null, OutputInterface $output = null)
+    final public function __construct($environment, $version, InputInterface $input = null, OutputInterface $output = null)
     {
+        $this->environment = $environment;
         $this->version = $version;
-        if (!is_null($input)){
+
+        if (!is_null($input)) {
             $this->setInput($input);
         }
-        if (!is_null($output)){
+
+        if (!is_null($output)) {
             $this->setOutput($output);
         }
 
@@ -114,6 +129,7 @@ abstract class AbstractMigration implements MigrationInterface
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
+
         return $this;
     }
 
@@ -131,6 +147,7 @@ abstract class AbstractMigration implements MigrationInterface
     public function setInput(InputInterface $input)
     {
         $this->input = $input;
+
         return $this;
     }
 
@@ -148,6 +165,7 @@ abstract class AbstractMigration implements MigrationInterface
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+
         return $this;
     }
 
@@ -170,9 +188,18 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
+    public function getEnvironment()
+    {
+        return $this->environment;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setVersion($version)
     {
         $this->version = $version;
+
         return $this;
     }
 
@@ -182,6 +209,24 @@ abstract class AbstractMigration implements MigrationInterface
     public function getVersion()
     {
         return $this->version;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setMigratingUp($isMigratingUp)
+    {
+        $this->isMigratingUp = $isMigratingUp;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isMigratingUp()
+    {
+        return $this->isMigratingUp;
     }
 
     /**
@@ -223,7 +268,7 @@ abstract class AbstractMigration implements MigrationInterface
     {
         // convert to table object
         if (is_string($table)) {
-            $table = new Table($table, array(), $this->getAdapter());
+            $table = new Table($table, [], $this->getAdapter());
         }
         $table->insert($data)->save();
     }
@@ -255,7 +300,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
-    public function table($tableName, $options = array())
+    public function table($tableName, $options = [])
     {
         return new Table($tableName, $options, $this->getAdapter());
     }

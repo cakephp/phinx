@@ -6,20 +6,28 @@ use Phinx\Db\Adapter\AdapterFactory;
 use Phinx\Db\Adapter\PdoAdapter;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Migration\MigrationInterface;
+use PHPUnit\Framework\TestCase;
 
 class PDOMock extends \PDO
 {
+    public $attributes = [];
+
     public function __construct()
     {
     }
 
     public function getAttribute($attribute)
     {
-        return 'pdomock';
+        return isset($this->attributes[$attribute]) ? $this->attributes[$attribute] : 'pdomock';
+    }
+
+    public function setAttribute($attribute, $value)
+    {
+        $this->attributes[$attribute] = $value;
     }
 }
 
-class EnvironmentTest extends \PHPUnit_Framework_TestCase
+class EnvironmentTest extends TestCase
 {
     /**
      * @var \Phinx\Migration\Manager\Environment
@@ -28,12 +36,12 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->environment = new Environment('test', array());
+        $this->environment = new Environment('test', []);
     }
 
     public function testConstructorWorksAsExpected()
     {
-        $env = new Environment('testenv', array('foo' => 'bar'));
+        $env = new Environment('testenv', ['foo' => 'bar']);
         $this->assertEquals('testenv', $env->getName());
         $this->assertArrayHasKey('foo', $env->getOptions());
     }
@@ -46,7 +54,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
     public function testSettingOptions()
     {
-        $this->environment->setOptions(array('foo' => 'bar'));
+        $this->environment->setOptions(['foo' => 'bar']);
         $this->assertArrayHasKey('foo', $this->environment->getOptions());
     }
 
@@ -56,7 +64,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidAdapter()
     {
-        $this->environment->setOptions(array('adapter' => 'fakeadapter'));
+        $this->environment->setOptions(['adapter' => 'fakeadapter']);
         $this->environment->getAdapter();
     }
 
@@ -70,11 +78,21 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
     public function testGetAdapterWithExistingPdoInstance()
     {
-        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', array(array('foo' => 'bar')));
+        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', [['foo' => 'bar']]);
         AdapterFactory::instance()->registerAdapter('pdomock', $adapter);
-        $this->environment->setOptions(array('connection' => new PDOMock()));
+        $this->environment->setOptions(['connection' => new PDOMock()]);
         $options = $this->environment->getAdapter()->getOptions();
         $this->assertEquals('pdomock', $options['adapter']);
+    }
+
+    public function testSetPdoAttributeToErrmodeException()
+    {
+        $pdoMock = new PDOMock();
+        $adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', [['foo' => 'bar']]);
+        AdapterFactory::instance()->registerAdapter('pdomock', $adapter);
+        $this->environment->setOptions(['connection' => $pdoMock]);
+        $options = $this->environment->getAdapter()->getOptions();
+        $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $options['connection']->getAttribute(\PDO::ATTR_ERRMODE));
     }
 
     /**
@@ -83,17 +101,17 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetAdapterWithBadExistingPdoInstance()
     {
-        $this->environment->setOptions(array('connection' => new \stdClass()));
+        $this->environment->setOptions(['connection' => new \stdClass()]);
         $this->environment->getAdapter();
     }
 
     public function testTablePrefixAdapter()
     {
-        $this->environment->setOptions(array('table_prefix' => 'tbl_', 'adapter' => 'mysql'));
+        $this->environment->setOptions(['table_prefix' => 'tbl_', 'adapter' => 'mysql']);
         $this->assertInstanceOf('Phinx\Db\Adapter\TablePrefixAdapter', $this->environment->getAdapter());
 
         $tablePrefixAdapter = $this->environment->getAdapter();
-        $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $tablePrefixAdapter->getAdapter());
+        $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $tablePrefixAdapter->getAdapter()->getAdapter());
     }
 
     public function testSchemaName()
@@ -111,7 +129,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $stub->expects($this->any())
              ->method('getVersions')
-             ->will($this->returnValue(array('20110301080000')));
+             ->will($this->returnValue(['20110301080000']));
 
         $this->environment->setAdapter($stub);
 
@@ -132,7 +150,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // up
         $upMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20110301080000'])
+            ->setConstructorArgs(['mockenv', '20110301080000'])
             ->setMethods(['up'])
             ->getMock();
         $upMigration->expects($this->once())
@@ -155,7 +173,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // down
         $downMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20110301080000'])
+            ->setConstructorArgs(['mockenv', '20110301080000'])
             ->setMethods(['down'])
             ->getMock();
         $downMigration->expects($this->once())
@@ -184,7 +202,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // migrate
         $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20110301080000'])
+            ->setConstructorArgs(['mockenv', '20110301080000'])
             ->setMethods(['up'])
             ->getMock();
         $migration->expects($this->once())
@@ -207,7 +225,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // migration
         $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20130301080000'])
+            ->setConstructorArgs(['mockenv', '20130301080000'])
             ->setMethods(['change'])
             ->getMock();
         $migration->expects($this->once())
@@ -230,7 +248,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
 
         // migration
         $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['20130301080000'])
+            ->setConstructorArgs(['mockenv', '20130301080000'])
             ->setMethods(['change'])
             ->getMock();
         $migration->expects($this->once())

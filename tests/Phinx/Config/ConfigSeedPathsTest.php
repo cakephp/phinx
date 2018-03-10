@@ -2,7 +2,7 @@
 
 namespace Test\Phinx\Config;
 
-use \Phinx\Config\Config;
+use Phinx\Config\Config;
 
 /**
  * Class ConfigSeedPathsTest
@@ -17,7 +17,7 @@ class ConfigSeedPathsTest extends AbstractConfigTest
      */
     public function testGetSeedPathsThrowsExceptionForNoPath()
     {
-        $config = new Config(array());
+        $config = new Config([]);
         $config->getSeedPaths();
     }
 
@@ -32,16 +32,16 @@ class ConfigSeedPathsTest extends AbstractConfigTest
 
     public function testGetSeedPathConvertsStringToArray()
     {
-        $values = array(
-            'paths' => array(
+        $values = [
+            'paths' => [
                 'seeds' => '/test'
-            )
-        );
+            ]
+        ];
 
         $config = new Config($values);
         $paths = $config->getSeedPaths();
 
-        $this->assertTrue(is_array($paths));
-        $this->assertTrue(count($paths) === 1);
+        $this->assertInternalType('array', $paths);
+        $this->assertCount(1, $paths);
     }
 }

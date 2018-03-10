@@ -3,8 +3,9 @@
 namespace Test\Phinx\Db\Table;
 
 use Phinx\Db\Table\ForeignKey;
+use PHPUnit\Framework\TestCase;
 
-class ForeignKeyTest extends \PHPUnit_Framework_TestCase
+class ForeignKeyTest extends TestCase
 {
 
     /**
@@ -21,7 +22,7 @@ class ForeignKeyTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             ForeignKey::SET_NULL,
-            $this->fk->setOptions(array('delete' => ForeignKey::SET_NULL))->getOnDelete()
+            $this->fk->setOptions(['delete' => ForeignKey::SET_NULL])->getOnDelete()
         );
     }
 
@@ -50,10 +51,10 @@ class ForeignKeyTest extends \PHPUnit_Framework_TestCase
      */
     public function testBothActionsCanBeSetThroughOptions($dirtyValue, $valueOfConstant)
     {
-        $this->fk->setOptions(array(
+        $this->fk->setOptions([
             'delete' => $dirtyValue,
             'update' => $dirtyValue,
-        ));
+        ]);
         $this->assertEquals($valueOfConstant, $this->fk->getOnDelete());
         $this->assertEquals($valueOfConstant, $this->fk->getOnUpdate());
     }
@@ -71,21 +72,21 @@ class ForeignKeyTest extends \PHPUnit_Framework_TestCase
      */
     public function testUnknownActionsNotAllowedThroughOptions()
     {
-        $this->fk->setOptions(array('update' => 'no yu a dumb'));
+        $this->fk->setOptions(['update' => 'no yu a dumb']);
     }
 
     public function actionsProvider()
     {
-        return array(
-            array(ForeignKey::CASCADE,   ForeignKey::CASCADE),
-            array(ForeignKey::RESTRICT,  ForeignKey::RESTRICT),
-            array(ForeignKey::NO_ACTION, ForeignKey::NO_ACTION),
-            array(ForeignKey::SET_NULL,  ForeignKey::SET_NULL),
-            array('no Action ',          ForeignKey::NO_ACTION),
-            array('Set nuLL',            ForeignKey::SET_NULL),
-            array('no_Action',           ForeignKey::NO_ACTION),
-            array('Set_nuLL',            ForeignKey::SET_NULL),
-        );
+        return [
+            [ForeignKey::CASCADE, ForeignKey::CASCADE],
+            [ForeignKey::RESTRICT, ForeignKey::RESTRICT],
+            [ForeignKey::NO_ACTION, ForeignKey::NO_ACTION],
+            [ForeignKey::SET_NULL, ForeignKey::SET_NULL],
+            ['no Action ', ForeignKey::NO_ACTION],
+            ['Set nuLL', ForeignKey::SET_NULL],
+            ['no_Action', ForeignKey::NO_ACTION],
+            ['Set_nuLL', ForeignKey::SET_NULL],
+        ];
     }
 
     /**

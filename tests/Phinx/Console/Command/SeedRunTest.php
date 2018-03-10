@@ -2,24 +2,25 @@
 
 namespace Test\Phinx\Console\Command;
 
+use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
+use Phinx\Console\Command\SeedRun;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
+use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\StreamOutput;
-use Phinx\Config\Config;
-use Phinx\Console\Command\SeedRun;
+use Symfony\Component\Console\Tester\CommandTester;
 
-class SeedRunTest extends \PHPUnit_Framework_TestCase
+class SeedRunTest extends TestCase
 {
     /**
      * @var ConfigInterface|array
      */
-    protected $config = array();
+    protected $config = [];
 
     /**
      * @var InputInterface $input
@@ -33,24 +34,24 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->config = new Config(array(
-            'paths' => array(
+        $this->config = new Config([
+            'paths' => [
                 'migrations' => __FILE__,
                 'seeds' => __FILE__,
-            ),
-            'environments' => array(
+            ],
+            'environments' => [
                 'default_migration_table' => 'phinxlog',
                 'default_database' => 'development',
-                'development' => array(
+                'development' => [
                     'adapter' => 'mysql',
                     'host' => 'fakehost',
                     'name' => 'development',
                     'user' => '',
                     'pass' => '',
                     'port' => 3006,
-                )
-            )
-        ));
+                ]
+            ]
+        ]);
 
         $this->input = new ArrayInput([]);
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -76,7 +77,7 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
     }
@@ -101,7 +102,7 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'), array('decorated' => false));
+        $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
     }
 
@@ -125,7 +126,7 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
     }
 
@@ -144,9 +145,9 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $managerStub->expects($this->exactly(3))
                     ->method('seed')->withConsecutive(
-                        array($this->identicalTo('development'), $this->identicalTo('One')),
-                        array($this->identicalTo('development'), $this->identicalTo('Two')),
-                        array($this->identicalTo('development'), $this->identicalTo('Three'))
+                        [$this->identicalTo('development'), $this->identicalTo('One')],
+                        [$this->identicalTo('development'), $this->identicalTo('Two')],
+                        [$this->identicalTo('development'), $this->identicalTo('Three')]
                     );
 
         $command->setConfig($this->config);
@@ -154,11 +155,11 @@ class SeedRunTest extends \PHPUnit_Framework_TestCase
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(
-            array(
+            [
                 'command' => $command->getName(),
                 '--seed' => ['One', 'Two', 'Three'],
-            ),
-            array('decorated' => false)
+            ],
+            ['decorated' => false]
         );
 
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());

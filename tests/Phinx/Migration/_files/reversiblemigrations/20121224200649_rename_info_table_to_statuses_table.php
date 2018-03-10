@@ -19,7 +19,6 @@ class RenameInfoTableToStatusesTable extends AbstractMigration
      */
     public function up()
     {
-
     }
 
     /**
@@ -27,6 +26,5 @@ class RenameInfoTableToStatusesTable extends AbstractMigration
      */
     public function down()
     {
-
     }
 }

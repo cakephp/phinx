@@ -44,10 +44,10 @@ class Status extends AbstractCommand
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment.');
 
         $this->setName('status')
-             ->setDescription('Show migration status')
-             ->addOption('--format', '-f', InputOption::VALUE_REQUIRED, 'The output format: text or json. Defaults to text.')
-             ->setHelp(
-<<<EOT
+            ->setDescription('Show migration status')
+            ->addOption('--format', '-f', InputOption::VALUE_REQUIRED, 'The output format: text or json. Defaults to text.')
+            ->setHelp(
+                <<<EOT
 The <info>status</info> command prints a list of all migrations, along with their current status
 
 <info>phinx status -e development</info>
@@ -55,15 +55,15 @@ The <info>status</info> command prints a list of all migrations, along with thei
 
 The <info>version_order</info> configuration option is used to determine the order of the status migrations.
 EOT
-             );
+            );
     }
 
     /**
      * Show the migration status.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return integer 0 if all migrations are up, or an error code
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @return int 0 if all migrations are up, or an error code
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -72,13 +72,13 @@ EOT
         $environment = $input->getOption('environment');
         $format = $input->getOption('format');
 
-        if (null === $environment) {
+        if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
-        if (null !== $format) {
+        if ($format !== null) {
             $output->writeln('<info>using format</info> ' . $format);
         }
 

@@ -28,13 +28,17 @@
  */
 namespace Phinx\Console\Command;
 
+use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Init extends Command
 {
+    const FILE_NAME = 'phinx.yml';
+
     /**
      * {@inheritdoc}
      */
@@ -53,38 +57,81 @@ class Init extends Command
     /**
      * Initializes the application.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface   $input  Interface implemented by all input classes.
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Interface implemented by all output classes.
+     *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $path = $this->resolvePath($input);
+        $this->writeConfig($path);
+
+        $output->writeln("<info>created</info> {$path}");
+    }
+
+    /**
+     * Return valid $path for Phinx's config file.
+     *
+     * @param \Symfony\Component\Console\Input\InputInterface $input Interface implemented by all input classes.
+     *
+     * @return string
+     */
+    protected function resolvePath(InputInterface $input)
+    {
         // get the migration path from the config
         $path = $input->getArgument('path');
 
-        if (null === $path) {
-            $path = getcwd();
+        // Fallback
+        if (!$path) {
+            $path = getcwd() . DIRECTORY_SEPARATOR . self::FILE_NAME;
         }
 
-        $path = realpath($path);
+        // Adding file name if necessary
+        if (is_dir($path)) {
+            $path .= DIRECTORY_SEPARATOR . self::FILE_NAME;
+        }
 
-        if (!is_writable($path)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The directory "%s" is not writable',
+        // Check if path is available
+        $dirname = dirname($path);
+        if (is_dir($dirname) && !is_file($path)) {
+            return $path;
+        }
+
+        // Path is valid, but file already exists
+        if (is_file($path)) {
+            throw new InvalidArgumentException(sprintf(
+                'Config file "%s" already exists.',
                 $path
             ));
         }
 
-        // Compute the file path
-        $fileName = 'phinx.yml'; // TODO - maybe in the future we allow custom config names.
-        $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
+        // Dir is invalid
+        throw new InvalidArgumentException(sprintf(
+            'Invalid path "%s" for config file.',
+            $path
+        ));
+    }
 
-        if (file_exists($filePath)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The file "%s" already exists',
-                $filePath
+    /**
+     * Writes Phinx's config in provided $path
+     *
+     * @param string $path Config file's path.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @return void
+     */
+    protected function writeConfig($path)
+    {
+        // Check if dir is writable
+        $dirname = dirname($path);
+        if (!is_writable($dirname)) {
+            throw new InvalidArgumentException(sprintf(
+                'The directory "%s" is not writable',
+                $dirname
             ));
         }
 
@@ -95,13 +142,11 @@ class Init extends Command
             $contents = file_get_contents(__DIR__ . '/../../../../phinx.yml');
         }
 
-        if (false === file_put_contents($filePath, $contents)) {
-            throw new \RuntimeException(sprintf(
+        if (file_put_contents($path, $contents) === false) {
+            throw new RuntimeException(sprintf(
                 'The file "%s" could not be written to',
                 $path
             ));
         }
-
-        $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
     }
 }

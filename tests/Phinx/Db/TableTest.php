@@ -7,8 +7,9 @@ use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Adapter\PostgresAdapter;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Adapter\SqlServerAdapter;
+use PHPUnit\Framework\TestCase;
 
-class TableTest extends \PHPUnit_Framework_TestCase
+class TableTest extends TestCase
 {
     public function provideTimestampColumnNames()
     {
@@ -49,7 +50,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
             $this->assertInstanceOf(
                 'InvalidArgumentException',
                 $e,
-                'Expected exception of type InvalidArgumentException, got '.get_class($e)
+                'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
             $this->assertRegExp('/^An invalid column type /', $e->getMessage());
         }
@@ -78,7 +79,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
             $this->assertInstanceOf(
                 'RuntimeException',
                 $e,
-                'Expected exception of type RuntimeException, got '.get_class($e)
+                'Expected exception of type RuntimeException, got ' . get_class($e)
             );
             $this->assertRegExp('/An adapter must be specified to add a column./', $e->getMessage());
         }
@@ -257,9 +258,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
             ],
         ];
 
-        $adapterStub->expects($this->exactly(4))
-                    ->method('insert')
-                    ->with($table, $this->logicalOr($data[0], $data[1], $moreData[0], $moreData[1]));
+        $adapterStub->expects($this->exactly(1))
+                    ->method('bulkinsert')
+                    ->with($table, [$data[0], $data[1], $moreData[0], $moreData[1]]);
 
         $table->insert($data)
               ->insert($moreData)

@@ -48,12 +48,12 @@ class Environment
     protected $options;
 
     /**
-     * @var InputInterface
+     * @var \Symfony\Component\Console\Input\InputInterface
      */
     protected $input;
 
     /**
-     * @var OutputInterface
+     * @var \Symfony\Component\Console\Output\OutputInterface
      */
     protected $output;
 
@@ -68,7 +68,7 @@ class Environment
     protected $schemaTableName = 'phinxlog';
 
     /**
-     * @var AdapterInterface
+     * @var \Phinx\Db\Adapter\AdapterInterface
      */
     protected $adapter;
 
@@ -77,7 +77,7 @@ class Environment
      *
      * @param string $name Environment Name
      * @param array $options Options
-     * @return Environment
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function __construct($name, $options)
     {
@@ -88,14 +88,16 @@ class Environment
     /**
      * Executes the specified migration on this environment.
      *
-     * @param MigrationInterface $migration Migration
+     * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @param string $direction Direction
      * @return void
      */
     public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP)
     {
-        $startTime = time();
         $direction = ($direction === MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
+        $migration->setMigratingUp($direction === MigrationInterface::UP);
+
+        $startTime = time();
         $migration->setAdapter($this->getAdapter());
 
         // begin the transaction if the adapter supports it
@@ -137,7 +139,7 @@ class Environment
     /**
      * Executes the specified seeder on this environment.
      *
-     * @param SeedInterface $seed
+     * @param \Phinx\Seed\SeedInterface $seed
      * @return void
      */
     public function executeSeed(SeedInterface $seed)
@@ -164,11 +166,12 @@ class Environment
      * Sets the environment's name.
      *
      * @param string $name Environment Name
-     * @return Environment
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -186,11 +189,12 @@ class Environment
      * Sets the environment's options.
      *
      * @param array $options Environment Options
-     * @return Environment
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setOptions($options)
     {
         $this->options = $options;
+
         return $this;
     }
 
@@ -207,19 +211,20 @@ class Environment
     /**
      * Sets the console input.
      *
-     * @param InputInterface $input
-     * @return Environment
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setInput(InputInterface $input)
     {
         $this->input = $input;
+
         return $this;
     }
 
     /**
      * Gets the console input.
      *
-     * @return InputInterface
+     * @return \Symfony\Component\Console\Input\InputInterface
      */
     public function getInput()
     {
@@ -229,19 +234,20 @@ class Environment
     /**
      * Sets the console output.
      *
-     * @param OutputInterface $output Output
-     * @return Environment
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+
         return $this;
     }
 
     /**
      * Gets the console output.
      *
-     * @return OutputInterface
+     * @return \Symfony\Component\Console\Output\OutputInterface
      */
     public function getOutput()
     {
@@ -259,7 +265,7 @@ class Environment
     }
 
     /**
-     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's 
+     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's
      * version_order option
      *
      * @return array
@@ -273,11 +279,12 @@ class Environment
      * Sets the current version of the environment.
      *
      * @param int $version Environment Version
-     * @return Environment
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setCurrentVersion($version)
     {
         $this->currentVersion = $version;
+
         return $this;
     }
 
@@ -299,25 +306,27 @@ class Environment
         }
 
         $this->setCurrentVersion($version);
+
         return $this->currentVersion;
     }
 
     /**
      * Sets the database adapter.
      *
-     * @param AdapterInterface $adapter Database Adapter
-     * @return Environment
+     * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
+
         return $this;
     }
 
     /**
      * Gets the database adapter.
      *
-     * @return AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getAdapter()
     {
@@ -329,17 +338,22 @@ class Environment
                 throw new \RuntimeException('The specified connection is not a PDO instance');
             }
 
+            $this->options['connection']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $this->options['adapter'] = $this->options['connection']->getAttribute(\PDO::ATTR_DRIVER_NAME);
         }
         if (!isset($this->options['adapter'])) {
             throw new \RuntimeException('No adapter was specified for environment: ' . $this->getName());
         }
 
-        $adapter = AdapterFactory::instance()
+        $factory = AdapterFactory::instance();
+        $adapter = $factory
             ->getAdapter($this->options['adapter'], $this->options);
 
+        // Automatically time the executed commands
+        $adapter = $factory->getWrapper('timed', $adapter);
+
         if (isset($this->options['wrapper'])) {
-            $adapter = AdapterFactory::instance()
+            $adapter = $factory
                 ->getWrapper($this->options['wrapper'], $adapter);
         }
 
@@ -366,11 +380,12 @@ class Environment
      * Sets the schema table name.
      *
      * @param string $schemaTableName Schema Table Name
-     * @return Environment
+     * @return \Phinx\Migration\Manager\Environment
      */
     public function setSchemaTableName($schemaTableName)
     {
         $this->schemaTableName = $schemaTableName;
+
         return $this;
     }
 

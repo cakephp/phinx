@@ -44,10 +44,10 @@ class SeedRun extends AbstractCommand
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
         $this->setName('seed:run')
-             ->setDescription('Run database seeders')
-             ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
-             ->setHelp(
-<<<EOT
+            ->setDescription('Run database seeders')
+            ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
+            ->setHelp(
+                <<<EOT
 The <info>seed:run</info> command runs all available or individual seeders
 
 <info>phinx seed:run -e development</info>
@@ -56,24 +56,24 @@ The <info>seed:run</info> command runs all available or individual seeders
 <info>phinx seed:run -e development -v</info>
 
 EOT
-             );
+            );
     }
 
     /**
      * Run database seeders.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @return void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
 
-        $seedSet     = $input->getOption('seed');
+        $seedSet = $input->getOption('seed');
         $environment = $input->getOption('environment');
 
-        if (null === $environment) {
+        if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
@@ -93,6 +93,7 @@ EOT
             $output->writeln('<info>using database</info> ' . $envOptions['name']);
         } else {
             $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
+
             return;
         }
 

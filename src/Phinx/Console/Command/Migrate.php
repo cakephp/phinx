@@ -44,11 +44,12 @@ class Migrate extends AbstractCommand
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
         $this->setName('migrate')
-             ->setDescription('Migrate the database')
-             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
-             ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to migrate to')
-             ->setHelp(
-<<<EOT
+            ->setDescription('Migrate the database')
+            ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
+            ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to migrate to')
+            ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
+            ->setHelp(
+                <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
 
 <info>phinx migrate -e development</info>
@@ -57,25 +58,25 @@ The <info>migrate</info> command runs all available migrations, optionally up to
 <info>phinx migrate -e development -v</info>
 
 EOT
-             );
+            );
     }
 
     /**
      * Migrate the database.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return integer integer 0 on success, or an error code.
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @return int integer 0 on success, or an error code.
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
 
-        $version     = $input->getOption('target');
+        $version = $input->getOption('target');
         $environment = $input->getOption('environment');
-        $date        = $input->getOption('date');
+        $date = $input->getOption('date');
 
-        if (null === $environment) {
+        if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
@@ -95,6 +96,7 @@ EOT
             $output->writeln('<info>using database</info> ' . $envOptions['name']);
         } else {
             $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
+
             return 1;
         }
 
@@ -107,7 +109,7 @@ EOT
 
         // run the migrations
         $start = microtime(true);
-        if (null !== $date) {
+        if ($date !== null) {
             $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
         } else {
             $this->getManager()->migrate($environment, $version);

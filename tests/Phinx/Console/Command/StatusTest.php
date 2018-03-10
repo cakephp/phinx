@@ -2,24 +2,25 @@
 
 namespace Test\Phinx\Console\Command;
 
+use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
+use Phinx\Console\Command\Status;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
+use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\StreamOutput;
-use Phinx\Config\Config;
-use Phinx\Console\Command\Status;
+use Symfony\Component\Console\Tester\CommandTester;
 
-class StatusTest extends \PHPUnit_Framework_TestCase
+class StatusTest extends TestCase
 {
     /**
      * @var ConfigInterface|array
      */
-    protected $config = array();
+    protected $config = [];
 
     /**
      * @var InputInterface $input
@@ -38,23 +39,23 @@ class StatusTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->config = new Config(array(
-            'paths' => array(
+        $this->config = new Config([
+            'paths' => [
                 'migrations' => __FILE__,
-            ),
-            'environments' => array(
+            ],
+            'environments' => [
                 'default_migration_table' => 'phinxlog',
                 'default_database' => 'development',
-                'development' => array(
+                'development' => [
                     'adapter' => 'pgsql',
                     'host' => 'fakehost',
                     'name' => 'development',
                     'user' => '',
                     'pass' => '',
                     'port' => 5433,
-                )
-            )
-        ));
+                ]
+            ]
+        ]);
 
         $this->input = new ArrayInput([]);
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -82,13 +83,13 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $return = $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+        $return = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
         $this->assertEquals(0, $return);
 
         $display = $commandTester->getDisplay();
         $this->assertRegExp('/no environment specified/', $display);
-        
+
         // note that the default order is by creation time
         $this->assertRegExp('/ordering by creation time/', $display);
     }
@@ -115,7 +116,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $return = $commandTester->execute(array('command' => $command->getName(), '--environment' => 'fakeenv'), array('decorated' => false));
+        $return = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
         $this->assertEquals(0, $return);
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
     }
@@ -142,7 +143,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $return = $commandTester->execute(array('command' => $command->getName(), '--format' => 'json'), array('decorated' => false));
+        $return = $commandTester->execute(['command' => $command->getName(), '--format' => 'json'], ['decorated' => false]);
         $this->assertEquals(0, $return);
         $this->assertRegExp('/using format json/', $commandTester->getDisplay());
     }
@@ -158,7 +159,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         // mock the manager class
         /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
-            ->setConstructorArgs(array($this->config, $this->input, $this->output))
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('printStatus')
@@ -171,7 +172,7 @@ class StatusTest extends \PHPUnit_Framework_TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $return = $commandTester->execute(array('command' => $command->getName()), array('decorated' => false));
+        $return = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
         $this->assertEquals(0, $return);
 

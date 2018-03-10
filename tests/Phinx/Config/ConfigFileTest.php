@@ -3,12 +3,13 @@
 namespace Test\Phinx\Config;
 
 use Phinx\Console\Command\AbstractCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputDefinition;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
-class ConfigFileTest extends \PHPUnit_Framework_TestCase
+class ConfigFileTest extends TestCase
 {
     private $previousDir;
 
@@ -66,12 +67,13 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
     protected function runLocateFile($arg, $dir)
     {
         chdir($this->baseDir . '/' . $dir);
-        $definition = new InputDefinition(array(new InputOption('configuration')));
-        $input = new ArgvInput(array(), $definition);
+        $definition = new InputDefinition([new InputOption('configuration')]);
+        $input = new ArgvInput([], $definition);
         if ($arg) {
             $input->setOption('configuration', $arg);
         }
         $command = new VoidCommand('void');
+
         return $command->locateConfigFile($input);
     }
 
@@ -83,20 +85,20 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
      */
     public function workingProvider()
     {
-        return array(
+        return [
             //explicit yaml
-            array('phinx.yml', 'OnlyYaml', 'phinx.yml'),
+            ['phinx.yml', 'OnlyYaml', 'phinx.yml'],
             //implicit with all choice
-            array(null, 'all', 'phinx.php'),
+            [null, 'all', 'phinx.php'],
             //implicit with no php choice
-            array(null, 'noPhp', 'phinx.json'),
+            [null, 'noPhp', 'phinx.json'],
             //implicit with only yaml choice
-            array(null, 'OnlyYaml', 'phinx.yml'),
+            [null, 'OnlyYaml', 'phinx.yml'],
             //explicit Php
-            array('phinx.php', 'all', 'phinx.php'),
+            ['phinx.php', 'all', 'phinx.php'],
             //explicit json
-            array('phinx.json', 'all', 'phinx.json'),
-        );
+            ['phinx.json', 'all', 'phinx.json'],
+        ];
     }
 
     /**
@@ -106,14 +108,14 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
      */
     public function notWorkingProvider()
     {
-        return array(
+        return [
             //no valid file available
-            array(null, 'NoValidFile'),
+            [null, 'NoValidFile'],
             //called file not available
-            array('phinx.yml', 'noYaml'),
-            array('phinx.json', 'OnlyYaml'),
-            array('phinx.php', 'OnlyYaml'),
-        );
+            ['phinx.yml', 'noYaml'],
+            ['phinx.json', 'OnlyYaml'],
+            ['phinx.php', 'OnlyYaml'],
+        ];
     }
 }
 

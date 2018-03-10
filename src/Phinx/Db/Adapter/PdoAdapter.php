@@ -28,11 +28,8 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Output\NullOutput;
+use BadMethodCallException;
 use Phinx\Db\Table;
-use Phinx\Db\Table\Column;
 use Phinx\Migration\MigrationInterface;
 
 /**
@@ -40,66 +37,19 @@ use Phinx\Migration\MigrationInterface;
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-abstract class PdoAdapter implements AdapterInterface
+abstract class PdoAdapter extends AbstractAdapter
 {
-    /**
-     * @var array
-     */
-    protected $options = array();
-
-    /**
-     * @var InputInterface
-     */
-    protected $input;
-
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
-
-    /**
-     * @var string
-     */
-    protected $schemaTableName = 'phinxlog';
-
     /**
      * @var \PDO|null
      */
     protected $connection;
 
     /**
-     * @var float
-     */
-    protected $commandStartTime;
-
-    /**
-     * Class Constructor.
-     *
-     * @param array $options Options
-     * @param InputInterface $input Input Interface
-     * @param OutputInterface $output Output Interface
-     */
-    public function __construct(array $options, InputInterface $input = null, OutputInterface $output = null)
-    {
-        $this->setOptions($options);
-        if (null !== $input) {
-            $this->setInput($input);
-        }
-        if (null !== $output) {
-            $this->setOutput($output);
-        }
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function setOptions(array $options)
     {
-        $this->options = $options;
-
-        if (isset($options['default_migration_table'])) {
-            $this->setSchemaTableName($options['default_migration_table']);
-        }
+        parent::setOptions($options);
 
         if (isset($options['connection'])) {
             $this->setConnection($options['connection']);
@@ -109,97 +59,10 @@ abstract class PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function getOptions()
-    {
-        return $this->options;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasOption($name)
-    {
-        return isset($this->options[$name]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOption($name)
-    {
-        if (!$this->hasOption($name)) {
-            return null;
-        }
-        return $this->options[$name];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setInput(InputInterface $input)
-    {
-        $this->input = $input;
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getInput()
-    {
-        return $this->input;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setOutput(OutputInterface $output)
-    {
-        $this->output = $output;
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOutput()
-    {
-        if (null === $this->output) {
-            $output = new NullOutput();
-            $this->setOutput($output);
-        }
-        return $this->output;
-    }
-
-    /**
-     * Sets the schema table name.
-     *
-     * @param string $schemaTableName Schema Table Name
-     * @return PdoAdapter
-     */
-    public function setSchemaTableName($schemaTableName)
-    {
-        $this->schemaTableName = $schemaTableName;
-        return $this;
-    }
-
-    /**
-     * Gets the schema table name.
-     *
-     * @return string
-     */
-    public function getSchemaTableName()
-    {
-        return $this->schemaTableName;
-    }
-
-    /**
      * Sets the database connection.
      *
      * @param \PDO $connection Connection
-     * @return AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function setConnection(\PDO $connection)
     {
@@ -209,17 +72,19 @@ abstract class PdoAdapter implements AdapterInterface
         if (!$this->hasSchemaTable()) {
             $this->createSchemaTable();
         } else {
-            $table = new Table($this->getSchemaTableName(), array(), $this);
+            $table = new Table($this->getSchemaTableName(), [], $this);
             if (!$table->hasColumn('migration_name')) {
                 $table
-                    ->addColumn('migration_name', 'string',
-                        array('limit' => 100, 'after' => 'version', 'default' => null, 'null' => true)
+                    ->addColumn(
+                        'migration_name',
+                        'string',
+                        ['limit' => 100, 'after' => 'version', 'default' => null, 'null' => true]
                     )
                     ->save();
             }
             if (!$table->hasColumn('breakpoint')) {
                 $table
-                    ->addColumn('breakpoint', 'boolean', array('default' => false))
+                    ->addColumn('breakpoint', 'boolean', ['default' => false])
                     ->save();
             }
         }
@@ -234,86 +99,11 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function getConnection()
     {
-        if (null === $this->connection) {
+        if ($this->connection === null) {
             $this->connect();
         }
+
         return $this->connection;
-    }
-
-    /**
-     * Sets the command start time
-     *
-     * @param float $time
-     * @return AdapterInterface
-     */
-    public function setCommandStartTime($time)
-    {
-        $this->commandStartTime = $time;
-        return $this;
-    }
-
-    /**
-     * Gets the command start time
-     *
-     * @return float
-     */
-    public function getCommandStartTime()
-    {
-        return $this->commandStartTime;
-    }
-
-    /**
-     * Start timing a command.
-     *
-     * @return void
-     */
-    public function startCommandTimer()
-    {
-        $this->setCommandStartTime(microtime(true));
-    }
-
-    /**
-     * Stop timing the current command and write the elapsed time to the
-     * output.
-     *
-     * @return void
-     */
-    public function endCommandTimer()
-    {
-        $end = microtime(true);
-        if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
-            $this->getOutput()->writeln('    -> ' . sprintf('%.4fs', $end - $this->getCommandStartTime()));
-        }
-    }
-
-    /**
-     * Write a Phinx command to the output.
-     *
-     * @param string $command Command Name
-     * @param array  $args    Command Args
-     * @return void
-     */
-    public function writeCommand($command, $args = array())
-    {
-        if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
-            if (count($args)) {
-                $outArr = array();
-                foreach ($args as $arg) {
-                    if (is_array($arg)) {
-                        $arg = array_map(function ($value) {
-                            return '\'' . $value . '\'';
-                        }, $arg);
-                        $outArr[] = '[' . implode(', ', $arg)  . ']';
-                        continue;
-                    }
-
-                    $outArr[] = '\'' . $arg . '\'';
-                }
-                $this->getOutput()->writeln(' -- ' . $command . '(' . implode(', ', $outArr) . ')');
-                return;
-            }
-            $this->getOutput()->writeln(' -- ' . $command);
-        }
     }
 
     /**
@@ -335,6 +125,12 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function execute($sql)
     {
+        if ($this->isDryRunEnabled()) {
+            $this->getOutput()->writeln($sql);
+
+            return 0;
+        }
+
         return $this->getConnection()->exec($sql);
     }
 
@@ -355,6 +151,7 @@ abstract class PdoAdapter implements AdapterInterface
     public function fetchRow($sql)
     {
         $result = $this->query($sql);
+
         return $result->fetch();
     }
 
@@ -363,11 +160,12 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function fetchAll($sql)
     {
-        $rows = array();
+        $rows = [];
         $result = $this->query($sql);
         while ($row = $result->fetch()) {
             $rows[] = $row;
         }
+
         return $rows;
     }
 
@@ -376,22 +174,51 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function insert(Table $table, $row)
     {
-        $this->startCommandTimer();
-        $this->writeCommand('insert', array($table->getName()));
-
         $sql = sprintf(
             "INSERT INTO %s ",
             $this->quoteTableName($table->getName())
         );
 
         $columns = array_keys($row);
-        $sql .= "(". implode(', ', array_map(array($this, 'quoteColumnName'), $columns)) . ")";
+        $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
         $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
 
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute(array_values($row));
-        $this->endCommandTimer();
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function bulkinsert(Table $table, $rows)
+    {
+        $sql = sprintf(
+            "INSERT INTO %s ",
+            $this->quoteTableName($table->getName())
+        );
+
+        $current = current($rows);
+        $keys = array_keys($current);
+        $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ") VALUES";
+
+        $vals = [];
+        foreach ($rows as $row) {
+            foreach ($row as $v) {
+                $vals[] = $v;
+            }
+        }
+
+        $count_keys = count($keys);
+        $query = "(" . implode(', ', array_fill(0, $count_keys, '?')) . ")";
+
+        $count_vars = count($rows);
+        $queries = array_fill(0, $count_vars, $query);
+        $sql .= implode(',', $queries);
+
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute($vals);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -407,7 +234,7 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function getVersionLog()
     {
-        $result = array();
+        $result = [];
 
         switch ($this->options['version_order']) {
             case \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME:
@@ -421,7 +248,7 @@ abstract class PdoAdapter implements AdapterInterface
         }
 
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s', $this->getSchemaTableName(), $orderBy));
-        foreach($rows as $version) {
+        foreach ($rows as $version) {
             $result[$version['version']] = $version;
         }
 
@@ -450,7 +277,7 @@ abstract class PdoAdapter implements AdapterInterface
                 $this->castToBool(false)
             );
 
-            $this->query($sql);
+            $this->execute($sql);
         } else {
             // down
             $sql = sprintf(
@@ -460,7 +287,7 @@ abstract class PdoAdapter implements AdapterInterface
                 $migration->getVersion()
             );
 
-            $this->query($sql);
+            $this->execute($sql);
         }
 
         return $this;
@@ -506,51 +333,17 @@ abstract class PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function hasSchemaTable()
+    public function createSchema($schemaName = 'public')
     {
-        return $this->hasTable($this->getSchemaTableName());
+        throw new BadMethodCallException('Creating a schema is not supported');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createSchemaTable()
+    public function dropSchema($name)
     {
-        try {
-            $options = array(
-                'id'          => false,
-                'primary_key' => 'version'
-            );
-
-            $table = new Table($this->getSchemaTableName(), $options, $this);
-
-            if ($this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'mysql'
-                && version_compare($this->getConnection()->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.0', '>=')) {
-                $table->addColumn('version', 'biginteger', array('limit' => 14))
-                      ->addColumn('migration_name', 'string', array('limit' => 100, 'default' => null, 'null' => true))
-                      ->addColumn('start_time', 'timestamp', array('default' => null, 'null' => true))
-                      ->addColumn('end_time', 'timestamp', array('default' => null, 'null' => true))
-                      ->addColumn('breakpoint', 'boolean', array('default' => false))
-                      ->save();
-            } else {
-                $table->addColumn('version', 'biginteger')
-                      ->addColumn('migration_name', 'string', array('limit' => 100, 'default' => null, 'null' => true))
-                      ->addColumn('start_time', 'timestamp', array('default' => null, 'null' => true))
-                      ->addColumn('end_time', 'timestamp', array('default' => null, 'null' => true))
-                      ->addColumn('breakpoint', 'boolean', array('default' => false))
-                      ->save();
-            }
-        } catch (\Exception $exception) {
-            throw new \InvalidArgumentException('There was a problem creating the schema table: ' . $exception->getMessage());
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAdapterType()
-    {
-        return $this->getOption('adapter');
+        throw new BadMethodCallException('Dropping a schema is not supported');
     }
 
     /**
@@ -558,12 +351,13 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array(
+        return [
             'string',
             'char',
             'text',
             'integer',
             'biginteger',
+            'bit',
             'float',
             'decimal',
             'datetime',
@@ -580,14 +374,7 @@ abstract class PdoAdapter implements AdapterInterface
             'point',
             'linestring',
             'polygon',
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isValidColumnType(Column $column) {
-        return in_array($column->getType(), $this->getColumnTypes());
+        ];
     }
 
     /**
@@ -595,6 +382,6 @@ abstract class PdoAdapter implements AdapterInterface
      */
     public function castToBool($value)
     {
-        return (bool) $value ? 1 : 0;
+        return (bool)$value ? 1 : 0;
     }
 }
