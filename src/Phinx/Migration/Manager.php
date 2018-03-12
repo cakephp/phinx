@@ -668,6 +668,10 @@ class Manager
         if ($this->migrations === null) {
             $phpFiles = $this->getMigrationFiles();
 
+            if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
+                $this->getOutput()->writeln("Migration file " . implode(", ", $phpFiles));
+            }
+
             // filter the files to only get the ones that match our naming scheme
             $fileNames = [];
             /** @var \Phinx\Migration\AbstractMigration[] $versions */
@@ -675,6 +679,10 @@ class Manager
 
             foreach ($phpFiles as $filePath) {
                 if (Util::isValidMigrationFileName(basename($filePath))) {
+                    if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
+                        $this->getOutput()->writeln("Valid migration file " . implode(", ", $phpFiles));
+                    }
+
                     $version = Util::getVersionFromFileName(basename($filePath));
 
                     if (isset($versions[$version])) {
@@ -697,15 +705,26 @@ class Manager
 
                     $fileNames[$class] = basename($filePath);
 
+                    if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
+                        $this->getOutput()->writeln("Loading class $class from $filePath");
+                    }
+
                     // load the migration file
                     /** @noinspection PhpIncludeInspection */
+                    $orig_display_errors_setting = ini_get('display_errors');
+                    ini_set('display_errors', 'On');
                     require_once $filePath;
+                    ini_set('display_errors', $orig_display_errors_setting);
                     if (!class_exists($class)) {
                         throw new \InvalidArgumentException(sprintf(
                             'Could not find class "%s" in file "%s"',
                             $class,
                             $filePath
                         ));
+                    }
+
+                    if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
+                        $this->getOutput()->writeln("Running $class");
                     }
 
                     // instantiate it
@@ -720,6 +739,10 @@ class Manager
                     }
 
                     $versions[$version] = $migration;
+                } else {
+                    if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
+                        $this->getOutput()->writeln("Invalid migration file " . implode(", ", $phpFiles));
+                    }
                 }
             }
 
