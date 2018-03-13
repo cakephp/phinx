@@ -220,7 +220,7 @@ abstract class AbstractAdapter implements AdapterInterface
      * @param array $dataDomain Array for the data domain
      * @return $this
      */
-    public function setDataDomain($dataDomain)
+    public function setDataDomain(array $dataDomain)
     {
         $this->dataDomain = [];
 
@@ -259,15 +259,15 @@ abstract class AbstractAdapter implements AdapterInterface
             }
 
             if (isset($options['limit']) && !is_numeric($options['limit'])) {
-                if (defined('static::' . $options['limit'])) {
-                    $options['limit'] = constant('static::' . $options['limit']);
-                } else {
+                if (!defined('static::' . $options['limit'])) {
                     throw new \InvalidArgumentException(sprintf(
                         'An invalid limit value "%s" was specified for data domain type "%s".',
                         $options['limit'],
                         $type
                     ));
                 }
+
+                $options['limit'] = constant('static::' . $options['limit']);
             }
 
             // Save the data domain types in a more suitable format
@@ -283,7 +283,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getColumnForType($columnName, $type, $options)
+    public function getColumnForType($columnName, $type, array $options)
     {
         $column = new Column();
         $column->setName($columnName);

@@ -164,7 +164,7 @@ interface AdapterInterface
      * @param array $options Options array
      * @return \Phinx\Db\Table\Column
      */
-    public function getColumnForType($columnName, $type, $options);
+    public function getColumnForType($columnName, $type, array $options);
 
     /**
      * Records a migration being run.

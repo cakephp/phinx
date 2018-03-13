@@ -150,7 +150,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function getColumnForType($columnName, $type, $options)
+    public function getColumnForType($columnName, $type, array $options)
     {
         return $this->adapter->getColumnForType($columnName, $type, $options);
     }
