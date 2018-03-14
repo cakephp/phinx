@@ -5,9 +5,8 @@
     "keywords": ["phinx", "migrations", "database", "db", "database migrations"],
     "homepage": "https://phinx.org",
     "license": "MIT",
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-  "authors": [{
+    "version": "0.9.2",
+    "authors": [{
         "name": "Rob Morgan",
         "email": "robbym@gmail.com",
         "homepage": "https://robmorgan.id.au",
