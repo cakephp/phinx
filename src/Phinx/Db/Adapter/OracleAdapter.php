@@ -38,6 +38,7 @@ use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
+use Phinx\Migration\MigrationInterface;
 
 /**
  * Phinx Oracle Adapter.
@@ -106,7 +107,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
      */
     public function beginTransaction()
     {
-        $this->execute('BEGIN TRANSACTION');
+//        $this->execute('BEGIN TRANSACTION');
     }
 
     /**
@@ -114,7 +115,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
      */
     public function commitTransaction()
     {
-        $this->execute('COMMIT TRANSACTION');
+//        $this->execute('COMMIT TRANSACTION');
     }
 
     /**
@@ -122,7 +123,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
      */
     public function rollbackTransaction()
     {
-        $this->execute('ROLLBACK TRANSACTION');
+//        $this->execute('ROLLBACK TRANSACTION');
     }
 
     /**
@@ -268,7 +269,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
             "COMMENT ON COLUMN \"%s\".\"%s\" IS '%s'",
             $tableName,
             $column->getName(),
-            $comment
+            str_replace("'", "", $comment)
         );
     }
 
@@ -870,7 +871,7 @@ SQL;
      */
     protected function getDefaultValueDefinition($default)
     {
-        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default && 'SYSDATE' !== $default) {
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
 
@@ -958,10 +959,10 @@ SQL;
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
     {
         $constraintName = $foreignKey->getConstraint() ?: $tableName . '_' . implode('_', $foreignKey->getColumns());
-        $def = ' CONSTRAINT ' . $this->quoteColumnName($constraintName);
+        $def = ' CONSTRAINT ' . $this->quoteColumnName(substr($constraintName,0, 29));
         $def .= ' FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
         $def .= " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
-        if ($foreignKey->getOnDelete()) {
+        if ($foreignKey->getOnDelete() && $foreignKey->getOnDelete() != "NO ACTION") {
             $def .= " ON DELETE {$foreignKey->getOnDelete()}";
         }
         if ($foreignKey->getOnUpdate()) {
@@ -990,10 +991,40 @@ SQL;
      */
     public function migrated(\Phinx\Migration\MigrationInterface $migration, $direction, $startTime, $endTime)
     {
-        $startTime = str_replace(' ', 'T', $startTime);
-        $endTime = str_replace(' ', 'T', $endTime);
+        $startTime = "TO_TIMESTAMP('$startTime', 'YYYY-MM-DD HH24:MI:SS')";
+        $endTime = "TO_TIMESTAMP('$endTime', 'YYYY-MM-DD HH24:MI:SS')";
 
-        return parent::migrated($migration, $direction, $startTime, $endTime);
+        if (strcasecmp($direction, MigrationInterface::UP) === 0) {
+            // up
+            $sql = sprintf(
+                "INSERT INTO \"%s\" (%s, %s, %s, %s, %s) VALUES ('%s', '%s', %s, %s, %s)",
+                $this->getSchemaTableName(),
+                $this->quoteColumnName('version'),
+                $this->quoteColumnName('migration_name'),
+                $this->quoteColumnName('start_time'),
+                $this->quoteColumnName('end_time'),
+                $this->quoteColumnName('breakpoint'),
+                $migration->getVersion(),
+                substr($migration->getName(), 0, 100),
+                $startTime,
+                $endTime,
+                $this->castToBool(false)
+            );
+
+            $this->execute($sql);
+        } else {
+            // down
+            $sql = sprintf(
+                "DELETE FROM \"%s\" WHERE %s = '%s'",
+                $this->getSchemaTableName(),
+                $this->quoteColumnName('version'),
+                $migration->getVersion()
+            );
+
+            $this->execute($sql);
+        }
+
+        return $this;
     }
 
     /**
