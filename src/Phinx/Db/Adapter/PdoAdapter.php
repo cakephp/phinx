@@ -392,7 +392,8 @@ abstract class PdoAdapter extends AbstractAdapter
      * @param int $attribute One of the PDO::ATTR_* constants
      * @return mixed
      */
-    public function getAttribute($attribute) {
+    public function getAttribute($attribute)
+    {
         return $this->connection->getAttribute($attribute);
     }
 }
