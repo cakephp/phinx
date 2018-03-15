@@ -1049,11 +1049,11 @@ class MysqlAdapterUnitTest extends TestCase
             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_DECIMAL)
         );
         $this->assertEquals(
-            ['name' => 'datetime'],
+            ['name' => 'datetime', 'limit' => null],
             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_DATETIME)
         );
         $this->assertEquals(
-            ['name' => 'timestamp'],
+            ['name' => 'timestamp', 'limit' => null],
             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TIMESTAMP)
         );
         $this->assertEquals(
@@ -1061,7 +1061,7 @@ class MysqlAdapterUnitTest extends TestCase
             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_DATE)
         );
         $this->assertEquals(
-            ['name' => 'time'],
+            ['name' => 'time', 'limit' => null],
             $this->adapter->getSqlType(MysqlAdapter::PHINX_TYPE_TIME)
         );
         $this->assertEquals(

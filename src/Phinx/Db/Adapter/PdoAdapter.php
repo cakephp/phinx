@@ -384,4 +384,13 @@ abstract class PdoAdapter extends AbstractAdapter
     {
         return (bool)$value ? 1 : 0;
     }
+
+    /**
+     * @param $attribute
+     *
+     * @return mixed
+     */
+    public function getAttribute($attribute) {
+        return $this->connection->getAttribute($attribute);
+    }
 }
