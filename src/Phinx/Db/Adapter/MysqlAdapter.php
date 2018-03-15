@@ -731,8 +731,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIMESTAMP:
             case static::PHINX_TYPE_TIME:
-                $return = ['name' => $type, 'limit' => $limit];
-                return $return;
+                return ['name' => $type, 'limit' => $limit];
             case static::PHINX_TYPE_STRING:
                 return ['name' => 'varchar', 'limit' => $limit ?: 255];
             case static::PHINX_TYPE_CHAR:
