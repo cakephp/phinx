@@ -1072,4 +1072,31 @@ SQL;
         $rows = $this->fetchAll(sprintf($sql, $sequence));
         return $rows[0]['NEXTVAL'];
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function getVersionLog()
+    {
+        $result = [];
+
+        switch ($this->options['version_order']) {
+            case \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME:
+                $orderBy = '"version" ASC';
+                break;
+            case \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME:
+                $orderBy = '"start_time" ASC, "version" ASC';
+                break;
+            default:
+                throw new \RuntimeException('Invalid version_order configuration option');
+        }
+
+        $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s', $this->quoteColumnName(
+            $this->getSchemaTableName()), $orderBy));
+        foreach ($rows as $version) {
+            $result[$version['version']] = $version;
+        }
+
+        return $result;
+    }
 }
