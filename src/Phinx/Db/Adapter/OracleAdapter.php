@@ -705,22 +705,20 @@ SQL;
         } else {
             foreach ($columns as $column) {
                 $rows = $this->fetchAll(sprintf(
-                    "SELECT
-                    tc.constraint_name,
-                    tc.table_name, kcu.column_name,
-                    ccu.table_name AS referenced_table_name,
-                    ccu.column_name AS referenced_column_name
-                FROM
-                    information_schema.table_constraints AS tc
-                    JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
-                    JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
-                WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s' and ccu.column_name='%s'
-                ORDER BY kcu.ordinal_position",
+                    "SELECT a.CONSTRAINT_NAME, a.TABLE_NAME, b.COLUMN_NAME, 
+                    (SELECT c.TABLE_NAME from ALL_CONS_COLUMNS c 
+                    WHERE c.CONSTRAINT_NAME = a.R_CONSTRAINT_NAME) referenced_table_name,
+                    (SELECT c.COLUMN_NAME from ALL_CONS_COLUMNS c 
+                    WHERE c.CONSTRAINT_NAME = a.R_CONSTRAINT_NAME) referenced_column_name
+                    FROM all_constraints a JOIN ALL_CONS_COLUMNS b ON a.CONSTRAINT_NAME = b.CONSTRAINT_NAME
+                    WHERE a.table_name = '%s'
+                    AND CONSTRAINT_TYPE = 'R'
+                    AND COLUMN_NAME = '%s'",
                     $tableName,
                     $column
                 ));
                 foreach ($rows as $row) {
-                    $this->dropForeignKey($tableName, $columns, $row['constraint_name']);
+                    $this->dropForeignKey($tableName, $columns, $row['CONSTRAINT_NAME']);
                 }
             }
         }
