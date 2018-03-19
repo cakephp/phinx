@@ -51,8 +51,6 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
 
     protected $signedColumnTypes = ['integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true];
 
-    private $counterForeign = 0;
-
     /**
      * {@inheritdoc}
      */
@@ -674,13 +672,9 @@ SQL;
             sprintf(
                 'ALTER TABLE %s ADD %s',
                 $this->quoteTableName($table->getName()),
-                $this->getForeignKeySqlDefinition($foreignKey, $table->getName(), $this->counterForeign)
+                $this->getForeignKeySqlDefinition($foreignKey, $table->getName())
             )
         );
-        if($this->counterForeign == 99){
-            $this->counterForeign = 0;
-        }
-        $this->counterForeign++;
     }
 
     /**
@@ -961,10 +955,10 @@ SQL;
      * @param \Phinx\Db\Table\ForeignKey $foreignKey
      * @return string
      */
-    protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName, $key = 0)
+    protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
     {
         $constraintName = $foreignKey->getConstraint() ?: $tableName . '_' . implode('_', $foreignKey->getColumns());
-        $def = ' CONSTRAINT ' . $this->quoteColumnName(substr($constraintName,0, 27). "$key");
+        $def = ' CONSTRAINT ' . $this->quoteColumnName(substr($constraintName,0, 27));
         $def .= ' FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
         $def .= " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
         if ($foreignKey->getOnDelete() && $foreignKey->getOnDelete() != "NO ACTION") {
