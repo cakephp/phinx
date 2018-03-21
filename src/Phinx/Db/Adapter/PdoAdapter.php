@@ -215,7 +215,7 @@ abstract class PdoAdapter extends AbstractAdapter
         $sql .= implode(',', $queries);
 
         $stmt = $this->getConnection()->prepare($sql);
-        
+
         $stmt->execute($vals);
     }
 
