@@ -72,7 +72,7 @@ class Manager
     /**
      * @var integer
      */
-    const EXIT_STATUS_DOWN = 1;
+    const EXIT_STATUS_DOWN = 3;
 
     /**
      * @var integer
