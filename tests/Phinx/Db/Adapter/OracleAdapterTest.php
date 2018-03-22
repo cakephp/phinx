@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\NullOutput;
 class OracleAdapterTest extends TestCase
 {
     /**
-     * @var \Phinx\Db\Adapter\SqlServerAdapter
+     * @var \Phinx\Db\Adapter\OracleAdapter
      */
     private $adapter;
 
@@ -617,13 +617,13 @@ class OracleAdapterTest extends TestCase
         $this->adapter->dropTable('TEF_TABLE');
     }
 
-    //TODO PEDIR ACESSO PARA AS CONFIGURAÇÕES DE TABELA NO SCHEMA PARA TESTES
+    //TODO
 //    public function testHasDatabase()
 //    {
 //        $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
 //        $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE));
 //    }
-    //TODO PEDIR ACESSO PARA AS CONFIGURAÇÕES DE TABELA NO SCHEMA PARA TESTES
+    //TODO
 //    public function testDropDatabase()
 //    {
 //        $this->assertFalse($this->adapter->hasDatabase('phinx_temp_database'));
