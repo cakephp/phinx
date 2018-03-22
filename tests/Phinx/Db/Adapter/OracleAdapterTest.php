@@ -1,9 +1,4 @@
 <?php
-/**
- * User: t-superofelipe
- * Date: 19/02/18
- * Time: 11:15
- */
 
 namespace Test\Phinx\Db\Adapter;
 
@@ -235,7 +230,6 @@ class OracleAdapterTest extends TestCase
             ->save();
         $this->assertTrue($table->hasColumn('email'));
         $this->adapter->dropTable('TABLE1');
-
     }
 
     public function testAddColumnWithDefaultValue()
@@ -268,7 +262,6 @@ class OracleAdapterTest extends TestCase
             }
         }
         $this->adapter->dropTable('TABLE1');
-
     }
 
     public function testAddColumnWithDefaultNull()
@@ -285,7 +278,6 @@ class OracleAdapterTest extends TestCase
         }
 
         $this->adapter->dropTable('TABLE1');
-
     }
 
     public function testAddColumnWithDefaultBool()
@@ -307,7 +299,6 @@ class OracleAdapterTest extends TestCase
         }
 
         $this->adapter->dropTable('TABLE1');
-
     }
 
     public function testRenameColumn()
@@ -322,7 +313,6 @@ class OracleAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('T', 'column2'));
 
         $this->adapter->dropTable('T');
-
     }
 
     public function testRenamingANonExistentColumn()
@@ -344,7 +334,6 @@ class OracleAdapterTest extends TestCase
         }
 
         $this->adapter->dropTable('T');
-
     }
 
     public function testChangeColumn()
@@ -397,7 +386,6 @@ class OracleAdapterTest extends TestCase
         $this->assertSame("'another test'", trim($columns['column1']->getDefault()));
 
         $this->adapter->dropTable('T');
-
     }
 
     public function testChangeColumnDefaultToNull()
@@ -556,7 +544,6 @@ class OracleAdapterTest extends TestCase
         $this->adapter->dropTable('TABLE2');
         $this->adapter->dropTable('TABLE3');
         $this->adapter->dropTable('TABLE4');
-
     }
 
     public function testDropIndexByName()
@@ -679,7 +666,6 @@ class OracleAdapterTest extends TestCase
         $this->assertEquals('blob', $this->adapter->getPhinxType('BLOB'));
 
         $this->assertEquals('CLOB', $this->adapter->getPhinxType('CLOB'));
-
     }
 
     public function testAddColumnComment()
@@ -740,7 +726,7 @@ class OracleAdapterTest extends TestCase
         $local = new \Phinx\Db\Table('USERS', ['primary_key' => $userId, 'id' => $userId], $this->adapter);
         $local->create();
 
-        $foreign = new \Phinx\Db\Table('SESSIONS123', ['primary_key' => $sessionId, 'id' => $sessionId], $this->adapter);
+        $foreign = new \Phinx\Db\Table('SESSIONS123', ['primary_key'=>$sessionId,'id'=>$sessionId], $this->adapter);
         $foreign->addColumn('USER123', 'integer')
             ->addForeignKey('USER123', 'USERS', $userId, ['constraint' => 'USER_SESSION_ID'])
             ->create();
@@ -749,7 +735,6 @@ class OracleAdapterTest extends TestCase
 
         $this->adapter->dropTable('SESSIONS123');
         $this->adapter->dropTable('USERS');
-
     }
 
     public function testBulkInsertData()
@@ -787,7 +772,6 @@ class OracleAdapterTest extends TestCase
         $this->assertEquals(3, $rows[2]['column2']);
 
         $this->adapter->dropTable('TABLE1');
-
     }
 
     public function testInsertData()

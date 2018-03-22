@@ -1,11 +1,5 @@
 <?php
 /**
- * User: t-superofelipe
- * Date: 19/02/18
- * Time: 11:51
- */
-
-/**
  * Phinx
  *
  * (The MIT license)
@@ -196,7 +190,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
 
         // set the primary key(s)
         if (isset($options['primary_key'])) {
-            $pkSql = sprintf('CONSTRAINT PK_%s PRIMARY KEY (', substr($table->getName(),0, 28));
+            $pkSql = sprintf('CONSTRAINT PK_%s PRIMARY KEY (', substr($table->getName(), 0, 28));
             if (is_string($options['primary_key'])) { // handle primary_key => 'id'
                 $pkSql .= $this->quoteColumnName($options['primary_key']);
             } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
@@ -224,16 +218,14 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         // set the indexes
         $indexes = $table->getIndexes();
 
-        if(!empty($indexes))
-        {
+        if (!empty($indexes)) {
             foreach ($indexes as $index) {
                 $sql = $this->getIndexSqlDefinition($index, $table->getName());
                 $this->execute($sql);
             }
         }
 
-        if(!$this->hasSequence($table->getName()))
-        {
+        if (!$this->hasSequence($table->getName())) {
             $sql = "CREATE SEQUENCE SQ_".$table->getName()." MINVALUE 1 MAXVALUE 99999999999999999 INCREMENT BY 1";
             $this->execute($sql);
         }
@@ -280,7 +272,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->execute(sprintf('alter table "%s" rename to "%s"', $tableName, $newTableName));
 
-        if(!$this->hasSequence("SQ_" . strtoupper($newTableName))){
+        if (!$this->hasSequence("SQ_" . strtoupper($newTableName))) {
             $this->renameSequence("SQ_" . strtoupper($tableName), "SQ_" . strtoupper($newTableName));
         }
     }
@@ -314,8 +306,11 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
 
     public function getColumnComment($tableName, $columnName)
     {
-        $sql = sprintf("select COMMENTS from ALL_COL_COMMENTS WHERE COLUMN_NAME = '%s' and TABLE_NAME = '%s'",
-            $columnName, $tableName);
+        $sql = sprintf(
+            "select COMMENTS from ALL_COL_COMMENTS WHERE COLUMN_NAME = '%s' and TABLE_NAME = '%s'",
+            $columnName,
+            $tableName
+        );
         $row = $this->fetchRow($sql);
 
         if ($row['COMMENTS'] != 'NULL') {
@@ -339,8 +334,8 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         $rows = $this->fetchAll($sql);
 
         foreach ($rows as $columnInfo) {
-            $default = NULL;
-            if(trim($columnInfo['DEFAULT']) != 'NULL'){
+            $default = null;
+            if (trim($columnInfo['DEFAULT']) != 'NULL') {
                 $default = trim($columnInfo['DEFAULT']);
             }
 
@@ -381,7 +376,8 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasColumn($tableName, $columnName)
     {
-        $sql = sprintf("select count(*) as count from ALL_TAB_COLUMNS 
+        $sql = sprintf(
+            "select count(*) as count from ALL_TAB_COLUMNS 
             where table_name = '%s' and column_name = '%s'",
             $tableName,
             $columnName
@@ -469,7 +465,6 @@ SQL;
             $sql = $this->getColumnCommentSqlDefinition($newColumn, $tableName);
             $this->execute($sql);
         }
-
     }
 
     /**
@@ -782,17 +777,17 @@ SQL;
      */
     public function getPhinxType($sqlType, $precision = null)
     {
-        if($sqlType === 'VARCHAR2'){
+        if ($sqlType === 'VARCHAR2') {
             return static::PHINX_TYPE_STRING;
-        } elseif($sqlType === 'CHAR'){
+        } elseif ($sqlType === 'CHAR') {
             return static::PHINX_TYPE_CHAR;
-        } elseif($sqlType == 'LONG') {
+        } elseif ($sqlType == 'LONG') {
             return static::PHINX_TYPE_TEXT;
-        } elseif($sqlType === 'NUMBER' AND $precision === 10) {
+        } elseif ($sqlType === 'NUMBER' and $precision === 10) {
             return static::PHINX_TYPE_INTEGER;
-        } elseif($sqlType === 'NUMBER' AND $precision === 19) {
+        } elseif ($sqlType === 'NUMBER' and $precision === 19) {
             return static::PHINX_TYPE_BIG_INTEGER;
-        } elseif($sqlType === 'FLOAT') {
+        } elseif ($sqlType === 'FLOAT') {
             return static::PHINX_TYPE_FLOAT;
         } elseif ($sqlType === 'TIMESTAMP(6)') {
             return static::PHINX_TYPE_TIMESTAMP;
@@ -804,15 +799,15 @@ SQL;
             return static::PHINX_TYPE_BLOB;
         } elseif ($sqlType === 'CLOB') {
             return 'CLOB';
-        } elseif ($sqlType === 'RAW' AND $precision === 16) {
+        } elseif ($sqlType === 'RAW' and $precision === 16) {
             return static::PHINX_TYPE_UUID;
         } elseif ($sqlType === 'RAW') {
             return static::PHINX_TYPE_BLOB;
-        } elseif ($sqlType === 'NUMBER' AND $precision === 1) {
+        } elseif ($sqlType === 'NUMBER' and $precision === 1) {
             return static::PHINX_TYPE_BOOLEAN;
         } elseif ($sqlType === 'NUMBER') {
             return static::PHINX_TYPE_DECIMAL;
-        } else{
+        } else {
             throw new \RuntimeException('The Oracle type: "' . $sqlType . '" is not supported');
         }
         //TODO Geospatial database types and Filestream type
@@ -873,7 +868,6 @@ SQL;
         if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default && 'SYSDATE' !== $default) {
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
-
             $default = $this->castToBool($default);
         }
 
@@ -914,7 +908,7 @@ SQL;
             $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
         }
 
-        if($setNullSql){
+        if ($setNullSql) {
             $buffer[] = $column->isNull() ? 'NULL' : 'NOT NULL';
         }
 
@@ -958,7 +952,7 @@ SQL;
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
     {
         $constraintName = $foreignKey->getConstraint() ?: $tableName . '_' . implode('_', $foreignKey->getColumns());
-        $def = ' CONSTRAINT ' . $this->quoteColumnName(substr($constraintName,0, 27));
+        $def = ' CONSTRAINT ' . $this->quoteColumnName(substr($constraintName, 0, 27));
         $def .= ' FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
         $def .= " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
         if ($foreignKey->getOnDelete() && $foreignKey->getOnDelete() != "NO ACTION") {
@@ -1092,7 +1086,8 @@ SQL;
         }
 
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s', $this->quoteColumnName(
-            $this->getSchemaTableName()), $orderBy));
+            $this->getSchemaTableName()
+        ), $orderBy));
         foreach ($rows as $version) {
             $result[$version['version']] = $version;
         }
