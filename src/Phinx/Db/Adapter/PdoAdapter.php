@@ -67,6 +67,7 @@ abstract class PdoAdapter extends AbstractAdapter
     public function setConnection(\PDO $connection)
     {
         $this->connection = $connection;
+
         // Create the schema table if it doesn't already exist
         if (!$this->hasSchemaTable()) {
             $this->createSchemaTable();
@@ -215,7 +216,6 @@ abstract class PdoAdapter extends AbstractAdapter
         $sql .= implode(',', $queries);
 
         $stmt = $this->getConnection()->prepare($sql);
-
         $stmt->execute($vals);
     }
 
