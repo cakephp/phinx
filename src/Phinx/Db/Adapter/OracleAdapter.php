@@ -141,7 +141,12 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        $result = $this->fetchRow(sprintf('SELECT count(*) as count FROM ALL_TABLES WHERE table_name = \'%s\'', $tableName));
+        $result = $this->fetchRow(
+            sprintf(
+                'SELECT count(*) as count FROM ALL_TABLES WHERE table_name = \'%s\'',
+                $tableName
+            )
+        );
         return $result['COUNT'] > 0;
     }
 
@@ -240,7 +245,10 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasSequence($tableName)
     {
-        $sql = sprintf("SELECT COUNT(*) as COUNT FROM user_sequences WHERE sequence_name = '%s'", strtoupper("SQ_".$tableName));
+        $sql = sprintf(
+            "SELECT COUNT(*) as COUNT FROM user_sequences WHERE sequence_name = '%s'",
+            strtoupper("SQ_".$tableName)
+        );
         $result = $this->fetchRow($sql);
         return $result['COUNT'] > 0;
     }
@@ -327,9 +335,12 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
     {
         $columns = [];
 
-        $sql = sprintf("select TABLE_NAME \"TABLE_NAME\", COLUMN_NAME \"NAME\", DATA_TYPE \"TYPE\", NULLABLE \"NULL\", DATA_DEFAULT \"DEFAULT\",
-            DATA_LENGTH \"CHAR_LENGTH\", DATA_PRECISION \"PRECISION\", DATA_SCALE \"SCALE\", COLUMN_ID \"ORDINAL_POSITION\"
-            FROM ALL_TAB_COLUMNS WHERE table_name = '%s'", $tableName);
+        $sql = sprintf(
+            "select TABLE_NAME \"TABLE_NAME\", COLUMN_NAME \"NAME\", DATA_TYPE \"TYPE\", NULLABLE \"NULL\", 
+            DATA_DEFAULT \"DEFAULT\", DATA_LENGTH \"CHAR_LENGTH\", DATA_PRECISION \"PRECISION\", DATA_SCALE \"SCALE\", 
+            COLUMN_ID \"ORDINAL_POSITION\" FROM ALL_TAB_COLUMNS WHERE table_name = '%s'",
+            $tableName
+        );
 
         $rows = $this->fetchAll($sql);
 
@@ -344,7 +355,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
                 ->setType($this->getPhinxType($columnInfo['TYPE'], $columnInfo['PRECISION']))
                 ->setNull($columnInfo['NULL'] !== 'N')
                 ->setDefault($default)
-//                TODO VERIFICAR SE É PRIMARY KEY
+//                TODO VERIFICAR SE ï¿½ PRIMARY KEY
 //                ->setIdentity($columnInfo['identity'] === '1')
                 ->setComment($this->getColumnComment($columnInfo['TABLE_NAME'], $columnInfo['NAME']));
 
@@ -490,7 +501,8 @@ SQL;
     public function getIndexes($tableName)
     {
         $indexes = [];
-        $sql = "SELECT index_owner as owner, index_name, column_name FROM ALL_IND_COLUMNS WHERE TABLE_NAME = '$tableName'";
+        $sql = "SELECT index_owner as owner,index_name,column_name FROM ALL_IND_COLUMNS 
+                WHERE TABLE_NAME = '$tableName'";
 
         $rows = $this->fetchAll($sql);
         foreach ($rows as $row) {
@@ -638,8 +650,10 @@ SQL;
         $foreignKeys = [];
         $rows = $this->fetchAll(sprintf(
             "SELECT a.CONSTRAINT_NAME, a.TABLE_NAME, b.COLUMN_NAME, 
-                    (SELECT c.TABLE_NAME from ALL_CONS_COLUMNS c WHERE c.CONSTRAINT_NAME = a.R_CONSTRAINT_NAME) referenced_table_name,
-                    (SELECT c.COLUMN_NAME from ALL_CONS_COLUMNS c WHERE c.CONSTRAINT_NAME = a.R_CONSTRAINT_NAME) referenced_column_name
+                    (SELECT c.TABLE_NAME from ALL_CONS_COLUMNS c 
+                    WHERE c.CONSTRAINT_NAME = a.R_CONSTRAINT_NAME) referenced_table_name,
+                    (SELECT c.COLUMN_NAME from ALL_CONS_COLUMNS c 
+                    WHERE c.CONSTRAINT_NAME = a.R_CONSTRAINT_NAME) referenced_column_name
                     FROM all_constraints a JOIN ALL_CONS_COLUMNS b ON a.CONSTRAINT_NAME = b.CONSTRAINT_NAME
                     WHERE a.table_name = '%s'
                     AND CONSTRAINT_TYPE = '%s'",
@@ -954,7 +968,8 @@ SQL;
         $constraintName = $foreignKey->getConstraint() ?: $tableName . '_' . implode('_', $foreignKey->getColumns());
         $def = ' CONSTRAINT ' . $this->quoteColumnName(substr($constraintName, 0, 27));
         $def .= ' FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")';
-        $def .= " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
+        $def .= " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} 
+        (\"" . implode('", "', $foreignKey->getReferencedColumns()) . '")';
         if ($foreignKey->getOnDelete() && $foreignKey->getOnDelete() != "NO ACTION") {
             $def .= " ON DELETE {$foreignKey->getOnDelete()}";
         }
@@ -1031,7 +1046,7 @@ SQL;
         $tableName = $table->getName();
         $primaryKeyColumn = current($this->getForeignKeys($tableName, 'P'));
         $sequenceNextVal = $this->getNextValSequence('SQ_' . $tableName);
-//        buscar sequence e primary key padrão para incrementar PK com a SEQUENCE.NEXTVAL
+//        buscar sequence e primary key padrï¿½o para incrementar PK com a SEQUENCE.NEXTVAL
 
         foreach ($rows as $key => $row) {
             $pk = ($sequenceNextVal + $key);
