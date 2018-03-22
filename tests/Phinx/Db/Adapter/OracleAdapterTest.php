@@ -291,10 +291,10 @@ class OracleAdapterTest extends TestCase
         $columns = $this->adapter->getColumns('TABLE1');
         foreach ($columns as $column) {
             if ($column->getName() == 'default_false') {
-                $this->assertSame(0, (int) trim($column->getDefault()));
+                $this->assertSame(0, (int)trim($column->getDefault()));
             }
             if ($column->getName() == 'default_true') {
-                $this->assertSame(1, (int) trim($column->getDefault()));
+                $this->assertSame(1, (int)trim($column->getDefault()));
             }
         }
 
@@ -418,7 +418,7 @@ class OracleAdapterTest extends TestCase
         $table->changeColumn('column1', $newColumn1);
         $columns = $this->adapter->getColumns('T');
         $this->adapter->dropTable('T');
-        $this->assertSame(0, (int) $columns['column1']->getDefault());
+        $this->assertSame(0, (int)$columns['column1']->getDefault());
     }
 
     public function testDropColumn()
@@ -459,8 +459,8 @@ class OracleAdapterTest extends TestCase
         }
 
         $this->assertNull($columns['column1']->getDefault());
-        $this->assertSame(0, (int) $columns['column2']->getDefault());
-        $this->assertSame(5, (int) $columns['column3']->getDefault());
+        $this->assertSame(0, (int)$columns['column2']->getDefault());
+        $this->assertSame(5, (int)$columns['column3']->getDefault());
         $this->assertSame("'text'", $columns['column4']->getDefault());
     }
 
@@ -617,21 +617,6 @@ class OracleAdapterTest extends TestCase
         $this->adapter->dropTable('TEF_TABLE');
     }
 
-    //TODO
-//    public function testHasDatabase()
-//    {
-//        $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
-//        $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE));
-//    }
-    //TODO
-//    public function testDropDatabase()
-//    {
-//        $this->assertFalse($this->adapter->hasDatabase('phinx_temp_database'));
-//        $this->adapter->createDatabase('phinx_temp_database');
-//        $this->assertTrue($this->adapter->hasDatabase('phinx_temp_database'));
-//        $this->adapter->dropDatabase('phinx_temp_database');
-//    }
-
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage The type: "idontexist" is not supported
@@ -726,7 +711,11 @@ class OracleAdapterTest extends TestCase
         $local = new \Phinx\Db\Table('USERS', ['primary_key' => $userId, 'id' => $userId], $this->adapter);
         $local->create();
 
-        $foreign = new \Phinx\Db\Table('SESSIONS123', ['primary_key'=>$sessionId,'id'=>$sessionId], $this->adapter);
+        $foreign = new \Phinx\Db\Table(
+            'SESSIONS123',
+            ['primary_key' => $sessionId, 'id' => $sessionId],
+            $this->adapter
+        );
         $foreign->addColumn('USER123', 'integer')
             ->addForeignKey('USER123', 'USERS', $userId, ['constraint' => 'USER_SESSION_ID'])
             ->create();
