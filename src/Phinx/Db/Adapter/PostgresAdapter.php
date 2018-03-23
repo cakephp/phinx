@@ -75,6 +75,17 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 ));
             }
 
+            try {
+                if (isset($options['schema'])) {
+                    $this->execute('SET search_path TO '.$options['schema']);
+                }
+            } catch (\PDOException $exception) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Schema does not exists: %s',
+                    $exception->getMessage()
+                ));
+            }
+
             $this->setConnection($db);
         }
     }
