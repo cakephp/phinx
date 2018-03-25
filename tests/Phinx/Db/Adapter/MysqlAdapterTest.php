@@ -131,6 +131,24 @@ class MysqlAdapterTest extends TestCase
         $this->assertEquals('`test_column`', $this->adapter->quoteColumnName('test_column'));
     }
 
+    public function testHasTableUnderstandsSchemaNotation()
+    {
+        $this->assertTrue($this->adapter->hasTable('performance_schema.threads'), 'Failed asserting hasTable understands tables in another schema.');
+
+        $this->assertFalse($this->adapter->hasTable('performance_schema.unknown_table'));
+        $this->assertFalse($this->adapter->hasTable('unknown_schema.phinxlog'));
+    }
+
+    public function testHasTableRespectsDotInTableName()
+    {
+        $sql = "CREATE TABLE `discouraged.naming.convention` 
+                (id INT(11) NOT NULL) 
+                ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci";
+        $this->adapter->execute($sql);
+
+        $this->assertTrue($this->adapter->hasTable('discouraged.naming.convention'));
+    }
+
     public function testCreateTable()
     {
         $table = new \Phinx\Db\Table('ntable', [], $this->adapter);
