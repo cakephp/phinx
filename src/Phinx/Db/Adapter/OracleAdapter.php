@@ -61,9 +61,9 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
 
             // if port is specified use it, otherwise use the Oracle default
             if (empty($options['port'])) {
-                $dsn = "oci:dbname=//".$options['host']."/".$options['sid']."";
+                $dsn = "oci:dbname=//" . $options['host'] . "/" . $options['sid'] . "";
             } else {
-                $dsn = "oci:dbname=//".$options['host'].":".$options['port']."/".$options['sid']."";
+                $dsn = "oci:dbname=//" . $options['host'] . ":" . $options['port'] . "/" . $options['sid'] . "";
             }
 
             $driverOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
@@ -147,6 +147,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
                 $tableName
             )
         );
+
         return $result['COUNT'] > 0;
     }
 
@@ -231,7 +232,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         }
 
         if (!$this->hasSequence($table->getName())) {
-            $sql = "CREATE SEQUENCE SQ_".$table->getName()." MINVALUE 1 MAXVALUE 99999999999999999 INCREMENT BY 1";
+            $sql = "CREATE SEQUENCE SQ_" . $table->getName() . " MINVALUE 1 MAXVALUE 99999999999999999 INCREMENT BY 1";
             $this->execute($sql);
         }
     }
@@ -241,15 +242,16 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
      *
      * @param string $tableName Table name
      *
-     * @return boolean
+     * @return bool
      */
     public function hasSequence($tableName)
     {
         $sql = sprintf(
             "SELECT COUNT(*) as COUNT FROM user_sequences WHERE sequence_name = '%s'",
-            strtoupper("SQ_".$tableName)
+            strtoupper("SQ_" . $tableName)
         );
         $result = $this->fetchRow($sql);
+
         return $result['COUNT'] > 0;
     }
 
@@ -285,6 +287,14 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         }
     }
 
+    /**
+     * Rename an Oracle Sequence Object.
+     *
+     * @param string $sequenceName Old Sequence Name
+     * @param string $newSequenceName New Sequence Name
+     *
+     * @return void
+     */
     public function renameSequence($sequenceName, $newSequenceName)
     {
         $this->execute(sprintf('rename "%s" to "%s"', $sequenceName, $newSequenceName));
@@ -312,6 +322,14 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         $this->execute($sql);
     }
 
+    /**
+     * Get the comment for a column
+     *
+     * @param string $tableName Table Name
+     * @param string $columnName Column Name
+     *
+     * @return string
+     */
     public function getColumnComment($tableName, $columnName)
     {
         $sql = sprintf(
@@ -355,8 +373,6 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
                 ->setType($this->getPhinxType($columnInfo['TYPE'], $columnInfo['PRECISION']))
                 ->setNull($columnInfo['NULL'] !== 'N')
                 ->setDefault($default)
-//                TODO VERIFICAR SE � PRIMARY KEY
-//                ->setIdentity($columnInfo['identity'] === '1')
                 ->setComment($this->getColumnComment($columnInfo['TABLE_NAME'], $columnInfo['NAME']));
 
             if (!empty($columnInfo['CHAR_LENGTH'])) {
@@ -367,19 +383,6 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         }
 
         return $columns;
-    }
-
-    protected function parseDefault($default)
-    {
-        $default = preg_replace(["/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"], '$1', $default);
-
-        if (strtoupper($default) === 'NULL') {
-            $default = null;
-        } elseif (is_numeric($default)) {
-            $default = (int)$default;
-        }
-
-        return $default;
     }
 
     /**
@@ -395,6 +398,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         );
 
         $result = $this->fetchRow($sql);
+
         return $result['COUNT'] > 0;
     }
 
@@ -421,7 +425,6 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         if (!$this->hasColumn($tableName, $columnName)) {
             throw new \InvalidArgumentException("The specified column does not exist: $columnName");
         }
-//        $this->renameDefault($tableName, $columnName, $newColumnName);
 
         $this->execute(
             sprintf(
@@ -431,23 +434,6 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
                 $newColumnName
             )
         );
-    }
-
-    protected function renameDefault($tableName, $columnName, $newColumnName)
-    {
-        $oldConstraintName = "DF_{$tableName}_{$columnName}";
-        $newConstraintName = "DF_{$tableName}_{$newColumnName}";
-        $sql = <<<SQL
-IF (OBJECT_ID('$oldConstraintName', 'D') IS NOT NULL)
-BEGIN
-     EXECUTE sp_rename N'%s', N'%s', N'OBJECT'
-END
-SQL;
-        $this->execute(sprintf(
-            $sql,
-            $oldConstraintName,
-            $newConstraintName
-        ));
     }
 
     /**
@@ -468,7 +454,7 @@ SQL;
                 'ALTER TABLE %s MODIFY(%s %s)',
                 $this->quoteTableName($tableName),
                 $this->quoteColumnName($newColumn->getName()),
-                $this->getColumnSqlDefinition($newColumn, false, $setNullSql)
+                $this->getColumnSqlDefinition($newColumn, $setNullSql)
             )
         );
         // change column comment if needed
@@ -520,7 +506,6 @@ SQL;
      */
     public function hasIndex($tableName, $columns)
     {
-
         if (is_string($columns)) {
             $columns = [$columns]; // str to array
         }
@@ -643,6 +628,7 @@ SQL;
      * Get an array of foreign keys from a particular table.
      *
      * @param string $tableName Table Name
+     * @param string $type Type of Constraint Type (R, P)
      * @return array
      */
     protected function getForeignKeys($tableName, $type = 'R')
@@ -676,7 +662,6 @@ SQL;
      */
     public function addForeignKey(Table $table, ForeignKey $foreignKey)
     {
-
         $this->execute(
             sprintf(
                 'ALTER TABLE %s ADD %s',
@@ -785,9 +770,10 @@ SQL;
      * Returns Phinx type by SQL type
      *
      * @param string $sqlType SQL Type definition
+     * @param int $precision Precision of NUMBER type to define Phinx Type.
      * @throws \RuntimeException
      * @internal param string $sqlType SQL type
-     * @returns string Phinx type
+     * @return string Phinx type
      */
     public function getPhinxType($sqlType, $precision = null)
     {
@@ -797,9 +783,9 @@ SQL;
             return static::PHINX_TYPE_CHAR;
         } elseif ($sqlType == 'LONG') {
             return static::PHINX_TYPE_TEXT;
-        } elseif ($sqlType === 'NUMBER' and $precision === 10) {
+        } elseif ($sqlType === 'NUMBER' && $precision === 10) {
             return static::PHINX_TYPE_INTEGER;
-        } elseif ($sqlType === 'NUMBER' and $precision === 19) {
+        } elseif ($sqlType === 'NUMBER' && $precision === 19) {
             return static::PHINX_TYPE_BIG_INTEGER;
         } elseif ($sqlType === 'FLOAT') {
             return static::PHINX_TYPE_FLOAT;
@@ -813,24 +799,22 @@ SQL;
             return static::PHINX_TYPE_BLOB;
         } elseif ($sqlType === 'CLOB') {
             return 'CLOB';
-        } elseif ($sqlType === 'RAW' and $precision === 16) {
+        } elseif ($sqlType === 'RAW' && $precision === 16) {
             return static::PHINX_TYPE_UUID;
         } elseif ($sqlType === 'RAW') {
             return static::PHINX_TYPE_BLOB;
-        } elseif ($sqlType === 'NUMBER' and $precision === 1) {
+        } elseif ($sqlType === 'NUMBER' && $precision === 1) {
             return static::PHINX_TYPE_BOOLEAN;
         } elseif ($sqlType === 'NUMBER') {
             return static::PHINX_TYPE_DECIMAL;
         } else {
             throw new \RuntimeException('The Oracle type: "' . $sqlType . '" is not supported');
         }
-        //TODO Geospatial database types and Filestream type
     }
 
     /**
      * {@inheritdoc}
      */
-    //    TODO
     public function createDatabase($name, $options = [])
     {
         if (isset($options['collation'])) {
@@ -859,7 +843,6 @@ SQL;
     /**
      * {@inheritdoc}
      */
-//    TODO
     public function dropDatabase($name)
     {
         $sql = <<<SQL
@@ -874,7 +857,7 @@ SQL;
     /**
      * Get the defintion for a `DEFAULT` statement.
      *
-     * @param  mixed $default
+     * @param  mixed $default Default value for column
      * @return string
      */
     protected function getDefaultValueDefinition($default)
@@ -892,9 +875,10 @@ SQL;
      * Gets the Oracle Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
+     * @param bool $setNullSql Set column nullable
      * @return string
      */
-    protected function getColumnSqlDefinition(Column $column, $create = true, $setNullSql = true)
+    protected function getColumnSqlDefinition(Column $column, $setNullSql = true)
     {
         $buffer = [];
 
@@ -933,6 +917,7 @@ SQL;
      * Gets the Oracle Index Definition for an Index object.
      *
      * @param \Phinx\Db\Table\Index $index Index
+     * @param string $tableName Table Name
      * @return string
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
@@ -960,7 +945,8 @@ SQL;
     /**
      * Gets the Oracle Foreign Key Definition for an ForeignKey object.
      *
-     * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign Key Object
+     * @param string $tableName Table Name
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
@@ -1050,7 +1036,7 @@ SQL;
 
         foreach ($rows as $key => $row) {
             $pk = ($sequenceNextVal + $key);
-            $row[$primaryKeyColumn['COLUMNS'][0]] = (int) $pk;
+            $row[$primaryKeyColumn['COLUMNS'][0]] = (int)$pk;
 
             $sql .= sprintf(
                 "INTO %s ",
@@ -1075,13 +1061,21 @@ SQL;
         $stmt->execute($vals);
     }
 
+    /**
+     * Get Next Auto Increment Value Sequence
+     *
+     *
+     * @param string $sequence Sequence Name
+     * @return int
+     */
     protected function getNextValSequence($sequence)
     {
         $sql = "SELECT %s.NEXTVAL FROM DUAL";
         $rows = $this->fetchAll(sprintf($sql, $sequence));
+
         return $rows[0]['NEXTVAL'];
     }
-    
+
     /**
      * {@inheritdoc}
      */
