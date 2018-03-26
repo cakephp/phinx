@@ -89,6 +89,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * @codeCoverageIgnore
      * {@inheritdoc}
      */
     public function hasTransactions()
@@ -98,6 +99,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
 
     /**
      * {@inheritdoc}
+     * @codeCoverageIgnore
      */
     public function beginTransaction()
     {
@@ -106,6 +108,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
 
     /**
      * {@inheritdoc}
+     * @codeCoverageIgnore
      */
     public function commitTransaction()
     {
@@ -114,6 +117,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
 
     /**
      * {@inheritdoc}
+     * @codeCoverageIgnore
      */
     public function rollbackTransaction()
     {
