@@ -209,7 +209,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         // set the foreign keys
         $foreignKeys = $table->getForeignKeys();
         foreach ($foreignKeys as $key => $foreignKey) {
-            $sqlBuffer[] = $this->getForeignKeySqlDefinition($foreignKey, $table->getName(), $key);
+            $sqlBuffer[] = $this->getForeignKeySqlDefinition($foreignKey, $table->getName());
         }
 
         $sql .= implode(', ', $sqlBuffer);
@@ -343,7 +343,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
             return $row['COMMENTS'];
         }
 
-        return false;
+        return '';
     }
 
     /**
@@ -586,8 +586,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
                 $this->execute(
                     sprintf(
                         'DROP INDEX %s',
-                        $this->quoteColumnName($indexName),
-                        $this->quoteTableName($tableName)
+                        $this->quoteColumnName($indexName)
                     )
                 );
 
