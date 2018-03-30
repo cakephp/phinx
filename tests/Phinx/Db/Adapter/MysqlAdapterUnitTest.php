@@ -1752,8 +1752,10 @@ class MysqlAdapterUnitTest extends TestCase
         $this->adapter->dropForeignKey('table_name', 'column_name');
     }
 
-    public function _testDropForeignKeyAsArray()
+    public function testDropForeignKeyAsArray()
     {
+        $this->markTestSkipped('TODO: Re-enable.');
+
         $fk = [
             'CONSTRAINT_NAME' => 'fk1',
             'TABLE_NAME' => 'table_name',
@@ -1790,8 +1792,10 @@ class MysqlAdapterUnitTest extends TestCase
         $this->adapter->dropForeignKey('table_name', 'column_name', 'fk1');
     }
 
-    public function _testDropForeignKeyAsArrayByConstraint()
+    public function testDropForeignKeyAsArrayByConstraint()
     {
+        $this->markTestSkipped('TODO: Re-enable.');
+
         $this->assertExecuteSql('ALTER TABLE `table_name` DROP FOREIGN KEY fk1');
         $this->adapter->dropForeignKey('table_name', ['column_name'], 'fk1');
     }
