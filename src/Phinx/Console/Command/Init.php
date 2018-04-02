@@ -44,7 +44,7 @@ class Init extends Command
      */
     protected function configure()
     {
-        $this->setName('init')
+        $this->setName($this->getName() ?: 'init')
             ->setDescription('Initialize the application for Phinx')
             ->addArgument('path', InputArgument::OPTIONAL, 'Which path should we initialize for Phinx?')
             ->setHelp(sprintf(
