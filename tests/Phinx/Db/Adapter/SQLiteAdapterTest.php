@@ -430,6 +430,9 @@ class SQLiteAdapterTest extends TestCase
         for ($i = 0; $i++; $i < count($pendingColumns)) {
             $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
         }
+        // check the json column is actually of type TEXT
+        $rows = $this->adapter->fetchAll('pragma table_info(t)');
+        $this->assertEquals('TEXT', $rows[16]['type']);
     }
 
     public function testAddIndex()
