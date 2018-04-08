@@ -421,7 +421,8 @@ class SQLiteAdapterTest extends TestCase
               ->addColumn('column12', 'boolean')
               ->addColumn('column13', 'string', ['limit' => 10])
               ->addColumn('column15', 'integer', ['limit' => 10])
-              ->addColumn('column16', 'enum', ['values' => ['a', 'b', 'c']]);
+              ->addColumn('column16', 'enum', ['values' => ['a', 'b', 'c']])
+              ->addColumn('column17', 'json');
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -429,6 +430,9 @@ class SQLiteAdapterTest extends TestCase
         for ($i = 0; $i++; $i < count($pendingColumns)) {
             $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
         }
+        // check the json column is actually of type TEXT
+        $rows = $this->adapter->fetchAll('pragma table_info(t)');
+        $this->assertEquals('TEXT', $rows[16]['type']);
     }
 
     public function testAddIndex()
