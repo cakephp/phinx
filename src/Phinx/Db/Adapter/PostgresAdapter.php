@@ -717,15 +717,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function getSqlType($type, $limit = null)
     {
         switch ($type) {
-            case static::PHINX_TYPE_INTEGER:
-                if ($limit && $limit == static::INT_SMALL) {
-                    return [
-                        'name' => 'smallint',
-                        'limit' => static::INT_SMALL
-                    ];
-                }
-
-                return ['name' => $type];
             case static::PHINX_TYPE_TEXT:
             case static::PHINX_TYPE_TIME:
             case static::PHINX_TYPE_DATE:
@@ -736,6 +727,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_CIDR:
             case static::PHINX_TYPE_INET:
             case static::PHINX_TYPE_MACADDR:
+            case static::PHINX_TYPE_TIMESTAMP:
+                return ['name' => $type];
+            case static::PHINX_TYPE_INTEGER:
+                if ($limit && $limit == static::INT_SMALL) {
+                    return [
+                        'name' => 'smallint',
+                        'limit' => static::INT_SMALL
+                    ];
+                }
+
                 return ['name' => $type];
             case static::PHINX_TYPE_DECIMAL:
                 return ['name' => $type, 'precision' => 18, 'scale' => 0];
@@ -748,7 +749,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_FLOAT:
                 return ['name' => 'real'];
             case static::PHINX_TYPE_DATETIME:
-            case static::PHINX_TYPE_TIMESTAMP:
                 return ['name' => 'timestamp'];
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:

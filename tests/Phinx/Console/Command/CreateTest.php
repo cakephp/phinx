@@ -384,7 +384,7 @@ class CreateTest extends TestCase
     {
         if (method_exists($this, 'expectException')) {
             //PHPUnit 5+
-            $this->expectException($exception);
+            $this->expectException($exceptionName);
             if ($exceptionMessage !== '') {
                 $this->expectExceptionMessage($exceptionMessage);
             }

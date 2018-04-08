@@ -121,6 +121,13 @@ interface MigrationInterface
     public function getName();
 
     /**
+     * Gets the detected environment
+     *
+     * @return string
+     */
+    public function getEnvironment();
+
+    /**
      * Sets the migration version number.
      *
      * @param float $version Version
