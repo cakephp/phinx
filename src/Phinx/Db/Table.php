@@ -32,6 +32,7 @@ use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
+use Phinx\Db\Table\Table as TableValue;
 
 /**
  *
@@ -40,34 +41,14 @@ use Phinx\Db\Table\Index;
 class Table
 {
     /**
-     * @var string
+     * @var TableValue
      */
-    protected $name;
-
-    /**
-     * @var array
-     */
-    protected $options = [];
+    protected $table;
 
     /**
      * @var \Phinx\Db\Adapter\AdapterInterface
      */
     protected $adapter;
-
-    /**
-     * @var array
-     */
-    protected $columns = [];
-
-    /**
-     * @var array
-     */
-    protected $indexes = [];
-
-    /**
-     * @var \Phinx\Db\Table\ForeignKey[]
-     */
-    protected $foreignKeys = [];
 
     /**
      * @var array
@@ -83,25 +64,11 @@ class Table
      */
     public function __construct($name, $options = [], AdapterInterface $adapter = null)
     {
-        $this->setName($name);
-        $this->setOptions($options);
+        $this->table = new TableValue($name, $options);
 
         if ($adapter !== null) {
             $this->setAdapter($adapter);
         }
-    }
-
-    /**
-     * Sets the table name.
-     *
-     * @param string $name Table Name
-     * @return \Phinx\Db\Table
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
     }
 
     /**
@@ -111,20 +78,7 @@ class Table
      */
     public function getName()
     {
-        return $this->name;
-    }
-
-    /**
-     * Sets the table options.
-     *
-     * @param array $options
-     * @return \Phinx\Db\Table
-     */
-    public function setOptions($options)
-    {
-        $this->options = $options;
-
-        return $this;
+        return $this->table->getName();
     }
 
     /**

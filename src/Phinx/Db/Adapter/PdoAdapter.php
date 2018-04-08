@@ -29,7 +29,23 @@
 namespace Phinx\Db\Adapter;
 
 use BadMethodCallException;
-use Phinx\Db\Table;
+use Phinx\Db\Action\AddColumn;
+use Phinx\Db\Action\AddForeignKey;
+use Phinx\Db\Action\AddIndex;
+use Phinx\Db\Action\ChangeColumn;
+use Phinx\Db\Action\DropColumn;
+use Phinx\Db\Action\DropForeignKey;
+use Phinx\Db\Action\DropIndex;
+use Phinx\Db\Action\DropTable;
+use Phinx\Db\Action\RemoveColumn;
+use Phinx\Db\Action\RenameColumn;
+use Phinx\Db\Action\RenameTable;
+use Phinx\Db\Table\Column;
+use Phinx\Db\Table\ForeignKey;
+use Phinx\Db\Table\Index;
+use Phinx\Db\Table\Table;
+use Phinx\Db\Table\Table;
+use Phinx\Db\Util\AlterInstructions;
 use Phinx\Migration\MigrationInterface;
 
 /**
@@ -383,5 +399,244 @@ abstract class PdoAdapter extends AbstractAdapter
     public function castToBool($value)
     {
         return (bool)$value ? 1 : 0;
+    }
+
+    protected function executeAlterSteps($tableName, AlterInstructions $instructions)
+    {
+        $alter = sprintf(
+            'ALTER TABLE %s %s',
+            $tableName,
+            implode(', ', $instructions->getAlterParts())
+        );
+
+        $this->execute($alter);
+
+        foreach ($instructions->getPostSteps() as $sql) {
+            $this->execute($sql);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addColumn(Table $table, Column $column)
+    {
+        $instructions = $this->getAddColumnInstructions($column);
+        $this->executeAlterSteps($table, $instructions);
+    }
+
+    abstract protected function getAddColumnInstructions(Table $table, Column $column);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameColumn($tableName, $columnName, $newColumnName)
+    {
+        $instructions = $this->getRenameColumnInstructions($tableName, $columnName, $newColumnName);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    abstract protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function changeColumn($tableName, $columnName, Column $newColumn)
+    {
+        $instructions = $this->getChangeColumnInstructions($tableName, $columnName, $newColumn);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    abstract protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropColumn($tableName, $columnName)
+    {
+        $instructions = $this->getDropColumnInstructions($columnName);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    abstract protected function getDropColumnInstructions($tableName, $columnName);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addIndex(Table $table, Index $index)
+    {
+        $instructions = $this->getAddIndexInstructions($table, $index);
+        $this->executeAlterSteps($table->getName(), $instructions);
+    }
+
+    abstract protected function getAddIndexInstructions(Table $table, Index $index);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropIndex($tableName, $columns)
+    {
+        $instructions = $this->getDropIndexByColumnsInstructions($tableName, $columns);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    abstract protected function getDropIndexByColumnsInstructions($tableName, $columns);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropIndexByName($tableName, $indexName)
+    {
+        $instructions = $this->getDropIndexByNameInstructions($tableName, $indexName);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    abstract protected function getDropIndexByNameInstructions($tableName, $indexName);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addForeignKey(Table $table, ForeignKey $foreignKey)
+    {
+        $instructions = $this->getAddForeignKeyInstructions($table, $foreignKey);
+        $this->executeAlterSteps($table->getName(), $instructions);
+    }
+
+    abstract protected function getAddForeignKeyInstructions(Table $table, ForeignKey $foreignKey);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropForeignKey($tableName, $columns, $constraint = null)
+    {
+        if ($constraint) {
+            $instructions = $this->getDropForeignKeyInstructions($tableName, $constraint);
+        } else {
+            $instructions = $this->getDropForeignKeyByColumnsInstructions($tableName, $columns);
+        }
+
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    abstract protected function getDropForeignKeyInstructions($tableName, $constraint);
+
+    abstract protected function getDropForeignKeyByColumnsInstructions($tableName, $columns);
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropTable($tableName)
+    {
+        $instructions = $this->getDropTableInstructions($tableName);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    abstract protected function getDropTableInstructions($tableName);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameTable($tableName, $newTableName)
+    {
+        $instructions = $this->getRenameTableInstructions($tableName, $newTableName);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    abstract protected function getRenameTableInstructions($tableName, $newTableName);
+
+    public function executeActions(Table $table, array $actions)
+    {
+        $instructions = AlterInstructions();
+
+        foreach ($actions as $action) {
+            switch (true) {
+                case ($action instanceof AddColumn):
+                    $instructions->merge($this->getAddColumnInstructions($table, $action->getColumn()));
+                    break;
+
+                case ($action instanceof AddIndex):
+                    $instructions->merge($this->getAddIndexInstructions($table, $action->getIndex()));
+                    break;
+
+                case ($action instanceof AddForeignKey):
+                    $instructions->merge($this->getAddForeignKeyInstructions($table, $action->getColumn()));
+                    break;
+
+                case ($action instanceof ChangeColumn):
+                    $instructions->merge($this->getChangeColumnInstructions(
+                        $table->getName(),
+                        $action->getColumnName(),
+                        $action->getColumn()
+                    ));
+                    break;
+
+                case ($action instanceof DropForeignKey && !$action->getForeignKey()->getConstraint()):
+                    $instructions->merge($this->getDropForeignKeyByColumnsInstructions(
+                        $table->getName(),
+                        $action->getForeignKey()->getColumns()
+                    ));
+                    break;
+
+                case ($action instanceof DropForeignKey && $action->getForeignKey()->getConstraint()):
+                    $instructions->merge($this->getDropForeignKeyInstructions(
+                        $table->getName(),
+                        $action->getForeignKey()->getConstraint()
+                    ));
+                    break;
+
+                case ($action instanceof DropColumn):
+                    $instructions->merge($this->getDropColumnInstructions(
+                        $table->getName(),
+                        $action->getColumnName()
+                    ));
+                    break;
+
+                case ($action instanceof DropIndex && $action->getIndex()->getName() !== null):
+                    $instructions->merge($this->getDropIndexByNameInstructions(
+                        $table->getName(),
+                        $action->getIndex()->getName()
+                    ));
+                    break;
+
+                case ($action instanceof DropIndex && $action->getIndex()->getName() == null):
+                    $instructions->merge($this->getDropIndexByColumnsInstructions(
+                        $table->getName(),
+                        $action->getIndex()->getPendingColumns()
+                    ));
+                    break;
+
+
+                case ($action instanceof DropTable):
+                    $instructions->merge($this->getDropTableInstructions(
+                        $table->getName(),
+                        $action->getColumn()->getName(),
+                        $action->getNewName()
+                    ));
+                    break;
+
+                case ($action instanceof RenameColumn):
+                    $instructions->merge($this->getRenameColumnInstructions(
+                        $table->getName(),
+                        $action->getColumn()->getName(),
+                        $action->getNewName()
+                    ));
+                    break;
+
+                case ($action instanceof RenameTable):
+                    $instructions->merge($this->getRenameTableInstructions(
+                        $table->getName(),
+                        $action->getNewName()
+                    ));
+                    break;
+
+                default:
+                    throw new \InvalidArgumentException(
+                        sprintf("Don't know how to execute action: '%s'", get_class($action))
+                    );
+            }
+        }
+
+        $this->executeAlterSteps($table->getName(), $instructions);
     }
 }

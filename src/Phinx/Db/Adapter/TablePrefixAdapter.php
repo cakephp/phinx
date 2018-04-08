@@ -28,7 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table;
+use Phinx\Db\Table\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
@@ -63,19 +63,10 @@ class TablePrefixAdapter extends AdapterWrapper
     /**
      * {@inheritdoc}
      */
-    public function createTable(Table $table)
+    public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
-        $adapterTable = clone $table;
-        $adapterTableName = $this->getAdapterTableName($table->getName());
-        $adapterTable->setName($adapterTableName);
-
-        foreach ($adapterTable->getForeignKeys() as $fk) {
-            $adapterReferenceTable = $fk->getReferencedTable();
-            $adapterReferenceTableName = $this->getAdapterTableName($adapterReferenceTable->getName());
-            $adapterReferenceTable->setName($adapterReferenceTableName);
-        }
-
-        parent::createTable($adapterTable);
+        $adapterTable = new Table($table->getName(), $table->getOptions());
+        parent::createTable($adapterTable, $columns, $indexes);
     }
 
     /**
@@ -131,9 +122,7 @@ class TablePrefixAdapter extends AdapterWrapper
      */
     public function addColumn(Table $table, Column $column)
     {
-        $adapterTable = clone $table;
-        $adapterTableName = $this->getAdapterTableName($table->getName());
-        $adapterTable->setName($adapterTableName);
+        $adapterTable = new Table($table->getName(), $table->getOptions());
         parent::addColumn($adapterTable, $column);
     }
 
@@ -190,9 +179,7 @@ class TablePrefixAdapter extends AdapterWrapper
      */
     public function addIndex(Table $table, Index $index)
     {
-        $adapterTable = clone $table;
-        $adapterTableName = $this->getAdapterTableName($table->getName());
-        $adapterTable->setName($adapterTableName);
+        $adapterTable = new Table($table->getName(), $table->getOptions());
         parent::addIndex($adapterTable, $index);
     }
 
@@ -229,9 +216,7 @@ class TablePrefixAdapter extends AdapterWrapper
      */
     public function addForeignKey(Table $table, ForeignKey $foreignKey)
     {
-        $adapterTable = clone $table;
-        $adapterTableName = $this->getAdapterTableName($table->getName());
-        $adapterTable->setName($adapterTableName);
+        $adapterTable = new Table($table->getName(), $table->getOptions());
         parent::addForeignKey($adapterTable, $foreignKey);
     }
 
@@ -249,9 +234,7 @@ class TablePrefixAdapter extends AdapterWrapper
      */
     public function insert(Table $table, $row)
     {
-        $adapterTable = clone $table;
-        $adapterTableName = $this->getAdapterTableName($table->getName());
-        $adapterTable->setName($adapterTableName);
+        $adapterTable = new Table($table->getName(), $table->getOptions());
         parent::insert($adapterTable, $row);
     }
 
@@ -260,9 +243,7 @@ class TablePrefixAdapter extends AdapterWrapper
      */
     public function bulkinsert(Table $table, $rows)
     {
-        $adapterTable = clone $table;
-        $adapterTableName = $this->getAdapterTableName($table->getName());
-        $adapterTable->setName($adapterTableName);
+        $adapterTable = new Table($table->getName(), $table->getOptions());
         parent::bulkinsert($adapterTable, $rows);
     }
 

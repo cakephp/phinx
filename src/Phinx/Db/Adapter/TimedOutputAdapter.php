@@ -28,7 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table;
+use Phinx\Db\Table\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
@@ -131,11 +131,11 @@ class TimedOutputAdapter extends AdapterWrapper
     /**
      * {@inheritdoc}
      */
-    public function createTable(Table $table)
+    public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
         $end = $this->startCommandTimer();
         $this->writeCommand('createTable', [$table->getName()]);
-        parent::createTable($table);
+        parent::createTable($table, $columns, $indexes);
         $end();
     }
 

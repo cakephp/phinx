@@ -28,7 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table;
+use Phinx\Db\Table\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
@@ -257,6 +257,16 @@ interface AdapterInterface
      */
     public function execute($sql);
 
+
+    /**
+     * Executes a list of migration actions for the given table
+     *
+     * @param Table $table The table to execute the actions for
+     * @param Phinx\Db\Action\Action[] $table The table to execute the actions for
+     * @return int
+     */
+    public function executeActions(Table $table, array $actions);
+
     /**
      * Executes a SQL statement and returns the result as an array.
      *
@@ -284,7 +294,7 @@ interface AdapterInterface
     /**
      * Inserts data into a table.
      *
-     * @param \Phinx\Db\Table $table where to insert data
+     * @param \Phinx\Db\Table\Table $table Table where to insert data
      * @param array $row
      * @return void
      */
@@ -293,7 +303,7 @@ interface AdapterInterface
     /**
      * Inserts data into a table in a bulk.
      *
-     * @param \Phinx\Db\Table $table where to insert data
+     * @param \Phinx\Db\Table\Table $table Table where to insert data
      * @param array $rows
      * @return void
      */
@@ -326,10 +336,12 @@ interface AdapterInterface
     /**
      * Creates the specified database table.
      *
-     * @param \Phinx\Db\Table $table Table
+     * @param \Phinx\Db\Table\Table $table Table
+     * @param \Phinx\Db\Table\Column[] $columns List of columns in the table
+     * @param \Phinx\Db\Table\Index[] $indexes List of indexes for the table
      * @return void
      */
-    public function createTable(Table $table);
+    public function createTable(Table $table, array $columns = [], array $indexes = []);
 
     /**
      * Renames the specified database table.
@@ -376,7 +388,7 @@ interface AdapterInterface
     /**
      * Adds the specified column to a database table.
      *
-     * @param \Phinx\Db\Table  $table  Table
+     * @param \Phinx\Db\Table\Table $table Table
      * @param \Phinx\Db\Table\Column $column Column
      * @return void
      */
@@ -432,7 +444,7 @@ interface AdapterInterface
     /**
      * Adds the specified index to a database table.
      *
-     * @param \Phinx\Db\Table $table Table
+     * @param \Phinx\Db\Table\Table $table Table
      * @param \Phinx\Db\Table\Index $index Index
      * @return void
      */

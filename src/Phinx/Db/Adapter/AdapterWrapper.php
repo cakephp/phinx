@@ -28,7 +28,7 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table;
+use Phinx\Db\Table\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
@@ -346,9 +346,9 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function createTable(Table $table)
+    public function createTable(Table $table, array $columns = [], $indexes = [])
     {
-        $this->getAdapter()->createTable($table);
+        $this->getAdapter()->createTable($table, $columns, $indexes);
     }
 
     /**
