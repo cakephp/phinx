@@ -407,7 +407,9 @@ class SqlServerAdapterTest extends TestCase
               ->addColumn('column10', 'boolean')
               ->addColumn('column11', 'datetime')
               ->addColumn('column12', 'binary')
-              ->addColumn('column13', 'string', ['limit' => 10]);
+              ->addColumn('column13', 'string', ['limit' => 10])
+              ->addColumn('column14', 'string', ['sql_type' => 'datetime2'])
+              ->addColumn('column15', 'string', ['sql_type' => 'datetime2', 'limit' => 6]);
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -605,6 +607,7 @@ class SqlServerAdapterTest extends TestCase
         $this->assertEquals('date', $this->adapter->getPhinxType('date'));
 
         $this->assertEquals('datetime', $this->adapter->getPhinxType('datetime'));
+        $this->assertEquals('datetime', $this->adapter->getPhinxType('datetime2'));
     }
 
     public function testAddColumnComment()
