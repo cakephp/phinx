@@ -17,7 +17,7 @@ class RenameColumn extends Action
     public function __construct(Table $table, Column $column, $newName)
     {
         $this->table = $table;
-        $this->newName = newName;
+        $this->newName = $newName;
         $this->column = $column;
     }
 

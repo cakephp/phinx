@@ -13,7 +13,7 @@ class RenameInfoTableToStatusesTable extends AbstractMigration
     {
         // users table
         $table = $this->table('info_baz');
-        $table->rename('statuses_baz');
+        $table->rename('statuses_baz')->save();
     }
 
     /**

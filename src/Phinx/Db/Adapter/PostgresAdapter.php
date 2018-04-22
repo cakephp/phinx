@@ -169,7 +169,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createTable(Table $table, array $columns, array $indexes)
+    public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
         $options = $table->getOptions();
 
@@ -259,7 +259,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $sql = sprintf(
             'ALTER TABLE %s RENAME TO %s',
             $this->quoteTableName($tableName),
-            $this->quoteTableName($newTableName)
+            $this->quoteColumnName($newTableName)
         );
 
         return new AlterInstructions([], [$sql]);
@@ -352,7 +352,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $instructions = new AlterInstructions();
         $instructions->addAlter(sprintf(
-            'ADD %s %s;',
+            'ADD %s %s',
             $this->quoteColumnName($column->getName()),
             $this->getColumnSqlDefinition($column)
         ));
@@ -404,6 +404,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         $sql = sprintf(
             'ALTER COLUMN %s TYPE %s',
+            $this->quoteColumnName($columnName),
             $this->getColumnSqlDefinition($newColumn)
         );
         //
@@ -464,7 +465,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDropColumnInstructions($columnName)
+    protected function getDropColumnInstructions($tableName, $columnName)
     {
         $alter = sprintf(
             'DROP COLUMN %s',
@@ -571,7 +572,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         foreach ($indexes as $indexName => $index) {
             $a = array_diff($columns, $index['columns']);
             if (empty($a)) {
-                return AlterInstructions([], [sprintf(
+                return new AlterInstructions([], [sprintf(
                     'DROP INDEX IF EXISTS %s',
                     $this->quoteColumnName($indexName)
                 )]);
@@ -704,7 +705,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             ));
 
             foreach ($rows as $row) {
-                $newInstr = $this->getDropForeignKeyInstructions($row['constraint_name']);
+                $newInstr = $this->getDropForeignKeyInstructions($tableName, $row['constraint_name']);
                 $instructions->merge($newInstr);
             }
         }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Phinx\Util\Db\Util;
+namespace Phinx\Db\Util;
 
 class AlterInstructions
 {

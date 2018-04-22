@@ -33,7 +33,6 @@ use Phinx\Db\Action\AddColumn;
 use Phinx\Db\Action\AddForeignKey;
 use Phinx\Db\Action\AddIndex;
 use Phinx\Db\Action\ChangeColumn;
-use Phinx\Db\Action\DropColumn;
 use Phinx\Db\Action\DropForeignKey;
 use Phinx\Db\Action\DropIndex;
 use Phinx\Db\Action\DropTable;
@@ -43,7 +42,6 @@ use Phinx\Db\Action\RenameTable;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
-use Phinx\Db\Table\Table;
 use Phinx\Db\Table\Table;
 use Phinx\Db\Util\AlterInstructions;
 use Phinx\Migration\MigrationInterface;
@@ -88,7 +86,7 @@ abstract class PdoAdapter extends AbstractAdapter
         if (!$this->hasSchemaTable()) {
             $this->createSchemaTable();
         } else {
-            $table = new Table($this->getSchemaTableName(), [], $this);
+            $table = new \Phinx\Db\Table($this->getSchemaTableName(), [], $this);
             if (!$table->hasColumn('migration_name')) {
                 $table
                     ->addColumn(
@@ -403,13 +401,17 @@ abstract class PdoAdapter extends AbstractAdapter
 
     protected function executeAlterSteps($tableName, AlterInstructions $instructions)
     {
-        $alter = sprintf(
-            'ALTER TABLE %s %s',
-            $tableName,
-            implode(', ', $instructions->getAlterParts())
-        );
+        $alterParts = $instructions->getAlterParts();
 
-        $this->execute($alter);
+        if ($alterParts) {
+            $alter = sprintf(
+                'ALTER TABLE %s %s',
+                $this->quoteTableName($tableName),
+                implode(', ', $alterParts)
+            );
+
+            $this->execute($alter);
+        }
 
         foreach ($instructions->getPostSteps() as $sql) {
             $this->execute($sql);
@@ -454,7 +456,7 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function dropColumn($tableName, $columnName)
     {
-        $instructions = $this->getDropColumnInstructions($columnName);
+        $instructions = $this->getDropColumnInstructions($tableName, $columnName);
         $this->executeAlterSteps($tableName, $instructions);
     }
 
@@ -545,9 +547,12 @@ abstract class PdoAdapter extends AbstractAdapter
 
     abstract protected function getRenameTableInstructions($tableName, $newTableName);
 
+    /**
+     * {@inheritdoc}
+     */
     public function executeActions(Table $table, array $actions)
     {
-        $instructions = AlterInstructions();
+        $instructions = new AlterInstructions();
 
         foreach ($actions as $action) {
             switch (true) {
@@ -560,7 +565,7 @@ abstract class PdoAdapter extends AbstractAdapter
                     break;
 
                 case ($action instanceof AddForeignKey):
-                    $instructions->merge($this->getAddForeignKeyInstructions($table, $action->getColumn()));
+                    $instructions->merge($this->getAddForeignKeyInstructions($table, $action->getForeignKey()));
                     break;
 
                 case ($action instanceof ChangeColumn):
@@ -585,13 +590,6 @@ abstract class PdoAdapter extends AbstractAdapter
                     ));
                     break;
 
-                case ($action instanceof DropColumn):
-                    $instructions->merge($this->getDropColumnInstructions(
-                        $table->getName(),
-                        $action->getColumnName()
-                    ));
-                    break;
-
                 case ($action instanceof DropIndex && $action->getIndex()->getName() !== null):
                     $instructions->merge($this->getDropIndexByNameInstructions(
                         $table->getName(),
@@ -602,16 +600,21 @@ abstract class PdoAdapter extends AbstractAdapter
                 case ($action instanceof DropIndex && $action->getIndex()->getName() == null):
                     $instructions->merge($this->getDropIndexByColumnsInstructions(
                         $table->getName(),
-                        $action->getIndex()->getPendingColumns()
+                        $action->getIndex()->getColumns()
                     ));
                     break;
 
 
                 case ($action instanceof DropTable):
                     $instructions->merge($this->getDropTableInstructions(
+                        $table->getName()
+                    ));
+                    break;
+
+                case ($action instanceof RemoveColumn):
+                    $instructions->merge($this->getDropColumnInstructions(
                         $table->getName(),
-                        $action->getColumn()->getName(),
-                        $action->getNewName()
+                        $action->getColumn()->getName()
                     ));
                     break;
 

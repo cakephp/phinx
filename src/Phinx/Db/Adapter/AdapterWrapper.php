@@ -346,7 +346,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function createTable(Table $table, array $columns = [], $indexes = [])
+    public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
         $this->getAdapter()->createTable($table, $columns, $indexes);
     }
@@ -549,5 +549,13 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function getConnection()
     {
         return $this->getAdapter()->getConnection();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function executeActions(Table $table, array $actions)
+    {
+        return $this->getAdapter()->executeActions($table, $actions);
     }
 }

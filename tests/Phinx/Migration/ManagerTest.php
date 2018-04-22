@@ -5485,9 +5485,10 @@ class ManagerTest extends TestCase
         $this->assertFalse($adapter->hasTable('info'));
         $this->assertTrue($adapter->hasTable('statuses'));
         $this->assertTrue($adapter->hasTable('users'));
-        $this->assertTrue($adapter->hasTable('user_logins'));
+        $this->assertTrue($adapter->hasTable('just_logins'));
+        $this->assertFalse($adapter->hasTable('user_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'biography'));
-        $this->assertTrue($adapter->hasForeignKey('user_logins', ['user_id']));
+        $this->assertTrue($adapter->hasForeignKey('just_logins', ['user_id']));
         $this->assertTrue($adapter->hasTable('change_direction_test'));
         $this->assertTrue($adapter->hasColumn('change_direction_test', 'subthing'));
         $this->assertEquals(
@@ -5502,6 +5503,7 @@ class ManagerTest extends TestCase
         $this->assertTrue($adapter->hasTable('info'));
         $this->assertFalse($adapter->hasTable('statuses'));
         $this->assertFalse($adapter->hasTable('user_logins'));
+        $this->assertFalse($adapter->hasTable('just_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'bio'));
         $this->assertFalse($adapter->hasForeignKey('user_logins', ['user_id']));
         $this->assertFalse($adapter->hasTable('change_direction_test'));
@@ -5576,9 +5578,10 @@ class ManagerTest extends TestCase
         $this->assertFalse($adapter->hasTable('info'));
         $this->assertTrue($adapter->hasTable('statuses'));
         $this->assertTrue($adapter->hasTable('users'));
-        $this->assertTrue($adapter->hasTable('user_logins'));
+        $this->assertFalse($adapter->hasTable('user_logins'));
+        $this->assertTrue($adapter->hasTable('just_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'biography'));
-        $this->assertTrue($adapter->hasForeignKey('user_logins', ['user_id']));
+        $this->assertTrue($adapter->hasForeignKey('just_logins', ['user_id']));
 
         $this->assertFalse($adapter->hasTable('info_baz'));
         $this->assertTrue($adapter->hasTable('statuses_baz'));
@@ -5601,6 +5604,7 @@ class ManagerTest extends TestCase
         $this->assertTrue($adapter->hasTable('info'));
         $this->assertFalse($adapter->hasTable('statuses'));
         $this->assertFalse($adapter->hasTable('user_logins'));
+        $this->assertFalse($adapter->hasTable('just_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'bio'));
         $this->assertFalse($adapter->hasForeignKey('user_logins', ['user_id']));
 

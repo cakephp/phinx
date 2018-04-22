@@ -3,6 +3,7 @@
 namespace Phinx\Db\Plan;
 
 use Phinx\Db\Action\Action;
+use Phinx\Db\Table\Table;
 
 class AlterTable
 {
@@ -27,6 +28,6 @@ class AlterTable
 
     public function getActions()
     {
-        return $this->actions();
+        return $this->actions;
     }
 }

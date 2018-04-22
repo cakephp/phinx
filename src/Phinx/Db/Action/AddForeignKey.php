@@ -19,10 +19,14 @@ class AddForeignKey extends Action
         $this->foreignKey = $fk;
     }
 
-    public static function build(Table $table, $columns, Table $referencedTable, $referencedColumns = ['id'], array $options = [])
+    public static function build(Table $table, $columns, $referencedTable, $referencedColumns = ['id'], array $options = [], $name = null)
     {
         if (is_string($referencedColumns)) {
             $referencedColumns = [$referencedColumns]; // str to array
+        }
+
+        if (is_string($referencedTable)) {
+            $referencedTable = new Table($referencedTable);
         }
 
         $fk = new ForeignKey();
@@ -30,6 +34,10 @@ class AddForeignKey extends Action
            ->setColumns($columns)
            ->setReferencedColumns($referencedColumns)
            ->setOptions($options);
+
+        if ($name !== null) {
+            $fk->setConstraint($name);
+        }
 
         return new static($table, $fk);
     }

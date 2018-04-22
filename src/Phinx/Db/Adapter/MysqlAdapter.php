@@ -699,7 +699,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             ));
 
             foreach ($rows as $row) {
-                $instructions->merge($this->getDropForeignKeyInstructions($row['CONSTRAINT_NAME']));
+                $instructions->merge($this->getDropForeignKeyInstructions($tableName, $row['CONSTRAINT_NAME']));
             }
         }
 

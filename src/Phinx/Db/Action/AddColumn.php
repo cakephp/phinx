@@ -14,7 +14,7 @@ class AddColumn extends Action
 
     public function __construct(Table $table, Column $column)
     {
-        $this->table = $able;
+        $this->table = $table;
         $this->column = $column;
     }
 

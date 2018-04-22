@@ -18,9 +18,4 @@ class CreateTable extends Action
     {
         return $this->table;
     }
-
-    public function getTable()
-    {
-        return $this->table;
-    }
 }

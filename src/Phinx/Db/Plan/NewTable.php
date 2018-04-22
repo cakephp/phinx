@@ -41,6 +41,6 @@ class NewTable
 
     public function getIndexes()
     {
-        return $this->indexes();
+        return $this->indexes;
     }
 }
