@@ -48,7 +48,7 @@ class Test extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName('test')
+        $this->setName($this->getName() ?: 'test')
             ->setDescription('Verify the configuration file')
             ->setHelp(
                 <<<EOT
