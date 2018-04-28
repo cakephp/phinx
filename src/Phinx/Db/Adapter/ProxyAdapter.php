@@ -91,7 +91,7 @@ class ProxyAdapter extends AdapterWrapper
     {
         $inverted = new Intent();
 
-        foreach (array_reverse($this->commands)  as $com) {
+        foreach (array_reverse($this->commands) as $com) {
             switch (true) {
                 case $com instanceof CreateTable:
                     $inverted->addAction(new DropTable($com->getTable()));
