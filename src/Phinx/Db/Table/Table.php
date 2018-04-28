@@ -11,6 +11,11 @@ class Table
     protected $name;
 
     /**
+     * @var array
+     */
+    protected $options;
+
+    /**
      * @param string $name The table name
      */
     public function __construct($name, array $options = [])

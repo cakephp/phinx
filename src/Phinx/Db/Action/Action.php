@@ -28,14 +28,14 @@ abstract class Action
 {
 
     /**
-     * @var Phinx\Db\Table\Table
+     * @var \Phinx\Db\Table\Table
      */
     protected $table;
 
     /**
      * The table this action will be applied to
      *
-     * @return Phinx\Db\Table\Table
+     * @return \Phinx\Db\Table\Table
      */
     public function getTable()
     {

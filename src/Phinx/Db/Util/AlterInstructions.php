@@ -71,7 +71,7 @@ class AlterInstructions
      *
      * This allows to keep a single state across callbacks.
      *
-     * @param stirng|callable $sql
+     * @param string|callable $sql
      */
     public function addPostStep($sql)
     {

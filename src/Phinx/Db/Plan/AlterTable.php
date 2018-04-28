@@ -43,7 +43,7 @@ class AlterTable
     /**
      * The listo of actions to execute
      *
-     * @var Phinx\Db\Action\Action[]
+     * @var \Phinx\Db\Action\Action[]
      */
     protected $actions = [];
 
