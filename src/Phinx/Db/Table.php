@@ -162,7 +162,7 @@ class Table
     /**
      * Drops the database table.
      *
-     * @return void
+     * @return \Phinx\Db\Table
      */
     public function drop()
     {
@@ -577,7 +577,7 @@ class Table
     }
 
     /**
-     * Truncates the table.
+     * Immediately truncates the table. This operation cannot be undone
      *
      * @return void
      */

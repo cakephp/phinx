@@ -421,7 +421,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             return $newState + $state;
         });
 
-        $instructions->addPostStep(function ($state) use ($tableName, $columnName, $newColumnName) {
+        $instructions->addPostStep(function ($state) use ($columnName, $newColumnName) {
             $sql = str_replace(
                 $this->quoteColumnName($columnName),
                 $this->quoteColumnName($newColumnName),
@@ -449,7 +449,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             return $newState + $state;
         });
 
-        $instructions->addPostStep(function ($state) use ($tableName, $columnName, $newColumn) {
+        $instructions->addPostStep(function ($state) use ($columnName, $newColumn) {
             $sql = preg_replace(
                 sprintf("/%s(?:\/\*.*?\*\/|\([^)]+\)|'[^']*?'|[^,])+([,)])/", $this->quoteColumnName($columnName)),
                 sprintf('%s %s$1', $this->quoteColumnName($newColumn->getName()), $this->getColumnSqlDefinition($newColumn)),
@@ -477,7 +477,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             return $newState + $state;
         });
 
-        $instructions->addPostStep(function ($state) use ($tableName, $columnName) {
+        $instructions->addPostStep(function ($state) use ($columnName) {
             $sql = preg_replace(
                 sprintf("/%s\s%s.*(,\s(?!')|\)$)/U", preg_quote($this->quoteColumnName($columnName)), preg_quote($state['columnType'])),
                 "",
@@ -691,7 +691,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             return $state;
         });
 
-        $instructions->addPostStep(function ($state) use ($foreignKey) {
+        $instructions->addPostStep(function ($state) {
             $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($state['tmpTableName'])));
             $names = array_map([$this, 'quoteColumnName'], array_column($columns, 'name'));
             $selectColumns = $writeColumns = $names;
@@ -737,7 +737,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             return $newState + $state;
         });
 
-        $instructions->addPostStep(function ($state) use ($tableName, $columns) {
+        $instructions->addPostStep(function ($state) use ($columns) {
+            $sql = '';
+
             foreach ($columns as $columnName) {
                 $search = sprintf(
                     "/,[^,]*\(%s(?:,`?(.*)`?)?\) REFERENCES[^,]*\([^\)]*\)[^,)]*/",
@@ -745,7 +747,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 );
                 $sql = preg_replace($search, '', $state['createSQL'], 1);
             }
-            $this->execute($sql);
+
+            if ($sql) {
+                $this->execute($sql);
+            }
 
             return $state;
         });

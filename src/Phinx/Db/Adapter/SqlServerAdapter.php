@@ -564,7 +564,7 @@ SQL;
             return new AlterInstructions();
         }
 
-        return $this->getDropForeignKeyInstructions($tableName, $columnName, $defaultConstraint);
+        return $this->getDropForeignKeyInstructions($tableName, $defaultConstraint);
     }
 
     protected function getDefaultConstraint($tableName, $columnName)
@@ -859,7 +859,7 @@ ORDER BY T.[name], I.[index_id];";
             ));
             foreach ($rows as $row) {
                 $instructions->merge(
-                    $this->getDropForeignKeyInstructions($tableName, $columns, $row['constraint_name'])
+                    $this->getDropForeignKeyInstructions($tableName, $row['constraint_name'])
                 );
             }
         }

@@ -204,6 +204,7 @@ class TableTest extends TestCase
     {
         $prop = new \ReflectionProperty(get_class($table), 'actions');
         $prop->setAccessible(true);
+
         return $prop->getValue($table)->getActions();
     }
 }

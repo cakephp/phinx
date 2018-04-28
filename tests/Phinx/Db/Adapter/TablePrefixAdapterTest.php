@@ -317,6 +317,7 @@ class TablePrefixAdapterTest extends TestCase
     public function actionsProvider()
     {
         $table = new Table('my_test');
+
         return [
             [AddColumn::build($table, 'acolumn')],
             [AddIndex::build($table, ['acolumn'])],
@@ -334,7 +335,7 @@ class TablePrefixAdapterTest extends TestCase
     /**
      * @dataProvider actionsProvider
      */
-    public function testExecuteActions($action, $checkReferecedTable =  false)
+    public function testExecuteActions($action, $checkReferecedTable = false)
     {
         $this->mock->expects($this->once())
             ->method('executeActions')

@@ -343,6 +343,14 @@ interface AdapterInterface
     public function createTable(Table $table, array $columns = [], array $indexes = []);
 
     /**
+     * Truncates the specified table
+     *
+     * @param string $tableName
+     * @return void
+     */
+    public function truncateTable($tableName);
+
+    /**
      * Returns table columns
      *
      * @param string $tableName Table Name

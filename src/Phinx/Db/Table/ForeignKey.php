@@ -94,7 +94,7 @@ class ForeignKey
     /**
      * Sets the foreign key referenced table.
      *
-     * @param \Phinx\Db\Table\Table $table
+     * @param \Phinx\Db\Table\Table $table The table this KEY is pointing to
      * @return \Phinx\Db\Table\ForeignKey
      */
     public function setReferencedTable(Table $table)

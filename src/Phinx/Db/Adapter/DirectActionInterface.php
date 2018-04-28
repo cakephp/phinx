@@ -55,14 +55,6 @@ interface DirectActionInterface
     public function dropTable($tableName);
 
     /**
-     * Truncates the specified table
-     *
-     * @param string $tableName
-     * @return void
-     */
-    public function truncateTable($tableName);
-
-    /**
      * Adds the specified column to a database table.
      *
      * @param \Phinx\Db\Table\Table $table Table

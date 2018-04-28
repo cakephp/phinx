@@ -433,7 +433,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     public function addColumn(Table $table, Column $column)
     {
-        $instructions = $this->getAddColumnInstructions($column);
+        $instructions = $this->getAddColumnInstructions($table, $column);
         $this->executeAlterSteps($table, $instructions);
     }
 
@@ -553,7 +553,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      *
      * @param string $tableName
      * @param string $indexName
-     * @return void
+     * @return AlterInstructions
      */
     abstract protected function getDropIndexByNameInstructions($tableName, $indexName);
 

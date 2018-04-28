@@ -17,6 +17,7 @@ class Table
 
     /**
      * @param string $name The table name
+     * @param array $options The creation options for this table
      */
     public function __construct($name, array $options = [])
     {
@@ -31,7 +32,7 @@ class Table
     /**
      * Sets the table name.
      *
-     * @param string $name
+     * @param string $name The name of the table
      * @return \Phinx\Db\Table\Table
      */
     public function setName($name)
@@ -64,7 +65,8 @@ class Table
     /**
      * Sets the table options
      *
-     * @return array
+     * @return array The options for this table to use for creating it
+     * @return void
      */
     public function setOptions(array $options)
     {

@@ -503,7 +503,6 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
         $this->assertFalse($this->adapter->hasColumn('t', 'column2'));
 
-
         $table->renameColumn('column1', 'column2')->save();
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
