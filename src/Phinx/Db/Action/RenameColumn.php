@@ -8,8 +8,6 @@ use Phinx\Db\Table\Table;
 class RenameColumn extends Action
 {
 
-    protected $table;
-
     protected $column;
 
     protected $newName;
@@ -26,11 +24,6 @@ class RenameColumn extends Action
         $column = new Column();
         $column->setName($columnName);
         return new static($table, $column, $newName);
-    }
-
-    public function getTable()
-    {
-        return $this->table;
     }
 
     public function getColumn()

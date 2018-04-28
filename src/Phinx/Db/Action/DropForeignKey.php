@@ -9,8 +9,6 @@ use Phinx\Db\Table\Table;
 class DropForeignKey extends Action
 {
 
-    protected $table;
-
     protected $foreignKey;
 
     public function __construct(Table $table, ForeignKey $foreignKey)
@@ -33,11 +31,6 @@ class DropForeignKey extends Action
         }
 
         return new static($table, $foreignKey);
-    }
-
-    public function getTable()
-    {
-        return $this->table;
     }
 
     public function getForeignKey()

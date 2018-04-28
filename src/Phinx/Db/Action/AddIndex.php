@@ -8,9 +8,6 @@ use Phinx\Db\Table\Table;
 
 class AddIndex extends Action
 {
-
-    protected $table;
-
     protected $index;
 
     public function __construct(Table $table, Index $index)
@@ -36,11 +33,6 @@ class AddIndex extends Action
         }
 
         return new static($table, $index);
-    }
-
-    public function getTable()
-    {
-        return $this->table;
     }
 
     public function getIndex()

@@ -37,7 +37,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Wraps any adpter to record the time spend executing its commands
  */
-class TimedOutputAdapter extends AdapterWrapper
+class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
 {
 
     /**
@@ -320,5 +320,17 @@ class TimedOutputAdapter extends AdapterWrapper
         $this->writeCommand('dropSchema', [$name]);
         parent::dropSchema($name);
         $end();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function executeActions(Table $table, array $actions)
+    {
+        $end = $this->startCommandTimer();
+        $this->writeCommand(sprintf('Altering table %s', $table->getName()));
+        $res = parent::executeActions($table, $actions);
+        $end();
+        return $res;
     }
 }

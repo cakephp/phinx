@@ -45,18 +45,29 @@ use Phinx\Db\Table\Index;
 use Phinx\Db\Table\Table;
 use Phinx\Db\Util\AlterInstructions;
 use Phinx\Migration\MigrationInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Phinx PDO Adapter.
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-abstract class PdoAdapter extends AbstractAdapter
+abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterface
 {
     /**
      * @var \PDO|null
      */
     protected $connection;
+
+    protected function veboseLog($message)
+    {
+        if (!$this->isDryRunEnabled() ||
+            OutputInterface::VERBOSITY_VERBOSE < $this->getOutput()->getVerbosity()) {
+            return;
+        }
+
+        $this->getOutput()->writeln($message);
+    }
 
     /**
      * {@inheritdoc}
@@ -139,9 +150,9 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function execute($sql)
     {
-        if ($this->isDryRunEnabled()) {
-            $this->getOutput()->writeln($sql);
+        $this->veboseLog($sql);
 
+        if ($this->isDryRunEnabled()) {
             return 0;
         }
 
@@ -421,6 +432,13 @@ abstract class PdoAdapter extends AbstractAdapter
         $this->executeAlterSteps($table, $instructions);
     }
 
+    /**
+     * Returns the instrutions to add the specified column to a database table.
+     *
+     * @param \Phinx\Db\Table\Table $table Table
+     * @param \Phinx\Db\Table\Column $column Column
+     * @return AlterInstructions
+     */
     abstract protected function getAddColumnInstructions(Table $table, Column $column);
 
     /**
@@ -432,6 +450,15 @@ abstract class PdoAdapter extends AbstractAdapter
         $this->executeAlterSteps($tableName, $instructions);
     }
 
+    /**
+     * Returns the instructions to rename the specified column.
+     *
+     * @param string $tableName Table Name
+     * @param string $columnName Column Name
+     * @param string $newColumnName New Column Name
+     * @return AlterInstructions:w
+     *
+     */
     abstract protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName);
 
     /**
@@ -443,6 +470,14 @@ abstract class PdoAdapter extends AbstractAdapter
         $this->executeAlterSteps($tableName, $instructions);
     }
 
+    /**
+     * Returns the instructions to change a table column type.
+     *
+     * @param string $tableName  Table Name
+     * @param string $columnName Column Name
+     * @param \Phinx\Db\Table\Column $newColumn  New Column
+     * @return AlterInstructions
+     */
     abstract protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn);
 
     /**
@@ -454,6 +489,13 @@ abstract class PdoAdapter extends AbstractAdapter
         $this->executeAlterSteps($tableName, $instructions);
     }
 
+    /**
+     * Returns the instructions to drop the specified column.
+     *
+     * @param string $tableName Table Name
+     * @param string $columnName Column Name
+     * @return AlterInstructions
+     */
     abstract protected function getDropColumnInstructions($tableName, $columnName);
 
     /**
@@ -465,6 +507,13 @@ abstract class PdoAdapter extends AbstractAdapter
         $this->executeAlterSteps($table->getName(), $instructions);
     }
 
+    /**
+     * Returns the instructions to add the specified index to a database table.
+     *
+     * @param \Phinx\Db\Table\Table $table Table
+     * @param \Phinx\Db\Table\Index $index Index
+     * @return AlterInstructions
+     */
     abstract protected function getAddIndexInstructions(Table $table, Index $index);
 
     /**
@@ -476,6 +525,13 @@ abstract class PdoAdapter extends AbstractAdapter
         $this->executeAlterSteps($tableName, $instructions);
     }
 
+    /**
+     * Returns the instructions to drop the specified index from a database table.
+     *
+     * @param string $tableName
+     * @param mixed $columns Column(s)
+     * @return AlterInstructions
+     */
     abstract protected function getDropIndexByColumnsInstructions($tableName, $columns);
 
     /**
@@ -487,6 +543,13 @@ abstract class PdoAdapter extends AbstractAdapter
         $this->executeAlterSteps($tableName, $instructions);
     }
 
+    /**
+     * Returns the instructions to drop the index specified by name from a database table.
+     *
+     * @param string $tableName
+     * @param string $indexName
+     * @return void
+     */
     abstract protected function getDropIndexByNameInstructions($tableName, $indexName);
 
     /**
@@ -498,6 +561,13 @@ abstract class PdoAdapter extends AbstractAdapter
         $this->executeAlterSteps($table->getName(), $instructions);
     }
 
+    /**
+     * Returns the instructions to adds the specified foreign key to a database table.
+     *
+     * @param \Phinx\Db\Table $table
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     * @return AlterInstructions
+     */
     abstract protected function getAddForeignKeyInstructions(Table $table, ForeignKey $foreignKey);
 
     /**
@@ -514,10 +584,23 @@ abstract class PdoAdapter extends AbstractAdapter
         $this->executeAlterSteps($tableName, $instructions);
     }
 
+    /**
+     * Returns the instructions to drop the specified foreign key from a database table.
+     *
+     * @param string   $tableName
+     * @param string   $constraint Constraint name
+     * @return AlterInstructions
+     */
     abstract protected function getDropForeignKeyInstructions($tableName, $constraint);
 
+    /**
+     * Returns the instructions to drop the specified foreign key from a database table.
+     *
+     * @param string $tableName
+     * @param array $columns The list of column names
+     * @return AlterInstructions
+     */
     abstract protected function getDropForeignKeyByColumnsInstructions($tableName, $columns);
-
 
     /**
      * {@inheritdoc}
@@ -528,6 +611,12 @@ abstract class PdoAdapter extends AbstractAdapter
         $this->executeAlterSteps($tableName, $instructions);
     }
 
+    /**
+     * Returns the instructions to drop the specified database table.
+     *
+     * @param string $tableName Table Name
+     * @return AlterInstructions
+     */
     abstract protected function getDropTableInstructions($tableName);
 
     /**
@@ -539,6 +628,13 @@ abstract class PdoAdapter extends AbstractAdapter
         $this->executeAlterSteps($tableName, $instructions);
     }
 
+    /**
+     * Returns the instructions to rename the specified database table.
+     *
+     * @param string $tableName Table Name
+     * @param string $newName New Name
+     * @return AlterInstructions
+     */
     abstract protected function getRenameTableInstructions($tableName, $newTableName);
 
     /**

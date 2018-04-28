@@ -8,8 +8,6 @@ use Phinx\Db\Table\Table;
 class RemoveColumn extends Action
 {
 
-    protected $table;
-
     protected $column;
 
     public function __construct(Table $table, Column $column)
@@ -23,11 +21,6 @@ class RemoveColumn extends Action
         $column = new Column();
         $column->setName($columnName);
         return new static($table, $column);
-    }
-
-    public function getTable()
-    {
-        return $this->table;
     }
 
     public function getColumn()

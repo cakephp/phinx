@@ -9,8 +9,6 @@ use Phinx\Db\Table\Table;
 class AddForeignKey extends Action
 {
 
-    protected $table;
-
     protected $foreignKey;
 
     public function __construct(Table $table, ForeignKey $fk)
@@ -40,11 +38,6 @@ class AddForeignKey extends Action
         }
 
         return new static($table, $fk);
-    }
-
-    public function getTable()
-    {
-        return $this->table;
     }
 
     public function getForeignKey()

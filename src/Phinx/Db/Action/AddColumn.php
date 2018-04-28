@@ -8,8 +8,6 @@ use Phinx\Db\Table\Table;
 class AddColumn extends Action
 {
 
-    protected $table;
-
     protected $column;
 
     public function __construct(Table $table, Column $column)
@@ -26,11 +24,6 @@ class AddColumn extends Action
         $column->setOptions($options); // map options to column methods
 
         return new static($table, $column);
-    }
-
-    public function getTable()
-    {
-        return $this->table;
     }
 
     public function getColumn()

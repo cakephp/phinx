@@ -7,9 +7,6 @@ use Phinx\Db\Table\Table;
 
 class ChangeColumn extends Action
 {
-
-    protected $table;
-
     protected $column;
 
     protected $columnName;
@@ -34,11 +31,6 @@ class ChangeColumn extends Action
         $column->setOptions($options); // map options to column methods
 
         return new static($table, $columnName, $column);
-    }
-
-    public function getTable()
-    {
-        return $this->table;
     }
 
     public function getColumnName()

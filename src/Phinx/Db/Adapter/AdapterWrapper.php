@@ -354,30 +354,6 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function renameTable($tableName, $newTableName)
-    {
-        $this->getAdapter()->renameTable($tableName, $newTableName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function dropTable($tableName)
-    {
-        $this->getAdapter()->dropTable($tableName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function truncateTable($tableName)
-    {
-        $this->getAdapter()->truncateTable($tableName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getColumns($tableName)
     {
         return $this->getAdapter()->getColumns($tableName);
@@ -389,38 +365,6 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function hasColumn($tableName, $columnName)
     {
         return $this->getAdapter()->hasColumn($tableName, $columnName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addColumn(Table $table, Column $column)
-    {
-        $this->getAdapter()->addColumn($table, $column);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function renameColumn($tableName, $columnName, $newColumnName)
-    {
-        $this->getAdapter()->renameColumn($tableName, $columnName, $newColumnName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function changeColumn($tableName, $columnName, Column $newColumn)
-    {
-        return $this->getAdapter()->changeColumn($tableName, $columnName, $newColumn);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function dropColumn($tableName, $columnName)
-    {
-        $this->getAdapter()->dropColumn($tableName, $columnName);
     }
 
     /**
@@ -442,49 +386,9 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function addIndex(Table $table, Index $index)
-    {
-        $this->getAdapter()->addIndex($table, $index);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function dropIndex($tableName, $columns)
-    {
-        $this->getAdapter()->dropIndex($tableName, $columns);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function dropIndexByName($tableName, $indexName)
-    {
-        $this->getAdapter()->dropIndexByName($tableName, $indexName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
         return $this->getAdapter()->hasForeignKey($tableName, $columns, $constraint);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addForeignKey(Table $table, ForeignKey $foreignKey)
-    {
-        $this->getAdapter()->addForeignKey($table, $foreignKey);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function dropForeignKey($tableName, $columns, $constraint = null)
-    {
-        $this->getAdapter()->dropForeignKey($tableName, $columns, $constraint);
     }
 
     /**

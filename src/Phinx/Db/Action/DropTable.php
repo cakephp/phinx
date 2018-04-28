@@ -13,9 +13,4 @@ class DropTable extends Action
     {
         $this->table = $table;
     }
-
-    public function getTable()
-    {
-        return $this->table;
-    }
 }
