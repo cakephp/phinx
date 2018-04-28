@@ -442,6 +442,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function truncateTable($tableName)
+    {
+        $this->getAdapter()->truncateTable($tableName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function castToBool($value)
     {
         return $this->getAdapter()->castToBool($value);
