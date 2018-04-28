@@ -399,23 +399,17 @@ abstract class PdoAdapter extends AbstractAdapter
         return (bool)$value ? 1 : 0;
     }
 
+    /**
+     * Executes all the ALTER TABLE instructions passed for the given table
+     *
+     * @param string $tableName The table name to use in the ALTER statement
+     * @param AlterInstructions $instructions The object containing the alter sequence
+     * @return void
+     */
     protected function executeAlterSteps($tableName, AlterInstructions $instructions)
     {
-        $alterParts = $instructions->getAlterParts();
-
-        if ($alterParts) {
-            $alter = sprintf(
-                'ALTER TABLE %s %s',
-                $this->quoteTableName($tableName),
-                implode(', ', $alterParts)
-            );
-
-            $this->execute($alter);
-        }
-
-        foreach ($instructions->getPostSteps() as $sql) {
-            $this->execute($sql);
-        }
+        $alter = sprintf('ALTER TABLE %s %%s', $this->quoteTableName($tableName));
+        $instructions->execute($alter, [$this, 'execute']);
     }
 
     /**

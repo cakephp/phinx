@@ -40,4 +40,23 @@ class AlterInstructions
         $this->alterParts = array_merge($this->alterParts, $other->getAlterParts());
         $this->postSteps = array_merge($this->postSteps, $other->getPostSteps());
     }
+
+    public function execute($alterTemplate, callable $executor)
+    {
+        if ($this->alterParts) {
+            $alter = sprintf($alterTemplate, implode(', ', $this->alterParts));
+            $executor($alter);
+        }
+
+        $state = [];
+
+        foreach ($this->postSteps as $instruction) {
+            if (is_callable($instruction)) {
+                $state = $instruction($state);
+                continue;
+            }
+
+            $executor($instruction);
+        }
+    }
 }
