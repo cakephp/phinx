@@ -1,5 +1,27 @@
 <?php
-
+/**
+ * Phinx
+ *
+ * (The MIT license)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated * documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 namespace Phinx\Db\Plan;
 
 use Phinx\Db\Action\AddColumn;
@@ -16,19 +38,56 @@ use Phinx\Db\Action\RenameTable;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Table\Table;
 
+/**
+ * A Plan takes an Intent and transforms int into a sequence of
+ * instructions that can be correctly executed by an AdapterInterface.
+ *
+ * The main focus of Plan is to arrange the actions in the most efficient
+ * way possible for the database.
+ */
 class Plan
 {
 
+    /**
+     * List of tables to be created
+     *
+     * @var \Phinx\Db\Plan\NewTable[]
+     */
     protected $tableCreates = [];
 
+    /**
+     * List of table updates
+     *
+     * @var \Phinx\Db\Plan\AlterTable[]
+     */
     protected $tableUpdates = [];
 
+    /**
+     * List of table removals or renames
+     *
+     * @var \Phinx\Db\Plan\AlterTable[]
+     */
     protected $tableMoves = [];
 
+    /**
+     * List of index additions or removals
+     *
+     * @var \Phinx\Db\Plan\AlterTable[]
+     */
     protected $indexes = [];
 
+    /**
+     * List of constraint additions or removals
+     *
+     * @var \Phinx\Db\Plan\AlterTable[]
+     */
     protected $constraints = [];
 
+    /**
+     * Constructor
+     *
+     * @param Intent $intent All the actions that should be executed
+     */
     public function __construct(Intent $intent)
     {
         $this->createPlan($intent->getActions());
@@ -54,6 +113,12 @@ class Plan
         ];
     }
 
+    /**
+     * Executes this plan using the given AdapterInterface
+     *
+     * @param AdapterInterface $executor
+     * @return void
+     */
     public function execute(AdapterInterface $executor)
     {
         foreach ($this->tableCreates as $newTable) {
@@ -67,6 +132,12 @@ class Plan
             });
     }
 
+    /**
+     * Executes the inverse plan (rollback the actions) with the given AdapterInterface:w
+     *
+     * @param AdapterInterface $executor
+     * @return void
+     */
     public function executeInverse(AdapterInterface $executor)
     {
         collection(array_reverse($this->updatesSequence()))
