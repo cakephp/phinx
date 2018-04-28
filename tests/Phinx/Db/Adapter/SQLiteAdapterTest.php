@@ -409,6 +409,7 @@ class SQLiteAdapterTest extends TestCase
             ['column13', 'string', ['limit' => 10]],
             ['column15', 'integer', ['limit' => 10]],
             ['column22', 'enum', ['values' => ['three', 'four']]],
+            ['column23', 'json', [], 'text'],
         ];
     }
 
