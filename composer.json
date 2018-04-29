@@ -31,7 +31,7 @@
         "symfony/yaml": "^2.8|^3.0|^4.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.8.35|^5.7|^6.5",
+        "phpunit/phpunit": "^4.8.35|^5.7.14|^6.5",
         "sebastian/comparator": ">=1.2.3",
         "cakephp/cakephp-codesniffer": "^3.0"
     },
@@ -50,8 +50,8 @@
             "@test",
             "@cs-check"
         ],
-        "cs-check": "phpcs --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP ./src ./tests ./app",
-        "cs-fix": "phpcbf --colors --standard=vendor/cakephp/cakephp-codesniffer/CakePHP ./src ./tests ./app",
+        "cs-check": "phpcs --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --exclude=CakePHP.Commenting.FunctionComment,CakePHP.Commenting.DocBlockAlignment --ignore=/_rootDirectories/ src/ tests/ app/",
+        "cs-fix": "phpcbf --colors --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --exclude=CakePHP.Commenting.FunctionComment,CakePHP.Commenting.DocBlockAlignment --ignore=/_rootDirectories/ src/ tests/ app/",
         "test": "phpunit --colors=always"
     },
     "bin": ["bin/phinx"]
