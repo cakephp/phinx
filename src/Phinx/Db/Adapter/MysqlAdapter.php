@@ -702,9 +702,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         switch ($type) {
             case static::PHINX_TYPE_FLOAT:
             case static::PHINX_TYPE_DECIMAL:
-            case static::PHINX_TYPE_DATETIME:
-            case static::PHINX_TYPE_TIMESTAMP:
-            case static::PHINX_TYPE_TIME:
             case static::PHINX_TYPE_DATE:
             case static::PHINX_TYPE_ENUM:
             case static::PHINX_TYPE_SET:
@@ -715,6 +712,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_LINESTRING:
             case static::PHINX_TYPE_POLYGON:
                 return ['name' => $type];
+            case static::PHINX_TYPE_DATETIME:
+            case static::PHINX_TYPE_TIMESTAMP:
+            case static::PHINX_TYPE_TIME:
+                return ['name' => $type, 'limit' => $limit];
             case static::PHINX_TYPE_STRING:
                 return ['name' => 'varchar', 'limit' => $limit ?: 255];
             case static::PHINX_TYPE_CHAR:

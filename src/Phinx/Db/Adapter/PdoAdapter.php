@@ -415,6 +415,18 @@ abstract class PdoAdapter extends AbstractAdapter
     }
 
     /**
+     * Retrieve a database connection attribute
+     * @see http://php.net/manual/en/pdo.getattribute.php
+     *
+     * @param int $attribute One of the PDO::ATTR_* constants
+     * @return mixed
+     */
+    public function getAttribute($attribute)
+    {
+        return $this->connection->getAttribute($attribute);
+    }
+
+    /**
      * Get the defintion for a `DEFAULT` statement.
      *
      * @param  mixed $default Default value

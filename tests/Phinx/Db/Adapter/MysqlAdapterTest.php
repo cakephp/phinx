@@ -682,6 +682,74 @@ class MysqlAdapterTest extends TestCase
         $this->assertEquals($limit, $sqlType['limit']);
     }
 
+    public function testDatetimeColumn()
+    {
+        $this->adapter->connect();
+        if (version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.4') === -1) {
+            $this->markTestSkipped('Cannot test datetime limit on versions less than 5.6.4');
+        }
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'datetime')->save();
+        $columns = $table->getColumns();
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals(null, $sqlType['limit']);
+    }
+
+    public function testDatetimeColumnLimit()
+    {
+        $this->adapter->connect();
+        if (version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.4') === -1) {
+            $this->markTestSkipped('Cannot test datetime limit on versions less than 5.6.4');
+        }
+        $limit = 6;
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'datetime', ['limit' => $limit])->save();
+        $columns = $table->getColumns();
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals($limit, $sqlType['limit']);
+    }
+
+    public function testTimeColumnLimit()
+    {
+        $this->adapter->connect();
+        if (version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.4') === -1) {
+            $this->markTestSkipped('Cannot test datetime limit on versions less than 5.6.4');
+        }
+        $limit = 3;
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'time', ['limit' => $limit])->save();
+        $columns = $table->getColumns();
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals($limit, $sqlType['limit']);
+    }
+
+    public function testTimestampColumnLimit()
+    {
+        $this->adapter->connect();
+        if (version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.4') === -1) {
+            $this->markTestSkipped('Cannot test datetime limit on versions less than 5.6.4');
+        }
+        $limit = 1;
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'timestamp', ['limit' => $limit])->save();
+        $columns = $table->getColumns();
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertEquals($limit, $sqlType['limit']);
+    }
+
+    /**
+     * @expectedException \PDOException
+     */
+    public function testTimestampInvalidLimit()
+    {
+        $this->adapter->connect();
+        if (version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.4') === -1) {
+            $this->markTestSkipped('Cannot test datetime limit on versions less than 5.6.4');
+        }
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'timestamp', ['limit' => 7])->save();
+    }
+
     public function testDropColumn()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
