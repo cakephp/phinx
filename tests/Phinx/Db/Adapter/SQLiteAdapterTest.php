@@ -138,6 +138,12 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+
+        //ensure the primary key is not nullable
+        /** @var \Phinx\Db\Table\Column $idColumn */
+        $idColumn = $this->adapter->getColumns('ntable')[0];
+        $this->assertEquals(true, $idColumn->getIdentity());
+        $this->assertEquals(false, $idColumn->isNull());
     }
 
     public function testCreateTableIdentityIdColumn()
@@ -901,7 +907,7 @@ class SQLiteAdapterTest extends TestCase
             ->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`id` INTEGER NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR(255) NULL, `column2` INTEGER NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test');
+CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR(255) NULL, `column2` INTEGER NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test');
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
