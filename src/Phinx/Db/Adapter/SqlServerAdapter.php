@@ -32,6 +32,7 @@ use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
+use Phinx\Util\Literal;
 
 /**
  * Phinx SqlServer Adapter.
@@ -481,7 +482,7 @@ SQL;
         if ($default === null) {
             $default = 'DEFAULT NULL';
         } else {
-            $default = $this->getDefaultValueDefinition($default);
+            $default = ltrim($this->getDefaultValueDefinition($default));
         }
 
         if (empty($default)) {
@@ -986,23 +987,6 @@ SQL;
     }
 
     /**
-     * Get the defintion for a `DEFAULT` statement.
-     *
-     * @param  mixed $default
-     * @return string
-     */
-    protected function getDefaultValueDefinition($default)
-    {
-        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
-            $default = $this->getConnection()->quote($default);
-        } elseif (is_bool($default)) {
-            $default = $this->castToBool($default);
-        }
-
-        return isset($default) ? ' DEFAULT ' . $default : '';
-    }
-
-    /**
      * Gets the SqlServer Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
@@ -1011,22 +995,24 @@ SQL;
     protected function getColumnSqlDefinition(Column $column, $create = true)
     {
         $buffer = [];
-
-        $sqlType = $this->getSqlType($column->getType());
-        $buffer[] = strtoupper($sqlType['name']);
-        // integers cant have limits in SQlServer
-        $noLimits = [
-            'bigint',
-            'int',
-            'tinyint'
-        ];
-        if (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
-            $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
+        if ($column->getType() instanceof Literal) {
+            $buffer[] = (string)$column->getType();
+        } else {
+            $sqlType = $this->getSqlType($column->getType());
+            $buffer[] = strtoupper($sqlType['name']);
+            // integers cant have limits in SQlServer
+            $noLimits = [
+                'bigint',
+                'int',
+                'tinyint'
+            ];
+            if (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
+                $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
+            }
         }
         if ($column->getPrecision() && $column->getScale()) {
             $buffer[] = '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         }
-
         $properties = $column->getProperties();
         $buffer[] = $column->getType() === 'filestream' ? 'FILESTREAM' : '';
         $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';

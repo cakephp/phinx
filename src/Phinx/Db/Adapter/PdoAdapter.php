@@ -384,4 +384,21 @@ abstract class PdoAdapter extends AbstractAdapter
     {
         return (bool)$value ? 1 : 0;
     }
+
+    /**
+     * Get the defintion for a `DEFAULT` statement.
+     *
+     * @param  mixed $default Default value
+     * @return string
+     */
+    protected function getDefaultValueDefinition($default)
+    {
+        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+            $default = $this->getConnection()->quote($default);
+        } elseif (is_bool($default)) {
+            $default = $this->castToBool($default);
+        }
+
+        return isset($default) ? " DEFAULT $default" : '';
+    }
 }
