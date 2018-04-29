@@ -32,6 +32,7 @@ use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
+use Phinx\Util\Literal;
 
 class PostgresAdapter extends PdoAdapter implements AdapterInterface
 {
@@ -72,7 +73,19 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 throw new \InvalidArgumentException(sprintf(
                     'There was a problem connecting to the database: %s',
                     $exception->getMessage()
-                ));
+                ), $exception->getCode(), $exception);
+            }
+
+            try {
+                if (isset($options['schema'])) {
+                    $db->exec('SET search_path TO ' . $options['schema']);
+                }
+            } catch (\PDOException $exception) {
+                throw new \InvalidArgumentException(
+                    sprintf('Schema does not exists: %s', $options['schema']),
+                    $exception->getCode(),
+                    $exception
+                );
             }
 
             $this->setConnection($db);
@@ -218,7 +231,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
             $sql .= ')';
         } else {
-            $sql = substr(rtrim($sql), 0, -1); // no primary keys
+            $sql = rtrim($sql, ', '); // no primary keys
         }
 
         // set the foreign keys
@@ -301,7 +314,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $columns = [];
         $sql = sprintf(
-            "SELECT column_name, data_type, is_identity, is_nullable,
+            "SELECT column_name, data_type, udt_name, is_identity, is_nullable,
              column_default, character_maximum_length, numeric_precision, numeric_scale
              FROM information_schema.columns
              WHERE table_name ='%s'",
@@ -310,11 +323,31 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $columnsInfo = $this->fetchAll($sql);
 
         foreach ($columnsInfo as $columnInfo) {
+            $isUserDefined = $columnInfo['data_type'] === 'USER-DEFINED';
+            if ($isUserDefined) {
+                $columnType = Literal::from($columnInfo['udt_name']);
+            } else {
+                $columnType = $this->getPhinxType($columnInfo['data_type']);
+            }
+            // If the default value begins with a ' or looks like a function mark it as literal
+            if (isset($columnInfo['column_default'][0]) && $columnInfo['column_default'][0] === "'") {
+                if (preg_match('/^\'(.*)\'::[^:]+$/', $columnInfo['column_default'], $match)) {
+                    // '' and \' are replaced with a single '
+                    $columnDefault = preg_replace('/[\'\\\\]\'/', "'", $match[1]);
+                } else {
+                    $columnDefault = Literal::from($columnInfo['column_default']);
+                }
+            } elseif (preg_match('/^\D[a-z_\d]*\(.*\)$/', $columnInfo['column_default'])) {
+                $columnDefault = Literal::from($columnInfo['column_default']);
+            } else {
+                $columnDefault = $columnInfo['column_default'];
+            }
+
             $column = new Column();
             $column->setName($columnInfo['column_name'])
-                   ->setType($this->getPhinxType($columnInfo['data_type']))
+                   ->setType($columnType)
                    ->setNull($columnInfo['is_nullable'] === 'YES')
-                   ->setDefault($columnInfo['column_default'])
+                   ->setDefault($columnDefault)
                    ->setIdentity($columnInfo['is_identity'] === 'YES')
                    ->setPrecision($columnInfo['numeric_precision'])
                    ->setScale($columnInfo['numeric_scale']);
@@ -717,15 +750,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function getSqlType($type, $limit = null)
     {
         switch ($type) {
-            case static::PHINX_TYPE_INTEGER:
-                if ($limit && $limit == static::INT_SMALL) {
-                    return [
-                        'name' => 'smallint',
-                        'limit' => static::INT_SMALL
-                    ];
-                }
-
-                return ['name' => $type];
             case static::PHINX_TYPE_TEXT:
             case static::PHINX_TYPE_TIME:
             case static::PHINX_TYPE_DATE:
@@ -736,6 +760,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_CIDR:
             case static::PHINX_TYPE_INET:
             case static::PHINX_TYPE_MACADDR:
+            case static::PHINX_TYPE_TIMESTAMP:
+                return ['name' => $type];
+            case static::PHINX_TYPE_INTEGER:
+                if ($limit && $limit == static::INT_SMALL) {
+                    return [
+                        'name' => 'smallint',
+                        'limit' => static::INT_SMALL
+                    ];
+                }
+
                 return ['name' => $type];
             case static::PHINX_TYPE_DECIMAL:
                 return ['name' => $type, 'precision' => 18, 'scale' => 0];
@@ -748,7 +782,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_FLOAT:
                 return ['name' => 'real'];
             case static::PHINX_TYPE_DATETIME:
-            case static::PHINX_TYPE_TIMESTAMP:
                 return ['name' => 'timestamp'];
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
@@ -908,9 +941,12 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $buffer = [];
         if ($column->isIdentity()) {
             $buffer[] = $column->getType() == 'biginteger' ? 'BIGSERIAL' : 'SERIAL';
+        } elseif ($column->getType() instanceof Literal) {
+            $buffer[] = (string)$column->getType();
         } else {
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
             $buffer[] = strtoupper($sqlType['name']);
+
             // integers cant have limits in postgres
             if (static::PHINX_TYPE_DECIMAL === $sqlType['name'] && ($column->getPrecision() || $column->getScale())) {
                 $buffer[] = sprintf(

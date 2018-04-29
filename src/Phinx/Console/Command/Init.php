@@ -37,15 +37,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Init extends Command
 {
-    const FILE_NAME = 'phinx.yml';
+    const FILE_NAME = 'phinx';
 
     /**
      * {@inheritdoc}
      */
     protected function configure()
     {
-        $this->setName('init')
+        $this->setName($this->getName() ?: 'init')
             ->setDescription('Initialize the application for Phinx')
+            ->addOption('--format', '-f', InputArgument::OPTIONAL, 'What format should we use to initialize?', 'yml')
             ->addArgument('path', InputArgument::OPTIONAL, 'Which path should we initialize for Phinx?')
             ->setHelp(sprintf(
                 '%sInitializes the application for Phinx%s',
@@ -67,7 +68,8 @@ class Init extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $path = $this->resolvePath($input);
-        $this->writeConfig($path);
+        $format = strtolower($input->getOption('format'));
+        $this->writeConfig($path, $format);
 
         $output->writeln("<info>created</info> {$path}");
     }
@@ -84,14 +86,22 @@ class Init extends Command
         // get the migration path from the config
         $path = $input->getArgument('path');
 
+        $format = strtolower($input->getOption('format'));
+        if (!in_array($format, ['yml', 'json', 'php'])) {
+            throw new InvalidArgumentException(sprintf(
+                'Invalid format "%s". Format must be either yml, json, or php.',
+                $format
+            ));
+        }
+
         // Fallback
         if (!$path) {
-            $path = getcwd() . DIRECTORY_SEPARATOR . self::FILE_NAME;
+            $path = getcwd() . DIRECTORY_SEPARATOR . self::FILE_NAME . '.' . $format;
         }
 
         // Adding file name if necessary
         if (is_dir($path)) {
-            $path .= DIRECTORY_SEPARATOR . self::FILE_NAME;
+            $path .= DIRECTORY_SEPARATOR . self::FILE_NAME . '.' . $format;
         }
 
         // Check if path is available
@@ -118,13 +128,14 @@ class Init extends Command
     /**
      * Writes Phinx's config in provided $path
      *
-     * @param string $path Config file's path.
+     * @param string $path   Config file's path.
+     * @param string $format Format to use for config file
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      * @return void
      */
-    protected function writeConfig($path)
+    protected function writeConfig($path, $format = 'yml')
     {
         // Check if dir is writable
         $dirname = dirname($path);
@@ -137,9 +148,14 @@ class Init extends Command
 
         // load the config template
         if (is_dir(__DIR__ . '/../../../data/Phinx')) {
-            $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/phinx.yml');
+            $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/' . self::FILE_NAME . '.' . $format . '.dist');
+        } elseif ($format === 'yml') {
+            $contents = file_get_contents(__DIR__ . '/../../../../' . self::FILE_NAME . '.' . $format);
         } else {
-            $contents = file_get_contents(__DIR__ . '/../../../../phinx.yml');
+            throw new RuntimeException(sprintf(
+                'Could not find template for format "%s".',
+                $format
+            ));
         }
 
         if (file_put_contents($path, $contents) === false) {

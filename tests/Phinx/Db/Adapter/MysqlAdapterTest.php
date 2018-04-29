@@ -4,6 +4,7 @@ namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
+use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -341,10 +342,35 @@ class MysqlAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('ntable', ['signed' => false], $this->adapter);
         $table->addColumn('realname', 'string')
+            ->addColumn('email', 'integer')
+            ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+        $column_definitions = $this->adapter->getColumns('ntable');
+        foreach ($column_definitions as $column_definition) {
+            if ($column_definition->getName() === 'id') {
+                $this->assertFalse($column_definition->getSigned());
+            }
+        }
+    }
+
+    public function testCreateTableWithUnsignedNamedPK()
+    {
+        $table = new \Phinx\Db\Table('ntable', ['id' => 'named_id', 'signed' => false], $this->adapter);
+        $table->addColumn('realname', 'string')
               ->addColumn('email', 'integer')
               ->save();
         $this->assertTrue($this->adapter->hasTable('ntable'));
-        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'named_id'));
+        $column_definitions = $this->adapter->getColumns('ntable');
+        foreach ($column_definitions as $column_definition) {
+            if ($column_definition->getName() === 'named_id') {
+                $this->assertFalse($column_definition->getSigned());
+            }
+        }
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
@@ -416,6 +442,16 @@ class MysqlAdapterTest extends TestCase
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals('1', $rows[1]['Default']);
         $this->assertEquals('0', $rows[2]['Default']);
+    }
+
+    public function testAddColumnWithDefaultLiteral()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn('default_ts', 'timestamp', ['default' => Literal::from('CURRENT_TIMESTAMP')])
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('CURRENT_TIMESTAMP', $rows[1]['Default']);
     }
 
     public function testAddIntegerColumnWithDefaultSigned()
@@ -679,7 +715,8 @@ class MysqlAdapterTest extends TestCase
               ->addColumn('column19', 'polygon')
               ->addColumn('column20', 'uuid')
               ->addColumn('column21', 'set', ['values' => "one, two"])
-              ->addColumn('column22', 'enum', ['values' => ['three', 'four']]);
+              ->addColumn('column22', 'enum', ['values' => ['three', 'four']])
+              ->addColumn('column23', 'bit');
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('t');
@@ -726,7 +763,8 @@ class MysqlAdapterTest extends TestCase
               ->addColumn('column19', 'polygon')
               ->addColumn('column20', 'uuid')
               ->addColumn('column21', 'set', ['values' => "one, two"])
-              ->addColumn('column22', 'enum', ['values' => ['three', 'four']]);
+              ->addColumn('column22', 'enum', ['values' => ['three', 'four']])
+              ->addColumn('column23', 'bit');
         $pendingColumns = $table->getPendingColumns();
         $table->save();
         $columns = $this->adapter->getColumns('group');
@@ -1216,5 +1254,90 @@ CREATE TABLE `table1` (`id` INT(11) NOT NULL AUTO_INCREMENT, `column1` VARCHAR(2
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
+    }
+
+    /**
+     * Creates the table "table1".
+     * Then sets phinx to dry run mode and inserts a record.
+     * Asserts that phinx outputs the insert statement and doesn't insert a record.
+     */
+    public function testDumpInsert()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('string_col', 'string')
+            ->addColumn('int_col', 'integer')
+            ->save();
+
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $this->adapter->insert($table, [
+            'string_col' => 'test data'
+        ]);
+
+        $this->adapter->insert($table, [
+            'string_col' => null
+        ]);
+
+        $this->adapter->insert($table, [
+            'int_col' => 23
+        ]);
+
+        $expectedOutput = <<<'OUTPUT'
+INSERT INTO `table1` (`string_col`) VALUES ('test data');
+INSERT INTO `table1` (`string_col`) VALUES (null);
+INSERT INTO `table1` (`int_col`) VALUES (23);
+OUTPUT;
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the insert to the output');
+
+        $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
+        self::assertTrue($countQuery->execute());
+        $res = $countQuery->fetchAll();
+        $this->assertEquals(0, $res[0]['COUNT(*)']);
+    }
+
+    /**
+     * Creates the table "table1".
+     * Then sets phinx to dry run mode and inserts some records.
+     * Asserts that phinx outputs the insert statement and doesn't insert any record.
+     */
+    public function testDumpBulkinsert()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('string_col', 'string')
+            ->addColumn('int_col', 'integer')
+            ->save();
+
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $this->adapter->bulkinsert($table, [
+            [
+                'string_col' => 'test_data1',
+                'int_col' => 23,
+            ],
+            [
+                'string_col' => null,
+                'int_col' => 42,
+            ],
+        ]);
+
+        $expectedOutput = <<<'OUTPUT'
+INSERT INTO `table1` (`string_col`, `int_col`) VALUES ('test_data1', 23), (null, 42);
+OUTPUT;
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the bulkinsert to the output');
+
+        $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
+        self::assertTrue($countQuery->execute());
+        $res = $countQuery->fetchAll();
+        $this->assertEquals(0, $res[0]['COUNT(*)']);
     }
 }

@@ -32,6 +32,7 @@ use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
+use Phinx\Util\Literal;
 
 /**
  * Phinx SqlServer Adapter.
@@ -481,7 +482,7 @@ SQL;
         if ($default === null) {
             $default = 'DEFAULT NULL';
         } else {
-            $default = $this->getDefaultValueDefinition($default);
+            $default = ltrim($this->getDefaultValueDefinition($default));
         }
 
         if (empty($default)) {
@@ -849,6 +850,12 @@ ORDER BY T.[name], I.[index_id];";
     public function getSqlType($type, $limit = null)
     {
         switch ($type) {
+            case static::PHINX_TYPE_FLOAT:
+            case static::PHINX_TYPE_DECIMAL:
+            case static::PHINX_TYPE_DATETIME:
+            case static::PHINX_TYPE_TIME:
+            case static::PHINX_TYPE_DATE:
+                return ['name' => $type];
             case static::PHINX_TYPE_STRING:
                 return ['name' => 'nvarchar', 'limit' => 255];
             case static::PHINX_TYPE_CHAR:
@@ -859,17 +866,8 @@ ORDER BY T.[name], I.[index_id];";
                 return ['name' => 'int'];
             case static::PHINX_TYPE_BIG_INTEGER:
                 return ['name' => 'bigint'];
-            case static::PHINX_TYPE_FLOAT:
-                return ['name' => 'float'];
-            case static::PHINX_TYPE_DECIMAL:
-                return ['name' => 'decimal'];
-            case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIMESTAMP:
                 return ['name' => 'datetime'];
-            case static::PHINX_TYPE_TIME:
-                return ['name' => 'time'];
-            case static::PHINX_TYPE_DATE:
-                return ['name' => 'date'];
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
                 return ['name' => 'varbinary'];
@@ -989,23 +987,6 @@ SQL;
     }
 
     /**
-     * Get the defintion for a `DEFAULT` statement.
-     *
-     * @param  mixed $default
-     * @return string
-     */
-    protected function getDefaultValueDefinition($default)
-    {
-        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
-            $default = $this->getConnection()->quote($default);
-        } elseif (is_bool($default)) {
-            $default = $this->castToBool($default);
-        }
-
-        return isset($default) ? ' DEFAULT ' . $default : '';
-    }
-
-    /**
      * Gets the SqlServer Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
@@ -1014,22 +995,24 @@ SQL;
     protected function getColumnSqlDefinition(Column $column, $create = true)
     {
         $buffer = [];
-
-        $sqlType = $this->getSqlType($column->getType());
-        $buffer[] = strtoupper($sqlType['name']);
-        // integers cant have limits in SQlServer
-        $noLimits = [
-            'bigint',
-            'int',
-            'tinyint'
-        ];
-        if (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
-            $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
+        if ($column->getType() instanceof Literal) {
+            $buffer[] = (string)$column->getType();
+        } else {
+            $sqlType = $this->getSqlType($column->getType());
+            $buffer[] = strtoupper($sqlType['name']);
+            // integers cant have limits in SQlServer
+            $noLimits = [
+                'bigint',
+                'int',
+                'tinyint'
+            ];
+            if (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
+                $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
+            }
         }
         if ($column->getPrecision() && $column->getScale()) {
             $buffer[] = '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         }
-
         $properties = $column->getProperties();
         $buffer[] = $column->getType() === 'filestream' ? 'FILESTREAM' : '';
         $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';
