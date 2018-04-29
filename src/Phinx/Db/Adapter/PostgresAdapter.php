@@ -362,8 +362,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $column->setLimit($columnInfo['character_maximum_length']);
             }
 
-            $phinxType = $this->getPhinxType($columnInfo['data_type']);
-            if (in_array($phinxType, [static::PHINX_TYPE_TIME, static::PHINX_TYPE_DATETIME])) {
+            if (in_array($columnType, [static::PHINX_TYPE_TIME, static::PHINX_TYPE_DATETIME])) {
                 $column->setPrecision($columnInfo['datetime_precision']);
             } else {
                 $column->setPrecision($columnInfo['numeric_precision']);
