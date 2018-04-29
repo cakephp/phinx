@@ -62,7 +62,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Writes a message to stdout if vebose output is on
      *
-     * @param stirng $message The message to show
+     * @param string $message The message to show
      * @return void
      */
     protected function verboseLog($message)

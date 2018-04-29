@@ -131,9 +131,9 @@ interface DirectActionInterface
     /**
      * Drops the specified foreign key from a database table.
      *
-     * @param string   $tableName
-     * @param string[] $columns    Column(s)
-     * @param string   $constraint Constraint name
+     * @param string $tableName
+     * @param string[] $columns Column(s)
+     * @param string|null $constraint Constraint name
      * @return void
      */
     public function dropForeignKey($tableName, $columns, $constraint = null);

@@ -112,7 +112,7 @@ class Plan
     /**
      * Returns a nested list of all the steps to execute
      *
-     * @return AlterTable[]
+     * @return AlterTable[][]
      */
     protected function updatesSequence()
     {
@@ -207,7 +207,7 @@ class Plan
     /**
      * Collects all table creation actions from the given intent
      *
-     * @param Action[] $actions The actions to parse
+     * @param \Phinx\Db\Action\Action[] $actions The actions to parse
      * @return void
      */
     protected function gatherCreates($actions)
@@ -248,7 +248,7 @@ class Plan
     /**
      * Collects all alter table actions from the given intent
      *
-     * @param Action[] $actions The actions to parse
+     * @param \Phinx\Db\Action\Action[] $actions The actions to parse
      * @return void
      */
     protected function gatherUpdates($actions)
@@ -279,7 +279,7 @@ class Plan
     /**
      * Collects all alter table drop and renames from the given intent
      *
-     * @param Action[] $actions The actions to parse
+     * @param \Phinx\Db\Action\Action[] $actions The actions to parse
      * @return void
      */
     protected function gatherTableMoves($actions)
@@ -304,7 +304,7 @@ class Plan
     /**
      * Collects all index creation and drops from the given intent
      *
-     * @param Action[] $actions The actions to parse
+     * @param \Phinx\Db\Action\Action[] $actions The actions to parse
      * @return void
      */
     protected function gatherIndexes($actions)
@@ -334,7 +334,7 @@ class Plan
     /**
      * Collects all foreign key creation and drops from the given intent
      *
-     * @param Action[] $actions The actions to parse
+     * @param \Phinx\Db\Action\Action[] $actions The actions to parse
      * @return void
      */
     protected function gatherConstraints($actions)

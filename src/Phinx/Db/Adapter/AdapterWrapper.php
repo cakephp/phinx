@@ -468,6 +468,6 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
      */
     public function executeActions(Table $table, array $actions)
     {
-        return $this->getAdapter()->executeActions($table, $actions);
+        $this->getAdapter()->executeActions($table, $actions);
     }
 }

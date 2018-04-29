@@ -381,7 +381,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      *
      * @param string $tableName The table to modify
      * @param string $columnName The column name that is about to change
-     * @param stirng|false $newColumnName Optionally the new name for the column
+     * @param string|false $newColumnName Optionally the new name for the column
      * @return AlterInstructions
      */
     protected function calculateNewTableColumns($tableName, $columnName, $newColumnName)
