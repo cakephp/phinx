@@ -95,7 +95,7 @@ class Table
     /**
      * Gets the table name.
      *
-     * @return string
+     * @return string|null
      */
     public function getName()
     {
@@ -138,7 +138,7 @@ class Table
     /**
      * Gets the database adapter.
      *
-     * @return \Phinx\Db\Adapter\AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface|null
      */
     public function getAdapter()
     {
@@ -470,8 +470,8 @@ class Table
     /**
      * Add timestamp columns created_at and updated_at to the table.
      *
-     * @param string $createdAtColumnName
-     * @param string $updatedAtColumnName
+     * @param string|null $createdAtColumnName
+     * @param string|null $updatedAtColumnName
      *
      * @return \Phinx\Db\Table
      */

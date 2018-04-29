@@ -1081,9 +1081,6 @@ SQL;
             $indexName = $index->getName();
         } else {
             $columnNames = $index->getColumns();
-            if (is_string($columnNames)) {
-                $columnNames = [$columnNames];
-            }
             $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         }
         $def = sprintf(
