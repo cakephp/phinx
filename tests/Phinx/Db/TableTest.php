@@ -233,6 +233,45 @@ class TableTest extends TestCase
         ];
         $this->assertEquals($expectedData, $table->getData());
     }
+    
+    public function testInsertBackwardsCompatibility()
+    {
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+
+        $keys = ['column1', 'column2'];
+        $flatData = ['value1', 'value2'];
+        $table->insert($keys, $flatData);
+        $expectedData = [
+            [
+                'column1' => 'value1',
+                'column2' => 'value2',
+            ]
+        ];
+        $this->assertEquals($expectedData, $table->getData());
+
+        $table->reset();
+
+        $keys = ['column1', 'column2'];
+        $nestedData = [
+            ['value1', 'value2'],
+            ['value1', 'value2']
+        ];
+        $table->insert($keys, $nestedData);
+        $expectedData = [
+            [
+                'column1' => 'value1',
+                'column2' => 'value2',
+            ],
+            [
+                'column1' => 'value1',
+                'column2' => 'value2',
+            ]
+        ];
+        $this->assertEquals($expectedData, $table->getData());
+    }
 
     public function testInsertSaveData()
     {
