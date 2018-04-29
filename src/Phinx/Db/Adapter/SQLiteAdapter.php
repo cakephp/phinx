@@ -109,7 +109,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function beginTransaction()
     {
-        $this->execute('BEGIN TRANSACTION');
+        $this->getConnection()->beginTransaction();
     }
 
     /**
@@ -117,7 +117,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function commitTransaction()
     {
-        $this->execute('COMMIT');
+        $this->getConnection()->commit();
     }
 
     /**
@@ -125,7 +125,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function rollbackTransaction()
     {
-        $this->execute('ROLLBACK');
+        $this->getConnection()->rollBack();
     }
 
     /**
