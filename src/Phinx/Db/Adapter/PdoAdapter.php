@@ -237,14 +237,14 @@ abstract class PdoAdapter extends AbstractAdapter
         $result = [];
 
         switch ($this->options['version_order']) {
-            case \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME:
-                $orderBy = 'version ASC';
-                break;
-            case \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME:
-                $orderBy = 'start_time ASC, version ASC';
-                break;
-            default:
-                throw new \RuntimeException('Invalid version_order configuration option');
+        case \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME:
+            $orderBy = 'version ASC';
+            break;
+        case \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME:
+            $orderBy = 'start_time ASC, version ASC';
+            break;
+        default:
+            throw new \RuntimeException('Invalid version_order configuration option');
         }
 
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s', $this->getSchemaTableName(), $orderBy));
@@ -396,8 +396,8 @@ abstract class PdoAdapter extends AbstractAdapter
     {
         return $this->connection->getAttribute($attribute);
     }
-  
-   /**
+
+    /**
      * Get the defintion for a `DEFAULT` statement.
      *
      * @param  mixed $default Default value
