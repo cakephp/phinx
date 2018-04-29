@@ -310,9 +310,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumns($tableName)
     {
-        $parts   = $this->getSchemaName($tableName);
+        $parts = $this->getSchemaName($tableName);
         $columns = [];
-        $sql     = sprintf(
+        $sql = sprintf(
             "SELECT column_name, data_type, udt_name, is_identity, is_nullable,
              column_default, character_maximum_length, numeric_precision, numeric_scale,
              datetime_precision
@@ -761,10 +761,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $rows = $this->fetchAll(sprintf(
                 "SELECT CONSTRAINT_NAME
                 FROM information_schema.KEY_COLUMN_USAGE
-                WHERE TABLE_SCHEMA = '%s'
+                WHERE TABLE_SCHEMA = %s
                 AND TABLE_NAME IS NOT NULL
-                AND TABLE_NAME = '%s'
-                AND COLUMN_NAME = '%s'
+                AND TABLE_NAME = %s
+                AND COLUMN_NAME = %s
                 ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
                 $this->getConnection()->quote($parts['schema']),
                 $this->getConnection()->quote($parts['table']),
@@ -1063,9 +1063,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $indexName = $index->getName();
         } else {
             $columnNames = $index->getColumns();
-            if (is_string($columnNames)) {
-                $columnNames = [$columnNames];
-            }
             $indexName = sprintf('%s_%s', $parts['table'], implode('_', $columnNames));
         }
         $def = sprintf(

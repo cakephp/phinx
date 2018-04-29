@@ -676,7 +676,6 @@ class PostgresAdapterTest extends TestCase
     }
 
     /**
-     *
      * @dataProvider columnsProvider
      */
     public function testGetColumns($colName, $type, $options, $actualType = null)
@@ -699,31 +698,28 @@ class PostgresAdapterTest extends TestCase
         }
     }
 
-    public function testGetColumnsWithSchema()
+    /**
+     * @dataProvider columnsProvider
+     */
+    public function testGetColumnsWithSchema($colName, $type, $options, $actualType = null)
     {
         $this->adapter->createSchema('tschema');
 
         $table = new \Phinx\Db\Table('tschema.t', [], $this->adapter);
-        $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer', ['limit' => PostgresAdapter::INT_SMALL])
-            ->addColumn('column3', 'integer')
-            ->addColumn('column4', 'biginteger')
-            ->addColumn('column5', 'text')
-            ->addColumn('column6', 'float')
-            ->addColumn('column7', 'decimal')
-            ->addColumn('column8', 'time')
-            ->addColumn('column9', 'timestamp')
-            ->addColumn('column10', 'date')
-            ->addColumn('column11', 'boolean')
-            ->addColumn('column12', 'datetime')
-            ->addColumn('column13', 'binary')
-            ->addColumn('column14', 'string', ['limit' => 10]);
-        $pendingColumns = $table->getPendingColumns();
-        $table->save();
+        $table->addColumn($colName, $type, $options)->save();
+
         $columns = $this->adapter->getColumns('tschema.t');
-        $this->assertCount(count($pendingColumns) + 1, $columns);
-        for ($i = 0; $i++; $i < count($pendingColumns)) {
-            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
+        $this->assertCount(2, $columns);
+        $this->assertEquals($colName, $columns[1]->getName());
+
+        if (!$actualType) {
+            $actualType = $type;
+        }
+
+        if (is_string($columns[1]->getType())) {
+            $this->assertEquals($actualType, $columns[1]->getType());
+        } else {
+            $this->assertEquals(['name' => $actualType] + $options, $columns[1]->getType());
         }
 
         $this->adapter->dropSchema('tschema');
@@ -944,14 +940,11 @@ class PostgresAdapterTest extends TestCase
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('schema2.table', [], $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->save();
+        $table
+            ->addColumn('ref_table_id', 'integer')
+            ->addForeignKey(['ref_table_id'], 'schema1.ref_table', ['id'])
+            ->save();
 
-        $fk = new \Phinx\Db\Table\ForeignKey();
-        $fk->setReferencedTable($refTable)
-            ->setColumns(['ref_table_id'])
-            ->setReferencedColumns(['id']);
-
-        $this->adapter->addForeignKey($table, $fk);
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
 
         $this->adapter->dropSchema('schema1');
@@ -982,16 +975,12 @@ class PostgresAdapterTest extends TestCase
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('schema2.table', [], $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->save();
+        $table
+            ->addColumn('ref_table_id', 'integer')
+            ->addForeignKey(['ref_table_id'], 'schema1.ref_table', ['id'])
+            ->save();
 
-        $fk = new \Phinx\Db\Table\ForeignKey();
-        $fk->setReferencedTable($refTable)
-            ->setColumns(['ref_table_id'])
-            ->setReferencedColumns(['id']);
-
-        $this->adapter->addForeignKey($table, $fk);
-        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
-        $this->adapter->dropForeignKey($table->getName(), ['ref_table_id']);
+        $table->dropForeignKey(['ref_table_id'])->save();
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
 
         $this->adapter->dropSchema('schema1');
@@ -1538,7 +1527,6 @@ class PostgresAdapterTest extends TestCase
 
         $this->adapter->dropSchema('schema1');
     }
-
 
     public function testDumpCreateTable()
     {
