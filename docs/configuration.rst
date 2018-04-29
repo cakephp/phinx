@@ -5,8 +5,9 @@ Configuration
 =============
 
 When you initialize your project using the :doc:`Init Command<commands>`, Phinx
-creates a default file called ``phinx.yml`` in the root of your project directory.
-This file uses the YAML data serialization format.
+creates a default file in the root of your project directory. By default, this
+file uses the YAML data serialization format, but you can use the ``--format``
+command line option to specify either ``yml``, ``json``, or ``php``.
 
 If a ``--configuration`` command line option is given, Phinx will load the
 specified file. Otherwise, it will attempt to find ``phinx.php``, ``phinx.json`` or
@@ -34,19 +35,18 @@ This means that:
 
 .. code-block:: php
 
-   require 'app/init.php';
+    $app = require 'app/phinx.php';
+    $pdo = $app->getDatabase()->getPdo();
 
-   global $app;
-   $pdo = $app->getDatabase()->getPdo();
-
-   return ['environments' => [
-              'default_database' => 'development',
-              'development' => [
+    return [
+        'environments' => [
+            'default_database' => 'development',
+            'development' => [
                 'name' => 'devdb',
                 'connection' => $pdo
-              ]
             ]
-          ];
+        ]
+    ];
 
 Migration Paths
 ---------------
