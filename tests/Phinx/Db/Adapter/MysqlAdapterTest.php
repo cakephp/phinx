@@ -1255,4 +1255,89 @@ OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
     }
+
+    /**
+     * Creates the table "table1".
+     * Then sets phinx to dry run mode and inserts a record.
+     * Asserts that phinx outputs the insert statement and doesn't insert a record.
+     */
+    public function testDumpInsert()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('string_col', 'string')
+            ->addColumn('int_col', 'integer')
+            ->save();
+
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $this->adapter->insert($table, [
+            'string_col' => 'test data'
+        ]);
+
+        $this->adapter->insert($table, [
+            'string_col' => null
+        ]);
+
+        $this->adapter->insert($table, [
+            'int_col' => 23
+        ]);
+
+        $expectedOutput = <<<'OUTPUT'
+INSERT INTO `table1` (`string_col`) VALUES ('test data');
+INSERT INTO `table1` (`string_col`) VALUES (null);
+INSERT INTO `table1` (`int_col`) VALUES (23);
+OUTPUT;
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the insert to the output');
+
+        $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
+        self::assertTrue($countQuery->execute());
+        $res = $countQuery->fetchAll();
+        $this->assertEquals(0, $res[0]['COUNT(*)']);
+    }
+
+    /**
+     * Creates the table "table1".
+     * Then sets phinx to dry run mode and inserts some records.
+     * Asserts that phinx outputs the insert statement and doesn't insert any record.
+     */
+    public function testDumpBulkinsert()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('string_col', 'string')
+            ->addColumn('int_col', 'integer')
+            ->save();
+
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $this->adapter->bulkinsert($table, [
+            [
+                'string_col' => 'test_data1',
+                'int_col' => 23,
+            ],
+            [
+                'string_col' => null,
+                'int_col' => 42,
+            ],
+        ]);
+
+        $expectedOutput = <<<'OUTPUT'
+INSERT INTO `table1` (`string_col`, `int_col`) VALUES ('test_data1', 23), (null, 42);
+OUTPUT;
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the bulkinsert to the output');
+
+        $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
+        self::assertTrue($countQuery->execute());
+        $res = $countQuery->fetchAll();
+        $this->assertEquals(0, $res[0]['COUNT(*)']);
+    }
 }

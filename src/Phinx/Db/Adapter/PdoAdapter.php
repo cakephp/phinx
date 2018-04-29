@@ -175,16 +175,39 @@ abstract class PdoAdapter extends AbstractAdapter
     public function insert(Table $table, $row)
     {
         $sql = sprintf(
-            "INSERT INTO %s ",
+            'INSERT INTO %s ',
             $this->quoteTableName($table->getName())
         );
-
         $columns = array_keys($row);
-        $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
-        $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
+        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ')';
 
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->execute(array_values($row));
+        if ($this->isDryRunEnabled()) {
+            $sql .= ' VALUES (' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ');';
+            $this->output->writeln($sql);
+        } else {
+            $sql .= ' VALUES (' . implode(', ', array_fill(0, count($columns), '?')) . ')';
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute(array_values($row));
+        }
+    }
+
+    /**
+     * Quotes a database value.
+     *
+     * @param mixed $value  The value to quote
+     * @return mixed
+     */
+    private function quoteValue($value)
+    {
+        if (is_numeric($value)) {
+            return $value;
+        }
+
+        if ($value === null) {
+            return 'null';
+        }
+
+        return $this->getConnection()->quote($value);
     }
 
     /**
@@ -193,30 +216,36 @@ abstract class PdoAdapter extends AbstractAdapter
     public function bulkinsert(Table $table, $rows)
     {
         $sql = sprintf(
-            "INSERT INTO %s ",
+            'INSERT INTO %s ',
             $this->quoteTableName($table->getName())
         );
-
         $current = current($rows);
         $keys = array_keys($current);
-        $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ") VALUES";
+        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ') VALUES ';
 
-        $vals = [];
-        foreach ($rows as $row) {
-            foreach ($row as $v) {
-                $vals[] = $v;
+        if ($this->isDryRunEnabled()) {
+            $values = array_map(function ($row) {
+                return '(' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ')';
+            }, $rows);
+            $sql .= implode(', ', $values) . ';';
+            $this->output->writeln($sql);
+        } else {
+            $count_keys = count($keys);
+            $query = '(' . implode(', ', array_fill(0, $count_keys, '?')) . ')';
+            $count_vars = count($rows);
+            $queries = array_fill(0, $count_vars, $query);
+            $sql .= implode(',', $queries);
+            $stmt = $this->getConnection()->prepare($sql);
+            $vals = [];
+
+            foreach ($rows as $row) {
+                foreach ($row as $v) {
+                    $vals[] = $v;
+                }
             }
+
+            $stmt->execute($vals);
         }
-
-        $count_keys = count($keys);
-        $query = "(" . implode(', ', array_fill(0, $count_keys, '?')) . ")";
-
-        $count_vars = count($rows);
-        $queries = array_fill(0, $count_vars, $query);
-        $sql .= implode(',', $queries);
-
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->execute($vals);
     }
 
     /**
