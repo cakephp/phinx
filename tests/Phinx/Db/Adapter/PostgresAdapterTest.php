@@ -1204,15 +1204,15 @@ OUTPUT;
         $consoleOutput = new BufferedOutput();
         $this->adapter->setOutput($consoleOutput);
 
-        $this->adapter->insert($table, [
+        $this->adapter->insert($table->getTable(), [
             'string_col' => 'test data'
         ]);
 
-        $this->adapter->insert($table, [
+        $this->adapter->insert($table->getTable(), [
             'string_col' => null
         ]);
 
-        $this->adapter->insert($table, [
+        $this->adapter->insert($table->getTable(), [
             'int_col' => 23
         ]);
 
@@ -1248,7 +1248,7 @@ OUTPUT;
         $consoleOutput = new BufferedOutput();
         $this->adapter->setOutput($consoleOutput);
 
-        $this->adapter->bulkinsert($table, [
+        $this->adapter->bulkinsert($table->getTable(), [
             [
                 'string_col' => 'test_data1',
                 'int_col' => 23,
