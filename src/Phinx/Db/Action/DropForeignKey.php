@@ -31,14 +31,33 @@ use Phinx\Db\Table\Table;
 class DropForeignKey extends Action
 {
 
+    /**
+     * The foreing key to remove
+     *
+     * @var ForeignKey
+     */
     protected $foreignKey;
 
+    /**
+     * Constructor
+     *
+     * @param Table $table The table to remove the constraint from
+     * @param ForeignKey $foreignKey The foreign key to remove
+     */
     public function __construct(Table $table, ForeignKey $foreignKey)
     {
-        $this->table = $table;
+        parent::__construct($table);
         $this->foreignKey = $foreignKey;
     }
 
+    /**
+     * Creates a new DropForeignKey object after building the ForeignKey
+     * definition out of the passed arguments.
+     *
+     * @param Table $table The table to dele the foreign key from
+     * @param string[] $columns The columns participating in the foreign key
+     * @param string|null $constraint The constraint name
+     */
     public static function build(Table $table, $columns, $constraint = null)
     {
         if (is_string($columns)) {
@@ -55,6 +74,11 @@ class DropForeignKey extends Action
         return new static($table, $foreignKey);
     }
 
+    /**
+     * Returns the  foreign key to remove
+     *
+     * @return ForeignKey
+     */
     public function getForeignKey()
     {
         return $this->foreignKey;

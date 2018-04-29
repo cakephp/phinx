@@ -176,8 +176,7 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
             throw new \BadMethodCallException('The underlying adapter does not implement DirectActionInterface');
         }
         $adapterTableName = $this->getAdapterTableName($tableName);
-
-        return $adapter->changeColumn($adapterTableName, $columnName, $newColumn);
+        $adapter->changeColumn($adapterTableName, $columnName, $newColumn);
     }
 
     /**

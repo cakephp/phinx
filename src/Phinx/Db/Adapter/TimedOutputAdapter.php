@@ -329,8 +329,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     {
         $end = $this->startCommandTimer();
         $this->writeCommand(sprintf('Altering table %s', $table->getName()));
-        $res = parent::executeActions($table, $actions);
+        parent::executeActions($table, $actions);
         $end();
-        return $res;
     }
 }

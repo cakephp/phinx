@@ -308,6 +308,12 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         return new AlterInstructions([$alter]);
     }
 
+    /**
+     * Returns the original CREATE statement for the give table
+     *
+     * @param string $tableName The table name to get the create statement for
+     * @return string
+     */
     protected function getDeclaringSql($tableName)
     {
         $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
@@ -322,6 +328,15 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         return $sql;
     }
 
+    /**
+     * Copies all the data from a tmp table to another table
+     *
+     * @param string $tableName The table name to copy the data to
+     * @param string $tmpTableName The tmp table name where the data is stored
+     * @param string[] $writeColumns The list of columns in the target table
+     * @param string[] $selectColumns The list of columns in the tmp table
+     * @return void
+     */
     protected function copyDataToNewTable($tableName, $tmpTableName, $writeColumns, $selectColumns)
     {
         $sql = sprintf(
@@ -334,6 +349,14 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $this->execute($sql);
     }
 
+    /**
+     * Modifies the passed instructions to copy all data from the tmp table into
+     * the provided table and then drops the tmp table.
+     *
+     * @param AlterInstructions $instructions The instructions to modify
+     * @param string $tableName The table name to copy the data to
+     * @return AlterInstructions
+     */
     protected function copyAndDropTmpTable($instructions, $tableName)
     {
         $instructions->addPostStep(function ($state) use ($tableName) {
@@ -345,12 +368,22 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             );
 
             $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($state['tmpTableName'])));
+
             return $state;
         });
 
         return $instructions;
     }
 
+    /**
+     * Returns the columns and type to use when copying a table to another in the process
+     * of altering a table
+     *
+     * @param string $tableName The table to modify
+     * @param string $columnName The column name that is about to change
+     * @param stirng|false $newColumnName Optionally the new name for the column
+     * @return AlterInstructions
+     */
     protected function calculateNewTableColumns($tableName, $columnName, $newColumnName)
     {
         $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
@@ -388,6 +421,13 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         return compact('writeColumns', 'selectColumns', 'columnType');
     }
 
+    /**
+     * Returns the initial instructions to alter a table using the
+     * rename-alter-copy strategy
+     *
+     * @param string $tableName The table to modify
+     * @return AlterInstructions
+     */
     protected function beginAlterByCopyTable($tableName)
     {
         $instructions = new AlterInstructions();

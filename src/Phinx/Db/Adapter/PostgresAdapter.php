@@ -554,6 +554,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $instructions = new AlterInstructions();
         $instructions->addPostStep($this->getIndexSqlDefinition($index, $table->getName()));
+
         return $instructions;
     }
 

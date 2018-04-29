@@ -68,7 +68,7 @@ class NewTable
     /**
      * Adds a column to the collection
      *
-     * @param Column $column
+     * @param Column $column The column description
      * @return void
      */
     public function addColumn(Column $column)
@@ -79,7 +79,7 @@ class NewTable
     /**
      * Adds an index to the collection
      *
-     * @param Index $index
+     * @param Index $index The index description
      * @return void
      */
     public function addIndex(Index $index)

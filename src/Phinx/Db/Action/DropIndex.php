@@ -31,14 +31,32 @@ use Phinx\Db\Table\Table;
 class DropIndex extends Action
 {
 
+    /**
+     * The index to drop
+     *
+     * @var Index
+     */
     protected $index;
 
+    /**
+     * Constructor
+     *
+     * @param Table $table The table owning the index
+     * @param Index $index The index to be dropped
+     */
     public function __construct(Table $table, Index $index)
     {
-        $this->table = $table;
+        parent::__construct($table);
         $this->index = $index;
     }
 
+    /**
+     * Creates a new DropIndex object after assembling the passed
+     * arguments.
+     *
+     * @param Table $table The table where the index is
+     * @param array $columns the indexed columns
+     */
     public static function build(Table $table, array $columns = [])
     {
         $index = new Index();
@@ -47,6 +65,13 @@ class DropIndex extends Action
         return new static($table, $index);
     }
 
+    /**
+     * Creates a new DropIndex when the name of the index to drop
+     * is knonwn.
+     *
+     * @param Table $table The table where the index is
+     * @param mixed $name The name of the index
+     */
     public static function buildFromName(Table $table, $name)
     {
         $index = new Index();
@@ -55,6 +80,11 @@ class DropIndex extends Action
         return new static($table, $index);
     }
 
+    /**
+     * Returns the index to be dropped
+     *
+     * @return Index
+     */
     public function getIndex()
     {
         return $this->index;

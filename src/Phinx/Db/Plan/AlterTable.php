@@ -50,7 +50,7 @@ class AlterTable
     /**
      * Constructor
      *
-     * @param Table $table
+     * @param Table $table The table to change
      */
     public function __construct(Table $table)
     {
@@ -60,7 +60,8 @@ class AlterTable
     /**
      * Adds another action to the collection
      *
-     * @param Action $action
+     * @param Action $action The action to add
+     * @return void
      */
     public function addAction(Action $action)
     {

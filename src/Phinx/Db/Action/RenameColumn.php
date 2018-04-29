@@ -30,17 +30,42 @@ use Phinx\Db\Table\Table;
 class RenameColumn extends Action
 {
 
+    /**
+     * The column to be renamed
+     *
+     * @var Column
+     */
     protected $column;
 
+    /**
+     * The new name for the column
+     *
+     * @var string
+     */
     protected $newName;
 
+    /**
+     * Constructor
+     *
+     * @param Table $table The table where the column is
+     * @param Column $column The column to be renamed
+     * @param mixed $newName The new name for the column
+     */
     public function __construct(Table $table, Column $column, $newName)
     {
-        $this->table = $table;
+        parent::__construct($table);
         $this->newName = $newName;
         $this->column = $column;
     }
 
+    /**
+     * Creates a new RenameColumn object after building the passed
+     * arguments
+     *
+     * @param Table $table The table where the column is
+     * @param mixed $columnName The name of the column to be changed
+     * @param mixed $newName The new name for the column
+     */
     public static function build(Table $table, $columnName, $newName)
     {
         $column = new Column();
@@ -48,11 +73,21 @@ class RenameColumn extends Action
         return new static($table, $column, $newName);
     }
 
+    /**
+     * Returns the column to be changed
+     *
+     * @return Column
+     */
     public function getColumn()
     {
         return $this->column;
     }
 
+    /**
+     * Returns the new name for the column
+     *
+     * @return string
+     */
     public function getNewName()
     {
         return $this->newName;

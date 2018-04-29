@@ -59,6 +59,12 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     protected $connection;
 
+    /**
+     * Writes a message to stdout if vebose output is on
+     *
+     * @param stirng $message The message to show
+     * @return void
+     */
     protected function verboseLog($message)
     {
         if (!$this->isDryRunEnabled() &&
@@ -533,7 +539,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Returns the instructions to drop the specified index from a database table.
      *
-     * @param string $tableName
+     * @param string $tableName The name of of the table where the index is
      * @param mixed $columns Column(s)
      * @return AlterInstructions
      */
@@ -551,8 +557,8 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Returns the instructions to drop the index specified by name from a database table.
      *
-     * @param string $tableName
-     * @param string $indexName
+     * @param string $tableName The table name whe the index is
+     * @param string $indexName The name of the index
      * @return AlterInstructions
      */
     abstract protected function getDropIndexByNameInstructions($tableName, $indexName);
@@ -569,8 +575,8 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Returns the instructions to adds the specified foreign key to a database table.
      *
-     * @param \Phinx\Db\Table $table
-     * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     * @param \Phinx\Db\Table $table The table to add the constraint to
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey The foreign key to add
      * @return AlterInstructions
      */
     abstract protected function getAddForeignKeyInstructions(Table $table, ForeignKey $foreignKey);
@@ -592,7 +598,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Returns the instructions to drop the specified foreign key from a database table.
      *
-     * @param string   $tableName
+     * @param string   $tableName The table where the foreign key constraint is
      * @param string   $constraint Constraint name
      * @return AlterInstructions
      */
@@ -601,7 +607,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Returns the instructions to drop the specified foreign key from a database table.
      *
-     * @param string $tableName
+     * @param string $tableName The table where the foreign key constraint is
      * @param array $columns The list of column names
      * @return AlterInstructions
      */
@@ -698,7 +704,6 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
                         $action->getIndex()->getColumns()
                     ));
                     break;
-
 
                 case ($action instanceof DropTable):
                     $instructions->merge($this->getDropTableInstructions(

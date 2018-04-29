@@ -93,6 +93,12 @@ class Plan
         $this->createPlan($intent->getActions());
     }
 
+    /**
+     * Parses the given Intent and creates the separate steps to execute
+     *
+     * @param Intent $actions
+     * @return void
+     */
     protected function createPlan($actions)
     {
         $this->gatherCreates($actions);
@@ -103,6 +109,11 @@ class Plan
         $this->resolveConflicts();
     }
 
+    /**
+     * Returns a nested list of all the steps to execute
+     *
+     * @return AlterTable[]
+     */
     protected function updatesSequence()
     {
         return [
@@ -151,6 +162,11 @@ class Plan
         }
     }
 
+    /**
+     * Deletes certain actions from the plan if they are found to be conflicting or redundant.
+     *
+     * @return void
+     */
     protected function resolveConflicts()
     {
         $actions = collection($this->tableMoves)
@@ -160,14 +176,22 @@ class Plan
 
         foreach ($actions as $action) {
             if ($action instanceof DropTable) {
-                $this->tableUpdates = $this->forgetActions($action->getTable(), $this->tableUpdates);
-                $this->constraints = $this->forgetActions($action->getTable(), $this->constraints);
-                $this->indexes = $this->forgetActions($action->getTable(), $this->indexes);
+                $this->tableUpdates = $this->forgetTable($action->getTable(), $this->tableUpdates);
+                $this->constraints = $this->forgetTable($action->getTable(), $this->constraints);
+                $this->indexes = $this->forgetTable($action->getTable(), $this->indexes);
             }
         }
     }
 
-    protected function forgetActions(Table $table, $actions)
+    /**
+     * Deletes all actions related to the given table and keeps the
+     * rest
+     *
+     * @param Table $table The table to find in the list of actions
+     * @param AlterTable[] $actions The actions to transform
+     * @return AlterTable[] The list of actions without actions for the given table
+     */
+    protected function forgetTable(Table $table, $actions)
     {
         $result = [];
         foreach ($actions as $action) {
@@ -180,6 +204,12 @@ class Plan
         return $result;
     }
 
+    /**
+     * Collects all table creation actions from the given intent
+     *
+     * @param Action[] $actions The actions to parse
+     * @return void
+     */
     protected function gatherCreates($actions)
     {
         collection($actions)
@@ -215,6 +245,12 @@ class Plan
             });
     }
 
+    /**
+     * Collects all alter table actions from the given intent
+     *
+     * @param Action[] $actions The actions to parse
+     * @return void
+     */
     protected function gatherUpdates($actions)
     {
         collection($actions)
@@ -240,6 +276,12 @@ class Plan
             });
     }
 
+    /**
+     * Collects all alter table drop and renames from the given intent
+     *
+     * @param Action[] $actions The actions to parse
+     * @return void
+     */
     protected function gatherTableMoves($actions)
     {
         collection($actions)
@@ -259,6 +301,12 @@ class Plan
             });
     }
 
+    /**
+     * Collects all index creation and drops from the given intent
+     *
+     * @param Action[] $actions The actions to parse
+     * @return void
+     */
     protected function gatherIndexes($actions)
     {
         collection($actions)
@@ -283,6 +331,12 @@ class Plan
             });
     }
 
+    /**
+     * Collects all foreign key creation and drops from the given intent
+     *
+     * @param Action[] $actions The actions to parse
+     * @return void
+     */
     protected function gatherConstraints($actions)
     {
         collection($actions)

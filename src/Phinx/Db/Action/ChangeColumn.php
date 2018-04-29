@@ -29,13 +29,30 @@ use Phinx\Db\Table\Table;
 
 class ChangeColumn extends Action
 {
+    /**
+     * The column definition
+     *
+     * @var Column
+     */
     protected $column;
 
+    /**
+     * The name of the column to be changed
+     *
+     * @var string
+     */
     protected $columnName;
 
+    /**
+     * Constructor
+     *
+     * @param Table $table The table to alter
+     * @param mixed $columnName The name fo the column to change
+     * @param Column $column The column definition
+     */
     public function __construct(Table $table, $columnName, Column $column)
     {
-        $this->table = $table;
+        parent::__construct($table);
         $this->columnName = $columnName;
         $this->column = $column;
 
@@ -45,6 +62,15 @@ class ChangeColumn extends Action
         }
     }
 
+    /**
+     * Creates a new ChangeColumn object after building the column definition
+     * out of the provided arguments
+     *
+     * @param Table $table The table to alter
+     * @param mixed $columnName The name of the column to change
+     * @param mixed $type The type of the column
+     * @param mixed $options Addiotional options for the column
+     */
     public static function build(Table $table, $columnName, $type = null, $options = [])
     {
         $column = new Column();
@@ -55,11 +81,21 @@ class ChangeColumn extends Action
         return new static($table, $columnName, $column);
     }
 
+    /**
+     * Returns the name of the column to change
+     *
+     * @return string
+     */
     public function getColumnName()
     {
         return $this->columnName;
     }
 
+    /**
+     * Returns the column definition
+     *
+     * @return Column
+     */
     public function getColumn()
     {
         return $this->column;

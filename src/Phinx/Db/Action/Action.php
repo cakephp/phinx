@@ -24,6 +24,8 @@
  */
 namespace Phinx\Db\Action;
 
+use \Phinx\Db\Table\Table;
+
 abstract class Action
 {
 
@@ -31,6 +33,11 @@ abstract class Action
      * @var \Phinx\Db\Table\Table
      */
     protected $table;
+
+    public function __construct(Table $table)
+    {
+        $this->table = $table;
+    }
 
     /**
      * The table this action will be applied to

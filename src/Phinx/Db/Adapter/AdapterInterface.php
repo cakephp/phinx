@@ -262,7 +262,7 @@ interface AdapterInterface
      *
      * @param Table $table The table to execute the actions for
      * @param Phinx\Db\Action\Action[] $table The table to execute the actions for
-     * @return int
+     * @return void
      */
     public function executeActions(Table $table, array $actions);
 

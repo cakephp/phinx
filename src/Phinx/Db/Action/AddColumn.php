@@ -30,14 +30,33 @@ use Phinx\Db\Table\Table;
 class AddColumn extends Action
 {
 
+    /**
+     * The column to add
+     *
+     * @var Column
+     */
     protected $column;
 
+    /**
+     * Constructo
+     *
+     * @param Table $table The table to add the column to
+     * @param Column $column The column to add
+     */
     public function __construct(Table $table, Column $column)
     {
-        $this->table = $table;
+        parent::__construct($table);
         $this->column = $column;
     }
 
+    /**
+     * Returns a new AddColumn object after assembling the given commands
+     *
+     * @param Table $table The table to add the column to
+     * @param mixed $columnName The column name
+     * @param mixed $type The column type
+     * @param mixed $options The column options
+     */
     public static function build(Table $table, $columnName, $type = null, $options = [])
     {
         $column = new Column();
@@ -48,6 +67,11 @@ class AddColumn extends Action
         return new static($table, $column);
     }
 
+    /**
+     * Returns the column to be added
+     *
+     * @return Column
+     */
     public function getColumn()
     {
         return $this->column;

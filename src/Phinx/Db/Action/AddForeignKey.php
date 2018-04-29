@@ -31,11 +31,22 @@ use Phinx\Db\Table\Table;
 class AddForeignKey extends Action
 {
 
+    /**
+     * The foreign key to add
+     *
+     * @var ForeignKey
+     */
     protected $foreignKey;
 
+    /**
+     * Constructor
+     *
+     * @param Table $table The table to add the foreign key to
+     * @param ForeignKey $fk The foreign key to add
+     */
     public function __construct(Table $table, ForeignKey $fk)
     {
-        $this->table = $table;
+        parent::__construct($table);
         $this->foreignKey = $fk;
     }
 
@@ -62,6 +73,11 @@ class AddForeignKey extends Action
         return new static($table, $fk);
     }
 
+    /**
+     * Returns the foreign key to be added
+     *
+     * @return ForeignKey
+     */
     public function getForeignKey()
     {
         return $this->foreignKey;

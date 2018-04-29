@@ -473,6 +473,13 @@ SQL;
         return $instructions;
     }
 
+    /**
+     * Returns the instructions to change a column default value
+     *
+     * @param string $tableName The table where the column is
+     * @param Column $newColumn The column to alter
+     * @return AlterInstructions
+     */
     protected function getChangeDefault($tableName, Column $newColumn)
     {
         $constraintName = "DF_{$tableName}_{$newColumn->getName()}";
@@ -556,6 +563,9 @@ SQL;
         return $instructions;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getDropDefaultConstraint($tableName, $columnName)
     {
         $defaultConstraint = $this->getDefaultConstraint($tableName, $columnName);

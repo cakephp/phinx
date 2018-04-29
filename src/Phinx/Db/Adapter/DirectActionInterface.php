@@ -104,7 +104,7 @@ interface DirectActionInterface
     /**
      * Drops the specified index from a database table.
      *
-     * @param string $tableName
+     * @param string $tableName the name of the table
      * @param mixed  $columns Column(s)
      * @return void
      */
@@ -113,8 +113,8 @@ interface DirectActionInterface
     /**
      * Drops the index specified by name from a database table.
      *
-     * @param string $tableName
-     * @param string $indexName
+     * @param string $tableName The table name where the index is
+     * @param string $indexName The name of the index
      * @return void
      */
     public function dropIndexByName($tableName, $indexName);
