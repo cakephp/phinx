@@ -77,7 +77,6 @@ class Environment
      *
      * @param string $name Environment Name
      * @param array $options Options
-     * @return \Phinx\Migration\Manager\Environment
      */
     public function __construct($name, $options)
     {
@@ -90,9 +89,10 @@ class Environment
      *
      * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @param string $direction Direction
+     * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
      * @return void
      */
-    public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP)
+    public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP, $fake = false)
     {
         $direction = ($direction === MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
         $migration->setMigratingUp($direction === MigrationInterface::UP);
@@ -100,36 +100,38 @@ class Environment
         $startTime = time();
         $migration->setAdapter($this->getAdapter());
 
-        // begin the transaction if the adapter supports it
-        if ($this->getAdapter()->hasTransactions()) {
-            $this->getAdapter()->beginTransaction();
-        }
-
-        // Run the migration
-        if (method_exists($migration, MigrationInterface::CHANGE)) {
-            if ($direction === MigrationInterface::DOWN) {
-                // Create an instance of the ProxyAdapter so we can record all
-                // of the migration commands for reverse playback
-
-                /** @var \Phinx\Db\Adapter\ProxyAdapter $proxyAdapter */
-                $proxyAdapter = AdapterFactory::instance()
-                    ->getWrapper('proxy', $this->getAdapter());
-                $migration->setAdapter($proxyAdapter);
-                /** @noinspection PhpUndefinedMethodInspection */
-                $migration->change();
-                $proxyAdapter->executeInvertedCommands();
-                $migration->setAdapter($this->getAdapter());
-            } else {
-                /** @noinspection PhpUndefinedMethodInspection */
-                $migration->change();
+        if (!$fake) {
+            // begin the transaction if the adapter supports it
+            if ($this->getAdapter()->hasTransactions()) {
+                $this->getAdapter()->beginTransaction();
             }
-        } else {
-            $migration->{$direction}();
-        }
 
-        // commit the transaction if the adapter supports it
-        if ($this->getAdapter()->hasTransactions()) {
-            $this->getAdapter()->commitTransaction();
+            // Run the migration
+            if (method_exists($migration, MigrationInterface::CHANGE)) {
+                if ($direction === MigrationInterface::DOWN) {
+                    // Create an instance of the ProxyAdapter so we can record all
+                    // of the migration commands for reverse playback
+
+                    /** @var \Phinx\Db\Adapter\ProxyAdapter $proxyAdapter */
+                    $proxyAdapter = AdapterFactory::instance()
+                        ->getWrapper('proxy', $this->getAdapter());
+                    $migration->setAdapter($proxyAdapter);
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $migration->change();
+                    $proxyAdapter->executeInvertedCommands();
+                    $migration->setAdapter($this->getAdapter());
+                } else {
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $migration->change();
+                }
+            } else {
+                $migration->{$direction}();
+            }
+
+            // commit the transaction if the adapter supports it
+            if ($this->getAdapter()->hasTransactions()) {
+                $this->getAdapter()->commitTransaction();
+            }
         }
 
         // Record it in the database

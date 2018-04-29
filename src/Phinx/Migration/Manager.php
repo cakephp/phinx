@@ -251,7 +251,7 @@ class Manager
     /**
      * Print Missing Version
      *
-     * @param array     $version        The missing version to print (in the format returned by Environment.getVersionLog).
+     * @param array $version        The missing version to print (in the format returned by Environment.getVersionLog).
      * @param int   $maxNameLength  The maximum migration name length.
      */
     private function printMissingVersion($version, $maxNameLength)
@@ -274,10 +274,12 @@ class Manager
      *
      * @param string    $environment Environment
      * @param \DateTime $dateTime    Date to migrate to
+     * @param bool      $fake        flag that if true, we just record running the migration, but not actually do the
+     *                               migration
      *
      * @return void
      */
-    public function migrateToDateTime($environment, \DateTime $dateTime)
+    public function migrateToDateTime($environment, \DateTime $dateTime, $fake = false)
     {
         $versions = array_keys($this->getMigrations($environment));
         $dateString = $dateTime->format('YmdHis');
@@ -289,7 +291,7 @@ class Manager
         if (count($outstandingMigrations) > 0) {
             $migration = max($outstandingMigrations);
             $this->getOutput()->writeln('Migrating to version ' . $migration);
-            $this->migrate($environment, $migration);
+            $this->migrate($environment, $migration, $fake);
         }
     }
 
@@ -297,10 +299,11 @@ class Manager
      * Migrate an environment to the specified version.
      *
      * @param string $environment Environment
-     * @param int $version
+     * @param int    $version     version to migrate to
+     * @param bool   $fake        flag that if true, we just record running the migration, but not actually do the migration
      * @return void
      */
-    public function migrate($environment, $version = null)
+    public function migrate($environment, $version = null, $fake = false)
     {
         $migrations = $this->getMigrations($environment);
         $env = $this->getEnvironment($environment);
@@ -336,7 +339,7 @@ class Manager
                 }
 
                 if (in_array($migration->getVersion(), $versions)) {
-                    $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                    $this->executeMigration($environment, $migration, MigrationInterface::DOWN, $fake);
                 }
             }
         }
@@ -348,7 +351,7 @@ class Manager
             }
 
             if (!in_array($migration->getVersion(), $versions)) {
-                $this->executeMigration($environment, $migration, MigrationInterface::UP);
+                $this->executeMigration($environment, $migration, MigrationInterface::UP, $fake);
             }
         }
     }
@@ -359,9 +362,10 @@ class Manager
      * @param string $name Environment Name
      * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @param string $direction Direction
+     * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
      * @return void
      */
-    public function executeMigration($name, MigrationInterface $migration, $direction = MigrationInterface::UP)
+    public function executeMigration($name, MigrationInterface $migration, $direction = MigrationInterface::UP, $fake = false)
     {
         $this->getOutput()->writeln('');
         $this->getOutput()->writeln(
@@ -372,7 +376,7 @@ class Manager
 
         // Execute the migration and log the time elapsed.
         $start = microtime(true);
-        $this->getEnvironment($name)->executeMigration($migration, $direction);
+        $this->getEnvironment($name)->executeMigration($migration, $direction, $fake);
         $end = microtime(true);
 
         $this->getOutput()->writeln(
@@ -419,9 +423,10 @@ class Manager
      * @param int|string $target
      * @param bool $force
      * @param bool $targetMustMatchVersion
+     * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
      * @return void
      */
-    public function rollback($environment, $target = null, $force = false, $targetMustMatchVersion = true)
+    public function rollback($environment, $target = null, $force = false, $targetMustMatchVersion = true, $fake = false)
     {
         // note that the migrations are indexed by name (aka creation time) in ascending order
         $migrations = $this->getMigrations($environment);
@@ -512,7 +517,7 @@ class Manager
                     $this->getOutput()->writeln('<error>Breakpoint reached. Further rollbacks inhibited.</error>');
                     break;
                 }
-                $this->executeMigration($environment, $migration, MigrationInterface::DOWN);
+                $this->executeMigration($environment, $migration, MigrationInterface::DOWN, $fake);
                 $rollbacked = true;
             }
         }
