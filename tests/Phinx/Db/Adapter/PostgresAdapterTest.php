@@ -3,6 +3,8 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\PostgresAdapter;
+use Phinx\Db\Table\Column;
+use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -55,6 +57,11 @@ class PostgresAdapterTest extends TestCase
 
         $this->adapter->dropAllSchemas();
         $this->adapter->createSchema($options['schema']);
+
+        $citext = $this->adapter->fetchRow("SELECT COUNT(*) AS enabled FROM pg_extension WHERE extname = 'citext'");
+        if (!$citext['enabled']) {
+            $this->adapter->query('CREATE EXTENSION IF NOT EXISTS citext');
+        }
 
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
@@ -258,7 +265,7 @@ class PostgresAdapterTest extends TestCase
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
             if ($column->getName() == 'default_zero') {
-                $this->assertEquals("'test'::character varying", $column->getDefault());
+                $this->assertEquals("test", $column->getDefault());
             }
         }
     }
@@ -294,6 +301,39 @@ class PostgresAdapterTest extends TestCase
             if ($column->getName() == 'default_false') {
                 $this->assertNotNull($column->getDefault());
                 $this->assertEquals('false', $column->getDefault());
+            }
+        }
+    }
+
+    public function testAddColumnWithDefaultLiteral()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn('default_ts', 'timestamp', ['default' => Literal::from('now()')])
+              ->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() == 'default_ts') {
+                $this->assertNotNull($column->getDefault());
+                $this->assertEquals('now()', (string)$column->getDefault());
+            }
+        }
+    }
+
+    public function testAddColumnWithLiteralType()
+    {
+        $table = new \Phinx\Db\Table('citable', ['id' => false], $this->adapter);
+        $table
+            ->addColumn('insensitive', Literal::from('citext'))
+            ->save();
+
+        $this->assertTrue($this->adapter->hasColumn('citable', 'insensitive'));
+
+        /** @var $columns Column[] */
+        $columns = $this->adapter->getColumns('citable');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'insensitive') {
+                $this->assertEquals('citext', (string)$column->getType(), 'column: ' . $column->getName());
             }
         }
     }
@@ -562,7 +602,7 @@ class PostgresAdapterTest extends TestCase
 
     public function testDropIndex()
     {
-         // single column index
+        // single column index
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
               ->addIndex('email')

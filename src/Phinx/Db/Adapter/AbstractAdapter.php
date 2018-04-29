@@ -30,6 +30,7 @@ namespace Phinx\Db\Adapter;
 
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
+use Phinx\Util\Literal;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -239,7 +240,7 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     public function isValidColumnType(Column $column)
     {
-        return in_array($column->getType(), $this->getColumnTypes());
+        return $column->getType() instanceof Literal || in_array($column->getType(), $this->getColumnTypes());
     }
 
     /**

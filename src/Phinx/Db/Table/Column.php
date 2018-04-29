@@ -42,7 +42,7 @@ class Column
     protected $name;
 
     /**
-     * @var string
+     * @var string|\Phinx\Util\Literal
      */
     protected $type;
 
@@ -147,7 +147,7 @@ class Column
     /**
      * Sets the column type.
      *
-     * @param string $type
+     * @param string|\Phinx\Util\Literal $type Column type
      * @return \Phinx\Db\Table\Column
      */
     public function setType($type)
@@ -160,7 +160,7 @@ class Column
     /**
      * Gets the column type.
      *
-     * @return string
+     * @return string|\Phinx\Util\Literal
      */
     public function getType()
     {

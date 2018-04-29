@@ -46,7 +46,7 @@ class SeedCreate extends AbstractCommand
     {
         parent::configure();
 
-        $this->setName('seed:create')
+        $this->setName($this->getName() ?: 'seed:create')
             ->setDescription('Create a new database seeder')
             ->addArgument('name', InputArgument::REQUIRED, 'What is the name of the seeder?')
             ->addOption('path', null, InputOption::VALUE_REQUIRED, 'Specify the path in which to create this seeder')

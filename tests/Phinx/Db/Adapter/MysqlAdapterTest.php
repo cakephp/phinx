@@ -4,6 +4,7 @@ namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
+use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -441,6 +442,16 @@ class MysqlAdapterTest extends TestCase
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals('1', $rows[1]['Default']);
         $this->assertEquals('0', $rows[2]['Default']);
+    }
+
+    public function testAddColumnWithDefaultLiteral()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn('default_ts', 'timestamp', ['default' => Literal::from('CURRENT_TIMESTAMP')])
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('CURRENT_TIMESTAMP', $rows[1]['Default']);
     }
 
     public function testAddIntegerColumnWithDefaultSigned()

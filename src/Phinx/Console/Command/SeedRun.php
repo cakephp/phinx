@@ -43,7 +43,7 @@ class SeedRun extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName('seed:run')
+        $this->setName($this->getName() ?: 'seed:run')
             ->setDescription('Run database seeders')
             ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
             ->setHelp(
