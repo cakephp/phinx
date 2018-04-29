@@ -72,7 +72,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 throw new \InvalidArgumentException(sprintf(
                     'There was a problem connecting to the database: %s',
                     $exception->getMessage()
-                ));
+                ), $exception->getCode(), $exception);
             }
 
             try {
@@ -80,10 +80,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     $db->exec('SET search_path TO ' . $options['schema']);
                 }
             } catch (\PDOException $exception) {
-                throw new \InvalidArgumentException(sprintf(
-                    'Schema does not exists: %s',
-                    $exception->getMessage()
-                ));
+                throw new \InvalidArgumentException(
+                    sprintf('Schema does not exists: %s', $options['schema']),
+                    $exception->getCode(),
+                    $exception
+                );
             }
 
             $this->setConnection($db);
