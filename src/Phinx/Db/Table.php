@@ -237,7 +237,7 @@ class Table
      * Valid options can be: limit, default, null, precision or scale.
      *
      * @param string|\Phinx\Db\Table\Column $columnName Column Name
-     * @param string $type Column Type
+     * @param string|\Phinx\Util\Literal $type Column Type
      * @param array $options Column Options
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
@@ -298,7 +298,7 @@ class Table
      * Change a table column type.
      *
      * @param string        $columnName    Column Name
-     * @param string|\Phinx\Db\Table\Column $newColumnType New Column Type
+     * @param string|\Phinx\Db\Table\Column|\Phinx\Util\Literal $newColumnType New Column Type
      * @param array         $options       Options
      * @return \Phinx\Db\Table
      */

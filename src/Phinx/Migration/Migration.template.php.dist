@@ -19,6 +19,7 @@ class $className extends $baseClassName
      *    createTable
      *    renameTable
      *    addColumn
+     *    addCustomColumn
      *    renameColumn
      *    addIndex
      *    addForeignKey

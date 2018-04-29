@@ -206,16 +206,39 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     public function insert(Table $table, $row)
     {
         $sql = sprintf(
-            "INSERT INTO %s ",
+            'INSERT INTO %s ',
             $this->quoteTableName($table->getName())
         );
-
         $columns = array_keys($row);
-        $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
-        $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
+        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ')';
 
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->execute(array_values($row));
+        if ($this->isDryRunEnabled()) {
+            $sql .= ' VALUES (' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ');';
+            $this->output->writeln($sql);
+        } else {
+            $sql .= ' VALUES (' . implode(', ', array_fill(0, count($columns), '?')) . ')';
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute(array_values($row));
+        }
+    }
+
+    /**
+     * Quotes a database value.
+     *
+     * @param mixed $value  The value to quote
+     * @return mixed
+     */
+    private function quoteValue($value)
+    {
+        if (is_numeric($value)) {
+            return $value;
+        }
+
+        if ($value === null) {
+            return 'null';
+        }
+
+        return $this->getConnection()->quote($value);
     }
 
     /**
@@ -224,35 +247,36 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     public function bulkinsert(Table $table, $rows)
     {
         $sql = sprintf(
-            "INSERT INTO %s ",
+            'INSERT INTO %s ',
             $this->quoteTableName($table->getName())
         );
-
         $current = current($rows);
         $keys = array_keys($current);
-        $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ") VALUES";
-
-        $vals = [];
-        foreach ($rows as $row) {
-            foreach ($row as $v) {
-                $vals[] = $v;
-            }
-        }
-
-        $count_keys = count($keys);
-        $query = "(" . implode(', ', array_fill(0, $count_keys, '?')) . ")";
-
-        $count_vars = count($rows);
-        $queries = array_fill(0, $count_vars, $query);
-        $sql .= implode(',', $queries);
+        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ') VALUES ';
 
         if ($this->isDryRunEnabled()) {
-            $this->verboseLog($sql);
-            return;
-        }
+            $values = array_map(function ($row) {
+                return '(' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ')';
+            }, $rows);
+            $sql .= implode(', ', $values) . ';';
+            $this->output->writeln($sql);
+        } else {
+            $count_keys = count($keys);
+            $query = '(' . implode(', ', array_fill(0, $count_keys, '?')) . ')';
+            $count_vars = count($rows);
+            $queries = array_fill(0, $count_vars, $query);
+            $sql .= implode(',', $queries);
+            $stmt = $this->getConnection()->prepare($sql);
+            $vals = [];
 
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->execute($vals);
+            foreach ($rows as $row) {
+                foreach ($row as $v) {
+                    $vals[] = $v;
+                }
+            }
+
+            $stmt->execute($vals);
+        }
     }
 
     /**
@@ -300,7 +324,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             // up
             $sql = sprintf(
                 "INSERT INTO %s (%s, %s, %s, %s, %s) VALUES ('%s', '%s', '%s', '%s', %s);",
-                $this->getSchemaTableName(),
+                $this->quoteTableName($this->getSchemaTableName()),
                 $this->quoteColumnName('version'),
                 $this->quoteColumnName('migration_name'),
                 $this->quoteColumnName('start_time'),
@@ -318,7 +342,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             // down
             $sql = sprintf(
                 "DELETE FROM %s WHERE %s = '%s'",
-                $this->getSchemaTableName(),
+                $this->quoteTableName($this->getSchemaTableName()),
                 $this->quoteColumnName('version'),
                 $migration->getVersion()
             );
@@ -419,6 +443,38 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     public function castToBool($value)
     {
         return (bool)$value ? 1 : 0;
+    }
+    
+    /**
+     * Retrieve a database connection attribute
+     * @see http://php.net/manual/en/pdo.getattribute.php
+     *
+     * @param int $attribute One of the PDO::ATTR_* constants
+     * @return mixed
+     */
+    public function getAttribute($attribute)
+    {
+        return $this->connection->getAttribute($attribute);
+    }
+    
+    /**
+     * Get the defintion for a `DEFAULT` statement.
+     *
+     * @param  mixed $default Default value
+     * @param string $columnType column type added
+     * @return string
+     */
+    protected function getDefaultValueDefinition($default, $columnType = null)
+    {
+        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+            $default = $this->getConnection()->quote($default);
+        } elseif (is_bool($default)) {
+            $default = $this->castToBool($default);
+        } elseif ($columnType === static::PHINX_TYPE_BOOLEAN) {
+            $default = $this->castToBool((bool)$default);
+        }
+        
+        return isset($default) ? " DEFAULT $default" : '';
     }
 
     /**

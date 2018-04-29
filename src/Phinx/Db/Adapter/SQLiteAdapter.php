@@ -33,6 +33,7 @@ use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
 use Phinx\Db\Table\Table;
 use Phinx\Db\Util\AlterInstructions;
+use Phinx\Util\Literal;
 
 /**
  * Phinx SQLite Adapter.
@@ -111,7 +112,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function beginTransaction()
     {
-        $this->execute('BEGIN TRANSACTION');
+        $this->getConnection()->beginTransaction();
     }
 
     /**
@@ -119,7 +120,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function commitTransaction()
     {
-        $this->execute('COMMIT');
+        $this->getConnection()->commit();
     }
 
     /**
@@ -127,7 +128,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function rollbackTransaction()
     {
-        $this->execute('ROLLBACK');
+        $this->getConnection()->rollBack();
     }
 
     /**
@@ -188,6 +189,20 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
             $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
+
+            if (isset($options['primary_key']) && $column->getIdentity()) {
+                //remove column from the primary key array as it is already defined as an autoincrement
+                //primary id
+                $identityColumnIndex = array_search($column->getName(), $options['primary_key']);
+                if ($identityColumnIndex !== false) {
+                    unset($options['primary_key'][$identityColumnIndex]);
+
+                    if (empty($options['primary_key'])) {
+                        //The last primary key has been removed
+                        unset($options['primary_key']);
+                    }
+                }
+            }
         }
 
         // set the primary key(s)
@@ -801,35 +816,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function insert(Table $table, $row)
-    {
-        $sql = sprintf(
-            "INSERT INTO %s ",
-            $this->quoteTableName($table->getName())
-        );
-
-        $columns = array_keys($row);
-        $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
-        $sql .= " VALUES ";
-
-        $sql .= "(" . implode(', ', array_map(function ($value) {
-            if (is_numeric($value)) {
-                return $value;
-            }
-
-            if ($value === null) {
-                return 'null';
-            }
-
-                return $this->getConnection()->quote($value);
-        }, $row)) . ")";
-
-        $this->execute($sql);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getSqlType($type, $limit = null)
     {
         switch ($type) {
@@ -970,23 +956,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Get the definition for a `DEFAULT` statement.
-     *
-     * @param  mixed $default
-     * @return string
-     */
-    protected function getDefaultValueDefinition($default)
-    {
-        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
-            $default = $this->getConnection()->quote($default);
-        } elseif (is_bool($default)) {
-            $default = $this->castToBool($default);
-        }
-
-        return isset($default) ? ' DEFAULT ' . $default : '';
-    }
-
-    /**
      * Gets the SQLite Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
@@ -994,15 +963,20 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getColumnSqlDefinition(Column $column)
     {
-        $sqlType = $this->getSqlType($column->getType());
-        $def = '';
-        $def .= strtoupper($sqlType['name']);
+        $isLiteralType = $column->getType() instanceof Literal;
+        if ($isLiteralType) {
+            $def = (string)$column->getType();
+        } else {
+            $sqlType = $this->getSqlType($column->getType());
+            $def = strtoupper($sqlType['name']);
+
+            $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits);
+            if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
+                $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
+            }
+        }
         if ($column->getPrecision() && $column->getScale()) {
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
-        }
-        $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits);
-        if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
-            $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
         }
         if (($values = $column->getValues()) && is_array($values)) {
             $def .= " CHECK({$column->getName()} IN ('" . implode("', '", $values) . "'))";
@@ -1010,9 +984,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $default = $column->getDefault();
 
-        $def .= ($column->isNull() || is_null($default)) ? ' NULL' : ' NOT NULL';
-        $def .= $this->getDefaultValueDefinition($default);
-        $def .= ($column->isIdentity()) ? ' PRIMARY KEY AUTOINCREMENT' : '';
+        $def .= (!$column->isIdentity() && ($column->isNull() || is_null($default))) ? ' NULL' : ' NOT NULL';
+        $def .= $this->getDefaultValueDefinition($default, $column->getType());
+        $def .= $column->isIdentity() ? ' PRIMARY KEY AUTOINCREMENT' : '';
 
         if ($column->getUpdate()) {
             $def .= ' ON UPDATE ' . $column->getUpdate();
