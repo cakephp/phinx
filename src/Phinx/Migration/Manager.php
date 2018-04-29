@@ -957,7 +957,7 @@ class Manager
      * Toggles the breakpoint for a specific version.
      *
      * @param string $environment
-     * @param int $version
+     * @param int|null $version
      * @return void
      */
     public function toggleBreakpoint($environment, $version)

@@ -137,7 +137,7 @@ class Column
     /**
      * Gets the column name.
      *
-     * @return string
+     * @return string|null
      */
     public function getName()
     {
@@ -488,7 +488,7 @@ class Column
     /**
      * Sets field values.
      *
-     * @param mixed (array|string) $values
+     * @param array|string $values
      *
      * @return \Phinx\Db\Table\Column
      */

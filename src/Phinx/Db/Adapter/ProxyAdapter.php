@@ -199,7 +199,7 @@ class ProxyAdapter extends AdapterWrapper
     /**
      * Gets an array of the recorded commands.
      *
-     * @return array
+     * @return array|null
      */
     public function getCommands()
     {

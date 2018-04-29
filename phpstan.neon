@@ -1,6 +1,7 @@
 parameters:
 	ignoreErrors:
-		- '#Undefined variable: \$lastException#'
+		- '#Variable \$lastException might not be defined#'
 		- '#Access to undefined constant PDO::SQLSRV_ATTR_ENCODING#'
 		- '#Call to an undefined method Phinx\\Migration\\MigrationInterface::change\(\)#'
 		- "#Casting to bool something that's already bool#"
+		- '#Method Phinx\\Console\\Command\\AbstractCommand::locateConfigFile\(\) should return string but returns array\|string#'
