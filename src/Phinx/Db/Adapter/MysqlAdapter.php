@@ -995,7 +995,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '';
         $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
         $def .= $column->isIdentity() ? ' AUTO_INCREMENT' : '';
-        $def .= $this->getDefaultValueDefinition($column->getDefault());
+        $def .= $this->getDefaultValueDefinition($column->getDefault(), $column->getType());
 
         if ($column->getComment()) {
             $def .= ' COMMENT ' . $this->getConnection()->quote($column->getComment());

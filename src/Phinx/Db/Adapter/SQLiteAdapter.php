@@ -954,7 +954,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $default = $column->getDefault();
 
         $def .= (!$column->isIdentity() && ($column->isNull() || is_null($default))) ? ' NULL' : ' NOT NULL';
-        $def .= $this->getDefaultValueDefinition($default);
+        $def .= $this->getDefaultValueDefinition($default, $column->getType());
         $def .= $column->isIdentity() ? ' PRIMARY KEY AUTOINCREMENT' : '';
 
         if ($column->getUpdate()) {

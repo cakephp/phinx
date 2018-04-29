@@ -223,7 +223,11 @@ abstract class AbstractAdapter implements AdapterInterface
                 ->addColumn('breakpoint', 'boolean', ['default' => false])
                 ->save();
         } catch (\Exception $exception) {
-            throw new \InvalidArgumentException('There was a problem creating the schema table: ' . $exception->getMessage());
+            throw new \InvalidArgumentException(
+                'There was a problem creating the schema table: ' . $exception->getMessage(),
+                $exception->getCode(),
+                $exception
+            );
         }
     }
 

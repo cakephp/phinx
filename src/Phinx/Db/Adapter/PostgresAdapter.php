@@ -324,12 +324,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $columnsInfo = $this->fetchAll($sql);
 
         foreach ($columnsInfo as $columnInfo) {
-            $isUserDefined = $columnInfo['data_type'] === 'USER-DEFINED';
+            $isUserDefined = strtoupper(trim($columnInfo['data_type'])) === 'USER-DEFINED';
+
             if ($isUserDefined) {
                 $columnType = Literal::from($columnInfo['udt_name']);
             } else {
                 $columnType = $this->getPhinxType($columnInfo['data_type']);
             }
+
             // If the default value begins with a ' or looks like a function mark it as literal
             if (isset($columnInfo['column_default'][0]) && $columnInfo['column_default'][0] === "'") {
                 if (preg_match('/^\'(.*)\'::[^:]+$/', $columnInfo['column_default'], $match)) {
@@ -925,7 +927,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * @param string $columnType column type added
      * @return string
      */
-    protected function getDefaultValueDefinition($default, $columnType)
+    protected function getDefaultValueDefinition($default, $columnType = null)
     {
         if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
             $default = $this->getConnection()->quote($default);

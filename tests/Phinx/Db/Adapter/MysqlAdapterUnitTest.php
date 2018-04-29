@@ -29,9 +29,9 @@ class MysqlAdapterTester extends MysqlAdapter
     }
 
     // change visibility for testing
-    public function getDefaultValueDefinition($default)
+    public function getDefaultValueDefinition($default, $type = null)
     {
-        return parent::getDefaultValueDefinition($default);
+        return parent::getDefaultValueDefinition($default, $type);
     }
 
     public function getColumnSqlDefinition(Column $column)
