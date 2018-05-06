@@ -162,6 +162,10 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             return 0;
         }
 
+        if ($this->isVerbosityEnabled()) {
+            $this->getOutput()->writeln($sql);
+        }
+
         return $this->getConnection()->exec($sql);
     }
 
@@ -173,6 +177,10 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     public function query($sql)
     {
+        if ($this->isVerbosityEnabled()) {
+            $this->getOutput()->writeln($sql);
+        }
+
         return $this->getConnection()->query($sql);
     }
 

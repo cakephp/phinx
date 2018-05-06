@@ -165,7 +165,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        $result = $this->getConnection()->query(
+        $result = $this->query(
             sprintf(
                 'SELECT *
                 FROM information_schema.tables
