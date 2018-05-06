@@ -217,7 +217,7 @@ class Plan
                 return $action instanceof CreateTable;
             })
             ->map(function ($action) {
-                return [$table->getName(), new NewTable($action->getTable())];
+                return [$action->getTable()->getName(), new NewTable($action->getTable())];
             })
             ->each(function ($step) {
                 $this->tableCreates[$step[0]] = $step[1];
