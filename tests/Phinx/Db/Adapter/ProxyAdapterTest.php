@@ -147,5 +147,4 @@ class ProxyAdapterTest extends TestCase
               ->save();
         $this->adapter->getInvertedCommands();
     }
-
 }

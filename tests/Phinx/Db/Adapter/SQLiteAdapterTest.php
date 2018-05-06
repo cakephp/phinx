@@ -594,7 +594,6 @@ class SQLiteAdapterTest extends TestCase
             ->addForeignKey(['ref_table_field'], 'ref_table', ['field1'], $opts)
             ->save();
 
-
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
 
         $this->adapter->dropForeignKey($table->getName(), ['ref_table_id']);

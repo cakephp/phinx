@@ -648,7 +648,6 @@ class PostgresAdapterTest extends TestCase
         }
     }
 
-
     public function testAddIndex()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
