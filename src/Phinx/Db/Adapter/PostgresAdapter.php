@@ -28,10 +28,11 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
+use Phinx\Db\Table\Table;
+use Phinx\Db\Util\AlterInstructions;
 use Phinx\Util\Literal;
 
 class PostgresAdapter extends PdoAdapter implements AdapterInterface
@@ -181,12 +182,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createTable(Table $table)
+    public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
         $options = $table->getOptions();
 
          // Add the default primary key
-        $columns = $table->getPendingColumns();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
             $column = new Column();
             $column->setName('id')
@@ -234,14 +234,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $sql = rtrim($sql, ', '); // no primary keys
         }
 
-        // set the foreign keys
-        $foreignKeys = $table->getForeignKeys();
-        if (!empty($foreignKeys)) {
-            foreach ($foreignKeys as $foreignKey) {
-                $sql .= ', ' . $this->getForeignKeySqlDefinition($foreignKey, $table->getName());
-            }
-        }
-
         $sql .= ');';
 
         // process column comments
@@ -252,7 +244,6 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
 
         // set the indexes
-        $indexes = $table->getIndexes();
         if (!empty($indexes)) {
             foreach ($indexes as $index) {
                 $sql .= $this->getIndexSqlDefinition($index, $table->getName());
@@ -276,22 +267,25 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function renameTable($tableName, $newTableName)
+    protected function getRenameTableInstructions($tableName, $newTableName)
     {
         $sql = sprintf(
             'ALTER TABLE %s RENAME TO %s',
             $this->quoteTableName($tableName),
             $this->quoteColumnName($newTableName)
         );
-        $this->execute($sql);
+
+        return new AlterInstructions([], [$sql]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function dropTable($tableName)
+    protected function getDropTableInstructions($tableName)
     {
-        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
+        $sql = sprintf('DROP TABLE %s', $this->quoteTableName($tableName));
+
+        return new AlterInstructions([], [$sql]);
     }
 
     /**
@@ -396,26 +390,26 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function addColumn(Table $table, Column $column)
+    protected function getAddColumnInstructions(Table $table, Column $column)
     {
-        $sql = sprintf(
-            'ALTER TABLE %s ADD %s %s;',
-            $this->quoteTableName($table->getName()),
+        $instructions = new AlterInstructions();
+        $instructions->addAlter(sprintf(
+            'ADD %s %s',
             $this->quoteColumnName($column->getName()),
             $this->getColumnSqlDefinition($column)
-        );
+        ));
 
         if ($column->getComment()) {
-            $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
+            $instructions->addPostStep($this->getColumnCommentSqlDefinition($column, $table->getName()));
         }
 
-        $this->execute($sql);
+        return $instructions;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renameColumn($tableName, $columnName, $newColumnName)
+    protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName)
     {
         $sql = sprintf(
             "SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS column_exists
@@ -424,102 +418,103 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $tableName,
             $columnName
         );
+
         $result = $this->fetchRow($sql);
         if (!(bool)$result['column_exists']) {
             throw new \InvalidArgumentException("The specified column does not exist: $columnName");
         }
-        $this->execute(
+
+        $instructions = new AlterInstructions();
+        $instructions->addPostStep(
             sprintf(
                 'ALTER TABLE %s RENAME COLUMN %s TO %s',
-                $this->quoteTableName($tableName),
+                $tableName,
                 $this->quoteColumnName($columnName),
                 $this->quoteColumnName($newColumnName)
             )
         );
+
+        return $instructions;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function changeColumn($tableName, $columnName, Column $newColumn)
+    protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn)
     {
-        // TODO - is it possible to merge these 3 queries into less?
-        // change data type
+        $instructions = new AlterInstructions();
+
         $sql = sprintf(
-            'ALTER TABLE %s ALTER COLUMN %s TYPE %s',
-            $this->quoteTableName($tableName),
+            'ALTER COLUMN %s TYPE %s',
             $this->quoteColumnName($columnName),
             $this->getColumnSqlDefinition($newColumn)
         );
+        //
         //NULL and DEFAULT cannot be set while changing column type
         $sql = preg_replace('/ NOT NULL/', '', $sql);
         $sql = preg_replace('/ NULL/', '', $sql);
         //If it is set, DEFAULT is the last definition
         $sql = preg_replace('/DEFAULT .*/', '', $sql);
-        $this->execute($sql);
+
+        $instructions->addAlter($sql);
+
         // process null
         $sql = sprintf(
-            'ALTER TABLE %s ALTER COLUMN %s',
-            $this->quoteTableName($tableName),
+            'ALTER COLUMN %s',
             $this->quoteColumnName($columnName)
         );
+
         if ($newColumn->isNull()) {
             $sql .= ' DROP NOT NULL';
         } else {
             $sql .= ' SET NOT NULL';
         }
-        $this->execute($sql);
+
+        $instructions->addAlter($sql);
+
         if (!is_null($newColumn->getDefault())) {
-            //change default
-            $this->execute(
-                sprintf(
-                    'ALTER TABLE %s ALTER COLUMN %s SET %s',
-                    $this->quoteTableName($tableName),
-                    $this->quoteColumnName($columnName),
-                    $this->getDefaultValueDefinition($newColumn->getDefault(), $newColumn->getType())
-                )
-            );
+            $instructions->addAlter(sprintf(
+                'ALTER COLUMN %s SET %s',
+                $this->quoteColumnName($columnName),
+                $this->getDefaultValueDefinition($newColumn->getDefault(), $newColumn->getType())
+            ));
         } else {
             //drop default
-            $this->execute(
-                sprintf(
-                    'ALTER TABLE %s ALTER COLUMN %s DROP DEFAULT',
-                    $this->quoteTableName($tableName),
-                    $this->quoteColumnName($columnName)
-                )
-            );
+            $instructions->addAlter(sprintf(
+                'ALTER COLUMN %s DROP DEFAULT',
+                $this->quoteColumnName($columnName)
+            ));
         }
+
         // rename column
         if ($columnName !== $newColumn->getName()) {
-            $this->execute(
-                sprintf(
-                    'ALTER TABLE %s RENAME COLUMN %s TO %s',
-                    $this->quoteTableName($tableName),
-                    $this->quoteColumnName($columnName),
-                    $this->quoteColumnName($newColumn->getName())
-                )
-            );
+            $instructions->addPostStep(sprintf(
+                'ALTER TABLE %s RENAME COLUMN %s TO %s',
+                $this->quoteTableName($tableName),
+                $this->quoteColumnName($columnName),
+                $this->quoteColumnName($newColumn->getName())
+            ));
         }
 
         // change column comment if needed
         if ($newColumn->getComment()) {
-            $sql = $this->getColumnCommentSqlDefinition($newColumn, $tableName);
-            $this->execute($sql);
+            $instructions->addPostStep($this->getColumnCommentSqlDefinition($newColumn, $tableName));
         }
+
+        return $instructions;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function dropColumn($tableName, $columnName)
+    protected function getDropColumnInstructions($tableName, $columnName)
     {
-        $this->execute(
-            sprintf(
-                'ALTER TABLE %s DROP COLUMN %s',
-                $this->quoteTableName($tableName),
-                $this->quoteColumnName($columnName)
-            )
+        $alter = sprintf(
+            'DROP COLUMN %s',
+            $this->quoteColumnName($columnName)
         );
+
+        return new AlterInstructions([$alter]);
     }
 
     /**
@@ -597,16 +592,18 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function addIndex(Table $table, Index $index)
+    protected function getAddIndexInstructions(Table $table, Index $index)
     {
-        $sql = $this->getIndexSqlDefinition($index, $table->getName());
-        $this->execute($sql);
+        $instructions = new AlterInstructions();
+        $instructions->addPostStep($this->getIndexSqlDefinition($index, $table->getName()));
+
+        return $instructions;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function dropIndex($tableName, $columns)
+    protected function getDropIndexByColumnsInstructions($tableName, $columns)
     {
         if (is_string($columns)) {
             $columns = [$columns]; // str to array
@@ -618,28 +615,30 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         foreach ($indexes as $indexName => $index) {
             $a = array_diff($columns, $index['columns']);
             if (empty($a)) {
-                $this->execute(
-                    sprintf(
-                        'DROP INDEX IF EXISTS %s',
-                        $this->quoteColumnName($indexName)
-                    )
-                );
-
-                return;
+                return new AlterInstructions([], [sprintf(
+                    'DROP INDEX IF EXISTS %s',
+                    $this->quoteColumnName($indexName)
+                )]);
             }
         }
+
+        throw new \InvalidArgumentException(sprintf(
+            "The specified index on columns '%s' does not exist",
+            implode(',', $columns)
+        ));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function dropIndexByName($tableName, $indexName)
+    protected function getDropIndexByNameInstructions($tableName, $indexName)
     {
         $sql = sprintf(
             'DROP INDEX IF EXISTS %s',
-            $indexName
+            $this->quoteColumnName($indexName)
         );
-        $this->execute($sql);
+
+        return new AlterInstructions([], [$sql]);
     }
 
     /**
@@ -705,52 +704,56 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function addForeignKey(Table $table, ForeignKey $foreignKey)
+    protected function getAddForeignKeyInstructions(Table $table, ForeignKey $foreignKey)
     {
-        $sql = sprintf(
-            'ALTER TABLE %s ADD %s',
-            $this->quoteTableName($table->getName()),
+        $alter = sprintf(
+            'ADD %s',
             $this->getForeignKeySqlDefinition($foreignKey, $table->getName())
         );
-        $this->execute($sql);
+
+        return new AlterInstructions([$alter]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function dropForeignKey($tableName, $columns, $constraint = null)
+    protected function getDropForeignKeyInstructions($tableName, $constraint)
     {
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
+        $alter = sprintf(
+            'DROP CONSTRAINT %s',
+            $constraint
+        );
 
-        if ($constraint) {
-            $this->execute(
-                sprintf(
-                    'ALTER TABLE %s DROP CONSTRAINT %s',
-                    $this->quoteTableName($tableName),
-                    $constraint
-                )
-            );
-        } else {
-            foreach ($columns as $column) {
-                $rows = $this->fetchAll(sprintf(
-                    "SELECT CONSTRAINT_NAME
-                      FROM information_schema.KEY_COLUMN_USAGE
-                      WHERE TABLE_SCHEMA = CURRENT_SCHEMA()
-                        AND TABLE_NAME IS NOT NULL
-                        AND TABLE_NAME = '%s'
-                        AND COLUMN_NAME = '%s'
-                      ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
-                    $tableName,
-                    $column
-                ));
+        return new AlterInstructions([$alter]);
+    }
 
-                foreach ($rows as $row) {
-                    $this->dropForeignKey($tableName, $columns, $row['constraint_name']);
-                }
+    /**
+     * {@inheritdoc}
+     */
+    protected function getDropForeignKeyByColumnsInstructions($tableName, $columns)
+    {
+        $instructions = new AlterInstructions();
+
+        foreach ($columns as $column) {
+            $rows = $this->fetchAll(sprintf(
+                "SELECT CONSTRAINT_NAME
+                FROM information_schema.KEY_COLUMN_USAGE
+                WHERE TABLE_SCHEMA = CURRENT_SCHEMA()
+                AND TABLE_NAME IS NOT NULL
+                AND TABLE_NAME = '%s'
+                AND COLUMN_NAME = '%s'
+                ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
+                $tableName,
+                $column
+            ));
+
+            foreach ($rows as $row) {
+                $newInstr = $this->getDropForeignKeyInstructions($tableName, $row['constraint_name']);
+                $instructions->merge($newInstr);
             }
         }
+
+        return $instructions;
     }
 
     /**

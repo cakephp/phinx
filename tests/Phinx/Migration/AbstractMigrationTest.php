@@ -260,20 +260,4 @@ class AbstractMigrationTest extends TestCase
             $migrationStub->table('test_table')
         );
     }
-
-    public function testDropTableMethod()
-    {
-        // stub migration
-        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
-
-        // stub adapter
-        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
-            ->setConstructorArgs([[]])
-            ->getMock();
-        $adapterStub->expects($this->once())
-                    ->method('dropTable');
-
-        $migrationStub->setAdapter($adapterStub);
-        $migrationStub->dropTable('test_table');
-    }
 }

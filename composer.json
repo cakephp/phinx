@@ -26,12 +26,13 @@
     }],
     "require": {
         "php": ">=5.4",
+        "cakephp/collection": "^3.5",
         "symfony/console": "^2.8|^3.0|^4.0",
         "symfony/config": "^2.8|^3.0|^4.0",
         "symfony/yaml": "^2.8|^3.0|^4.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.8.35|^5.7|^6.5",
+        "phpunit/phpunit": ">=5.7",
         "sebastian/comparator": ">=1.2.3",
         "cakephp/cakephp-codesniffer": "^3.0"
     },

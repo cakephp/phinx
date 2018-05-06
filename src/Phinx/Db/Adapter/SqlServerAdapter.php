@@ -28,10 +28,11 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
+use Phinx\Db\Table\Table;
+use Phinx\Db\Util\AlterInstructions;
 use Phinx\Util\Literal;
 
 /**
@@ -204,12 +205,11 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createTable(Table $table)
+    public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
         $options = $table->getOptions();
 
         // Add the default primary key
-        $columns = $table->getPendingColumns();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
             $column = new Column();
             $column->setName('id')
@@ -254,12 +254,6 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             $sqlBuffer[] = $pkSql;
         }
 
-        // set the foreign keys
-        $foreignKeys = $table->getForeignKeys();
-        foreach ($foreignKeys as $foreignKey) {
-            $sqlBuffer[] = $this->getForeignKeySqlDefinition($foreignKey, $table->getName());
-        }
-
         $sql .= implode(', ', $sqlBuffer);
         $sql .= ');';
 
@@ -269,7 +263,6 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         }
 
         // set the indexes
-        $indexes = $table->getIndexes();
         foreach ($indexes as $index) {
             $sql .= $this->getIndexSqlDefinition($index, $table->getName());
         }
@@ -307,17 +300,25 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function renameTable($tableName, $newTableName)
+    protected function getRenameTableInstructions($tableName, $newTableName)
     {
-        $this->execute(sprintf('EXEC sp_rename \'%s\', \'%s\'', $tableName, $newTableName));
+        $sql = sprintf(
+            'EXEC sp_rename \'%s\', \'%s\'',
+            $tableName,
+            $newTableName
+        );
+
+        return new AlterInstructions([], [$sql]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function dropTable($tableName)
+    protected function getDropTableInstructions($tableName)
     {
-        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
+        $sql = sprintf('DROP TABLE %s', $this->quoteTableName($tableName));
+
+        return new AlterInstructions([], [$sql]);
     }
 
     /**
@@ -426,39 +427,29 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function addColumn(Table $table, Column $column)
+    protected function getAddColumnInstructions(Table $table, Column $column)
     {
-        $sql = sprintf(
+        $alter = sprintf(
             'ALTER TABLE %s ADD %s %s',
-            $this->quoteTableName($table->getName()),
+            $table->getName(),
             $this->quoteColumnName($column->getName()),
             $this->getColumnSqlDefinition($column)
         );
 
-        $this->execute($sql);
+        return new AlterInstructions([], [$alter]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renameColumn($tableName, $columnName, $newColumnName)
+    protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName)
     {
         if (!$this->hasColumn($tableName, $columnName)) {
             throw new \InvalidArgumentException("The specified column does not exist: $columnName");
         }
-        $this->renameDefault($tableName, $columnName, $newColumnName);
-        $this->execute(
-            sprintf(
-                "EXECUTE sp_rename N'%s.%s', N'%s', 'COLUMN' ",
-                $tableName,
-                $columnName,
-                $newColumnName
-            )
-        );
-    }
 
-    protected function renameDefault($tableName, $columnName, $newColumnName)
-    {
+        $instructions = new AlterInstructions();
+
         $oldConstraintName = "DF_{$tableName}_{$columnName}";
         $newConstraintName = "DF_{$tableName}_{$newColumnName}";
         $sql = <<<SQL
@@ -467,17 +458,34 @@ BEGIN
      EXECUTE sp_rename N'%s', N'%s', N'OBJECT'
 END
 SQL;
-        $this->execute(sprintf(
+        $instructions->addPostStep(sprintf(
             $sql,
             $oldConstraintName,
             $newConstraintName
         ));
+
+        $instructions->addPostStep(sprintf(
+            "EXECUTE sp_rename N'%s.%s', N'%s', 'COLUMN' ",
+            $tableName,
+            $columnName,
+            $newColumnName
+        ));
+
+        return $instructions;
     }
 
-    public function changeDefault($tableName, Column $newColumn)
+    /**
+     * Returns the instructions to change a column default value
+     *
+     * @param string $tableName The table where the column is
+     * @param Column $newColumn The column to alter
+     * @return AlterInstructions
+     */
+    protected function getChangeDefault($tableName, Column $newColumn)
     {
         $constraintName = "DF_{$tableName}_{$newColumn->getName()}";
         $default = $newColumn->getDefault();
+        $instructions = new AlterInstructions();
 
         if ($default === null) {
             $default = 'DEFAULT NULL';
@@ -486,77 +494,88 @@ SQL;
         }
 
         if (empty($default)) {
-            return;
+            return $instructions;
         }
 
-        $this->execute(sprintf(
+        $instructions->addPostStep(sprintf(
             'ALTER TABLE %s ADD CONSTRAINT %s %s FOR %s',
             $this->quoteTableName($tableName),
             $constraintName,
             $default,
             $this->quoteColumnName($newColumn->getName())
         ));
+
+        return $instructions;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function changeColumn($tableName, $columnName, Column $newColumn)
+    protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn)
     {
         $columns = $this->getColumns($tableName);
-        $changeDefault = $newColumn->getDefault() !== $columns[$columnName]->getDefault() || $newColumn->getType() !== $columns[$columnName]->getType();
+        $changeDefault =
+            $newColumn->getDefault() !== $columns[$columnName]->getDefault() ||
+            $newColumn->getType() !== $columns[$columnName]->getType();
+
+        $instructions = new AlterInstructions();
+
         if ($columnName !== $newColumn->getName()) {
-            $this->renameColumn($tableName, $columnName, $newColumn->getName());
+            $instructions->merge(
+                $this->getRenameColumnInstructions($tableName, $columnName, $newColumn->getName())
+            );
         }
 
         if ($changeDefault) {
-            $this->dropDefaultConstraint($tableName, $newColumn->getName());
+            $instructions->merge($this->getDropDefaultConstraint($tableName, $newColumn->getName()));
         }
 
-        $this->execute(
-            sprintf(
-                'ALTER TABLE %s ALTER COLUMN %s %s',
-                $this->quoteTableName($tableName),
-                $this->quoteColumnName($newColumn->getName()),
-                $this->getColumnSqlDefinition($newColumn, false)
-            )
-        );
+        $instructions->addPostStep(sprintf(
+            'ALTER TABLE %s ALTER COLUMN %s %s',
+            $this->quoteTableName($tableName),
+            $this->quoteColumnName($newColumn->getName()),
+            $this->getColumnSqlDefinition($newColumn, false)
+        ));
         // change column comment if needed
         if ($newColumn->getComment()) {
-            $sql = $this->getColumnCommentSqlDefinition($newColumn, $tableName);
-            $this->execute($sql);
+            $instructions->merge($this->getColumnCommentSqlDefinition($newColumn, $tableName));
         }
 
         if ($changeDefault) {
-            $this->changeDefault($tableName, $newColumn);
+            $instructions->merge($this->getChangeDefault($tableName, $newColumn));
         }
+
+        return $instructions;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function dropColumn($tableName, $columnName)
+    protected function getDropColumnInstructions($tableName, $columnName)
     {
-        $this->dropDefaultConstraint($tableName, $columnName);
+        $instructions = $this->getDropDefaultConstraint($tableName, $columnName);
 
-        $this->execute(
-            sprintf(
-                'ALTER TABLE %s DROP COLUMN %s',
-                $this->quoteTableName($tableName),
-                $this->quoteColumnName($columnName)
-            )
-        );
+        $instructions->addPostStep(sprintf(
+            'ALTER TABLE %s DROP COLUMN %s',
+            $this->quoteTableName($tableName),
+            $this->quoteColumnName($columnName)
+        ));
+
+        return $instructions;
     }
 
-    protected function dropDefaultConstraint($tableName, $columnName)
+    /**
+     * {@inheritdoc}
+     */
+    protected function getDropDefaultConstraint($tableName, $columnName)
     {
         $defaultConstraint = $this->getDefaultConstraint($tableName, $columnName);
 
         if (!$defaultConstraint) {
-            return;
+            return new AlterInstructions();
         }
 
-        $this->dropForeignKey($tableName, $columnName, $defaultConstraint);
+        return $this->getDropForeignKeyInstructions($tableName, $defaultConstraint);
     }
 
     protected function getDefaultConstraint($tableName, $columnName)
@@ -671,16 +690,17 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * {@inheritdoc}
      */
-    public function addIndex(Table $table, Index $index)
+    protected function getAddIndexInstructions(Table $table, Index $index)
     {
         $sql = $this->getIndexSqlDefinition($index, $table->getName());
-        $this->execute($sql);
+
+        return new AlterInstructions([], [$sql]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function dropIndex($tableName, $columns)
+    protected function getDropIndexByColumnsInstructions($tableName, $columns)
     {
         if (is_string($columns)) {
             $columns = [$columns]; // str to array
@@ -688,43 +708,51 @@ ORDER BY T.[name], I.[index_id];";
 
         $indexes = $this->getIndexes($tableName);
         $columns = array_map('strtolower', $columns);
+        $instructions = new AlterInstructions();
 
         foreach ($indexes as $indexName => $index) {
             $a = array_diff($columns, $index['columns']);
             if (empty($a)) {
-                $this->execute(
-                    sprintf(
-                        'DROP INDEX %s ON %s',
-                        $this->quoteColumnName($indexName),
-                        $this->quoteTableName($tableName)
-                    )
-                );
+                $instructions->addPostStep(sprintf(
+                    'DROP INDEX %s ON %s',
+                    $this->quoteColumnName($indexName),
+                    $this->quoteTableName($tableName)
+                ));
 
-                return;
+                return $instructions;
             }
         }
+
+        throw new \InvalidArgumentException(sprintf(
+            "The specified index on columns '%s' does not exist",
+            implode(',', $columns)
+        ));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function dropIndexByName($tableName, $indexName)
+    protected function getDropIndexByNameInstructions($tableName, $indexName)
     {
         $indexes = $this->getIndexes($tableName);
+        $instructions = new AlterInstructions();
 
         foreach ($indexes as $name => $index) {
             if ($name === $indexName) {
-                $this->execute(
-                    sprintf(
-                        'DROP INDEX %s ON %s',
-                        $this->quoteColumnName($indexName),
-                        $this->quoteTableName($tableName)
-                    )
-                );
+                $instructions->addPostStep(sprintf(
+                    'DROP INDEX %s ON %s',
+                    $this->quoteColumnName($indexName),
+                    $this->quoteTableName($tableName)
+                ));
 
-                return;
+                return $instructions;
             }
         }
+
+        throw new \InvalidArgumentException(sprintf(
+            "The specified index name '%s' does not exist",
+            $indexName
+        ));
     }
 
     /**
@@ -790,58 +818,64 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * {@inheritdoc}
      */
-    public function addForeignKey(Table $table, ForeignKey $foreignKey)
+    protected function getAddForeignKeyInstructions(Table $table, ForeignKey $foreignKey)
     {
-        $this->execute(
-            sprintf(
-                'ALTER TABLE %s ADD %s',
-                $this->quoteTableName($table->getName()),
-                $this->getForeignKeySqlDefinition($foreignKey, $table->getName())
-            )
-        );
+        $instructions = new AlterInstructions();
+        $instructions->addPostStep(sprintf(
+            'ALTER TABLE %s ADD %s',
+            $this->quoteTableName($table->getName()),
+            $this->getForeignKeySqlDefinition($foreignKey, $table->getName())
+        ));
+
+        return $instructions;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function dropForeignKey($tableName, $columns, $constraint = null)
+    protected function getDropForeignKeyInstructions($tableName, $constraint)
     {
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
+        $instructions = new AlterInstructions();
+        $instructions->addPostStep(sprintf(
+            'ALTER TABLE %s DROP CONSTRAINT %s',
+            $this->quoteTableName($tableName),
+            $constraint
+        ));
 
-        if ($constraint) {
-            $this->execute(
-                sprintf(
-                    'ALTER TABLE %s DROP CONSTRAINT %s',
-                    $this->quoteTableName($tableName),
-                    $constraint
-                )
-            );
+        return $instructions;
+    }
 
-            return;
-        } else {
-            foreach ($columns as $column) {
-                $rows = $this->fetchAll(sprintf(
-                    "SELECT
-                    tc.constraint_name,
-                    tc.table_name, kcu.column_name,
-                    ccu.table_name AS referenced_table_name,
-                    ccu.column_name AS referenced_column_name
-                FROM
-                    information_schema.table_constraints AS tc
-                    JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
-                    JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
-                WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s' and ccu.column_name='%s'
-                ORDER BY kcu.ordinal_position",
-                    $tableName,
-                    $column
-                ));
-                foreach ($rows as $row) {
-                    $this->dropForeignKey($tableName, $columns, $row['constraint_name']);
-                }
+    /**
+     * {@inheritdoc}
+     */
+    protected function getDropForeignKeyByColumnsInstructions($tableName, $columns)
+    {
+        $instructions = new AlterInstructions();
+
+        foreach ($columns as $column) {
+            $rows = $this->fetchAll(sprintf(
+                "SELECT
+                tc.constraint_name,
+                tc.table_name, kcu.column_name,
+                ccu.table_name AS referenced_table_name,
+                ccu.column_name AS referenced_column_name
+            FROM
+                information_schema.table_constraints AS tc
+                JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
+                JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
+            WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s' and ccu.column_name='%s'
+            ORDER BY kcu.ordinal_position",
+                $tableName,
+                $column
+            ));
+            foreach ($rows as $row) {
+                $instructions->merge(
+                    $this->getDropForeignKeyInstructions($tableName, $row['constraint_name'])
+                );
             }
         }
+
+        return $instructions;
     }
 
     /**
@@ -1013,6 +1047,7 @@ SQL;
         if ($column->getPrecision() && $column->getScale()) {
             $buffer[] = '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         }
+
         $properties = $column->getProperties();
         $buffer[] = $column->getType() === 'filestream' ? 'FILESTREAM' : '';
         $buffer[] = isset($properties['rowguidcol']) ? 'ROWGUIDCOL' : '';
