@@ -2,7 +2,6 @@
 
 namespace Test\Phinx\Db\Adapter;
 
-use PHPUnit\Framework\TestCase;
 use Phinx\Db\Action\AddColumn;
 use Phinx\Db\Action\AddForeignKey;
 use Phinx\Db\Action\AddIndex;
@@ -17,6 +16,7 @@ use Phinx\Db\Adapter\TablePrefixAdapter;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Table;
+use PHPUnit\Framework\TestCase;
 
 class TablePrefixAdapterTest extends TestCase
 {
