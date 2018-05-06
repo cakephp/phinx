@@ -61,6 +61,7 @@ class RemoveColumn extends Action
     {
         $column = new Column();
         $column->setName($columnName);
+
         return new static($table, $column);
     }
 

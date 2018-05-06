@@ -1,8 +1,12 @@
 linters:
   phpcs:
     standard: CakePHP
+    fixer: true
+
 files:
   ignore:
     - 'vendor/*'
+
 fixers:
-    enable: true
+  enable: true
+  workflow: commit
