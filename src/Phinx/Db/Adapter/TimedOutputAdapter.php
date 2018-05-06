@@ -213,7 +213,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
         }
         $end = $this->startCommandTimer();
         $this->writeCommand('renameColumn', [$tableName, $columnName, $newColumnName]);
-        $adapter->renameColumn($tableName, $columnName, $newTableName);
+        $adapter->renameColumn($tableName, $columnName, $newColumnName);
         $end();
     }
 
@@ -273,7 +273,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
         }
         $end = $this->startCommandTimer();
         $this->writeCommand('dropIndex', [$tableName, $columns]);
-        $adapter->dropIndex($tableName, $columnName);
+        $adapter->dropIndex($tableName, $columns);
         $end();
     }
 

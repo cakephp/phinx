@@ -56,6 +56,7 @@ class AddIndex extends Action
      * @param Table $table The table to add the index to
      * @param mixed $columns The columns to index
      * @param array $options Additional options for the index creation
+     * @return AddIndex
      */
     public static function build(Table $table, $columns, array $options = [])
     {

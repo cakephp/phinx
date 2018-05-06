@@ -34,6 +34,11 @@ abstract class Action
      */
     protected $table;
 
+    /**
+     * Consturctor
+     *
+     * @param Table $table the Table to apply the action to
+     */
     public function __construct(Table $table)
     {
         $this->table = $table;

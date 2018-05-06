@@ -57,6 +57,7 @@ class DropForeignKey extends Action
      * @param Table $table The table to dele the foreign key from
      * @param string|string[] $columns The columns participating in the foreign key
      * @param string|null $constraint The constraint name
+     * @return DropForeignKey
      */
     public static function build(Table $table, $columns, $constraint = null)
     {

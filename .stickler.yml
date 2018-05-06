@@ -4,3 +4,5 @@ linters:
 files:
   ignore:
     - 'vendor/*'
+fixers:
+    enable: true

@@ -65,7 +65,7 @@ class Table
     /**
      * Sets the table options
      *
-     * @return array The options for this table to use for creating it
+     * @param array $options The options for the table creation
      * @return void
      */
     public function setOptions(array $options)

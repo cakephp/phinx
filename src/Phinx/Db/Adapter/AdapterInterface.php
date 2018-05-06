@@ -261,7 +261,7 @@ interface AdapterInterface
      * Executes a list of migration actions for the given table
      *
      * @param \Phinx\Db\Table\Table $table The table to execute the actions for
-     * @param \Phinx\Db\Action\Action[] $table The table to execute the actions for
+     * @param \Phinx\Db\Action\Action[] $actions The table to execute the actions for
      * @return void
      */
     public function executeActions(Table $table, array $actions);

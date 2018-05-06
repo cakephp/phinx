@@ -55,6 +55,7 @@ class RemoveColumn extends Action
      *
      * @param Table $table The table where the column is
      * @param mixed $columnName The name of the column to drop
+     * @return RemoveColumn
      */
     public static function build(Table $table, $columnName)
     {

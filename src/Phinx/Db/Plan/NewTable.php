@@ -58,7 +58,7 @@ class NewTable
     /**
      * Constructor
      *
-     * @param Table $table
+     * @param Table $table The table to create
      */
     public function __construct(Table $table)
     {

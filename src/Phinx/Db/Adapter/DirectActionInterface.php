@@ -122,8 +122,8 @@ interface DirectActionInterface
     /**
      * Adds the specified foreign key to a database table.
      *
-     * @param \Phinx\Db\Table\Table      $table
-     * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\Table      $table The table to add the foreign key to
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey The foreign key to add
      * @return void
      */
     public function addForeignKey(Table $table, ForeignKey $foreignKey);
@@ -131,7 +131,7 @@ interface DirectActionInterface
     /**
      * Drops the specified foreign key from a database table.
      *
-     * @param string $tableName
+     * @param string $tableName The table to drop the foreign key from
      * @param string[] $columns Column(s)
      * @param string|null $constraint Constraint name
      * @return void

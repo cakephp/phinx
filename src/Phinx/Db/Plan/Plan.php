@@ -96,7 +96,7 @@ class Plan
     /**
      * Parses the given Intent and creates the separate steps to execute
      *
-     * @param Intent $actions
+     * @param Intent $actions The actions to use for the plan
      * @return void
      */
     protected function createPlan($actions)
@@ -127,7 +127,7 @@ class Plan
     /**
      * Executes this plan using the given AdapterInterface
      *
-     * @param AdapterInterface $executor
+     * @param AdapterInterface $executor The executor object for the plan
      * @return void
      */
     public function execute(AdapterInterface $executor)
@@ -146,7 +146,7 @@ class Plan
     /**
      * Executes the inverse plan (rollback the actions) with the given AdapterInterface:w
      *
-     * @param AdapterInterface $executor
+     * @param AdapterInterface $executor The executor object for the plan
      * @return void
      */
     public function executeInverse(AdapterInterface $executor)
@@ -217,8 +217,7 @@ class Plan
                 return $action instanceof CreateTable;
             })
             ->map(function ($action) {
-                $table = $action->getTable();
-                return [$table->getName(), new NewTable($table)];
+                return [$table->getName(), new NewTable($action->getTable())];
             })
             ->each(function ($step) {
                 $this->tableCreates[$step[0]] = $step[1];

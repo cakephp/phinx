@@ -56,6 +56,7 @@ class DropIndex extends Action
      *
      * @param Table $table The table where the index is
      * @param array $columns the indexed columns
+     * @return DropIndex
      */
     public static function build(Table $table, array $columns = [])
     {
@@ -71,6 +72,7 @@ class DropIndex extends Action
      *
      * @param Table $table The table where the index is
      * @param mixed $name The name of the index
+     * @return DropIndex
      */
     public static function buildFromName(Table $table, $name)
     {

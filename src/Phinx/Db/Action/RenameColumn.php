@@ -65,11 +65,13 @@ class RenameColumn extends Action
      * @param Table $table The table where the column is
      * @param mixed $columnName The name of the column to be changed
      * @param mixed $newName The new name for the column
+     * @return RenameColumn
      */
     public static function build(Table $table, $columnName, $newName)
     {
         $column = new Column();
         $column->setName($columnName);
+
         return new static($table, $column, $newName);
     }
 
