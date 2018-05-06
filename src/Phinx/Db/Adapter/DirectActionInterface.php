@@ -122,7 +122,7 @@ interface DirectActionInterface
     /**
      * Adds the specified foreign key to a database table.
      *
-     * @param \Phinx\Db\Table      $table
+     * @param \Phinx\Db\Table\Table      $table
      * @param \Phinx\Db\Table\ForeignKey $foreignKey
      * @return void
      */

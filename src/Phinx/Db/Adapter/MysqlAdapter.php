@@ -662,10 +662,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDropForeignKeyByColumnsInstructions($tableName, $columns)
     {
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
-
         $instructions = new AlterInstructions();
 
         foreach ($columns as $column) {

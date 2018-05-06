@@ -770,10 +770,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDropForeignKeyByColumnsInstructions($tableName, $columns)
     {
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
-
         $instructions = $this->beginAlterByCopyTable($tableName);
 
         $instructions->addPostStep(function ($state) use ($columns) {
@@ -1015,7 +1011,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Gets the SQLite Index Definition for an Index object.
      *
-     * @param \Phinx\Db\Table $table Table
+     * @param \Phinx\Db\Table\Table $table Table
      * @param \Phinx\Db\Table\Index $index Index
      * @return string
      */

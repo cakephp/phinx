@@ -55,7 +55,7 @@ class DropForeignKey extends Action
      * definition out of the passed arguments.
      *
      * @param Table $table The table to dele the foreign key from
-     * @param string[] $columns The columns participating in the foreign key
+     * @param string|string[] $columns The columns participating in the foreign key
      * @param string|null $constraint The constraint name
      */
     public static function build(Table $table, $columns, $constraint = null)

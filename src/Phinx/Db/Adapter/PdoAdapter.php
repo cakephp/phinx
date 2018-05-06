@@ -444,7 +444,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     {
         return (bool)$value ? 1 : 0;
     }
-    
+
     /**
      * Retrieve a database connection attribute
      * @see http://php.net/manual/en/pdo.getattribute.php
@@ -456,7 +456,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     {
         return $this->connection->getAttribute($attribute);
     }
-    
+
     /**
      * Get the defintion for a `DEFAULT` statement.
      *
@@ -473,7 +473,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
         } elseif ($columnType === static::PHINX_TYPE_BOOLEAN) {
             $default = $this->castToBool((bool)$default);
         }
-        
+
         return isset($default) ? " DEFAULT $default" : '';
     }
 
@@ -631,7 +631,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Returns the instructions to adds the specified foreign key to a database table.
      *
-     * @param \Phinx\Db\Table $table The table to add the constraint to
+     * @param \Phinx\Db\Table\Table $table The table to add the constraint to
      * @param \Phinx\Db\Table\ForeignKey $foreignKey The foreign key to add
      * @return AlterInstructions
      */
@@ -699,7 +699,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * Returns the instructions to rename the specified database table.
      *
      * @param string $tableName Table Name
-     * @param string $newName New Name
+     * @param string $newTableName New Name
      * @return AlterInstructions
      */
     abstract protected function getRenameTableInstructions($tableName, $newTableName);

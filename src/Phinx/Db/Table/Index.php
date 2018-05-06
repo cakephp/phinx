@@ -56,7 +56,7 @@ class Index
     protected $type = self::INDEX;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name = null;
 
@@ -127,7 +127,7 @@ class Index
     /**
      * Gets the index name.
      *
-     * @return string
+     * @return string|null
      */
     public function getName()
     {
