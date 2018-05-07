@@ -69,6 +69,37 @@ command. You should use this method to insert your test data.
     been run. This means database seeders can be run repeatedly. Keep this in
     mind when developing them.
 
+Foreign Key Dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Often you'll find that seeders need to run in a particular order, so they don't
+violate foreign key constraints. To define this order, you can implement the
+``getDependencies()`` method that returns an array of seeders to run before the
+current seeder:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Seed\AbstractSeed;
+
+        class ShoppingCartSeeder extends AbstractSeed
+        {
+            public function getDependencies()
+            {
+                return [
+                    'UserSeeder',
+                    'ShopItemSeeder'
+                ];
+            }
+
+            public function run()
+            {
+                // Seed the shopping cart  after the `UserSeeder` and
+                // `ShopItemSeeder` have been run.
+            }
+        }
+
 Inserting Data
 --------------
 
