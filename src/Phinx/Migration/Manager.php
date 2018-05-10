@@ -107,6 +107,9 @@ class Manager
         $hasDownMigration = false;
         $hasMissingMigration = false;
         $migrations = $this->getMigrations($environment);
+        $migrationCount = 0;
+        $missingCount = 0;
+        $pendingMigrationCount = 0;
         if (count($migrations)) {
             // TODO - rewrite using Symfony Table Helper as we already have this library
             // included and it will fix formatting issues (e.g drawing the lines)
@@ -134,6 +137,7 @@ class Manager
             }, $versions)) : 0;
 
             $missingVersions = array_diff_key($versions, $migrations);
+            $missingCount = count($missingVersions);
 
             $hasMissingMigration = !empty($missingVersions);
 
@@ -163,6 +167,7 @@ class Manager
                 $sortedMigrations = array_merge($sortedMigrations, $migrations);
             }
 
+            $migrationCount = count($sortedMigrations);
             foreach ($sortedMigrations as $migration) {
                 $version = array_key_exists($migration->getVersion(), $versions) ? $versions[$migration->getVersion()] : false;
                 if ($version) {
@@ -188,6 +193,7 @@ class Manager
 
                     $status = '     <info>up</info> ';
                 } else {
+                    $pendingMigrationCount++;
                     $hasDownMigration = true;
                     $status = '   <error>down</error> ';
                 }
@@ -229,7 +235,9 @@ class Manager
                 case 'json':
                     $output->writeln(json_encode(
                         [
-                            'pending_count' => count($this->getMigrations($environment)),
+                            'pending_count' => $pendingMigrationCount,
+                            'missing_count' => $missingCount,
+                            'total_count' => $migrationCount + $missingCount,
                             'migrations' => $migrations
                         ]
                     ));
