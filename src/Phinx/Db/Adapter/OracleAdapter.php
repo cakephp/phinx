@@ -271,6 +271,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
     {
         $comment = (strcasecmp($column->getComment(), 'NULL') !== 0) ? $column->getComment() : '';
 
+
         return sprintf(
             "COMMENT ON COLUMN \"%s\".\"%s\" IS '%s'",
             $tableName,
@@ -343,11 +344,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
         );
         $row = $this->fetchRow($sql);
 
-        if ($row['COMMENTS'] != 'NULL') {
-            return $row['COMMENTS'];
-        }
-
-        return '';
+        return $row['COMMENTS'];
     }
 
     /**
@@ -573,7 +570,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
                     )
                 );
 
-                return;
+                break;
             }
         }
     }
@@ -594,7 +591,7 @@ class OracleAdapter extends PdoAdapter implements AdapterInterface
                     )
                 );
 
-                return;
+                break;
             }
         }
     }

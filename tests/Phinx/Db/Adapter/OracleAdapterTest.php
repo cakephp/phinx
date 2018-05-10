@@ -208,6 +208,16 @@ class OracleAdapterTest extends TestCase
         $this->adapter->dropTable('TABLE1');
     }
 
+    public function testTableWithoutIndexesByName()
+    {
+        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
+        $table->addColumn('EMAIL', 'string')
+            ->save();
+        $this->assertFalse($this->adapter->hasIndexByName('TABLE1', strtoupper('MYEMAILINDEX')));
+
+        $this->adapter->dropTable('TABLE1');
+    }
+
     public function testRenameTable()
     {
         $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
@@ -595,7 +605,7 @@ class OracleAdapterTest extends TestCase
         $this->adapter->dropTable('TEF_TABLE');
     }
 
-    public function dropForeignKey()
+    public function testDropForeignKey()
     {
         $refTable = new \Phinx\Db\Table('TEF_TABLE', [], $this->adapter);
         $refTable->addColumn('field1', 'string')->save();
@@ -617,6 +627,28 @@ class OracleAdapterTest extends TestCase
         $this->adapter->dropTable('TEF_TABLE');
     }
 
+    public function testStringDropForeignKey()
+    {
+        $refTable = new \Phinx\Db\Table('TEF_TABLE', [], $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('TABLE', [], $this->adapter);
+        $table->addColumn('TEF_TABLE_ID', 'integer')->save();
+
+        $fk = new \Phinx\Db\Table\ForeignKey();
+        $fk->setReferencedTable($refTable)
+            ->setColumns(['TEF_TABLE_ID'])
+            ->setReferencedColumns(['id']);
+
+        $this->adapter->addForeignKey($table, $fk);
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['TEF_TABLE_ID']));
+        $this->adapter->dropForeignKey($table->getName(), 'TEF_TABLE_ID');
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['TEF_TABLE_ID']));
+
+        $this->adapter->dropTable('TABLE');
+        $this->adapter->dropTable('TEF_TABLE');
+    }
+
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage The type: "idontexist" is not supported
@@ -624,6 +656,18 @@ class OracleAdapterTest extends TestCase
     public function testInvalidSqlType()
     {
         $this->adapter->getSqlType('idontexist');
+    }
+
+    public function testGetSqlType()
+    {
+        $this->assertEquals(['name' => 'CHAR', 'limit' => 255], $this->adapter->getSqlType('char'));
+        $this->assertEquals(['name' => 'time'], $this->adapter->getSqlType('time'));
+        $this->assertEquals(['name' => 'BLOB'], $this->adapter->getSqlType('blob'));
+        $this->assertEquals(['name' => 'CLOB'], $this->adapter->getSqlType('CLOB'));
+        $this->assertEquals(['name' => 'RAW', 'precision' => 16, 'default' => 'SYS_GUID()', 'limit' => 2000],
+            $this->adapter->getSqlType('uuid'));
+        $this->assertEquals(['name' => 'geography'], $this->adapter->getSqlType('polygon'));
+        $this->assertEquals(['name' => 'varbinary', 'limit' => 'max'], $this->adapter->getSqlType('filestream'));
     }
 
     public function testGetPhinxType()
@@ -663,6 +707,19 @@ class OracleAdapterTest extends TestCase
 
         $this->adapter->dropTable('TABLE1');
         $this->assertEquals($comment, $resultComment, 'Dont set column comment correctly');
+    }
+
+    public function testGetColumnCommentEmptyReturn()
+    {
+        $table = new \Phinx\Db\Table('TABLE1', [], $this->adapter);
+        $table->addColumn('field1', 'string', ['comment' => 'NULL'])
+            ->save();
+
+        $resultComment = $this->adapter->getColumnComment('TABLE1', 'field1');
+
+        $this->adapter->dropTable('TABLE1');
+        $this->assertEquals('', $resultComment, 'NULL');
+
     }
 
     /**
@@ -721,6 +778,32 @@ class OracleAdapterTest extends TestCase
             ->create();
 
         $this->assertTrue($foreign->hasForeignKey('USER123'));
+
+        $this->adapter->dropTable('SESSIONS123');
+        $this->adapter->dropTable('USERS');
+    }
+
+    /**
+     * Test that column names are properly escaped when creating Foreign Keys
+     */
+    public function testDontHasForeignKey()
+    {
+        $userId = 'USER123';
+        $sessionId = 'SESSION123';
+
+        $local = new \Phinx\Db\Table('USERS', ['primary_key' => $userId, 'id' => $userId], $this->adapter);
+        $local->create();
+
+        $foreign = new \Phinx\Db\Table(
+            'SESSIONS123',
+            ['primary_key' => $sessionId, 'id' => $sessionId],
+            $this->adapter
+        );
+        $foreign->addColumn('USER123', 'integer')
+            ->addForeignKey('USER123', 'USERS', $userId, ['constraint' => 'USER_SESSION_ID'])
+            ->create();
+
+        $this->assertFalse($foreign->hasForeignKey('USER123', 'a'));
 
         $this->adapter->dropTable('SESSIONS123');
         $this->adapter->dropTable('USERS');
