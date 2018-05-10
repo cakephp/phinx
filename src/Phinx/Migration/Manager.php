@@ -103,7 +103,6 @@ class Manager
     public function printStatus($environment, $format = null)
     {
         $output = $this->getOutput();
-        $migrations = [];
         $hasDownMigration = false;
         $hasMissingMigration = false;
         $migrations = $this->getMigrations($environment);
