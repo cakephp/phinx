@@ -664,8 +664,15 @@ class OracleAdapterTest extends TestCase
         $this->assertEquals(['name' => 'time'], $this->adapter->getSqlType('time'));
         $this->assertEquals(['name' => 'BLOB'], $this->adapter->getSqlType('blob'));
         $this->assertEquals(['name' => 'CLOB'], $this->adapter->getSqlType('CLOB'));
-        $this->assertEquals(['name' => 'RAW', 'precision' => 16, 'default' => 'SYS_GUID()', 'limit' => 2000],
-            $this->adapter->getSqlType('uuid'));
+        $this->assertEquals(
+            [
+                'name' => 'RAW',
+                'precision' => 16,
+                'default' => 'SYS_GUID()',
+                'limit' => 2000
+            ],
+            $this->adapter->getSqlType('uuid')
+        );
         $this->assertEquals(['name' => 'geography'], $this->adapter->getSqlType('polygon'));
         $this->assertEquals(['name' => 'varbinary', 'limit' => 'max'], $this->adapter->getSqlType('filestream'));
     }
@@ -719,7 +726,6 @@ class OracleAdapterTest extends TestCase
 
         $this->adapter->dropTable('TABLE1');
         $this->assertEquals('', $resultComment, 'NULL');
-
     }
 
     /**
