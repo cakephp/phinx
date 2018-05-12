@@ -19,12 +19,13 @@ class $className extends $baseClassName
      *    createTable
      *    renameTable
      *    addColumn
+     *    addCustomColumn
      *    renameColumn
      *    addIndex
      *    addForeignKey
      *
-     * Remember to call "create()" or "update()" and NOT "save()" when working
-     * with the Table class.
+     * Any other distructive changes will result in an error when trying to
+     * rollback the migration.
      */
     public function change()
     {

@@ -48,12 +48,40 @@ class SQLiteAdapterTest extends TestCase
 
     public function testBeginTransaction()
     {
+        $this->adapter->beginTransaction();
+
+        $this->assertTrue(
+            $this->adapter->getConnection()->inTransaction(),
+            "Underlying PDO instance did not detect new transaction"
+        );
+    }
+
+    public function testRollbackTransaction()
+    {
         $this->adapter->getConnection()
             ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $this->adapter->beginTransaction();
+        $this->adapter->rollbackTransaction();
 
-        $this->assertTrue(true, 'Transaction query succeeded');
+        $this->assertFalse(
+            $this->adapter->getConnection()->inTransaction(),
+            "Underlying PDO instance did not detect rolled back transaction"
+        );
     }
+
+    public function testCommitTransactionTransaction()
+    {
+        $this->adapter->getConnection()
+            ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $this->adapter->beginTransaction();
+        $this->adapter->commitTransaction();
+
+        $this->assertFalse(
+            $this->adapter->getConnection()->inTransaction(),
+            "Underlying PDO instance didn't detect committed transaction"
+        );
+    }
+
 
     public function testCreatingTheSchemaTableOnConnect()
     {
@@ -108,12 +136,26 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+
+        //ensure the primary key is not nullable
+        /** @var \Phinx\Db\Table\Column $idColumn */
+        $idColumn = $this->adapter->getColumns('ntable')[0];
+        $this->assertEquals(true, $idColumn->getIdentity());
+        $this->assertEquals(false, $idColumn->isNull());
     }
 
-    public function testCreateTableWithNoOptions()
+    public function testCreateTableIdentityIdColumn()
     {
-        $this->markTestIncomplete();
-        //$this->adapter->createTable('ntable', )
+        $table = new \Phinx\Db\Table('ntable', ['id' => false, 'primary_key' => ['custom_id']], $this->adapter);
+        $table->addColumn('custom_id', 'integer', ['identity' => true])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'custom_id'));
+
+        /** @var \Phinx\Db\Table\Column $idColumn */
+        $idColumn = $this->adapter->getColumns('ntable')[0];
+        $this->assertEquals(true, $idColumn->getIdentity());
     }
 
     public function testCreateTableWithNoPrimaryKey()
@@ -296,7 +338,7 @@ class SQLiteAdapterTest extends TestCase
         $newColumn2 = new \Phinx\Db\Table\Column();
         $newColumn2->setName('column2')
                    ->setType('string');
-        $table->changeColumn('column1', $newColumn2);
+        $table->changeColumn('column1', $newColumn2)->save();
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
     }
@@ -309,7 +351,7 @@ class SQLiteAdapterTest extends TestCase
         $newColumn1 = new \Phinx\Db\Table\Column();
         $newColumn1->setDefault('test1')
                    ->setType('string');
-        $table->changeColumn('column1', $newColumn1);
+        $table->changeColumn('column1', $newColumn1)->save();
         $rows = $this->adapter->fetchAll('pragma table_info(t)');
 
         $this->assertEquals("'test1'", $rows[1]['dflt_value']);
@@ -324,18 +366,14 @@ class SQLiteAdapterTest extends TestCase
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('another_table', [], $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->save();
-
-        $fk = new \Phinx\Db\Table\ForeignKey();
-        $fk->setReferencedTable($refTable)
-           ->setColumns(['ref_table_id'])
-           ->setReferencedColumns(['id']);
-
-        $this->adapter->addForeignKey($table, $fk);
+        $table
+            ->addColumn('ref_table_id', 'integer')
+            ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
+            ->save();
 
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
 
-        $table->changeColumn('ref_table_id', 'float');
+        $table->changeColumn('ref_table_id', 'float')->save();
 
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
     }
@@ -348,7 +386,7 @@ class SQLiteAdapterTest extends TestCase
         $newColumn1 = new \Phinx\Db\Table\Column();
         $newColumn1->setDefault(0)
                    ->setType('integer');
-        $table->changeColumn('column1', $newColumn1);
+        $table->changeColumn('column1', $newColumn1)->save();
         $rows = $this->adapter->fetchAll('pragma table_info(t)');
         $this->assertEquals("0", $rows[1]['dflt_value']);
     }
@@ -361,7 +399,7 @@ class SQLiteAdapterTest extends TestCase
         $newColumn1 = new \Phinx\Db\Table\Column();
         $newColumn1->setDefault(null)
                    ->setType('string');
-        $table->changeColumn('column1', $newColumn1);
+        $table->changeColumn('column1', $newColumn1)->save();
         $rows = $this->adapter->fetchAll('pragma table_info(t)');
         $this->assertNull($rows[1]['dflt_value']);
     }
@@ -375,7 +413,7 @@ class SQLiteAdapterTest extends TestCase
         $newColumn1->setDefault('another default')
                    ->setComment('another comment')
                    ->setType('string');
-        $table->changeColumn('column1', $newColumn1);
+        $table->changeColumn('column1', $newColumn1)->save();
         $rows = $this->adapter->fetchAll('pragma table_info(t)');
         $this->assertEquals("'another default'", $rows[1]['dflt_value']);
     }
@@ -391,7 +429,7 @@ class SQLiteAdapterTest extends TestCase
         $table->save();
         $this->assertTrue($this->adapter->hasColumn('t', $columnName));
 
-        $this->adapter->dropColumn('t', $columnName);
+        $table->removeColumn($columnName)->save();
 
         $this->assertFalse($this->adapter->hasColumn('t', $columnName));
     }
@@ -404,30 +442,48 @@ class SQLiteAdapterTest extends TestCase
         ];
     }
 
-    public function testGetColumns()
+    public function columnsProvider()
+    {
+        return [
+            ['column1', 'string', []],
+            ['column2', 'integer', []],
+            ['column3', 'biginteger', []],
+            ['column4', 'text', []],
+            ['column5', 'float', []],
+            ['column6', 'decimal', []],
+            ['column7', 'datetime', []],
+            ['column8', 'time', []],
+            ['column9', 'timestamp', [], 'datetime'],
+            ['column10', 'date', []],
+            ['column11', 'binary', []],
+            ['column13', 'string', ['limit' => 10]],
+            ['column15', 'integer', ['limit' => 10]],
+            ['column22', 'enum', ['values' => ['three', 'four']]],
+            ['column23', 'json', [], 'text'],
+        ];
+    }
+
+    /**
+     *
+     * @dataProvider columnsProvider
+     */
+    public function testGetColumns($colName, $type, $options, $actualType = null)
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
-        $table->addColumn('column1', 'string')
-              ->addColumn('column2', 'integer')
-              ->addColumn('column3', 'biginteger')
-              ->addColumn('column4', 'text')
-              ->addColumn('column5', 'float')
-              ->addColumn('column6', 'decimal')
-              ->addColumn('column7', 'datetime')
-              ->addColumn('column8', 'time')
-              ->addColumn('column9', 'timestamp')
-              ->addColumn('column10', 'date')
-              ->addColumn('column11', 'binary')
-              ->addColumn('column12', 'boolean')
-              ->addColumn('column13', 'string', ['limit' => 10])
-              ->addColumn('column15', 'integer', ['limit' => 10])
-              ->addColumn('column16', 'enum', ['values' => ['a', 'b', 'c']]);
-        $pendingColumns = $table->getPendingColumns();
-        $table->save();
+        $table->addColumn($colName, $type, $options)->save();
+
         $columns = $this->adapter->getColumns('t');
-        $this->assertCount(count($pendingColumns) + 1, $columns);
-        for ($i = 0; $i++; $i < count($pendingColumns)) {
-            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
+        $this->assertCount(2, $columns);
+        $this->assertEquals($colName, $columns[1]->getName());
+
+        if (!$actualType) {
+            $actualType = $type;
+        }
+
+        if (is_string($columns[1]->getType())) {
+            $this->assertEquals($actualType, $columns[1]->getType());
+        } else {
+            $this->assertEquals(['name' => $actualType] + $options, $columns[1]->getType());
         }
     }
 
@@ -511,34 +567,10 @@ class SQLiteAdapterTest extends TestCase
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('table', [], $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->save();
-
-        $fk = new \Phinx\Db\Table\ForeignKey();
-        $fk->setReferencedTable($refTable)
-           ->setColumns(['ref_table_id'])
-           ->setReferencedColumns(['id']);
-
-        $this->adapter->addForeignKey($table, $fk);
-
-        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
-    }
-
-    public function testAddForeignKeyWithPdoExceptionErrorMode()
-    {
-        $this->adapter->getConnection()
-            ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
-        $refTable->addColumn('field1', 'string')->save();
-
-        $table = new \Phinx\Db\Table('table', [], $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->save();
-
-        $fk = new \Phinx\Db\Table\ForeignKey();
-        $fk->setReferencedTable($refTable)
-            ->setColumns(['ref_table_id'])
-            ->setReferencedColumns(['id']);
-
-        $this->adapter->addForeignKey($table, $fk);
+        $table
+            ->addColumn('ref_table_id', 'integer')
+            ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
+            ->save();
 
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
     }
@@ -551,31 +583,22 @@ class SQLiteAdapterTest extends TestCase
                  ->save();
 
         $table = new \Phinx\Db\Table('another_table', [], $this->adapter);
-        $table->addColumn('ref_table_id', 'integer')->addColumn('ref_table_field', 'string')->save();
+        $opts = [
+            'update' => 'CASCADE',
+            'delete' => 'CASCADE'
+        ];
+        $table
+            ->addColumn('ref_table_id', 'integer')
+            ->addColumn('ref_table_field', 'string')
+            ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
+            ->addForeignKey(['ref_table_field'], 'ref_table', ['field1'], $opts)
+            ->save();
 
-        $fk = new \Phinx\Db\Table\ForeignKey();
-        $fk->setReferencedTable($refTable)
-           ->setColumns(['ref_table_id'])
-           ->setReferencedColumns(['id']);
-
-        $secondFk = new \Phinx\Db\Table\ForeignKey();
-        $secondFk->setReferencedTable($refTable)
-           ->setColumns(['ref_table_field'])
-           ->setReferencedColumns(['field1'])
-           ->setOptions([
-               'update' => 'CASCADE',
-               'delete' => 'CASCADE'
-           ]);
-
-        $this->adapter->addForeignKey($table, $fk);
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
 
         $this->adapter->dropForeignKey($table->getName(), ['ref_table_id']);
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
 
-        $this->adapter->addForeignKey($table, $secondFk);
-        $this->adapter->addForeignKey($table, $fk);
-        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_field']));
 
         $this->adapter->dropForeignKey($table->getName(), ['ref_table_field']);
@@ -678,11 +701,8 @@ class SQLiteAdapterTest extends TestCase
                       'column1' => '\'value4\'',
                       'column2' => null,
                   ]
-              );
-        $this->adapter->createTable($table);
-        $this->adapter->bulkinsert($table, $table->getData());
-        $table->reset();
-
+              )
+              ->save();
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
 
         $this->assertEquals('value1', $rows[0]['column1']);
@@ -744,10 +764,8 @@ class SQLiteAdapterTest extends TestCase
               ->addColumn('column3', 'enum', ['values' => ['a', 'b', 'c'], 'default' => 'c'])
               ->insert([
                   'column1' => 'a',
-              ]);
-        $this->adapter->createTable($table);
-        $this->adapter->bulkinsert($table, $table->getData());
-        $table->reset();
+              ])
+              ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
 
@@ -853,9 +871,94 @@ class SQLiteAdapterTest extends TestCase
             ->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`id` INTEGER NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR(255) NULL, `column2` INTEGER NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test');
+CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR(255) NULL, `column2` INTEGER NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test');
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
+    }
+
+    /**
+     * Creates the table "table1".
+     * Then sets phinx to dry run mode and inserts a record.
+     * Asserts that phinx outputs the insert statement and doesn't insert a record.
+     */
+    public function testDumpInsert()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('string_col', 'string')
+            ->addColumn('int_col', 'integer')
+            ->save();
+
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $this->adapter->insert($table->getTable(), [
+            'string_col' => 'test data'
+        ]);
+
+        $this->adapter->insert($table->getTable(), [
+            'string_col' => null
+        ]);
+
+        $this->adapter->insert($table->getTable(), [
+            'int_col' => 23
+        ]);
+
+        $expectedOutput = <<<'OUTPUT'
+INSERT INTO `table1` (`string_col`) VALUES ('test data');
+INSERT INTO `table1` (`string_col`) VALUES (null);
+INSERT INTO `table1` (`int_col`) VALUES (23);
+OUTPUT;
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the insert to the output');
+
+        $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
+        self::assertTrue($countQuery->execute());
+        $res = $countQuery->fetchAll();
+        $this->assertEquals(0, $res[0]['COUNT(*)']);
+    }
+
+    /**
+     * Creates the table "table1".
+     * Then sets phinx to dry run mode and inserts some records.
+     * Asserts that phinx outputs the insert statement and doesn't insert any record.
+     */
+    public function testDumpBulkinsert()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('string_col', 'string')
+            ->addColumn('int_col', 'integer')
+            ->save();
+
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $this->adapter->bulkinsert($table->getTable(), [
+            [
+                'string_col' => 'test_data1',
+                'int_col' => 23,
+            ],
+            [
+                'string_col' => null,
+                'int_col' => 42,
+            ],
+        ]);
+
+        $expectedOutput = <<<'OUTPUT'
+INSERT INTO `table1` (`string_col`, `int_col`) VALUES ('test_data1', 23), (null, 42);
+OUTPUT;
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the bulkinsert to the output');
+
+        $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
+        self::assertTrue($countQuery->execute());
+        $res = $countQuery->fetchAll();
+        $this->assertEquals(0, $res[0]['COUNT(*)']);
     }
 }

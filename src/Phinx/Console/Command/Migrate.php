@@ -43,11 +43,12 @@ class Migrate extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName('migrate')
+        $this->setName($this->getName() ?: 'migrate')
             ->setDescription('Migrate the database')
             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
             ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to migrate to')
             ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
+            ->addOption('--fake', null, InputOption::VALUE_NONE, "Mark any migrations selected as run, but don't actually execute them")
             ->setHelp(
                 <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
@@ -75,6 +76,7 @@ EOT
         $version = $input->getOption('target');
         $environment = $input->getOption('environment');
         $date = $input->getOption('date');
+        $fake = (bool)$input->getOption('fake');
 
         if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -107,12 +109,16 @@ EOT
             $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
         }
 
+        if ($fake) {
+            $output->writeln('<comment>warning</comment> performing fake migrations');
+        }
+
         // run the migrations
         $start = microtime(true);
         if ($date !== null) {
-            $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
+            $this->getManager()->migrateToDateTime($environment, new \DateTime($date), $fake);
         } else {
-            $this->getManager()->migrate($environment, $version);
+            $this->getManager()->migrate($environment, $version, $fake);
         }
         $end = microtime(true);
 

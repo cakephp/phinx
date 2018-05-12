@@ -141,8 +141,8 @@ Phinx can only reverse the following commands:
 -  addIndex
 -  addForeignKey
 
-If a command cannot be reversed then Phinx will throw a
-``IrreversibleMigrationException`` exception when it's migrating down.
+If a command cannot be reversed then Phinx will throw an
+``IrreversibleMigrationException`` when it's migrating down.
 
 The Up Method
 ~~~~~~~~~~~~~
@@ -559,6 +559,43 @@ In addition, the Postgres adapter supports ``smallint``, ``interval``, ``json``,
 (PostgreSQL 9.3 and above).
 
 For valid options, see the `Valid Column Options`_ below.
+
+Custom Column Types & Default Values
+~~~~~~~~~~~~~~~~~~~
+
+Some DBMS systems provide additional column types and default values that are specific to them.
+If you don't want to keep your migrations DBMS-agnostic you can use those custom types in your migrations
+through the ``\Phinx\Util\Literal::from`` method, which takes a string as its only argument, and returns an
+instance of ``\Phinx\Util\Literal``. When Phinx encounters this value as a column's type it knows not to
+run any validation on it and to use it exactly as supplied without escaping. This also works for ``default``
+values.
+
+You can see an example below showing how to add a ``citext`` column as well as a column whose default value
+is a function, in PostgreSQL. This method of preventing the built-in escaping is supported in all adapters.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+        use Phinx\Util\Literal;
+
+        class AddSomeColumns extends AbstractMigration
+        {
+            public function change()
+            {
+                $this->table('users')
+                      ->addColumn('username', Literal::from('citext'))
+                      ->addColumn('uniqid', 'uuid', [
+                          'default' => Literal::from('uuid_generate_v4()')
+                      ])
+                      ->addColumn('creation', 'timestamp', [
+                          'timezone' => true,
+                          'default' => Literal::from('now()')
+                      ])
+                      ->save();
+            }
+        }
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
