@@ -472,22 +472,25 @@ class Table
      *
      * @param string|null $createdAtColumnName
      * @param string|null $updatedAtColumnName
+     * @param bool        $withTimezone
      *
      * @return \Phinx\Db\Table
      */
-    public function addTimestamps($createdAtColumnName = 'created_at', $updatedAtColumnName = 'updated_at')
+    public function addTimestamps($createdAtColumnName = 'created_at', $updatedAtColumnName = 'updated_at', $withTimezone = false)
     {
         $createdAtColumnName = is_null($createdAtColumnName) ? 'created_at' : $createdAtColumnName;
         $updatedAtColumnName = is_null($updatedAtColumnName) ? 'updated_at' : $updatedAtColumnName;
 
         $this->addColumn($createdAtColumnName, 'timestamp', [
-                'default' => 'CURRENT_TIMESTAMP',
-                'update' => ''
-            ])
-             ->addColumn($updatedAtColumnName, 'timestamp', [
-                 'null' => true,
-                 'default' => null
-             ]);
+                   'default' => 'CURRENT_TIMESTAMP',
+                   'update' => '',
+                   'timezone' => $withTimezone,
+               ])
+               ->addColumn($updatedAtColumnName, 'timestamp', [
+                   'null' => true,
+                   'default' => null,
+                   'timezone' => $withTimezone,
+               ]);
 
         return $this;
     }
