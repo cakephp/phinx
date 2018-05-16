@@ -496,6 +496,22 @@ class Table
     }
 
     /**
+     * Alias that always sets $withTimezone to true
+     * @see addTimestamps
+     *
+     * @param string|null $createdAtColumnName
+     * @param string|null $updatedAtColumnName
+     *
+     * @return \Phinx\Db\Table
+     */
+    public function addTimestampsWithTimezone($createdAtColumnName = null, $updatedAtColumnName = null)
+    {
+        $this->addTimestamps($createdAtColumnName, $updatedAtColumnName, true);
+
+        return $this;
+    }
+
+    /**
      * Insert data into the table.
      *
      * @param array $data array of data in the form:
