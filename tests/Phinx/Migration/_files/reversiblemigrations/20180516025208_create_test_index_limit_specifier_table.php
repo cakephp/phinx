@@ -31,7 +31,7 @@ class CreateTestIndexLimitSpecifierTable extends AbstractMigration
         $table->addColumn('column1', 'string')
               ->addColumn('column2', 'string')
               ->addColumn('column3', 'string')
-              ->addIndex([ 'column1', 'column2', 'column3' ], [ 'limit' => [ 'column2'=> 10 ] ])
+              ->addIndex([ 'column1', 'column2', 'column3' ], [ 'limit' => [ 'column2' => 10 ] ])
               ->create();
     }
 }

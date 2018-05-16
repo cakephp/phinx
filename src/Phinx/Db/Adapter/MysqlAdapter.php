@@ -1036,21 +1036,21 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             if ($index->getLimit()) {
                 $limit = '(' . $index->getLimit() . ')';
             }
-		    $def .= ' (`' . implode( '`,`', $index->getColumns() ) . '`' . $limit . ')';
-	    } else {
-		    $columns = $index->getColumns();
-		    $limits = $index->getLimit();
-		    $def .= ' (';
-		    $columns_iter = new \CachingIterator(new \ArrayIterator($columns));
-		    foreach ($columns_iter as $column) {
-			    $limit = ! isset( $limits[ $column ] ) || $limits[ $column ] <= 0 ? '' : '(' . $limits[ $column ] . ')';
-			    $def .= '`' . $column . '`' . $limit;
-			    if ( $columns_iter->hasNext()) {
-				    $def .= ',';
-			    }
-		    }
-		    $def .= ' )';
-	    }
+            $def .= ' (`' . implode('`,`', $index->getColumns()) . '`' . $limit . ')';
+        } else {
+            $columns = $index->getColumns();
+            $limits = $index->getLimit();
+            $def .= ' (';
+            $columns_iter = new \CachingIterator(new \ArrayIterator($columns));
+            foreach ($columns_iter as $column) {
+                $limit = ! isset($limits[$column]) || $limits[$column] <= 0 ? '' : '(' . $limits[$column] . ')';
+                $def .= '`' . $column . '`' . $limit;
+                if ($columns_iter->hasNext()) {
+                    $def .= ',';
+                }
+            }
+            $def .= ' )';
+        }
 
         return $def;
     }
