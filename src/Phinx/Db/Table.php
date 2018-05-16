@@ -485,12 +485,12 @@ class Table
                    'default' => 'CURRENT_TIMESTAMP',
                    'update' => '',
                    'timezone' => $withTimezone,
-               ])
-               ->addColumn($updatedAt, 'timestamp', [
-                   'null' => true,
-                   'default' => null,
-                   'timezone' => $withTimezone,
-               ]);
+             ])
+             ->addColumn($updatedAt, 'timestamp', [
+                 'null' => true,
+                 'default' => null,
+                 'timezone' => $withTimezone,
+             ]);
 
         return $this;
     }
