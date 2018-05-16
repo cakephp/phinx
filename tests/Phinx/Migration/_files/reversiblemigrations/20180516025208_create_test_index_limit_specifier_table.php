@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class CreateTestTable extends AbstractMigration {
+class CreateTestIndexLimitSpecifierTable extends AbstractMigration {
 	/**
 	 * Change Method.
 	 *
@@ -25,11 +25,11 @@ class CreateTestTable extends AbstractMigration {
 	 * with the Table class.
 	 */
 	public function change() {
-		$table = $this->table( 'test_foo_bar' );
+		$table = $this->table( 'test_index_limit_specifier' );
 		$table->addColumn( 'column1', 'string' )
 		      ->addColumn( 'column2', 'string' )
 		      ->addColumn( 'column3', 'string' )
-		      ->addIndex( [ 'column1', 'column2', 'column3' ], [ 'limit' => [0,10]] )
+		      ->addIndex( [ 'column1', 'column2', 'column3' ], [ 'limit' => [ 0, 10 ] ] )
 		      ->create();
 	}
 }
