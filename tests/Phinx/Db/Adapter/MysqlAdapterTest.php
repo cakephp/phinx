@@ -856,7 +856,7 @@ class MysqlAdapterTest extends TestCase
               ->addColumn('username', 'string')
               ->save();
         $this->assertFalse($table->hasIndex(['email', 'username']));
-        $table->addIndex(['email', 'username'], ['limit' => [ 'email'=>3, 'username'=>2 ]])
+        $table->addIndex(['email', 'username'], ['limit' => [ 'email' => 3, 'username' => 2 ]])
               ->save();
         $this->assertTrue($table->hasIndex(['email', 'username']));
         $index_data = $this->adapter->query(sprintf(
@@ -880,7 +880,7 @@ class MysqlAdapterTest extends TestCase
             ->addColumn('username', 'string')
             ->save();
         $this->assertFalse($table->hasIndex('email'));
-        $table->addIndex('email', ['limit' => [ 'email'=>3, 2 ]])
+        $table->addIndex('email', ['limit' => [ 'email' => 3, 2 ]])
             ->save();
         $this->assertTrue($table->hasIndex('email'));
         $index_data = $this->adapter->query(sprintf(
