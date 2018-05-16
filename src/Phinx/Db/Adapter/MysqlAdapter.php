@@ -1034,15 +1034,16 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
 	    if ( ! is_array( $index->getLimit() ) ) {
 		    $limit = '(' . $index->getLimit() . ')';
-		    $def   .= ' (`' . implode( '`,`', $index->getColumns() ) . '`' . $limit . ')';
+		    $def .= ' (`' . implode( '`,`', $index->getColumns() ) . '`' . $limit . ')';
 	    } else {
 		    $columns = $index->getColumns();
 		    $limits  = $index->getLimit();
-		    $def     .= ' (';
-		    for ( $i = 0; $i < count( $columns ); $i ++ ) {
+		    $columns_count = count($columns);
+		    $def .= ' (';
+		    for ( $i = 0; $i < $columns_count; $i ++ ) {
 			    $limit = ! isset( $limits[ $i ] ) || $limits[ $i ] <= 0 ? '' : '(' . $limits[ $i ] . ')';
-			    $def   .= '`' . $columns[ $i ] . '`' . $limit;
-			    if ( $i + 1 < count( $columns ) ) {
+			    $def .= '`' . $columns[ $i ] . '`' . $limit;
+			    if ( $i + 1 < $columns_count ) {
 				    $def .= ',';
 			    }
 		    }
