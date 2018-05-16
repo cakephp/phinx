@@ -1040,12 +1040,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 	    } else {
 		    $columns = $index->getColumns();
 		    $limits = $index->getLimit();
-		    $columns_count = count($columns);
 		    $def .= ' (';
-		    for ( $i = 0; $i < $columns_count; $i ++ ) {
-			    $limit = ! isset( $limits[ $i ] ) || $limits[ $i ] <= 0 ? '' : '(' . $limits[ $i ] . ')';
-			    $def .= '`' . $columns[ $i ] . '`' . $limit;
-			    if ( $i + 1 < $columns_count ) {
+		    $columns_iter = new \CachingIterator(new \ArrayIterator($columns));
+		    foreach ($columns_iter as $column) {
+			    $limit = ! isset( $limits[ $column ] ) || $limits[ $column ] <= 0 ? '' : '(' . $limits[ $column ] . ')';
+			    $def .= '`' . $column . '`' . $limit;
+			    if ( $columns_iter->hasNext()) {
 				    $def .= ',';
 			    }
 		    }

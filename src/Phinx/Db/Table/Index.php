@@ -61,7 +61,7 @@ class Index
     protected $name = null;
 
     /**
-     * @var integer|array
+     * @var integer|array|null limit value or array of limit value
      */
     protected $limit = null;
 
