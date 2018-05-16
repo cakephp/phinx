@@ -1033,7 +1033,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
 
 	    if ( ! is_array( $index->getLimit() ) ) {
-		    $limit = '(' . $index->getLimit() . ')';
+            if($index->getLimit()) {
+                $limit = '(' . $index->getLimit() . ')';
+            }
 		    $def .= ' (`' . implode( '`,`', $index->getColumns() ) . '`' . $limit . ')';
 	    } else {
 		    $columns = $index->getColumns();

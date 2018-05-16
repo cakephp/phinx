@@ -46,11 +46,6 @@ class Index
     const FULLTEXT = 'fulltext';
 
     /**
-     * @var string
-     */
-    const LIMIT = 'limit';
-
-    /**
      * @var array
      */
     protected $columns;
