@@ -1092,7 +1092,7 @@ class PostgresAdapterTest extends TestCase
         $rows = $this->adapter->fetchAll(
             sprintf(
                 "SELECT description FROM pg_description JOIN pg_class ON pg_description.objoid = " .
-"pg_class.oid WHERE relname = '%s'",
+                "pg_class.oid WHERE relname = '%s'",
                 'ntable'
             )
         );
@@ -1565,8 +1565,8 @@ class PostgresAdapterTest extends TestCase
             ->save();
 
         $expectedOutput = 'CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
-'NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
-'"table1_pkey" PRIMARY KEY ("id"));';
+        'NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+        '"table1_pkey" PRIMARY KEY ("id"));';
         $actualOutput = $consoleOutput->fetch();
         $this->assertContains(
             $expectedOutput,
@@ -1591,8 +1591,8 @@ class PostgresAdapterTest extends TestCase
             ->save();
 
         $expectedOutput = 'CREATE TABLE "schema1"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
-'NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
-'"table1_pkey" PRIMARY KEY ("id"));';
+        'NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+        '"table1_pkey" PRIMARY KEY ("id"));';
         $actualOutput = $consoleOutput->fetch();
         $this->assertContains(
             $expectedOutput,

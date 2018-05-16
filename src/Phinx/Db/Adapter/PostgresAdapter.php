@@ -1089,9 +1089,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         $constraintName = $foreignKey->getConstraint() ?: ($parts['table'] . '_' . implode('_', $foreignKey->getColumns()) . '_fkey');
         $def = ' CONSTRAINT ' . $this->quoteColumnName($constraintName) .
-' FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")' .
-" REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" .
-implode('", "', $foreignKey->getReferencedColumns()) . '")';
+        ' FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")' .
+        " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" .
+        implode('", "', $foreignKey->getReferencedColumns()) . '")';
         if ($foreignKey->getOnDelete()) {
             $def .= " ON DELETE {$foreignKey->getOnDelete()}";
         }
