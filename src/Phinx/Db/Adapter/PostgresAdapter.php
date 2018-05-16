@@ -1088,13 +1088,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $parts = $this->getSchemaName($tableName);
 
         $constraintName = $foreignKey->getConstraint() ?: ($parts['table'] . '_' . implode('_', $foreignKey->getColumns()) . '_fkey');
-        $def = ' CONSTRAINT ' . $this->quoteColumnName($constraintName)
-            . ' FOREIGN KEY ("'
-            . implode('", "', $foreignKey->getColumns())
-            . '")'
-            . " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\""
-            . implode('", "', $foreignKey->getReferencedColumns())
-            . '")';
+        $def = ' CONSTRAINT ' . $this->quoteColumnName($constraintName) .
+' FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")' .
+" REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" .
+implode('", "', $foreignKey->getReferencedColumns()) . '")';
         if ($foreignKey->getOnDelete()) {
             $def .= " ON DELETE {$foreignKey->getOnDelete()}";
         }
@@ -1128,7 +1125,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createSchema($schemaName = 'public')
     {
-        $sql = sprintf('CREATE SCHEMA %s;', $this->quoteSchemaName($schemaName)); // from postgres 9.3 we can use "CREATE SCHEMA IF NOT EXISTS schema_name"
+        // from postgres 9.3 we can use "CREATE SCHEMA IF NOT EXISTS schema_name"
+        $sql = sprintf('CREATE SCHEMA %s;', $this->quoteSchemaName($schemaName));
         $this->execute($sql);
     }
 
@@ -1229,7 +1227,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * @param string $tableName
+     * @param string $tableName Table name
      * @return array
      */
     private function getSchemaName($tableName)

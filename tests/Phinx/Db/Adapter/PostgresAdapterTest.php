@@ -419,7 +419,11 @@ class PostgresAdapterTest extends TestCase
         $columns = $this->adapter->getColumns('citable');
         foreach ($columns as $column) {
             if ($column->getName() === 'insensitive') {
-                $this->assertEquals('citext', (string)$column->getType(), 'column: ' . $column->getName());
+                $this->assertEquals(
+                    'citext',
+                    (string)$column->getType(),
+                    'column: ' . $column->getName()
+                );
             }
         }
     }
@@ -1085,10 +1089,13 @@ class PostgresAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
 
-        $rows = $this->adapter->fetchAll(sprintf(
-            "SELECT description FROM pg_description JOIN pg_class ON pg_description.objoid = pg_class.oid WHERE relname = '%s'",
-            'ntable'
-        ));
+        $rows = $this->adapter->fetchAll(
+            sprintf(
+                "SELECT description FROM pg_description JOIN pg_class ON pg_description.objoid = " .
+"pg_class.oid WHERE relname = '%s'",
+                'ntable'
+            )
+        );
 
         $this->assertEquals($tableComment, $rows[0]['description'], 'Dont set table comment correctly');
     }
@@ -1096,8 +1103,11 @@ class PostgresAdapterTest extends TestCase
     public function testCanAddColumnComment()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-        $table->addColumn('field1', 'string', ['comment' => $comment = 'Comments from column "field1"'])
-              ->save();
+        $table->addColumn(
+            'field1',
+            'string',
+            ['comment' => $comment = 'Comments from column "field1"']
+        )->save();
 
         $row = $this->adapter->fetchRow(
             'SELECT
@@ -1146,8 +1156,11 @@ class PostgresAdapterTest extends TestCase
         $table->addColumn('field1', 'string', ['comment' => 'Comments from column "field1"'])
               ->save();
 
-        $table->changeColumn('field1', 'string', ['comment' => $comment = 'New Comments from column "field1"'])
-              ->save();
+        $table->changeColumn(
+            'field1',
+            'string',
+            ['comment' => $comment = 'New Comments from column "field1"']
+        )->save();
 
         $row = $this->adapter->fetchRow(
             'SELECT
@@ -1270,7 +1283,11 @@ class PostgresAdapterTest extends TestCase
         $local = new \Phinx\Db\Table('users', ['primary_key' => $userId, 'id' => $userId], $this->adapter);
         $local->create();
 
-        $foreign = new \Phinx\Db\Table('sessions', ['primary_key' => $sessionId, 'id' => $sessionId], $this->adapter);
+        $foreign = new \Phinx\Db\Table(
+            'sessions',
+            ['primary_key' => $sessionId, 'id' => $sessionId],
+            $this->adapter
+        );
         $foreign->addColumn('user', 'integer')
                 ->addForeignKey('user', 'users', $userId)
                 ->create();
@@ -1342,8 +1359,10 @@ class PostgresAdapterTest extends TestCase
         $table
             ->addColumn('timestamp_tz', 'timestamp', ['timezone' => true])
             ->addColumn('time_tz', 'time', ['timezone' => true])
-            ->addColumn('date_notz', 'date', ['timezone' => true]) /* date columns cannot have timestamp */
-            ->addColumn('time_notz', 'timestamp') /* default for timezone option is false */
+            /* date columns cannot have timestamp */
+            ->addColumn('date_notz', 'date', ['timezone' => true])
+            /* default for timezone option is false */
+            ->addColumn('time_notz', 'timestamp')
             ->save();
 
         $this->assertTrue($this->adapter->hasColumn('tztable', 'timestamp_tz'));
@@ -1369,8 +1388,10 @@ class PostgresAdapterTest extends TestCase
         $table
             ->addColumn('timestamp_tz', 'timestamp', ['timezone' => true])
             ->addColumn('time_tz', 'time', ['timezone' => true])
-            ->addColumn('date_notz', 'date', ['timezone' => true]) /* date columns cannot have timestamp */
-            ->addColumn('time_notz', 'timestamp') /* default for timezone option is false */
+            /* date columns cannot have timestamp */
+            ->addColumn('date_notz', 'date', ['timezone' => true])
+            /* default for timezone option is false */
+            ->addColumn('time_notz', 'timestamp')
             ->save();
 
         $this->assertTrue($this->adapter->hasColumn('tzschema.tztable', 'timestamp_tz'));
@@ -1543,11 +1564,15 @@ class PostgresAdapterTest extends TestCase
             ->addColumn('column3', 'string', ['default' => 'test'])
             ->save();
 
-        $expectedOutput = <<<'OUTPUT'
-CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT 'test', CONSTRAINT "table1_pkey" PRIMARY KEY ("id"));
-OUTPUT;
+        $expectedOutput = 'CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
+'NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+'"table1_pkey" PRIMARY KEY ("id"));';
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query');
+        $this->assertContains(
+            $expectedOutput,
+            $actualOutput,
+            'Passing the --dry-run option does not dump create table query'
+        );
     }
 
     public function testDumpCreateTableWithSchema()
@@ -1565,11 +1590,15 @@ OUTPUT;
             ->addColumn('column3', 'string', ['default' => 'test'])
             ->save();
 
-        $expectedOutput = <<<'OUTPUT'
-CREATE TABLE "schema1"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT 'test', CONSTRAINT "table1_pkey" PRIMARY KEY ("id"));
-OUTPUT;
+        $expectedOutput = 'CREATE TABLE "schema1"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
+'NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+'"table1_pkey" PRIMARY KEY ("id"));';
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query');
+        $this->assertContains(
+            $expectedOutput,
+            $actualOutput,
+            'Passing the --dry-run option does not dump create table query'
+        );
     }
 
     /**
@@ -1608,7 +1637,11 @@ INSERT INTO "public"."table1" ("string_col") VALUES (null);
 INSERT INTO "public"."table1" ("int_col") VALUES (23);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the insert to the output');
+        $this->assertContains(
+            $expectedOutput,
+            $actualOutput,
+            'Passing the --dry-run option doesn\'t dump the insert to the output'
+        );
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
         self::assertTrue($countQuery->execute());
@@ -1649,7 +1682,11 @@ OUTPUT;
 INSERT INTO "public"."table1" ("string_col", "int_col") VALUES ('test_data1', 23), (null, 42);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the bulkinsert to the output');
+        $this->assertContains(
+            $expectedOutput,
+            $actualOutput,
+            'Passing the --dry-run option doesn\'t dump the bulkinsert to the output'
+        );
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
         self::assertTrue($countQuery->execute());
