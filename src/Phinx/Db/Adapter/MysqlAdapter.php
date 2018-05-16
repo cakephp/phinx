@@ -1032,22 +1032,22 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= ' `' . $index->getName() . '`';
         }
 
-	    if ( ! is_array( $index->getLimit() ) ) {
-		    $limit = '(' . $index->getLimit() . ')';
-		    $def   .= ' (`' . implode( '`,`', $index->getColumns() ) . '`' . $limit . ')';
-	    } else {
-		    $columns = $index->getColumns();
-		    $limits  = $index->getLimit();
-		    $def     .= ' (';
-		    for ( $i = 0; $i < count( $columns ); $i ++ ) {
-			    $limit = ! isset( $limits[ $i ] ) || $limits[ $i ] <= 0 ? '' : '(' . $limits[ $i ] . ')';
-			    $def   .= '`' . $columns[ $i ] . '`' . $limit;
-			    if ( $i + 1 < count( $columns ) ) {
-				    $def .= ',';
-			    }
-		    }
-		    $def .= ' )';
-	    }
+        if (! is_array($index->getLimit())) {
+            $limit = '(' . $index->getLimit() . ')';
+            $def   .= ' (`' . implode('`,`', $index->getColumns()) . '`' . $limit . ')';
+        } else {
+            $columns = $index->getColumns();
+            $limits  = $index->getLimit();
+            $def     .= ' (';
+            for ($i = 0; $i < count($columns); $i ++) {
+                $limit = ! isset($limits[$i]) || $limits[$i] <= 0 ? '' : '(' . $limits[$i] . ')';
+                $def   .= '`' . $columns[$i] . '`' . $limit;
+                if ($i + 1 < count($columns)) {
+                    $def .= ',';
+                }
+            }
+            $def .= ' )';
+        }
 
         return $def;
     }
