@@ -46,6 +46,11 @@ class Index
     const FULLTEXT = 'fulltext';
 
     /**
+     * @var string
+     */
+    const LIMIT = 'limit';
+
+    /**
      * @var array
      */
     protected $columns;
@@ -61,7 +66,7 @@ class Index
     protected $name = null;
 
     /**
-     * @var integer
+     * @var integer|array
      */
     protected $limit = null;
 
@@ -137,7 +142,7 @@ class Index
     /**
      * Sets the index limit.
      *
-     * @param int $limit
+     * @param int|array $limit
      * @return \Phinx\Db\Table\Index
      */
     public function setLimit($limit)
@@ -150,7 +155,7 @@ class Index
     /**
      * Gets the index limit.
      *
-     * @return int
+     * @return int|array
      */
     public function getLimit()
     {
