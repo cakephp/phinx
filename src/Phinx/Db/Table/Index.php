@@ -61,7 +61,7 @@ class Index
     protected $name = null;
 
     /**
-     * @var integer|array|null limit value or array of limit value
+     * @var integer|array|null
      */
     protected $limit = null;
 
@@ -137,7 +137,7 @@ class Index
     /**
      * Sets the index limit.
      *
-     * @param int|array $limit
+     * @param int|array $limit limit value or array of limit value
      * @return \Phinx\Db\Table\Index
      */
     public function setLimit($limit)
