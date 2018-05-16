@@ -1039,7 +1039,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 		    $def .= ' (`' . implode( '`,`', $index->getColumns() ) . '`' . $limit . ')';
 	    } else {
 		    $columns = $index->getColumns();
-		    $limits  = $index->getLimit();
+		    $limits = $index->getLimit();
 		    $columns_count = count($columns);
 		    $def .= ' (';
 		    for ( $i = 0; $i < $columns_count; $i ++ ) {
