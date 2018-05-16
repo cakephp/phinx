@@ -499,7 +499,7 @@ Option    Description
 comment   set a text comment on the table
 engine    define table engine *(defaults to ``InnoDB``)*
 collation define table collation *(defaults to ``utf8_general_ci``)*
-signed    whether the primary key is ``signed``
+signed    whether the primary key is ``signed``  *(defaults to ``true``)*
 ========= ===========
 
 By default the primary key is ``signed``.
@@ -532,6 +532,15 @@ To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
 
             }
         }
+
+
+The PostgreSQL adapter supports the following options:
+
+========= ===========
+Option    Description
+========= ===========
+comment   set a text comment on the table
+========= ===========
 
 Valid Column Types
 ~~~~~~~~~~~~~~~~~~
