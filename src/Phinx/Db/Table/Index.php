@@ -45,10 +45,10 @@ class Index
      */
     const FULLTEXT = 'fulltext';
 
-	/**
-	 * @var string
-	 */
-    const LIMIT ='limit';
+    /**
+     * @var string
+     */
+    const LIMIT = 'limit';
 
     /**
      * @var array
