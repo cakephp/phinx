@@ -398,15 +398,17 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName)
     {
-        $rows = $this->fetchAll(sprintf('DESCRIBE %s', $this->quoteTableName($tableName)));
+        $rows = $this->fetchAll(sprintf('SHOW FULL COLUMNS FROM %s', $this->quoteTableName($tableName)));
+
         foreach ($rows as $row) {
             if (strcasecmp($row['Field'], $columnName) === 0) {
                 $null = ($row['Null'] == 'NO') ? 'NOT NULL' : 'NULL';
+                $comment = isset($row['Comment']) ? ' COMMENT ' . '\'' . addslashes($row['Comment']) . '\'' : '';
                 $extra = ' ' . strtoupper($row['Extra']);
                 if (!is_null($row['Default'])) {
                     $extra .= $this->getDefaultValueDefinition($row['Default']);
                 }
-                $definition = $row['Type'] . ' ' . $null . $extra;
+                $definition = $row['Type'] . ' ' . $null . $extra . $comment;
 
                 $alter = sprintf(
                     'CHANGE COLUMN %s %s %s',
