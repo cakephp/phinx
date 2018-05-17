@@ -2,19 +2,20 @@
 
 namespace Test\Phinx\Console\Command;
 
+use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
+use Phinx\Console\Command\SeedRun;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
+use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\StreamOutput;
-use Phinx\Config\Config;
-use Phinx\Console\Command\SeedRun;
+use Symfony\Component\Console\Tester\CommandTester;
 
-class SeedRunTest extends \PHPUnit_Framework_TestCase
+class SeedRunTest extends TestCase
 {
     /**
      * @var ConfigInterface|array

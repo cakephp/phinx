@@ -41,7 +41,6 @@ class CreateInitialSchema extends AbstractMigration
      */
     public function up()
     {
-
     }
 
     /**
@@ -49,6 +48,5 @@ class CreateInitialSchema extends AbstractMigration
      */
     public function down()
     {
-
     }
 }

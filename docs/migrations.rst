@@ -141,8 +141,8 @@ Phinx can only reverse the following commands:
 -  addIndex
 -  addForeignKey
 
-If a command cannot be reversed then Phinx will throw a
-``IrreversibleMigrationException`` exception when it's migrating down.
+If a command cannot be reversed then Phinx will throw an
+``IrreversibleMigrationException`` when it's migrating down.
 
 The Up Method
 ~~~~~~~~~~~~~
@@ -499,7 +499,7 @@ Option    Description
 comment   set a text comment on the table
 engine    define table engine *(defaults to ``InnoDB``)*
 collation define table collation *(defaults to ``utf8_general_ci``)*
-signed    whether the primary key is ``signed``
+signed    whether the primary key is ``signed``  *(defaults to ``true``)*
 ========= ===========
 
 By default the primary key is ``signed``.
@@ -533,6 +533,15 @@ To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
             }
         }
 
+
+The PostgreSQL adapter supports the following options:
+
+========= ===========
+Option    Description
+========= ===========
+comment   set a text comment on the table
+========= ===========
+
 Valid Column Types
 ~~~~~~~~~~~~~~~~~~
 
@@ -555,10 +564,47 @@ Column types are specified as strings and can be one of:
 In addition, the MySQL adapter supports ``enum``, ``set``, ``blob`` and ``json`` column types.
 (``json`` in MySQL 5.7 and above)
 
-In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
+In addition, the Postgres adapter supports ``smallint``, ``interval``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
 
 For valid options, see the `Valid Column Options`_ below.
+
+Custom Column Types & Default Values
+~~~~~~~~~~~~~~~~~~~
+
+Some DBMS systems provide additional column types and default values that are specific to them.
+If you don't want to keep your migrations DBMS-agnostic you can use those custom types in your migrations
+through the ``\Phinx\Util\Literal::from`` method, which takes a string as its only argument, and returns an
+instance of ``\Phinx\Util\Literal``. When Phinx encounters this value as a column's type it knows not to
+run any validation on it and to use it exactly as supplied without escaping. This also works for ``default``
+values.
+
+You can see an example below showing how to add a ``citext`` column as well as a column whose default value
+is a function, in PostgreSQL. This method of preventing the built-in escaping is supported in all adapters.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+        use Phinx\Util\Literal;
+
+        class AddSomeColumns extends AbstractMigration
+        {
+            public function change()
+            {
+                $this->table('users')
+                      ->addColumn('username', Literal::from('citext'))
+                      ->addColumn('uniqid', 'uuid', [
+                          'default' => Literal::from('uuid_generate_v4()')
+                      ])
+                      ->addColumn('creation', 'timestamp', [
+                          'timezone' => true,
+                          'default' => Literal::from('now()')
+                      ])
+                      ->save();
+            }
+        }
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -710,7 +756,7 @@ limit   set maximum length for strings, also hints column types in adapters (see
 length  alias for ``limit``
 default set default value or action
 null    allow ``NULL`` values (should not be used with primary keys!)
-after   specify the column that a new column should be placed after
+after   specify the column that a new column should be placed after *(only applies to MySQL)*
 comment set a text comment on the column
 ======= ===========
 

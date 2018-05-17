@@ -29,8 +29,6 @@
 namespace Phinx\Seed;
 
 use Phinx\Db\Adapter\AdapterInterface;
-use Phinx\Db\Table;
-use Phinx\Migration\MigrationInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -56,45 +54,45 @@ interface SeedInterface
     /**
      * Sets the database adapter.
      *
-     * @param AdapterInterface $adapter Database Adapter
-     * @return SeedInterface
+     * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
+     * @return \Phinx\Seed\SeedInterface
      */
     public function setAdapter(AdapterInterface $adapter);
 
     /**
      * Gets the database adapter.
      *
-     * @return AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getAdapter();
 
     /**
      * Sets the input object to be used in migration object
      *
-     * @param InputInterface $input
-     * @return SeedInterface
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @return \Phinx\Seed\SeedInterface
      */
     public function setInput(InputInterface $input);
 
     /**
      * Gets the input object to be used in migration object
      *
-     * @return InputInterface
+     * @return \Symfony\Component\Console\Input\InputInterface
      */
     public function getInput();
 
     /**
      * Sets the output object to be used in migration object
      *
-     * @param OutputInterface $output
-     * @return SeedInterface
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @return \Phinx\Seed\SeedInterface
      */
     public function setOutput(OutputInterface $output);
 
     /**
      * Gets the output object to be used in migration object
      *
-     * @return OutputInterface
+     * @return \Symfony\Component\Console\Output\OutputInterface
      */
     public function getOutput();
 
@@ -150,7 +148,7 @@ interface SeedInterface
      * Checks to see if a table exists.
      *
      * @param string $tableName Table Name
-     * @return boolean
+     * @return bool
      */
     public function hasTable($tableName);
 
@@ -161,7 +159,7 @@ interface SeedInterface
      *
      * @param string $tableName Table Name
      * @param array $options Options
-     * @return Table
+     * @return \Phinx\Db\Table
      */
     public function table($tableName, $options);
 }

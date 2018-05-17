@@ -7,6 +7,7 @@ use Phinx\Config\ConfigInterface;
 use Phinx\Console\Command\Create;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,7 +19,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  * @package Test\Phinx\Console\Command
  * @group create
  */
-class CreateTest extends \PHPUnit_Framework_TestCase
+class CreateTest extends TestCase
 {
     /**
      * @var ConfigInterface|array
@@ -37,11 +38,11 @@ class CreateTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        @mkdir(sys_get_temp_dir().DIRECTORY_SEPARATOR.'migrations', 0777, true);
+        @mkdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations', 0777, true);
         $this->config = new Config(
             [
                 'paths' => [
-                    'migrations' => sys_get_temp_dir().DIRECTORY_SEPARATOR.'migrations',
+                    'migrations' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations',
                 ],
                 'environments' => [
                     'default_migration_table' => 'phinxlog',
@@ -59,7 +60,7 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         );
 
         foreach ($this->config->getMigrationPaths() as $path) {
-            foreach (glob($path.'/*.*') as $migration) {
+            foreach (glob($path . '/*.*') as $migration) {
                 unlink($migration);
             }
         }
@@ -114,7 +115,7 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $config = clone $this->config;
         $config['paths'] = [
             'migrations' => [
-                'Foo\Bar' => sys_get_temp_dir().DIRECTORY_SEPARATOR.'migrations',
+                'Foo\Bar' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations',
             ],
         ];
         $command->setConfig($config);
@@ -303,7 +304,8 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
 
         $commandLine = array_merge(['command' => $command->getName()], $commandLine);
-        $commandTester->execute($commandLine);
+        $res = $commandTester->execute($commandLine);
+        $this->assertEquals(0, $res);
     }
 
     public function provideSimpleTemplateGenerator()
@@ -374,11 +376,25 @@ class CreateTest extends \PHPUnit_Framework_TestCase
         // Was migration created?
         $this->assertFileExists($match['MigrationFilename'], 'Failed to create migration file from template generator');
 
-        // Get migration.
-        $actualMigration = file_get_contents($match['MigrationFilename']);
-
         // Does the migration match our expectation?
         $expectedMigration = "useClassName Phinx\\Migration\\AbstractMigration / className {$commandLine['name']} / version {$match['Version']} / baseClassName AbstractMigration";
-        $this->assertSame($expectedMigration, $actualMigration, 'Failed to create migration file from template generator correctly.');
+        $this->assertStringEqualsFile($match['MigrationFilename'], $expectedMigration, 'Failed to create migration file from template generator correctly.');
+    }
+
+    public function setExpectedException($exceptionName, $exceptionMessage = '', $exceptionCode = null)
+    {
+        if (method_exists($this, 'expectException')) {
+            //PHPUnit 5+
+            $this->expectException($exceptionName);
+            if ($exceptionMessage !== '') {
+                $this->expectExceptionMessage($exceptionMessage);
+            }
+            if ($exceptionCode !== null) {
+                $this->expectExceptionCode($exceptionCode);
+            }
+        } else {
+            //PHPUnit 4
+            parent::setExpectedException($exceptionName, $exceptionMessage, $exceptionCode);
+        }
     }
 }

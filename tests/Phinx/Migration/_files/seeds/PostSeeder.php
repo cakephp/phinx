@@ -8,11 +8,11 @@ class PostSeeder extends AbstractSeed
     {
         $data = [
             [
-                'body'    => 'foo',
+                'body' => 'foo',
                 'created' => date('Y-m-d H:i:s'),
             ],
             [
-                'body'    => 'bar',
+                'body' => 'bar',
                 'created' => date('Y-m-d H:i:s'),
             ]
         ];
@@ -20,5 +20,13 @@ class PostSeeder extends AbstractSeed
         $posts = $this->table('posts');
         $posts->insert($data)
               ->save();
+    }
+
+    public function getDependencies()
+    {
+        return [
+            'UserSeeder',
+            'GSeeder',
+        ];
     }
 }

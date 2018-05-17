@@ -11,7 +11,7 @@ class RenameBioToBiography extends AbstractMigration
     {
         // users table
         $table = $this->table('users');
-        $table->renameColumn('bio', 'biography');
+        $table->renameColumn('bio', 'biography')->save();
     }
 
     /**
@@ -19,7 +19,6 @@ class RenameBioToBiography extends AbstractMigration
      */
     public function up()
     {
-
     }
 
     /**
@@ -27,6 +26,5 @@ class RenameBioToBiography extends AbstractMigration
      */
     public function down()
     {
-
     }
 }

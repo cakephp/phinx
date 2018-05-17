@@ -29,21 +29,51 @@
 namespace Phinx\Db\Adapter;
 
 use BadMethodCallException;
-use Phinx\Db\Table;
+use Phinx\Db\Action\AddColumn;
+use Phinx\Db\Action\AddForeignKey;
+use Phinx\Db\Action\AddIndex;
+use Phinx\Db\Action\ChangeColumn;
+use Phinx\Db\Action\DropForeignKey;
+use Phinx\Db\Action\DropIndex;
+use Phinx\Db\Action\DropTable;
+use Phinx\Db\Action\RemoveColumn;
+use Phinx\Db\Action\RenameColumn;
+use Phinx\Db\Action\RenameTable;
 use Phinx\Db\Table\Column;
+use Phinx\Db\Table\ForeignKey;
+use Phinx\Db\Table\Index;
+use Phinx\Db\Table\Table;
+use Phinx\Db\Util\AlterInstructions;
 use Phinx\Migration\MigrationInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Phinx PDO Adapter.
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-abstract class PdoAdapter extends AbstractAdapter
+abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterface
 {
     /**
      * @var \PDO|null
      */
     protected $connection;
+
+    /**
+     * Writes a message to stdout if vebose output is on
+     *
+     * @param string $message The message to show
+     * @return void
+     */
+    protected function verboseLog($message)
+    {
+        if (!$this->isDryRunEnabled() &&
+             $this->getOutput()->getVerbosity() < OutputInterface::VERBOSITY_VERY_VERBOSE) {
+            return;
+        }
+
+        $this->getOutput()->writeln($message);
+    }
 
     /**
      * {@inheritdoc}
@@ -63,7 +93,7 @@ abstract class PdoAdapter extends AbstractAdapter
      * Sets the database connection.
      *
      * @param \PDO $connection Connection
-     * @return AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function setConnection(\PDO $connection)
     {
@@ -73,7 +103,7 @@ abstract class PdoAdapter extends AbstractAdapter
         if (!$this->hasSchemaTable()) {
             $this->createSchemaTable();
         } else {
-            $table = new Table($this->getSchemaTableName(), [], $this);
+            $table = new \Phinx\Db\Table($this->getSchemaTableName(), [], $this);
             if (!$table->hasColumn('migration_name')) {
                 $table
                     ->addColumn(
@@ -103,6 +133,7 @@ abstract class PdoAdapter extends AbstractAdapter
         if ($this->connection === null) {
             $this->connect();
         }
+
         return $this->connection;
     }
 
@@ -125,8 +156,9 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function execute($sql)
     {
+        $this->verboseLog($sql);
+
         if ($this->isDryRunEnabled()) {
-            $this->getOutput()->writeln($sql);
             return 0;
         }
 
@@ -150,6 +182,7 @@ abstract class PdoAdapter extends AbstractAdapter
     public function fetchRow($sql)
     {
         $result = $this->query($sql);
+
         return $result->fetch();
     }
 
@@ -163,6 +196,7 @@ abstract class PdoAdapter extends AbstractAdapter
         while ($row = $result->fetch()) {
             $rows[] = $row;
         }
+
         return $rows;
     }
 
@@ -172,16 +206,39 @@ abstract class PdoAdapter extends AbstractAdapter
     public function insert(Table $table, $row)
     {
         $sql = sprintf(
-            "INSERT INTO %s ",
+            'INSERT INTO %s ',
             $this->quoteTableName($table->getName())
         );
-
         $columns = array_keys($row);
-        $sql .= "(". implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
-        $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
+        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ')';
 
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->execute(array_values($row));
+        if ($this->isDryRunEnabled()) {
+            $sql .= ' VALUES (' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ');';
+            $this->output->writeln($sql);
+        } else {
+            $sql .= ' VALUES (' . implode(', ', array_fill(0, count($columns), '?')) . ')';
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute(array_values($row));
+        }
+    }
+
+    /**
+     * Quotes a database value.
+     *
+     * @param mixed $value  The value to quote
+     * @return mixed
+     */
+    private function quoteValue($value)
+    {
+        if (is_numeric($value)) {
+            return $value;
+        }
+
+        if ($value === null) {
+            return 'null';
+        }
+
+        return $this->getConnection()->quote($value);
     }
 
     /**
@@ -190,30 +247,36 @@ abstract class PdoAdapter extends AbstractAdapter
     public function bulkinsert(Table $table, $rows)
     {
         $sql = sprintf(
-            "INSERT INTO %s ",
+            'INSERT INTO %s ',
             $this->quoteTableName($table->getName())
         );
-
         $current = current($rows);
         $keys = array_keys($current);
-        $sql .= "(". implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ") VALUES";
+        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ') VALUES ';
 
-        $vals = [];
-        foreach ($rows as $row) {
-            foreach ($row as $v) {
-                $vals[] = $v;
+        if ($this->isDryRunEnabled()) {
+            $values = array_map(function ($row) {
+                return '(' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ')';
+            }, $rows);
+            $sql .= implode(', ', $values) . ';';
+            $this->output->writeln($sql);
+        } else {
+            $count_keys = count($keys);
+            $query = '(' . implode(', ', array_fill(0, $count_keys, '?')) . ')';
+            $count_vars = count($rows);
+            $queries = array_fill(0, $count_vars, $query);
+            $sql .= implode(',', $queries);
+            $stmt = $this->getConnection()->prepare($sql);
+            $vals = [];
+
+            foreach ($rows as $row) {
+                foreach ($row as $v) {
+                    $vals[] = $v;
+                }
             }
+
+            $stmt->execute($vals);
         }
-
-        $count_keys = count($keys);
-        $query = "(" . implode(', ', array_fill(0, $count_keys, '?')) . ")";
-
-        $count_vars = count($rows);
-        $queries = array_fill(0, $count_vars, $query);
-        $sql .= implode(',', $queries);
-
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->execute($vals);
     }
 
     /**
@@ -261,7 +324,7 @@ abstract class PdoAdapter extends AbstractAdapter
             // up
             $sql = sprintf(
                 "INSERT INTO %s (%s, %s, %s, %s, %s) VALUES ('%s', '%s', '%s', '%s', %s);",
-                $this->getSchemaTableName(),
+                $this->quoteTableName($this->getSchemaTableName()),
                 $this->quoteColumnName('version'),
                 $this->quoteColumnName('migration_name'),
                 $this->quoteColumnName('start_time'),
@@ -279,7 +342,7 @@ abstract class PdoAdapter extends AbstractAdapter
             // down
             $sql = sprintf(
                 "DELETE FROM %s WHERE %s = '%s'",
-                $this->getSchemaTableName(),
+                $this->quoteTableName($this->getSchemaTableName()),
                 $this->quoteColumnName('version'),
                 $migration->getVersion()
             );
@@ -354,6 +417,7 @@ abstract class PdoAdapter extends AbstractAdapter
             'text',
             'integer',
             'biginteger',
+            'bit',
             'float',
             'decimal',
             'datetime',
@@ -378,6 +442,360 @@ abstract class PdoAdapter extends AbstractAdapter
      */
     public function castToBool($value)
     {
-        return (bool) $value ? 1 : 0;
+        return (bool)$value ? 1 : 0;
+    }
+
+    /**
+     * Retrieve a database connection attribute
+     * @see http://php.net/manual/en/pdo.getattribute.php
+     *
+     * @param int $attribute One of the PDO::ATTR_* constants
+     * @return mixed
+     */
+    public function getAttribute($attribute)
+    {
+        return $this->connection->getAttribute($attribute);
+    }
+
+    /**
+     * Get the defintion for a `DEFAULT` statement.
+     *
+     * @param  mixed $default Default value
+     * @param string $columnType column type added
+     * @return string
+     */
+    protected function getDefaultValueDefinition($default, $columnType = null)
+    {
+        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
+            $default = $this->getConnection()->quote($default);
+        } elseif (is_bool($default)) {
+            $default = $this->castToBool($default);
+        } elseif ($columnType === static::PHINX_TYPE_BOOLEAN) {
+            $default = $this->castToBool((bool)$default);
+        }
+
+        return isset($default) ? " DEFAULT $default" : '';
+    }
+
+    /**
+     * Executes all the ALTER TABLE instructions passed for the given table
+     *
+     * @param string $tableName The table name to use in the ALTER statement
+     * @param AlterInstructions $instructions The object containing the alter sequence
+     * @return void
+     */
+    protected function executeAlterSteps($tableName, AlterInstructions $instructions)
+    {
+        $alter = sprintf('ALTER TABLE %s %%s', $this->quoteTableName($tableName));
+        $instructions->execute($alter, [$this, 'execute']);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addColumn(Table $table, Column $column)
+    {
+        $instructions = $this->getAddColumnInstructions($table, $column);
+        $this->executeAlterSteps($table, $instructions);
+    }
+
+    /**
+     * Returns the instrutions to add the specified column to a database table.
+     *
+     * @param \Phinx\Db\Table\Table $table Table
+     * @param \Phinx\Db\Table\Column $column Column
+     * @return AlterInstructions
+     */
+    abstract protected function getAddColumnInstructions(Table $table, Column $column);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameColumn($tableName, $columnName, $newColumnName)
+    {
+        $instructions = $this->getRenameColumnInstructions($tableName, $columnName, $newColumnName);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    /**
+     * Returns the instructions to rename the specified column.
+     *
+     * @param string $tableName Table Name
+     * @param string $columnName Column Name
+     * @param string $newColumnName New Column Name
+     * @return AlterInstructions:w
+     *
+     */
+    abstract protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function changeColumn($tableName, $columnName, Column $newColumn)
+    {
+        $instructions = $this->getChangeColumnInstructions($tableName, $columnName, $newColumn);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    /**
+     * Returns the instructions to change a table column type.
+     *
+     * @param string $tableName  Table Name
+     * @param string $columnName Column Name
+     * @param \Phinx\Db\Table\Column $newColumn  New Column
+     * @return AlterInstructions
+     */
+    abstract protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropColumn($tableName, $columnName)
+    {
+        $instructions = $this->getDropColumnInstructions($tableName, $columnName);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    /**
+     * Returns the instructions to drop the specified column.
+     *
+     * @param string $tableName Table Name
+     * @param string $columnName Column Name
+     * @return AlterInstructions
+     */
+    abstract protected function getDropColumnInstructions($tableName, $columnName);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addIndex(Table $table, Index $index)
+    {
+        $instructions = $this->getAddIndexInstructions($table, $index);
+        $this->executeAlterSteps($table->getName(), $instructions);
+    }
+
+    /**
+     * Returns the instructions to add the specified index to a database table.
+     *
+     * @param \Phinx\Db\Table\Table $table Table
+     * @param \Phinx\Db\Table\Index $index Index
+     * @return AlterInstructions
+     */
+    abstract protected function getAddIndexInstructions(Table $table, Index $index);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropIndex($tableName, $columns)
+    {
+        $instructions = $this->getDropIndexByColumnsInstructions($tableName, $columns);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    /**
+     * Returns the instructions to drop the specified index from a database table.
+     *
+     * @param string $tableName The name of of the table where the index is
+     * @param mixed $columns Column(s)
+     * @return AlterInstructions
+     */
+    abstract protected function getDropIndexByColumnsInstructions($tableName, $columns);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropIndexByName($tableName, $indexName)
+    {
+        $instructions = $this->getDropIndexByNameInstructions($tableName, $indexName);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    /**
+     * Returns the instructions to drop the index specified by name from a database table.
+     *
+     * @param string $tableName The table name whe the index is
+     * @param string $indexName The name of the index
+     * @return AlterInstructions
+     */
+    abstract protected function getDropIndexByNameInstructions($tableName, $indexName);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addForeignKey(Table $table, ForeignKey $foreignKey)
+    {
+        $instructions = $this->getAddForeignKeyInstructions($table, $foreignKey);
+        $this->executeAlterSteps($table->getName(), $instructions);
+    }
+
+    /**
+     * Returns the instructions to adds the specified foreign key to a database table.
+     *
+     * @param \Phinx\Db\Table\Table $table The table to add the constraint to
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey The foreign key to add
+     * @return AlterInstructions
+     */
+    abstract protected function getAddForeignKeyInstructions(Table $table, ForeignKey $foreignKey);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropForeignKey($tableName, $columns, $constraint = null)
+    {
+        if ($constraint) {
+            $instructions = $this->getDropForeignKeyInstructions($tableName, $constraint);
+        } else {
+            $instructions = $this->getDropForeignKeyByColumnsInstructions($tableName, $columns);
+        }
+
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    /**
+     * Returns the instructions to drop the specified foreign key from a database table.
+     *
+     * @param string   $tableName The table where the foreign key constraint is
+     * @param string   $constraint Constraint name
+     * @return AlterInstructions
+     */
+    abstract protected function getDropForeignKeyInstructions($tableName, $constraint);
+
+    /**
+     * Returns the instructions to drop the specified foreign key from a database table.
+     *
+     * @param string $tableName The table where the foreign key constraint is
+     * @param array $columns The list of column names
+     * @return AlterInstructions
+     */
+    abstract protected function getDropForeignKeyByColumnsInstructions($tableName, $columns);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropTable($tableName)
+    {
+        $instructions = $this->getDropTableInstructions($tableName);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    /**
+     * Returns the instructions to drop the specified database table.
+     *
+     * @param string $tableName Table Name
+     * @return AlterInstructions
+     */
+    abstract protected function getDropTableInstructions($tableName);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameTable($tableName, $newTableName)
+    {
+        $instructions = $this->getRenameTableInstructions($tableName, $newTableName);
+        $this->executeAlterSteps($tableName, $instructions);
+    }
+
+    /**
+     * Returns the instructions to rename the specified database table.
+     *
+     * @param string $tableName Table Name
+     * @param string $newTableName New Name
+     * @return AlterInstructions
+     */
+    abstract protected function getRenameTableInstructions($tableName, $newTableName);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function executeActions(Table $table, array $actions)
+    {
+        $instructions = new AlterInstructions();
+
+        foreach ($actions as $action) {
+            switch (true) {
+                case ($action instanceof AddColumn):
+                    $instructions->merge($this->getAddColumnInstructions($table, $action->getColumn()));
+                    break;
+
+                case ($action instanceof AddIndex):
+                    $instructions->merge($this->getAddIndexInstructions($table, $action->getIndex()));
+                    break;
+
+                case ($action instanceof AddForeignKey):
+                    $instructions->merge($this->getAddForeignKeyInstructions($table, $action->getForeignKey()));
+                    break;
+
+                case ($action instanceof ChangeColumn):
+                    $instructions->merge($this->getChangeColumnInstructions(
+                        $table->getName(),
+                        $action->getColumnName(),
+                        $action->getColumn()
+                    ));
+                    break;
+
+                case ($action instanceof DropForeignKey && !$action->getForeignKey()->getConstraint()):
+                    $instructions->merge($this->getDropForeignKeyByColumnsInstructions(
+                        $table->getName(),
+                        $action->getForeignKey()->getColumns()
+                    ));
+                    break;
+
+                case ($action instanceof DropForeignKey && $action->getForeignKey()->getConstraint()):
+                    $instructions->merge($this->getDropForeignKeyInstructions(
+                        $table->getName(),
+                        $action->getForeignKey()->getConstraint()
+                    ));
+                    break;
+
+                case ($action instanceof DropIndex && $action->getIndex()->getName() !== null):
+                    $instructions->merge($this->getDropIndexByNameInstructions(
+                        $table->getName(),
+                        $action->getIndex()->getName()
+                    ));
+                    break;
+
+                case ($action instanceof DropIndex && $action->getIndex()->getName() == null):
+                    $instructions->merge($this->getDropIndexByColumnsInstructions(
+                        $table->getName(),
+                        $action->getIndex()->getColumns()
+                    ));
+                    break;
+
+                case ($action instanceof DropTable):
+                    $instructions->merge($this->getDropTableInstructions(
+                        $table->getName()
+                    ));
+                    break;
+
+                case ($action instanceof RemoveColumn):
+                    $instructions->merge($this->getDropColumnInstructions(
+                        $table->getName(),
+                        $action->getColumn()->getName()
+                    ));
+                    break;
+
+                case ($action instanceof RenameColumn):
+                    $instructions->merge($this->getRenameColumnInstructions(
+                        $table->getName(),
+                        $action->getColumn()->getName(),
+                        $action->getNewName()
+                    ));
+                    break;
+
+                case ($action instanceof RenameTable):
+                    $instructions->merge($this->getRenameTableInstructions(
+                        $table->getName(),
+                        $action->getNewName()
+                    ));
+                    break;
+
+                default:
+                    throw new \InvalidArgumentException(
+                        sprintf("Don't know how to execute action: '%s'", get_class($action))
+                    );
+            }
+        }
+
+        $this->executeAlterSteps($table->getName(), $instructions);
     }
 }

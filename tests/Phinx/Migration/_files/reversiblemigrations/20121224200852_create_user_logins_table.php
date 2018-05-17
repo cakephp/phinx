@@ -25,7 +25,6 @@ class CreateUserLoginsTable extends AbstractMigration
      */
     public function up()
     {
-
     }
 
     /**
@@ -33,6 +32,5 @@ class CreateUserLoginsTable extends AbstractMigration
      */
     public function down()
     {
-
     }
 }

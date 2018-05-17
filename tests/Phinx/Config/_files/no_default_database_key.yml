@@ -1,5 +1,5 @@
 paths:
-    migrations: %%PHINX_CONFIG_DIR%%/migrations
+    migrations: '%%PHINX_CONFIG_DIR%%/migrations'
         
 environments:
     default_migration_table: phinxlog
@@ -34,4 +34,3 @@ environments:
         user: root
         pass: ''
         port: 3306
-                 
