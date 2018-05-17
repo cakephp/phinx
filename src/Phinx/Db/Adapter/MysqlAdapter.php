@@ -1041,14 +1041,11 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $columns = $index->getColumns();
             $limits = $index->getLimit();
             $def .= ' (';
-            $columns_iter = new \CachingIterator(new \ArrayIterator($columns));
-            foreach ($columns_iter as $column) {
-                $limit = ! isset($limits[$column]) || $limits[$column] <= 0 ? '' : '(' . $limits[$column] . ')';
-                $def .= '`' . $column . '`' . $limit;
-                if ($columns_iter->hasNext()) {
-                    $def .= ',';
-                }
+            foreach ($columns as $column) {
+                $limit = !isset($limits[$column]) || $limits[$column] <= 0 ? '' : '(' . $limits[$column] . ')';
+                $def .= '`' . $column . '`' . $limit.', ';
             }
+            $def = rtrim($def,', ');
             $def .= ' )';
         }
 
