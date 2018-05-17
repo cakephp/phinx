@@ -1043,7 +1043,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= ' (';
             foreach ($columns as $column) {
                 $limit = !isset($limits[$column]) || $limits[$column] <= 0 ? '' : '(' . $limits[$column] . ')';
-                $def .= '`' . $column . '`' . $limit. ', ';
+                $def .= '`' . $column . '`' . $limit . ', ';
             }
             $def = rtrim($def, ', ');
             $def .= ' )';
