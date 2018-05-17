@@ -5,8 +5,9 @@ Configuration
 =============
 
 When you initialize your project using the :doc:`Init Command<commands>`, Phinx
-creates a default file called ``phinx.yml`` in the root of your project directory.
-This file uses the YAML data serialization format.
+creates a default file in the root of your project directory. By default, this
+file uses the YAML data serialization format, but you can use the ``--format``
+command line option to specify either ``yml``, ``json``, or ``php``.
 
 If a ``--configuration`` command line option is given, Phinx will load the
 specified file. Otherwise, it will attempt to find ``phinx.php``, ``phinx.json`` or
@@ -34,19 +35,18 @@ This means that:
 
 .. code-block:: php
 
-   require 'app/init.php';
+    $app = require 'app/phinx.php';
+    $pdo = $app->getDatabase()->getPdo();
 
-   global $app;
-   $pdo = $app->getDatabase()->getPdo();
-
-   return ['environments' => [
-              'default_database' => 'development',
-              'development' => [
+    return [
+        'environments' => [
+            'default_database' => 'development',
+            'development' => [
                 'name' => 'devdb',
                 'connection' => $pdo
-              ]
             ]
-          ];
+        ]
+    ];
 
 Migration Paths
 ---------------
@@ -238,6 +238,51 @@ demonstrated by the following example:
             port: 3306
             charset: utf8
 
+Data Source Names
+-----------------
+
+Phinx supports the use of data source names (DSN) to specify the connection
+options, which can be useful if you use a single environment variable to hold
+the database credentials. PDO has a different DSN formats depending on the
+underlying driver, so Phinx uses a database-agnostic DSN format used by other
+projects (Doctrine, Rails, AMQP, PaaS, etc).
+
+.. code-block:: text
+
+    <adapter>://[<user>[:<pass>]@]<host>[:<port>]/<name>[?<additionalOptions>]
+
+* A DSN requires at least ``adapter``, ``host`` and ``name``.
+* You cannot specify a password without a username.
+* ``port`` must be a positive integer.
+* ``additionalOptions`` takes the form of a query string, and will be passed to
+  the adapter in the options array.
+
+.. code-block:: yaml
+
+    environments:
+        default_migration_table: phinxlog
+        default_database: development
+        production:
+            # Example data source name
+            dsn: mysql://root@localhost:3306/mydb?charset=utf8
+
+Once a DSN is parsed, it's values are merged with the already existing
+connection options. Values in specified in a DSN will never override any value
+specified directly as connection options.
+
+.. code-block:: yaml
+
+    environments:
+        default_migration_table: phinxlog
+        default_database: development
+        development:
+            dsn: %%DATABASE_URL%%
+        production:
+            dsn: %%DATABASE_URL%%
+            name: production_database
+
+If the supplied DSN is invalid, then it is completely ignored.
+
 Supported Adapters
 ------------------
 
@@ -303,7 +348,7 @@ The aliased classes will still be required to implement the ``Phinx\Migration\Cr
 Version Order
 ------
 
-When rolling back or printing the status of migrations, Phinx orders the executed migrations according to the 
+When rolling back or printing the status of migrations, Phinx orders the executed migrations according to the
 ``version_order`` option, which can have the following values:
 
 * ``creation`` (the default): migrations are ordered by their creation time, which is also part of their filename.
