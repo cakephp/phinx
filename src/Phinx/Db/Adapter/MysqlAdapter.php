@@ -399,7 +399,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName)
     {
         $rows = $this->fetchAll(sprintf('SHOW FULL COLUMNS FROM %s', $this->quoteTableName($tableName)));
-      
+
         foreach ($rows as $row) {
             if (strcasecmp($row['Field'], $columnName) === 0) {
                 $null = ($row['Null'] == 'NO') ? 'NOT NULL' : 'NULL';
