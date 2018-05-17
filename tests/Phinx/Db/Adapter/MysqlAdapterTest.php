@@ -519,6 +519,25 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
     }
 
+    public function testRenameColumnPreserveComment()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'string', ['comment' => 'comment1'])
+              ->save();
+
+        $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+        $this->assertFalse($this->adapter->hasColumn('t', 'column2'));
+        $columns = $this->adapter->fetchAll('SHOW FULL COLUMNS FROM t');
+        $this->assertEquals('comment1', $columns[1]['Comment']);
+
+        $table->renameColumn('column1', 'column2')->save();
+
+        $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
+        $columns = $this->adapter->fetchAll('SHOW FULL COLUMNS FROM t');
+        $this->assertEquals('comment1', $columns[1]['Comment']);
+    }
+
     public function testRenamingANonExistentColumn()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
