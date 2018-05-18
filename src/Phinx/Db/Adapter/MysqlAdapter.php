@@ -1019,9 +1019,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $def = '';
         $limit = '';
-        if ($index->getLimit()) {
-            $limit = '(' . $index->getLimit() . ')';
-        }
 
         if ($index->getType() == Index::UNIQUE) {
             $def .= ' UNIQUE';
@@ -1037,7 +1034,22 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $def .= ' `' . $index->getName() . '`';
         }
 
-        $def .= ' (`' . implode('`,`', $index->getColumns()) . '`' . $limit . ')';
+        if (!is_array($index->getLimit())) {
+            if ($index->getLimit()) {
+                $limit = '(' . $index->getLimit() . ')';
+            }
+            $def .= ' (`' . implode('`,`', $index->getColumns()) . '`' . $limit . ')';
+        } else {
+            $columns = $index->getColumns();
+            $limits = $index->getLimit();
+            $def .= ' (';
+            foreach ($columns as $column) {
+                $limit = !isset($limits[$column]) || $limits[$column] <= 0 ? '' : '(' . $limits[$column] . ')';
+                $def .= '`' . $column . '`' . $limit . ', ';
+            }
+            $def = rtrim($def, ', ');
+            $def .= ' )';
+        }
 
         return $def;
     }

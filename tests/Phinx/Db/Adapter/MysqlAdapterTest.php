@@ -868,6 +868,48 @@ class MysqlAdapterTest extends TestCase
         $this->assertEquals($expected_limit, 50);
     }
 
+    public function testAddMultiIndexesWithLimitSpecifier()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addColumn('username', 'string')
+              ->save();
+        $this->assertFalse($table->hasIndex(['email', 'username']));
+        $table->addIndex(['email', 'username'], ['limit' => [ 'email' => 3, 'username' => 2 ]])
+              ->save();
+        $this->assertTrue($table->hasIndex(['email', 'username']));
+        $index_data = $this->adapter->query(sprintf(
+            'SELECT SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = "%s" AND TABLE_NAME = "table1" AND INDEX_NAME = "email" AND COLUMN_NAME = "email"',
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
+        ))->fetch(\PDO::FETCH_ASSOC);
+        $expected_limit = $index_data['SUB_PART'];
+        $this->assertEquals($expected_limit, 3);
+        $index_data = $this->adapter->query(sprintf(
+            'SELECT SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = "%s" AND TABLE_NAME = "table1" AND INDEX_NAME = "email" AND COLUMN_NAME = "username"',
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
+        ))->fetch(\PDO::FETCH_ASSOC);
+        $expected_limit = $index_data['SUB_PART'];
+        $this->assertEquals($expected_limit, 2);
+    }
+
+    public function testAddSingleIndexesWithLimitSpecifier()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+            ->addColumn('username', 'string')
+            ->save();
+        $this->assertFalse($table->hasIndex('email'));
+        $table->addIndex('email', ['limit' => [ 'email' => 3, 2 ]])
+            ->save();
+        $this->assertTrue($table->hasIndex('email'));
+        $index_data = $this->adapter->query(sprintf(
+            'SELECT SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = "%s" AND TABLE_NAME = "table1" AND INDEX_NAME = "email" AND COLUMN_NAME = "email"',
+            TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
+        ))->fetch(\PDO::FETCH_ASSOC);
+        $expected_limit = $index_data['SUB_PART'];
+        $this->assertEquals($expected_limit, 3);
+    }
+
     public function testDropIndex()
     {
         // single column index

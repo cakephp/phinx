@@ -1199,6 +1199,30 @@ ensure the table uses the ``MyISAM`` engine.
             }
         }
 
+In addition, MySQL adapter also supports setting the index length defined by limit option.
+When you are using a multi-column index, you are able to define each column index length.
+The single column index can define its index length with or without defining column name in limit option.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->addColumn('email', 'string')
+                      ->addColumn('username','string')
+                      ->addColumn('user_guid', 'string', ['limit' => 36])
+                      ->addIndex(['email','username'], ['limit' => ['email' => 5, 'username' => 2]])
+                      ->addIndex('user_guid', ['limit' => 6])
+                      ->create();
+            }
+        }
+
 Removing indexes is as easy as calling the ``removeIndex()`` method. You must
 call this method for each index.
 
