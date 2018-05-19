@@ -26,11 +26,11 @@ class TableTest extends TestCase
             $result = array_merge(
                 $result,
                 [
-                    [$adapter, null, null, 'created_at', 'updated_at'],
-                    [$adapter, 'created_at', 'updated_at', 'created_at', 'updated_at'],
-                    [$adapter, 'created', 'updated', 'created', 'updated'],
-                    [$adapter, null, 'amendment_date', 'created_at', 'amendment_date'],
-                    [$adapter, 'insertion_date', null, 'insertion_date', 'updated_at'],
+                    [$adapter, null, null, 'created_at', 'updated_at', false],
+                    [$adapter, 'created_at', 'updated_at', 'created_at', 'updated_at', true],
+                    [$adapter, 'created', 'updated', 'created', 'updated', false],
+                    [$adapter, null, 'amendment_date', 'created_at', 'amendment_date', true],
+                    [$adapter, 'insertion_date', null, 'insertion_date', 'updated_at', true],
                 ]
             );
         }
@@ -113,11 +113,12 @@ class TableTest extends TestCase
      * @param string|null      $updatedAtColumnName
      * @param string           $expectedCreatedAtColumnName
      * @param string           $expectedUpdatedAtColumnName
+     * @param boolean          $withTimezone
      */
-    public function testAddTimestamps(AdapterInterface $adapter, $createdAtColumnName, $updatedAtColumnName, $expectedCreatedAtColumnName, $expectedUpdatedAtColumnName)
+    public function testAddTimestamps(AdapterInterface $adapter, $createdAtColumnName, $updatedAtColumnName, $expectedCreatedAtColumnName, $expectedUpdatedAtColumnName, $withTimezone)
     {
         $table = new \Phinx\Db\Table('ntable', [], $adapter);
-        $table->addTimestamps($createdAtColumnName, $updatedAtColumnName);
+        $table->addTimestamps($createdAtColumnName, $updatedAtColumnName, $withTimezone);
         $actions = $this->getPendingActions($table);
 
         $columns = [];
@@ -129,10 +130,48 @@ class TableTest extends TestCase
         $this->assertEquals($expectedCreatedAtColumnName, $columns[0]->getName());
         $this->assertEquals('timestamp', $columns[0]->getType());
         $this->assertEquals('CURRENT_TIMESTAMP', $columns[0]->getDefault());
+        $this->assertEquals($withTimezone, $columns[0]->getTimezone());
         $this->assertEquals('', $columns[0]->getUpdate());
 
         $this->assertEquals($expectedUpdatedAtColumnName, $columns[1]->getName());
         $this->assertEquals('timestamp', $columns[1]->getType());
+        $this->assertEquals($withTimezone, $columns[1]->getTimezone());
+        $this->assertEquals('', $columns[1]->getUpdate());
+        $this->assertTrue($columns[1]->isNull());
+        $this->assertNull($columns[1]->getDefault());
+    }
+
+    /**
+     * @dataProvider provideTimestampColumnNames
+     *
+     * @param AdapterInterface $adapter
+     * @param string|null      $createdAtColumnName
+     * @param string|null      $updatedAtColumnName
+     * @param string           $expectedCreatedAtColumnName
+     * @param string           $expectedUpdatedAtColumnName
+     * @param boolean          $withTimezone
+     */
+    public function testAddTimestampsWithTimezone(AdapterInterface $adapter, $createdAtColumnName, $updatedAtColumnName, $expectedCreatedAtColumnName, $expectedUpdatedAtColumnName, $withTimezone)
+    {
+        $table = new \Phinx\Db\Table('ntable', [], $adapter);
+        $table->addTimestampsWithTimezone($createdAtColumnName, $updatedAtColumnName);
+        $actions = $this->getPendingActions($table);
+
+        $columns = [];
+
+        foreach ($actions as $action) {
+            $columns[] = $action->getColumn();
+        }
+
+        $this->assertEquals($expectedCreatedAtColumnName, $columns[0]->getName());
+        $this->assertEquals('timestamp', $columns[0]->getType());
+        $this->assertEquals('CURRENT_TIMESTAMP', $columns[0]->getDefault());
+        $this->assertEquals(true, $columns[0]->getTimezone());
+        $this->assertEquals('', $columns[0]->getUpdate());
+
+        $this->assertEquals($expectedUpdatedAtColumnName, $columns[1]->getName());
+        $this->assertEquals('timestamp', $columns[1]->getType());
+        $this->assertEquals(true, $columns[1]->getTimezone());
         $this->assertEquals('', $columns[1]->getUpdate());
         $this->assertTrue($columns[1]->isNull());
         $this->assertNull($columns[1]->getDefault());
