@@ -178,7 +178,7 @@ Then use it in your seed classes:
                     ];
                 }
 
-                $this->insert('users', $data);
+                $this->insert('users', $data)->save();
             }
         }
 
