@@ -798,7 +798,9 @@ timezone enable or disable the ``with time zone`` option for ``time`` and ``time
 ======== ===========
 
 You can add ``created_at`` and ``updated_at`` timestamps to a table using the ``addTimestamps()`` method. This method also
-allows you to supply alternative names.
+allows you to supply alternative names. The optional third argument allows you to change the ``timezone`` option for the
+columns being added. Additionally, you can use the ``addTimestampsWithTimezone()`` method, which is an alias to
+``addTimestamps()`` that will always set the third argument to ``true`` (see examples below).
 
 .. code-block:: php
 
@@ -813,8 +815,18 @@ allows you to supply alternative names.
              */
             public function change()
             {
-                // Override the 'updated_at' column name with 'amended_at'.
-                $table = $this->table('users')->addTimestamps(null, 'amended_at')->create();
+                // Use defaults (without timezones)
+                $table = $this->table('users')->addTimestamps()->create();
+                // Use defaults (with timezones)
+                $table = $this->table('users')->addTimestampsWithTimezone()->create();
+
+                // Override the 'created_at' column name with 'recorded_at'.
+                $table = $this->table('books')->addTimestamps('recorded_at')->create();
+
+                // Override the 'updated_at' column name with 'amended_at', preserving timezones.
+                // The two lines below do the same, the second one is simply cleaner.
+                $table = $this->table('books')->addTimestamps(null, 'amended_at', true)->create();
+                $table = $this->table('users')->addTimestampsWithTimezone(null, 'amended_at')->create();
             }
         }
 

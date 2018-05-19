@@ -470,24 +470,43 @@ class Table
     /**
      * Add timestamp columns created_at and updated_at to the table.
      *
-     * @param string|null $createdAtColumnName
-     * @param string|null $updatedAtColumnName
+     * @param string|null $createdAt    Alternate name for the created_at column
+     * @param string|null $updatedAt    Alternate name for the updated_at column
+     * @param bool        $withTimezone Whether to set the timezone option on the added columns
      *
      * @return \Phinx\Db\Table
      */
-    public function addTimestamps($createdAtColumnName = 'created_at', $updatedAtColumnName = 'updated_at')
+    public function addTimestamps($createdAt = 'created_at', $updatedAt = 'updated_at', $withTimezone = false)
     {
-        $createdAtColumnName = is_null($createdAtColumnName) ? 'created_at' : $createdAtColumnName;
-        $updatedAtColumnName = is_null($updatedAtColumnName) ? 'updated_at' : $updatedAtColumnName;
+        $createdAt = is_null($createdAt) ? 'created_at' : $createdAt;
+        $updatedAt = is_null($updatedAt) ? 'updated_at' : $updatedAt;
 
-        $this->addColumn($createdAtColumnName, 'timestamp', [
-                'default' => 'CURRENT_TIMESTAMP',
-                'update' => ''
-            ])
-             ->addColumn($updatedAtColumnName, 'timestamp', [
+        $this->addColumn($createdAt, 'timestamp', [
+                   'default' => 'CURRENT_TIMESTAMP',
+                   'update' => '',
+                   'timezone' => $withTimezone,
+             ])
+             ->addColumn($updatedAt, 'timestamp', [
                  'null' => true,
-                 'default' => null
+                 'default' => null,
+                 'timezone' => $withTimezone,
              ]);
+
+        return $this;
+    }
+
+    /**
+     * Alias that always sets $withTimezone to true
+     * @see addTimestamps
+     *
+     * @param string|null $createdAt Alternate name for the created_at column
+     * @param string|null $updatedAt Alternate name for the updated_at column
+     *
+     * @return \Phinx\Db\Table
+     */
+    public function addTimestampsWithTimezone($createdAt = null, $updatedAt = null)
+    {
+        $this->addTimestamps($createdAt, $updatedAt, true);
 
         return $this;
     }
