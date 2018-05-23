@@ -406,7 +406,7 @@ class Table
      */
     public function addForeignKey($columns, $referencedTable, $referencedColumns = ['id'], $options = [])
     {
-        $action = AddForeignKey::build($this->table, $columns, $referencedTable, $referencedColumns);
+        $action = AddForeignKey::build($this->table, $columns, $referencedTable, $referencedColumns, $options);
         $this->actions->addAction($action);
 
         return $this;
