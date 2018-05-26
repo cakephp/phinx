@@ -29,7 +29,7 @@
 namespace Phinx\Db\Adapter;
 
 use Cake\Database\Connection;
-use Cake\Database\Driver\SqlServer as SqlServerDriver;
+use Cake\Database\Driver\Sqlserver as SqlServerDriver;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
