@@ -13,7 +13,6 @@ php:
 
 env:
   global:
-    - COMPOSER_FLAGS=--prefer-lowest
     - DEFAULT=1
 
 matrix:
@@ -25,7 +24,7 @@ matrix:
       env: PHPSTAN=1 DEFAULT=0
 
 before_script:
-    - if [[ $DEFAULT = 1 ]]; then travis_retry composer update --no-interaction --prefer-stable ${COMPOSER_FLAGS}; fi
+    - if [[ $DEFAULT = 1 ]]; then travis_retry composer update --no-interaction --prefer-stable; fi
     - if [[ $DEFAULT = 1 ]]; then mysql -e 'create database phinx_testing;'; fi
     - if [[ $DEFAULT = 1 ]]; then psql -c 'create database phinx_testing;' -U postgres; fi
     - if [[ $DEFAULT = 1 ]]; then psql -c 'create extension if not exists citext;' -U postgres; fi
