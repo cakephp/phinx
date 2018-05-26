@@ -762,4 +762,47 @@ class SqlServerAdapterTest extends TestCase
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
         $this->assertCount(0, $rows);
     }
+
+    /**
+     * Tests interaction with the query builder
+     *
+     */
+    public function testQueryBuilder()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('string_col', 'string')
+            ->addColumn('int_col', 'integer')
+            ->save();
+
+        $builder = $this->adapter->getQueryBuilder();
+        $stm = $builder
+            ->insert(['string_col', 'int_col'])
+            ->into('table1')
+            ->values(['string_col' => 'value1', 'int_col' => 1])
+            ->values(['string_col' => 'value2', 'int_col' => 2])
+            ->execute();
+
+        $this->assertEquals(2, $stm->rowCount());
+
+        $builder = $this->adapter->getQueryBuilder();
+        $stm = $builder
+            ->select('*')
+            ->from('table1')
+            ->where(['int_col >=' => 2])
+            ->execute();
+
+        $this->assertEquals(1, $stm->rowCount());
+        $this->assertEquals(
+            ['id' => 2, 'string_col' => 'value2', 'int_col' => '2'],
+            $stm->fetch('assoc')
+        );
+
+        $builder = $this->adapter->getQueryBuilder();
+        $stm = $builder
+            ->delete('table1')
+            ->where(['int_col <' => 2])
+            ->execute();
+
+        $this->assertEquals(1, $stm->rowCount());
+    }
 }

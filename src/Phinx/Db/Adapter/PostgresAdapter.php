@@ -28,6 +28,8 @@
  */
 namespace Phinx\Db\Adapter;
 
+use Cake\Database\Connection;
+use Cake\Database\Driver\Postgres as PostgresDriver;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
@@ -1262,5 +1264,29 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function castToBool($value)
     {
         return (bool)$value ? 'TRUE' : 'FALSE';
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     */
+    public function getDecoratedConnection()
+    {
+        $options = $this->getOptions();
+        $options = [
+            'username' => $options['user'],
+            'password' => $options['pass'],
+            'database' => $options['name']
+        ] + $options;
+
+        $driver = new PostgresDriver($options);
+
+        if (method_exists($driver, 'setConnection')) {
+            $driver->setConnection($this->connection);
+        } else {
+            $driver->connection($this->connection);
+        }
+
+        return new Connection(['driver' => $driver] + $options);
     }
 }

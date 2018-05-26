@@ -28,6 +28,8 @@
  */
 namespace Phinx\Db\Adapter;
 
+use Cake\Database\Connection;
+use Cake\Database\Driver\Sqlite as SqliteDriver;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
@@ -1075,5 +1077,32 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
 
         return $def;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     */
+    public function getDecoratedConnection()
+    {
+        $options = $this->getOptions();
+        $database = ':memory:';
+
+        if (!empty($options['name'])) {
+            $options['database'] = $options['name'];
+
+            if (file_exists($options['name'] . '.sqlite3')) {
+                $options['database'] = $options['name'] . '.sqlite3';
+            }
+        }
+
+        $driver = new SqliteDriver($options);
+        if (method_exists($driver, 'setConnection')) {
+            $driver->setConnection($this->connection);
+        } else {
+            $driver->connection($this->connection);
+        }
+
+        return new Connection(['driver' => $driver] + $options);
     }
 }

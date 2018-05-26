@@ -166,6 +166,22 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
+     * Returns the Cake\Database connection object using the same underlying
+     * PDO object as this connection.
+     *
+     * @return \Cake\Database\Connection
+     */
+    abstract public function getDecoratedConnection();
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getQueryBuilder()
+    {
+        return $this->getDecoratedConnection()->newQuery();
+    }
+
+    /**
      * Executes a query and returns PDOStatement.
      *
      * @param string $sql SQL
