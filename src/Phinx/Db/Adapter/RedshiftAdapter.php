@@ -5,8 +5,6 @@ namespace Phinx\Db\Adapter;
 use Phinx\Db\Table\Table;
 use Phinx\Db\Table\Column;
 
-require_once( dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php' );
-
 class RedshiftAdapter extends PostgresAdapter
 {
 	
