@@ -1086,6 +1086,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     public function getDecoratedConnection()
     {
         $options = $this->getOptions();
+        $options['quoteIdentifiers'] = true;
         $database = ':memory:';
 
         if (!empty($options['name'])) {

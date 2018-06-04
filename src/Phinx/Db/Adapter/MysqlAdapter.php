@@ -1130,7 +1130,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         $options = [
             'username' => $options['user'],
             'password' => $options['pass'],
-            'database' => $options['name']
+            'database' => $options['name'],
+            'quoteIdentifiers' => true,
         ] + $options;
 
         $driver = new MysqlDriver($options);
