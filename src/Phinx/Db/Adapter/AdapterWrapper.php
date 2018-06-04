@@ -470,4 +470,12 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     {
         $this->getAdapter()->executeActions($table, $actions);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getQueryBuilder()
+    {
+        return $this->getAdapter()->getQueryBuilder();
+    }
 }
