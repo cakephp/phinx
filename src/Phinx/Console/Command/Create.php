@@ -98,7 +98,7 @@ class Create extends AbstractCommand
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @return mixed
+     * @return string
      * @throws \Exception
      */
     protected function getMigrationPath(InputInterface $input, OutputInterface $output)

@@ -217,7 +217,7 @@ class TextWrapper
      *
      * @param  string $key
      * @param  string $value
-     * @return object
+     * @return TextWrapper
      */
     public function setOption($key, $value)
     {

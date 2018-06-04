@@ -45,7 +45,7 @@ class AlterInstructions
      * Constructor
      *
      * @param array $alterParts SQL snipets to be added to a single ALTER instruction per table
-     * @param array $postSteps SQL commands to be executed after the ALTER instruction
+     * @param string[] $postSteps SQL commands to be executed after the ALTER instruction
      */
     public function __construct(array $alterParts = [], array $postSteps = [])
     {

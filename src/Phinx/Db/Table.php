@@ -33,7 +33,6 @@ use Phinx\Db\Action\AddForeignKey;
 use Phinx\Db\Action\AddIndex;
 use Phinx\Db\Action\ChangeColumn;
 use Phinx\Db\Action\CreateTable;
-use Phinx\Db\Action\DropColumn;
 use Phinx\Db\Action\DropForeignKey;
 use Phinx\Db\Action\DropIndex;
 use Phinx\Db\Action\DropTable;
@@ -44,7 +43,6 @@ use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Plan\Intent;
 use Phinx\Db\Plan\Plan;
 use Phinx\Db\Table\Column;
-use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
 use Phinx\Db\Table\Table as TableValue;
 
@@ -236,7 +234,7 @@ class Table
      *
      * Valid options can be: limit, default, null, precision or scale.
      *
-     * @param string|\Phinx\Db\Table\Column $columnName Column Name
+     * @param string $columnName Column Name
      * @param string|\Phinx\Util\Literal $type Column Type
      * @param array $options Column Options
      * @throws \RuntimeException
