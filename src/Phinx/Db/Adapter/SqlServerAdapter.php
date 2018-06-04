@@ -336,6 +336,9 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         $this->execute($sql);
     }
 
+    /**
+     * @return string
+     */
     public function getColumnComment($tableName, $columnName)
     {
         $sql = sprintf("SELECT cast(extended_properties.[value] as nvarchar(4000)) comment
@@ -568,6 +571,8 @@ SQL;
 
     /**
      * {@inheritdoc}
+     * @param string $tableName
+     * @param string|null $columnName
      */
     protected function getDropDefaultConstraint($tableName, $columnName)
     {
@@ -580,6 +585,9 @@ SQL;
         return $this->getDropForeignKeyInstructions($tableName, $defaultConstraint);
     }
 
+    /**
+     * @return string
+     */
     protected function getDefaultConstraint($tableName, $columnName)
     {
         $sql = "SELECT
@@ -1075,6 +1083,7 @@ SQL;
      * Gets the SqlServer Index Definition for an Index object.
      *
      * @param \Phinx\Db\Table\Index $index Index
+     * @param string $tableName
      * @return string
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
@@ -1100,6 +1109,7 @@ SQL;
      * Gets the SqlServer Foreign Key Definition for an ForeignKey object.
      *
      * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     * @param string $tableName
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)

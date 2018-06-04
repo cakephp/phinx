@@ -1118,7 +1118,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
     /**
      * Returns MySQL column types (inherited and MySQL specified).
-     * @return array
+     * @return string[]
      */
     public function getColumnTypes()
     {
