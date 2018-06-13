@@ -304,6 +304,7 @@ Declaring an SQLite database uses a simplified structure:
         development:
             adapter: sqlite
             name: ./data/derby
+            suffix: ".db"    # Defaults to ".sqlite3"
         testing:
             adapter: sqlite
             memory: true     # Setting memory to *any* value overrides name
