@@ -75,7 +75,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             if (isset($options['memory'])) {
                 $dsn = 'sqlite::memory:';
             } else {
-                $dsn = 'sqlite:' . $options['name'].$this->suffix;
+                $dsn = 'sqlite:' . $options['name'] . $this->suffix;
             }
 
             try {
@@ -102,7 +102,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (isset($options['suffix'])) {
             $this->suffix = $options['suffix'];
         }
-        if (substr($this->suffix, 0, 1) !== '.') {
+        //don't "fix" the file extension if it is blank, some people
+        //might want a SQLITE db file with absolutely no extension.
+        if (strlen($this->suffix) && substr($this->suffix, 0, 1) !== '.') {
             $this->suffix = '.' . $this->suffix;
         }
 
