@@ -316,11 +316,12 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * A short-hand method to drop the given database table.
      *
+     * @deprecated Please use $this->table($tableName)->drop()->save()
      * @param string $tableName Table Name
      * @return void
      */
     public function dropTable($tableName)
     {
-        $this->table($tableName)->drop();
+        $this->table($tableName)->drop()->save();
     }
 }
