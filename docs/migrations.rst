@@ -638,6 +638,10 @@ Dropping a Table
 Tables can be dropped quite easily using the ``dropTable()`` method. It is a
 good idea to recreate the table again in the ``down()`` method.
 
+Note that like pther methods in the ``Table` class, ``dropTable`` also needs ``save()``
+to be called at the end in order to be executed. This allows phinx to intelligently
+plan migrations when more than one table is involved.
+
 .. code-block:: php
 
         <?php
@@ -651,7 +655,7 @@ good idea to recreate the table again in the ``down()`` method.
              */
             public function up()
             {
-                $this->dropTable('users');
+                $this->dropTable('users')->save();
             }
 
             /**
@@ -1405,6 +1409,10 @@ We can also easily check if a foreign key exists:
 
 Finally, to delete a foreign key, use the ``dropForeignKey`` method.
 
+Note that like pther methods in the ``Table` class, ``dropForeignKey`` also needs ``save()``
+to be called at the end in order to be executed. This allows phinx to intelligently
+plan migrations when more than one table is involved.
+
 .. code-block:: php
 
         <?php
@@ -1419,7 +1427,7 @@ Finally, to delete a foreign key, use the ``dropForeignKey`` method.
             public function up()
             {
                 $table = $this->table('tag_relationships');
-                $table->dropForeignKey('tag_id');
+                $table->dropForeignKey('tag_id')->save();
             }
 
             /**
