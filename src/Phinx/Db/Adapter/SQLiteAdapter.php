@@ -75,10 +75,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             if (isset($options['memory'])) {
                 $dsn = 'sqlite::memory:';
             } else {
-                $dsn = 'sqlite:' . $options['name'];
-                if (file_exists($options['name'] . $this->suffix)) {
-                    $dsn = 'sqlite:' . $options['name'] . $this->suffix;
-                }
+                $dsn = 'sqlite:' . $options['name'].$this->suffix;
             }
 
             try {
