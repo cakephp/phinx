@@ -105,14 +105,12 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (isset($options['suffix'])) {
             $this->suffix = $options['suffix'];
         }
-        if (substr($this->suffix, 0,1) !== '.') {
+        if (substr($this->suffix, 0, 1) !== '.') {
             $this->suffix = '.'.$this->suffix;
         }
 
         return $this;
     }
-
-
 
     /**
      * {@inheritdoc}
