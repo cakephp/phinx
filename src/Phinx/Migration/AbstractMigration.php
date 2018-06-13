@@ -274,6 +274,7 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function insert($table, $data)
     {
+        trigger_error('insert() is deprecated since 0.10.0, to be removed in 0.11.0. Use $this->table($tableName)->insert($data)->save() instead.', E_USER_DEPRECATED);
         // convert to table object
         if (is_string($table)) {
             $table = new Table($table, [], $this->getAdapter());
@@ -316,12 +317,13 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * A short-hand method to drop the given database table.
      *
-     * @deprecated Please use $this->table($tableName)->drop()->save()
+     * @deprecated since 0.10.0, to be removed in 0.11.0. Use $this->table($tableName)->drop()->save() instead.
      * @param string $tableName Table Name
      * @return void
      */
     public function dropTable($tableName)
     {
+        trigger_error('dropTable() is deprecated since 0.10.0, to be removed in 0.11.0. Use \$this->table(\$tableName)->drop()->save() instead.', E_USER_DEPRECATED);
         $this->table($tableName)->drop()->save();
     }
 }
