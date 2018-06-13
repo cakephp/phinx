@@ -120,7 +120,7 @@ Follow [@CakePHP](https://twitter.com/cakephp) on Twitter to stay up to date.
 
 ### Version History
 
-Please read the [CHANGELOG](CHANGELOG.md) document.
+Please read the [release notes](https://github.com/cakephp/phinx/releases).
 
 ### License
 
