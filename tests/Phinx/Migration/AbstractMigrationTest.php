@@ -213,8 +213,7 @@ class AbstractMigrationTest extends TestCase
     {
         if (PHP_VERSION_ID < 70000) {
             $this->expectException(\PHPUnit_Framework_Error_Deprecated::class);
-        }
-        else {
+        } else {
             $this->expectException(\PHPUnit\Framework\Error\Deprecated::class);
         }
         // stub migration
@@ -294,8 +293,7 @@ class AbstractMigrationTest extends TestCase
     {
         if (PHP_VERSION_ID < 70000) {
             $this->expectException(\PHPUnit_Framework_Error_Deprecated::class);
-        }
-        else {
+        } else {
             $this->expectException(\PHPUnit\Framework\Error\Deprecated::class);
         }
         // stub migration
