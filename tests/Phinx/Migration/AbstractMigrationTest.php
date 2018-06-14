@@ -208,11 +208,14 @@ class AbstractMigrationTest extends TestCase
         @$migrationStub->insert('testdb', ['row' => 'value']);
     }
 
-    /**
-     * @expectedException \PHPUnit\Framework\Error\Deprecated
-     */
     public function testInsertDeprecated()
     {
+        if (PHP_VERSION_ID < 70000) {
+            $this->expectException(\PHPUnit_Framework_Error_Deprecated::class);
+        }
+        else {
+            $this->expectException(\PHPUnit\Framework\Error\Deprecated::class);
+        }
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
         $migrationStub->insert('testdb', ['row' => 'value']);
@@ -286,11 +289,14 @@ class AbstractMigrationTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \PHPUnit\Framework\Error\Deprecated
-     */
     public function testDropTableDeprecated()
     {
+        if (PHP_VERSION_ID < 70000) {
+            $this->expectException(\PHPUnit_Framework_Error_Deprecated::class);
+        }
+        else {
+            $this->expectException(\PHPUnit\Framework\Error\Deprecated::class);
+        }
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
         $migrationStub->dropTable('test_table');
