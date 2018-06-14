@@ -175,7 +175,7 @@ class AbstractMigrationTest extends TestCase
         $this->assertEquals([['0' => 'bar', 'foo' => 'bar']], $migrationStub->fetchAll('SELECT FOO FROM BAR'));
     }
 
-    public function testInsert()
+    public function testInsertTable()
     {
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
@@ -190,7 +190,32 @@ class AbstractMigrationTest extends TestCase
         $table = new Table('testdb', [], $adapterStub);
 
         $migrationStub->setAdapter($adapterStub);
-        $migrationStub->insert($table, ['row' => 'value']);
+        @$migrationStub->insert($table, ['row' => 'value']);
+    }
+
+    public function testInsertString() {
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
+
+        // stub adapter
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $adapterStub->expects($this->once())
+            ->method('bulkinsert');
+
+        $migrationStub->setAdapter($adapterStub);
+        @$migrationStub->insert('testdb', ['row' => 'value']);
+    }
+
+    /**
+     * @expectedException \PHPUnit\Framework\Error\Deprecated
+     */
+    public function testInsertDeprecated()
+    {
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
+        $migrationStub->insert('testdb', ['row' => 'value']);
     }
 
     public function testCreateDatabase()
@@ -259,5 +284,15 @@ class AbstractMigrationTest extends TestCase
             'Phinx\Db\Table',
             $migrationStub->table('test_table')
         );
+    }
+
+    /**
+     * @expectedException \PHPUnit\Framework\Error\Deprecated
+     */
+    public function testDropTableDeprecated()
+    {
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
+        $migrationStub->dropTable('test_table');
     }
 }

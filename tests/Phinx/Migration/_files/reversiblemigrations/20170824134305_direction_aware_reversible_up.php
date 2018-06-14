@@ -13,7 +13,7 @@ class DirectionAwareReversibleUp extends AbstractMigration
             ->create();
 
         if ($this->isMigratingUp()) {
-            $this->insert('change_direction_test', [
+            $this->table('change_direction_test')->insert([
                 [
                     'thing' => 'one',
                 ],
@@ -26,7 +26,7 @@ class DirectionAwareReversibleUp extends AbstractMigration
                 [
                     'thing' => 'mouse_box',
                 ],
-            ]);
+            ])->save();
         }
     }
 }
