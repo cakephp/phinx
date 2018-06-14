@@ -190,15 +190,7 @@ class AbstractMigrationTest extends TestCase
         $table = new Table('testdb', [], $adapterStub);
 
         $migrationStub->setAdapter($adapterStub);
-        if (PHP_VERSION_ID < 70000) {
-            $class = \PHPUnit_Framework_Error_Deprecated::class;
-        }
-        else {
-            $class = \PHPUnit\Framework\Error\Deprecated::class;
-        }
-        $class::$enabled = false;
-        $migrationStub->insert($table, ['row' => 'value']);
-        $class::$enabled = true;
+        @$migrationStub->insert($table, ['row' => 'value']);
     }
 
     public function testInsertString()
@@ -214,15 +206,7 @@ class AbstractMigrationTest extends TestCase
             ->method('bulkinsert');
 
         $migrationStub->setAdapter($adapterStub);
-        if (PHP_VERSION_ID < 70000) {
-            $class = \PHPUnit_Framework_Error_Deprecated::class;
-        }
-        else {
-            $class = \PHPUnit\Framework\Error\Deprecated::class;
-        }
-        $class::$enabled = false;
-        $migrationStub->insert('testdb', ['row' => 'value']);
-        $class::$enabled = true;
+        @$migrationStub->insert('testdb', ['row' => 'value']);
     }
 
     public function testInsertDeprecated()
