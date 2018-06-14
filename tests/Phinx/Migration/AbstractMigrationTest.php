@@ -193,7 +193,8 @@ class AbstractMigrationTest extends TestCase
         @$migrationStub->insert($table, ['row' => 'value']);
     }
 
-    public function testInsertString() {
+    public function testInsertString()
+    {
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
 
