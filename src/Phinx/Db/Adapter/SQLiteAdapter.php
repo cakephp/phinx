@@ -54,6 +54,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         'NVARCHAR'
     ];
 
+    protected $suffix = '.sqlite3';
+
     /**
      * {@inheritdoc}
      */
@@ -73,10 +75,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             if (isset($options['memory'])) {
                 $dsn = 'sqlite::memory:';
             } else {
-                $dsn = 'sqlite:' . $options['name'];
-                if (file_exists($options['name'] . '.sqlite3')) {
-                    $dsn = 'sqlite:' . $options['name'] . '.sqlite3';
-                }
+                $dsn = 'sqlite:' . $options['name'] . $this->suffix;
             }
 
             try {
@@ -91,6 +90,25 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $this->setConnection($db);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setOptions(array $options)
+    {
+        parent::setOptions($options);
+
+        if (isset($options['suffix'])) {
+            $this->suffix = $options['suffix'];
+        }
+        //don't "fix" the file extension if it is blank, some people
+        //might want a SQLITE db file with absolutely no extension.
+        if (strlen($this->suffix) && substr($this->suffix, 0, 1) !== '.') {
+            $this->suffix = '.' . $this->suffix;
+        }
+
+        return $this;
     }
 
     /**
@@ -932,7 +950,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createDatabase($name, $options = [])
     {
-        touch($name . '.sqlite3');
+        touch($name . $this->suffix);
     }
 
     /**
@@ -940,7 +958,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasDatabase($name)
     {
-        return is_file($name . '.sqlite3');
+        return is_file($name . $this->suffix);
     }
 
     /**
@@ -1092,8 +1110,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (!empty($options['name'])) {
             $options['database'] = $options['name'];
 
-            if (file_exists($options['name'] . '.sqlite3')) {
-                $options['database'] = $options['name'] . '.sqlite3';
+            if (file_exists($options['name'] . $this->suffix)) {
+                $options['database'] = $options['name'] . $this->suffix;
             }
         }
 
