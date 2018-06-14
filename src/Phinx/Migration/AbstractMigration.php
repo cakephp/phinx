@@ -323,7 +323,7 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function dropTable($tableName)
     {
-        trigger_error('dropTable() is deprecated since 0.10.0. Use \$this->table(\$tableName)->drop()->save() instead.', E_USER_DEPRECATED);
+        trigger_error('dropTable() is deprecated since 0.10.0. Use $this->table($tableName)->drop()->save() instead.', E_USER_DEPRECATED);
         $this->table($tableName)->drop()->save();
     }
 }
