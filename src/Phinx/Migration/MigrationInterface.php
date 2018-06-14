@@ -205,6 +205,8 @@ interface MigrationInterface
     /**
      * Insert data into a table.
      *
+     * @deprecated since 0.10.0. Use $this->table($tableName)->insert($data)->save() instead.
+     *
      * @param string $tableName
      * @param array $data
      * @return void

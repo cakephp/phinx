@@ -297,8 +297,7 @@ insert methods in your migrations.
                     ]
                 ];
 
-                // this is a handy shortcut
-                $this->insert('status', $rows);
+                $this->table('status')->insert($rows)->save();
             }
 
             /**
