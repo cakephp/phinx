@@ -248,4 +248,12 @@ interface MigrationInterface
      * @return \Phinx\Db\Table
      */
     public function table($tableName, $options);
+
+    /**
+     * Perform checks on the migration, print a warning
+     * if there are potential problems.
+     *
+     * @return void
+     */
+    public function preFlightCheck();
 }
