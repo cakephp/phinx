@@ -327,7 +327,6 @@ abstract class AbstractMigration implements MigrationInterface
         $this->table($tableName)->drop()->save();
     }
 
-
     /**
      * Perform checks on the migration, print a warning
      * if there are potential problems.
@@ -337,7 +336,8 @@ abstract class AbstractMigration implements MigrationInterface
      *
      * @return void
      */
-    public function preFlightCheck() {
+    public function preFlightCheck()
+    {
         if (method_exists($this, MigrationInterface::CHANGE)) {
             if (method_exists($this, MigrationInterface::UP) ||
                 method_exists($this, MigrationInterface::DOWN) ) {
