@@ -123,6 +123,12 @@ Please be aware that when a ``change`` method exists, Phinx will automatically
 ignore the ``up`` and ``down`` methods. If you need to use these methods it is
 recommended to create a separate migration file.
 
+..note
+    When creating or updating tables inside a ``change()`` method you must use
+    the Table ``create()`` and ``update()`` methods. Phinx cannot automatically
+    determine whether a ``save()`` call is creating a new table or modifying an
+    existing one.
+
 Phinx can only reverse the following commands:
 
 -  createTable
