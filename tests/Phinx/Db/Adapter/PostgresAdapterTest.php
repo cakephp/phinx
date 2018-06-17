@@ -991,6 +991,24 @@ class PostgresAdapterTest extends TestCase
         $this->adapter->dropSchema('schema2');
     }
 
+	public function testDropForeignKeyNotDroppingPrimaryKey()
+	{
+		$refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+		$refTable->addColumn('field1', 'string')->save();
+
+		$table = new \Phinx\Db\Table('table', [
+			'id' => false,
+			'primary_key' => ['ref_table_id'],
+		], $this->adapter);
+		$table
+			->addColumn('ref_table_id', 'integer')
+			->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
+			->save();
+
+		$table->dropForeignKey(['ref_table_id'])->save();
+		$this->assertTrue($this->adapter->hasIndexByName('table', 'table_pkey'));
+	}
+
     public function testHasDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));

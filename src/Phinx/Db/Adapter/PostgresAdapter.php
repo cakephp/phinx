@@ -767,6 +767,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 AND TABLE_NAME IS NOT NULL
                 AND TABLE_NAME = %s
                 AND COLUMN_NAME = %s
+                AND POSITION_IN_UNIQUE_CONSTRAINT IS NOT NULL
                 ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
                 $this->getConnection()->quote($parts['schema']),
                 $this->getConnection()->quote($parts['table']),
