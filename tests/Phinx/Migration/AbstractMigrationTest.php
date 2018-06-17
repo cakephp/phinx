@@ -7,20 +7,6 @@ use PHPUnit\Framework\TestCase;
 
 class AbstractMigrationTest extends TestCase
 {
-    public function testUp()
-    {
-        // stub migration
-        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
-        $this->assertNull($migrationStub->up());
-    }
-
-    public function testDown()
-    {
-        // stub migration
-        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
-        $this->assertNull($migrationStub->down());
-    }
-
     public function testAdapterMethods()
     {
         // stub migration
