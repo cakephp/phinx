@@ -326,4 +326,25 @@ abstract class AbstractMigration implements MigrationInterface
         trigger_error('dropTable() is deprecated since 0.10.0. Use $this->table($tableName)->drop()->save() instead.', E_USER_DEPRECATED);
         $this->table($tableName)->drop()->save();
     }
+
+    /**
+     * Perform checks on the migration, print a warning
+     * if there are potential problems.
+     *
+     * Right now, the only check is if there is both a `change()` and
+     * an `up()` or a `down()` method.
+     *
+     * @return void
+     */
+    public function preFlightCheck()
+    {
+        if (method_exists($this, MigrationInterface::CHANGE)) {
+            if (method_exists($this, MigrationInterface::UP) ||
+                method_exists($this, MigrationInterface::DOWN) ) {
+                $this->output->writeln(sprintf(
+                    '<comment>warning</comment> Migration contains both change() and/or up()/down() methods.  <options=bold>Ignoring up() and down()</>.'
+                ));
+            }
+        }
+    }
 }
