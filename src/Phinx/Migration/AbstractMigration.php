@@ -112,20 +112,6 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * {@inheritdoc}
      */
-    public function up()
-    {
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function down()
-    {
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;

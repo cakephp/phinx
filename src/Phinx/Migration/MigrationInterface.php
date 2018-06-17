@@ -55,20 +55,6 @@ interface MigrationInterface
     const DOWN = 'down';
 
     /**
-     * Migrate Up
-     *
-     * @return void
-     */
-    public function up();
-
-    /**
-     * Migrate Down
-     *
-     * @return void
-     */
-    public function down();
-
-    /**
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
