@@ -334,9 +334,11 @@ abstract class AbstractMigration implements MigrationInterface
      * Right now, the only check is if there is both a `change()` and
      * an `up()` or a `down()` method.
      *
+     * @param string|Fix null $direction
+     *
      * @return void
      */
-    public function preFlightCheck()
+    public function preFlightCheck($direction = null)
     {
         if (method_exists($this, MigrationInterface::CHANGE)) {
             if (method_exists($this, MigrationInterface::UP) ||
