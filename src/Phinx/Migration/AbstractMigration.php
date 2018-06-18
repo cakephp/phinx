@@ -334,7 +334,7 @@ abstract class AbstractMigration implements MigrationInterface
      * Right now, the only check is if there is both a `change()` and
      * an `up()` or a `down()` method.
      *
-     * @param string|Fix null $direction
+     * @param string|null $direction
      *
      * @return void
      */
