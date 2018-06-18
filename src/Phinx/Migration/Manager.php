@@ -380,7 +380,7 @@ class Manager
             ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>' .
             ' <comment>' . ($direction === MigrationInterface::UP ? 'migrating' : 'reverting') . '</comment>'
         );
-        $migration->preFlightCheck();
+        $migration->preFlightCheck($direction);
 
         // Execute the migration and log the time elapsed.
         $start = microtime(true);

@@ -253,7 +253,9 @@ interface MigrationInterface
      * Perform checks on the migration, print a warning
      * if there are potential problems.
      *
+     * @param string $direction
+     *
      * @return void
      */
-    public function preFlightCheck();
+    public function preFlightCheck($direction = MigrationInterface::UP);
 }
