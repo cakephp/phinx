@@ -82,7 +82,6 @@ class SQLiteAdapterTest extends TestCase
         );
     }
 
-
     public function testCreatingTheSchemaTableOnConnect()
     {
         $this->adapter->connect();

@@ -64,7 +64,6 @@ class Table
      */
     protected $adapter;
 
-
     /**
      * @var \Phinx\Db\Plan\Intent
      */

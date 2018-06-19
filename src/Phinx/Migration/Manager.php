@@ -909,6 +909,7 @@ class Manager
         }
 
         $this->seeds = $this->orderSeedsByDependencies($this->seeds);
+
         return $this->seeds;
     }
 
