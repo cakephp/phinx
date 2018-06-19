@@ -723,9 +723,9 @@ class Manager
                     }
 
                     // load the migration file
-                    /** @noinspection PhpIncludeInspection */
                     $orig_display_errors_setting = ini_get('display_errors');
                     ini_set('display_errors', 'On');
+                    /** @noinspection PhpIncludeInspection */
                     require_once $filePath;
                     ini_set('display_errors', $orig_display_errors_setting);
                     if (!class_exists($class)) {
