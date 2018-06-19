@@ -228,6 +228,12 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
         $columns = array_keys($row);
         $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ')';
 
+        foreach ($row as $column => $value) {
+            if (is_bool($value)) {
+                $row[$column] = $this->castToBool($value);
+            }
+        }
+
         if ($this->isDryRunEnabled()) {
             $sql .= ' VALUES (' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ');';
             $this->output->writeln($sql);
@@ -287,7 +293,11 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
 
             foreach ($rows as $row) {
                 foreach ($row as $v) {
-                    $vals[] = $v;
+                    if (is_bool($v)) {
+                        $vals[] = $this->castToBool($v);
+                    } else {
+                        $vals[] = $v;
+                    }
                 }
             }
 
