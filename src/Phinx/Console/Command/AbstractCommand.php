@@ -391,7 +391,6 @@ abstract class AbstractCommand extends Command
 
         /** @var SplFileInfo $listener */
         foreach ($listeners as $listener) {
-
             require_once $listener->getRealPath();
 
             $refClass = new \ReflectionClass($listener->getBasename('.php'));
