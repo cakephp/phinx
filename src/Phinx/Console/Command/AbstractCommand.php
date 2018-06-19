@@ -379,6 +379,7 @@ abstract class AbstractCommand extends Command
      * Load all event subscribers
      *
      * @throws \ReflectionException
+     * @return void
      */
     protected function loadEventSubscribers()
     {

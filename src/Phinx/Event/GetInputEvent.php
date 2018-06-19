@@ -15,7 +15,7 @@ class GetInputEvent extends Event
     /**
      * GetInputEvent constructor.
      *
-     * @param InputInterface $input
+     * @param InputInterface $input input arguments and options
      */
     public function __construct(InputInterface $input)
     {
