@@ -15,6 +15,7 @@ Contents
    migrations
    seeding
    commands
+   subscribers
    configuration
    copyright
 
