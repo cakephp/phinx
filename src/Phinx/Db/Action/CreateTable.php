@@ -22,9 +22,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-namespace Phinx\Db\Action;
 
-use Phinx\Db\Table\Table;
+namespace Phinx\Db\Action;
 
 class CreateTable extends Action
 {

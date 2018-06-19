@@ -44,8 +44,6 @@ use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Plan\Intent;
 use Phinx\Db\Plan\Plan;
 use Phinx\Db\Table\Column;
-use Phinx\Db\Table\ForeignKey;
-use Phinx\Db\Table\Index;
 use Phinx\Db\Table\Table as TableValue;
 
 /**

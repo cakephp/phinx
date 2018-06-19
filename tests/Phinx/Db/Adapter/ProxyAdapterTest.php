@@ -2,12 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
-use Phinx\Db\Adapter\PdoAdapter;
 use Phinx\Db\Adapter\ProxyAdapter;
-use Phinx\Db\Table;
-use Phinx\Db\Table\ForeignKey;
-use Phinx\Db\Table\Index;
-use Phinx\Migration\IrreversibleMigrationException;
 use PHPUnit\Framework\TestCase;
 
 class ProxyAdapterTest extends TestCase
