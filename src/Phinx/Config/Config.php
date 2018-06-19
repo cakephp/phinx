@@ -261,7 +261,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      */
     public function getSubscriberPaths()
     {
-        if(!isset($this->values['paths']['subscribers'])){
+        if (!isset($this->values['paths']['subscribers'])) {
             return [];
         }
 
