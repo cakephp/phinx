@@ -24,7 +24,7 @@
  */
 namespace Phinx\Db\Action;
 
-use \Phinx\Db\Table\Table;
+use Phinx\Db\Table\Table;
 
 abstract class Action
 {

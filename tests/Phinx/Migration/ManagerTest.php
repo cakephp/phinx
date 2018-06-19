@@ -4,7 +4,6 @@ namespace Test\Phinx\Migration;
 
 use Phinx\Config\Config;
 use Phinx\Migration\Manager;
-use Phinx\Migration\Manager\Environment;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;

@@ -27,9 +27,8 @@
  * @subpackage Phinx\Db
  * @author     Leonid Kuzmin <lndkuzmin@gmail.com>
  */
-namespace Phinx\Db\Table;
 
-use Phinx\Db\Table\Table;
+namespace Phinx\Db\Table;
 
 class ForeignKey
 {

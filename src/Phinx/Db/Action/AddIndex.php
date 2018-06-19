@@ -24,7 +24,6 @@
  */
 namespace Phinx\Db\Action;
 
-use InvalidArgumentException;
 use Phinx\Db\Table\Index;
 use Phinx\Db\Table\Table;
 

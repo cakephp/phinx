@@ -24,7 +24,6 @@
  */
 namespace Phinx\Db\Action;
 
-use InvalidArgumentException;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Table;
 
