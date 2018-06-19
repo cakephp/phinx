@@ -105,6 +105,7 @@ abstract class AbstractCommand extends Command
         }
 
         $this->loadManager($input, $output);
+        $this->loadEventSubscribers();
 
         // report the paths
         $paths = $this->getConfig()->getMigrationPaths();
@@ -372,5 +373,32 @@ abstract class AbstractCommand extends Command
     protected function getSeedTemplateFilename()
     {
         return __DIR__ . self::DEFAULT_SEED_TEMPLATE;
+    }
+
+    /**
+     * Load all event subscribers
+     *
+     * @throws \ReflectionException
+     */
+    protected function loadEventSubscribers()
+    {
+        $paths = $this->getConfig()->getSubscriberPaths();
+        if (!$paths) {
+            return;
+        }
+        $finder = new Finder();
+        $listeners = $finder->in($paths)->name('*.php')->files();
+
+        /** @var SplFileInfo $listener */
+        foreach ($listeners as $listener) {
+
+            require_once $listener->getRealPath();
+
+            $refClass = new \ReflectionClass($listener->getBasename('.php'));
+            if (!$refClass->implementsInterface('\Symfony\Component\EventDispatcher\EventSubscriberInterface')) {
+                continue;
+            }
+            $this->dispatcher->addSubscriber($refClass->newInstance());
+        }
     }
 }
