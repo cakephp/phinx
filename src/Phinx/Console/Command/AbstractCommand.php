@@ -38,6 +38,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * Abstract command, contains bootstrapping info
@@ -72,6 +76,11 @@ abstract class AbstractCommand extends Command
     protected $manager;
 
     /**
+     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+     */
+    protected $dispatcher;
+
+    /**
      * {@inheritdoc}
      */
     protected function configure()
@@ -89,6 +98,8 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
     {
+        $this->dispatcher = new EventDispatcher();
+
         if (!$this->getConfig()) {
             $this->loadConfig($input, $output);
         }

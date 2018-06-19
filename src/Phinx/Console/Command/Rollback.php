@@ -28,6 +28,8 @@
  */
 namespace Phinx\Console\Command;
 
+use Phinx\Console\CommandEvents;
+use Phinx\Event\GetInputEvent;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -129,6 +131,8 @@ EOT
         $start = microtime(true);
         $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion, $fake);
         $end = microtime(true);
+
+        $this->dispatcher->dispatch(CommandEvents::ROLLBACK, new GetInputEvent($input));
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');

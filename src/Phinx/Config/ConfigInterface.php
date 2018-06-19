@@ -137,4 +137,11 @@ interface ConfigInterface extends \ArrayAccess
      * @return string
      */
     public function getMigrationBaseClassName($dropNamespace = true);
+
+    /**
+     * Gets paths of event subscribers
+     *
+     * @return string[]
+     */
+    public function getSubscriberPaths();
 }

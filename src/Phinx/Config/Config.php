@@ -257,6 +257,18 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getSubscriberPaths()
+    {
+        if(!isset($this->values['paths']['subscribers'])){
+            return [];
+        }
+
+        return (array)$this->values['paths']['subscribers'];
+    }
+
+    /**
      * Gets the base class name for migrations.
      *
      * @param bool $dropNamespace Return the base migration class name without the namespace.
