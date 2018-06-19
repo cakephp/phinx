@@ -326,9 +326,18 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function preFlightCheck($direction = null)
     {
-        if (method_exists($this, MigrationInterface::CHANGE)) {
-            if (method_exists($this, MigrationInterface::UP) ||
-                method_exists($this, MigrationInterface::DOWN) ) {
+        $abstractBaseClassname = 'Phinx\Migration\AbstractMigration';
+        $refl   = new \ReflectionClass($this);
+        $change = $refl->getMethod('change');
+        if ($change->getDeclaringClass()->getName() != $abstractBaseClassname) {
+            //up() down() and change() are always defined
+            //at the AbstractMigration level.
+            //determine if we have overridden up or down via the subclass
+            $up   = $refl->getMethod('up');
+            $down = $refl->getMethod('down');
+
+            if ($up->getDeclaringClass()->getName()   != $abstractBaseClassname ||
+                $down->getDeclaringClass()->getName() != $abstractBaseClassname) {
                 $this->output->writeln(sprintf(
                     '<comment>warning</comment> Migration contains both change() and/or up()/down() methods.  <options=bold>Ignoring up() and down()</>.'
                 ));
