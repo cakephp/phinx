@@ -1463,6 +1463,30 @@ class PostgresAdapterTest extends TestCase
         $this->assertEquals('test', $rows[2]['column3']);
     }
 
+    public function testBulkInsertBoolean()
+    {
+        $data = [
+            [
+                'column1' => true,
+            ],
+            [
+                'column1' => false,
+            ],
+            [
+                'column1' => null,
+            ],
+        ];
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('column1', 'boolean', ['null' => true])
+            ->insert($data)
+            ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $this->assertSame(true, $rows[0]['column1']);
+        $this->assertSame(false, $rows[1]['column1']);
+        $this->assertSame(null, $rows[2]['column1']);
+    }
+
     public function testInsertData()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -1485,6 +1509,31 @@ class PostgresAdapterTest extends TestCase
         $this->assertEquals('value2', $rows[1]['column1']);
         $this->assertEquals(1, $rows[0]['column2']);
         $this->assertEquals(2, $rows[1]['column2']);
+    }
+
+    public function testInsertBoolean()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('column1', 'boolean', ['null' => true])
+            ->addColumn('column2', 'text', ['null' => true])
+            ->insert([
+                [
+                    'column1' => true,
+                    'column2' => 'value',
+                ],
+                [
+                    'column1' => false,
+                ],
+                [
+                    'column1' => null,
+                ],
+            ])
+            ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $this->assertSame(true, $rows[0]['column1']);
+        $this->assertSame(false, $rows[1]['column1']);
+        $this->assertSame(null, $rows[2]['column1']);
     }
 
     public function testInsertDataWithSchema()
