@@ -139,6 +139,42 @@ You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
     paths:
         seeds: '%%PHINX_CONFIG_DIR%%/your/relative/path'
 
+Event Subscribers Paths
+----------
+
+The third option specifies the path to your event subscribers directory. Phinx uses
+``%%PHINX_CONFIG_DIR%%/db/subscribers`` by default.
+
+.. note::
+
+    ``%%PHINX_CONFIG_DIR%%`` is a special token and is automatically replaced
+    with the root directory where your ``phinx.yml`` file is stored.
+
+In order to overwrite the default ``%%PHINX_CONFIG_DIR%%/db/subscribers``, you
+need to add the following to the yaml configuration.
+
+.. code-block:: yaml
+
+    paths:
+        subscribers: /your/full/path
+
+You can also provide multiple seed paths by using an array in your configuration:
+
+.. code-block:: yaml
+
+    paths:
+        subscribers:
+            - /your/full/path1
+            - /your/full/path2
+
+
+You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
+
+.. code-block:: yaml
+
+    paths:
+        subscribers: '%%PHINX_CONFIG_DIR%%/your/relative/path'
+
 Environments
 ------------
 
