@@ -215,6 +215,16 @@ class Table
     }
 
     /**
+     * Resets all of the pending data to be inserted
+     *
+     * @return void
+     */
+    public function resetData()
+    {
+        $this->setData([]);
+    }
+
+    /**
      * Resets all of the pending table changes.
      *
      * @return void
@@ -222,7 +232,7 @@ class Table
     public function reset()
     {
         $this->actions = new Intent();
-        $this->setData([]);
+        $this->resetData();
     }
 
     /**
@@ -590,6 +600,8 @@ class Table
                 $this->getAdapter()->insert($this->table, $row);
             }
         }
+
+        $this->resetData();
     }
 
     /**
@@ -616,8 +628,6 @@ class Table
         } else {
             $this->create(); // create the table
         }
-
-        $this->reset(); // reset pending changes
     }
 
     /**
