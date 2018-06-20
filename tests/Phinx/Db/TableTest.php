@@ -227,6 +227,39 @@ class TableTest extends TestCase
               ->save();
     }
 
+    public function testSaveAfterSaveData()
+    {
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $data = [
+            [
+                'column1' => 'value1',
+            ],
+            [
+                'column1' => 'value2',
+            ],
+        ];
+
+        $adapterStub->expects($this->any())
+            ->method('isValidColumnType')
+            ->willReturn(true);
+        $adapterStub->expects($this->exactly(1))
+            ->method('bulkinsert')
+            ->with($table->getTable(), [$data[0], $data[1]]);
+
+        $table
+            ->addColumn('column1', 'string', ['null' => true])
+            ->save();
+        $table
+            ->insert($data)
+            ->saveData();
+        $table
+            ->changeColumn('column1', 'string', ['null' => false])
+            ->save();
+    }
+
     public function testResetAfterAddingData()
     {
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
