@@ -681,8 +681,16 @@ class Manager
         if ($this->migrations === null) {
             $phpFiles = $this->getMigrationFiles();
 
-            if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
-                $this->getOutput()->writeln("Migration file " . implode(", ", $phpFiles));
+            if ($this->getOutput()->getVerbosity() >= OutputInterface::VERBOSITY_DEBUG) {
+                $this->getOutput()->writeln('Migration file');
+                $this->getOutput()->writeln(
+                    array_map(
+                        function ($phpFile) {
+                            return '    ' . $phpFile;
+                        },
+                        $phpFiles
+                    )
+                );
             }
 
             // filter the files to only get the ones that match our naming scheme
@@ -692,8 +700,16 @@ class Manager
 
             foreach ($phpFiles as $filePath) {
                 if (Util::isValidMigrationFileName(basename($filePath))) {
-                    if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
-                        $this->getOutput()->writeln("Valid migration file " . implode(", ", $phpFiles));
+                    if ($this->getOutput()->getVerbosity() >= OutputInterface::VERBOSITY_DEBUG) {
+                        $this->getOutput()->writeln('Valid migration file');
+                        $this->getOutput()->writeln(
+                            array_map(
+                                function ($phpFile) {
+                                    return '    ' . $phpFile;
+                                },
+                                $phpFiles
+                            )
+                        );
                     }
 
                     $version = Util::getVersionFromFileName(basename($filePath));
@@ -718,7 +734,7 @@ class Manager
 
                     $fileNames[$class] = basename($filePath);
 
-                    if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
+                    if ($this->getOutput()->getVerbosity() >= OutputInterface::VERBOSITY_DEBUG) {
                         $this->getOutput()->writeln("Loading class $class from $filePath");
                     }
 
@@ -736,7 +752,7 @@ class Manager
                         ));
                     }
 
-                    if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
+                    if ($this->getOutput()->getVerbosity() >= OutputInterface::VERBOSITY_DEBUG) {
                         $this->getOutput()->writeln("Running $class");
                     }
 
@@ -753,8 +769,16 @@ class Manager
 
                     $versions[$version] = $migration;
                 } else {
-                    if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
-                        $this->getOutput()->writeln("Invalid migration file " . implode(", ", $phpFiles));
+                    if ($this->getOutput()->getVerbosity() >= OutputInterface::VERBOSITY_DEBUG) {
+                        $this->getOutput()->writeln('Invalid migration file');
+                        $this->getOutput()->writeln(
+                            array_map(
+                                function ($phpFile) {
+                                    return '  ' . $phpFile;
+                                },
+                                $phpFiles
+                            )
+                        );
                     }
                 }
             }
