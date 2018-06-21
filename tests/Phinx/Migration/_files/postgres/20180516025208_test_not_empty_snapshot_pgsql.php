@@ -5,7 +5,6 @@ class TestNotEmptySnapshotPgsql extends AbstractMigration
 {
     public function up()
     {
-
         $this->table('articles')
             ->addColumn('title', 'string', [
                 'comment' => 'Article title',
