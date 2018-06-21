@@ -758,26 +758,35 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $instructions = new AlterInstructions();
 
         $parts = $this->getSchemaName($tableName);
+        $sql = "SELECT c.CONSTRAINT_NAME
+                FROM (
+                    SELECT CONSTRAINT_NAME, array_agg(COLUMN_NAME::varchar) as columns
+                    FROM information_schema.KEY_COLUMN_USAGE
+                    WHERE TABLE_SCHEMA = %s
+                    AND TABLE_NAME IS NOT NULL
+                    AND TABLE_NAME = %s
+                    GROUP BY CONSTRAINT_NAME
+                ) c
+                WHERE
+                    ARRAY[%s]::varchar[] <@ c.columns AND
+                    ARRAY[%s]::varchar[] @> c.columns";
 
-        foreach ($columns as $column) {
-            $rows = $this->fetchAll(sprintf(
-                "SELECT CONSTRAINT_NAME
-                FROM information_schema.KEY_COLUMN_USAGE
-                WHERE TABLE_SCHEMA = %s
-                AND TABLE_NAME IS NOT NULL
-                AND TABLE_NAME = %s
-                AND COLUMN_NAME = %s
-                AND POSITION_IN_UNIQUE_CONSTRAINT IS NOT NULL
-                ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
-                $this->getConnection()->quote($parts['schema']),
-                $this->getConnection()->quote($parts['table']),
-                $this->getConnection()->quote($column)
-            ));
+        $array = [];
+        foreach ($columns as $col) {
+            $array[] = "'$col'";
+        }
 
-            foreach ($rows as $row) {
-                $newInstr = $this->getDropForeignKeyInstructions($tableName, $row['constraint_name']);
-                $instructions->merge($newInstr);
-            }
+        $rows = $this->fetchAll(sprintf(
+            $sql,
+            $this->getConnection()->quote($parts['schema']),
+            $this->getConnection()->quote($parts['table']),
+            implode(',', $array),
+            implode(',', $array)
+        ));
+
+        foreach ($rows as $row) {
+            $newInstr = $this->getDropForeignKeyInstructions($tableName, $row['constraint_name']);
+            $instructions->merge($newInstr);
         }
 
         return $instructions;

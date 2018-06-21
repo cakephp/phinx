@@ -5709,6 +5709,59 @@ class ManagerTest extends TestCase
         $this->assertContains('is not a valid version', $output);
     }
 
+    public function testPostgresFullMigration()
+    {
+        if (!TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED) {
+            $this->markTestSkipped('Postgres tests disabled. See TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED constant.');
+        }
+        $configArray = $this->getConfigArray();
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+
+        // override the migrations directory to use the reversible migrations
+        $configArray['paths']['migrations'] = [
+            $this->getCorrectedPath(__DIR__ . '/_files/postgres'),
+        ];
+        $configArray['environments']['production'] = [
+            'adapter' => 'postgres',
+            'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
+            'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
+            'user' => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
+            'pass' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
+            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
+            'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA
+        ];
+        $config = new Config($configArray);
+
+        // ensure the database is empty
+        $adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE);
+        $adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE);
+        $adapter->disconnect();
+
+        // migrate to the latest version
+        $this->manager->setConfig($config);
+        $this->manager->migrate('production');
+
+        $this->assertTrue($adapter->hasTable('articles'));
+        $this->assertTrue($adapter->hasTable('categories'));
+        $this->assertTrue($adapter->hasTable('composite_pks'));
+        $this->assertTrue($adapter->hasTable('orders'));
+        $this->assertTrue($adapter->hasTable('products'));
+        $this->assertTrue($adapter->hasTable('special_pks'));
+        $this->assertTrue($adapter->hasTable('special_tags'));
+        $this->assertTrue($adapter->hasTable('users'));
+
+        $this->manager->rollback('production', 'all');
+
+        $this->assertFalse($adapter->hasTable('articles'));
+        $this->assertFalse($adapter->hasTable('categories'));
+        $this->assertFalse($adapter->hasTable('composite_pks'));
+        $this->assertFalse($adapter->hasTable('orders'));
+        $this->assertFalse($adapter->hasTable('products'));
+        $this->assertFalse($adapter->hasTable('special_pks'));
+        $this->assertFalse($adapter->hasTable('special_tags'));
+        $this->assertFalse($adapter->hasTable('users'));
+    }
+
     public function setExpectedException($exceptionName, $exceptionMessage = '', $exceptionCode = null)
     {
         if (method_exists($this, 'expectException')) {
