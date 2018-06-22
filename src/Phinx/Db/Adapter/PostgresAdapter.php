@@ -765,6 +765,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     WHERE TABLE_SCHEMA = %s
                     AND TABLE_NAME IS NOT NULL
                     AND TABLE_NAME = %s
+                    AND POSITION_IN_UNIQUE_CONSTRAINT IS NOT NULL
                     GROUP BY CONSTRAINT_NAME
                 ) c
                 WHERE
