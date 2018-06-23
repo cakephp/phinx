@@ -372,6 +372,21 @@ class Column
     }
 
     /**
+     * Sets the column precision and scale for decimal.
+     *
+     * @param int $precision
+     * @param int $scale
+     * @return \Phinx\Db\Table\Column
+     */
+    public function setPrecisionAndScale($precision, $scale)
+    {
+        $this->precision = $precision;
+        $this->scale = $scale;
+
+        return $this;
+    }
+
+    /**
      * Sets the column comment.
      *
      * @param string $comment
