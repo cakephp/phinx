@@ -374,8 +374,8 @@ class Column
     /**
      * Sets the column precision and scale for decimal.
      *
-     * @param int $precision
-     * @param int $scale
+     * @param int $precision Column precision
+     * @param int $scale Column scale
      * @return \Phinx\Db\Table\Column
      */
     public function setPrecisionAndScale($precision, $scale)
