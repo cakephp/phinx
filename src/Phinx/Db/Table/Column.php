@@ -326,9 +326,12 @@ class Column
     }
 
     /**
-     * Sets the column precision for decimal.
+     * Sets the number precision for decimal or float column.
      *
-     * @param int $precision
+     * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
+     * and the column could store value from -999.99 to 999.99.
+     *
+     * @param int $precision Number precision
      * @return \Phinx\Db\Table\Column
      */
     public function setPrecision($precision)
@@ -339,7 +342,10 @@ class Column
     }
 
     /**
-     * Gets the column precision for decimal.
+     * Gets the number precision for decimal or float column.
+     *
+     * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
+     * and the column could store value from -999.99 to 999.99.
      *
      * @return int
      */
@@ -349,9 +355,12 @@ class Column
     }
 
     /**
-     * Sets the column scale for decimal.
+     * Sets the number scale for decimal or float column.
      *
-     * @param int $scale
+     * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
+     * and the column could store value from -999.99 to 999.99.
+     *
+     * @param int $scale Number scale
      * @return \Phinx\Db\Table\Column
      */
     public function setScale($scale)
@@ -362,13 +371,34 @@ class Column
     }
 
     /**
-     * Gets the column scale for decimal.
+     * Gets the number scale for decimal or float column.
+     *
+     * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
+     * and the column could store value from -999.99 to 999.99.
      *
      * @return int
      */
     public function getScale()
     {
         return $this->scale;
+    }
+
+    /**
+     * Sets the number precision and scale for decimal or float column.
+     *
+     * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
+     * and the column could store value from -999.99 to 999.99.
+     *
+     * @param int $precision Number precision
+     * @param int $scale Number scale
+     * @return \Phinx\Db\Table\Column
+     */
+    public function setPrecisionAndScale($precision, $scale)
+    {
+        $this->precision = $precision;
+        $this->scale = $scale;
+
+        return $this;
     }
 
     /**
