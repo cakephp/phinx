@@ -39,7 +39,9 @@ class SqlServerAdapterTest extends TestCase
 
     public function tearDown()
     {
-        $this->adapter->disconnect();
+        if (!empty($this->adapter)) {
+            $this->adapter->disconnect();
+        }
         unset($this->adapter);
     }
 
@@ -66,6 +68,7 @@ class SqlServerAdapterTest extends TestCase
             'pass' => 'invalidpass'
         ];
 
+        $adapter = null;
         try {
             $adapter = new SqlServerAdapter($options, new ArrayInput([]), new NullOutput());
             $adapter->connect();
@@ -78,7 +81,9 @@ class SqlServerAdapterTest extends TestCase
             );
             $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
         } finally {
-            $this->adapter->disconnect();
+            if (!empty($adapter)) {
+                $adapter->disconnect();
+            }
         }
     }
 
