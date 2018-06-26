@@ -879,7 +879,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      * @param string $column Column Name
      * @return AlterInstructions
      */
-    protected function getAddPrimaryKeyInstructions(Table $table, string $column)
+    protected function getAddPrimaryKeyInstructions(Table $table, $column)
     {
         $instructions = $this->beginAlterByCopyTable($table->getName());
 
@@ -907,7 +907,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      * @param string $column Column Name
      * @return void
      */
-    protected function dropPrimaryKey(string $tableName, string $column)
+    protected function dropPrimaryKey($tableName, $column)
     {
         $instructions = $this->beginAlterByCopyTable($tableName);
 
