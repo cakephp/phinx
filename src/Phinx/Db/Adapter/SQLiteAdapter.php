@@ -258,8 +258,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         // Drop the existing primary key
         $primaryKey = $this->getPrimaryKey($table->getName());
         if ((isset($newOptions['id']) || isset($newOptions['primary_key']))
-            && !empty($primaryKey))
-        {
+            && !empty($primaryKey)) {
             $this->dropPrimaryKey($table->getName(), $primaryKey);
         }
 
@@ -267,7 +266,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         if (isset($newOptions['id']) && $newOptions['id'] !== false) {
             if ($newOptions['id'] === true) {
                 $newOptions['primary_key'] = 'id';
-            } else if (is_string($newOptions['id'])) {
+            } elseif (is_string($newOptions['id'])) {
                 // Handle id => "field_name" to support AUTO_INCREMENT
                 $newOptions['primary_key'] = $newOptions['id'];
             } else {
@@ -775,6 +774,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $columns = [$columns]; // str to array
         }
         $missingColumns = array_diff($columns, [$primaryKey]);
+
         return empty($missingColumns);
     }
 
@@ -806,11 +806,15 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 if (strpos($row['sql'], 'PRIMARY KEY') !== false) {
                     preg_match_all("/PRIMARY KEY\s*\(`([^`]*)`\)/", $row['sql'], $matches);
                     foreach ($matches[1] as $match) {
-                        if (!empty($match)) return $match;
+                        if (!empty($match)) {
+                            return $match;
+                        }
                     }
                     preg_match_all("/`([^`]+)`[\w\s]+PRIMARY KEY/", $row['sql'], $matches);
                     foreach ($matches[1] as $match) {
-                        if (!empty($match)) return $match;
+                        if (!empty($match)) {
+                            return $match;
+                        }
                     }
                 }
             }

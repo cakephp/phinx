@@ -283,8 +283,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         // Drop the existing primary key
         $primaryKey = $this->getPrimaryKey($table->getName());
         if ((isset($newOptions['id']) || isset($newOptions['primary_key']))
-            && !empty($primaryKey['constraint']))
-        {
+            && !empty($primaryKey['constraint'])) {
             $sql = sprintf(
                 'ALTER TABLE %s DROP CONSTRAINT %s',
                 $this->quoteTableName($table->getName()),
@@ -297,7 +296,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         if (isset($newOptions['id']) && $newOptions['id'] !== false) {
             if ($newOptions['id'] === true) {
                 $newOptions['primary_key'] = 'id';
-            } else if (is_string($newOptions['id'])) {
+            } elseif (is_string($newOptions['id'])) {
                 // Handle id => "field_name" to support AUTO_INCREMENT
                 $newOptions['primary_key'] = $newOptions['id'];
             } else {
@@ -331,7 +330,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             );
             if (is_string($newOptions['primary_key'])) { // handle primary_key => 'id'
                 $sql .= $this->quoteColumnName($newOptions['primary_key']);
-            } else if (is_array($newOptions['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
+            } elseif (is_array($newOptions['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
                 $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newOptions['primary_key']));
             } else {
                 throw new \InvalidArgumentException(sprintf(
@@ -848,6 +847,7 @@ ORDER BY T.[name], I.[index_id];";
                 $columns = [$columns]; // str to array
             }
             $missingColumns = array_diff($columns, $primaryKey['columns']);
+
             return empty($missingColumns);
         }
     }
@@ -880,6 +880,7 @@ ORDER BY T.[name], I.[index_id];";
             $primaryKey['constraint'] = $row['constraint_name'];
             $primaryKey['columns'][] = $row['column_name'];
         }
+
         return $primaryKey;
     }
 
