@@ -875,8 +875,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * @param Table $table
-     * @param string $column
+     * @param Table $table The Table
+     * @param string $column Column Name
      * @return AlterInstructions
      */
     protected function getAddPrimaryKeyInstructions(Table $table, string $column)
@@ -903,8 +903,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * @param string $tableName
-     * @param string $column
+     * @param string $tableName Table Name
+     * @param string $column Column Name
+     * @return void
      */
     protected function dropPrimaryKey(string $tableName, string $column)
     {

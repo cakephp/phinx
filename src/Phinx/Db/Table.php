@@ -183,7 +183,7 @@ class Table
     }
 
     /**
-     * @param array $options
+     * @param array $options Options
      * @return $this
      */
     public function change(array $options)
