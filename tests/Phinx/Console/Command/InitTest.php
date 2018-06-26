@@ -93,7 +93,7 @@ class InitTest extends TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
         $this->assertRegExp(
-            "/created (.*)\/phinx.yml\\n/",
+            "/created (.*)[\/\\\\]phinx.yml\\n/",
             $commandTester->getDisplay()
         );
 
