@@ -39,6 +39,9 @@ class SqlServerAdapterTest extends TestCase
 
     public function tearDown()
     {
+        if (!empty($this->adapter)) {
+            $this->adapter->disconnect();
+        }
         unset($this->adapter);
     }
 
@@ -65,6 +68,7 @@ class SqlServerAdapterTest extends TestCase
             'pass' => 'invalidpass'
         ];
 
+        $adapter = null;
         try {
             $adapter = new SqlServerAdapter($options, new ArrayInput([]), new NullOutput());
             $adapter->connect();
@@ -76,6 +80,10 @@ class SqlServerAdapterTest extends TestCase
                 'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
             $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
+        } finally {
+            if (!empty($adapter)) {
+                $adapter->disconnect();
+            }
         }
     }
 
@@ -308,7 +316,7 @@ class SqlServerAdapterTest extends TestCase
         }
     }
 
-    public function testChangeColumn()
+    public function testChangeColumnType()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string')
@@ -316,13 +324,26 @@ class SqlServerAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
         $newColumn1 = new \Phinx\Db\Table\Column();
         $newColumn1->setType('string');
-        $table->changeColumn('column1', $newColumn1);
+        $table->changeColumn('column1', $newColumn1)->save();
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+        $columns = $this->adapter->getColumns('t');
+        foreach ($columns as $column) {
+            if ($column->getName() == 'column1') {
+                $this->assertEquals('string', $column->getType());
+            }
+        }
+    }
+
+    public function testChangeColumnNameAndNull()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->save();
         $newColumn2 = new \Phinx\Db\Table\Column();
         $newColumn2->setName('column2')
-                   ->setType('string')
-                   ->setNull(true);
-        $table->changeColumn('column1', $newColumn2);
+            ->setType('string')
+            ->setNull(true);
+        $table->changeColumn('column1', $newColumn2)->save();
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
         $columns = $this->adapter->getColumns('t');
@@ -347,7 +368,7 @@ class SqlServerAdapterTest extends TestCase
         $newColumn1
             ->setType('string')
             ->setDefault('another test');
-        $table->changeColumn('column1', $newColumn1);
+        $table->changeColumn('column1', $newColumn1)->save();
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
 
         $columns = $this->adapter->getColumns('t');
@@ -363,7 +384,7 @@ class SqlServerAdapterTest extends TestCase
         $newColumn1
             ->setType('string')
             ->setDefault(null);
-        $table->changeColumn('column1', $newColumn1);
+        $table->changeColumn('column1', $newColumn1)->save();
         $columns = $this->adapter->getColumns('t');
         $this->assertNull($columns['column1']->getDefault());
     }
@@ -377,7 +398,7 @@ class SqlServerAdapterTest extends TestCase
         $newColumn1
             ->setType('string')
             ->setDefault(0);
-        $table->changeColumn('column1', $newColumn1);
+        $table->changeColumn('column1', $newColumn1)->save();
         $columns = $this->adapter->getColumns('t');
         $this->assertSame(0, $columns['column1']->getDefault());
     }
@@ -392,34 +413,38 @@ class SqlServerAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
     }
 
-    public function testGetColumns()
+    public function columnsProvider()
+    {
+        return [
+            ['column1', 'string', ['null' => true, 'default' => null]],
+            ['column2', 'integer', ['default' => 0]],
+            ['column3', 'biginteger', ['default' => 5]],
+            ['column4', 'text', ['default' => 'text']],
+            ['column5', 'float', []],
+            ['column6', 'decimal', []],
+            ['column7', 'time', []],
+            ['column8', 'date', []],
+            ['column9', 'boolean', []],
+            ['column10', 'datetime', []],
+            ['column11', 'binary', []],
+            ['column12', 'string', ['limit' => 10]],
+        ];
+    }
+
+    /**
+     * @dataProvider columnsProvider
+     */
+    public function testGetColumns($colName, $type, $options)
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
-        $table->addColumn('column1', 'string', ['null' => true, 'default' => null])
-              ->addColumn('column2', 'integer', ['default' => 0])
-              ->addColumn('column3', 'biginteger', ['default' => 5])
-              ->addColumn('column4', 'text', ['default' => 'text'])
-              ->addColumn('column5', 'float')
-              ->addColumn('column6', 'decimal')
-              ->addColumn('column7', 'time')
-              ->addColumn('column8', 'timestamp')
-              ->addColumn('column9', 'date')
-              ->addColumn('column10', 'boolean')
-              ->addColumn('column11', 'datetime')
-              ->addColumn('column12', 'binary')
-              ->addColumn('column13', 'string', ['limit' => 10]);
-        $pendingColumns = $table->getPendingColumns();
-        $table->save();
-        $columns = $this->adapter->getColumns('t');
-        $this->assertCount(count($pendingColumns) + 1, $columns);
-        for ($i = 0; $i++; $i < count($pendingColumns)) {
-            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
-        }
+        $table
+            ->addColumn($colName, $type, $options)
+            ->save();
 
-        $this->assertNull($columns['column1']->getDefault());
-        $this->assertSame(0, $columns['column2']->getDefault());
-        $this->assertSame(5, $columns['column3']->getDefault());
-        $this->assertSame('text', $columns['column4']->getDefault());
+        $columns = $this->adapter->getColumns('t');
+        $this->assertCount(2, $columns);
+        $this->assertEquals($colName, $columns[$colName]->getName());
+        $this->assertEquals($type, $columns[$colName]->getType());
     }
 
     public function testAddIndex()
@@ -528,12 +553,12 @@ class SqlServerAdapterTest extends TestCase
         $table->addColumn('ref_table_id', 'integer')->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
-        $fk->setReferencedTable($refTable)
+        $fk->setReferencedTable($refTable->getTable())
            ->setColumns(['ref_table_id'])
            ->setReferencedColumns(['id'])
            ->setConstraint('fk1');
 
-        $this->adapter->addForeignKey($table, $fk);
+        $this->adapter->addForeignKey($table->getTable(), $fk);
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id'], 'fk1'));
     }
 
@@ -649,7 +674,7 @@ class SqlServerAdapterTest extends TestCase
 
         $resultComment = $this->adapter->getColumnComment('table1', 'field1');
 
-        $this->assertEmpty($resultComment, 'Dont remove column comment correctly');
+        $this->assertEmpty($resultComment, "Didn't remove column comment correctly: " . json_encode($resultComment));
     }
 
     /**
@@ -676,7 +701,8 @@ class SqlServerAdapterTest extends TestCase
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
               ->addColumn('column2', 'integer')
-              ->insert([
+              ->save();
+        $table->insert([
                   [
                       'column1' => 'value1',
                       'column2' => 1,
@@ -692,8 +718,7 @@ class SqlServerAdapterTest extends TestCase
                       'column2' => 3,
                   ]
               );
-        $this->adapter->createTable($table);
-        $this->adapter->bulkinsert($table, $table->getData());
+        $this->adapter->bulkinsert($table->getTable(), $table->getData());
         $table->reset();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
