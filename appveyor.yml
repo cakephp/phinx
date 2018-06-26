@@ -16,12 +16,6 @@ environment:
         php_zip: php-5.6.28-nts-Win32-VC11-x86.zip
         db_dsn: 'sqlserver://sa:Password12!@.\SQL2012SP1/phinxtesting?MultipleActiveResultSets=false'
         sqlsrv: https://download.microsoft.com/download/C/D/B/CDB0A3BB-600E-42ED-8D5E-E4630C905371/SQLSRV32.EXE
-      - dependencies: lowest
-        db: 2012
-        php_ddl: 56_nts
-        php_zip: php-5.6.28-nts-Win32-VC11-x86.zip
-        db_dsn: 'sqlserver://sa:Password12!@.\SQL2012SP1/phinxtesting?MultipleActiveResultSets=false'
-        sqlsrv: https://download.microsoft.com/download/C/D/B/CDB0A3BB-600E-42ED-8D5E-E4630C905371/SQLSRV32.EXE
 
 services:
   - mssql2012sp1
