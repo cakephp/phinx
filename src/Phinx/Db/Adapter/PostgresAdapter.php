@@ -273,6 +273,94 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    protected function getChangeTableInstructions(Table $table, array $newOptions)
+    {
+        $parts = $this->getSchemaName($table->getName());
+
+        $instructions = new AlterInstructions();
+
+        // Drop the existing primary key
+        $primaryKey = $this->getPrimaryKey($table->getName());
+        if ((isset($newOptions['id']) || isset($newOptions['primary_key']))
+            && !empty($primaryKey['constraint']))
+        {
+            $sql = sprintf(
+                'DROP CONSTRAINT %s',
+                $this->quoteColumnName($primaryKey['constraint'])
+            );
+            $instructions->addAlter($sql);
+        }
+
+        // Set the default primary key and add associated column
+        if (isset($newOptions['id']) && $newOptions['id'] !== false) {
+            if ($newOptions['id'] === true) {
+                $newOptions['primary_key'] = 'id';
+            } else if (is_string($newOptions['id'])) {
+                // Handle id => "field_name" to support AUTO_INCREMENT
+                $newOptions['primary_key'] = $newOptions['id'];
+            } else {
+                throw new \InvalidArgumentException(sprintf(
+                    "Invalid value for option 'id': %s",
+                    json_encode($newOptions['id'])
+                ));
+            }
+
+            if ($this->hasColumn($table->getName(), $newOptions['primary_key'])) {
+                throw new \RuntimeException(sprintf(
+                    "Tried to create primary key column %s for table %s, but that column already exists",
+                    $this->quoteColumnName($newOptions['primary_key']),
+                    $this->quoteTableName($table->getName())
+                ));
+            }
+
+            $column = new Column();
+            $column
+                ->setName($newOptions['primary_key'])
+                ->setType('integer')
+                ->setIdentity(true);
+            $instructions->merge($this->getAddColumnInstructions($table, $column));
+        }
+
+        // Add the primary key(s)
+        if (isset($newOptions['primary_key']) && $newOptions['primary_key'] !== false) {
+            $sql = sprintf(
+                'ADD CONSTRAINT %s PRIMARY KEY (',
+                $this->quoteColumnName($parts['table'] . '_pkey')
+            );
+            if (is_string($newOptions['primary_key'])) { // handle primary_key => 'id'
+                $sql .= $this->quoteColumnName($newOptions['primary_key']);
+            } else if (is_array($newOptions['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
+                $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newOptions['primary_key']));
+            } else {
+                throw new \InvalidArgumentException(sprintf(
+                    "Invalid value for option 'primary_key': %s",
+                    json_encode($newOptions['primary_key'])
+                ));
+            }
+            $sql .= ')';
+            $instructions->addAlter($sql);
+        }
+
+        // Process table comments
+        if (array_key_exists('comment', $newOptions)) {
+            // passing 'null' is to remove table comment
+            $newComment = ($newOptions['comment'] !== null)
+                ? $this->getConnection()->quote($newOptions['comment'])
+                : 'NULL';
+            $sql = sprintf(
+                'COMMENT ON TABLE %s IS %s',
+                $this->quoteTableName($table->getName()),
+                $newComment
+            );
+            $instructions->addPostStep($sql);
+        }
+
+        return $instructions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
         $sql = sprintf(
@@ -660,6 +748,62 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         );
 
         return new AlterInstructions([], [$sql]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasPrimaryKey($tableName, $columns, $constraint = null)
+    {
+        $primaryKey = $this->getPrimaryKey($tableName);
+
+        if (empty($primaryKey)) {
+            return false;
+        }
+
+        if ($constraint) {
+            return ($primaryKey['constraint'] === $constraint);
+        } else {
+            if (is_string($columns)) {
+                $columns = [$columns]; // str to array
+            }
+            $missingColumns = array_diff($columns, $primaryKey['columns']);
+            return empty($missingColumns);
+        }
+    }
+
+    /**
+     * Get the primary key from a particular table.
+     *
+     * @param string $tableName Table Name
+     * @return array
+     */
+    public function getPrimaryKey($tableName)
+    {
+        $parts = $this->getSchemaName($tableName);
+        $rows = $this->fetchAll(sprintf(
+            "SELECT
+                    tc.constraint_name,
+                    kcu.column_name
+                FROM information_schema.table_constraints AS tc
+                JOIN information_schema.key_column_usage AS kcu
+                    ON tc.constraint_name = kcu.constraint_name
+                WHERE constraint_type = 'PRIMARY KEY'
+                    AND tc.table_schema = %s
+                    AND tc.table_name = %s
+                ORDER BY kcu.position_in_unique_constraint",
+            $this->getConnection()->quote($parts['schema']),
+            $this->getConnection()->quote($parts['table'])
+        ));
+
+        $primaryKey = [
+            'columns' => [],
+        ];
+        foreach ($rows as $row) {
+            $primaryKey['constraint'] = $row['constraint_name'];
+            $primaryKey['columns'][] = $row['column_name'];
+        }
+        return $primaryKey;
     }
 
     /**

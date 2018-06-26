@@ -370,6 +370,106 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
 
+    public function testChangeTableAddDefaultPK()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->save();
+
+        $table
+            ->change(['id' => true])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['id']));
+    }
+
+    public function testChangeTableDropDefaultPK()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => true], $this->adapter);
+        $table->save();
+
+        $table
+            ->change(['id' => false])
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['id']));
+    }
+
+    public function testChangeTableAddCustomPK()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->save();
+
+        $table
+            ->change(['id' => false, 'primary_key' => 'column1'])
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['id']));
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column1']));
+    }
+
+    public function testChangeTableDropCustomPK()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->save();
+
+        $table
+            ->change(['primary_key' => false])
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['id']));
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
+    }
+
+    public function testChangeTableAddComment()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table
+            ->change(['comment' => 'comment1'])
+            ->save();
+
+        $rows = $this->adapter->fetchAll(
+            sprintf(
+                "SELECT table_comment 
+                    FROM INFORMATION_SCHEMA.TABLES 
+                    WHERE table_schema='%s' 
+                        AND table_name='%s'",
+                TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
+                'table1'
+            )
+        );
+        $this->assertEquals('comment1', $rows[0]['table_comment']);
+    }
+
+    public function testChangeTableDropComment()
+    {
+        $table = new \Phinx\Db\Table('table1', ['comment' => 'comment1'], $this->adapter);
+        $table->save();
+
+        $table
+            ->change(['comment' => null])
+            ->save();
+
+        $rows = $this->adapter->fetchAll(
+            sprintf(
+                "SELECT table_comment 
+                    FROM INFORMATION_SCHEMA.TABLES 
+                    WHERE table_schema='%s' 
+                        AND table_name='%s'",
+                TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
+                'table1'
+            )
+        );
+        $this->assertEquals('', $rows[0]['table_comment']);
+    }
+
     public function testRenameTable()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);

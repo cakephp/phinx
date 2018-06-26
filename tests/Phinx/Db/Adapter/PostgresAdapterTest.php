@@ -271,6 +271,104 @@ class PostgresAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasIndexByName('table1', 'myemailindex'));
     }
 
+    public function testChangeTableAddDefaultPK()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->save();
+
+        $table
+            ->change(['id' => true])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['id']));
+    }
+
+    public function testChangeTableDropDefaultPK()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => true], $this->adapter);
+        $table->save();
+
+        $table
+            ->change(['id' => false])
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['id']));
+    }
+
+    public function testChangeTableAddCustomPK()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->save();
+
+        $table
+            ->change(['id' => false, 'primary_key' => 'column1'])
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['id']));
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column1']));
+    }
+
+    public function testChangeTableDropCustomPK()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->save();
+
+        $table
+            ->change(['primary_key' => false])
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['id']));
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
+    }
+
+    public function testChangeTableAddComment()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table
+            ->change(['comment' => 'comment1'])
+            ->save();
+
+        $rows = $this->adapter->fetchAll(
+            sprintf(
+                "SELECT description
+                    FROM pg_description
+                    JOIN pg_class ON pg_description.objoid = pg_class.oid
+                    WHERE relname = '%s'",
+                'table1'
+            )
+        );
+        $this->assertEquals('comment1', $rows[0]['description']);
+    }
+
+    public function testChangeTableDropComment()
+    {
+        $table = new \Phinx\Db\Table('table1', ['comment' => 'comment1'], $this->adapter);
+        $table->save();
+
+        $table
+            ->change(['comment' => null])
+            ->save();
+
+        $rows = $this->adapter->fetchAll(
+            sprintf(
+                "SELECT description
+                    FROM pg_description
+                    JOIN pg_class ON pg_description.objoid = pg_class.oid
+                    WHERE relname = '%s'",
+                'table1'
+            )
+        );
+        $this->assertEmpty($rows);
+    }
+
     public function testRenameTable()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);

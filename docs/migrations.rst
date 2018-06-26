@@ -539,6 +539,55 @@ Option    Description
 comment   set a text comment on the table
 ========= ===========
 
+Changing Table Options
+~~~~~~~~~~~~~~~~~~~~~~
+
+To change the options on an existing table, use the ``change()`` method.
+Options ``id`` and ``primary_key`` are used to determine the primary key on the table, same as when creating a new table.
+Also see `Creating a Table`_ for lists of additional supported options for each adapter.
+
+In the following example, a table is initially created with the default primary key, no table comment, and two columns.
+Then another column is added, and the ``change()`` method is used to remove the default primary key,
+set the 'new_id' column to be the new primary key, and add a new comment on the table.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $users = $this->table('users');
+                $users
+                    ->addColumn('username', 'string', ['limit' => 20])
+                    ->addColumn('password', 'string', ['limit' => 40])
+                    ->save();
+
+                $users
+                    ->addColumn('new_id', 'integer', ['null' => false])
+                    ->change([
+                        'id' => false,
+                        'primary_key' => 'new_id',
+                        'comment' => 'Some comment',
+                    ])
+                    ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
 Valid Column Types
 ~~~~~~~~~~~~~~~~~~
 

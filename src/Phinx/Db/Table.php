@@ -32,6 +32,7 @@ use Phinx\Db\Action\AddColumn;
 use Phinx\Db\Action\AddForeignKey;
 use Phinx\Db\Action\AddIndex;
 use Phinx\Db\Action\ChangeColumn;
+use Phinx\Db\Action\ChangeTable;
 use Phinx\Db\Action\CreateTable;
 use Phinx\Db\Action\DropColumn;
 use Phinx\Db\Action\DropForeignKey;
@@ -177,6 +178,17 @@ class Table
     public function rename($newTableName)
     {
         $this->actions->addAction(new RenameTable($this->table, $newTableName));
+
+        return $this;
+    }
+
+    /**
+     * @param array $options
+     * @return $this
+     */
+    public function change(array $options)
+    {
+        $this->actions->addAction(new ChangeTable($this->table, $options));
 
         return $this;
     }
@@ -659,5 +671,13 @@ class Table
 
         $plan = new Plan($this->actions);
         $plan->execute($this->getAdapter());
+
+        // If a ChangeTable action was executed,
+        // also change the options on this table instance to the new ones for consistency.
+        foreach ($this->actions->getActions() as $action) {
+            if ($action instanceof ChangeTable) {
+                $this->table->setOptions($action->getNewOptions());
+            }
+        }
     }
 }

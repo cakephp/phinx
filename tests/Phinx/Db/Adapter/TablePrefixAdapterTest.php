@@ -6,6 +6,7 @@ use Phinx\Db\Action\AddColumn;
 use Phinx\Db\Action\AddForeignKey;
 use Phinx\Db\Action\AddIndex;
 use Phinx\Db\Action\ChangeColumn;
+use Phinx\Db\Action\ChangeTable;
 use Phinx\Db\Action\DropForeignKey;
 use Phinx\Db\Action\DropIndex;
 use Phinx\Db\Action\DropTable;
@@ -91,6 +92,23 @@ class TablePrefixAdapterTest extends TestCase
             ));
 
         $this->adapter->createTable($table);
+    }
+
+    public function testChangeTable()
+    {
+        $table = new Table('table');
+        $newOptions = ['id' => false, 'comment' => 'comment1'];
+
+        $expectedTable = new Table('pre_table_suf');
+        $this->mock
+            ->expects($this->once())
+            ->method('changeTable')
+            ->with(
+                $this->equalTo($expectedTable),
+                $this->equalTo($newOptions)
+            );
+
+        $this->adapter->changeTable($table, $newOptions);
     }
 
     public function testRenameTable()
@@ -243,6 +261,23 @@ class TablePrefixAdapterTest extends TestCase
         $this->adapter->dropIndexByName('table', 'index');
     }
 
+    public function testHasPrimaryKey()
+    {
+        $columns = [];
+        $constraint = null;
+
+        $this->mock
+            ->expects($this->once())
+            ->method('hasPrimaryKey')
+            ->with(
+                $this->equalTo('pre_table_suf'),
+                $this->equalTo($columns),
+                $this->equalTo($constraint)
+            );
+
+        $this->adapter->hasPrimaryKey('table', $columns, $constraint);
+    }
+
     public function testHasForeignKey()
     {
         $columns = [];
@@ -329,6 +364,7 @@ class TablePrefixAdapterTest extends TestCase
             [RemoveColumn::build($table, 'acolumn')],
             [RenameColumn::build($table, 'acolumn', 'another')],
             [new RenameTable($table, 'new_name')],
+            [new ChangeTable($table, ['id' => false, 'comment' => 'comment1'])],
         ];
     }
 

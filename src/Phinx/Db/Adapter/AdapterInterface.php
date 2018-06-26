@@ -348,6 +348,15 @@ interface AdapterInterface
     public function createTable(Table $table, array $columns = [], array $indexes = []);
 
     /**
+     * Creates the specified database table.
+     *
+     * @param \Phinx\Db\Table\Table $table Table
+     * @param array $newOptions New options for the table
+     * @return void
+     */
+    public function changeTable(Table $table, array $newOptions);
+
+    /**
      * Truncates the specified table
      *
      * @param string $tableName
@@ -389,6 +398,16 @@ interface AdapterInterface
      * @return bool
      */
     public function hasIndexByName($tableName, $indexName);
+
+    /**
+     * Checks to see if the specified primary key exists.
+     *
+     * @param string   $tableName
+     * @param string[] $columns    Column(s)
+     * @param string   $constraint Constraint name
+     * @return bool
+     */
+    public function hasPrimaryKey($tableName, $columns, $constraint = null);
 
     /**
      * Checks to see if a foreign key exists.

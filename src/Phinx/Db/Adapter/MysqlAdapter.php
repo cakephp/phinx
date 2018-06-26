@@ -301,6 +301,104 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    protected function getChangeTableInstructions(Table $table, array $newOptions)
+    {
+        $instructions = new AlterInstructions();
+
+        // Drop the existing primary key
+        $primaryKey = $this->getPrimaryKey($table->getName());
+        if ((isset($newOptions['id']) || isset($newOptions['primary_key']))
+            && !empty($primaryKey['columns']))
+        {
+            foreach ($primaryKey['columns'] as $column) {
+                $sql = sprintf(
+                    'MODIFY %s INT NOT NULL',
+                    $this->quoteColumnName($column)
+                );
+                $instructions->addAlter($sql);
+            }
+            $instructions->addAlter('DROP PRIMARY KEY');
+        }
+
+        // Set the default primary key and add associated column
+        if (isset($newOptions['id']) && $newOptions['id'] !== false) {
+            if ($newOptions['id'] === true) {
+                $newOptions['primary_key'] = 'id';
+            } else if (is_string($newOptions['id'])) {
+                // Handle id => "field_name" to support AUTO_INCREMENT
+                $newOptions['primary_key'] = $newOptions['id'];
+            } else {
+                throw new \InvalidArgumentException(sprintf(
+                    "Invalid value for option 'id': %s",
+                    json_encode($newOptions['id'])
+                ));
+            }
+
+            if ($this->hasColumn($table->getName(), $newOptions['primary_key'])) {
+                throw new \RuntimeException(sprintf(
+                    "Tried to create primary key column %s for table %s, but that column already exists",
+                    $this->quoteColumnName($newOptions['primary_key']),
+                    $this->quoteTableName($table->getName())
+                ));
+            }
+
+            $column = new Column();
+            $column
+                ->setName($newOptions['primary_key'])
+                ->setType('integer')
+                ->setSigned(isset($newOptions['signed']) ? $newOptions['signed'] : true)
+                ->setIdentity(true);
+            $instructions->merge($this->getAddColumnInstructions($table, $column));
+        }
+
+        // Add the primary key(s)
+        if (isset($newOptions['primary_key']) && $newOptions['primary_key'] !== false) {
+            $sql = 'ADD PRIMARY KEY (';
+            if (is_string($newOptions['primary_key'])) { // handle primary_key => 'id'
+                $sql .= $this->quoteColumnName($newOptions['primary_key']);
+            } else if (is_array($newOptions['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
+                $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newOptions['primary_key']));
+            } else {
+                throw new \InvalidArgumentException(sprintf(
+                    "Invalid value for option 'primary_key': %s",
+                    json_encode($newOptions['primary_key'])
+                ));
+            }
+            $sql .= ')';
+            $instructions->addAlter($sql);
+        }
+
+        // process table engine (default to InnoDB)
+        $optionsStr = 'ENGINE = InnoDB';
+        if (isset($newOptions['engine'])) {
+            $optionsStr = sprintf('ENGINE = %s', $newOptions['engine']);
+        }
+        // process table collation
+        if (isset($newOptions['collation'])) {
+            $charset = explode('_', $newOptions['collation']);
+            $optionsStr .= sprintf(' CHARACTER SET %s', $charset[0]);
+            $optionsStr .= sprintf(' COLLATE %s', $newOptions['collation']);
+        }
+        // set the table comment
+        if (array_key_exists('comment', $newOptions)) {
+            // passing 'null' is to remove table comment
+            $newComment = ($newOptions['comment'] !== null)
+                ? $newOptions['comment']
+                : '';
+            $optionsStr .= sprintf(" COMMENT=%s ", $this->getConnection()->quote($newComment));
+        }
+        // set the table row format
+        if (isset($newOptions['row_format'])) {
+            $optionsStr .= sprintf(" ROW_FORMAT=%s ", $newOptions['row_format']);
+        }
+        $instructions->addAlter($optionsStr);
+
+        return $instructions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
         $sql = sprintf(
@@ -579,6 +677,58 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             "The specified index name '%s' does not exist",
             $indexName
         ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasPrimaryKey($tableName, $columns, $constraint = null)
+    {
+        $primaryKey = $this->getPrimaryKey($tableName);
+
+        if (empty($primaryKey['constraint'])) {
+            return false;
+        }
+
+        if ($constraint) {
+            return ($primaryKey['constraint'] === $constraint);
+        } else {
+            if (is_string($columns)) {
+                $columns = [$columns]; // str to array
+            }
+            $missingColumns = array_diff($columns, $primaryKey['columns']);
+            return empty($missingColumns);
+        }
+    }
+
+    /**
+     * Get the primary key from a particular table.
+     *
+     * @param string $tableName Table Name
+     * @return array
+     */
+    public function getPrimaryKey($tableName)
+    {
+        $rows = $this->fetchAll(sprintf(
+            "SELECT
+                k.constraint_name,
+                k.column_name
+            FROM information_schema.table_constraints t
+            JOIN information_schema.key_column_usage k
+                USING(constraint_name,table_name)
+            WHERE t.constraint_type='PRIMARY KEY'
+                AND t.table_name='%s'",
+            $tableName
+        ));
+
+        $primaryKey = [
+            'columns' => [],
+        ];
+        foreach ($rows as $row) {
+            $primaryKey['constraint'] = $row['constraint_name'];
+            $primaryKey['columns'][] = $row['column_name'];
+        }
+        return $primaryKey;
     }
 
     /**

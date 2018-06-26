@@ -33,6 +33,7 @@ use Phinx\Db\Action\AddColumn;
 use Phinx\Db\Action\AddForeignKey;
 use Phinx\Db\Action\AddIndex;
 use Phinx\Db\Action\ChangeColumn;
+use Phinx\Db\Action\ChangeTable;
 use Phinx\Db\Action\DropForeignKey;
 use Phinx\Db\Action\DropIndex;
 use Phinx\Db\Action\DropTable;
@@ -380,7 +381,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function toggleBreakpoint(MigrationInterface $migration)
     {
@@ -401,7 +402,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function resetAllBreakpoints()
     {
@@ -522,7 +523,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     public function addColumn(Table $table, Column $column)
     {
         $instructions = $this->getAddColumnInstructions($table, $column);
-        $this->executeAlterSteps($table, $instructions);
+        $this->executeAlterSteps($table->getName(), $instructions);
     }
 
     /**
@@ -733,6 +734,24 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * {@inheritdoc}
      */
+    public function changeTable(Table $table, array $newOptions)
+    {
+        $instructions = $this->getChangeTableInstructions($table, $newOptions);
+        $this->executeAlterSteps($table->getName(), $instructions);
+    }
+
+    /**
+     * Returns the instructions to change the options for the specified database table.
+     *
+     * @param Table $table Table
+     * @param array $newOptions New Options
+     * @return AlterInstructions
+     */
+    abstract protected function getChangeTableInstructions(Table $table, array $newOptions);
+
+    /**
+     * {@inheritdoc}
+     */
     public function executeActions(Table $table, array $actions)
     {
         $instructions = new AlterInstructions();
@@ -812,6 +831,13 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
                     $instructions->merge($this->getRenameTableInstructions(
                         $table->getName(),
                         $action->getNewName()
+                    ));
+                    break;
+
+                case ($action instanceof ChangeTable):
+                    $instructions->merge($this->getChangeTableInstructions(
+                        $table,
+                        $action->getNewOptions()
                     ));
                     break;
 

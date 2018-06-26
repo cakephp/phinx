@@ -274,6 +274,79 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getChangeTableInstructions(Table $table, array $newOptions)
+    {
+        $instructions = new AlterInstructions();
+
+        // Drop the existing primary key
+        $primaryKey = $this->getPrimaryKey($table->getName());
+        if ((isset($newOptions['id']) || isset($newOptions['primary_key']))
+            && !empty($primaryKey['constraint']))
+        {
+            $sql = sprintf(
+                'ALTER TABLE %s DROP CONSTRAINT %s',
+                $this->quoteTableName($table->getName()),
+                $this->quoteColumnName($primaryKey['constraint'])
+            );
+            $this->execute($sql);
+        }
+
+        // Set the default primary key and add associated column
+        if (isset($newOptions['id']) && $newOptions['id'] !== false) {
+            if ($newOptions['id'] === true) {
+                $newOptions['primary_key'] = 'id';
+            } else if (is_string($newOptions['id'])) {
+                // Handle id => "field_name" to support AUTO_INCREMENT
+                $newOptions['primary_key'] = $newOptions['id'];
+            } else {
+                throw new \InvalidArgumentException(sprintf(
+                    "Invalid value for option 'id': %s",
+                    json_encode($newOptions['id'])
+                ));
+            }
+
+            if ($this->hasColumn($table->getName(), $newOptions['primary_key'])) {
+                throw new \RuntimeException(sprintf(
+                    "Tried to create primary key column %s for table %s, but that column already exists",
+                    $this->quoteColumnName($newOptions['primary_key']),
+                    $this->quoteTableName($table->getName())
+                ));
+            }
+
+            $column = new Column();
+            $column
+                ->setName($newOptions['primary_key'])
+                ->setType('integer')
+                ->setIdentity(true);
+            $this->addColumn($table, $column);
+        }
+
+        // Add the primary key(s)
+        if (isset($newOptions['primary_key']) && $newOptions['primary_key'] !== false) {
+            $sql = sprintf(
+                'ADD CONSTRAINT %s PRIMARY KEY (',
+                $this->quoteColumnName('PK_' . $table->getName())
+            );
+            if (is_string($newOptions['primary_key'])) { // handle primary_key => 'id'
+                $sql .= $this->quoteColumnName($newOptions['primary_key']);
+            } else if (is_array($newOptions['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
+                $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newOptions['primary_key']));
+            } else {
+                throw new \InvalidArgumentException(sprintf(
+                    "Invalid value for option 'primary_key': %s",
+                    json_encode($newOptions['primary_key'])
+                ));
+            }
+            $sql .= ')';
+            $instructions->addAlter($sql);
+        }
+
+        return $instructions;
+    }
+
+    /**
      * Gets the SqlServer Column Comment Defininition for a column object.
      *
      * @param \Phinx\Db\Table\Column $column    Column
@@ -755,6 +828,59 @@ ORDER BY T.[name], I.[index_id];";
             "The specified index name '%s' does not exist",
             $indexName
         ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasPrimaryKey($tableName, $columns, $constraint = null)
+    {
+        $primaryKey = $this->getPrimaryKey($tableName);
+
+        if (empty($primaryKey)) {
+            return false;
+        }
+
+        if ($constraint) {
+            return ($primaryKey['constraint'] === $constraint);
+        } else {
+            if (is_string($columns)) {
+                $columns = [$columns]; // str to array
+            }
+            $missingColumns = array_diff($columns, $primaryKey['columns']);
+            return empty($missingColumns);
+        }
+    }
+
+    /**
+     * Get the primary key from a particular table.
+     *
+     * @param string $tableName Table Name
+     * @return array
+     */
+    public function getPrimaryKey($tableName)
+    {
+        $rows = $this->fetchAll(sprintf(
+            "SELECT
+                    tc.constraint_name,
+                    kcu.column_name
+                FROM information_schema.table_constraints AS tc
+                JOIN information_schema.key_column_usage AS kcu
+                    ON tc.constraint_name = kcu.constraint_name
+                WHERE constraint_type = 'PRIMARY KEY'
+                    AND tc.table_name = '%s'
+                ORDER BY kcu.ordinal_position",
+            $tableName
+        ));
+
+        $primaryKey = [
+            'columns' => [],
+        ];
+        foreach ($rows as $row) {
+            $primaryKey['constraint'] = $row['constraint_name'];
+            $primaryKey['columns'][] = $row['column_name'];
+        }
+        return $primaryKey;
     }
 
     /**

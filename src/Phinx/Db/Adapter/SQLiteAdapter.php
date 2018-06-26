@@ -251,6 +251,67 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    protected function getChangeTableInstructions(Table $table, array $newOptions)
+    {
+        $instructions = new AlterInstructions();
+
+        // Drop the existing primary key
+        $primaryKey = $this->getPrimaryKey($table->getName());
+        if ((isset($newOptions['id']) || isset($newOptions['primary_key']))
+            && !empty($primaryKey))
+        {
+            $this->dropPrimaryKey($table->getName(), $primaryKey);
+        }
+
+        // Set the default primary key and add associated column
+        if (isset($newOptions['id']) && $newOptions['id'] !== false) {
+            if ($newOptions['id'] === true) {
+                $newOptions['primary_key'] = 'id';
+            } else if (is_string($newOptions['id'])) {
+                // Handle id => "field_name" to support AUTO_INCREMENT
+                $newOptions['primary_key'] = $newOptions['id'];
+            } else {
+                throw new \InvalidArgumentException(sprintf(
+                    "Invalid value for option 'id': %s",
+                    json_encode($newOptions['id'])
+                ));
+            }
+
+            if ($this->hasColumn($table->getName(), $newOptions['primary_key'])) {
+                throw new \RuntimeException(sprintf(
+                    "Tried to create primary key column %s for table %s, but that column already exists",
+                    $this->quoteColumnName($newOptions['primary_key']),
+                    $this->quoteTableName($table->getName())
+                ));
+            }
+
+            $column = new Column();
+            $column
+                ->setName($newOptions['primary_key'])
+                ->setType('integer');
+            $instructions->merge($this->getAddColumnInstructions($table, $column));
+        }
+
+        // Add the primary key(s)
+        if (isset($newOptions['primary_key']) && $newOptions['primary_key'] !== false) {
+            if (!is_string($newOptions['primary_key'])) {
+                throw new \InvalidArgumentException(sprintf(
+                    "Invalid value for option 'primary_key': %s",
+                    json_encode($newOptions['primary_key'])
+                ));
+            }
+
+            $instructions->merge(
+                $this->getAddPrimaryKeyInstructions($table, $newOptions['primary_key'])
+            );
+        }
+
+        return $instructions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
         $sql = sprintf(
@@ -702,6 +763,65 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function hasPrimaryKey($tableName, $columns, $constraint = null)
+    {
+        $primaryKey = $this->getPrimaryKey($tableName);
+
+        if (empty($primaryKey)) {
+            return false;
+        }
+
+        if (is_string($columns)) {
+            $columns = [$columns]; // str to array
+        }
+        $missingColumns = array_diff($columns, [$primaryKey]);
+        return empty($missingColumns);
+    }
+
+    /**
+     * Get the primary key from a particular table.
+     *
+     * @param string $tableName Table Name
+     * @return string|null
+     */
+    protected function getPrimaryKey($tableName)
+    {
+        $rows = $this->fetchAll(
+            "SELECT sql, tbl_name
+              FROM (
+                    SELECT sql sql, type type, tbl_name tbl_name, name name
+                      FROM sqlite_master
+                     UNION ALL
+                    SELECT sql, type, tbl_name, name
+                      FROM sqlite_temp_master
+                   )
+             WHERE type != 'meta'
+               AND sql NOTNULL
+               AND name NOT LIKE 'sqlite_%'
+             ORDER BY substr(type, 2, 1), name"
+        );
+
+        foreach ($rows as $row) {
+            if ($row['tbl_name'] === $tableName) {
+                if (strpos($row['sql'], 'PRIMARY KEY') !== false) {
+                    preg_match_all("/PRIMARY KEY\s*\(`([^`]*)`\)/", $row['sql'], $matches);
+                    foreach ($matches[1] as $match) {
+                        if (!empty($match)) return $match;
+                    }
+                    preg_match_all("/`([^`]+)`[\w\s]+PRIMARY KEY/", $row['sql'], $matches);
+                    foreach ($matches[1] as $match) {
+                        if (!empty($match)) return $match;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
         if (is_string($columns)) {
@@ -748,6 +868,64 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
 
         return $foreignKeys;
+    }
+
+    /**
+     * @param Table $table
+     * @param string $column
+     * @return AlterInstructions
+     */
+    protected function getAddPrimaryKeyInstructions(Table $table, string $column)
+    {
+        $instructions = $this->beginAlterByCopyTable($table->getName());
+
+        $tableName = $table->getName();
+        $instructions->addPostStep(function ($state) use ($column) {
+            $sql = preg_replace("/(`$column`)\s+\w+\s+((NOT )?NULL)/", '$1 INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT', $state['createSQL'], 1);
+            $this->execute($sql);
+
+            return $state;
+        });
+
+        $instructions->addPostStep(function ($state) {
+            $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($state['tmpTableName'])));
+            $names = array_map([$this, 'quoteColumnName'], array_column($columns, 'name'));
+            $selectColumns = $writeColumns = $names;
+
+            return compact('selectColumns', 'writeColumns') + $state;
+        });
+
+        return $this->copyAndDropTmpTable($instructions, $tableName);
+    }
+
+    /**
+     * @param string $tableName
+     * @param string $column
+     */
+    protected function dropPrimaryKey(string $tableName, string $column)
+    {
+        $instructions = $this->beginAlterByCopyTable($tableName);
+
+        $instructions->addPostStep(function ($state) use ($column) {
+            $newState = $this->calculateNewTableColumns($state['tmpTableName'], $column, $column);
+
+            return $newState + $state;
+        });
+
+        $instructions->addPostStep(function ($state) {
+            $search = "/(,?\s*PRIMARY KEY\s*\([^\)]*\)|\s+PRIMARY KEY(\s+AUTOINCREMENT)?)/";
+            $sql = preg_replace($search, '', $state['createSQL'], 1);
+
+            if ($sql) {
+                $this->execute($sql);
+            }
+
+            return $state;
+        });
+
+        $instructions = $this->copyAndDropTmpTable($instructions, $tableName);
+
+        $instructions->execute(null, [$this, 'execute']);
     }
 
     /**

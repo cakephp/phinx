@@ -142,6 +142,17 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * {@inheritdoc}
      */
+    public function changeTable(Table $table, array $newOptions)
+    {
+        $end = $this->startCommandTimer();
+        $this->writeCommand('changeTable', [$table->getName()]);
+        parent::changeTable($table, $newOptions);
+        $end();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function renameTable($tableName, $newTableName)
     {
         $adapter = $this->getAdapter();
