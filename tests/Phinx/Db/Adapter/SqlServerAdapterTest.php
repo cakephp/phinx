@@ -863,7 +863,7 @@ class SqlServerAdapterTest extends TestCase
             ->values(['string_col' => 'value2', 'int_col' => 2])
             ->execute();
 
-        $this->assertEquals(2, $stm->rowCount());
+        $stm->closeCursor();
 
         $builder = $this->adapter->getQueryBuilder();
         $stm = $builder
@@ -878,12 +878,14 @@ class SqlServerAdapterTest extends TestCase
             $stm->fetch('assoc')
         );
 
+        $stm->closeCursor();
+
         $builder = $this->adapter->getQueryBuilder();
         $stm = $builder
             ->delete('table1')
             ->where(['int_col <' => 2])
             ->execute();
 
-        $this->assertEquals(1, $stm->rowCount());
+        $stm->closeCursor();
     }
 }
