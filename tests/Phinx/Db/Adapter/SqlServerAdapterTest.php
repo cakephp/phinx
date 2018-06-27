@@ -807,7 +807,6 @@ class SqlServerAdapterTest extends TestCase
             ->values(['string_col' => 'value2', 'int_col' => 2])
             ->execute();
 
-        $this->assertEquals(2, $stm->rowCount());
 
         $builder = $this->adapter->getQueryBuilder();
         $stm = $builder
@@ -827,7 +826,5 @@ class SqlServerAdapterTest extends TestCase
             ->delete('table1')
             ->where(['int_col <' => 2])
             ->execute();
-
-        $this->assertEquals(1, $stm->rowCount());
     }
 }
