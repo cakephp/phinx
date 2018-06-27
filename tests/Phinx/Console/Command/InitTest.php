@@ -93,8 +93,8 @@ class InitTest extends TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
         $this->assertRegExp(
-            "/created (.*)\/phinx.yml\\n/",
-            $commandTester->getDisplay()
+            "/created (.*)[\/\\\\]phinx.yml\\n/",
+            $commandTester->getDisplay(true)
         );
 
         $this->assertFileExists(

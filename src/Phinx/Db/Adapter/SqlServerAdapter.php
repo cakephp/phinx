@@ -424,7 +424,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         $row = $this->fetchRow($sql);
 
         if ($row) {
-            return $row['comment'];
+            return trim($row['comment']);
         }
 
         return false;
@@ -612,7 +612,7 @@ SQL;
         ));
         // change column comment if needed
         if ($newColumn->getComment()) {
-            $instructions->merge($this->getColumnCommentSqlDefinition($newColumn, $tableName));
+            $instructions->addPostStep($this->getColumnCommentSqlDefinition($newColumn, $tableName));
         }
 
         if ($changeDefault) {
