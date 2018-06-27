@@ -809,15 +809,12 @@ class SqlServerAdapterTest extends TestCase
 
         $stm->closeCursor();
 
-
         $builder = $this->adapter->getQueryBuilder();
         $stm = $builder
             ->select('*')
             ->from('table1')
             ->where(['int_col >=' => 2])
             ->execute();
-
-        $stm->closeCursor();
 
         $this->assertEquals(1, $stm->rowCount());
         $this->assertEquals(
