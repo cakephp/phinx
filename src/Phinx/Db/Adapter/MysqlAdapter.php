@@ -523,12 +523,28 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getAddIndexInstructions(Table $table, Index $index)
     {
-        $alter = sprintf(
-            'ADD %s',
-            $this->getIndexSqlDefinition($index)
-        );
+        $instructions = new AlterInstructions();
 
-        return new AlterInstructions([$alter]);
+        if ($index->getType() == Index::FULLTEXT) {
+            // Must be executed separately
+            // SQLSTATE[HY000]: General error: 1795 InnoDB presently supports one FULLTEXT index creation at a time
+            $alter = sprintf(
+                'ALTER TABLE %s ADD %s',
+                $this->quoteTableName($table->getName()),
+                $this->getIndexSqlDefinition($index)
+            );
+
+            $instructions->addPostStep($alter);
+        } else {
+            $alter = sprintf(
+                'ADD %s',
+                $this->getIndexSqlDefinition($index)
+            );
+
+            $instructions->addAlter($alter);
+        }
+
+        return $instructions;
     }
 
     /**

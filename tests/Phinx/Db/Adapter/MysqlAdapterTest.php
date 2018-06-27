@@ -851,6 +851,27 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($table->hasIndex('email'));
     }
 
+    public function testAddMultipleFulltextIndex()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addColumn('username', 'string')
+              ->addColumn('bio', 'text')
+              ->save();
+        $this->assertFalse($table->hasIndex('email'));
+        $this->assertFalse($table->hasIndex('username'));
+        $this->assertFalse($table->hasIndex('address'));
+        $table->addIndex('email')
+              ->addIndex('username', ['type' => 'fulltext'])
+              ->addIndex('bio', ['type' => 'fulltext'])
+              ->addIndex(['email', 'bio'], ['type' => 'fulltext'])
+              ->save();
+        $this->assertTrue($table->hasIndex('email'));
+        $this->assertTrue($table->hasIndex('username'));
+        $this->assertTrue($table->hasIndex('bio'));
+        $this->assertTrue($table->hasIndex(['email', 'bio']));
+    }
+
     public function testAddIndexWithLimit()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
