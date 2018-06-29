@@ -343,6 +343,7 @@ class PostgresAdapterTest extends TestCase
         $table->save();
         $table->addColumn('default_true', 'boolean', ['default' => true])
               ->addColumn('default_false', 'boolean', ['default' => false])
+              ->addColumn('default_null', 'boolean', ['default' => null, 'null' => true])
               ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
@@ -353,6 +354,9 @@ class PostgresAdapterTest extends TestCase
             if ($column->getName() == 'default_false') {
                 $this->assertNotNull($column->getDefault());
                 $this->assertEquals('false', $column->getDefault());
+            }
+            if ($column->getName() == 'default_null') {
+                $this->assertNull($column->getDefault());
             }
         }
     }
