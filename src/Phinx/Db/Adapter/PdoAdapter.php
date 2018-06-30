@@ -496,7 +496,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
-        } elseif ($columnType === static::PHINX_TYPE_BOOLEAN) {
+        } elseif ($default !== null && $columnType === static::PHINX_TYPE_BOOLEAN) {
             $default = $this->castToBool((bool)$default);
         }
 

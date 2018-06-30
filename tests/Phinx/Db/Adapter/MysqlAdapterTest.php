@@ -433,10 +433,12 @@ class MysqlAdapterTest extends TestCase
         $table->save();
         $table->addColumn('default_true', 'boolean', ['default' => true])
               ->addColumn('default_false', 'boolean', ['default' => false])
+              ->addColumn('default_null', 'boolean', ['default' => null, 'null' => true])
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals('1', $rows[1]['Default']);
         $this->assertEquals('0', $rows[2]['Default']);
+        $this->assertNull($rows[3]['Default']);
     }
 
     public function testAddColumnWithDefaultLiteral()
