@@ -1297,7 +1297,7 @@ Let's add a foreign key to an example table:
                       ->save();
 
                 $refTable = $this->table('tag_relationships');
-                $refTable->addColumn('tag_id', 'integer')
+                $refTable->addColumn('tag_id', 'integer', ['null' => true])
                          ->addForeignKey('tag_id', 'tags', 'id', ['delete'=> 'SET_NULL', 'update'=> 'NO_ACTION'])
                          ->save();
 
@@ -1312,7 +1312,7 @@ Let's add a foreign key to an example table:
             }
         }
 
-"On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possibles values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.
+"On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possibles values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.  If 'SET_NULL' is used then the column must be created as nullable with the option ``['null' => true]``.
 Constraint name can be changed with the 'constraint' option.
 
 It is also possible to pass ``addForeignKey()`` an array of columns.
