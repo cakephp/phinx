@@ -192,6 +192,24 @@ class Table
     }
 
     /**
+     * Gets a table column if it exists.
+     *
+     * @param string $name Column name
+     * @return \Phinx\Db\Table\Column|null
+     */
+    public function getColumn($name)
+    {
+        $columns = array_filter(
+            $this->getColumns(),
+            function ($column) use ($name) {
+                return $column->getName() === $name;
+            }
+        );
+
+        return array_pop($columns);
+    }
+
+    /**
      * Sets an array of data to be inserted.
      *
      * @param array $data Data
