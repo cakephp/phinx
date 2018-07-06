@@ -801,7 +801,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
             if (!empty($diff)) {
                 throw new \InvalidArgumentException(sprintf(
-                    'The specified columns doen\'t exist: ' . implode(', ', $diff)
+                    'The specified columns don\'t exist: ' . implode(', ', $diff)
                 ));
             }
 

@@ -41,7 +41,7 @@ class AlterTable
     protected $table;
 
     /**
-     * The listo of actions to execute
+     * The list of actions to execute
      *
      * @var \Phinx\Db\Action\Action[]
      */

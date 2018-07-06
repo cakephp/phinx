@@ -604,6 +604,24 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasTable($table->getName()));
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessageRegExp /test/
+     */
+    public function testFailingDropForeignKey()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable->save();
+
+        $table = new \Phinx\Db\Table('another_table', [], $this->adapter);
+        $table
+            ->addColumn('ref_table_id', 'integer')
+            ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
+            ->save();
+
+        $this->adapter->dropForeignKey($table->getName(), ['ref_table_id', 'test']);
+    }
+
     public function testHasDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));

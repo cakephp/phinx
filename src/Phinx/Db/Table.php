@@ -73,7 +73,7 @@ class Table
     protected $data = [];
 
     /**
-     * Class Constuctor.
+     * Class Constructor.
      *
      * @param string $name Table Name
      * @param array $options Options
@@ -425,7 +425,7 @@ class Table
      * In $options you can specify on_delete|on_delete = cascade|no_action ..,
      * on_update, constraint = constraint name.
      *
-     * @param string $name The constaint name
+     * @param string $name The constraint name
      * @param string|array $columns Columns
      * @param string|\Phinx\Db\Table $referencedTable   Referenced Table
      * @param string|array $referencedColumns Referenced Columns

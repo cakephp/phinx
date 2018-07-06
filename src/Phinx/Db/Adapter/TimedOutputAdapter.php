@@ -35,7 +35,7 @@ use Phinx\Db\Table\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Wraps any adpter to record the time spend executing its commands
+ * Wraps any adapter to record the time spend executing its commands
  */
 class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
 {

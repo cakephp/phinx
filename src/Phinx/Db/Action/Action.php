@@ -35,7 +35,7 @@ abstract class Action
     protected $table;
 
     /**
-     * Consturctor
+     * Constructor
      *
      * @param Table $table the Table to apply the action to
      */

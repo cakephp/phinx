@@ -161,8 +161,8 @@ interface MigrationInterface
     public function query($sql);
 
     /**
-     * Returns a new Query object that can be used to build compex SELECT, UPDATE, INSERT or DELETE
-     * queries and execute them againt the current database.
+     * Returns a new Query object that can be used to build complex SELECT, UPDATE, INSERT or DELETE
+     * queries and execute them against the current database.
      *
      * Queries executed through the query builder are always sent to the database, regardless of the
      * the dry-run settings.
