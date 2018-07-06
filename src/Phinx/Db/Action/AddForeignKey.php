@@ -50,15 +50,15 @@ class AddForeignKey extends Action
     }
 
     /**
-     * Creats a new AddForeignKey object after building the foreign key with
-     * the passed attibutes
+     * Creates a new AddForeignKey object after building the foreign key with
+     * the passed attributes
      *
      * @param Table $table The table object to add the foreign key to
      * @param string|string[] $columns The columns for the foreign key
      * @param Table|string $referencedTable The table the foreign key references
-     * @param string $referencedColumns The columns in the referenced table
+     * @param string|array $referencedColumns The columns in the referenced table
      * @param array $options Extra options for the foreign key
-     * @param string|null $name The name of the foreing key
+     * @param string|null $name The name of the foreign key
      * @return AddForeignKey
      */
     public static function build(Table $table, $columns, $referencedTable, $referencedColumns = ['id'], array $options = [], $name = null)

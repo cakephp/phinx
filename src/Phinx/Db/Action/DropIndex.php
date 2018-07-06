@@ -67,7 +67,7 @@ class DropIndex extends Action
 
     /**
      * Creates a new DropIndex when the name of the index to drop
-     * is knonwn.
+     * is known.
      *
      * @param Table $table The table where the index is
      * @param mixed $name The name of the index

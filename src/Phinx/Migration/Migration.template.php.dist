@@ -24,7 +24,7 @@ class $className extends $baseClassName
      *    addIndex
      *    addForeignKey
      *
-     * Any other distructive changes will result in an error when trying to
+     * Any other destructive changes will result in an error when trying to
      * rollback the migration.
      *
      * Remember to call "create()" or "update()" and NOT "save()" when working

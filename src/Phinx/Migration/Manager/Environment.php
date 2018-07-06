@@ -293,7 +293,7 @@ class Environment
     }
 
     /**
-     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's
+     * Get all migration log entries, indexed by version creation time and sorted in ascending order by the configuration's
      * version_order option
      *
      * @return array
@@ -325,7 +325,7 @@ class Environment
     {
         // We don't cache this code as the current version is pretty volatile.
         // TODO - that means they're no point in a setter then?
-        // maybe we should cache and call a reset() method everytime a migration is run
+        // maybe we should cache and call a reset() method every time a migration is run
         $versions = $this->getVersions();
         $version = 0;
 

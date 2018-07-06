@@ -38,7 +38,7 @@ class AddColumn extends Action
     protected $column;
 
     /**
-     * Constructo
+     * Constructor
      *
      * @param Table $table The table to add the column to
      * @param Column $column The column to add

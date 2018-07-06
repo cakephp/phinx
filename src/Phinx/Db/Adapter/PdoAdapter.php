@@ -60,7 +60,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     protected $connection;
 
     /**
-     * Writes a message to stdout if vebose output is on
+     * Writes a message to stdout if verbose output is on
      *
      * @param string $message The message to show
      * @return void
@@ -484,7 +484,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
-     * Get the defintion for a `DEFAULT` statement.
+     * Get the definition for a `DEFAULT` statement.
      *
      * @param  mixed $default Default value
      * @param string $columnType column type added
@@ -526,7 +526,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
-     * Returns the instrutions to add the specified column to a database table.
+     * Returns the instructions to add the specified column to a database table.
      *
      * @param \Phinx\Db\Table\Table $table Table
      * @param \Phinx\Db\Table\Column $column Column
