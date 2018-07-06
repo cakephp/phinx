@@ -608,7 +608,8 @@ class SQLiteAdapterTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessageRegExp /test/
      */
-    public function testFailingDropForeignKey() {
+    public function testFailingDropForeignKey()
+    {
         $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
         $refTable->save();
 
