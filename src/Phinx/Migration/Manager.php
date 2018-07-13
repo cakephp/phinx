@@ -686,7 +686,7 @@ class Manager
                 $this->getOutput()->writeln(
                     array_map(
                         function ($phpFile) {
-                            return '    ' . $phpFile;
+                            return "    <info>{$phpFile}</info>";
                         },
                         $phpFiles
                     )
@@ -701,15 +701,7 @@ class Manager
             foreach ($phpFiles as $filePath) {
                 if (Util::isValidMigrationFileName(basename($filePath))) {
                     if ($this->getOutput()->getVerbosity() >= OutputInterface::VERBOSITY_DEBUG) {
-                        $this->getOutput()->writeln('Valid migration file');
-                        $this->getOutput()->writeln(
-                            array_map(
-                                function ($phpFile) {
-                                    return '    ' . $phpFile;
-                                },
-                                $phpFiles
-                            )
-                        );
+                        $this->getOutput()->writeln("Valid migration file <info>{$filePath}</info>.");
                     }
 
                     $version = Util::getVersionFromFileName(basename($filePath));
@@ -735,7 +727,7 @@ class Manager
                     $fileNames[$class] = basename($filePath);
 
                     if ($this->getOutput()->getVerbosity() >= OutputInterface::VERBOSITY_DEBUG) {
-                        $this->getOutput()->writeln("Loading class $class from $filePath");
+                        $this->getOutput()->writeln("Loading class <info>$class</info> from <info>$filePath</info>.");
                     }
 
                     // load the migration file
@@ -753,7 +745,7 @@ class Manager
                     }
 
                     if ($this->getOutput()->getVerbosity() >= OutputInterface::VERBOSITY_DEBUG) {
-                        $this->getOutput()->writeln("Running $class");
+                        $this->getOutput()->writeln("Running <info>$class</info>.");
                     }
 
                     // instantiate it
