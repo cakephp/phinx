@@ -762,15 +762,7 @@ class Manager
                     $versions[$version] = $migration;
                 } else {
                     if ($this->getOutput()->getVerbosity() >= OutputInterface::VERBOSITY_DEBUG) {
-                        $this->getOutput()->writeln('Invalid migration file');
-                        $this->getOutput()->writeln(
-                            array_map(
-                                function ($phpFile) {
-                                    return '  ' . $phpFile;
-                                },
-                                $phpFiles
-                            )
-                        );
+                        $this->getOutput()->writeln("Invalid migration file <error>{$filePath}</error>.");
                     }
                 }
             }
