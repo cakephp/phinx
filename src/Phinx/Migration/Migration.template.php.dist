@@ -3,6 +3,13 @@ $namespaceDefinition
 
 use $useClassName;
 
+/**
+ * $className migration
+ *
+ * @deprecated up() This method is deprecated and will be removed in a future release. Use change($direction).
+ * @deprecated down() This method is deprecated and will be removed in a future release. Use change($direction).
+ * @todo Refactor existing migrations from up()/down() to change($direction)
+ */
 class $className extends $baseClassName
 {
     /**
@@ -29,8 +36,10 @@ class $className extends $baseClassName
      *
      * Remember to call "create()" or "update()" and NOT "save()" when working
      * with the Table class.
+     *
+     * @param string|null $direction Will be \Phinx\Migration\MigrationInterface::UP or \Phinx\Migration\MigrationInterface::DOWN
      */
-    public function change()
+    public function change($direction = null)
     {
 
     }

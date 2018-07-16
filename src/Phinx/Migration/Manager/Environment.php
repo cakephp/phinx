@@ -117,12 +117,12 @@ class Environment
                         ->getWrapper('proxy', $this->getAdapter());
                     $migration->setAdapter($proxyAdapter);
                     /** @noinspection PhpUndefinedMethodInspection */
-                    $migration->change();
+                    $migration->change($direction);
                     $proxyAdapter->executeInvertedCommands();
                     $migration->setAdapter($this->getAdapter());
                 } else {
                     /** @noinspection PhpUndefinedMethodInspection */
-                    $migration->change();
+                    $migration->change($direction);
                 }
             } else {
                 $migration->{$direction}();
