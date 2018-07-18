@@ -955,6 +955,38 @@ method. This method will return an array of Column classes with basic info. Exam
             }
         }
 
+Get a column by name
+~~~~~~~~~~~~~~~~~~~~
+
+To retrieve one table column, simply create a `table` object and call the `getColumn()`
+method. This method will return a Column class with basic info or NULL when the column doesn't exist. Example below:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class ColumnListMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $column = $this->table('users')->getColumn('email');
+                ...
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+                ...
+            }
+        }
+
 Checking whether a column exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
