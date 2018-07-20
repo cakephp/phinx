@@ -1004,6 +1004,38 @@ method. This method will return an array of Column classes with basic info. Exam
             }
         }
 
+Get a column by name
+~~~~~~~~~~~~~~~~~~~~
+
+To retrieve one table column, simply create a `table` object and call the `getColumn()`
+method. This method will return a Column class with basic info or NULL when the column doesn't exist. Example below:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class ColumnListMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $column = $this->table('users')->getColumn('email');
+                ...
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+                ...
+            }
+        }
+
 Checking whether a column exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1346,7 +1378,7 @@ Let's add a foreign key to an example table:
                       ->save();
 
                 $refTable = $this->table('tag_relationships');
-                $refTable->addColumn('tag_id', 'integer')
+                $refTable->addColumn('tag_id', 'integer', ['null' => true])
                          ->addForeignKey('tag_id', 'tags', 'id', ['delete'=> 'SET_NULL', 'update'=> 'NO_ACTION'])
                          ->save();
 
@@ -1361,7 +1393,7 @@ Let's add a foreign key to an example table:
             }
         }
 
-"On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possibles values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.
+"On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possibles values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.  If 'SET_NULL' is used then the column must be created as nullable with the option ``['null' => true]``.
 Constraint name can be changed with the 'constraint' option.
 
 It is also possible to pass ``addForeignKey()`` an array of columns.
@@ -1655,6 +1687,7 @@ Aggregates and SQL Functions
 
 
 .. code-block:: php
+
     <?php
     // Results in SELECT COUNT(*) count FROM ...
     $builder->select(['count' => $builder->func()->count('*')]);
@@ -1677,6 +1710,7 @@ other SQL literals. Bound parameters can be used to safely add user data to SQL 
 
 
 .. code-block:: php
+
     <?php
     // Generates:
     // SELECT CONCAT(title, ' NEW') ...;
@@ -1694,6 +1728,7 @@ Once you’ve made your query, you’ll want to retrieve rows from it. There are
 
 
 .. code-block:: php
+
     <?php
     // Iterate the query
     foreach ($builder as $row) {
@@ -1711,6 +1746,7 @@ Creating insert queries is also possible:
 
 
 .. code-block:: php
+
     <?php
     $builder = $this->getQueryBuilder();
     $builder
@@ -1724,6 +1760,7 @@ Creating insert queries is also possible:
 For increased performance, you can use another builder object as the values for an insert query:
 
 .. code-block:: php
+
     <?php
 
     $namesQuery = $this->getQueryBuilder();
@@ -1733,16 +1770,19 @@ For increased performance, you can use another builder object as the values for 
         ->where(['is_active' => true])
 
     $builder = $this->getQueryBuilder();
-    $builder
+    $st = $builder
         ->insert(['first_name', 'last_name'])
         ->into('names')
         ->values($namesQuery)
         ->execute()
 
+    var_dump($st->lastInsertId('names', 'id'));
+
 
 The above code will generate:
 
 .. code-block:: sql
+
     INSERT INTO names (first_name, last_name)
         (SELECT fname, lname FROM USERS where is_active = 1)
 
@@ -1753,6 +1793,7 @@ Creating an update Query
 Creating update queries is similar to both inserting and selecting:
 
 .. code-block:: php
+
     <?php
     $builder = $this->getQueryBuilder();
     $builder
@@ -1768,6 +1809,7 @@ Creating a Delete Query
 Finally, delete queries:
 
 .. code-block:: php
+
     <?php
     $builder = $this->getQueryBuilder();
     $builder

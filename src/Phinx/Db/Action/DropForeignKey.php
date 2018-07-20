@@ -31,7 +31,7 @@ class DropForeignKey extends Action
 {
 
     /**
-     * The foreing key to remove
+     * The foreign key to remove
      *
      * @var ForeignKey
      */
@@ -53,7 +53,7 @@ class DropForeignKey extends Action
      * Creates a new DropForeignKey object after building the ForeignKey
      * definition out of the passed arguments.
      *
-     * @param Table $table The table to dele the foreign key from
+     * @param Table $table The table to delete the foreign key from
      * @param string|string[] $columns The columns participating in the foreign key
      * @param string|null $constraint The constraint name
      * @return DropForeignKey

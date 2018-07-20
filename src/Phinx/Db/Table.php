@@ -74,7 +74,7 @@ class Table
     protected $data = [];
 
     /**
-     * Class Constuctor.
+     * Class Constructor.
      *
      * @param string $name Table Name
      * @param array $options Options
@@ -201,6 +201,24 @@ class Table
     public function getColumns()
     {
         return $this->getAdapter()->getColumns($this->getName());
+    }
+
+    /**
+     * Gets a table column if it exists.
+     *
+     * @param string $name Column name
+     * @return \Phinx\Db\Table\Column|null
+     */
+    public function getColumn($name)
+    {
+        $columns = array_filter(
+            $this->getColumns(),
+            function ($column) use ($name) {
+                return $column->getName() === $name;
+            }
+        );
+
+        return array_pop($columns);
     }
 
     /**
@@ -437,7 +455,7 @@ class Table
      * In $options you can specify on_delete|on_delete = cascade|no_action ..,
      * on_update, constraint = constraint name.
      *
-     * @param string $name The constaint name
+     * @param string $name The constraint name
      * @param string|array $columns Columns
      * @param string|\Phinx\Db\Table $referencedTable   Referenced Table
      * @param string|array $referencedColumns Referenced Columns

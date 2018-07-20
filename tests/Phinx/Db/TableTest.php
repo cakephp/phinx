@@ -272,6 +272,26 @@ class TableTest extends TestCase
         $this->assertEquals([], $table->getData());
     }
 
+    public function testGetColumn()
+    {
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+
+        $column1 = (new \Phinx\Db\Table\Column())->setName('column1');
+
+        $adapterStub->expects($this->exactly(2))
+            ->method('getColumns')
+            ->willReturn([
+                $column1
+            ]);
+
+        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+
+        $this->assertEquals($column1, $table->getColumn('column1'));
+        $this->assertNull($table->getColumn('column2'));
+    }
+
     protected function getPendingActions($table)
     {
         $prop = new \ReflectionProperty(get_class($table), 'actions');

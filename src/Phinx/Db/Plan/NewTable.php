@@ -88,7 +88,7 @@ class NewTable
     }
 
     /**
-     * Retunrns the table object associated to this collection
+     * Returns the table object associated to this collection
      *
      * @return Table
      */

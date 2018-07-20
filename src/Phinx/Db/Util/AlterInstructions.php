@@ -44,7 +44,7 @@ class AlterInstructions
     /**
      * Constructor
      *
-     * @param array $alterParts SQL snipets to be added to a single ALTER instruction per table
+     * @param array $alterParts SQL snippets to be added to a single ALTER instruction per table
      * @param array $postSteps SQL commands to be executed after the ALTER instruction
      */
     public function __construct(array $alterParts = [], array $postSteps = [])
@@ -54,7 +54,7 @@ class AlterInstructions
     }
 
     /**
-     * Adds another parst for the single ALTER instruction
+     * Adds another part to the single ALTER instruction
      *
      * @param string $part The SQL snipped to add as part of the ALTER instruction
      * @return void
@@ -65,7 +65,7 @@ class AlterInstructions
     }
 
     /**
-     * Adds a SQL command to be eecuted after the ALTER instruction.
+     * Adds a SQL command to be executed after the ALTER instruction.
      * This method allows a callable, with will get an empty array as state
      * for the first time and will pass the return value of the callable to
      * the next callable, if present.
@@ -91,7 +91,7 @@ class AlterInstructions
     }
 
     /**
-     * Returns the SQL commands to run after the ALTER instrunction
+     * Returns the SQL commands to run after the ALTER instruction
      *
      * @return mixed[]
      */

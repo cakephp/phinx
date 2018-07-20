@@ -69,7 +69,7 @@ class ChangeColumn extends Action
      * @param Table $table The table to alter
      * @param mixed $columnName The name of the column to change
      * @param mixed $type The type of the column
-     * @param mixed $options Addiotional options for the column
+     * @param mixed $options Additional options for the column
      * @return ChangeColumn
      */
     public static function build(Table $table, $columnName, $type = null, $options = [])
