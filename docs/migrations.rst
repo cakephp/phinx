@@ -539,55 +539,6 @@ Option    Description
 comment   set a text comment on the table
 ========= ===========
 
-Changing Table Options
-~~~~~~~~~~~~~~~~~~~~~~
-
-To change the options on an existing table, use the ``change()`` method.
-Options ``id`` and ``primary_key`` are used to determine the primary key on the table, same as when creating a new table.
-Also see `Creating a Table`_ for lists of additional supported options for each adapter.
-
-In the following example, a table is initially created with the default primary key, no table comment, and two columns.
-Then another column is added, and the ``change()`` method is used to remove the default primary key,
-set the 'new_id' column to be the new primary key, and add a new comment on the table.
-
-.. code-block:: php
-
-        <?php
-
-        use Phinx\Migration\AbstractMigration;
-
-        class MyNewMigration extends AbstractMigration
-        {
-            /**
-             * Migrate Up.
-             */
-            public function up()
-            {
-                $users = $this->table('users');
-                $users
-                    ->addColumn('username', 'string', ['limit' => 20])
-                    ->addColumn('password', 'string', ['limit' => 40])
-                    ->save();
-
-                $users
-                    ->addColumn('new_id', 'integer', ['null' => false])
-                    ->change([
-                        'id' => false,
-                        'primary_key' => 'new_id',
-                        'comment' => 'Some comment',
-                    ])
-                    ->save();
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
-            }
-        }
-
 Valid Column Types
 ~~~~~~~~~~~~~~~~~~
 
@@ -761,6 +712,86 @@ To rename a table access an instance of the Table object then call the
             {
                 $table = $this->table('legacy_users');
                 $table->rename('users');
+            }
+        }
+
+Changing the Primary Key
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+To change the primary key on an existing table, use the ``changePrimaryKey()`` method.
+Pass in a column name or array of columns names to include in the primary key, or ``null`` to drop the primary key.
+Note that the mentioned columns must be added to the table, they will not be added implicitly.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $users = $this->table('users');
+                $users
+                    ->addColumn('username', 'string', ['limit' => 20, 'null' => false])
+                    ->addColumn('password', 'string', ['limit' => 40])
+                    ->save();
+
+                $users
+                    ->addColumn('new_id', 'integer', ['null' => false])
+                    ->changePrimaryKey(['new_id', 'username'])
+                    ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
+Changing the Table Comment
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To change the comment on an existing table, use the ``changeComment()`` method.
+Pass in a string to set as the new table comment, or ``null`` to drop the existing comment.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $users = $this->table('users');
+                $users
+                    ->addColumn('username', 'string', ['limit' => 20])
+                    ->addColumn('password', 'string', ['limit' => 40])
+                    ->save();
+
+                $users
+                    ->changeComment('This is the table with users auth information, password should be encrypted')
+                    ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
             }
         }
 

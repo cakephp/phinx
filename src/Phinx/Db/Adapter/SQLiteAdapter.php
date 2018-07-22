@@ -251,61 +251,39 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    protected function getChangeTableInstructions(Table $table, array $newOptions)
+    protected function getChangePrimaryKeyInstructions(Table $table, $newColumns)
     {
         $instructions = new AlterInstructions();
 
         // Drop the existing primary key
         $primaryKey = $this->getPrimaryKey($table->getName());
-        if ((isset($newOptions['id']) || isset($newOptions['primary_key']))
-            && !empty($primaryKey)) {
+        if (!empty($primaryKey)) {
             $this->dropPrimaryKey($table->getName(), $primaryKey);
         }
 
-        // Set the default primary key and add associated column
-        if (isset($newOptions['id']) && $newOptions['id'] !== false) {
-            if ($newOptions['id'] === true) {
-                $newOptions['primary_key'] = 'id';
-            } elseif (is_string($newOptions['id'])) {
-                // Handle id => "field_name" to support AUTO_INCREMENT
-                $newOptions['primary_key'] = $newOptions['id'];
-            } else {
-                throw new \InvalidArgumentException(sprintf(
-                    "Invalid value for option 'id': %s",
-                    json_encode($newOptions['id'])
-                ));
-            }
-
-            if ($this->hasColumn($table->getName(), $newOptions['primary_key'])) {
-                throw new \RuntimeException(sprintf(
-                    "Tried to create primary key column %s for table %s, but that column already exists",
-                    $this->quoteColumnName($newOptions['primary_key']),
-                    $this->quoteTableName($table->getName())
-                ));
-            }
-
-            $column = new Column();
-            $column
-                ->setName($newOptions['primary_key'])
-                ->setType('integer');
-            $instructions->merge($this->getAddColumnInstructions($table, $column));
-        }
-
         // Add the primary key(s)
-        if (isset($newOptions['primary_key']) && $newOptions['primary_key'] !== false) {
-            if (!is_string($newOptions['primary_key'])) {
+        if (!empty($newColumns)) {
+            if (!is_string($newColumns)) {
                 throw new \InvalidArgumentException(sprintf(
-                    "Invalid value for option 'primary_key': %s",
-                    json_encode($newOptions['primary_key'])
+                    "Invalid value for primary key: %s",
+                    json_encode($newColumns)
                 ));
             }
 
             $instructions->merge(
-                $this->getAddPrimaryKeyInstructions($table, $newOptions['primary_key'])
+                $this->getAddPrimaryKeyInstructions($table, $newColumns)
             );
         }
 
         return $instructions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getChangeCommentInstructions(Table $table, string $newComment = null)
+    {
+        throw new \BadMethodCallException('SQLite does not have table comments');
     }
 
     /**

@@ -26,35 +26,35 @@ namespace Phinx\Db\Action;
 
 use Phinx\Db\Table\Table;
 
-class ChangeTable extends Action
+class ChangePrimaryKey extends Action
 {
 
     /**
-     * The new options for the table
+     * The new columns for the primary key
      *
-     * @var array
+     * @var string|array|null
      */
-    protected $newOptions;
+    protected $newColumns;
 
     /**
      * Constructor
      *
-     * @param Table $table The table to be renamed
-     * @param array $newOptions The new options for the table
+     * @param Table $table The table to be changed
+     * @param string|array|null $newColumns The new columns for the primary key
      */
-    public function __construct(Table $table, array $newOptions)
+    public function __construct(Table $table, $newColumns)
     {
         parent::__construct($table);
-        $this->newOptions = $newOptions;
+        $this->newColumns = $newColumns;
     }
 
     /**
-     * Return the new options for the table
+     * Return the new columns for the primary key
      *
-     * @return array
+     * @return string|array|null
      */
-    public function getNewOptions()
+    public function getNewColumns()
     {
-        return $this->newOptions;
+        return $this->newColumns;
     }
 }

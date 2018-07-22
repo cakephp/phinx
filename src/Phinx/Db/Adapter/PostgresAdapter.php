@@ -273,7 +273,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    protected function getChangeTableInstructions(Table $table, array $newOptions)
+    protected function getChangePrimaryKeyInstructions(Table $table, $newColumns)
     {
         $parts = $this->getSchemaName($table->getName());
 
@@ -281,8 +281,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         // Drop the existing primary key
         $primaryKey = $this->getPrimaryKey($table->getName());
-        if ((isset($newOptions['id']) || isset($newOptions['primary_key']))
-            && !empty($primaryKey['constraint'])) {
+        if (!empty($primaryKey['constraint'])) {
             $sql = sprintf(
                 'DROP CONSTRAINT %s',
                 $this->quoteColumnName($primaryKey['constraint'])
@@ -290,69 +289,46 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $instructions->addAlter($sql);
         }
 
-        // Set the default primary key and add associated column
-        if (isset($newOptions['id']) && $newOptions['id'] !== false) {
-            if ($newOptions['id'] === true) {
-                $newOptions['primary_key'] = 'id';
-            } elseif (is_string($newOptions['id'])) {
-                // Handle id => "field_name" to support AUTO_INCREMENT
-                $newOptions['primary_key'] = $newOptions['id'];
-            } else {
-                throw new \InvalidArgumentException(sprintf(
-                    "Invalid value for option 'id': %s",
-                    json_encode($newOptions['id'])
-                ));
-            }
-
-            if ($this->hasColumn($table->getName(), $newOptions['primary_key'])) {
-                throw new \RuntimeException(sprintf(
-                    "Tried to create primary key column %s for table %s, but that column already exists",
-                    $this->quoteColumnName($newOptions['primary_key']),
-                    $this->quoteTableName($table->getName())
-                ));
-            }
-
-            $column = new Column();
-            $column
-                ->setName($newOptions['primary_key'])
-                ->setType('integer')
-                ->setIdentity(true);
-            $instructions->merge($this->getAddColumnInstructions($table, $column));
-        }
-
-        // Add the primary key(s)
-        if (isset($newOptions['primary_key']) && $newOptions['primary_key'] !== false) {
+        // Add the new primary key
+        if (!empty($newColumns)) {
             $sql = sprintf(
                 'ADD CONSTRAINT %s PRIMARY KEY (',
                 $this->quoteColumnName($parts['table'] . '_pkey')
             );
-            if (is_string($newOptions['primary_key'])) { // handle primary_key => 'id'
-                $sql .= $this->quoteColumnName($newOptions['primary_key']);
-            } elseif (is_array($newOptions['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
-                $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newOptions['primary_key']));
+            if (is_string($newColumns)) { // handle primary_key => 'id'
+                $sql .= $this->quoteColumnName($newColumns);
+            } elseif (is_array($newColumns)) { // handle primary_key => array('tag_id', 'resource_id')
+                $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newColumns));
             } else {
                 throw new \InvalidArgumentException(sprintf(
-                    "Invalid value for option 'primary_key': %s",
-                    json_encode($newOptions['primary_key'])
+                    "Invalid value for primary key: %s",
+                    json_encode($newColumns)
                 ));
             }
             $sql .= ')';
             $instructions->addAlter($sql);
         }
 
-        // Process table comments
-        if (array_key_exists('comment', $newOptions)) {
-            // passing 'null' is to remove table comment
-            $newComment = ($newOptions['comment'] !== null)
-                ? $this->getConnection()->quote($newOptions['comment'])
-                : 'NULL';
-            $sql = sprintf(
-                'COMMENT ON TABLE %s IS %s',
-                $this->quoteTableName($table->getName()),
-                $newComment
-            );
-            $instructions->addPostStep($sql);
-        }
+        return $instructions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getChangeCommentInstructions(Table $table, string $newComment = null)
+    {
+        $instructions = new AlterInstructions();
+
+        // passing 'null' is to remove table comment
+        $newComment = ($newComment !== null)
+            ? $this->getConnection()->quote($newComment)
+            : 'NULL';
+        $sql = sprintf(
+            'COMMENT ON TABLE %s IS %s',
+            $this->quoteTableName($table->getName()),
+            $newComment
+        );
+        $instructions->addPostStep($sql);
 
         return $instructions;
     }

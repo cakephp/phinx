@@ -348,13 +348,22 @@ interface AdapterInterface
     public function createTable(Table $table, array $columns = [], array $indexes = []);
 
     /**
-     * Creates the specified database table.
+     * Changes the primary key of the specified database table.
      *
-     * @param \Phinx\Db\Table\Table $table Table
-     * @param array $newOptions New options for the table
+     * @param Table $table Table
+     * @param string|array|null $newColumns Column name(s) to belong to the primary key, or null to drop the key
      * @return void
      */
-    public function changeTable(Table $table, array $newOptions);
+    public function changePrimaryKey(Table $table, $newColumns);
+
+    /**
+     * Changes the comment of the specified database table.
+     *
+     * @param Table $table Table
+     * @param string|null $newComment New comment string, or null to drop the comment
+     * @return void
+     */
+    public function changeComment(Table $table, string $newComment = null);
 
     /**
      * Truncates the specified table

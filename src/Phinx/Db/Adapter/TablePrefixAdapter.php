@@ -32,7 +32,8 @@ use Phinx\Db\Action\AddColumn;
 use Phinx\Db\Action\AddForeignKey;
 use Phinx\Db\Action\AddIndex;
 use Phinx\Db\Action\ChangeColumn;
-use Phinx\Db\Action\ChangeTable;
+use Phinx\Db\Action\ChangePrimaryKey;
+use Phinx\Db\Action\ChangeComment;
 use Phinx\Db\Action\DropForeignKey;
 use Phinx\Db\Action\DropIndex;
 use Phinx\Db\Action\DropTable;
@@ -86,13 +87,25 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * {@inheritdoc}
      */
-    public function changeTable(Table $table, array $newOptions)
+    public function changePrimaryKey(Table $table, $newColumns)
     {
         $adapterTable = new Table(
             $this->getAdapterTableName($table->getName()),
             $table->getOptions()
         );
-        parent::changeTable($adapterTable, $newOptions);
+        parent::changePrimaryKey($adapterTable, $newColumns);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function changeComment(Table $table, string $newComment = null)
+    {
+        $adapterTable = new Table(
+            $this->getAdapterTableName($table->getName()),
+            $table->getOptions()
+        );
+        parent::changeComment($adapterTable, $newComment);
     }
 
     /**
@@ -416,8 +429,12 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
                     $actions[$k] = new RenameTable($adapterTable, $action->getNewName());
                     break;
 
-                case ($action instanceof ChangeTable):
-                    $actions[$k] = new ChangeTable($adapterTable, $action->getNewOptions());
+                case ($action instanceof ChangePrimaryKey):
+                    $actions[$k] = new ChangePrimaryKey($adapterTable, $action->getNewColumns());
+                    break;
+
+                case ($action instanceof ChangeComment):
+                    $actions[$k] = new ChangeComment($adapterTable, $action->getNewComment());
                     break;
 
                 default:

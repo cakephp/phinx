@@ -237,7 +237,7 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
     }
 
-    public function testChangeTableAddDefaultPK()
+    public function testAddPrimaryKey()
     {
         $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
         $table
@@ -246,44 +246,13 @@ class SQLiteAdapterTest extends TestCase
             ->save();
 
         $table
-            ->change(['id' => true])
+            ->changePrimaryKey('column1')
             ->save();
 
-        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['id']));
-    }
-
-    public function testChangeTableDropDefaultPK()
-    {
-        $table = new \Phinx\Db\Table('table1', ['id' => true], $this->adapter);
-        $table
-            ->addColumn('column1', 'integer')
-            ->addColumn('column2', 'integer')
-            ->save();
-
-        $table
-            ->change(['id' => false])
-            ->save();
-
-        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['id']));
-    }
-
-    public function testChangeTableAddCustomPK()
-    {
-        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
-        $table
-            ->addColumn('column1', 'integer')
-            ->addColumn('column2', 'integer')
-            ->save();
-
-        $table
-            ->change(['id' => false, 'primary_key' => 'column1'])
-            ->save();
-
-        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['id']));
         $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column1']));
     }
 
-    public function testChangeTableDropCustomPK()
+    public function testChangePrimaryKey()
     {
         $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
         $table
@@ -292,11 +261,55 @@ class SQLiteAdapterTest extends TestCase
             ->save();
 
         $table
-            ->change(['primary_key' => false])
+            ->changePrimaryKey('column2')
             ->save();
 
-        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['id']));
         $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column2']));
+    }
+
+    public function testDropPrimaryKey()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->addColumn('column2', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey(null)
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testAddMultipleColumnPrimaryKeyFails()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->addColumn('column2', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey(['column1', 'column2'])
+            ->save();
+    }
+
+    /**
+     * @expectedException \BadMethodCallException
+     */
+    public function testChangeCommentFails()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table
+            ->changeComment('comment1')
+            ->save();
     }
 
     public function testRenameTable()
