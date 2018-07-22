@@ -153,7 +153,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * {@inheritdoc}
      */
-    public function changeComment(Table $table, string $newComment = null)
+    public function changeComment(Table $table, $newComment)
     {
         $end = $this->startCommandTimer();
         $this->writeCommand('changeComment', [$table->getName()]);

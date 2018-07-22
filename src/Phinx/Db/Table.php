@@ -202,7 +202,7 @@ class Table
      * @param string|null $comment New comment string, or null to drop the comment
      * @return $this
      */
-    public function changeComment(string $comment = null)
+    public function changeComment($comment)
     {
         $this->actions->addAction(new ChangeComment($this->table, $comment));
 

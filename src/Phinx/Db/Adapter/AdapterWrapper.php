@@ -360,7 +360,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function changeComment(Table $table, string $newComment = null)
+    public function changeComment(Table $table, $newComment)
     {
         $this->getAdapter()->changeComment($table, $newComment);
     }

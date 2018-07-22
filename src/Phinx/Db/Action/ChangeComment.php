@@ -42,7 +42,7 @@ class ChangeComment extends Action
      * @param Table $table The table to be changed
      * @param string|null $newComment The new comment for the table
      */
-    public function __construct(Table $table, string $newComment = null)
+    public function __construct(Table $table, $newComment)
     {
         parent::__construct($table);
         $this->newComment = $newComment;

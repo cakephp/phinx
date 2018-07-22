@@ -753,7 +753,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * {@inheritdoc}
      */
-    public function changeComment(Table $table, string $newComment = null)
+    public function changeComment(Table $table, $newComment)
     {
         $instructions = $this->getChangeCommentInstructions($table, $newComment);
         $this->executeAlterSteps($table->getName(), $instructions);
@@ -766,7 +766,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * @param string|null $newComment New comment string, or null to drop the comment
      * @return AlterInstructions
      */
-    abstract protected function getChangeCommentInstructions(Table $table, string $newComment = null);
+    abstract protected function getChangeCommentInstructions(Table $table, $newComment);
 
     /**
      * {@inheritdoc}

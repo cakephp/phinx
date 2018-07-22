@@ -341,7 +341,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
-    protected function getChangeCommentInstructions(Table $table, string $newComment = null)
+    protected function getChangeCommentInstructions(Table $table, $newComment)
     {
         $instructions = new AlterInstructions();
 

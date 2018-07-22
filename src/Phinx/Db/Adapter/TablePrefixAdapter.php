@@ -99,7 +99,7 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * {@inheritdoc}
      */
-    public function changeComment(Table $table, string $newComment = null)
+    public function changeComment(Table $table, $newComment)
     {
         $adapterTable = new Table(
             $this->getAdapterTableName($table->getName()),

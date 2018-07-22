@@ -363,7 +363,7 @@ interface AdapterInterface
      * @param string|null $newComment New comment string, or null to drop the comment
      * @return void
      */
-    public function changeComment(Table $table, string $newComment = null);
+    public function changeComment(Table $table, $newComment);
 
     /**
      * Truncates the specified table
