@@ -189,7 +189,8 @@ class Table
      * @param string|array|null $columns Column name(s) to belong to the primary key, or null to drop the key
      * @return $this
      */
-    public function changePrimaryKey($columns) {
+    public function changePrimaryKey($columns)
+    {
         $this->actions->addAction(new ChangePrimaryKey($this->table, $columns));
 
         return $this;
@@ -201,7 +202,8 @@ class Table
      * @param string|null $comment New comment string, or null to drop the comment
      * @return $this
      */
-    public function changeComment(string $comment = null) {
+    public function changeComment(string $comment = null)
+    {
         $this->actions->addAction(new ChangeComment($this->table, $comment));
 
         return $this;
