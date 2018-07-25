@@ -6,8 +6,6 @@ use Phinx\Db\Action\AddColumn;
 use Phinx\Db\Action\AddForeignKey;
 use Phinx\Db\Action\AddIndex;
 use Phinx\Db\Action\ChangeColumn;
-use Phinx\Db\Action\ChangeComment;
-use Phinx\Db\Action\ChangePrimaryKey;
 use Phinx\Db\Action\DropForeignKey;
 use Phinx\Db\Action\DropIndex;
 use Phinx\Db\Action\DropTable;
@@ -93,40 +91,6 @@ class TablePrefixAdapterTest extends TestCase
             ));
 
         $this->adapter->createTable($table);
-    }
-
-    public function testChangePrimaryKey()
-    {
-        $table = new Table('table');
-        $newColumns = 'column1';
-
-        $expectedTable = new Table('pre_table_suf');
-        $this->mock
-            ->expects($this->once())
-            ->method('changePrimaryKey')
-            ->with(
-                $this->equalTo($expectedTable),
-                $this->equalTo($newColumns)
-            );
-
-        $this->adapter->changePrimaryKey($table, $newColumns);
-    }
-
-    public function testChangeComment()
-    {
-        $table = new Table('table');
-        $newComment = 'comment';
-
-        $expectedTable = new Table('pre_table_suf');
-        $this->mock
-            ->expects($this->once())
-            ->method('changeComment')
-            ->with(
-                $this->equalTo($expectedTable),
-                $this->equalTo($newComment)
-            );
-
-        $this->adapter->changeComment($table, $newComment);
     }
 
     public function testRenameTable()
@@ -382,8 +346,6 @@ class TablePrefixAdapterTest extends TestCase
             [RemoveColumn::build($table, 'acolumn')],
             [RenameColumn::build($table, 'acolumn', 'another')],
             [new RenameTable($table, 'new_name')],
-            [new ChangePrimaryKey($table, 'column1')],
-            [new ChangeComment($table, 'comment1')],
         ];
     }
 

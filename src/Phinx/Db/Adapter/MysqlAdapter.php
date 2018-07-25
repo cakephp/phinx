@@ -308,13 +308,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         // Drop the existing primary key
         $primaryKey = $this->getPrimaryKey($table->getName());
         if (!empty($primaryKey['columns'])) {
-            foreach ($primaryKey['columns'] as $column) {
-                $sql = sprintf(
-                    'MODIFY %s INT NOT NULL',
-                    $this->quoteColumnName($column)
-                );
-                $instructions->addAlter($sql);
-            }
             $instructions->addAlter('DROP PRIMARY KEY');
         }
 

@@ -352,22 +352,6 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function changePrimaryKey(Table $table, $newColumns)
-    {
-        $this->getAdapter()->changePrimaryKey($table, $newColumns);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function changeComment(Table $table, $newComment)
-    {
-        $this->getAdapter()->changeComment($table, $newComment);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getColumns($tableName)
     {
         return $this->getAdapter()->getColumns($tableName);

@@ -258,7 +258,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         // Drop the existing primary key
         $primaryKey = $this->getPrimaryKey($table->getName());
         if (!empty($primaryKey)) {
-            $this->dropPrimaryKey($table->getName(), $primaryKey);
+            $instructions->merge(
+                $this->getDropPrimaryKeyInstructions($table, $primaryKey)
+            );
         }
 
         // Add the primary key(s)
@@ -881,13 +883,13 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * @param string $tableName Table Name
+     * @param Table $table Table
      * @param string $column Column Name
-     * @return void
+     * @return AlterInstructions
      */
-    protected function dropPrimaryKey($tableName, $column)
+    protected function getDropPrimaryKeyInstructions($table, $column)
     {
-        $instructions = $this->beginAlterByCopyTable($tableName);
+        $instructions = $this->beginAlterByCopyTable($table->getName());
 
         $instructions->addPostStep(function ($state) use ($column) {
             $newState = $this->calculateNewTableColumns($state['tmpTableName'], $column, $column);
@@ -906,9 +908,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             return $state;
         });
 
-        $instructions = $this->copyAndDropTmpTable($instructions, $tableName);
-
-        $instructions->execute(null, [$this, 'execute']);
+        return $this->copyAndDropTmpTable($instructions, $table->getName());
     }
 
     /**

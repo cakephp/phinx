@@ -348,24 +348,6 @@ interface AdapterInterface
     public function createTable(Table $table, array $columns = [], array $indexes = []);
 
     /**
-     * Changes the primary key of the specified database table.
-     *
-     * @param Table $table Table
-     * @param string|array|null $newColumns Column name(s) to belong to the primary key, or null to drop the key
-     * @return void
-     */
-    public function changePrimaryKey(Table $table, $newColumns);
-
-    /**
-     * Changes the comment of the specified database table.
-     *
-     * @param Table $table Table
-     * @param string|null $newComment New comment string, or null to drop the comment
-     * @return void
-     */
-    public function changeComment(Table $table, $newComment);
-
-    /**
      * Truncates the specified table
      *
      * @param string $tableName

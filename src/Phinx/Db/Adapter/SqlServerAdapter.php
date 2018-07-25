@@ -284,17 +284,17 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         $primaryKey = $this->getPrimaryKey($table->getName());
         if (!empty($primaryKey['constraint'])) {
             $sql = sprintf(
-                'ALTER TABLE %s DROP CONSTRAINT %s',
-                $this->quoteTableName($table->getName()),
+                'DROP CONSTRAINT %s',
                 $this->quoteColumnName($primaryKey['constraint'])
             );
-            $this->execute($sql);
+            $instructions->addAlter($sql);
         }
 
         // Add the primary key(s)
         if (!empty($newColumns)) {
             $sql = sprintf(
-                'ADD CONSTRAINT %s PRIMARY KEY (',
+                'ALTER TABLE %s ADD CONSTRAINT %s PRIMARY KEY (',
+                $this->quoteTableName($table->getName()),
                 $this->quoteColumnName('PK_' . $table->getName())
             );
             if (is_string($newColumns)) { // handle primary_key => 'id'
@@ -308,7 +308,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
                 ));
             }
             $sql .= ')';
-            $instructions->addAlter($sql);
+            $instructions->addPostStep($sql);
         }
 
         return $instructions;
