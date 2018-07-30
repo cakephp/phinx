@@ -151,7 +151,8 @@ class Table
      *
      * @return bool
      */
-    public function hasPendingActions() {
+    public function hasPendingActions()
+    {
         return count($this->actions->getActions()) > 0 || count($this->data) > 0;
     }
 

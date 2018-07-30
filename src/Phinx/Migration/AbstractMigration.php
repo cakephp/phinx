@@ -306,6 +306,7 @@ abstract class AbstractMigration implements MigrationInterface
     {
         $table = new Table($tableName, $options, $this->getAdapter());
         $this->tables[] = $table;
+
         return $table;
     }
 
@@ -354,9 +355,10 @@ abstract class AbstractMigration implements MigrationInterface
      *
      * @return void
      */
-    public function postFlightCheck($direction = null) {
-        foreach($this->tables as $table) {
-            if($table->hasPendingActions()) {
+    public function postFlightCheck($direction = null)
+    {
+        foreach ($this->tables as $table) {
+            if ($table->hasPendingActions()) {
                 throw new \RuntimeException('Migration has pending actions after execution!');
             }
         }
