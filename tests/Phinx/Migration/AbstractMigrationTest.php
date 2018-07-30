@@ -314,7 +314,7 @@ class AbstractMigrationTest extends TestCase
         $table = $migrationStub->table('test_table');
         $table->addColumn("column1", "integer", ['null' => true])->create();
 
-        $this->assertTrue($migrationStub->postFlightCheck());
+        $this->assertNull($migrationStub->postFlightCheck());
     }
 
     public function testDropTableDeprecated()

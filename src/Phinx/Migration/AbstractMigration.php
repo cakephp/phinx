@@ -350,7 +350,7 @@ abstract class AbstractMigration implements MigrationInterface
      *
      * Right now, the only check is whether all changes were committed
      *
-     * @param string|null $direction
+     * @param string|null $direction direction of migration
      *
      * @return void
      */
@@ -360,7 +360,5 @@ abstract class AbstractMigration implements MigrationInterface
                 throw new \RuntimeException('Migration has pending actions after execution!');
             }
         }
-
-        return true;
     }
 }
