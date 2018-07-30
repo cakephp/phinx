@@ -244,4 +244,15 @@ interface MigrationInterface
      * @return void
      */
     public function preFlightCheck($direction = null);
+
+    /**
+     * Perform checks on the migration after completion
+     *
+     * Right now, the only check is whether all changes were committed
+     *
+     * @param string|null $direction direction of migration
+     *
+     * @return void
+     */
+    public function postFlightCheck($direction = null);
 }

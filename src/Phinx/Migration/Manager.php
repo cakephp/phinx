@@ -387,6 +387,7 @@ class Manager
         $this->getEnvironment($name)->executeMigration($migration, $direction, $fake);
         $end = microtime(true);
 
+        $migration->postFlightCheck($direction);
         $this->getOutput()->writeln(
             ' ==' .
             ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>' .

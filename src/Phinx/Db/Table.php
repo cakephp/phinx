@@ -147,6 +147,16 @@ class Table
     }
 
     /**
+     * Does the table have pending actions?
+     *
+     * @return bool
+     */
+    public function hasPendingActions()
+    {
+        return count($this->actions->getActions()) > 0 || count($this->data) > 0;
+    }
+
+    /**
      * Does the table exist?
      *
      * @return bool

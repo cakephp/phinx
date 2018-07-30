@@ -448,7 +448,8 @@ class MysqlAdapterTest extends TestCase
         $table->addColumn('default_ts', 'timestamp', ['default' => Literal::from('CURRENT_TIMESTAMP')])
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertEquals('CURRENT_TIMESTAMP', $rows[1]['Default']);
+        // MariaDB returns current_timestamp()
+        $this->assertTrue('CURRENT_TIMESTAMP' === $rows[1]['Default'] || 'current_timestamp()' === $rows[1]['Default']);
     }
 
     public function testAddIntegerColumnWithDefaultSigned()
