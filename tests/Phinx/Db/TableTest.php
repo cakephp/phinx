@@ -272,6 +272,31 @@ class TableTest extends TestCase
         $this->assertEquals([], $table->getData());
     }
 
+    public function testPendingAfterAddingData()
+    {
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $columns = ["column1"];
+        $data = [["value1"]];
+        $table->insert($columns, $data);
+        $this->assertEquals(true, $table->hasPendingActions());
+    }
+
+    public function testPendingAfterAddingColumn()
+    {
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $adapterStub->expects($this->any())
+            ->method('isValidColumnType')
+            ->willReturn(true);
+        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $table->addColumn("column1", "integer", ['null' => true]);
+        $this->assertEquals(true, $table->hasPendingActions());
+    }
+
     public function testGetColumn()
     {
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
