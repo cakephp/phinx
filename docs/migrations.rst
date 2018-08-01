@@ -1446,7 +1446,7 @@ We can also easily check if a foreign key exists:
 
 Finally, to delete a foreign key, use the ``dropForeignKey`` method.
 
-Note that like other methods in the ``Table` class, ``dropForeignKey`` also needs ``save()``
+Note that like other methods in the ``Table`` class, ``dropForeignKey`` also needs ``save()``
 to be called at the end in order to be executed. This allows phinx to intelligently
 plan migrations when more than one table is involved.
 
