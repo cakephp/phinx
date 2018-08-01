@@ -335,7 +335,11 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
 
         $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s', $this->getSchemaTableName(), $orderBy));
         foreach ($rows as $version) {
-            $result[$version['version']] = $version;
+            if (is_object($version)) {
+                $result[$version->version] = $version;
+            } else {
+                $result[$version['version']] = $version;
+            }
         }
 
         return $result;
