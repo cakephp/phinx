@@ -184,6 +184,11 @@ abstract class PdoAdapter extends AbstractAdapter
         $sql .= " VALUES (" . implode(', ', array_fill(0, count($columns), '?')) . ")";
 
         $stmt = $this->getConnection()->prepare($sql);
+        if ($this->isDryRunEnabled()) {
+            $this->getOutput()->writeln($sql);
+
+            return 0;
+        }
         $stmt->execute(array_values($row));
     }
 
@@ -216,6 +221,11 @@ abstract class PdoAdapter extends AbstractAdapter
         $sql .= implode(',', $queries);
 
         $stmt = $this->getConnection()->prepare($sql);
+        if ($this->isDryRunEnabled()) {
+            $this->getOutput()->writeln($sql);
+
+            return 0;
+        }
         $stmt->execute($vals);
     }
 

@@ -1242,4 +1242,87 @@ OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
     }
+
+    public function testInsertDataDryRun()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $data = [
+            [
+                'column1' => 'value1',
+                'column2' => 1,
+            ],
+            [
+                'column1' => 'value2',
+                'column2' => 2,
+            ],
+            [
+                'column1' => 'value3',
+                'column2' => 3,
+                'column3' => 'foo',
+            ]
+        ];
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', ['default' => 'test'])
+            ->insert($data)
+            ->save();
+
+        $expectedOutput = <<<'OUTPUT'
+CREATE TABLE `table1` (`id` INT(11) NOT NULL AUTO_INCREMENT, `column1` VARCHAR(255) NOT NULL, `column2` INT(11) NOT NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test', PRIMARY KEY (`id`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;
+INSERT INTO `table1` (`column1`, `column2`) VALUES (?, ?)
+INSERT INTO `table1` (`column1`, `column2`) VALUES (?, ?)
+INSERT INTO `table1` (`column1`, `column2`, `column3`) VALUES (?, ?, ?)
+OUTPUT;
+
+        $actualOutput = $consoleOutput->fetch();
+
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
+
+    }
+
+    public function testBulkInsertDataDryRun()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $data = [
+            [
+                'column1' => 'value1',
+                'column2' => 1,
+            ],
+            [
+                'column1' => 'value2',
+                'column2' => 2,
+            ],
+            [
+                'column1' => 'value3',
+                'column2' => 3,
+            ]
+        ];
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', ['default' => 'test'])
+            ->insert($data);
+        $this->adapter->createTable($table);
+        $this->adapter->bulkinsert($table, $table->getData());
+
+        $expectedOutput = <<<'OUTPUT'
+CREATE TABLE `table1` (`id` INT(11) NOT NULL AUTO_INCREMENT, `column1` VARCHAR(255) NOT NULL, `column2` INT(11) NOT NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test', PRIMARY KEY (`id`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;
+INSERT INTO `table1` (`column1`, `column2`) VALUES(?, ?),(?, ?),(?, ?)
+OUTPUT;
+
+        $actualOutput = $consoleOutput->fetch();
+
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
+    }
 }
