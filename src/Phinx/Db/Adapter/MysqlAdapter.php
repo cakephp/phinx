@@ -374,8 +374,14 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     {
         $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $column) {
-            if (strcasecmp($column['Field'], $columnName) === 0) {
-                return true;
+            if (is_object($column)) {
+                if (strcasecmp($column->field, $columnName) === 0) {
+                    return true;
+                }
+            } else {
+                if (strcasecmp($column['Field'], $columnName) === 0) {
+                    return true;
+                }
             }
         }
 
