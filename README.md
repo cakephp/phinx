@@ -1,3 +1,5 @@
+test
+
 # [Phinx](https://phinx.org): Simple PHP Database Migrations
 
 [![Build Status](https://travis-ci.org/cakephp/phinx.png?branch=master)](https://travis-ci.org/cakephp/phinx)
