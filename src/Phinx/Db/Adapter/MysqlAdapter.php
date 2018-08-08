@@ -301,6 +301,56 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    protected function getChangePrimaryKeyInstructions(Table $table, $newColumns)
+    {
+        $instructions = new AlterInstructions();
+
+        // Drop the existing primary key
+        $primaryKey = $this->getPrimaryKey($table->getName());
+        if (!empty($primaryKey['columns'])) {
+            $instructions->addAlter('DROP PRIMARY KEY');
+        }
+
+        // Add the primary key(s)
+        if (!empty($newColumns)) {
+            $sql = 'ADD PRIMARY KEY (';
+            if (is_string($newColumns)) { // handle primary_key => 'id'
+                $sql .= $this->quoteColumnName($newColumns);
+            } elseif (is_array($newColumns)) { // handle primary_key => array('tag_id', 'resource_id')
+                $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newColumns));
+            } else {
+                throw new \InvalidArgumentException(sprintf(
+                    "Invalid value for primary key: %s",
+                    json_encode($newColumns)
+                ));
+            }
+            $sql .= ')';
+            $instructions->addAlter($sql);
+        }
+
+        return $instructions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getChangeCommentInstructions(Table $table, $newComment)
+    {
+        $instructions = new AlterInstructions();
+
+        // passing 'null' is to remove table comment
+        $newComment = ($newComment !== null)
+            ? $newComment
+            : '';
+        $sql = sprintf(" COMMENT=%s ", $this->getConnection()->quote($newComment));
+        $instructions->addAlter($sql);
+
+        return $instructions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
         $sql = sprintf(
@@ -595,6 +645,60 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             "The specified index name '%s' does not exist",
             $indexName
         ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasPrimaryKey($tableName, $columns, $constraint = null)
+    {
+        $primaryKey = $this->getPrimaryKey($tableName);
+
+        if (empty($primaryKey['constraint'])) {
+            return false;
+        }
+
+        if ($constraint) {
+            return ($primaryKey['constraint'] === $constraint);
+        } else {
+            if (is_string($columns)) {
+                $columns = [$columns]; // str to array
+            }
+            $missingColumns = array_diff($columns, $primaryKey['columns']);
+
+            return empty($missingColumns);
+        }
+    }
+
+    /**
+     * Get the primary key from a particular table.
+     *
+     * @param string $tableName Table Name
+     * @return array
+     */
+    public function getPrimaryKey($tableName)
+    {
+        $rows = $this->fetchAll(sprintf(
+            "SELECT
+                k.constraint_name,
+                k.column_name
+            FROM information_schema.table_constraints t
+            JOIN information_schema.key_column_usage k
+                USING(constraint_name,table_name)
+            WHERE t.constraint_type='PRIMARY KEY'
+                AND t.table_name='%s'",
+            $tableName
+        ));
+
+        $primaryKey = [
+            'columns' => [],
+        ];
+        foreach ($rows as $row) {
+            $primaryKey['constraint'] = $row['constraint_name'];
+            $primaryKey['columns'][] = $row['column_name'];
+        }
+
+        return $primaryKey;
     }
 
     /**

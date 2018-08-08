@@ -273,6 +273,69 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    protected function getChangePrimaryKeyInstructions(Table $table, $newColumns)
+    {
+        $parts = $this->getSchemaName($table->getName());
+
+        $instructions = new AlterInstructions();
+
+        // Drop the existing primary key
+        $primaryKey = $this->getPrimaryKey($table->getName());
+        if (!empty($primaryKey['constraint'])) {
+            $sql = sprintf(
+                'DROP CONSTRAINT %s',
+                $this->quoteColumnName($primaryKey['constraint'])
+            );
+            $instructions->addAlter($sql);
+        }
+
+        // Add the new primary key
+        if (!empty($newColumns)) {
+            $sql = sprintf(
+                'ADD CONSTRAINT %s PRIMARY KEY (',
+                $this->quoteColumnName($parts['table'] . '_pkey')
+            );
+            if (is_string($newColumns)) { // handle primary_key => 'id'
+                $sql .= $this->quoteColumnName($newColumns);
+            } elseif (is_array($newColumns)) { // handle primary_key => array('tag_id', 'resource_id')
+                $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newColumns));
+            } else {
+                throw new \InvalidArgumentException(sprintf(
+                    "Invalid value for primary key: %s",
+                    json_encode($newColumns)
+                ));
+            }
+            $sql .= ')';
+            $instructions->addAlter($sql);
+        }
+
+        return $instructions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getChangeCommentInstructions(Table $table, $newComment)
+    {
+        $instructions = new AlterInstructions();
+
+        // passing 'null' is to remove table comment
+        $newComment = ($newComment !== null)
+            ? $this->getConnection()->quote($newComment)
+            : 'NULL';
+        $sql = sprintf(
+            'COMMENT ON TABLE %s IS %s',
+            $this->quoteTableName($table->getName()),
+            $newComment
+        );
+        $instructions->addPostStep($sql);
+
+        return $instructions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
         $sql = sprintf(
@@ -660,6 +723,64 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         );
 
         return new AlterInstructions([], [$sql]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasPrimaryKey($tableName, $columns, $constraint = null)
+    {
+        $primaryKey = $this->getPrimaryKey($tableName);
+
+        if (empty($primaryKey)) {
+            return false;
+        }
+
+        if ($constraint) {
+            return ($primaryKey['constraint'] === $constraint);
+        } else {
+            if (is_string($columns)) {
+                $columns = [$columns]; // str to array
+            }
+            $missingColumns = array_diff($columns, $primaryKey['columns']);
+
+            return empty($missingColumns);
+        }
+    }
+
+    /**
+     * Get the primary key from a particular table.
+     *
+     * @param string $tableName Table Name
+     * @return array
+     */
+    public function getPrimaryKey($tableName)
+    {
+        $parts = $this->getSchemaName($tableName);
+        $rows = $this->fetchAll(sprintf(
+            "SELECT
+                    tc.constraint_name,
+                    kcu.column_name
+                FROM information_schema.table_constraints AS tc
+                JOIN information_schema.key_column_usage AS kcu
+                    ON tc.constraint_name = kcu.constraint_name
+                WHERE constraint_type = 'PRIMARY KEY'
+                    AND tc.table_schema = %s
+                    AND tc.table_name = %s
+                ORDER BY kcu.position_in_unique_constraint",
+            $this->getConnection()->quote($parts['schema']),
+            $this->getConnection()->quote($parts['table'])
+        ));
+
+        $primaryKey = [
+            'columns' => [],
+        ];
+        foreach ($rows as $row) {
+            $primaryKey['constraint'] = $row['constraint_name'];
+            $primaryKey['columns'][] = $row['column_name'];
+        }
+
+        return $primaryKey;
     }
 
     /**

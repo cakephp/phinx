@@ -32,6 +32,8 @@ use Phinx\Db\Action\AddColumn;
 use Phinx\Db\Action\AddForeignKey;
 use Phinx\Db\Action\AddIndex;
 use Phinx\Db\Action\ChangeColumn;
+use Phinx\Db\Action\ChangeComment;
+use Phinx\Db\Action\ChangePrimaryKey;
 use Phinx\Db\Action\CreateTable;
 use Phinx\Db\Action\DropColumn;
 use Phinx\Db\Action\DropForeignKey;
@@ -187,6 +189,32 @@ class Table
     public function rename($newTableName)
     {
         $this->actions->addAction(new RenameTable($this->table, $newTableName));
+
+        return $this;
+    }
+
+    /**
+     * Changes the primary key of the database table.
+     *
+     * @param string|array|null $columns Column name(s) to belong to the primary key, or null to drop the key
+     * @return $this
+     */
+    public function changePrimaryKey($columns)
+    {
+        $this->actions->addAction(new ChangePrimaryKey($this->table, $columns));
+
+        return $this;
+    }
+
+    /**
+     * Changes the comment of the database table.
+     *
+     * @param string|null $comment New comment string, or null to drop the comment
+     * @return $this
+     */
+    public function changeComment($comment)
+    {
+        $this->actions->addAction(new ChangeComment($this->table, $comment));
 
         return $this;
     }
