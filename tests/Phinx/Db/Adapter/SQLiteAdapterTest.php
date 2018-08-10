@@ -1021,4 +1021,20 @@ OUTPUT;
 
         $this->assertEquals(1, $stm->rowCount());
     }
+
+    /**
+     * Tests adding more than one column to a table
+     * that already exists due to adapters having different add column instructions
+     */
+    public function testAlterTableColumnAdd()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table->addColumn('string_col', 'string');
+        $table->addColumn('string_col_2', 'string');
+        $table->save();
+        $this->assertTrue($this->adapter->hasColumn('table1', 'string_col'));
+        $this->assertTrue($this->adapter->hasColumn('table1', 'string_col_2'));
+    }
 }
