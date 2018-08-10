@@ -341,7 +341,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $this->getColumnSqlDefinition($column)
         );
 
-        return new AlterInstructions([],[$alter]);
+        return new AlterInstructions([], [$alter]);
     }
 
     /**
