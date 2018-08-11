@@ -375,12 +375,13 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     protected function getAddColumnInstructions(Table $table, Column $column)
     {
         $alter = sprintf(
-            'ADD COLUMN %s %s',
+            'ALTER TABLE %s ADD COLUMN %s %s',
+            $this->quoteTableName($table->getName()),
             $this->quoteColumnName($column->getName()),
             $this->getColumnSqlDefinition($column)
         );
 
-        return new AlterInstructions([$alter]);
+        return new AlterInstructions([], [$alter]);
     }
 
     /**
