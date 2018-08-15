@@ -18,7 +18,7 @@ command:
 
 .. code-block:: bash
 
-        $ php vendor/bin/phinx create MyNewMigration
+        $ vendor/bin/phinx create MyNewMigration
 
 This will create a new migration in the format
 ``YYYYMMDDHHMMSS_my_new_migration.php``, where the first 14 characters are
@@ -715,6 +715,86 @@ To rename a table access an instance of the Table object then call the
             }
         }
 
+Changing the Primary Key
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+To change the primary key on an existing table, use the ``changePrimaryKey()`` method.
+Pass in a column name or array of columns names to include in the primary key, or ``null`` to drop the primary key.
+Note that the mentioned columns must be added to the table, they will not be added implicitly.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $users = $this->table('users');
+                $users
+                    ->addColumn('username', 'string', ['limit' => 20, 'null' => false])
+                    ->addColumn('password', 'string', ['limit' => 40])
+                    ->save();
+
+                $users
+                    ->addColumn('new_id', 'integer', ['null' => false])
+                    ->changePrimaryKey(['new_id', 'username'])
+                    ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
+Changing the Table Comment
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To change the comment on an existing table, use the ``changeComment()`` method.
+Pass in a string to set as the new table comment, or ``null`` to drop the existing comment.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $users = $this->table('users');
+                $users
+                    ->addColumn('username', 'string', ['limit' => 20])
+                    ->addColumn('password', 'string', ['limit' => 40])
+                    ->save();
+
+                $users
+                    ->changeComment('This is the table with users auth information, password should be encrypted')
+                    ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
 Working With Columns
 --------------------
 
@@ -943,6 +1023,38 @@ method. This method will return an array of Column classes with basic info. Exam
             public function up()
             {
                 $columns = $this->table('users')->getColumns();
+                ...
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+                ...
+            }
+        }
+
+Get a column by name
+~~~~~~~~~~~~~~~~~~~~
+
+To retrieve one table column, simply create a `table` object and call the `getColumn()`
+method. This method will return a Column class with basic info or NULL when the column doesn't exist. Example below:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class ColumnListMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $column = $this->table('users')->getColumn('email');
                 ...
             }
 
@@ -1414,7 +1526,7 @@ We can also easily check if a foreign key exists:
 
 Finally, to delete a foreign key, use the ``dropForeignKey`` method.
 
-Note that like other methods in the ``Table` class, ``dropForeignKey`` also needs ``save()``
+Note that like other methods in the ``Table`` class, ``dropForeignKey`` also needs ``save()``
 to be called at the end in order to be executed. This allows phinx to intelligently
 plan migrations when more than one table is involved.
 

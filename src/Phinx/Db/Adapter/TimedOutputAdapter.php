@@ -142,6 +142,36 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * {@inheritdoc}
      */
+    public function changePrimaryKey(Table $table, $newColumns)
+    {
+        $adapter = $this->getAdapter();
+        if (!$adapter instanceof DirectActionInterface) {
+            throw new \BadMethodCallException('The adapter needs to implement DirectActionInterface');
+        }
+        $end = $this->startCommandTimer();
+        $this->writeCommand('changePrimaryKey', [$table->getName()]);
+        $adapter->changePrimaryKey($table, $newColumns);
+        $end();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function changeComment(Table $table, $newComment)
+    {
+        $adapter = $this->getAdapter();
+        if (!$adapter instanceof DirectActionInterface) {
+            throw new \BadMethodCallException('The adapter needs to implement DirectActionInterface');
+        }
+        $end = $this->startCommandTimer();
+        $this->writeCommand('changeComment', [$table->getName()]);
+        $adapter->changeComment($table, $newComment);
+        $end();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function renameTable($tableName, $newTableName)
     {
         $adapter = $this->getAdapter();

@@ -391,6 +391,16 @@ interface AdapterInterface
     public function hasIndexByName($tableName, $indexName);
 
     /**
+     * Checks to see if the specified primary key exists.
+     *
+     * @param string   $tableName  Table Name
+     * @param string[] $columns    Column(s)
+     * @param string   $constraint Constraint name
+     * @return bool
+     */
+    public function hasPrimaryKey($tableName, $columns, $constraint = null);
+
+    /**
      * Checks to see if a foreign key exists.
      *
      * @param string   $tableName

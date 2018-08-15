@@ -202,6 +202,64 @@ class SqlServerAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasIndexByName('table1', 'myemailindex'));
     }
 
+    public function testAddPrimaryKey()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey('column1')
+            ->save();
+
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column1']));
+    }
+
+    public function testChangePrimaryKey()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey(['column2', 'column3'])
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column2', 'column3']));
+    }
+
+    public function testDropPrimaryKey()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey(null)
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
+    }
+
+    /**
+     * @expectedException \BadMethodCallException
+     */
+    public function testChangeCommentFails()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table
+            ->changeComment('comment1')
+            ->save();
+    }
+
     public function testRenameTable()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);

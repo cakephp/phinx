@@ -275,6 +275,51 @@ class AbstractMigrationTest extends TestCase
         );
     }
 
+    public function testPostFlightCheckFail()
+    {
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
+
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $adapterStub->expects($this->any())
+            ->method('isValidColumnType')
+            ->willReturn(true);
+
+        $migrationStub->setAdapter($adapterStub);
+
+        $table = $migrationStub->table('test_table');
+        $table->addColumn("column1", "integer", ['null' => true]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Migration has pending actions after execution!');
+        $migrationStub->postFlightCheck();
+    }
+
+    public function testPostFlightCheckSuccess()
+    {
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
+
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $adapterStub->expects($this->any())
+            ->method('isValidColumnType')
+            ->willReturn(true);
+
+        $migrationStub->setAdapter($adapterStub);
+
+        $table = $migrationStub->table('test_table');
+        $table->addColumn("column1", "integer", ['null' => true])->create();
+
+        $migrationStub->postFlightCheck();
+
+        // Dummy assert to prevent the test being marked as risky
+        $this->assertTrue(true);
+    }
+
     public function testDropTableDeprecated()
     {
         if (PHP_VERSION_ID < 70000) {

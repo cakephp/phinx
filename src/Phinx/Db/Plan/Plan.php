@@ -28,6 +28,8 @@ use Phinx\Db\Action\AddColumn;
 use Phinx\Db\Action\AddForeignKey;
 use Phinx\Db\Action\AddIndex;
 use Phinx\Db\Action\ChangeColumn;
+use Phinx\Db\Action\ChangeComment;
+use Phinx\Db\Action\ChangePrimaryKey;
 use Phinx\Db\Action\CreateTable;
 use Phinx\Db\Action\DropForeignKey;
 use Phinx\Db\Action\DropIndex;
@@ -286,7 +288,9 @@ class Plan
         collection($actions)
             ->filter(function ($action) {
                 return $action instanceof DropTable
-                    || $action instanceof RenameTable;
+                    || $action instanceof RenameTable
+                    || $action instanceof ChangePrimaryKey
+                    || $action instanceof ChangeComment;
             })
             ->each(function ($action) {
                 $table = $action->getTable();

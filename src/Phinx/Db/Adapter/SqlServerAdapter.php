@@ -274,6 +274,55 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getChangePrimaryKeyInstructions(Table $table, $newColumns)
+    {
+        $instructions = new AlterInstructions();
+
+        // Drop the existing primary key
+        $primaryKey = $this->getPrimaryKey($table->getName());
+        if (!empty($primaryKey['constraint'])) {
+            $sql = sprintf(
+                'DROP CONSTRAINT %s',
+                $this->quoteColumnName($primaryKey['constraint'])
+            );
+            $instructions->addAlter($sql);
+        }
+
+        // Add the primary key(s)
+        if (!empty($newColumns)) {
+            $sql = sprintf(
+                'ALTER TABLE %s ADD CONSTRAINT %s PRIMARY KEY (',
+                $this->quoteTableName($table->getName()),
+                $this->quoteColumnName('PK_' . $table->getName())
+            );
+            if (is_string($newColumns)) { // handle primary_key => 'id'
+                $sql .= $this->quoteColumnName($newColumns);
+            } elseif (is_array($newColumns)) { // handle primary_key => array('tag_id', 'resource_id')
+                $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newColumns));
+            } else {
+                throw new \InvalidArgumentException(sprintf(
+                    "Invalid value for primary key: %s",
+                    json_encode($newColumns)
+                ));
+            }
+            $sql .= ')';
+            $instructions->addPostStep($sql);
+        }
+
+        return $instructions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getChangeCommentInstructions(Table $table, $newComment)
+    {
+        throw new \BadMethodCallException('SQLite does not have table comments');
+    }
+
+    /**
      * Gets the SqlServer Column Comment Defininition for a column object.
      *
      * @param \Phinx\Db\Table\Column $column    Column
@@ -755,6 +804,61 @@ ORDER BY T.[name], I.[index_id];";
             "The specified index name '%s' does not exist",
             $indexName
         ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasPrimaryKey($tableName, $columns, $constraint = null)
+    {
+        $primaryKey = $this->getPrimaryKey($tableName);
+
+        if (empty($primaryKey)) {
+            return false;
+        }
+
+        if ($constraint) {
+            return ($primaryKey['constraint'] === $constraint);
+        } else {
+            if (is_string($columns)) {
+                $columns = [$columns]; // str to array
+            }
+            $missingColumns = array_diff($columns, $primaryKey['columns']);
+
+            return empty($missingColumns);
+        }
+    }
+
+    /**
+     * Get the primary key from a particular table.
+     *
+     * @param string $tableName Table Name
+     * @return array
+     */
+    public function getPrimaryKey($tableName)
+    {
+        $rows = $this->fetchAll(sprintf(
+            "SELECT
+                    tc.constraint_name,
+                    kcu.column_name
+                FROM information_schema.table_constraints AS tc
+                JOIN information_schema.key_column_usage AS kcu
+                    ON tc.constraint_name = kcu.constraint_name
+                WHERE constraint_type = 'PRIMARY KEY'
+                    AND tc.table_name = '%s'
+                ORDER BY kcu.ordinal_position",
+            $tableName
+        ));
+
+        $primaryKey = [
+            'columns' => [],
+        ];
+        foreach ($rows as $row) {
+            $primaryKey['constraint'] = $row['constraint_name'];
+            $primaryKey['columns'][] = $row['column_name'];
+        }
+
+        return $primaryKey;
     }
 
     /**

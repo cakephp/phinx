@@ -237,6 +237,81 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
     }
 
+    public function testAddPrimaryKey()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->addColumn('column2', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey('column1')
+            ->save();
+
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column1']));
+    }
+
+    public function testChangePrimaryKey()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->addColumn('column2', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey('column2')
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column2']));
+    }
+
+    public function testDropPrimaryKey()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->addColumn('column2', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey(null)
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testAddMultipleColumnPrimaryKeyFails()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->addColumn('column2', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey(['column1', 'column2'])
+            ->save();
+    }
+
+    /**
+     * @expectedException \BadMethodCallException
+     */
+    public function testChangeCommentFails()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table
+            ->changeComment('comment1')
+            ->save();
+    }
+
     public function testRenameTable()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -1020,5 +1095,21 @@ OUTPUT;
             ->execute();
 
         $this->assertEquals(1, $stm->rowCount());
+    }
+
+    /**
+     * Tests adding more than one column to a table
+     * that already exists due to adapters having different add column instructions
+     */
+    public function testAlterTableColumnAdd()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table->addColumn('string_col', 'string');
+        $table->addColumn('string_col_2', 'string');
+        $table->save();
+        $this->assertTrue($this->adapter->hasColumn('table1', 'string_col'));
+        $this->assertTrue($this->adapter->hasColumn('table1', 'string_col_2'));
     }
 }

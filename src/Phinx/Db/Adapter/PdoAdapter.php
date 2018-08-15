@@ -33,6 +33,8 @@ use Phinx\Db\Action\AddColumn;
 use Phinx\Db\Action\AddForeignKey;
 use Phinx\Db\Action\AddIndex;
 use Phinx\Db\Action\ChangeColumn;
+use Phinx\Db\Action\ChangeComment;
+use Phinx\Db\Action\ChangePrimaryKey;
 use Phinx\Db\Action\DropForeignKey;
 use Phinx\Db\Action\DropIndex;
 use Phinx\Db\Action\DropTable;
@@ -380,7 +382,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function toggleBreakpoint(MigrationInterface $migration)
     {
@@ -401,7 +403,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function resetAllBreakpoints()
     {
@@ -522,7 +524,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     public function addColumn(Table $table, Column $column)
     {
         $instructions = $this->getAddColumnInstructions($table, $column);
-        $this->executeAlterSteps($table, $instructions);
+        $this->executeAlterSteps($table->getName(), $instructions);
     }
 
     /**
@@ -733,6 +735,42 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * {@inheritdoc}
      */
+    public function changePrimaryKey(Table $table, $newColumns)
+    {
+        $instructions = $this->getChangePrimaryKeyInstructions($table, $newColumns);
+        $this->executeAlterSteps($table->getName(), $instructions);
+    }
+
+    /**
+     * Returns the instructions to change the primary key for the specified database table.
+     *
+     * @param Table $table Table
+     * @param string|array|null $newColumns Column name(s) to belong to the primary key, or null to drop the key
+     * @return AlterInstructions
+     */
+    abstract protected function getChangePrimaryKeyInstructions(Table $table, $newColumns);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function changeComment(Table $table, $newComment)
+    {
+        $instructions = $this->getChangeCommentInstructions($table, $newComment);
+        $this->executeAlterSteps($table->getName(), $instructions);
+    }
+
+    /**
+     * Returns the instruction to change the comment for the specified database table.
+     *
+     * @param Table $table Table
+     * @param string|null $newComment New comment string, or null to drop the comment
+     * @return AlterInstructions
+     */
+    abstract protected function getChangeCommentInstructions(Table $table, $newComment);
+
+    /**
+     * {@inheritdoc}
+     */
     public function executeActions(Table $table, array $actions)
     {
         $instructions = new AlterInstructions();
@@ -812,6 +850,20 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
                     $instructions->merge($this->getRenameTableInstructions(
                         $table->getName(),
                         $action->getNewName()
+                    ));
+                    break;
+
+                case ($action instanceof ChangePrimaryKey):
+                    $instructions->merge($this->getChangePrimaryKeyInstructions(
+                        $table,
+                        $action->getNewColumns()
+                    ));
+                    break;
+
+                case ($action instanceof ChangeComment):
+                    $instructions->merge($this->getChangeCommentInstructions(
+                        $table,
+                        $action->getNewComment()
                     ));
                     break;
 

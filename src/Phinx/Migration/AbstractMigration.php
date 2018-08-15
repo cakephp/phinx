@@ -77,6 +77,13 @@ abstract class AbstractMigration implements MigrationInterface
     protected $isMigratingUp = true;
 
     /**
+     * List of all the table objects created by this migration
+     *
+     * @var array
+     */
+    protected $tables = [];
+
+    /**
      * Class Constructor.
      *
      * @param string $environment Environment Detected
@@ -297,7 +304,10 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function table($tableName, $options = [])
     {
-        return new Table($tableName, $options, $this->getAdapter());
+        $table = new Table($tableName, $options, $this->getAdapter());
+        $this->tables[] = $table;
+
+        return $table;
     }
 
     /**
@@ -332,6 +342,24 @@ abstract class AbstractMigration implements MigrationInterface
                 $this->output->writeln(sprintf(
                     '<comment>warning</comment> Migration contains both change() and/or up()/down() methods.  <options=bold>Ignoring up() and down()</>.'
                 ));
+            }
+        }
+    }
+
+    /**
+     * Perform checks on the migration after completion
+     *
+     * Right now, the only check is whether all changes were committed
+     *
+     * @param string|null $direction direction of migration
+     *
+     * @return void
+     */
+    public function postFlightCheck($direction = null)
+    {
+        foreach ($this->tables as $table) {
+            if ($table->hasPendingActions()) {
+                throw new \RuntimeException('Migration has pending actions after execution!');
             }
         }
     }

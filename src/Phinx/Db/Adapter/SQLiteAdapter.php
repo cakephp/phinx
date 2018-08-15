@@ -251,6 +251,46 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    protected function getChangePrimaryKeyInstructions(Table $table, $newColumns)
+    {
+        $instructions = new AlterInstructions();
+
+        // Drop the existing primary key
+        $primaryKey = $this->getPrimaryKey($table->getName());
+        if (!empty($primaryKey)) {
+            $instructions->merge(
+                $this->getDropPrimaryKeyInstructions($table, $primaryKey)
+            );
+        }
+
+        // Add the primary key(s)
+        if (!empty($newColumns)) {
+            if (!is_string($newColumns)) {
+                throw new \InvalidArgumentException(sprintf(
+                    "Invalid value for primary key: %s",
+                    json_encode($newColumns)
+                ));
+            }
+
+            $instructions->merge(
+                $this->getAddPrimaryKeyInstructions($table, $newColumns)
+            );
+        }
+
+        return $instructions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getChangeCommentInstructions(Table $table, $newComment)
+    {
+        throw new \BadMethodCallException('SQLite does not have table comments');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
         $sql = sprintf(
@@ -335,12 +375,13 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     protected function getAddColumnInstructions(Table $table, Column $column)
     {
         $alter = sprintf(
-            'ADD COLUMN %s %s',
+            'ALTER TABLE %s ADD COLUMN %s %s',
+            $this->quoteTableName($table->getName()),
             $this->quoteColumnName($column->getName()),
             $this->getColumnSqlDefinition($column)
         );
 
-        return new AlterInstructions([$alter]);
+        return new AlterInstructions([], [$alter]);
     }
 
     /**
@@ -702,6 +743,70 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function hasPrimaryKey($tableName, $columns, $constraint = null)
+    {
+        $primaryKey = $this->getPrimaryKey($tableName);
+
+        if (empty($primaryKey)) {
+            return false;
+        }
+
+        if (is_string($columns)) {
+            $columns = [$columns]; // str to array
+        }
+        $missingColumns = array_diff($columns, [$primaryKey]);
+
+        return empty($missingColumns);
+    }
+
+    /**
+     * Get the primary key from a particular table.
+     *
+     * @param string $tableName Table Name
+     * @return string|null
+     */
+    protected function getPrimaryKey($tableName)
+    {
+        $rows = $this->fetchAll(
+            "SELECT sql, tbl_name
+              FROM (
+                    SELECT sql sql, type type, tbl_name tbl_name, name name
+                      FROM sqlite_master
+                     UNION ALL
+                    SELECT sql, type, tbl_name, name
+                      FROM sqlite_temp_master
+                   )
+             WHERE type != 'meta'
+               AND sql NOTNULL
+               AND name NOT LIKE 'sqlite_%'
+             ORDER BY substr(type, 2, 1), name"
+        );
+
+        foreach ($rows as $row) {
+            if ($row['tbl_name'] === $tableName) {
+                if (strpos($row['sql'], 'PRIMARY KEY') !== false) {
+                    preg_match_all("/PRIMARY KEY\s*\(`([^`]*)`\)/", $row['sql'], $matches);
+                    foreach ($matches[1] as $match) {
+                        if (!empty($match)) {
+                            return $match;
+                        }
+                    }
+                    preg_match_all("/`([^`]+)`[\w\s]+PRIMARY KEY/", $row['sql'], $matches);
+                    foreach ($matches[1] as $match) {
+                        if (!empty($match)) {
+                            return $match;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
         if (is_string($columns)) {
@@ -748,6 +853,63 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
 
         return $foreignKeys;
+    }
+
+    /**
+     * @param Table $table The Table
+     * @param string $column Column Name
+     * @return AlterInstructions
+     */
+    protected function getAddPrimaryKeyInstructions(Table $table, $column)
+    {
+        $instructions = $this->beginAlterByCopyTable($table->getName());
+
+        $tableName = $table->getName();
+        $instructions->addPostStep(function ($state) use ($column) {
+            $sql = preg_replace("/(`$column`)\s+\w+\s+((NOT )?NULL)/", '$1 INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT', $state['createSQL'], 1);
+            $this->execute($sql);
+
+            return $state;
+        });
+
+        $instructions->addPostStep(function ($state) {
+            $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($state['tmpTableName'])));
+            $names = array_map([$this, 'quoteColumnName'], array_column($columns, 'name'));
+            $selectColumns = $writeColumns = $names;
+
+            return compact('selectColumns', 'writeColumns') + $state;
+        });
+
+        return $this->copyAndDropTmpTable($instructions, $tableName);
+    }
+
+    /**
+     * @param Table $table Table
+     * @param string $column Column Name
+     * @return AlterInstructions
+     */
+    protected function getDropPrimaryKeyInstructions($table, $column)
+    {
+        $instructions = $this->beginAlterByCopyTable($table->getName());
+
+        $instructions->addPostStep(function ($state) use ($column) {
+            $newState = $this->calculateNewTableColumns($state['tmpTableName'], $column, $column);
+
+            return $newState + $state;
+        });
+
+        $instructions->addPostStep(function ($state) {
+            $search = "/(,?\s*PRIMARY KEY\s*\([^\)]*\)|\s+PRIMARY KEY(\s+AUTOINCREMENT)?)/";
+            $sql = preg_replace($search, '', $state['createSQL'], 1);
+
+            if ($sql) {
+                $this->execute($sql);
+            }
+
+            return $state;
+        });
+
+        return $this->copyAndDropTmpTable($instructions, $table->getName());
     }
 
     /**

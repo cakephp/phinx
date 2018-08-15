@@ -225,7 +225,7 @@ abstract class AbstractAdapter implements AdapterInterface
         } catch (\Exception $exception) {
             throw new \InvalidArgumentException(
                 'There was a problem creating the schema table: ' . $exception->getMessage(),
-                $exception->getCode(),
+                intval($exception->getCode()),
                 $exception
             );
         }

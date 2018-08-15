@@ -370,6 +370,117 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
 
+    public function testAddPrimarykey()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey('column1')
+            ->save();
+
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column1']));
+    }
+
+    public function testChangePrimaryKey()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey(['column2', 'column3'])
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column2', 'column3']));
+    }
+
+    public function testDropPrimaryKey()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey(null)
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
+    }
+
+    public function testAddComment()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table
+            ->changeComment('comment1')
+            ->save();
+
+        $rows = $this->adapter->fetchAll(
+            sprintf(
+                "SELECT table_comment 
+                    FROM INFORMATION_SCHEMA.TABLES 
+                    WHERE table_schema='%s' 
+                        AND table_name='%s'",
+                TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
+                'table1'
+            )
+        );
+        $this->assertEquals('comment1', $rows[0]['table_comment']);
+    }
+
+    public function testChangeComment()
+    {
+        $table = new \Phinx\Db\Table('table1', ['comment' => 'comment1'], $this->adapter);
+        $table->save();
+
+        $table
+            ->changeComment('comment2')
+            ->save();
+
+        $rows = $this->adapter->fetchAll(
+            sprintf(
+                "SELECT table_comment 
+                    FROM INFORMATION_SCHEMA.TABLES 
+                    WHERE table_schema='%s' 
+                        AND table_name='%s'",
+                TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
+                'table1'
+            )
+        );
+        $this->assertEquals('comment2', $rows[0]['table_comment']);
+    }
+
+    public function testDropComment()
+    {
+        $table = new \Phinx\Db\Table('table1', ['comment' => 'comment1'], $this->adapter);
+        $table->save();
+
+        $table
+            ->changeComment(null)
+            ->save();
+
+        $rows = $this->adapter->fetchAll(
+            sprintf(
+                "SELECT table_comment 
+                    FROM INFORMATION_SCHEMA.TABLES 
+                    WHERE table_schema='%s' 
+                        AND table_name='%s'",
+                TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
+                'table1'
+            )
+        );
+        $this->assertEquals('', $rows[0]['table_comment']);
+    }
+
     public function testRenameTable()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -448,7 +559,8 @@ class MysqlAdapterTest extends TestCase
         $table->addColumn('default_ts', 'timestamp', ['default' => Literal::from('CURRENT_TIMESTAMP')])
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertEquals('CURRENT_TIMESTAMP', $rows[1]['Default']);
+        // MariaDB returns current_timestamp()
+        $this->assertTrue('CURRENT_TIMESTAMP' === $rows[1]['Default'] || 'current_timestamp()' === $rows[1]['Default']);
     }
 
     public function testAddIntegerColumnWithDefaultSigned()
