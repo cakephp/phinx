@@ -1561,7 +1561,7 @@ plan migrations when more than one table is involved.
 Using the Query Builder
 -----------------------
 
-It is not uncommon to pair database structuree changes with data changes. For example, you may want to
+It is not uncommon to pair database structure changes with data changes. For example, you may want to
 migrate the data in a couple columns from the users to a newly created table. For this type of scenarios,
 Phinx provides access to a Query builder object, that you may use to execute complex ``SELECT``, ``UPDATE``,
 ``INSERT`` or ``DELETE`` statements.
