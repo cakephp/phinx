@@ -1001,6 +1001,9 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     }
                     $type = static::PHINX_TYPE_BIG_INTEGER;
                     break;
+                case 'double':
+                    $type = static::PHINX_TYPE_FLOAT;
+                    break;
                 case 'bit':
                     $type = static::PHINX_TYPE_BIT;
                     if ($limit === 64) {
