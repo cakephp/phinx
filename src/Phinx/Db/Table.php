@@ -35,7 +35,6 @@ use Phinx\Db\Action\ChangeColumn;
 use Phinx\Db\Action\ChangeComment;
 use Phinx\Db\Action\ChangePrimaryKey;
 use Phinx\Db\Action\CreateTable;
-use Phinx\Db\Action\DropColumn;
 use Phinx\Db\Action\DropForeignKey;
 use Phinx\Db\Action\DropIndex;
 use Phinx\Db\Action\DropTable;
