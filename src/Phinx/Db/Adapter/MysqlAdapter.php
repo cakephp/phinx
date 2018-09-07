@@ -1045,7 +1045,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 'precision' => $precision
             ];
 
-            if (static::PHINX_TYPE_ENUM == $type) {
+            if (static::PHINX_TYPE_ENUM == $type || static::PHINX_TYPE_SET == $type) {
                 $phinxType['values'] = explode("','", trim($matches[6], "()'"));
             }
 
