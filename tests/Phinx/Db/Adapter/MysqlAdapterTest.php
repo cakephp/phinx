@@ -911,7 +911,7 @@ class MysqlAdapterTest extends TestCase
             ['column18', 'linestring', []],
             ['column19', 'polygon', []],
             ['column20', 'uuid', []],
-            ['column21', 'set', ['values' => "one, two"]],
+            ['column21', 'set', ['values' => ['one', 'two']]],
             ['column22', 'enum', ['values' => ['three', 'four']]],
             ['column23', 'bit', []]
         ];
@@ -930,6 +930,14 @@ class MysqlAdapterTest extends TestCase
         $this->assertCount(2, $columns);
         $this->assertEquals($colName, $columns[1]->getName());
         $this->assertEquals($type, $columns[1]->getType());
+
+        if (isset($options['limit'])) {
+            $this->assertEquals($options['limit'], $columns[1]->getLimit());
+        }
+
+        if (isset($options['values'])) {
+            $this->assertEquals($options['values'], $columns[1]->getValues());
+        }
     }
 
     public function testDescribeTable()
