@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\PostgresAdapter;
+use Phinx\Db\Adapter\UnsupportedColumnTypeException;
 use Phinx\Db\Table\Column;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
@@ -1162,8 +1163,8 @@ class PostgresAdapterTest extends TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage The type: "idontexist" is not supported
+     * @expectedException \Phinx\Db\Adapter\UnsupportedColumnTypeException
+     * @expectedExceptionMessage Column type "idontexist" is not supported by Postgresql.
      */
     public function testInvalidSqlType()
     {

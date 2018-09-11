@@ -656,7 +656,7 @@ class SqlServerAdapterTest extends TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage The type: "idontexist" is not supported
+     * @expectedExceptionMessage Column type "idontexist" is not supported by SqlServer.
      */
     public function testInvalidSqlType()
     {

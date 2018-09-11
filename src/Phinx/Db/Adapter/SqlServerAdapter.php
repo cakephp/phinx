@@ -429,7 +429,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         foreach ($rows as $columnInfo) {
             try {
                 $type = $this->getPhinxType($columnInfo['type']);
-            } catch (\RuntimeException $e) {
+            } catch (UnsupportedColumnTypeException $e) {
                 $type = Literal::from($columnInfo['type']);
             }
 
@@ -1034,7 +1034,7 @@ ORDER BY T.[name], I.[index_id];";
                 // Specific types (point, polygon, etc) are set at insert time.
                 return ['name' => 'geography'];
             default:
-                throw new \RuntimeException('The type: "' . $type . '" is not supported.');
+                throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by SqlServer.');
         }
     }
 
@@ -1042,9 +1042,9 @@ ORDER BY T.[name], I.[index_id];";
      * Returns Phinx type by SQL type
      *
      * @param string $sqlType SQL Type definition
-     * @throws \RuntimeException
+     * @throws UnsupportedColumnTypeException
      * @internal param string $sqlType SQL type
-     * @returns string Phinx type
+     * @return string Phinx type
      */
     public function getPhinxType($sqlType)
     {
@@ -1090,7 +1090,7 @@ ORDER BY T.[name], I.[index_id];";
             case 'filestream':
                 return static::PHINX_TYPE_FILESTREAM;
             default:
-                throw new \RuntimeException('The SqlServer type: "' . $sqlType . '" is not supported');
+                throw new UnsupportedColumnTypeException('Column type "' . $sqlType . '" is not supported by SqlServer.');
         }
     }
 

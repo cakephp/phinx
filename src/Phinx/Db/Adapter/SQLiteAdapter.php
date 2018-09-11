@@ -1036,7 +1036,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_POINT:
                 return ['name' => 'float'];
             default:
-                throw new \RuntimeException('The type: "' . $type . '" is not supported.');
+                throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by SQLite.');
         }
     }
 
@@ -1044,12 +1044,13 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      * Returns Phinx type by SQL type
      *
      * @param string $sqlTypeDef SQL type
+     * @throws UnsupportedColumnTypeException
      * @return array
      */
     public function getPhinxType($sqlTypeDef)
     {
         if (!preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*$/', $sqlTypeDef, $matches)) {
-            throw new \RuntimeException('Column type ' . $sqlTypeDef . ' is not supported');
+            throw new UnsupportedColumnTypeException('Column type "' . $sqlTypeDef . '" is not supported by SQLite.');
         } else {
             $limit = null;
             $precision = null;
@@ -1108,7 +1109,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             try {
                 // Call this to check if parsed type is supported.
                 $this->getSqlType($type);
-            } catch (\RuntimeException $e) {
+            } catch (UnsupportedColumnTypeException $e) {
                 $type = Literal::from($type);
             }
 

@@ -3,7 +3,6 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\SQLiteAdapter;
-use Phinx\Db\Table;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -740,8 +739,8 @@ class SQLiteAdapterTest extends TestCase
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Column type ?int? is not supported
+     * @expectedException \Phinx\Db\Adapter\UnsupportedColumnTypeException
+     * @expectedExceptionMessage Column type "?int?" is not supported by SQLite.
      */
     public function testPhinxTypeNotValidTypeRegex()
     {
