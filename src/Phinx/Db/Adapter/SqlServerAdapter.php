@@ -427,9 +427,15 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
         );
         $rows = $this->fetchAll($sql);
         foreach ($rows as $columnInfo) {
+            try {
+                $type = $this->getPhinxType($columnInfo['type']);
+            } catch (\RuntimeException $e) {
+                $type = Literal::from($columnInfo['type']);
+            }
+
             $column = new Column();
             $column->setName($columnInfo['name'])
-                   ->setType($this->getPhinxType($columnInfo['type']))
+                   ->setType($type)
                    ->setNull($columnInfo['null'] !== 'NO')
                    ->setDefault($this->parseDefault($columnInfo['default']))
                    ->setIdentity($columnInfo['identity'] === '1')

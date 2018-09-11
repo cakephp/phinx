@@ -3,6 +3,8 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\SQLiteAdapter;
+use Phinx\Db\Table;
+use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -725,13 +727,16 @@ class SQLiteAdapterTest extends TestCase
         $this->assertRegExp('/\/\* Comments from "column1" \*\//', $sql);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The type: "fake" is not supported.
-     */
-    public function testPhinxTypeNotValidType()
+    public function testPhinxTypeLiteral()
     {
-        $this->adapter->getPhinxType('fake');
+        $this->assertEquals(
+            [
+                'name' => Literal::from('fake'),
+                'limit' => null,
+                'precision' => null
+            ],
+            $this->adapter->getPhinxType('fake')
+        );
     }
 
     /**
@@ -1108,5 +1113,16 @@ OUTPUT;
         $table->save();
         $this->assertTrue($this->adapter->hasColumn('table1', 'string_col'));
         $this->assertTrue($this->adapter->hasColumn('table1', 'string_col_2'));
+    }
+
+    public function testLiteralSupport() {
+        $createQuery = <<<'INPUT'
+CREATE TABLE `test` (`real_col` REAL)
+INPUT;
+        $this->adapter->execute($createQuery);
+        $table = new \Phinx\Db\Table('test', [], $this->adapter);
+        $columns = $table->getColumns();
+        $this->assertCount(1, $columns);
+        $this->assertEquals(Literal::from('real'), array_pop($columns)->getType());
     }
 }

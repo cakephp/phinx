@@ -943,7 +943,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      * @param string $sqlTypeDef
      * @throws \RuntimeException
      * @internal param string $sqlType SQL type
-     * @returns string Phinx type
+     * @return array Phinx type
      */
     public function getPhinxType($sqlTypeDef)
     {
@@ -1039,8 +1039,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     break;
             }
 
-            // Call this to check if parsed type is supported.
-            $this->getSqlType($type, $limit);
+            try {
+                // Call this to check if parsed type is supported.
+                $this->getSqlType($type, $limit);
+            } catch (\RuntimeException $e) {
+                $type = Literal::from($type);
+            }
 
             $phinxType = [
                 'name' => $type,

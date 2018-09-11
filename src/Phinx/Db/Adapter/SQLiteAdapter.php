@@ -1105,7 +1105,12 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
 
-            $this->getSqlType($type);
+            try {
+                // Call this to check if parsed type is supported.
+                $this->getSqlType($type);
+            } catch (\RuntimeException $e) {
+                $type = Literal::from($type);
+            }
 
             return [
                 'name' => $type,
