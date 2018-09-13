@@ -929,9 +929,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_INET:
             case static::PHINX_TYPE_MACADDR:
             case static::PHINX_TYPE_TIMESTAMP:
-            case static::PHINX_TYPE_SMALL_INTEGER:
             case static::PHINX_TYPE_INTEGER:
                 return ['name' => $type];
+            case static::PHINX_TYPE_SMALL_INTEGER:
+                return ['name' => 'smallint'];
             case static::PHINX_TYPE_DECIMAL:
                 return ['name' => $type, 'precision' => 18, 'scale' => 0];
             case static::PHINX_TYPE_STRING:
