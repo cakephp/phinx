@@ -407,10 +407,10 @@ class Table
     /**
      * Removes the given index from a table.
      *
-     * @param array $columns Columns
+     * @param string|array $columns Columns
      * @return \Phinx\Db\Table
      */
-    public function removeIndex(array $columns)
+    public function removeIndex($columns)
     {
         $action = DropIndex::build($this->table, $columns);
         $this->actions->addAction($action);

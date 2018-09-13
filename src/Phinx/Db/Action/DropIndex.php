@@ -54,13 +54,13 @@ class DropIndex extends Action
      * arguments.
      *
      * @param Table $table The table where the index is
-     * @param array $columns the indexed columns
+     * @param string|array $columns the indexed columns
      * @return DropIndex
      */
-    public static function build(Table $table, array $columns = [])
+    public static function build(Table $table, $columns = [])
     {
         $index = new Index();
-        $index->setColumns($columns);
+        $index->setColumns(is_string($columns) ? [$columns] : $columns);
 
         return new static($table, $index);
     }
