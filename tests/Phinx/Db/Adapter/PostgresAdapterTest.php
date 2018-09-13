@@ -774,7 +774,7 @@ class PostgresAdapterTest extends TestCase
     {
         return [
             ['column1', 'string', []],
-            ['column2', 'integer', ['limit' => PostgresAdapter::INT_SMALL], 'smallint'],
+            ['column2', 'smallinteger', []],
             ['column2_1', 'integer', []],
             ['column3', 'biginteger', []],
             ['column4', 'text', []],
