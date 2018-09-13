@@ -412,7 +412,7 @@ class Table
      */
     public function removeIndex($columns)
     {
-        $action = DropIndex::build($this->table, $columns);
+        $action = DropIndex::build($this->table, is_string($columns) ? [$columns] : $columns);
         $this->actions->addAction($action);
 
         return $this;
