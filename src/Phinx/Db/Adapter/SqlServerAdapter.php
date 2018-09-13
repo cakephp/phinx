@@ -1004,6 +1004,8 @@ ORDER BY T.[name], I.[index_id];";
                 return ['name' => 'ntext'];
             case static::PHINX_TYPE_INTEGER:
                 return ['name' => 'int'];
+            case static::PHINX_TYPE_SMALL_INTEGER:
+                return ['name' => 'smallint'];
             case static::PHINX_TYPE_BIG_INTEGER:
                 return ['name' => 'bigint'];
             case static::PHINX_TYPE_TIMESTAMP:
@@ -1057,6 +1059,8 @@ ORDER BY T.[name], I.[index_id];";
             case 'numeric':
             case 'money':
                 return static::PHINX_TYPE_DECIMAL;
+            case 'smallint':
+                return static::PHINX_TYPE_SMALL_INTEGER;
             case 'bigint':
                 return static::PHINX_TYPE_BIG_INTEGER;
             case 'real':

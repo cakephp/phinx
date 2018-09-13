@@ -667,6 +667,7 @@ class SqlServerAdapterTest extends TestCase
         $this->assertEquals('integer', $this->adapter->getPhinxType('int'));
         $this->assertEquals('integer', $this->adapter->getPhinxType('integer'));
 
+        $this->assertEquals('smallinteger', $this->adapter->getPhinxType('smalint'));
         $this->assertEquals('biginteger', $this->adapter->getPhinxType('bigint'));
 
         $this->assertEquals('decimal', $this->adapter->getPhinxType('decimal'));

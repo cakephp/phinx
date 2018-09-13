@@ -531,6 +531,7 @@ class SQLiteAdapterTest extends TestCase
             ['column10', 'date', []],
             ['column11', 'binary', []],
             ['column13', 'string', ['limit' => 10]],
+            ['column15', 'smallinteger', []],
             ['column15', 'integer', ['limit' => 10]],
             ['column22', 'enum', ['values' => ['three', 'four']]],
             ['column23', 'json', [], 'text'],
@@ -554,11 +555,7 @@ class SQLiteAdapterTest extends TestCase
             $actualType = $type;
         }
 
-        if (is_string($columns[1]->getType())) {
-            $this->assertEquals($actualType, $columns[1]->getType());
-        } else {
-            $this->assertEquals(['name' => $actualType] + $options, $columns[1]->getType());
-        }
+        $this->assertEquals($actualType, $columns[1]->getType());
     }
 
     public function testAddIndex()

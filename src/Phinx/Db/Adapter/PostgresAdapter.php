@@ -39,8 +39,6 @@ use Phinx\Util\Literal;
 
 class PostgresAdapter extends PdoAdapter implements AdapterInterface
 {
-    const INT_SMALL = 65535;
-
     /**
      * Columns with comments
      *
@@ -931,15 +929,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_INET:
             case static::PHINX_TYPE_MACADDR:
             case static::PHINX_TYPE_TIMESTAMP:
-                return ['name' => $type];
+            case static::PHINX_TYPE_SMALL_INTEGER:
             case static::PHINX_TYPE_INTEGER:
-                if ($limit && $limit == static::INT_SMALL) {
-                    return [
-                        'name' => 'smallint',
-                        'limit' => static::INT_SMALL
-                    ];
-                }
-
                 return ['name' => $type];
             case static::PHINX_TYPE_DECIMAL:
                 return ['name' => $type, 'precision' => 18, 'scale' => 0];
@@ -1001,10 +992,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'jsonb':
                 return static::PHINX_TYPE_JSONB;
             case 'smallint':
-                return [
-                    'name' => 'smallint',
-                    'limit' => static::INT_SMALL
-                ];
+                return static::PHINX_TYPE_SMALL_INTEGER;
             case 'int':
             case 'int4':
             case 'integer':

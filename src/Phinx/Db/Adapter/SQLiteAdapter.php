@@ -1012,6 +1012,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 return ['name' => 'varchar', 'limit' => 255];
             case static::PHINX_TYPE_CHAR:
                 return ['name' => 'char', 'limit' => 255];
+            case static::PHINX_TYPE_SMALL_INTEGER:
+                return ['name' => 'smallint'];
             case static::PHINX_TYPE_BIG_INTEGER:
                 return ['name' => 'bigint'];
             case static::PHINX_TYPE_TIMESTAMP:
@@ -1042,7 +1044,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      * Returns Phinx type by SQL type
      *
      * @param string $sqlTypeDef SQL type
-     * @returns string Phinx type
+     * @return array
      */
     public function getPhinxType($sqlTypeDef)
     {
@@ -1072,6 +1074,12 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                     }
                     if ($limit === 36) {
                         $type = static::PHINX_TYPE_UUID;
+                    }
+                    break;
+                case 'smallint':
+                    $type = static::PHINX_TYPE_SMALL_INTEGER;
+                    if ($limit === 11) {
+                        $limit = null;
                     }
                     break;
                 case 'int':
