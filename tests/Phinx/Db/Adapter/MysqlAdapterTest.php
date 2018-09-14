@@ -1580,4 +1580,15 @@ OUTPUT;
 
         $this->assertEquals(1, $stm->rowCount());
     }
+
+    public function testLiteralSupport() {
+        $createQuery = <<<'INPUT'
+CREATE TABLE `test` (`double_col` double NOT NULL)
+INPUT;
+        $this->adapter->execute($createQuery);
+        $table = new \Phinx\Db\Table('test', [], $this->adapter);
+        $columns = $table->getColumns();
+        $this->assertCount(1, $columns);
+        $this->assertEquals(Literal::from('double'), array_pop($columns)->getType());
+    }
 }

@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\SqlServerAdapter;
+use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -655,7 +656,7 @@ class SqlServerAdapterTest extends TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage The type: "idontexist" is not supported
+     * @expectedExceptionMessage Column type "idontexist" is not supported by SqlServer.
      */
     public function testInvalidSqlType()
     {
@@ -890,5 +891,16 @@ class SqlServerAdapterTest extends TestCase
             ->execute();
 
         $stm->closeCursor();
+    }
+
+    public function testLiteralSupport() {
+        $createQuery = <<<'INPUT'
+CREATE TABLE test (smallmoney_col smallmoney)
+INPUT;
+        $this->adapter->execute($createQuery);
+        $table = new \Phinx\Db\Table('test', [], $this->adapter);
+        $columns = $table->getColumns();
+        $this->assertCount(1, $columns);
+        $this->assertEquals(Literal::from('smallmoney'), array_pop($columns)->getType());
     }
 }

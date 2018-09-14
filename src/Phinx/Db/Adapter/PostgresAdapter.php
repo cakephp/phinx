@@ -967,7 +967,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     return ['name' => $type];
                 }
                 // Return array type
-                throw new \RuntimeException('The type: "' . $type . '" is not supported');
+                throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by Postgresql.');
         }
     }
 
@@ -975,7 +975,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      * Returns Phinx type by SQL type
      *
      * @param string $sqlType SQL type
-     * @returns string Phinx type
+     * @return string Phinx type
+     * @throws UnsupportedColumnTypeException
      */
     public function getPhinxType($sqlType)
     {
@@ -1035,7 +1036,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'macaddr':
                 return static::PHINX_TYPE_MACADDR;
             default:
-                throw new \RuntimeException('The PostgreSQL type: "' . $sqlType . '" is not supported');
+                throw new UnsupportedColumnTypeException('Column type "' . $sqlType . '" is not supported by Postgresql.');
         }
     }
 

@@ -933,7 +933,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
                 return ['name' => 'year', 'limit' => $limit];
             default:
-                throw new \RuntimeException('The type: "' . $type . '" is not supported.');
+                throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by MySQL.');
         }
     }
 
@@ -941,15 +941,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      * Returns Phinx type by SQL type
      *
      * @param string $sqlTypeDef
-     * @throws \RuntimeException
+     * @throws UnsupportedColumnTypeException
      * @internal param string $sqlType SQL type
-     * @returns string Phinx type
+     * @return array Phinx type
      */
     public function getPhinxType($sqlTypeDef)
     {
         $matches = [];
         if (!preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*(.+)*$/', $sqlTypeDef, $matches)) {
-            throw new \RuntimeException('Column type ' . $sqlTypeDef . ' is not supported');
+            throw new UnsupportedColumnTypeException('Column type "' . $sqlTypeDef . '" is not supported by MySQL.');
         } else {
             $limit = null;
             $precision = null;
@@ -1039,8 +1039,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                     break;
             }
 
-            // Call this to check if parsed type is supported.
-            $this->getSqlType($type, $limit);
+            try {
+                // Call this to check if parsed type is supported.
+                $this->getSqlType($type, $limit);
+            } catch (UnsupportedColumnTypeException $e) {
+                $type = Literal::from($type);
+            }
 
             $phinxType = [
                 'name' => $type,
