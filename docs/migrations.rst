@@ -552,6 +552,7 @@ Column types are specified as strings and can be one of:
 -  decimal
 -  float
 -  integer
+-  smallinteger
 -  string
 -  text
 -  time
@@ -561,7 +562,7 @@ Column types are specified as strings and can be one of:
 In addition, the MySQL adapter supports ``enum``, ``set``, ``blob`` and ``json`` column types.
 (``json`` in MySQL 5.7 and above)
 
-In addition, the Postgres adapter supports ``smallint``, ``interval``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
+In addition, the Postgres adapter supports ``interval``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
 
 For valid options, see the `Valid Column Options`_ below.
@@ -812,6 +813,7 @@ Column types are specified as strings and can be one of:
 -  decimal
 -  float
 -  integer
+-  smallinteger
 -  string
 -  text
 -  time
@@ -820,7 +822,7 @@ Column types are specified as strings and can be one of:
 
 In addition, the MySQL adapter supports ``enum``, ``set`` and ``blob`` column types.
 
-In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
+In addition, the Postgres adapter supports ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
 
 Valid Column Options
@@ -939,30 +941,6 @@ delete set an action to be triggered when the row is deleted
 
 You can pass one or more of these options to any column with the optional
 third argument array.
-
-Limit Option and PostgreSQL
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When using the PostgreSQL adapter, additional hinting of database column type can be
-made for ``integer`` columns. Using ``limit`` with one the following options will
-modify the column type accordingly:
-
-============ ==============
-Limit        Column Type
-============ ==============
-INT_SMALL    SMALLINT
-============ ==============
-
-.. code-block:: php
-
-         use Phinx\Db\Adapter\PostgresAdapter;
-
-         //...
-
-         $table = $this->table('cart_items');
-         $table->addColumn('user_id', 'integer')
-               ->addColumn('subtype_id', 'integer', ['limit' => PostgresAdapter::INT_SMALL])
-               ->create();
 
 Limit Option and MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
