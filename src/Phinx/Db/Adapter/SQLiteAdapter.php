@@ -879,7 +879,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                     }
                     
                     $sql = preg_replace($matchPattern, $replace, $state['createSQL'], 1);
-                }                
+                }
             }
 
             $this->execute($sql);
