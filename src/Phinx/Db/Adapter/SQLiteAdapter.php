@@ -867,7 +867,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $tableName = $table->getName();
         $instructions->addPostStep(function ($state) use ($column) {
             $matchPattern = "/(`$column`)\s+(\w+(\(\d+\))?)\s+((NOT )?NULL)/";
-
+            
+            $sql = $state['createSQL'];
+            
             if (preg_match($matchPattern, $state['createSQL'], $matches)) {
                 if (isset($matches[2])) {
                     if ($matches[2] === 'INTEGER') {
@@ -875,9 +877,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                     } else {
                         $replace = '$1 $2 NOT NULL PRIMARY KEY';
                     }
-                }
-
-                $sql = preg_replace($matchPattern, $replace, $state['createSQL'], 1);
+                    
+                    $sql = preg_replace($matchPattern, $replace, $state['createSQL'], 1);
+                }                
             }
 
             $this->execute($sql);
