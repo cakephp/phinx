@@ -866,7 +866,20 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $tableName = $table->getName();
         $instructions->addPostStep(function ($state) use ($column) {
-            $sql = preg_replace("/(`$column`)\s+\w+\s+((NOT )?NULL)/", '$1 INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT', $state['createSQL'], 1);
+            $matchPattern = "/(`$column`)\s+(\w+(\(\d+\))?)\s+((NOT )?NULL)/";
+
+            if (preg_match($matchPattern, $state['createSQL'], $matches)) {
+                if (isset($matches[2])) {
+                    if ($matches[2] === 'INTEGER') {
+                        $replace = '$1 INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT';
+                    } else {
+                        $replace = '$1 $2 NOT NULL PRIMARY KEY';
+                    }
+                }
+
+                $sql = preg_replace($matchPattern, $replace, $state['createSQL'], 1);
+            }
+
             $this->execute($sql);
 
             return $state;
