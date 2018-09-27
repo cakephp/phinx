@@ -1171,7 +1171,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         }
         if (($values = $column->getValues()) && is_array($values)) {
-            $def .= " CHECK({$column->getName()} IN ('" . implode("', '", $values) . "'))";
+            $def .= " CHECK({$this->quoteColumnName($column->getName())} IN ('" . implode("', '", $values) . "'))";
         }
 
         $default = $column->getDefault();
