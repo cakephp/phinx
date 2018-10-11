@@ -785,13 +785,13 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         foreach ($rows as $row) {
             if ($row['tbl_name'] === $tableName) {
                 if (strpos($row['sql'], 'PRIMARY KEY') !== false) {
-                    preg_match_all("/PRIMARY KEY\s*\(`([^`]*)`\)/", $row['sql'], $matches);
+                    preg_match_all("/PRIMARY KEY\s*\(`([^`]+)`\)/", $row['sql'], $matches);
                     foreach ($matches[1] as $match) {
                         if (!empty($match)) {
                             return $match;
                         }
                     }
-                    preg_match_all("/`([^`]+)`[\w\s]+PRIMARY KEY/", $row['sql'], $matches);
+                    preg_match_all("/`([^`]+)`\s+\w+(\(\d+\))?((\s+NOT)?\s+NULL)?\s+PRIMARY KEY/", $row['sql'], $matches);
                     foreach ($matches[1] as $match) {
                         if (!empty($match)) {
                             return $match;
