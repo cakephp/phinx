@@ -1358,10 +1358,6 @@ call this method for each index.
             }
         }
 
-.. note::
-
-    There is no need to call the ``save()`` method when using
-    ``removeIndex()``. The index will be removed immediately.
 
 Working With Foreign Keys
 -------------------------
