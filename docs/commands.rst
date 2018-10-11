@@ -191,8 +191,10 @@ status. You can use this command to determine which migrations have been run.
 
 This command exits with code 0 if the database is up-to-date (ie. all migrations are up) or one of the following codes otherwise:
 
-* 1: There is at least one down migration.
 * 2: There is at least one missing migration.
+* 3: There is at least one down migration.
+
+An exit code of 1 means an application error has occurred.
 
 The Seed Create Command
 -----------------------
