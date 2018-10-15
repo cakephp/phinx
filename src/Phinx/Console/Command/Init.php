@@ -84,7 +84,7 @@ class Init extends Command
     protected function resolvePath(InputInterface $input)
     {
         // get the migration path from the config
-        $path = $input->getArgument('path');
+        $path = (string)$input->getArgument('path');
 
         $format = strtolower($input->getOption('format'));
         if (!in_array($format, ['yml', 'json', 'php'])) {
