@@ -269,6 +269,22 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column2']));
     }
 
+    public function testChangePrimaryKeyNonInteger()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table
+            ->addColumn('column1', 'string')
+            ->addColumn('column2', 'string')
+            ->save();
+
+        $table
+            ->changePrimaryKey('column2')
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column2']));
+    }
+
     public function testDropPrimaryKey()
     {
         $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
