@@ -95,6 +95,16 @@ abstract class AbstractSeed implements SeedInterface
     }
 
     /**
+     * Return seeds dependencies.
+     *
+     * @return array
+     */
+    public function getDependencies()
+    {
+        return [];
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function setAdapter(AdapterInterface $adapter)

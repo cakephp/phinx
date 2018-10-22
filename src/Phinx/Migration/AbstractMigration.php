@@ -46,6 +46,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class AbstractMigration implements MigrationInterface
 {
     /**
+     * @var string
+     */
+    protected $environment;
+    /**
      * @var float
      */
     protected $version;
@@ -75,16 +79,20 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * Class Constructor.
      *
+     * @param string $environment Environment Detected
      * @param int $version Migration Version
      * @param \Symfony\Component\Console\Input\InputInterface|null $input
      * @param \Symfony\Component\Console\Output\OutputInterface|null $output
      */
-    final public function __construct($version, InputInterface $input = null, OutputInterface $output = null)
+    final public function __construct($environment, $version, InputInterface $input = null, OutputInterface $output = null)
     {
+        $this->environment = $environment;
         $this->version = $version;
+
         if (!is_null($input)) {
             $this->setInput($input);
         }
+
         if (!is_null($output)) {
             $this->setOutput($output);
         }
@@ -175,6 +183,14 @@ abstract class AbstractMigration implements MigrationInterface
     public function getName()
     {
         return get_class($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEnvironment()
+    {
+        return $this->environment;
     }
 
     /**

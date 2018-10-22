@@ -3,13 +3,14 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\SQLiteAdapter;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 
-class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
+class SQLiteAdapterTest extends TestCase
 {
     /**
      * @var \Phinx\Db\Adapter\SQLiteAdapter
@@ -42,7 +43,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testConnection()
     {
-        $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
     }
 
     public function testBeginTransaction()
@@ -612,15 +613,21 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp('/\/\* Comments from "column1" \*\//', $sql);
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The type: "fake" is not supported.
+     */
     public function testPhinxTypeNotValidType()
     {
-        $this->setExpectedException('\RuntimeException', 'The type: "fake" is not supported.');
         $this->adapter->getPhinxType('fake');
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Column type ?int? is not supported
+     */
     public function testPhinxTypeNotValidTypeRegex()
     {
-        $this->setExpectedException('\RuntimeException', 'Column type ?int? is not supported');
         $this->adapter->getPhinxType('?int?');
     }
 
@@ -782,7 +789,7 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
         // load table info
         $columns = $this->adapter->getColumns("table1");
 
-        $this->assertEquals(count($columns), 5);
+        $this->assertCount(5, $columns);
 
         $aa = $columns[1];
         $bb = $columns[2];
@@ -824,10 +831,10 @@ class SQLiteAdapterTest extends \PHPUnit_Framework_TestCase
               ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertEquals(2, count($rows));
+        $this->assertCount(2, $rows);
         $table->truncate();
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertEquals(0, count($rows));
+        $this->assertCount(0, $rows);
     }
 
     public function testDumpCreateTable()

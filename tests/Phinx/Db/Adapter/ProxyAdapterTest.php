@@ -8,8 +8,9 @@ use Phinx\Db\Table;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
 use Phinx\Migration\IrreversibleMigrationException;
+use PHPUnit\Framework\TestCase;
 
-class ProxyAdapterTest extends \PHPUnit_Framework_TestCase
+class ProxyAdapterTest extends TestCase
 {
     /**
      * @var \Phinx\Db\Adapter\ProxyAdapter

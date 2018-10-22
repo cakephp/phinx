@@ -3,8 +3,9 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\AdapterFactory;
+use PHPUnit\Framework\TestCase;
 
-class AdapterFactoryTest extends \PHPUnit_Framework_TestCase
+class AdapterFactoryTest extends TestCase
 {
     /**
      * @var \Phinx\Db\Adapter\AdapterFactory
