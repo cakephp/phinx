@@ -16,7 +16,7 @@ return [
     'environments' => [
         'default_migration_table' => 'phinxlog',
         'default_database' => getenv('APP_ENV'),
-        'develop' => [
+        'development' => [
             'adapter' => getenv('DB_ADAPTER_DEV'),
             'host' => getenv('DB_HOST_DEV'),
             'name' => getenv('DB_NAME_DEV'),
