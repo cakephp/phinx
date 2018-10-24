@@ -342,7 +342,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * Get the bootstrap file path
      *
-     * @return string
+     * @return string|false
      */
     public function getBootstrapFile()
     {
