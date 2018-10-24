@@ -340,6 +340,20 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
+     * Get the bootstrap file path
+     *
+     * @return string|false
+     */
+    public function getBootstrapFile()
+    {
+        if (!isset($this->values['paths']['bootstrap'])) {
+            return false;
+        }
+
+        return $this->values['paths']['bootstrap'];
+    }
+
+    /**
      * Replace tokens in the specified array.
      *
      * @param array $arr Array to replace

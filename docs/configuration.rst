@@ -354,3 +354,14 @@ When rolling back or printing the status of migrations, Phinx orders the execute
 
 * ``creation`` (the default): migrations are ordered by their creation time, which is also part of their filename.
 * ``execution``: migrations are ordered by their execution time, also known as start time.
+
+Bootstrap Path
+---------------
+
+You can provide a path to a `bootstrap` php file that will included before any commands phinx commands are run. Note that
+setting External Variables to modify the config will not work because the config has already been parsed by this point.
+
+.. code-block:: yaml
+
+    paths:
+        bootstrap: 'phinx-bootstrap.php'
