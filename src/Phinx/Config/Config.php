@@ -339,6 +339,15 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         return $versionOrder == self::VERSION_ORDER_CREATION_TIME;
     }
 
+    public function getBootstrapFile()
+    {
+        if (!isset($this->values['paths']['bootstrap'])) {
+            return false;
+        }
+
+        return $this->values['paths']['bootstrap'];
+    }
+
     /**
      * Replace tokens in the specified array.
      *
