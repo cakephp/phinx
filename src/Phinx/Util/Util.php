@@ -224,6 +224,8 @@ class Util
 
     /**
      * Takes the path to a php file and attempts to include it if readable
+     *
+     * @return string
      */
     public static function loadPhpFile($filename)
     {
