@@ -382,10 +382,7 @@ store a collection of users.
 
         class MyNewMigration extends AbstractMigration
         {
-            /**
-             * Migrate Up.
-             */
-            public function up()
+            public function change()
             {
                 $users = $this->table('users');
                 $users->addColumn('username', 'string', ['limit' => 20])
@@ -397,21 +394,13 @@ store a collection of users.
                       ->addColumn('created', 'datetime')
                       ->addColumn('updated', 'datetime', ['null' => true])
                       ->addIndex(['username', 'email'], ['unique' => true])
-                      ->save();
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
+                      ->create();
             }
         }
 
 Columns are added using the ``addColumn()`` method. We create a unique index
 for both the username and email columns using the ``addIndex()`` method.
-Finally calling ``save()`` commits the changes to the database.
+Finally calling ``create()`` commits the changes to the database.
 
 .. note::
 
@@ -435,24 +424,13 @@ create a primary key using two columns instead:
 
         class MyNewMigration extends AbstractMigration
         {
-            /**
-             * Migrate Up.
-             */
-            public function up()
+            public function change()
             {
                 $table = $this->table('followers', ['id' => false, 'primary_key' => ['user_id', 'follower_id']]);
                 $table->addColumn('user_id', 'integer')
                       ->addColumn('follower_id', 'integer')
                       ->addColumn('created', 'datetime')
-                      ->save();
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
+                      ->create();
             }
         }
 
@@ -467,23 +445,12 @@ To simply change the name of the primary key, we need to override the default ``
 
         class MyNewMigration extends AbstractMigration
         {
-            /**
-             * Migrate Up.
-             */
             public function up()
             {
                 $table = $this->table('followers', ['id' => 'user_id']);
                 $table->addColumn('follower_id', 'integer')
                       ->addColumn('created', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
-                      ->save();
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
+                      ->create();
             }
         }
 
@@ -510,23 +477,12 @@ To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
 
         class MyNewMigration extends AbstractMigration
         {
-            /**
-             * Migrate Up.
-             */
-            public function up()
+            public function change()
             {
                 $table = $this->table('followers', ['signed' => false]);
                 $table->addColumn('follower_id', 'integer')
                       ->addColumn('created', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
-                      ->save();
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
+                      ->create();
             }
         }
 
