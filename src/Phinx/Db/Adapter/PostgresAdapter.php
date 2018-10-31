@@ -1335,7 +1335,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             'cidr',
             'inet',
             'macaddr',
-            'interval'
+            'interval',
             ]);
     }
 

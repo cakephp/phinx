@@ -50,7 +50,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         'biginteger' => true,
         'float' => true,
         'decimal' => true,
-        'boolean' => true
+        'boolean' => true,
     ];
 
     const TEXT_TINY = 255;
