@@ -45,7 +45,13 @@ use Phinx\Util\Literal;
 class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
 
-    protected $signedColumnTypes = ['integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true, 'boolean' => true];
+    protected $signedColumnTypes = [
+        'integer' => true,
+        'biginteger' => true,
+        'float' => true,
+        'decimal' => true,
+        'boolean' => true
+    ];
 
     const TEXT_TINY = 255;
     const TEXT_SMALL = 255; /* deprecated, alias of TEXT_TINY */
@@ -848,6 +854,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 return ['name' => 'varchar', 'limit' => $limit ?: 255];
             case static::PHINX_TYPE_CHAR:
                 return ['name' => 'char', 'limit' => $limit ?: 255];
+            case static::PHINX_TYPE_XML:
             case static::PHINX_TYPE_TEXT:
                 if ($limit) {
                     $sizes = [

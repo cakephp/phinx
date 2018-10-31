@@ -632,6 +632,7 @@ class PostgresAdapterTest extends TestCase
             ['array_json', 'json[]'],
             ['array_json2d', 'json[][]'],
             ['array_json3d', 'json[][][]'],
+            ['array_xml', 'xml[]'],
             ['array_uuid', 'uuid[]'],
             ['array_interval', 'interval[]'],
         ];

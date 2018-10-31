@@ -1001,6 +1001,7 @@ ORDER BY T.[name], I.[index_id];";
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIME:
             case static::PHINX_TYPE_DATE:
+            case static::PHINX_TYPE_XML:
                 return ['name' => $type];
             case static::PHINX_TYPE_STRING:
                 return ['name' => 'nvarchar', 'limit' => 255];
@@ -1089,6 +1090,8 @@ ORDER BY T.[name], I.[index_id];";
                 return static::PHINX_TYPE_UUID;
             case 'filestream':
                 return static::PHINX_TYPE_FILESTREAM;
+            case 'xml':
+                return static::PHINX_TYPE_XML;
             default:
                 throw new UnsupportedColumnTypeException('Column type "' . $sqlType . '" is not supported by SqlServer.');
         }

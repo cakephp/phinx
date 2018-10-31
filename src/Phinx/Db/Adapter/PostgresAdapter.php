@@ -924,6 +924,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_BOOLEAN:
             case static::PHINX_TYPE_JSON:
             case static::PHINX_TYPE_JSONB:
+            case static::PHINX_TYPE_XML:
+            case static::PHINX_TYPE_OID:
             case static::PHINX_TYPE_UUID:
             case static::PHINX_TYPE_CIDR:
             case static::PHINX_TYPE_INET:
@@ -993,6 +995,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return static::PHINX_TYPE_JSON;
             case 'jsonb':
                 return static::PHINX_TYPE_JSONB;
+            case 'xml':
+                return static::PHINX_TYPE_XML;
+            case 'oid':
+                return static::PHINX_TYPE_OID;
             case 'smallint':
                 return static::PHINX_TYPE_SMALL_INTEGER;
             case 'int':
@@ -1321,7 +1327,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), ['json', 'jsonb', 'cidr', 'inet', 'macaddr', 'interval']);
+        return array_merge(parent::getColumnTypes(), [
+            'json',
+            'jsonb',
+            'xml',
+            'oid',
+            'cidr',
+            'inet',
+            'macaddr',
+            'interval'
+            ]);
     }
 
     /**

@@ -1039,6 +1039,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 return ['name' => 'char', 'limit' => 36];
             case static::PHINX_TYPE_JSON:
             case static::PHINX_TYPE_JSONB:
+            case static::PHINX_TYPE_XML:
                 return ['name' => 'text'];
             // Geospatial database types
             // No specific data types exist in SQLite, instead all geospatial
