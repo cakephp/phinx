@@ -401,7 +401,8 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                    ->setDefault($columnInfo['Default'])
                    ->setType($phinxType['name'])
                    ->setSigned(strpos($columnInfo['Type'], 'unsigned') === false)
-                   ->setLimit($phinxType['limit']);
+                   ->setLimit($phinxType['limit'])
+                   ->setScale($phinxType['scale']);
 
             if ($columnInfo['Extra'] === 'auto_increment') {
                 $column->setIdentity(true);
@@ -952,13 +953,13 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             throw new UnsupportedColumnTypeException('Column type "' . $sqlTypeDef . '" is not supported by MySQL.');
         } else {
             $limit = null;
-            $precision = null;
+            $scale = null;
             $type = $matches[1];
             if (count($matches) > 2) {
                 $limit = $matches[3] ? (int)$matches[3] : null;
             }
             if (count($matches) > 4) {
-                $precision = (int)$matches[5];
+                $scale = (int)$matches[5];
             }
             if ($type === 'tinyint' && $limit === 1) {
                 $type = static::PHINX_TYPE_BOOLEAN;
@@ -1049,7 +1050,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $phinxType = [
                 'name' => $type,
                 'limit' => $limit,
-                'precision' => $precision
+                'scale' => $scale
             ];
 
             if (static::PHINX_TYPE_ENUM == $type || static::PHINX_TYPE_SET == $type) {
