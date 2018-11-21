@@ -341,8 +341,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                    ->setDefault($columnInfo['dflt_value']);
 
             $phinxType = $this->getPhinxType($type);
+
             $column->setType($phinxType['name'])
-                   ->setLimit($phinxType['limit']);
+                   ->setLimit($phinxType['limit'])
+                   ->setScale($phinxType['scale']);
 
             if ($columnInfo['pk'] == 1) {
                 $column->setIdentity(true);
@@ -867,9 +869,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $tableName = $table->getName();
         $instructions->addPostStep(function ($state) use ($column) {
             $matchPattern = "/(`$column`)\s+(\w+(\(\d+\))?)\s+((NOT )?NULL)/";
-            
+
             $sql = $state['createSQL'];
-            
+
             if (preg_match($matchPattern, $state['createSQL'], $matches)) {
                 if (isset($matches[2])) {
                     if ($matches[2] === 'INTEGER') {
@@ -877,7 +879,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                     } else {
                         $replace = '$1 $2 NOT NULL PRIMARY KEY';
                     }
-                    
+
                     $sql = preg_replace($matchPattern, $replace, $state['createSQL'], 1);
                 }
             }
@@ -1068,15 +1070,15 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             throw new UnsupportedColumnTypeException('Column type "' . $sqlTypeDef . '" is not supported by SQLite.');
         } else {
             $limit = null;
-            $precision = null;
+            $scale = null;
             $type = $matches[1];
             if (count($matches) > 2) {
                 $limit = $matches[3] ?: null;
             }
             if (count($matches) > 4) {
-                $precision = $matches[5];
+                $scale = $matches[5];
             }
-            switch ($matches[1]) {
+            switch ($type) {
                 case 'varchar':
                     $type = static::PHINX_TYPE_STRING;
                     if ($limit === 255) {
@@ -1131,7 +1133,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             return [
                 'name' => $type,
                 'limit' => $limit,
-                'precision' => $precision
+                'scale' => $scale
             ];
         }
     }
