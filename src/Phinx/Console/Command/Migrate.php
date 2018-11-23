@@ -122,6 +122,9 @@ EOT
                 $this->getManager()->migrate($environment, $version, $fake);
             }
             $end = microtime(true);
+        } catch (\Exception $e) {
+            $output->writeln('<error>' . $e->getMessage() . '</error>');
+            return 1;
         } catch (\Throwable $e) {
             $output->writeln('<error>' . $e->getMessage() . '</error>');
             return 1;
