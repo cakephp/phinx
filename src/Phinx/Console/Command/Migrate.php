@@ -113,14 +113,22 @@ EOT
             $output->writeln('<comment>warning</comment> performing fake migrations');
         }
 
-        // run the migrations
-        $start = microtime(true);
-        if ($date !== null) {
-            $this->getManager()->migrateToDateTime($environment, new \DateTime($date), $fake);
-        } else {
-            $this->getManager()->migrate($environment, $version, $fake);
+        try {
+            // run the migrations
+            $start = microtime(true);
+            if ($date !== null) {
+                $this->getManager()->migrateToDateTime($environment, new \DateTime($date), $fake);
+            } else {
+                $this->getManager()->migrate($environment, $version, $fake);
+            }
+            $end = microtime(true);
+        } catch (\Exception $e) {
+            $output->writeln('<error>' . $e->__toString() . '</error>');
+            return 1;
+        } catch (\Throwable $e) {
+            $output->writeln('<error>' . $e->__toString() . '</error>');
+            return 1;
         }
-        $end = microtime(true);
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
