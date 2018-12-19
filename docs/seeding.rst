@@ -132,13 +132,13 @@ within your seed class and then use the `insert()` method to insert data:
 
                 $posts = $this->table('posts');
                 $posts->insert($data)
-                      ->save();
+                      ->saveData();
             }
         }
 
 .. note::
 
-    You must call the `save()` method to commit your data to the table. Phinx
+    You must call the `saveData()` method to commit your data to the table. Phinx
     will buffer data until you do so.
 
 Integrating with the Faker library
@@ -178,7 +178,7 @@ Then use it in your seed classes:
                     ];
                 }
 
-                $this->table('users')->insert($data)->save();
+                $this->table('users')->insert($data)->saveData();
             }
         }
 
@@ -211,7 +211,7 @@ SQL `TRUNCATE` command:
 
                 $posts = $this->table('posts');
                 $posts->insert($data)
-                      ->save();
+                      ->saveData();
 
                 // empty the table
                 $posts->truncate();
