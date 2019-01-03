@@ -219,17 +219,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $table->getOptions()
         );
 
-        // Add the default primary key
+        // Add the default primary key name if one isn't set
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
-            $column = new Column();
-            $column->setName('id')
-                   ->setType('integer')
-                   ->setSigned(isset($options['signed']) ? $options['signed'] : true)
-                   ->setIdentity(true);
+            $options['id'] = 'id';
+        }
 
-            array_unshift($columns, $column);
-            $options['primary_key'] = 'id';
-        } elseif (isset($options['id']) && is_string($options['id'])) {
+        if (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
             $column->setName($options['id'])
