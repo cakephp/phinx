@@ -219,7 +219,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $table->getOptions()
         );
 
-        // Add the default primary key name if one isn't set
+        // Add the default primary key
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
             $options['id'] = 'id';
         }
