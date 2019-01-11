@@ -339,7 +339,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $sql = sprintf(
             'ALTER TABLE %s RENAME TO %s',
             $this->quoteTableName($tableName),
-            $this->quoteColumnName($newTableName)
+            $this->quoteTableName($newTableName)
         );
 
         return new AlterInstructions([], [$sql]);
