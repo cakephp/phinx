@@ -1117,8 +1117,15 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
             $def = strtoupper($sqlType['name']);
         }
+        
         if ($column->getPrecision() && $column->getScale()) {
-            $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
+            $def .= sprintf('(%d, %d)', $column->getPrecision(), $column->getScale());
+        } elseif ($column->getScale()) {
+            $message = sprintf(
+                "'scale' option must be used together with 'precision' option on column '%s'",
+                $column->getName()
+                );
+            throw new \InvalidArgumentException($message);
         } elseif (isset($sqlType['limit'])) {
             $def .= '(' . $sqlType['limit'] . ')';
         }
