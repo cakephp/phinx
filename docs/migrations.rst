@@ -659,7 +659,9 @@ To rename a table access an instance of the Table object then call the
             public function up()
             {
                 $table = $this->table('users');
-                $table->rename('legacy_users');
+                $table
+                    ->rename('legacy_users')
+                    ->update();
             }
 
             /**
@@ -668,7 +670,9 @@ To rename a table access an instance of the Table object then call the
             public function down()
             {
                 $table = $this->table('legacy_users');
-                $table->rename('users');
+                $table
+                    ->rename('users')
+                    ->update();
             }
         }
 
