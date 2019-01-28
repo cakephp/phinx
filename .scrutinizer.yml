@@ -4,6 +4,8 @@ checks:
 filter:
   paths: ['src/*']
 
-before_commands:
-  - "cp composer.lock.example composer.lock"
-  - "composer install --dev"
+build:
+  tests:
+    before:
+      - "cp composer.lock.example composer.lock"
+      - "composer install --dev"
