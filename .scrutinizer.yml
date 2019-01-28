@@ -8,7 +8,7 @@ build:
   environment:
     php:
       version: 7.0
-  checks:
+  tests:
     before:
       - "cp composer.lock.example composer.lock"
       - "composer install --dev"
