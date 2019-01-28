@@ -1,3 +1,5 @@
+commands:
+  - cp composer.lock composer.lock2
 checks:
   php: true
 
