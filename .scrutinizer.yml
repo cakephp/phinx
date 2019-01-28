@@ -1,5 +1,5 @@
 before_commands:
-- 'cp composer.lock composer.lock2'
+- 'cp composer.lock.example composer.lock'
 checks:
   php: true
 
