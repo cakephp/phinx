@@ -26,6 +26,7 @@
     }],
     "require": {
         "php": ">=5.6",
+        "ext-json": "*",
         "cakephp/collection": "^3.6",
         "cakephp/database": "^3.6",
         "symfony/console": "^2.8|^3.0|^4.0",
