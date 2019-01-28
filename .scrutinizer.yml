@@ -5,7 +5,7 @@ filter:
   paths: ['src/*']
 
 build:
-  tests:
+  checks:
     before:
       - "cp composer.lock.example composer.lock"
       - "composer install --dev"
