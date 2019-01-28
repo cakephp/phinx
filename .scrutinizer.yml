@@ -1,8 +1,8 @@
-before_commands:
-  - 'cp composer.lock.example composer.lock'
-
 checks:
   php: true
 
 filter:
   paths: ['src/*']
+
+before_commands:
+  - "cp composer.lock.example composer.lock"
