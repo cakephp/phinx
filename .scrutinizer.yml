@@ -6,3 +6,4 @@ filter:
 
 before_commands:
   - "cp composer.lock.example composer.lock"
+  - "composer install --dev"
