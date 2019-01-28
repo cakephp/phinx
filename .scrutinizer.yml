@@ -5,6 +5,9 @@ filter:
   paths: ['src/*']
 
 build:
+  environment:
+    php:
+      version: 7.0
   checks:
     before:
       - "cp composer.lock.example composer.lock"
