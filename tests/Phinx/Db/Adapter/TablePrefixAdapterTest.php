@@ -2,12 +2,25 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\Action\AddColumn;
+use Phinx\Db\Action\AddForeignKey;
+use Phinx\Db\Action\AddIndex;
+use Phinx\Db\Action\ChangeColumn;
+use Phinx\Db\Action\ChangeComment;
+use Phinx\Db\Action\ChangePrimaryKey;
+use Phinx\Db\Action\DropForeignKey;
+use Phinx\Db\Action\DropIndex;
+use Phinx\Db\Action\DropTable;
+use Phinx\Db\Action\RemoveColumn;
+use Phinx\Db\Action\RenameColumn;
+use Phinx\Db\Action\RenameTable;
 use Phinx\Db\Adapter\TablePrefixAdapter;
-use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
+use Phinx\Db\Table\Table;
+use PHPUnit\Framework\TestCase;
 
-class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
+class TablePrefixAdapterTest extends TestCase
 {
     /**
      * @var \Phinx\Db\Adapter\TablePrefixAdapter
@@ -80,6 +93,40 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
             ));
 
         $this->adapter->createTable($table);
+    }
+
+    public function testChangePrimaryKey()
+    {
+        $table = new Table('table');
+        $newColumns = 'column1';
+
+        $expectedTable = new Table('pre_table_suf');
+        $this->mock
+            ->expects($this->once())
+            ->method('changePrimaryKey')
+            ->with(
+                $this->equalTo($expectedTable),
+                $this->equalTo($newColumns)
+            );
+
+        $this->adapter->changePrimaryKey($table, $newColumns);
+    }
+
+    public function testChangeComment()
+    {
+        $table = new Table('table');
+        $newComment = 'comment';
+
+        $expectedTable = new Table('pre_table_suf');
+        $this->mock
+            ->expects($this->once())
+            ->method('changeComment')
+            ->with(
+                $this->equalTo($expectedTable),
+                $this->equalTo($newComment)
+            );
+
+        $this->adapter->changeComment($table, $newComment);
     }
 
     public function testRenameTable()
@@ -232,6 +279,23 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->dropIndexByName('table', 'index');
     }
 
+    public function testHasPrimaryKey()
+    {
+        $columns = [];
+        $constraint = null;
+
+        $this->mock
+            ->expects($this->once())
+            ->method('hasPrimaryKey')
+            ->with(
+                $this->equalTo('pre_table_suf'),
+                $this->equalTo($columns),
+                $this->equalTo($constraint)
+            );
+
+        $this->adapter->hasPrimaryKey('table', $columns, $constraint);
+    }
+
     public function testHasForeignKey()
     {
         $columns = [];
@@ -284,58 +348,6 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->dropForeignKey('table', $columns, $constraint);
     }
 
-    public function testAddTableWithForeignKey()
-    {
-        $this->mock
-            ->expects($this->any())
-            ->method('isValidColumnType')
-            ->with($this->callback(
-                function ($column) {
-                    return in_array($column->getType(), ['string', 'integer']);
-                }
-            ))
-            ->will($this->returnValue(true));
-
-        $table = new Table('table', [], $this->adapter);
-        $table
-            ->addColumn('bar', 'string')
-            ->addColumn('relation', 'integer')
-            ->addForeignKey('relation', 'target_table', ['id']);
-
-        $this->mock
-            ->expects($this->once())
-            ->method('createTable')
-            ->with($this->callback(
-                function ($table) {
-                    if ($table->getName() !== 'pre_table_suf') {
-                        throw new \Exception(sprintf(
-                            'Table::getName was not prefixed/suffixed properly: "%s"',
-                            $table->getName()
-                        ));
-                    }
-                    $fks = $table->getForeignKeys();
-                    if (count($fks) !== 1) {
-                        throw new \Exception(sprintf(
-                            'Table::getForeignKeys count was incorrect: %d',
-                            count($fks)
-                        ));
-                    }
-                    foreach ($fks as $fk) {
-                        if ($fk->getReferencedTable()->getName() !== 'pre_target_table_suf') {
-                            throw new \Exception(sprintf(
-                                'ForeignKey::getReferencedTable was not prefixed/suffixed properly: "%s"',
-                                $fk->getReferencedTable->getName()
-                            ));
-                        }
-                    }
-
-                    return true;
-                }
-            ));
-
-        $table->create();
-    }
-
     public function testInsertData()
     {
         $row = ['column1' => 'value3'];
@@ -350,8 +362,52 @@ class TablePrefixAdapterTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo($row)
             ));
 
-        $table = new Table('table', [], $this->adapter);
+        $table = new \Phinx\Db\Table('table', [], $this->adapter);
         $table->insert($row)
               ->save();
+    }
+
+    public function actionsProvider()
+    {
+        $table = new Table('my_test');
+
+        return [
+            [AddColumn::build($table, 'acolumn')],
+            [AddIndex::build($table, ['acolumn'])],
+            [AddForeignKey::build($table, ['acolumn'], 'another_table'), true],
+            [ChangeColumn::build($table, 'acolumn')],
+            [DropForeignKey::build($table, ['acolumn'])],
+            [DropIndex::build($table, ['acolumn'])],
+            [new DropTable($table)],
+            [RemoveColumn::build($table, 'acolumn')],
+            [RenameColumn::build($table, 'acolumn', 'another')],
+            [new RenameTable($table, 'new_name')],
+            [new ChangePrimaryKey($table, 'column1')],
+            [new ChangeComment($table, 'comment1')],
+        ];
+    }
+
+    /**
+     * @dataProvider actionsProvider
+     */
+    public function testExecuteActions($action, $checkReferecedTable = false)
+    {
+        $this->mock->expects($this->once())
+            ->method('executeActions')
+            ->will($this->returnCallback(function ($table, $newActions) use ($action, $checkReferecedTable) {
+                $this->assertCount(1, $newActions);
+                $this->assertSame(get_class($action), get_class($newActions[0]));
+                $this->assertEquals('pre_my_test_suf', $newActions[0]->getTable()->getName());
+
+                if ($checkReferecedTable) {
+                    $this->assertEquals(
+                        'pre_another_table_suf',
+                        $newActions[0]->getForeignKey()->getReferencedTable()->getName()
+                    );
+                }
+            }));
+
+        $table = new Table('my_test');
+        $this->adapter->executeActions($table, [$action]);
     }
 }

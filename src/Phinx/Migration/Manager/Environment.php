@@ -77,7 +77,6 @@ class Environment
      *
      * @param string $name Environment Name
      * @param array $options Options
-     * @return \Phinx\Migration\Manager\Environment
      */
     public function __construct($name, $options)
     {
@@ -90,9 +89,10 @@ class Environment
      *
      * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @param string $direction Direction
+     * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
      * @return void
      */
-    public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP)
+    public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP, $fake = false)
     {
         $direction = ($direction === MigrationInterface::UP) ? MigrationInterface::UP : MigrationInterface::DOWN;
         $migration->setMigratingUp($direction === MigrationInterface::UP);
@@ -100,36 +100,38 @@ class Environment
         $startTime = time();
         $migration->setAdapter($this->getAdapter());
 
-        // begin the transaction if the adapter supports it
-        if ($this->getAdapter()->hasTransactions()) {
-            $this->getAdapter()->beginTransaction();
-        }
-
-        // Run the migration
-        if (method_exists($migration, MigrationInterface::CHANGE)) {
-            if ($direction === MigrationInterface::DOWN) {
-                // Create an instance of the ProxyAdapter so we can record all
-                // of the migration commands for reverse playback
-
-                /** @var \Phinx\Db\Adapter\ProxyAdapter $proxyAdapter */
-                $proxyAdapter = AdapterFactory::instance()
-                    ->getWrapper('proxy', $this->getAdapter());
-                $migration->setAdapter($proxyAdapter);
-                /** @noinspection PhpUndefinedMethodInspection */
-                $migration->change();
-                $proxyAdapter->executeInvertedCommands();
-                $migration->setAdapter($this->getAdapter());
-            } else {
-                /** @noinspection PhpUndefinedMethodInspection */
-                $migration->change();
+        if (!$fake) {
+            // begin the transaction if the adapter supports it
+            if ($this->getAdapter()->hasTransactions()) {
+                $this->getAdapter()->beginTransaction();
             }
-        } else {
-            $migration->{$direction}();
-        }
 
-        // commit the transaction if the adapter supports it
-        if ($this->getAdapter()->hasTransactions()) {
-            $this->getAdapter()->commitTransaction();
+            // Run the migration
+            if (method_exists($migration, MigrationInterface::CHANGE)) {
+                if ($direction === MigrationInterface::DOWN) {
+                    // Create an instance of the ProxyAdapter so we can record all
+                    // of the migration commands for reverse playback
+
+                    /** @var \Phinx\Db\Adapter\ProxyAdapter $proxyAdapter */
+                    $proxyAdapter = AdapterFactory::instance()
+                        ->getWrapper('proxy', $this->getAdapter());
+                    $migration->setAdapter($proxyAdapter);
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $migration->change();
+                    $proxyAdapter->executeInvertedCommands();
+                    $migration->setAdapter($this->getAdapter());
+                } else {
+                    /** @noinspection PhpUndefinedMethodInspection */
+                    $migration->change();
+                }
+            } else {
+                $migration->{$direction}();
+            }
+
+            // commit the transaction if the adapter supports it
+            if ($this->getAdapter()->hasTransactions()) {
+                $this->getAdapter()->commitTransaction();
+            }
         }
 
         // Record it in the database
@@ -205,7 +207,33 @@ class Environment
      */
     public function getOptions()
     {
-        return $this->options;
+        return $this->parseAgnosticDsn($this->options);
+    }
+
+    /**
+     * Parse a database-agnostic DSN into individual options.
+     *
+     * @param array $options Options
+     * @return array
+     */
+    protected function parseAgnosticDsn(array $options)
+    {
+        if (isset($options['dsn']) && is_string($options['dsn'])) {
+            $regex = '#^(?P<adapter>[^\\:]+)\\://(?:(?P<user>[^\\:@]+)(?:\\:(?P<pass>[^@]*))?@)?'
+                   . '(?P<host>[^\\:@/]+)(?:\\:(?P<port>[1-9]\\d*))?/(?P<name>[^\?]+)(?:\?(?P<query>.*))?$#';
+            if (preg_match($regex, trim($options['dsn']), $parsedOptions)) {
+                $additionalOpts = [];
+                if (isset($parsedOptions['query'])) {
+                    parse_str($parsedOptions['query'], $additionalOpts);
+                }
+                $validOptions = ['adapter', 'user', 'pass', 'host', 'port', 'name'];
+                $parsedOptions = array_filter(array_intersect_key($parsedOptions, array_flip($validOptions)));
+                $options = array_merge($additionalOpts, $parsedOptions, $options);
+                unset($options['dsn']);
+            }
+        }
+
+        return $options;
     }
 
     /**
@@ -265,7 +293,7 @@ class Environment
     }
 
     /**
-     * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's
+     * Get all migration log entries, indexed by version creation time and sorted in ascending order by the configuration's
      * version_order option
      *
      * @return array
@@ -297,7 +325,7 @@ class Environment
     {
         // We don't cache this code as the current version is pretty volatile.
         // TODO - that means they're no point in a setter then?
-        // maybe we should cache and call a reset() method everytime a migration is run
+        // maybe we should cache and call a reset() method every time a migration is run
         $versions = $this->getVersions();
         $version = 0;
 

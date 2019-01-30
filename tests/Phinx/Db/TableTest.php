@@ -2,13 +2,16 @@
 
 namespace Test\Phinx\Db;
 
+use Phinx\Db\Action\DropIndex;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Adapter\PostgresAdapter;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Adapter\SqlServerAdapter;
+use Phinx\Db\Table\Index;
+use PHPUnit\Framework\TestCase;
 
-class TableTest extends \PHPUnit_Framework_TestCase
+class TableTest extends TestCase
 {
     public function provideTimestampColumnNames()
     {
@@ -25,11 +28,11 @@ class TableTest extends \PHPUnit_Framework_TestCase
             $result = array_merge(
                 $result,
                 [
-                    [$adapter, null, null, 'created_at', 'updated_at'],
-                    [$adapter, 'created_at', 'updated_at', 'created_at', 'updated_at'],
-                    [$adapter, 'created', 'updated', 'created', 'updated'],
-                    [$adapter, null, 'amendment_date', 'created_at', 'amendment_date'],
-                    [$adapter, 'insertion_date', null, 'insertion_date', 'updated_at'],
+                    [$adapter, null, null, 'created_at', 'updated_at', false],
+                    [$adapter, 'created_at', 'updated_at', 'created_at', 'updated_at', true],
+                    [$adapter, 'created', 'updated', 'created', 'updated', false],
+                    [$adapter, null, 'amendment_date', 'created_at', 'amendment_date', true],
+                    [$adapter, 'insertion_date', null, 'insertion_date', 'updated_at', true],
                 ]
             );
         }
@@ -63,9 +66,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
                ->setType('integer');
         $table = new \Phinx\Db\Table('ntable', [], $adapter);
         $table->addColumn($column);
-        $columns = $table->getPendingColumns();
-        $this->assertEquals('email', $columns[0]->getName());
-        $this->assertEquals('integer', $columns[0]->getType());
+        $actions = $this->getPendingActions($table);
+        $this->assertInstanceOf('Phinx\Db\Action\AddColumn', $actions[0]);
+        $this->assertSame($column, $actions[0]->getColumn());
     }
 
     public function testAddColumnWithNoAdapterSpecified()
@@ -80,7 +83,6 @@ class TableTest extends \PHPUnit_Framework_TestCase
                 $e,
                 'Expected exception of type RuntimeException, got ' . get_class($e)
             );
-            $this->assertRegExp('/An adapter must be specified to add a column./', $e->getMessage());
         }
     }
 
@@ -92,29 +94,6 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('test comment', $options['comment']);
     }
 
-    public function testAddForeignKey()
-    {
-        $adapter = new MysqlAdapter([]);
-        $table = new \Phinx\Db\Table('ntable', [], $adapter);
-        $table->addForeignKey('test', 'testTable', 'testRef');
-        $fks = $table->getForeignKeys();
-        $this->assertCount(1, $fks);
-        $this->assertContains('test', $fks[0]->getColumns());
-        $this->assertContains('testRef', $fks[0]->getReferencedColumns());
-        $this->assertEquals('testTable', $fks[0]->getReferencedTable()->getName());
-    }
-
-    public function testAddIndex()
-    {
-        $adapter = new MysqlAdapter([]);
-        $table = new \Phinx\Db\Table('ntable', [], $adapter);
-        $table->addIndex(['email'], ['unique' => true, 'name' => 'myemailindex']);
-        $indexes = $table->getIndexes();
-        $this->assertEquals(\Phinx\Db\Table\Index::UNIQUE, $indexes[0]->getType());
-        $this->assertEquals('myemailindex', $indexes[0]->getName());
-        $this->assertContains('email', $indexes[0]->getColumns());
-    }
-
     public function testAddIndexWithIndexObject()
     {
         $adapter = new MysqlAdapter([]);
@@ -123,19 +102,9 @@ class TableTest extends \PHPUnit_Framework_TestCase
               ->setColumns(['email']);
         $table = new \Phinx\Db\Table('ntable', [], $adapter);
         $table->addIndex($index);
-        $indexes = $table->getIndexes();
-        $this->assertEquals(\Phinx\Db\Table\Index::INDEX, $indexes[0]->getType());
-        $this->assertContains('email', $indexes[0]->getColumns());
-    }
-
-    public function testAddIndexWithoutType()
-    {
-        $adapter = new MysqlAdapter([]);
-        $table = new \Phinx\Db\Table('ntable', [], $adapter);
-        $table->addIndex(['email']);
-        $indexes = $table->getIndexes();
-        $this->assertEquals(\Phinx\Db\Table\Index::INDEX, $indexes[0]->getType());
-        $this->assertContains('email', $indexes[0]->getColumns());
+        $actions = $this->getPendingActions($table);
+        $this->assertInstanceOf('Phinx\Db\Action\AddIndex', $actions[0]);
+        $this->assertSame($index, $actions[0]->getIndex());
     }
 
     /**
@@ -146,74 +115,68 @@ class TableTest extends \PHPUnit_Framework_TestCase
      * @param string|null      $updatedAtColumnName
      * @param string           $expectedCreatedAtColumnName
      * @param string           $expectedUpdatedAtColumnName
+     * @param boolean          $withTimezone
      */
-    public function testAddTimestamps(AdapterInterface $adapter, $createdAtColumnName, $updatedAtColumnName, $expectedCreatedAtColumnName, $expectedUpdatedAtColumnName)
+    public function testAddTimestamps(AdapterInterface $adapter, $createdAtColumnName, $updatedAtColumnName, $expectedCreatedAtColumnName, $expectedUpdatedAtColumnName, $withTimezone)
     {
         $table = new \Phinx\Db\Table('ntable', [], $adapter);
-        $table->addTimestamps($createdAtColumnName, $updatedAtColumnName);
+        $table->addTimestamps($createdAtColumnName, $updatedAtColumnName, $withTimezone);
+        $actions = $this->getPendingActions($table);
 
-        $columns = $table->getPendingColumns();
+        $columns = [];
+
+        foreach ($actions as $action) {
+            $columns[] = $action->getColumn();
+        }
 
         $this->assertEquals($expectedCreatedAtColumnName, $columns[0]->getName());
         $this->assertEquals('timestamp', $columns[0]->getType());
         $this->assertEquals('CURRENT_TIMESTAMP', $columns[0]->getDefault());
+        $this->assertEquals($withTimezone, $columns[0]->getTimezone());
         $this->assertEquals('', $columns[0]->getUpdate());
 
         $this->assertEquals($expectedUpdatedAtColumnName, $columns[1]->getName());
         $this->assertEquals('timestamp', $columns[1]->getType());
+        $this->assertEquals($withTimezone, $columns[1]->getTimezone());
         $this->assertEquals('', $columns[1]->getUpdate());
         $this->assertTrue($columns[1]->isNull());
         $this->assertNull($columns[1]->getDefault());
     }
 
-    public function testChangeColumn()
+    /**
+     * @dataProvider provideTimestampColumnNames
+     *
+     * @param AdapterInterface $adapter
+     * @param string|null      $createdAtColumnName
+     * @param string|null      $updatedAtColumnName
+     * @param string           $expectedCreatedAtColumnName
+     * @param string           $expectedUpdatedAtColumnName
+     * @param boolean          $withTimezone
+     */
+    public function testAddTimestampsWithTimezone(AdapterInterface $adapter, $createdAtColumnName, $updatedAtColumnName, $expectedCreatedAtColumnName, $expectedUpdatedAtColumnName, $withTimezone)
     {
-        // stub adapter
-        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
-            ->setConstructorArgs([[]])
-            ->getMock();
-        $adapterStub->expects($this->once())
-                    ->method('changeColumn');
-        $newColumn = new \Phinx\Db\Table\Column();
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
-        $table->changeColumn('test1', $newColumn);
-    }
+        $table = new \Phinx\Db\Table('ntable', [], $adapter);
+        $table->addTimestampsWithTimezone($createdAtColumnName, $updatedAtColumnName);
+        $actions = $this->getPendingActions($table);
 
-    public function testChangeColumnWithoutAColumnObject()
-    {
-        // stub adapter
-        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
-            ->setConstructorArgs([[]])
-            ->getMock();
-        $adapterStub->expects($this->once())
-                    ->method('changeColumn');
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
-        $table->changeColumn('test1', 'text', ['null' => false]);
-    }
+        $columns = [];
 
-    public function testDropForeignKey()
-    {
-        // stub adapter
-        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
-            ->setConstructorArgs([[]])
-            ->getMock();
-        $adapterStub->expects($this->once())
-                    ->method('dropForeignKey');
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
-        $table->dropForeignKey('test');
-    }
+        foreach ($actions as $action) {
+            $columns[] = $action->getColumn();
+        }
 
-    public function testGetColumns()
-    {
-        // stub adapter
-        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
-            ->setConstructorArgs([[]])
-            ->getMock();
-        $adapterStub->expects($this->once())
-                    ->method('getColumns');
+        $this->assertEquals($expectedCreatedAtColumnName, $columns[0]->getName());
+        $this->assertEquals('timestamp', $columns[0]->getType());
+        $this->assertEquals('CURRENT_TIMESTAMP', $columns[0]->getDefault());
+        $this->assertEquals(true, $columns[0]->getTimezone());
+        $this->assertEquals('', $columns[0]->getUpdate());
 
-        $table = new \Phinx\Db\Table('table1', [], $adapterStub);
-        $table->getColumns();
+        $this->assertEquals($expectedUpdatedAtColumnName, $columns[1]->getName());
+        $this->assertEquals('timestamp', $columns[1]->getType());
+        $this->assertEquals(true, $columns[1]->getTimezone());
+        $this->assertEquals('', $columns[1]->getUpdate());
+        $this->assertTrue($columns[1]->isNull());
+        $this->assertNull($columns[1]->getDefault());
     }
 
     public function testInsert()
@@ -259,59 +222,44 @@ class TableTest extends \PHPUnit_Framework_TestCase
 
         $adapterStub->expects($this->exactly(1))
                     ->method('bulkinsert')
-                    ->with($table, [$data[0], $data[1], $moreData[0], $moreData[1]]);
+                    ->with($table->getTable(), [$data[0], $data[1], $moreData[0], $moreData[1]]);
 
         $table->insert($data)
               ->insert($moreData)
               ->save();
     }
 
-    public function testRemoveColumn()
+    public function testSaveAfterSaveData()
     {
-        // stub adapter
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
             ->setConstructorArgs([[]])
             ->getMock();
-        $adapterStub->expects($this->once())
-                    ->method('dropColumn');
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
-        $table->removeColumn('test');
-    }
+        $data = [
+            [
+                'column1' => 'value1',
+            ],
+            [
+                'column1' => 'value2',
+            ],
+        ];
 
-    public function testRemoveIndex()
-    {
-        // stub adapter
-        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
-            ->setConstructorArgs([[]])
-            ->getMock();
-        $adapterStub->expects($this->once())
-                    ->method('dropIndex');
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
-        $table->removeIndex(['email']);
-    }
+        $adapterStub->expects($this->any())
+            ->method('isValidColumnType')
+            ->willReturn(true);
+        $adapterStub->expects($this->exactly(1))
+            ->method('bulkinsert')
+            ->with($table->getTable(), [$data[0], $data[1]]);
 
-    public function testRemoveIndexByName()
-    {
-        // stub adapter
-        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
-            ->setConstructorArgs([[]])
-            ->getMock();
-        $adapterStub->expects($this->once())
-                    ->method('dropIndexByName');
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
-        $table->removeIndexByName('emailindex');
-    }
-
-    public function testRenameColumn()
-    {
-        // stub adapter
-        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
-            ->setConstructorArgs([[]])
-            ->getMock();
-        $adapterStub->expects($this->once())
-                    ->method('renameColumn');
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
-        $table->renameColumn('test1', 'test2');
+        $table
+            ->addColumn('column1', 'string', ['null' => true])
+            ->save();
+        $table
+            ->insert($data)
+            ->saveData();
+        $table
+            ->changeColumn('column1', 'string', ['null' => false])
+            ->save();
     }
 
     public function testResetAfterAddingData()
@@ -324,5 +272,96 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $data = [["value1"]];
         $table->insert($columns, $data)->save();
         $this->assertEquals([], $table->getData());
+    }
+
+    public function testPendingAfterAddingData()
+    {
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $columns = ["column1"];
+        $data = [["value1"]];
+        $table->insert($columns, $data);
+        $this->assertEquals(true, $table->hasPendingActions());
+    }
+
+    public function testPendingAfterAddingColumn()
+    {
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $adapterStub->expects($this->any())
+            ->method('isValidColumnType')
+            ->willReturn(true);
+        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $table->addColumn("column1", "integer", ['null' => true]);
+        $this->assertEquals(true, $table->hasPendingActions());
+    }
+
+    public function testGetColumn()
+    {
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+
+        $column1 = (new \Phinx\Db\Table\Column())->setName('column1');
+
+        $adapterStub->expects($this->exactly(2))
+            ->method('getColumns')
+            ->willReturn([
+                $column1
+            ]);
+
+        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+
+        $this->assertEquals($column1, $table->getColumn('column1'));
+        $this->assertNull($table->getColumn('column2'));
+    }
+
+    /**
+     * @dataProvider removeIndexDataprovider
+     *
+     * @param string $indexIdentifier
+     * @param Index $index
+     */
+    public function testRemoveIndex($indexIdentifier, Index $index) {
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+
+        $table = new \Phinx\Db\Table('table', [], $adapterStub);
+        $table->removeIndex($indexIdentifier);
+
+        $indexes = array_map(function(DropIndex $action) {
+            return $action->getIndex();
+        }, $this->getPendingActions($table));
+
+        $this->assertEquals([$index], $indexes);
+    }
+
+    public function removeIndexDataprovider() {
+        return [
+            [
+                'indexA',
+                (new Index())->setColumns(['indexA'])
+            ],
+            [
+                ['indexB', 'indexC'],
+                (new Index())->setColumns(['indexB', 'indexC'])
+            ],
+            [
+                ['indexD'],
+                (new Index())->setColumns(['indexD'])
+            ]
+        ];
+    }
+
+    protected function getPendingActions($table)
+    {
+        $prop = new \ReflectionProperty(get_class($table), 'actions');
+        $prop->setAccessible(true);
+
+        return $prop->getValue($table)->getActions();
     }
 }

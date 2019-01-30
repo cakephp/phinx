@@ -3,10 +3,12 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\SqlServerAdapter;
+use Phinx\Util\Literal;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
-class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
+class SqlServerAdapterTest extends TestCase
 {
     /**
      * @var \Phinx\Db\Adapter\SqlServerAdapter
@@ -38,12 +40,15 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
+        if (!empty($this->adapter)) {
+            $this->adapter->disconnect();
+        }
         unset($this->adapter);
     }
 
     public function testConnection()
     {
-        $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
     }
 
     public function testConnectionWithoutPort()
@@ -51,7 +56,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $options = $this->adapter->getOptions();
         unset($options['port']);
         $this->adapter->setOptions($options);
-        $this->assertTrue($this->adapter->getConnection() instanceof \PDO);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
     }
 
     public function testConnectionWithInvalidCredentials()
@@ -64,6 +69,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
             'pass' => 'invalidpass'
         ];
 
+        $adapter = null;
         try {
             $adapter = new SqlServerAdapter($options, new ArrayInput([]), new NullOutput());
             $adapter->connect();
@@ -75,6 +81,10 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
                 'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
             $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
+        } finally {
+            if (!empty($adapter)) {
+                $adapter->disconnect();
+            }
         }
     }
 
@@ -193,6 +203,64 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasIndexByName('table1', 'myemailindex'));
     }
 
+    public function testAddPrimaryKey()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey('column1')
+            ->save();
+
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column1']));
+    }
+
+    public function testChangePrimaryKey()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey(['column2', 'column3'])
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
+        $this->assertTrue($this->adapter->hasPrimaryKey('table1', ['column2', 'column3']));
+    }
+
+    public function testDropPrimaryKey()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->save();
+
+        $table
+            ->changePrimaryKey(null)
+            ->save();
+
+        $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
+    }
+
+    /**
+     * @expectedException \BadMethodCallException
+     */
+    public function testChangeCommentFails()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table
+            ->changeComment('comment1')
+            ->save();
+    }
+
     public function testRenameTable()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -307,7 +375,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testChangeColumn()
+    public function testChangeColumnType()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string')
@@ -315,13 +383,26 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
         $newColumn1 = new \Phinx\Db\Table\Column();
         $newColumn1->setType('string');
-        $table->changeColumn('column1', $newColumn1);
+        $table->changeColumn('column1', $newColumn1)->save();
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
+        $columns = $this->adapter->getColumns('t');
+        foreach ($columns as $column) {
+            if ($column->getName() == 'column1') {
+                $this->assertEquals('string', $column->getType());
+            }
+        }
+    }
+
+    public function testChangeColumnNameAndNull()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->save();
         $newColumn2 = new \Phinx\Db\Table\Column();
         $newColumn2->setName('column2')
-                   ->setType('string')
-                   ->setNull(true);
-        $table->changeColumn('column1', $newColumn2);
+            ->setType('string')
+            ->setNull(true);
+        $table->changeColumn('column1', $newColumn2)->save();
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
         $columns = $this->adapter->getColumns('t');
@@ -346,7 +427,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $newColumn1
             ->setType('string')
             ->setDefault('another test');
-        $table->changeColumn('column1', $newColumn1);
+        $table->changeColumn('column1', $newColumn1)->save();
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
 
         $columns = $this->adapter->getColumns('t');
@@ -362,7 +443,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $newColumn1
             ->setType('string')
             ->setDefault(null);
-        $table->changeColumn('column1', $newColumn1);
+        $table->changeColumn('column1', $newColumn1)->save();
         $columns = $this->adapter->getColumns('t');
         $this->assertNull($columns['column1']->getDefault());
     }
@@ -376,7 +457,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $newColumn1
             ->setType('string')
             ->setDefault(0);
-        $table->changeColumn('column1', $newColumn1);
+        $table->changeColumn('column1', $newColumn1)->save();
         $columns = $this->adapter->getColumns('t');
         $this->assertSame(0, $columns['column1']->getDefault());
     }
@@ -391,34 +472,38 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
     }
 
-    public function testGetColumns()
+    public function columnsProvider()
+    {
+        return [
+            ['column1', 'string', ['null' => true, 'default' => null]],
+            ['column2', 'integer', ['default' => 0]],
+            ['column3', 'biginteger', ['default' => 5]],
+            ['column4', 'text', ['default' => 'text']],
+            ['column5', 'float', []],
+            ['column6', 'decimal', []],
+            ['column7', 'time', []],
+            ['column8', 'date', []],
+            ['column9', 'boolean', []],
+            ['column10', 'datetime', []],
+            ['column11', 'binary', []],
+            ['column12', 'string', ['limit' => 10]],
+        ];
+    }
+
+    /**
+     * @dataProvider columnsProvider
+     */
+    public function testGetColumns($colName, $type, $options)
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
-        $table->addColumn('column1', 'string', ['null' => true, 'default' => null])
-              ->addColumn('column2', 'integer', ['default' => 0])
-              ->addColumn('column3', 'biginteger', ['default' => 5])
-              ->addColumn('column4', 'text', ['default' => 'text'])
-              ->addColumn('column5', 'float')
-              ->addColumn('column6', 'decimal')
-              ->addColumn('column7', 'time')
-              ->addColumn('column8', 'timestamp')
-              ->addColumn('column9', 'date')
-              ->addColumn('column10', 'boolean')
-              ->addColumn('column11', 'datetime')
-              ->addColumn('column12', 'binary')
-              ->addColumn('column13', 'string', ['limit' => 10]);
-        $pendingColumns = $table->getPendingColumns();
-        $table->save();
-        $columns = $this->adapter->getColumns('t');
-        $this->assertCount(count($pendingColumns) + 1, $columns);
-        for ($i = 0; $i++; $i < count($pendingColumns)) {
-            $this->assertEquals($pendingColumns[$i], $columns[$i + 1]);
-        }
+        $table
+            ->addColumn($colName, $type, $options)
+            ->save();
 
-        $this->assertNull($columns['column1']->getDefault());
-        $this->assertSame(0, $columns['column2']->getDefault());
-        $this->assertSame(5, $columns['column3']->getDefault());
-        $this->assertSame('text', $columns['column4']->getDefault());
+        $columns = $this->adapter->getColumns('t');
+        $this->assertCount(2, $columns);
+        $this->assertEquals($colName, $columns[$colName]->getName());
+        $this->assertEquals($type, $columns[$colName]->getType());
     }
 
     public function testAddIndex()
@@ -463,7 +548,6 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->dropIndex($table->getName(), 'email');
         $this->assertFalse($table->hasIndex('email'));
 
-        return;
         // multiple column index
         $table2 = new \Phinx\Db\Table('table2', [], $this->adapter);
         $table2->addColumn('fname', 'string')
@@ -528,12 +612,12 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('ref_table_id', 'integer')->save();
 
         $fk = new \Phinx\Db\Table\ForeignKey();
-        $fk->setReferencedTable($refTable)
+        $fk->setReferencedTable($refTable->getTable())
            ->setColumns(['ref_table_id'])
            ->setReferencedColumns(['id'])
            ->setConstraint('fk1');
 
-        $this->adapter->addForeignKey($table, $fk);
+        $this->adapter->addForeignKey($table->getTable(), $fk);
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id'], 'fk1'));
     }
 
@@ -572,7 +656,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage The type: "idontexist" is not supported
+     * @expectedExceptionMessage Column type "idontexist" is not supported by SqlServer.
      */
     public function testInvalidSqlType()
     {
@@ -584,6 +668,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('integer', $this->adapter->getPhinxType('int'));
         $this->assertEquals('integer', $this->adapter->getPhinxType('integer'));
 
+        $this->assertEquals('smallinteger', $this->adapter->getPhinxType('smallint'));
         $this->assertEquals('biginteger', $this->adapter->getPhinxType('bigint'));
 
         $this->assertEquals('decimal', $this->adapter->getPhinxType('decimal'));
@@ -649,7 +734,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
 
         $resultComment = $this->adapter->getColumnComment('table1', 'field1');
 
-        $this->assertEmpty($resultComment, 'Dont remove column comment correctly');
+        $this->assertEmpty($resultComment, "Didn't remove column comment correctly: " . json_encode($resultComment));
     }
 
     /**
@@ -676,7 +761,8 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
               ->addColumn('column2', 'integer')
-              ->insert([
+              ->save();
+        $table->insert([
                   [
                       'column1' => 'value1',
                       'column2' => 1,
@@ -692,8 +778,7 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
                       'column2' => 3,
                   ]
               );
-        $this->adapter->createTable($table);
-        $this->adapter->bulkinsert($table, $table->getData());
+        $this->adapter->bulkinsert($table->getTable(), $table->getData());
         $table->reset();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
@@ -757,9 +842,65 @@ class SqlServerAdapterTest extends \PHPUnit_Framework_TestCase
               ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertEquals(2, count($rows));
+        $this->assertCount(2, $rows);
         $table->truncate();
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertEquals(0, count($rows));
+        $this->assertCount(0, $rows);
+    }
+
+    /**
+     * Tests interaction with the query builder
+     *
+     */
+    public function testQueryBuilder()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('string_col', 'string')
+            ->addColumn('int_col', 'integer')
+            ->save();
+
+        $builder = $this->adapter->getQueryBuilder();
+        $stm = $builder
+            ->insert(['string_col', 'int_col'])
+            ->into('table1')
+            ->values(['string_col' => 'value1', 'int_col' => 1])
+            ->values(['string_col' => 'value2', 'int_col' => 2])
+            ->execute();
+
+        $stm->closeCursor();
+
+        $builder = $this->adapter->getQueryBuilder();
+        $stm = $builder
+            ->select('*')
+            ->from('table1')
+            ->where(['int_col >=' => 2])
+            ->execute();
+
+        $this->assertEquals(1, $stm->rowCount());
+        $this->assertEquals(
+            ['id' => 2, 'string_col' => 'value2', 'int_col' => '2'],
+            $stm->fetch('assoc')
+        );
+
+        $stm->closeCursor();
+
+        $builder = $this->adapter->getQueryBuilder();
+        $stm = $builder
+            ->delete('table1')
+            ->where(['int_col <' => 2])
+            ->execute();
+
+        $stm->closeCursor();
+    }
+
+    public function testLiteralSupport() {
+        $createQuery = <<<'INPUT'
+CREATE TABLE test (smallmoney_col smallmoney)
+INPUT;
+        $this->adapter->execute($createQuery);
+        $table = new \Phinx\Db\Table('test', [], $this->adapter);
+        $columns = $table->getColumns();
+        $this->assertCount(1, $columns);
+        $this->assertEquals(Literal::from('smallmoney'), array_pop($columns)->getType());
     }
 }

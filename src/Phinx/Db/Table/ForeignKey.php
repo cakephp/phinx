@@ -27,9 +27,8 @@
  * @subpackage Phinx\Db
  * @author     Leonid Kuzmin <lndkuzmin@gmail.com>
  */
-namespace Phinx\Db\Table;
 
-use Phinx\Db\Table;
+namespace Phinx\Db\Table;
 
 class ForeignKey
 {
@@ -44,7 +43,7 @@ class ForeignKey
     protected $columns = [];
 
     /**
-     * @var \Phinx\Db\Table
+     * @var \Phinx\Db\Table\Table
      */
     protected $referencedTable;
 
@@ -94,7 +93,7 @@ class ForeignKey
     /**
      * Sets the foreign key referenced table.
      *
-     * @param \Phinx\Db\Table $table
+     * @param \Phinx\Db\Table\Table $table The table this KEY is pointing to
      * @return \Phinx\Db\Table\ForeignKey
      */
     public function setReferencedTable(Table $table)
@@ -107,7 +106,7 @@ class ForeignKey
     /**
      * Gets the foreign key referenced table.
      *
-     * @return \Phinx\Db\Table
+     * @return \Phinx\Db\Table\Table
      */
     public function getReferencedTable()
     {

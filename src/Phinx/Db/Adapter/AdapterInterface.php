@@ -28,10 +28,8 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
-use Phinx\Db\Table\ForeignKey;
-use Phinx\Db\Table\Index;
+use Phinx\Db\Table\Table;
 use Phinx\Migration\MigrationInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -47,8 +45,10 @@ interface AdapterInterface
     const PHINX_TYPE_STRING = 'string';
     const PHINX_TYPE_CHAR = 'char';
     const PHINX_TYPE_TEXT = 'text';
+    const PHINX_TYPE_SMALL_INTEGER = 'smallinteger';
     const PHINX_TYPE_INTEGER = 'integer';
     const PHINX_TYPE_BIG_INTEGER = 'biginteger';
+    const PHINX_TYPE_BIT = 'bit';
     const PHINX_TYPE_FLOAT = 'float';
     const PHINX_TYPE_DECIMAL = 'decimal';
     const PHINX_TYPE_DOUBLE = 'double';
@@ -79,6 +79,7 @@ interface AdapterInterface
     const PHINX_TYPE_CIDR = 'cidr';
     const PHINX_TYPE_INET = 'inet';
     const PHINX_TYPE_MACADDR = 'macaddr';
+    const PHINX_TYPE_INTERVAL = 'interval';
 
     /**
      * Get all migrated version numbers.
@@ -257,6 +258,22 @@ interface AdapterInterface
     public function execute($sql);
 
     /**
+     * Executes a list of migration actions for the given table
+     *
+     * @param \Phinx\Db\Table\Table $table The table to execute the actions for
+     * @param \Phinx\Db\Action\Action[] $actions The table to execute the actions for
+     * @return void
+     */
+    public function executeActions(Table $table, array $actions);
+
+    /**
+     * Returns a new Query object
+     *
+     * @return \Cake\Database\Query
+     */
+    public function getQueryBuilder();
+
+    /**
      * Executes a SQL statement and returns the result as an array.
      *
      * @param string $sql SQL
@@ -283,7 +300,7 @@ interface AdapterInterface
     /**
      * Inserts data into a table.
      *
-     * @param \Phinx\Db\Table $table where to insert data
+     * @param \Phinx\Db\Table\Table $table Table where to insert data
      * @param array $row
      * @return void
      */
@@ -292,7 +309,7 @@ interface AdapterInterface
     /**
      * Inserts data into a table in a bulk.
      *
-     * @param \Phinx\Db\Table $table where to insert data
+     * @param \Phinx\Db\Table\Table $table Table where to insert data
      * @param array $rows
      * @return void
      */
@@ -325,27 +342,12 @@ interface AdapterInterface
     /**
      * Creates the specified database table.
      *
-     * @param \Phinx\Db\Table $table Table
+     * @param \Phinx\Db\Table\Table $table Table
+     * @param \Phinx\Db\Table\Column[] $columns List of columns in the table
+     * @param \Phinx\Db\Table\Index[] $indexes List of indexes for the table
      * @return void
      */
-    public function createTable(Table $table);
-
-    /**
-     * Renames the specified database table.
-     *
-     * @param string $tableName Table Name
-     * @param string $newName   New Name
-     * @return void
-     */
-    public function renameTable($tableName, $newName);
-
-    /**
-     * Drops the specified database table.
-     *
-     * @param string $tableName Table Name
-     * @return void
-     */
-    public function dropTable($tableName);
+    public function createTable(Table $table, array $columns = [], array $indexes = []);
 
     /**
      * Truncates the specified table
@@ -373,44 +375,6 @@ interface AdapterInterface
     public function hasColumn($tableName, $columnName);
 
     /**
-     * Adds the specified column to a database table.
-     *
-     * @param \Phinx\Db\Table  $table  Table
-     * @param \Phinx\Db\Table\Column $column Column
-     * @return void
-     */
-    public function addColumn(Table $table, Column $column);
-
-    /**
-     * Renames the specified column.
-     *
-     * @param string $tableName Table Name
-     * @param string $columnName Column Name
-     * @param string $newColumnName New Column Name
-     * @return void
-     */
-    public function renameColumn($tableName, $columnName, $newColumnName);
-
-    /**
-     * Change a table column type.
-     *
-     * @param string $tableName  Table Name
-     * @param string $columnName Column Name
-     * @param \Phinx\Db\Table\Column $newColumn  New Column
-     * @return \Phinx\Db\Table
-     */
-    public function changeColumn($tableName, $columnName, Column $newColumn);
-
-    /**
-     * Drops the specified column.
-     *
-     * @param string $tableName Table Name
-     * @param string $columnName Column Name
-     * @return void
-     */
-    public function dropColumn($tableName, $columnName);
-
-    /**
      * Checks to see if an index exists.
      *
      * @param string $tableName Table Name
@@ -429,31 +393,14 @@ interface AdapterInterface
     public function hasIndexByName($tableName, $indexName);
 
     /**
-     * Adds the specified index to a database table.
+     * Checks to see if the specified primary key exists.
      *
-     * @param \Phinx\Db\Table $table Table
-     * @param \Phinx\Db\Table\Index $index Index
-     * @return void
+     * @param string   $tableName  Table Name
+     * @param string[] $columns    Column(s)
+     * @param string   $constraint Constraint name
+     * @return bool
      */
-    public function addIndex(Table $table, Index $index);
-
-    /**
-     * Drops the specified index from a database table.
-     *
-     * @param string $tableName
-     * @param mixed  $columns Column(s)
-     * @return void
-     */
-    public function dropIndex($tableName, $columns);
-
-    /**
-     * Drops the index specified by name from a database table.
-     *
-     * @param string $tableName
-     * @param string $indexName
-     * @return void
-     */
-    public function dropIndexByName($tableName, $indexName);
+    public function hasPrimaryKey($tableName, $columns, $constraint = null);
 
     /**
      * Checks to see if a foreign key exists.
@@ -464,25 +411,6 @@ interface AdapterInterface
      * @return bool
      */
     public function hasForeignKey($tableName, $columns, $constraint = null);
-
-    /**
-     * Adds the specified foreign key to a database table.
-     *
-     * @param \Phinx\Db\Table      $table
-     * @param \Phinx\Db\Table\ForeignKey $foreignKey
-     * @return void
-     */
-    public function addForeignKey(Table $table, ForeignKey $foreignKey);
-
-    /**
-     * Drops the specified foreign key from a database table.
-     *
-     * @param string   $tableName
-     * @param string[] $columns    Column(s)
-     * @param string   $constraint Constraint name
-     * @return void
-     */
-    public function dropForeignKey($tableName, $columns, $constraint = null);
 
     /**
      * Returns an array of the supported Phinx column types.

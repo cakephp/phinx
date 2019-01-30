@@ -79,7 +79,21 @@ project directory.
 .. code-block:: bash
 
         $ cd yourapp
-        $ phinx init .
+        $ phinx init
+
+Optionally you can specify a custom location for Phinx's config file:
+
+.. code-block:: bash
+
+        $ cd yourapp
+        $ phinx init ./custom/location/
+
+You can also specify a custom file name:
+
+.. code-block:: bash
+
+        $ cd yourapp
+        $ phinx init custom-config.yml
 
 Open this file in your text editor to setup your project configuration. Please
 see the :doc:`Configuration <configuration>` chapter for more information.
@@ -160,8 +174,8 @@ Use ``--dry-run`` to print the queries to standard output without executing them
 
 .. note::
 
-        When rolling back, Phinx orders the executed migrations using 
-        the order specified in the ``version_order`` option of your 
+        When rolling back, Phinx orders the executed migrations using
+        the order specified in the ``version_order`` option of your
         ``phinx.yml`` file.
         Please see the :doc:`Configuration <configuration>` chapter for more information.
 
@@ -177,8 +191,10 @@ status. You can use this command to determine which migrations have been run.
 
 This command exits with code 0 if the database is up-to-date (ie. all migrations are up) or one of the following codes otherwise:
 
-* 1: There is at least one down migration.
 * 2: There is at least one missing migration.
+* 3: There is at least one down migration.
+
+An exit code of 1 means an application error has occurred.
 
 The Seed Create Command
 -----------------------
@@ -239,8 +255,9 @@ configuration file may be the computed output of a PHP file as a PHP array:
                 ]
             ];
 
-Phinx auto-detects which language parser to use for files with ``*.yml`` and ``*.php`` extensions. The appropriate
-parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than ``"php"`` is treated as YAML.
+Phinx auto-detects which language parser to use for files with ``*.yml``, ``*.json``, and ``*.php`` extensions. The appropriate
+parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than  ``"json"`` or ``"php"`` is
+treated as YAML.
 
 When using a PHP array, you can provide a ``connection`` key with an existing PDO instance. It is also important to pass
 the database name too, as Phinx requires this for certain methods such as ``hasTable()``:
@@ -299,7 +316,8 @@ Phinx can be used within your unit tests to prepare or seed the database. You ca
           $app->run(new StringInput('migrate'), new NullOutput());
         }
 
-If you use a memory database, you'll need to give Phinx a specific PDO instance. You can interact with Phinx directly using the Manager class : 
+If you use a memory database, you'll need to give Phinx a specific PDO instance. You can interact with Phinx directly
+using the Manager class :
 
 .. code-block:: php
 
@@ -311,7 +329,7 @@ If you use a memory database, you'll need to give Phinx a specific PDO instance.
         use Symfony\Component\Console\Output\NullOutput;
 
         class DatabaseTestCase extends TestCase {
-                
+
             public function setUp ()
             {
                 $pdo = new PDO('sqlite::memory:', null, null, [

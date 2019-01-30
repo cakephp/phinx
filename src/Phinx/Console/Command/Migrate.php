@@ -43,13 +43,14 @@ class Migrate extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName('migrate')
-             ->setDescription('Migrate the database')
-             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
-             ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to migrate to')
-             ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
-             ->setHelp(
-                 <<<EOT
+        $this->setName($this->getName() ?: 'migrate')
+            ->setDescription('Migrate the database')
+            ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
+            ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to migrate to')
+            ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
+            ->addOption('--fake', null, InputOption::VALUE_NONE, "Mark any migrations selected as run, but don't actually execute them")
+            ->setHelp(
+                <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
 
 <info>phinx migrate -e development</info>
@@ -58,7 +59,7 @@ The <info>migrate</info> command runs all available migrations, optionally up to
 <info>phinx migrate -e development -v</info>
 
 EOT
-             );
+            );
     }
 
     /**
@@ -75,6 +76,7 @@ EOT
         $version = $input->getOption('target');
         $environment = $input->getOption('environment');
         $date = $input->getOption('date');
+        $fake = (bool)$input->getOption('fake');
 
         if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -107,14 +109,26 @@ EOT
             $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
         }
 
-        // run the migrations
-        $start = microtime(true);
-        if ($date !== null) {
-            $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
-        } else {
-            $this->getManager()->migrate($environment, $version);
+        if ($fake) {
+            $output->writeln('<comment>warning</comment> performing fake migrations');
         }
-        $end = microtime(true);
+
+        try {
+            // run the migrations
+            $start = microtime(true);
+            if ($date !== null) {
+                $this->getManager()->migrateToDateTime($environment, new \DateTime($date), $fake);
+            } else {
+                $this->getManager()->migrate($environment, $version, $fake);
+            }
+            $end = microtime(true);
+        } catch (\Exception $e) {
+            $output->writeln('<error>' . $e->__toString() . '</error>');
+            return 1;
+        } catch (\Throwable $e) {
+            $output->writeln('<error>' . $e->__toString() . '</error>');
+            return 1;
+        }
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');

@@ -43,14 +43,15 @@ class Rollback extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName('rollback')
-             ->setDescription('Rollback the last or to a specific migration')
-             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to rollback to')
-             ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to rollback to')
-             ->addOption('--force', '-f', InputOption::VALUE_NONE, 'Force rollback to ignore breakpoints')
-             ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
-             ->setHelp(
-                 <<<EOT
+        $this->setName($this->getName() ?: 'rollback')
+            ->setDescription('Rollback the last or to a specific migration')
+            ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to rollback to')
+            ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to rollback to')
+            ->addOption('--force', '-f', InputOption::VALUE_NONE, 'Force rollback to ignore breakpoints')
+            ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
+            ->addOption('--fake', null, InputOption::VALUE_NONE, "Mark any rollbacks selected as run, but don't actually execute them")
+            ->setHelp(
+                <<<EOT
 The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
 
 <info>phinx rollback -e development</info>
@@ -67,7 +68,7 @@ This can be used to allow the rolling back of the last executed migration instea
 with the <info>-d|--date</info> option to rollback to a certain date using the migration start times to order them.
 
 EOT
-             );
+            );
     }
 
     /**
@@ -84,7 +85,8 @@ EOT
         $environment = $input->getOption('environment');
         $version = $input->getOption('target');
         $date = $input->getOption('date');
-        $force = !!$input->getOption('force');
+        $force = (bool)$input->getOption('force');
+        $fake = (bool)$input->getOption('fake');
 
         $config = $this->getConfig();
 
@@ -111,6 +113,10 @@ EOT
         $versionOrder = $this->getConfig()->getVersionOrder();
         $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
 
+        if ($fake) {
+            $output->writeln('<comment>warning</comment> performing fake rollbacks');
+        }
+
         // rollback the specified environment
         if ($date === null) {
             $targetMustMatchVersion = true;
@@ -121,7 +127,7 @@ EOT
         }
 
         $start = microtime(true);
-        $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion);
+        $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion, $fake);
         $end = microtime(true);
 
         $output->writeln('');

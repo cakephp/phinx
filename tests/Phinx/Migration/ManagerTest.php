@@ -4,13 +4,13 @@ namespace Test\Phinx\Migration;
 
 use Phinx\Config\Config;
 use Phinx\Migration\Manager;
-use Phinx\Migration\Manager\Environment;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 
-class ManagerTest extends \PHPUnit_Framework_TestCase
+class ManagerTest extends TestCase
 {
     /** @var Config */
     protected $config;
@@ -118,7 +118,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testInstantiation()
     {
-        $this->assertTrue($this->manager->getOutput() instanceof StreamOutput);
+        $this->assertInstanceOf(
+            'Symfony\Component\Console\Output\StreamOutput',
+            $this->manager->getOutput()
+        );
     }
 
     public function testPrintStatusMethod()
@@ -1071,7 +1074,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions')]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithDuplicateMigrationVersionsWithNamespace()
@@ -1082,7 +1085,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => ['Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/duplicateversions')]]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithDuplicateMigrationVersionsWithMixedNamespace()
@@ -1098,7 +1101,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
             ]
         ]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithDuplicateMigrationNames()
@@ -1109,7 +1112,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicatenames')]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithDuplicateMigrationNamesWithNamespace()
@@ -1120,7 +1123,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => ['Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/duplicatenames')]]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithInvalidMigrationClassName()
@@ -1131,7 +1134,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname')]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithInvalidMigrationClassNameWithNamespace()
@@ -1142,7 +1145,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => ['Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/invalidclassname')]]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithClassThatDoesntExtendAbstractMigration()
@@ -1153,7 +1156,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass')]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithClassThatDoesntExtendAbstractMigrationWithNamespace()
@@ -1164,12 +1167,15 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         );
         $config = new Config(['paths' => ['migrations' => ['Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/invalidsuperclass')]]]);
         $manager = new Manager($config, $this->input, $this->output);
-        $manager->getMigrations();
+        $manager->getMigrations('mockenv');
     }
 
     public function testGettingAValidEnvironment()
     {
-        $this->assertTrue($this->manager->getEnvironment('production') instanceof Environment);
+        $this->assertInstanceOf(
+            'Phinx\Migration\Manager\Environment',
+            $this->manager->getEnvironment('production')
+        );
     }
 
     /**
@@ -5406,9 +5412,17 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('Foo\Bar\UserSeeder', $output);
     }
 
+    public function testOrderSeeds()
+    {
+        $seeds = array_values($this->manager->getSeeds());
+        $this->assertInstanceOf('UserSeeder', $seeds[0]);
+        $this->assertInstanceOf('GSeeder', $seeds[1]);
+        $this->assertInstanceOf('PostSeeder', $seeds[2]);
+    }
+
     public function testGettingInputObject()
     {
-        $migrations = $this->manager->getMigrations();
+        $migrations = $this->manager->getMigrations('mockenv');
         $seeds = $this->manager->getSeeds();
         $inputObject = $this->manager->getInput();
         $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $inputObject);
@@ -5423,7 +5437,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGettingOutputObject()
     {
-        $migrations = $this->manager->getMigrations();
+        $migrations = $this->manager->getMigrations('mockenv');
         $seeds = $this->manager->getSeeds();
         $outputObject = $this->manager->getOutput();
         $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $outputObject);
@@ -5470,9 +5484,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($adapter->hasTable('info'));
         $this->assertTrue($adapter->hasTable('statuses'));
         $this->assertTrue($adapter->hasTable('users'));
-        $this->assertTrue($adapter->hasTable('user_logins'));
+        $this->assertTrue($adapter->hasTable('just_logins'));
+        $this->assertFalse($adapter->hasTable('user_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'biography'));
-        $this->assertTrue($adapter->hasForeignKey('user_logins', ['user_id']));
+        $this->assertTrue($adapter->hasForeignKey('just_logins', ['user_id']));
         $this->assertTrue($adapter->hasTable('change_direction_test'));
         $this->assertTrue($adapter->hasColumn('change_direction_test', 'subthing'));
         $this->assertEquals(
@@ -5487,6 +5502,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($adapter->hasTable('info'));
         $this->assertFalse($adapter->hasTable('statuses'));
         $this->assertFalse($adapter->hasTable('user_logins'));
+        $this->assertFalse($adapter->hasTable('just_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'bio'));
         $this->assertFalse($adapter->hasForeignKey('user_logins', ['user_id']));
         $this->assertFalse($adapter->hasTable('change_direction_test'));
@@ -5561,9 +5577,10 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($adapter->hasTable('info'));
         $this->assertTrue($adapter->hasTable('statuses'));
         $this->assertTrue($adapter->hasTable('users'));
-        $this->assertTrue($adapter->hasTable('user_logins'));
+        $this->assertFalse($adapter->hasTable('user_logins'));
+        $this->assertTrue($adapter->hasTable('just_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'biography'));
-        $this->assertTrue($adapter->hasForeignKey('user_logins', ['user_id']));
+        $this->assertTrue($adapter->hasForeignKey('just_logins', ['user_id']));
 
         $this->assertFalse($adapter->hasTable('info_baz'));
         $this->assertTrue($adapter->hasTable('statuses_baz'));
@@ -5586,6 +5603,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($adapter->hasTable('info'));
         $this->assertFalse($adapter->hasTable('statuses'));
         $this->assertFalse($adapter->hasTable('user_logins'));
+        $this->assertFalse($adapter->hasTable('just_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'bio'));
         $this->assertFalse($adapter->hasForeignKey('user_logins', ['user_id']));
 
@@ -5689,6 +5707,76 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $output = stream_get_contents($this->manager->getOutput()->getStream());
 
         $this->assertContains('is not a valid version', $output);
+    }
+
+    public function testPostgresFullMigration()
+    {
+        if (!TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED) {
+            $this->markTestSkipped('Postgres tests disabled. See TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED constant.');
+        }
+        $configArray = $this->getConfigArray();
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+
+        // override the migrations directory to use the reversible migrations
+        $configArray['paths']['migrations'] = [
+            $this->getCorrectedPath(__DIR__ . '/_files/postgres'),
+        ];
+        $configArray['environments']['production'] = [
+            'adapter' => 'postgres',
+            'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
+            'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
+            'user' => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
+            'pass' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
+            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
+            'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA
+        ];
+        $config = new Config($configArray);
+
+        // ensure the database is empty
+        $adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE);
+        $adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE);
+        $adapter->disconnect();
+
+        // migrate to the latest version
+        $this->manager->setConfig($config);
+        $this->manager->migrate('production');
+
+        $this->assertTrue($adapter->hasTable('articles'));
+        $this->assertTrue($adapter->hasTable('categories'));
+        $this->assertTrue($adapter->hasTable('composite_pks'));
+        $this->assertTrue($adapter->hasTable('orders'));
+        $this->assertTrue($adapter->hasTable('products'));
+        $this->assertTrue($adapter->hasTable('special_pks'));
+        $this->assertTrue($adapter->hasTable('special_tags'));
+        $this->assertTrue($adapter->hasTable('users'));
+
+        $this->manager->rollback('production', 'all');
+
+        $this->assertFalse($adapter->hasTable('articles'));
+        $this->assertFalse($adapter->hasTable('categories'));
+        $this->assertFalse($adapter->hasTable('composite_pks'));
+        $this->assertFalse($adapter->hasTable('orders'));
+        $this->assertFalse($adapter->hasTable('products'));
+        $this->assertFalse($adapter->hasTable('special_pks'));
+        $this->assertFalse($adapter->hasTable('special_tags'));
+        $this->assertFalse($adapter->hasTable('users'));
+    }
+
+    public function setExpectedException($exceptionName, $exceptionMessage = '', $exceptionCode = null)
+    {
+        if (method_exists($this, 'expectException')) {
+            //PHPUnit 5+
+            $this->expectException($exceptionName);
+            if ($exceptionMessage !== '') {
+                $this->expectExceptionMessage($exceptionMessage);
+            }
+            if ($exceptionCode !== null) {
+                $this->expectExceptionCode($exceptionCode);
+            }
+        } else {
+            //PHPUnit 4
+            parent::setExpectedException($exceptionName, $exceptionMessage, $exceptionCode);
+        }
     }
 }
 

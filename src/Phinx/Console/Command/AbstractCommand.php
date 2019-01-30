@@ -95,6 +95,11 @@ abstract class AbstractCommand extends Command
 
         $this->loadManager($input, $output);
 
+        if ($bootstrap = $this->getConfig()->getBootstrapFile()) {
+            $output->writeln('<info>using bootstrap</info> .' . str_replace(getcwd(), '', realpath($bootstrap)) . ' ');
+            Util::loadPhpFile($bootstrap);
+        }
+
         // report the paths
         $paths = $this->getConfig()->getMigrationPaths();
 
@@ -179,7 +184,7 @@ abstract class AbstractCommand extends Command
     /**
      * Gets the migration manager.
      *
-     * @return \Phinx\Migration\Manager
+     * @return \Phinx\Migration\Manager|null
      */
     public function getManager()
     {

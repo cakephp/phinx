@@ -5,6 +5,7 @@
     "keywords": ["phinx", "migrations", "database", "db", "database migrations"],
     "homepage": "https://phinx.org",
     "license": "MIT",
+    "version": "0.10.6",
     "authors": [{
         "name": "Rob Morgan",
         "email": "robbym@gmail.com",
@@ -24,23 +25,26 @@
         "homepage": "https://github.com/cakephp/phinx/graphs/contributors"
     }],
     "require": {
-        "php": ">=5.4",
-        "symfony/console": "~2.8|~3.0",
-        "symfony/config": "~2.8|~3.0",
-        "symfony/yaml": "~2.8|~3.0"
+        "php": ">=5.6",
+        "cakephp/collection": "^3.6",
+        "cakephp/database": "^3.6",
+        "symfony/console": "^2.8|^3.0|^4.0",
+        "symfony/config": "^2.8|^3.0|^4.0",
+        "symfony/yaml": "^2.8|^3.0|^4.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.8.26|^5.0",
+        "phpunit/phpunit": ">=5.7,<7.0",
+        "sebastian/comparator": ">=1.2.3",
         "cakephp/cakephp-codesniffer": "^3.0"
     },
     "autoload": {
         "psr-4": {
-            "Phinx\\": "src/Phinx"
+            "Phinx\\": "src/Phinx/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Test\\Phinx\\": "tests/Phinx"
+            "Test\\Phinx\\": "tests/Phinx/"
         }
     },
     "scripts": {
@@ -48,8 +52,8 @@
             "@test",
             "@cs-check"
         ],
-        "cs-check": "phpcs --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP ./src ./tests",
-        "cs-fix": "phpcbf --colors --standard=vendor/cakephp/cakephp-codesniffer/CakePHP ./src ./tests",
+        "cs-check": "phpcs --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP ./src ./tests ./app",
+        "cs-fix": "phpcbf --colors --standard=vendor/cakephp/cakephp-codesniffer/CakePHP ./src ./tests ./app",
         "test": "phpunit --colors=always"
     },
     "bin": ["bin/phinx"]

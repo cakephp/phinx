@@ -7,6 +7,7 @@ use Phinx\Config\ConfigInterface;
 use Phinx\Console\Command\Rollback;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
+use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class RollbackTest extends \PHPUnit_Framework_TestCase
+class RollbackTest extends TestCase
 {
     /**
      * @var ConfigInterface|array
@@ -281,5 +282,33 @@ class RollbackTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(['command' => $command->getName(), '-d' => $targetDate], ['decorated' => false]);
         $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
+    }
+
+    public function testFakeRollback()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        /** @var Rollback $command */
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->once())
+            ->method('rollback')
+            ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false, true);
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), '--fake' => true], ['decorated' => false]);
+
+        $display = $commandTester->getDisplay();
+
+        $this->assertRegExp('/warning performing fake rollback/', $display);
     }
 }

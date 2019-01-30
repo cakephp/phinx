@@ -55,20 +55,6 @@ interface MigrationInterface
     const DOWN = 'down';
 
     /**
-     * Migrate Up
-     *
-     * @return void
-     */
-    public function up();
-
-    /**
-     * Migrate Down
-     *
-     * @return void
-     */
-    public function down();
-
-    /**
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
@@ -121,6 +107,13 @@ interface MigrationInterface
     public function getName();
 
     /**
+     * Gets the detected environment
+     *
+     * @return string
+     */
+    public function getEnvironment();
+
+    /**
      * Sets the migration version number.
      *
      * @param float $version Version
@@ -168,6 +161,18 @@ interface MigrationInterface
     public function query($sql);
 
     /**
+     * Returns a new Query object that can be used to build complex SELECT, UPDATE, INSERT or DELETE
+     * queries and execute them against the current database.
+     *
+     * Queries executed through the query builder are always sent to the database, regardless of the
+     * the dry-run settings.
+     *
+     * @see https://api.cakephp.org/3.6/class-Cake.Database.Query.html
+     * @return \Cake\Database\Query
+     */
+    public function getQueryBuilder();
+
+    /**
      * Executes a query and returns only one row as an array.
      *
      * @param string $sql SQL
@@ -185,6 +190,8 @@ interface MigrationInterface
 
     /**
      * Insert data into a table.
+     *
+     * @deprecated since 0.10.0. Use $this->table($tableName)->insert($data)->save() instead.
      *
      * @param string $tableName
      * @param array $data
@@ -227,4 +234,25 @@ interface MigrationInterface
      * @return \Phinx\Db\Table
      */
     public function table($tableName, $options);
+
+    /**
+     * Perform checks on the migration, print a warning
+     * if there are potential problems.
+     *
+     * @param string|null $direction
+     *
+     * @return void
+     */
+    public function preFlightCheck($direction = null);
+
+    /**
+     * Perform checks on the migration after completion
+     *
+     * Right now, the only check is whether all changes were committed
+     *
+     * @param string|null $direction direction of migration
+     *
+     * @return void
+     */
+    public function postFlightCheck($direction = null);
 }

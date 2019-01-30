@@ -18,7 +18,7 @@ command:
 
 .. code-block:: bash
 
-        $ php vendor/bin/phinx create MyNewMigration
+        $ vendor/bin/phinx create MyNewMigration
 
 This will create a new migration in the format
 ``YYYYMMDDHHMMSS_my_new_migration.php``, where the first 14 characters are
@@ -55,8 +55,6 @@ Phinx automatically creates a skeleton migration file with a single method:
              *    addIndex
              *    addForeignKey
              *
-             * Remember to call "create()" or "update()" and NOT "save()" when working
-             * with the Table class.
              */
             public function change()
             {
@@ -125,8 +123,7 @@ Please be aware that when a ``change`` method exists, Phinx will automatically
 ignore the ``up`` and ``down`` methods. If you need to use these methods it is
 recommended to create a separate migration file.
 
-.. note::
-
+..note
     When creating or updating tables inside a ``change()`` method you must use
     the Table ``create()`` and ``update()`` methods. Phinx cannot automatically
     determine whether a ``save()`` call is creating a new table or modifying an
@@ -141,8 +138,8 @@ Phinx can only reverse the following commands:
 -  addIndex
 -  addForeignKey
 
-If a command cannot be reversed then Phinx will throw a
-``IrreversibleMigrationException`` exception when it's migrating down.
+If a command cannot be reversed then Phinx will throw an
+``IrreversibleMigrationException`` when it's migrating down.
 
 The Up Method
 ~~~~~~~~~~~~~
@@ -306,8 +303,7 @@ insert methods in your migrations.
                     ]
                 ];
 
-                // this is a handy shortcut
-                $this->insert('status', $rows);
+                $this->table('status')->insert($rows)->save();
             }
 
             /**
@@ -386,10 +382,7 @@ store a collection of users.
 
         class MyNewMigration extends AbstractMigration
         {
-            /**
-             * Migrate Up.
-             */
-            public function up()
+            public function change()
             {
                 $users = $this->table('users');
                 $users->addColumn('username', 'string', ['limit' => 20])
@@ -401,21 +394,13 @@ store a collection of users.
                       ->addColumn('created', 'datetime')
                       ->addColumn('updated', 'datetime', ['null' => true])
                       ->addIndex(['username', 'email'], ['unique' => true])
-                      ->save();
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
+                      ->create();
             }
         }
 
 Columns are added using the ``addColumn()`` method. We create a unique index
 for both the username and email columns using the ``addIndex()`` method.
-Finally calling ``save()`` commits the changes to the database.
+Finally calling ``create()`` commits the changes to the database.
 
 .. note::
 
@@ -439,24 +424,13 @@ create a primary key using two columns instead:
 
         class MyNewMigration extends AbstractMigration
         {
-            /**
-             * Migrate Up.
-             */
-            public function up()
+            public function change()
             {
                 $table = $this->table('followers', ['id' => false, 'primary_key' => ['user_id', 'follower_id']]);
                 $table->addColumn('user_id', 'integer')
                       ->addColumn('follower_id', 'integer')
                       ->addColumn('created', 'datetime')
-                      ->save();
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
+                      ->create();
             }
         }
 
@@ -471,36 +445,26 @@ To simply change the name of the primary key, we need to override the default ``
 
         class MyNewMigration extends AbstractMigration
         {
-            /**
-             * Migrate Up.
-             */
             public function up()
             {
                 $table = $this->table('followers', ['id' => 'user_id']);
                 $table->addColumn('follower_id', 'integer')
                       ->addColumn('created', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
-                      ->save();
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
+                      ->create();
             }
         }
 
 In addition, the MySQL adapter supports following options:
 
-========= ===========
-Option    Description
-========= ===========
-comment   set a text comment on the table
-engine    define table engine *(defaults to ``InnoDB``)*
-collation define table collation *(defaults to ``utf8_general_ci``)*
-signed    whether the primary key is ``signed``
-========= ===========
+========== ===========
+Option     Description
+========== ===========
+comment    set a text comment on the table
+row_format set the table row format
+engine     define table engine *(defaults to ``InnoDB``)*
+collation  define table collation *(defaults to ``utf8_general_ci``)*
+signed     whether the primary key is ``signed``  *(defaults to ``true``)*
+========== ===========
 
 By default the primary key is ``signed``.
 To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
@@ -513,25 +477,23 @@ To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
 
         class MyNewMigration extends AbstractMigration
         {
-            /**
-             * Migrate Up.
-             */
-            public function up()
+            public function change()
             {
                 $table = $this->table('followers', ['signed' => false]);
                 $table->addColumn('follower_id', 'integer')
                       ->addColumn('created', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
-                      ->save();
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
+                      ->create();
             }
         }
+
+
+The PostgreSQL adapter supports the following options:
+
+========= ===========
+Option    Description
+========= ===========
+comment   set a text comment on the table
+========= ===========
 
 Valid Column Types
 ~~~~~~~~~~~~~~~~~~
@@ -546,6 +508,7 @@ Column types are specified as strings and can be one of:
 -  decimal
 -  float
 -  integer
+-  smallinteger
 -  string
 -  text
 -  time
@@ -555,10 +518,47 @@ Column types are specified as strings and can be one of:
 In addition, the MySQL adapter supports ``enum``, ``set``, ``blob`` and ``json`` column types.
 (``json`` in MySQL 5.7 and above)
 
-In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
+In addition, the Postgres adapter supports ``interval``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
 
 For valid options, see the `Valid Column Options`_ below.
+
+Custom Column Types & Default Values
+~~~~~~~~~~~~~~~~~~~
+
+Some DBMS systems provide additional column types and default values that are specific to them.
+If you don't want to keep your migrations DBMS-agnostic you can use those custom types in your migrations
+through the ``\Phinx\Util\Literal::from`` method, which takes a string as its only argument, and returns an
+instance of ``\Phinx\Util\Literal``. When Phinx encounters this value as a column's type it knows not to
+run any validation on it and to use it exactly as supplied without escaping. This also works for ``default``
+values.
+
+You can see an example below showing how to add a ``citext`` column as well as a column whose default value
+is a function, in PostgreSQL. This method of preventing the built-in escaping is supported in all adapters.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+        use Phinx\Util\Literal;
+
+        class AddSomeColumns extends AbstractMigration
+        {
+            public function change()
+            {
+                $this->table('users')
+                      ->addColumn('username', Literal::from('citext'))
+                      ->addColumn('uniqid', 'uuid', [
+                          'default' => Literal::from('uuid_generate_v4()')
+                      ])
+                      ->addColumn('creation', 'timestamp', [
+                          'timezone' => true,
+                          'default' => Literal::from('now()')
+                      ])
+                      ->save();
+            }
+        }
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -597,8 +597,12 @@ method.
 Dropping a Table
 ~~~~~~~~~~~~~~~~
 
-Tables can be dropped quite easily using the ``dropTable()`` method. It is a
+Tables can be dropped quite easily using the ``drop()`` method. It is a
 good idea to recreate the table again in the ``down()`` method.
+
+Note that like other methods in the ``Table`` class, ``drop`` also needs ``save()``
+to be called at the end in order to be executed. This allows phinx to intelligently
+plan migrations when more than one table is involved.
 
 .. code-block:: php
 
@@ -613,7 +617,7 @@ good idea to recreate the table again in the ``down()`` method.
              */
             public function up()
             {
-                $this->dropTable('users');
+                $this->table('users')->drop()->save();
             }
 
             /**
@@ -655,7 +659,9 @@ To rename a table access an instance of the Table object then call the
             public function up()
             {
                 $table = $this->table('users');
-                $table->rename('legacy_users');
+                $table
+                    ->rename('legacy_users')
+                    ->update();
             }
 
             /**
@@ -664,7 +670,89 @@ To rename a table access an instance of the Table object then call the
             public function down()
             {
                 $table = $this->table('legacy_users');
-                $table->rename('users');
+                $table
+                    ->rename('users')
+                    ->update();
+            }
+        }
+
+Changing the Primary Key
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+To change the primary key on an existing table, use the ``changePrimaryKey()`` method.
+Pass in a column name or array of columns names to include in the primary key, or ``null`` to drop the primary key.
+Note that the mentioned columns must be added to the table, they will not be added implicitly.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $users = $this->table('users');
+                $users
+                    ->addColumn('username', 'string', ['limit' => 20, 'null' => false])
+                    ->addColumn('password', 'string', ['limit' => 40])
+                    ->save();
+
+                $users
+                    ->addColumn('new_id', 'integer', ['null' => false])
+                    ->changePrimaryKey(['new_id', 'username'])
+                    ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
+            }
+        }
+
+Changing the Table Comment
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To change the comment on an existing table, use the ``changeComment()`` method.
+Pass in a string to set as the new table comment, or ``null`` to drop the existing comment.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $users = $this->table('users');
+                $users
+                    ->addColumn('username', 'string', ['limit' => 20])
+                    ->addColumn('password', 'string', ['limit' => 40])
+                    ->save();
+
+                $users
+                    ->changeComment('This is the table with users auth information, password should be encrypted')
+                    ->save();
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+
             }
         }
 
@@ -685,6 +773,7 @@ Column types are specified as strings and can be one of:
 -  decimal
 -  float
 -  integer
+-  smallinteger
 -  string
 -  text
 -  time
@@ -693,7 +782,7 @@ Column types are specified as strings and can be one of:
 
 In addition, the MySQL adapter supports ``enum``, ``set`` and ``blob`` column types.
 
-In addition, the Postgres adapter supports ``smallint``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
+In addition, the Postgres adapter supports ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
 
 Valid Column Options
@@ -710,7 +799,7 @@ limit   set maximum length for strings, also hints column types in adapters (see
 length  alias for ``limit``
 default set default value or action
 null    allow ``NULL`` values (should not be used with primary keys!)
-after   specify the column that a new column should be placed after
+after   specify the column that a new column should be placed after *(only applies to MySQL)*
 comment set a text comment on the column
 ======= ===========
 
@@ -752,7 +841,9 @@ timezone enable or disable the ``with time zone`` option for ``time`` and ``time
 ======== ===========
 
 You can add ``created_at`` and ``updated_at`` timestamps to a table using the ``addTimestamps()`` method. This method also
-allows you to supply alternative names.
+allows you to supply alternative names. The optional third argument allows you to change the ``timezone`` option for the
+columns being added. Additionally, you can use the ``addTimestampsWithTimezone()`` method, which is an alias to
+``addTimestamps()`` that will always set the third argument to ``true`` (see examples below).
 
 .. code-block:: php
 
@@ -767,8 +858,18 @@ allows you to supply alternative names.
              */
             public function change()
             {
-                // Override the 'updated_at' column name with 'amended_at'.
-                $table = $this->table('users')->addTimestamps(null, 'amended_at')->create();
+                // Use defaults (without timezones)
+                $table = $this->table('users')->addTimestamps()->create();
+                // Use defaults (with timezones)
+                $table = $this->table('users')->addTimestampsWithTimezone()->create();
+
+                // Override the 'created_at' column name with 'recorded_at'.
+                $table = $this->table('books')->addTimestamps('recorded_at')->create();
+
+                // Override the 'updated_at' column name with 'amended_at', preserving timezones.
+                // The two lines below do the same, the second one is simply cleaner.
+                $table = $this->table('books')->addTimestamps(null, 'amended_at', true)->create();
+                $table = $this->table('users')->addTimestampsWithTimezone(null, 'amended_at')->create();
             }
         }
 
@@ -800,30 +901,6 @@ delete set an action to be triggered when the row is deleted
 
 You can pass one or more of these options to any column with the optional
 third argument array.
-
-Limit Option and PostgreSQL
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When using the PostgreSQL adapter, additional hinting of database column type can be
-made for ``integer`` columns. Using ``limit`` with one the following options will
-modify the column type accordingly:
-
-============ ==============
-Limit        Column Type
-============ ==============
-INT_SMALL    SMALLINT
-============ ==============
-
-.. code-block:: php
-
-         use Phinx\Db\Adapter\PostgresAdapter;
-
-         //...
-
-         $table = $this->table('cart_items');
-         $table->addColumn('user_id', 'integer')
-               ->addColumn('subtype_id', 'integer', ['limit' => PostgresAdapter::INT_SMALL])
-               ->create();
 
 Limit Option and MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -884,6 +961,38 @@ method. This method will return an array of Column classes with basic info. Exam
             public function up()
             {
                 $columns = $this->table('users')->getColumns();
+                ...
+            }
+
+            /**
+             * Migrate Down.
+             */
+            public function down()
+            {
+                ...
+            }
+        }
+
+Get a column by name
+~~~~~~~~~~~~~~~~~~~~
+
+To retrieve one table column, simply create a `table` object and call the `getColumn()`
+method. This method will return a Column class with basic info or NULL when the column doesn't exist. Example below:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class ColumnListMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $column = $this->table('users')->getColumn('email');
                 ...
             }
 
@@ -1119,7 +1228,7 @@ using the ``name`` parameter.
                 $table = $this->table('users');
                 $table->addColumn('email', 'string')
                       ->addIndex(['email'], [
-                            'unique' => true, 
+                            'unique' => true,
                             'name' => 'idx_users_email'])
                       ->save();
             }
@@ -1149,6 +1258,30 @@ ensure the table uses the ``MyISAM`` engine.
                 $table = $this->table('users', ['engine' => 'MyISAM']);
                 $table->addColumn('email', 'string')
                       ->addIndex('email', ['type' => 'fulltext'])
+                      ->create();
+            }
+        }
+
+In addition, MySQL adapter also supports setting the index length defined by limit option.
+When you are using a multi-column index, you are able to define each column index length.
+The single column index can define its index length with or without defining column name in limit option.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->addColumn('email', 'string')
+                      ->addColumn('username','string')
+                      ->addColumn('user_guid', 'string', ['limit' => 36])
+                      ->addIndex(['email','username'], ['limit' => ['email' => 5, 'username' => 2]])
+                      ->addIndex('user_guid', ['limit' => 6])
                       ->create();
             }
         }
@@ -1185,10 +1318,6 @@ call this method for each index.
             }
         }
 
-.. note::
-
-    There is no need to call the ``save()`` method when using
-    ``removeIndex()``. The index will be removed immediately.
 
 Working With Foreign Keys
 -------------------------
@@ -1214,7 +1343,7 @@ Let's add a foreign key to an example table:
                       ->save();
 
                 $refTable = $this->table('tag_relationships');
-                $refTable->addColumn('tag_id', 'integer')
+                $refTable->addColumn('tag_id', 'integer', ['null' => true])
                          ->addForeignKey('tag_id', 'tags', 'id', ['delete'=> 'SET_NULL', 'update'=> 'NO_ACTION'])
                          ->save();
 
@@ -1229,7 +1358,7 @@ Let's add a foreign key to an example table:
             }
         }
 
-"On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possibles values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.
+"On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possibles values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.  If 'SET_NULL' is used then the column must be created as nullable with the option ``['null' => true]``.
 Constraint name can be changed with the 'constraint' option.
 
 It is also possible to pass ``addForeignKey()`` an array of columns.
@@ -1331,6 +1460,10 @@ We can also easily check if a foreign key exists:
 
 Finally, to delete a foreign key, use the ``dropForeignKey`` method.
 
+Note that like other methods in the ``Table`` class, ``dropForeignKey`` also needs ``save()``
+to be called at the end in order to be executed. This allows phinx to intelligently
+plan migrations when more than one table is involved.
+
 .. code-block:: php
 
         <?php
@@ -1345,7 +1478,7 @@ Finally, to delete a foreign key, use the ``dropForeignKey`` method.
             public function up()
             {
                 $table = $this->table('tag_relationships');
-                $table->dropForeignKey('tag_id');
+                $table->dropForeignKey('tag_id')->save();
             }
 
             /**
@@ -1356,3 +1489,295 @@ Finally, to delete a foreign key, use the ``dropForeignKey`` method.
 
             }
         }
+
+
+
+Using the Query Builder
+-----------------------
+
+It is not uncommon to pair database structure changes with data changes. For example, you may want to
+migrate the data in a couple columns from the users to a newly created table. For this type of scenarios,
+Phinx provides access to a Query builder object, that you may use to execute complex ``SELECT``, ``UPDATE``,
+``INSERT`` or ``DELETE`` statements.
+
+The Query builder is provided by the `cakephp/database <https://github.com/cakephp/database>`_ project, and should
+be easy to work with as it resembles very closely plain SQL. Accesing the query builder is done by calling the
+``getQueryBuilder()`` function:
+
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $builder = $this->getQueryBuilder();
+                $statement = $builder->select('*')->from('users')->execute();
+                var_dump($statement->fetchAll());
+            }
+        }
+
+Selecting Fields
+~~~~~~~~~~~~~~~~
+
+Adding fields to the SELECT clause:
+
+
+.. code-block:: php
+
+        <?php
+        $builder->select(['id', 'title', 'body']);
+
+        // Results in SELECT id AS pk, title AS aliased_title, body ...
+        $builder->select(['pk' => 'id', 'aliased_title' => 'title', 'body']);
+
+        // Use a closure
+        $builder->select(function ($builder) {
+            return ['id', 'title', 'body'];
+        });
+
+
+Where Conditions
+~~~~~~~~~~~~~~~~
+
+Generating conditions:
+
+.. code-block:: php
+
+        // WHERE id = 1
+        $builder->where(['id' => 1]);
+
+        // WHERE id > 2
+        $builder->where(['id >' => 1]);
+
+
+As you can see you can use any operator by placing it with a space after the field name. Adding multiple conditions is easy as well:
+
+
+.. code-block:: php
+
+        <?php
+        $builder->where(['id >' => 1])->andWhere(['title' => 'My Title']);
+
+        // Equivalent to
+        $builder->where(['id >' => 1, 'title' => 'My title']);
+
+        // WHERE id > 1 OR title = 'My title'
+        $builder->where(['OR' => ['id >' => 1, 'title' => 'My title']]);
+
+
+For even more complex conditions you can use closures and expression objects:
+
+.. code-block:: php
+
+        <?php
+        // Coditions are tied together with AND by default
+        $builder
+            ->select('*')
+            ->from('articles')
+            ->where(function ($exp) {
+                return $exp
+                    ->eq('author_id', 2)
+                    ->eq('published', true)
+                    ->notEq('spam', true)
+                    ->gt('view_count', 10);
+            });
+
+
+Which results in:
+
+.. code-block:: sql
+
+    SELECT * FROM articles
+    WHERE
+        author_id = 2
+        AND published = 1
+        AND spam != 1
+        AND view_count > 10
+
+
+Combining expressions is also possible:
+
+
+.. code-block:: php
+
+        <?php
+        $builder
+            ->select('*')
+            ->from('articles')
+            ->where(function ($exp) {
+                $orConditions = $exp->or_(['author_id' => 2])
+                    ->eq('author_id', 5);
+                return $exp
+                    ->not($orConditions)
+                    ->lte('view_count', 10);
+            });
+
+It generates:
+
+.. code-block:: sql
+
+    SELECT *
+    FROM articles
+    WHERE
+        NOT (author_id = 2 OR author_id = 5)
+        AND view_count <= 10
+
+
+When using the expression objects you can use the following methods to create conditions:
+
+* ``eq()`` Creates an equality condition.
+* ``notEq()`` Create an inequality condition
+* ``like()`` Create a condition using the ``LIKE`` operator.
+* ``notLike()`` Create a negated ``LIKE`` condition.
+* ``in()`` Create a condition using ``IN``.
+* ``notIn()`` Create a negated condition using ``IN``.
+* ``gt()`` Create a ``>`` condition.
+* ``gte()`` Create a ``>=`` condition.
+* ``lt()`` Create a ``<`` condition.
+* ``lte()`` Create a ``<=`` condition.
+* ``isNull()`` Create an ``IS NULL`` condition.
+* ``isNotNull()`` Create a negated ``IS NULL`` condition.
+
+
+Aggregates and SQL Functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. code-block:: php
+
+    <?php
+    // Results in SELECT COUNT(*) count FROM ...
+    $builder->select(['count' => $builder->func()->count('*')]);
+
+A number of commonly used functions can be created with the func() method:
+
+* ``sum()`` Calculate a sum. The arguments will be treated as literal values.
+* ``avg()`` Calculate an average. The arguments will be treated as literal values.
+* ``min()`` Calculate the min of a column. The arguments will be treated as literal values.
+* ``max()`` Calculate the max of a column. The arguments will be treated as literal values.
+* ``count()`` Calculate the count. The arguments will be treated as literal values.
+* ``concat()`` Concatenate two values together. The arguments are treated as bound parameters unless marked as literal.
+* ``coalesce()`` Coalesce values. The arguments are treated as bound parameters unless marked as literal.
+* ``dateDiff()`` Get the difference between two dates/times. The arguments are treated as bound parameters unless marked as literal.
+* ``now()`` Take either 'time' or 'date' as an argument allowing you to get either the current time, or current date.
+
+When providing arguments for SQL functions, there are two kinds of parameters you can use,
+literal arguments and bound parameters. Literal parameters allow you to reference columns or
+other SQL literals. Bound parameters can be used to safely add user data to SQL functions. For example:
+
+
+.. code-block:: php
+
+    <?php
+    // Generates:
+    // SELECT CONCAT(title, ' NEW') ...;
+    $concat = $builder->func()->concat([
+        'title' => 'literal',
+        ' NEW'
+    ]);
+    $query->select(['title' => $concat]);
+
+
+Getting Results out of a Query
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once you’ve made your query, you’ll want to retrieve rows from it. There are a few ways of doing this:
+
+
+.. code-block:: php
+
+    <?php
+    // Iterate the query
+    foreach ($builder as $row) {
+        echo $row['title'];
+    }
+
+    // Get the statement and fetch all results
+    $results = $builder->execute()->fetchAll('assoc');
+
+
+Creating an Insert Query
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Creating insert queries is also possible:
+
+
+.. code-block:: php
+
+    <?php
+    $builder = $this->getQueryBuilder();
+    $builder
+        ->insert(['first_name', 'last_name'])
+        ->into('users')
+        ->values(['first_name' => 'Steve', 'last_name' => 'Jobs'])
+        ->values(['first_name' => 'Jon', 'last_name' => 'Snow'])
+        ->execute()
+
+
+For increased performance, you can use another builder object as the values for an insert query:
+
+.. code-block:: php
+
+    <?php
+
+    $namesQuery = $this->getQueryBuilder();
+    $namesQuery
+        ->select(['fname', 'lname'])
+        ->from('users')
+        ->where(['is_active' => true])
+
+    $builder = $this->getQueryBuilder();
+    $st = $builder
+        ->insert(['first_name', 'last_name'])
+        ->into('names')
+        ->values($namesQuery)
+        ->execute()
+
+    var_dump($st->lastInsertId('names', 'id'));
+
+
+The above code will generate:
+
+.. code-block:: sql
+
+    INSERT INTO names (first_name, last_name)
+        (SELECT fname, lname FROM USERS where is_active = 1)
+
+
+Creating an update Query
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Creating update queries is similar to both inserting and selecting:
+
+.. code-block:: php
+
+    <?php
+    $builder = $this->getQueryBuilder();
+    $builder
+        ->update('users')
+        ->set('fname', 'Snow')
+        ->where(['fname' => 'Jon'])
+        ->execute()
+
+
+Creating a Delete Query
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Finally, delete queries:
+
+.. code-block:: php
+
+    <?php
+    $builder = $this->getQueryBuilder();
+    $builder
+        ->delete('users')
+        ->where(['accepted_gdpr' => false])
+        ->execute()

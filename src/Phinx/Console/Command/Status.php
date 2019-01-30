@@ -43,11 +43,11 @@ class Status extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment.');
 
-        $this->setName('status')
-             ->setDescription('Show migration status')
-             ->addOption('--format', '-f', InputOption::VALUE_REQUIRED, 'The output format: text or json. Defaults to text.')
-             ->setHelp(
-                 <<<EOT
+        $this->setName($this->getName() ?: 'status')
+            ->setDescription('Show migration status')
+            ->addOption('--format', '-f', InputOption::VALUE_REQUIRED, 'The output format: text or json. Defaults to text.')
+            ->setHelp(
+                <<<EOT
 The <info>status</info> command prints a list of all migrations, along with their current status
 
 <info>phinx status -e development</info>
@@ -55,7 +55,7 @@ The <info>status</info> command prints a list of all migrations, along with thei
 
 The <info>version_order</info> configuration option is used to determine the order of the status migrations.
 EOT
-             );
+            );
     }
 
     /**

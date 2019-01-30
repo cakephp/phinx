@@ -28,10 +28,8 @@
  */
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
-use Phinx\Db\Table\ForeignKey;
-use Phinx\Db\Table\Index;
+use Phinx\Db\Table\Table;
 use Phinx\Migration\MigrationInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -238,7 +236,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function toggleBreakpoint(MigrationInterface $migration)
     {
@@ -248,7 +246,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function resetAllBreakpoints()
     {
@@ -346,33 +344,9 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function createTable(Table $table)
+    public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
-        $this->getAdapter()->createTable($table);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function renameTable($tableName, $newTableName)
-    {
-        $this->getAdapter()->renameTable($tableName, $newTableName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function dropTable($tableName)
-    {
-        $this->getAdapter()->dropTable($tableName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function truncateTable($tableName)
-    {
-        $this->getAdapter()->truncateTable($tableName);
+        $this->getAdapter()->createTable($table, $columns, $indexes);
     }
 
     /**
@@ -394,38 +368,6 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function addColumn(Table $table, Column $column)
-    {
-        $this->getAdapter()->addColumn($table, $column);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function renameColumn($tableName, $columnName, $newColumnName)
-    {
-        $this->getAdapter()->renameColumn($tableName, $columnName, $newColumnName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function changeColumn($tableName, $columnName, Column $newColumn)
-    {
-        return $this->getAdapter()->changeColumn($tableName, $columnName, $newColumn);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function dropColumn($tableName, $columnName)
-    {
-        $this->getAdapter()->dropColumn($tableName, $columnName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function hasIndex($tableName, $columns)
     {
         return $this->getAdapter()->hasIndex($tableName, $columns);
@@ -442,25 +384,9 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function addIndex(Table $table, Index $index)
+    public function hasPrimaryKey($tableName, $columns, $constraint = null)
     {
-        $this->getAdapter()->addIndex($table, $index);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function dropIndex($tableName, $columns)
-    {
-        $this->getAdapter()->dropIndex($tableName, $columns);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function dropIndexByName($tableName, $indexName)
-    {
-        $this->getAdapter()->dropIndexByName($tableName, $indexName);
+        return $this->getAdapter()->hasPrimaryKey($tableName, $columns, $constraint);
     }
 
     /**
@@ -469,22 +395,6 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
         return $this->getAdapter()->hasForeignKey($tableName, $columns, $constraint);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addForeignKey(Table $table, ForeignKey $foreignKey)
-    {
-        $this->getAdapter()->addForeignKey($table, $foreignKey);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function dropForeignKey($tableName, $columns, $constraint = null)
-    {
-        $this->getAdapter()->dropForeignKey($tableName, $columns, $constraint);
     }
 
     /**
@@ -538,6 +448,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritdoc}
      */
+    public function truncateTable($tableName)
+    {
+        $this->getAdapter()->truncateTable($tableName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function castToBool($value)
     {
         return $this->getAdapter()->castToBool($value);
@@ -549,5 +467,21 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function getConnection()
     {
         return $this->getAdapter()->getConnection();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function executeActions(Table $table, array $actions)
+    {
+        $this->getAdapter()->executeActions($table, $actions);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getQueryBuilder()
+    {
+        return $this->getAdapter()->getQueryBuilder();
     }
 }

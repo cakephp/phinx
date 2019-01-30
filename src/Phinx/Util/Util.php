@@ -221,4 +221,29 @@ class Util
     {
         return glob($path, defined('GLOB_BRACE') ? GLOB_BRACE : 0);
     }
+
+    /**
+     * Takes the path to a php file and attempts to include it if readable
+     *
+     * @return string
+     */
+    public static function loadPhpFile($filename)
+    {
+        $filePath = realpath($filename);
+
+        /**
+         * I lifed this from phpunits FileLoader class
+         *
+         * @see https://github.com/sebastianbergmann/phpunit/pull/2751
+         */
+        $isReadable = @\fopen($filePath, 'r') !== false;
+
+        if (!$filePath || !$isReadable) {
+            throw new \Exception(sprintf("Cannot open file %s \n", $filename));
+        }
+
+        include_once $filePath;
+
+        return $filePath;
+    }
 }

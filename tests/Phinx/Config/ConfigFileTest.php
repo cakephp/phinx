@@ -3,12 +3,13 @@
 namespace Test\Phinx\Config;
 
 use Phinx\Console\Command\AbstractCommand;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
-class ConfigFileTest extends \PHPUnit_Framework_TestCase
+class ConfigFileTest extends TestCase
 {
     private $previousDir;
 

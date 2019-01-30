@@ -2,7 +2,9 @@
 
 namespace Test\Phinx\Config;
 
-class NamespaceAwareTraitTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class NamespaceAwareTraitTest extends TestCase
 {
     public function testGetMigrationNamespaceByPath()
     {

@@ -56,12 +56,12 @@ class Index
     protected $type = self::INDEX;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name = null;
 
     /**
-     * @var integer
+     * @var integer|array|null
      */
     protected $limit = null;
 
@@ -127,7 +127,7 @@ class Index
     /**
      * Gets the index name.
      *
-     * @return string
+     * @return string|null
      */
     public function getName()
     {
@@ -137,7 +137,7 @@ class Index
     /**
      * Sets the index limit.
      *
-     * @param int $limit
+     * @param int|array $limit limit value or array of limit value
      * @return \Phinx\Db\Table\Index
      */
     public function setLimit($limit)
@@ -150,7 +150,7 @@ class Index
     /**
      * Gets the index limit.
      *
-     * @return int
+     * @return int|array
      */
     public function getLimit()
     {
