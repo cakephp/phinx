@@ -196,6 +196,18 @@ class TableTest extends TestCase
         $this->assertEquals($expectedData, $table->getData());
     }
 
+    public function testInsertSaveEmptyData()
+    {
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+
+        $adapterStub->expects($this->never())->method('bulkinsert');
+
+        $table->insert([])->save();
+    }
+
     public function testInsertSaveData()
     {
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
