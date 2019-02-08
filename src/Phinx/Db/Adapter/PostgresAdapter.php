@@ -1125,23 +1125,18 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     strtoupper($sqlType['type']),
                     $sqlType['srid']
                 );
+            } elseif (in_array($sqlType['name'], ['time', 'timestamp'])) {
+                if (is_numeric($column->getPrecision())) {
+                    $buffer[] = sprintf('(%s)', $column->getPrecision());
+                }
+
+                if ($column->isTimezone()) {
+                    $buffer[] = strtoupper('with time zone');
+                }
             } elseif (!in_array($sqlType['name'], ['integer', 'smallint', 'bigint', 'boolean'])) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
                 }
-            }
-
-            $timeTypes = [
-                'time',
-                'timestamp',
-            ];
-
-            if (in_array($sqlType['name'], $timeTypes) && is_numeric($column->getPrecision())) {
-                $buffer[] = sprintf('(%s)', $column->getPrecision());
-            }
-
-            if (in_array($sqlType['name'], $timeTypes) && $column->isTimezone()) {
-                $buffer[] = strtoupper('with time zone');
             }
         }
 
