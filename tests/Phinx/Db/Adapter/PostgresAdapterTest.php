@@ -1186,6 +1186,8 @@ class PostgresAdapterTest extends TestCase
         $this->assertEquals('float', $this->adapter->getPhinxType('real'));
         $this->assertEquals('float', $this->adapter->getPhinxType('float4'));
 
+        $this->assertEquals('double', $this->adapter->getPhinxType('double precision'));
+
         $this->assertEquals('boolean', $this->adapter->getPhinxType('bool'));
         $this->assertEquals('boolean', $this->adapter->getPhinxType('boolean'));
 

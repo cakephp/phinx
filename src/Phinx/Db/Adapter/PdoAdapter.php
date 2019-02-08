@@ -449,6 +449,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             'bit',
             'float',
             'decimal',
+            'double',
             'datetime',
             'timestamp',
             'time',

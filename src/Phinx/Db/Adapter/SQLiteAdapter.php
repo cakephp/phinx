@@ -867,9 +867,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $tableName = $table->getName();
         $instructions->addPostStep(function ($state) use ($column) {
             $matchPattern = "/(`$column`)\s+(\w+(\(\d+\))?)\s+((NOT )?NULL)/";
-            
+
             $sql = $state['createSQL'];
-            
+
             if (preg_match($matchPattern, $state['createSQL'], $matches)) {
                 if (isset($matches[2])) {
                     if ($matches[2] === 'INTEGER') {
@@ -877,7 +877,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                     } else {
                         $replace = '$1 $2 NOT NULL PRIMARY KEY';
                     }
-                    
+
                     $sql = preg_replace($matchPattern, $replace, $state['createSQL'], 1);
                 }
             }
@@ -1015,6 +1015,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             case static::PHINX_TYPE_TEXT:
             case static::PHINX_TYPE_INTEGER:
             case static::PHINX_TYPE_FLOAT:
+            case static::PHINX_TYPE_DOUBLE:
             case static::PHINX_TYPE_DECIMAL:
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIME:
