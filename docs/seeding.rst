@@ -99,6 +99,11 @@ current seeder:
                 // `ShopItemSeeder` have been run.
             }
         }
+        
+.. note::
+
+    Dependencies are only considered when executing all seed classes (default behaviour). 
+    They won't be considered when running specific seed classes.
 
 Inserting Data
 --------------
