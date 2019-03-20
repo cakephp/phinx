@@ -4,6 +4,7 @@ namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
+use Phinx\Db\Table\Column;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -585,6 +586,28 @@ class MysqlAdapterTest extends TestCase
         $this->assertEquals('int(11) unsigned', $rows[1]['Type']);
     }
 
+    public function testAddDoubleColumnWithDefaultSigned()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('foo', 'double')
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('double', $rows[1]['Type']);
+    }
+
+    public function testAddDoubleColumnWithSignedEqualsFalse()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('foo', 'double', ['signed' => false])
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('double unsigned', $rows[1]['Type']);
+    }
+
     public function testAddBooleanColumnWithSignedEqualsFalse()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -899,6 +922,9 @@ class MysqlAdapterTest extends TestCase
             ['column5', 'text', []],
             ['column6', 'float', []],
             ['column7', 'decimal', []],
+            ['decimal_precision_scale', 'decimal', ['precision' => 10, 'scale' => 2]],
+            ['decimal_limit', 'decimal', ['limit' => 10]],
+            ['decimal_precision', 'decimal', ['precision' => 10]],
             ['column8', 'datetime', []],
             ['column9', 'time', []],
             ['column10', 'timestamp', []],
@@ -938,6 +964,14 @@ class MysqlAdapterTest extends TestCase
 
         if (isset($options['values'])) {
             $this->assertEquals($options['values'], $columns[1]->getValues());
+        }
+
+        if (isset($options['precision'])) {
+            $this->assertEquals($options['precision'], $columns[1]->getPrecision());
+        }
+
+        if (isset($options['scale'])) {
+            $this->assertEquals($options['scale'], $columns[1]->getScale());
         }
     }
 

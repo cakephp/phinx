@@ -595,7 +595,10 @@ class Table
 
             return $this;
         }
-        $this->data[] = $data;
+
+        if (count($data) > 0) {
+            $this->data[] = $data;
+        }
 
         return $this;
     }
