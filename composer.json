@@ -56,5 +56,8 @@
         "cs-fix": "phpcbf --colors --standard=vendor/cakephp/cakephp-codesniffer/CakePHP ./src ./tests ./app",
         "test": "phpunit --colors=always"
     },
+    "suggest": {
+        "mongodb/mongodb": "Required for the use of the mongodb adapter"
+    },
     "bin": ["bin/phinx"]
 }
