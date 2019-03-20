@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\SQLiteAdapter;
+use Phinx\Db\Table\Column;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -386,6 +387,16 @@ class SQLiteAdapterTest extends TestCase
         $this->assertEquals("''", $rows[1]['dflt_value']);
     }
 
+    public function testAddDoubleColumn()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn('foo', 'double')
+              ->save();
+        $rows = $this->adapter->fetchAll(sprintf('pragma table_info(%s)', 'table1'));
+        $this->assertEquals('DOUBLE', $rows[1]['type']);
+    }
+
     public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
@@ -549,7 +560,7 @@ class SQLiteAdapterTest extends TestCase
             ['column11', 'binary', []],
             ['column13', 'string', ['limit' => 10]],
             ['column15', 'smallinteger', []],
-            ['column15', 'integer', ['limit' => 10]],
+            ['column15', 'integer', []],
             ['column22', 'enum', ['values' => ['three', 'four']]],
             ['column23', 'json', [], 'text'],
         ];
@@ -558,6 +569,11 @@ class SQLiteAdapterTest extends TestCase
     /**
      *
      * @dataProvider columnsProvider
+     *
+     * @param string $colName
+     * @param string $type
+     * @param array $options
+     * @param string|null $actualType
      */
     public function testGetColumns($colName, $type, $options, $actualType = null)
     {
@@ -568,11 +584,24 @@ class SQLiteAdapterTest extends TestCase
         $this->assertCount(2, $columns);
         $this->assertEquals($colName, $columns[1]->getName());
 
-        if (!$actualType) {
-            $actualType = $type;
+        $this->assertEquals($actualType ?: $type, $columns[1]->getType());
+
+        if (isset($options['limit'])) {
+            $this->assertEquals($options['limit'], $columns[1]->getLimit());
         }
 
-        $this->assertEquals($actualType, $columns[1]->getType());
+        // SQLiteAdapter doesn't return enum values.
+        if (isset($options['values']) && $type !== 'enum') {
+            $this->assertEquals($options['values'], $columns[1]->getValues());
+        }
+
+        if (isset($options['precision'])) {
+            $this->assertEquals($options['precision'], $columns[1]->getPrecision());
+        }
+
+        if (isset($options['scale'])) {
+            $this->assertEquals($options['scale'], $columns[1]->getScale());
+        }
     }
 
     public function testAddIndex()
@@ -748,7 +777,7 @@ class SQLiteAdapterTest extends TestCase
             [
                 'name' => Literal::from('fake'),
                 'limit' => null,
-                'precision' => null
+                'scale' => null
             ],
             $this->adapter->getPhinxType('fake')
         );

@@ -789,6 +789,9 @@ class PostgresAdapterTest extends TestCase
             ['column12', 'boolean', []],
             ['column13', 'string', ['limit' => 10]],
             ['column16', 'interval', []],
+            ['decimal_precision_scale', 'decimal', ['precision' => 10, 'scale' => 2]],
+            ['decimal_limit', 'decimal', ['limit' => 10]],
+            ['decimal_precision', 'decimal', ['precision' => 10]],
         ];
     }
 
@@ -1185,6 +1188,8 @@ class PostgresAdapterTest extends TestCase
 
         $this->assertEquals('float', $this->adapter->getPhinxType('real'));
         $this->assertEquals('float', $this->adapter->getPhinxType('float4'));
+
+        $this->assertEquals('double', $this->adapter->getPhinxType('double precision'));
 
         $this->assertEquals('boolean', $this->adapter->getPhinxType('bool'));
         $this->assertEquals('boolean', $this->adapter->getPhinxType('boolean'));

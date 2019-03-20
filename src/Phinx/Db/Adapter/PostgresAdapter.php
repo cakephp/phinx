@@ -192,14 +192,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
          // Add the default primary key
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
-            $column = new Column();
-            $column->setName('id')
-                   ->setType('integer')
-                   ->setIdentity(true);
+            $options['id'] = 'id';
+        }
 
-            array_unshift($columns, $column);
-            $options['primary_key'] = 'id';
-        } elseif (isset($options['id']) && is_string($options['id'])) {
+        if (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
             $column->setName($options['id'])
@@ -935,6 +931,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 return ['name' => 'smallint'];
             case static::PHINX_TYPE_DECIMAL:
                 return ['name' => $type, 'precision' => 18, 'scale' => 0];
+            case static::PHINX_TYPE_DOUBLE:
+                return ['name' => 'double precision'];
             case static::PHINX_TYPE_STRING:
                 return ['name' => 'character varying', 'limit' => 255];
             case static::PHINX_TYPE_CHAR:
@@ -1008,6 +1006,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             case 'real':
             case 'float4':
                 return static::PHINX_TYPE_FLOAT;
+            case 'double precision':
+                return static::PHINX_TYPE_DOUBLE;
             case 'bytea':
                 return static::PHINX_TYPE_BINARY;
             case 'interval':
@@ -1121,23 +1121,18 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                     strtoupper($sqlType['type']),
                     $sqlType['srid']
                 );
+            } elseif (in_array($sqlType['name'], ['time', 'timestamp'])) {
+                if (is_numeric($column->getPrecision())) {
+                    $buffer[] = sprintf('(%s)', $column->getPrecision());
+                }
+
+                if ($column->isTimezone()) {
+                    $buffer[] = strtoupper('with time zone');
+                }
             } elseif (!in_array($sqlType['name'], ['integer', 'smallint', 'bigint', 'boolean'])) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
                 }
-            }
-
-            $timeTypes = [
-                'time',
-                'timestamp',
-            ];
-
-            if (in_array($sqlType['name'], $timeTypes) && is_numeric($column->getPrecision())) {
-                $buffer[] = sprintf('(%s)', $column->getPrecision());
-            }
-
-            if (in_array($sqlType['name'], $timeTypes) && $column->isTimezone()) {
-                $buffer[] = strtoupper('with time zone');
             }
         }
 

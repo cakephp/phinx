@@ -69,11 +69,6 @@ class Column
     /**
      * @var integer
      */
-    protected $precision;
-
-    /**
-     * @var integer
-     */
     protected $scale;
 
     /**
@@ -336,7 +331,7 @@ class Column
      */
     public function setPrecision($precision)
     {
-        $this->precision = $precision;
+        $this->setLimit($precision);
 
         return $this;
     }
@@ -351,7 +346,7 @@ class Column
      */
     public function getPrecision()
     {
-        return $this->precision;
+        return $this->limit;
     }
 
     /**
@@ -395,7 +390,7 @@ class Column
      */
     public function setPrecisionAndScale($precision, $scale)
     {
-        $this->precision = $precision;
+        $this->setLimit($precision);
         $this->scale = $scale;
 
         return $this;
@@ -622,7 +617,6 @@ class Column
             'default',
             'null',
             'identity',
-            'precision',
             'scale',
             'after',
             'update',
@@ -645,6 +639,7 @@ class Column
     {
         return [
             'length' => 'limit',
+            'precision' => 'limit',
         ];
     }
 
