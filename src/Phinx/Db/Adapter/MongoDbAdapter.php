@@ -15,7 +15,7 @@ use Phinx\Migration\MigrationInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class MongoMigrationAdapter implements PhinxAdapter
+class MongoDbAdapter implements PhinxAdapter
 {
 
     protected $collectionName = 'phinx_migration';
@@ -47,7 +47,7 @@ class MongoMigrationAdapter implements PhinxAdapter
         'table_prefix' => ''
     ];
 
-    function __construct(array $options)
+    public function __construct(array $options)
     {
         $this->collectionName = $options['default_migration_table'];
         $this->databaseName = $options['name'];
@@ -241,7 +241,6 @@ class MongoMigrationAdapter implements PhinxAdapter
     public function executeActions(Table $table, array $actions)
     {
         foreach ($actions as $action) {
-
             if ($action instanceof AddIndex) {
                 $columns = $action->getIndex()->getColumns();
                 $options = [];
