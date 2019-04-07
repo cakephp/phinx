@@ -540,19 +540,62 @@ class Table
      */
     public function addTimestamps($createdAt = 'created_at', $updatedAt = 'updated_at', $withTimezone = false)
     {
+        return $this->innerAddTimestamps($createdAt, $updatedAt, $withTimezone);
+    }
+
+    /**
+     * Add timestamp columns created_at and updated_at to the table.By default, `update_at` adds attributes 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+     * This method requires the user to ensure that the version of the mysql database is greater than or equal to 5.6
+     * This will cause the updated_at field to be filled in automatically when it is updated, without modification by code.
+     *
+     * @param string|null $createdAt    Alternate name for the created_at column
+     * @param string|null $updatedAt    Alternate name for the updated_at column
+     * @param bool        $withTimezone Whether to set the timezone option on the added columns
+     * @param bool        $autoUpdate   Whether to set the column `updated_at` use attribute 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+     *
+     * @return \Phinx\Db\Table
+     */
+    public function addTimestampsWithAutoUpdate($createdAt = 'created_at', $updatedAt = 'updated_at', $withTimezone = false, $autoUpdate = true)
+    {
+        return $this->innerAddTimestamps($createdAt, $updatedAt, $withTimezone, $autoUpdate);
+    }
+
+    /**
+     * Add timestamp columns created_at and updated_at to the table.
+     *
+     * @param string|null $createdAt    Alternate name for the created_at column
+     * @param string|null $updatedAt    Alternate name for the updated_at column
+     * @param bool        $withTimezone Whether to set the timezone option on the added columns
+     * @param bool        $autoUpdate   Whether to set the column `updated_at` use attribute 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+     *
+     * @return \Phinx\Db\Table
+     */
+    private function innerAddTimestamps($createdAt = 'created_at', $updatedAt = 'updated_at', $withTimezone = false, $autoUpdate = false)
+    {
         $createdAt = is_null($createdAt) ? 'created_at' : $createdAt;
         $updatedAt = is_null($updatedAt) ? 'updated_at' : $updatedAt;
 
         $this->addColumn($createdAt, 'timestamp', [
-                   'default' => 'CURRENT_TIMESTAMP',
-                   'update' => '',
-                   'timezone' => $withTimezone,
-             ])
-             ->addColumn($updatedAt, 'timestamp', [
-                 'null' => true,
-                 'default' => null,
-                 'timezone' => $withTimezone,
-             ]);
+            'default' => 'CURRENT_TIMESTAMP',
+            'update' => '',
+            'timezone' => $withTimezone,
+        ]);
+
+        // set the column `updated_at` use attribute 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+        if ($autoUpdate) {
+            $this->addColumn($updatedAt, 'timestamp', [
+                'null' => true,
+                'default' => 'CURRENT_TIMESTAMP',
+                'update' => 'CURRENT_TIMESTAMP',
+                'timezone' => $withTimezone,
+            ]);
+        } else {
+            $this->addColumn($updatedAt, 'timestamp', [
+                'null' => true,
+                'default' => null,
+                'timezone' => $withTimezone,
+            ]);
+        }
 
         return $this;
     }
