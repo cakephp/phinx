@@ -46,6 +46,7 @@ use Phinx\Util\Literal;
 class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 {
     protected $definitionsWithLimits = [
+        'CHAR',
         'CHARACTER',
         'VARCHAR',
         'VARYING CHARACTER',
