@@ -361,28 +361,30 @@ class Environment
         if (isset($this->adapter)) {
             return $this->adapter;
         }
-        if (isset($this->options['connection'])) {
-            if (!($this->options['connection'] instanceof \PDO)) {
+        
+        $options = $this->getOptions();
+        if (isset($options['connection'])) {
+            if (!($options['connection'] instanceof \PDO)) {
                 throw new \RuntimeException('The specified connection is not a PDO instance');
             }
 
-            $this->options['connection']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $this->options['adapter'] = $this->options['connection']->getAttribute(\PDO::ATTR_DRIVER_NAME);
+            $options['connection']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $options['adapter'] = $options['connection']->getAttribute(\PDO::ATTR_DRIVER_NAME);
         }
-        if (!isset($this->options['adapter'])) {
+        if (!isset($options['adapter'])) {
             throw new \RuntimeException('No adapter was specified for environment: ' . $this->getName());
         }
 
         $factory = AdapterFactory::instance();
         $adapter = $factory
-            ->getAdapter($this->options['adapter'], $this->options);
+            ->getAdapter($options['adapter'], $options);
 
         // Automatically time the executed commands
         $adapter = $factory->getWrapper('timed', $adapter);
 
-        if (isset($this->options['wrapper'])) {
+        if (isset($options['wrapper'])) {
             $adapter = $factory
-                ->getWrapper($this->options['wrapper'], $adapter);
+                ->getWrapper($options['wrapper'], $adapter);
         }
 
         if ($this->getInput()) {
