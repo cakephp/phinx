@@ -1,6 +1,5 @@
 <?php
 $namespaceDefinition
-
 use $useClassName;
 
 class $className extends $baseClassName
