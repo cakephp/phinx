@@ -25,6 +25,9 @@ tests/log
 ./db
 ./migrations
 
+bin/db/
+bin/phinx.yml
+
 # sphinx generates HTML files for the documentation here
 docs/_build
 
