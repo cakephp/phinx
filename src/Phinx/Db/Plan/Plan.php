@@ -24,6 +24,7 @@
  */
 namespace Phinx\Db\Plan;
 
+use ArrayObject;
 use Phinx\Db\Action\AddColumn;
 use Phinx\Db\Action\AddForeignKey;
 use Phinx\Db\Action\AddIndex;
@@ -171,18 +172,27 @@ class Plan
      */
     protected function resolveConflicts()
     {
-        $actions = collection($this->tableMoves)
+        $moveActions = collection($this->tableMoves)
             ->unfold(function ($move) {
                 return $move->getActions();
             });
 
-        foreach ($actions as $action) {
+        foreach ($moveActions as $action) {
             if ($action instanceof DropTable) {
                 $this->tableUpdates = $this->forgetTable($action->getTable(), $this->tableUpdates);
                 $this->constraints = $this->forgetTable($action->getTable(), $this->constraints);
                 $this->indexes = $this->forgetTable($action->getTable(), $this->indexes);
             }
         }
+
+        // Dropping indexes used by foreign keys is a conflict, but one we can resolve
+        // if the foreign key is also scheduled to be dropped. If we can find sucha a case,
+        // we force the execution of the index drop after the foreign key is dropped.
+        $this->constraints = collection($this->constraints)
+             ->map(function ($alter) {
+                 return $this->remapContraintAndIndexConflicts($alter);
+             })
+            ->toArray();
     }
 
     /**
@@ -204,6 +214,89 @@ class Plan
         }
 
         return $result;
+    }
+
+    /**
+     * Finds all DropForeignKey actions in an AlterTable and moves
+     * all conflicting DropIndex action in `$this->indexes` into the
+     * given AlterTable.
+     *
+     * @param AlterTable The collection of actions to inspect
+     * @return AlterTable The updated AlterTable object. This function
+     * has the side effect of changing the `$this->indexes` property.
+     */
+    protected function remapContraintAndIndexConflicts(AlterTable $alter)
+    {
+        $newAlter = new AlterTable($alter->getTable());
+        collection($alter->getActions())
+            ->unfold(function ($action) {
+                if (!$action instanceof DropForeignKey) {
+                    return [$action];
+                }
+
+                list($this->indexes, $dropIndexActions) = $this->forgetDropIndex(
+                    $action->getTable(),
+                    $action->getForeignKey()->getColumns(),
+                    $this->indexes
+                );
+
+                if (!empty($dropIndexActions)) {
+                    return array_merge([$action], $dropIndexActions);
+                }
+
+                return [$action];
+            })
+            ->each(function ($action) use ($newAlter) {
+                $newAlter->addAction($action);
+            });
+
+        return $newAlter;
+    }
+
+    /**
+     * Deletes any DropIndex actions for the given table and exact columns
+     *
+     * @param Table $table The table to find in the list of actions
+     * @param string[] $columns The column names to match
+     * @param AlterTable[] $actions The actions to transform
+     * @return array A tuple containing the list of actions without actions for dropping the index
+     * and a list of drop index actions that were removed.
+     */
+    protected function forgetDropIndex(Table $table, array $columns, array $actions)
+    {
+        $dropIndexActions = new ArrayObject();
+        $indexes = collection($actions)
+            ->map(function ($alter) use ($table, $columns, $dropIndexActions) {
+                if ($alter->getTable()->getName() !== $table->getName()) {
+                    return $alter;
+                }
+
+                $newAlter = new AlterTable($table);
+                collection($alter->getActions())
+                    ->map(function ($action) use ($columns) {
+                        if (!$action instanceof DropIndex) {
+                            return [$action, null];
+                        }
+                        if ($action->getIndex()->getColumns() === $columns) {
+                            return [null, $action];
+                        }
+                        return [$action, null];
+                    })
+                    ->each(function ($tuple) use ($newAlter, $dropIndexActions) {
+                        list($action, $dropIndex) = $tuple;
+                        if ($action) {
+                            $newAlter->addAction($action);
+                        }
+                        if ($dropIndex) {
+                            $dropIndexActions->append($dropIndex);
+                        }
+                    });
+
+                return $newAlter;
+            })
+            ->toArray();
+
+        return [$indexes, $dropIndexActions->getArrayCopy()];
     }
 
     /**
