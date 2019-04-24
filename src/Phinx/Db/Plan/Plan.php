@@ -321,7 +321,8 @@ class Plan
         $dropActions = $actions
             ->filter(function ($action) {
                 return $action instanceof DropForeignKey;
-            });
+            })
+            ->toList();
 
         $originalAlter = new AlterTable($alter->getTable());
         $newAlter = new AlterTable($alter->getTable());
@@ -333,20 +334,20 @@ class Plan
                 }
 
                 $columns = $action->getForeignKey()->getColumns();
-                $match = $dropActions
-                    ->filter(function (DropForeignKey $da) use ($columns) {
-                        return $da->getForeignKey()->getColumns() === $columns;
-                    })
-                    ->map(function () use ($action) {
-                        return $action;
-                    })
-                    ->first();
-
-                if ($match) {
-                    return [null, $match];
+                $found = false;
+                foreach ($dropActions as $da) {
+                    if ($da->getForeignKey()->getColumns() === $columns) {
+                        $found = true;
+                        break;
+                    }
                 }
 
-                return [$action, $match];
+                if ($found) {
+                    return [null, $action];
+                }
+
+
+                return [$action, null];
             })
             ->each(function ($pair) use ($originalAlter, $newAlter) {
                 list($original, $new) = $pair;
