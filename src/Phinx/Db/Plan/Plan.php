@@ -280,6 +280,7 @@ class Plan
                         if ($action->getIndex()->getColumns() === $columns) {
                             return [null, $action];
                         }
+
                         return [$action, null];
                     })
                     ->each(function ($tuple) use ($newAlter, $dropIndexActions) {
