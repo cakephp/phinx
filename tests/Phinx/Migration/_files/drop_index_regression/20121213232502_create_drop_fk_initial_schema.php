@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class CreateInitialSchema extends AbstractMigration
+class CreateDropFkInitialSchema extends AbstractMigration
 {
     /**
      * Change.

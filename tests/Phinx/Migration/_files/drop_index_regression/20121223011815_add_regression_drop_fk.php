@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class UpdateInfoTable extends AbstractMigration
+class AddRegressionDropFk extends AbstractMigration
 {
     /**
      * Change.
