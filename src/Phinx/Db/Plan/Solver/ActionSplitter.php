@@ -67,7 +67,7 @@ class ActionSplitter
      * which is the dual of $conflictClass. For example `AddColumn` and `DropColumn` are duals.
      * @param callable $conflictFilter The collection of actions to inspect
      */
-    public function __construct(string $conflictClass, string $conflictClassDual, callable $conflictFilter)
+    public function __construct($conflictClass, $conflictClassDual, callable $conflictFilter)
     {
         $this->conflictClass = $conflictClass;
         $this->conflictClassDual = $conflictClassDual;
