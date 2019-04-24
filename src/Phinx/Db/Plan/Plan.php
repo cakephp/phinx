@@ -221,7 +221,7 @@ class Plan
      * all conflicting DropIndex action in `$this->indexes` into the
      * given AlterTable.
      *
-     * @param AlterTable The collection of actions to inspect
+     * @param AlterTable $alter The collection of actions to inspect
      * @return AlterTable The updated AlterTable object. This function
      * has the side effect of changing the `$this->indexes` property.
      */
