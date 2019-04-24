@@ -189,7 +189,7 @@ class Plan
         // if the foreign key is also scheduled to be dropped. If we can find sucha a case,
         // we force the execution of the index drop after the foreign key is dropped.
         $this->constraints = collection($this->constraints)
-             ->map(function ($alter) {
+             ->map(function (AlterTable $alter) {
                  return $this->remapContraintAndIndexConflicts($alter);
              })
             ->toArray();
