@@ -185,14 +185,21 @@ class Plan
             }
         }
 
-        // Dropping indexes used by foreign keys is a conflict, but one we can resolve
-        // if the foreign key is also scheduled to be dropped. If we can find sucha a case,
-        // we force the execution of the index drop after the foreign key is dropped.
         $this->constraints = collection($this->constraints)
-             ->map(function (AlterTable $alter) {
-                 return $this->remapContraintAndIndexConflicts($alter);
-             })
-            ->toArray();
+            ->map(function (AlterTable $alter) {
+                // Dropping indexes used by foreign keys is a conflict, but one we can resolve
+                // if the foreign key is also scheduled to be dropped. If we can find sucha a case,
+                // we force the execution of the index drop after the foreign key is dropped.
+                return $this->remapContraintAndIndexConflicts($alter);
+            })
+            ->unfold(function (AlterTable $alter) {
+                // Changing constraint or column properties sometimes require dropping it and then
+                // creating it again with the new stuff. Unfortunately, we have already bundled
+                // everything together in as few AlterTable statements as we could, so we need to
+                // resolve this conflict manually
+                return $this->remapDropFkConflicts($alter);
+            })
+            ->toList();
     }
 
     /**
@@ -298,6 +305,60 @@ class Plan
             ->toArray();
 
         return [$indexes, $dropIndexActions->getArrayCopy()];
+    }
+
+    /**
+     * Finds conflixting DropForeignKey/AddForeignKey and returns a list
+     * of non conflicting AlterTable instructions.
+     *
+     * @param AlterTable $alter The collection of actions to inspect
+     * @return AlterTable[] A list of AlterTable that can be executed without
+     * this type of conflict
+     */
+    protected function remapDropFkConflicts(AlterTable $alter)
+    {
+        $actions = collection($alter->getActions());
+        $dropActions = $actions
+            ->filter(function ($action) {
+                return $action instanceof DropForeignKey;
+            });
+
+        $originalAlter = new AlterTable($alter->getTable());
+        $newAlter = new AlterTable($alter->getTable());
+
+        $actions
+            ->map(function ($action) use ($dropActions) {
+                if (!$action instanceof AddForeignKey) {
+                    return [$action, null];
+                }
+
+                $columns = $action->getForeignKey()->getColumns();
+                $match = $dropActions
+                    ->filter(function (DropForeignKey $da) use ($columns) {
+                        return $da->getForeignKey()->getColumns() === $columns;
+                    })
+                    ->map(function () use ($action) {
+                        return $action;
+                    })
+                    ->first();
+
+                if ($match) {
+                    return [null, $match];
+                }
+
+                return [$action, $match];
+            })
+            ->each(function ($pair) use ($originalAlter, $newAlter) {
+                list($original, $new) = $pair;
+                if ($original) {
+                    $originalAlter->addAction($original);
+                }
+                if ($new) {
+                    $newAlter->addAction($new);
+                }
+            });
+
+        return [$originalAlter, $newAlter];
     }
 
     /**
