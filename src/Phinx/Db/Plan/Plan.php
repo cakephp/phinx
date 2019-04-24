@@ -346,7 +346,6 @@ class Plan
                     return [null, $action];
                 }
 
-
                 return [$action, null];
             })
             ->each(function ($pair) use ($originalAlter, $newAlter) {
