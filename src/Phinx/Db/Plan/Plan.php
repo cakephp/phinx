@@ -39,6 +39,7 @@ use Phinx\Db\Action\RemoveColumn;
 use Phinx\Db\Action\RenameColumn;
 use Phinx\Db\Action\RenameTable;
 use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Plan\Solver\ActionSplitter;
 use Phinx\Db\Table\Table;
 
 /**
@@ -185,6 +186,15 @@ class Plan
             }
         }
 
+        $this->tableUpdates = collection($this->tableUpdates)
+            // Renaming a column and then changing the renamed column is something people do,
+            // but it is a conflicting action. Luckily solving the conflict can be done by moving
+            // the ChangeColumn action to another AlterTable
+            ->unfold(new ActionSplitter(RenameColumn::class, ChangeColumn::class, function (RenameColumn $a, ChangeColumn $b) {
+                return $a->getNewName() == $b->getColumnName();
+            }))
+            ->toList();
+
         $this->constraints = collection($this->constraints)
             ->map(function (AlterTable $alter) {
                 // Dropping indexes used by foreign keys is a conflict, but one we can resolve
@@ -192,13 +202,13 @@ class Plan
                 // we force the execution of the index drop after the foreign key is dropped.
                 return $this->remapContraintAndIndexConflicts($alter);
             })
-            ->unfold(function (AlterTable $alter) {
-                // Changing constraint or column properties sometimes require dropping it and then
-                // creating it again with the new stuff. Unfortunately, we have already bundled
-                // everything together in as few AlterTable statements as we could, so we need to
-                // resolve this conflict manually
-                return $this->remapDropFkConflicts($alter);
-            })
+            // Changing constraint properties sometimes require dropping it and then
+            // creating it again with the new stuff. Unfortunately, we have already bundled
+            // everything together in as few AlterTable statements as we could, so we need to
+            // resolve this conflict manually
+            ->unfold(new ActionSplitter(DropForeignKey::class, AddForeignKey::class, function (DropForeignKey $a, AddForeignKey $b) {
+                return $a->getForeignKey()->getColumns() === $b->getForeignKey()->getColumns();
+            }))
             ->toList();
     }
 
@@ -305,60 +315,6 @@ class Plan
             ->toArray();
 
         return [$indexes, $dropIndexActions->getArrayCopy()];
-    }
-
-    /**
-     * Finds conflixting DropForeignKey/AddForeignKey and returns a list
-     * of non conflicting AlterTable instructions.
-     *
-     * @param AlterTable $alter The collection of actions to inspect
-     * @return AlterTable[] A list of AlterTable that can be executed without
-     * this type of conflict
-     */
-    protected function remapDropFkConflicts(AlterTable $alter)
-    {
-        $actions = collection($alter->getActions());
-        $dropActions = $actions
-            ->filter(function ($action) {
-                return $action instanceof DropForeignKey;
-            })
-            ->toList();
-
-        $originalAlter = new AlterTable($alter->getTable());
-        $newAlter = new AlterTable($alter->getTable());
-
-        $actions
-            ->map(function ($action) use ($dropActions) {
-                if (!$action instanceof AddForeignKey) {
-                    return [$action, null];
-                }
-
-                $columns = $action->getForeignKey()->getColumns();
-                $found = false;
-                foreach ($dropActions as $da) {
-                    if ($da->getForeignKey()->getColumns() === $columns) {
-                        $found = true;
-                        break;
-                    }
-                }
-
-                if ($found) {
-                    return [null, $action];
-                }
-
-                return [$action, null];
-            })
-            ->each(function ($pair) use ($originalAlter, $newAlter) {
-                list($original, $new) = $pair;
-                if ($original) {
-                    $originalAlter->addAction($original);
-                }
-                if ($new) {
-                    $newAlter->addAction($new);
-                }
-            });
-
-        return [$originalAlter, $newAlter];
     }
 
     /**
