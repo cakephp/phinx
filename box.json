@@ -8,8 +8,7 @@
     "directories": ["src","app"],
     "files": [
         "LICENSE",
-        "phinx.yml",
-        "composer.json"
+        "phinx.yml"
     ],
     "finder": [
         {
@@ -30,5 +29,6 @@
     "git-version": "git_tag",
     "main": "bin/phinx",
     "output": "phinx-@git-version@.phar",
-    "stub": true
+    "stub": true,
+    "exclude-composer-files": false
 }
