@@ -5508,6 +5508,44 @@ class ManagerTest extends TestCase
         $this->assertFalse($adapter->hasTable('change_direction_test'));
     }
 
+    public function testReversibleMigrationWithIndexConflict()
+    {
+        if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
+            $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED constant.');
+        }
+        $configArray = $this->getConfigArray();
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+
+        // override the migrations directory to use the reversible migrations
+        $configArray['paths']['migrations'] = $this->getCorrectedPath(__DIR__ . '/_files/drop_index_regression');
+        $config = new Config($configArray);
+
+        // ensure the database is empty
+        $adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->disconnect();
+
+        // migrate to the latest version
+        $this->manager->setConfig($config);
+        $this->manager->migrate('production');
+
+        // ensure up migrations worked
+        $this->assertTrue($adapter->hasTable('my_table'));
+        $this->assertTrue($adapter->hasTable('my_other_table'));
+        $this->assertTrue($adapter->hasColumn('my_table', 'entity_id'));
+        $this->assertTrue($adapter->hasForeignKey('my_table', ['entity_id']));
+
+        // revert all changes to the first
+        $this->manager->rollback('production', '20121213232502');
+
+        // ensure reversed migrations worked
+        $this->assertTrue($adapter->hasTable('my_table'));
+        $this->assertTrue($adapter->hasTable('my_other_table'));
+        $this->assertTrue($adapter->hasColumn('my_table', 'entity_id'));
+        $this->assertFalse($adapter->hasForeignKey('my_table', ['entity_id']));
+        $this->assertFalse($adapter->hasIndex('my_table', ['entity_id']));
+    }
+
     public function testReversibleMigrationsWorkAsExpectedWithNamespace()
     {
         if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
