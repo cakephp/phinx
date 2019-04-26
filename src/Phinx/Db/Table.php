@@ -369,7 +369,7 @@ class Table
         if ($newColumnType instanceof Column) {
             $action = new ChangeColumn($this->table, $columnName, $newColumnType);
         } else {
-            $action = ChangeColumn::build($this->table, $columnName, $newColumnType, $options);
+            $action = ChangeColumn::build($this->table, $columnName, $newColumnType, $options, $this->getAdapter());
         }
         $this->actions->addAction($action);
 

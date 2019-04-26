@@ -644,6 +644,34 @@ class Column
     }
 
     /**
+     * Fetch Existing Column Options, and can be used to change column schema
+     */
+    public function fetchExistingColumnOptions($tableName, $adapter) 
+    {
+        $table = new \Phinx\Db\Table($tableName, [], $adapter);
+        $retrievedColumnDetails = $table->getColumn($this->name);
+
+        $this->type = $retrievedColumnDetails->type;
+        $this->limit = $retrievedColumnDetails->limit;
+        $this->null = $retrievedColumnDetails->null;
+        $this->default = $retrievedColumnDetails->default;
+        $this->identity = $retrievedColumnDetails->identity;
+        $this->scale = $retrievedColumnDetails->scale;
+        $this->after = $retrievedColumnDetails->after;
+        $this->update = $retrievedColumnDetails->update;
+        $this->comment = $retrievedColumnDetails->comment;
+
+        $this->signed = $retrievedColumnDetails->signed;
+        $this->timezone = $retrievedColumnDetails->timezone;
+        $this->properties = $retrievedColumnDetails->properties;
+        $this->collation = $retrievedColumnDetails->collation;
+        $this->encoding = $retrievedColumnDetails->encoding;
+        $this->values = $retrievedColumnDetails->values;    
+    
+        return $this;
+    }
+
+    /**
      * Utility method that maps an array of column options to this objects methods.
      *
      * @param array $options Options
@@ -655,6 +683,7 @@ class Column
         $aliasOptions = $this->getAliasedOptions();
 
         foreach ($options as $option => $value) {
+            
             if (isset($aliasOptions[$option])) {
                 // proxy alias -> option
                 $option = $aliasOptions[$option];
