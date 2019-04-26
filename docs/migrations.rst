@@ -1555,7 +1555,7 @@ Generating conditions:
         // WHERE id = 1
         $builder->where(['id' => 1]);
 
-        // WHERE id > 2
+        // WHERE id > 1
         $builder->where(['id >' => 1]);
 
 
