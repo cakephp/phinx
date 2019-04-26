@@ -72,7 +72,7 @@ class ChangeColumn extends Action
      * @param mixed $options Additional options for the column
      * @return ChangeColumn
      */
-    public static function build(Table $table, $columnName, $type = null, $options = [], $adapter)
+    public static function build(Table $table, $columnName, $type = null, $options = [], $adapter = null)
     {
         $column = new Column();
         $column->setName($columnName);

@@ -645,6 +645,10 @@ class Column
 
     /**
      * Fetch Existing Column Options, and can be used to change column schema
+     *
+     * @param string $tableName of current column
+     * @param AdapterInterface current adapter for accessing db
+     * @return $this
      */
     public function fetchExistingColumnOptions($tableName, $adapter) 
     {
@@ -683,7 +687,7 @@ class Column
         $aliasOptions = $this->getAliasedOptions();
 
         foreach ($options as $option => $value) {
-            
+
             if (isset($aliasOptions[$option])) {
                 // proxy alias -> option
                 $option = $aliasOptions[$option];
