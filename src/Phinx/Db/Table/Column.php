@@ -647,7 +647,7 @@ class Column
      * Fetch Existing Column Options, and can be used to change column schema
      *
      * @param string $tableName of current column
-     * @param AdapterInterface current adapter for accessing db
+     * @param AdapterInterface $adapter current adapter for accessing db
      * @return $this
      */
     public function fetchExistingColumnOptions($tableName, $adapter) 
