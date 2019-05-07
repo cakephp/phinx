@@ -507,6 +507,7 @@ Column types are specified as strings and can be one of:
 -  datetime
 -  decimal
 -  float
+-  double
 -  integer
 -  smallinteger
 -  string
