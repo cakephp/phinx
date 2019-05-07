@@ -487,6 +487,9 @@ class SqlServerAdapterTest extends TestCase
             ['column10', 'datetime', []],
             ['column11', 'binary', []],
             ['column12', 'string', ['limit' => 10]],
+            ['decimal_precision_scale', 'decimal', ['precision' => 10, 'scale' => 2]],
+            ['decimal_limit', 'decimal', ['limit' => 10]],
+            ['decimal_precision', 'decimal', ['precision' => 10]],
         ];
     }
 

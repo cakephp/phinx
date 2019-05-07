@@ -1152,12 +1152,15 @@ SQL;
                 'int',
                 'tinyint'
             ];
-            if (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
+            if (static::PHINX_TYPE_DECIMAL === $sqlType['name'] && $column->getPrecision() && $column->getScale()) {
+                $buffer[] = sprintf(
+                    '(%s, %s)',
+                    $column->getPrecision() ?: $sqlType['precision'],
+                    $column->getScale() ?: $sqlType['scale']
+                );
+            } elseif (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
                 $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
             }
-        }
-        if ($column->getPrecision() && $column->getScale()) {
-            $buffer[] = '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         }
 
         $properties = $column->getProperties();
