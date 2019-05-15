@@ -73,7 +73,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $options = $this->getOptions();
 
             // if port is specified use it, otherwise use the MySQL default
-            if (isset($options['memory'])) {
+            if (isset($options['memory']) && $options['memory']) {
                 $dsn = 'sqlite::memory:';
             } else {
                 $dsn = 'sqlite:' . $options['name'] . $this->suffix;
@@ -641,11 +641,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasIndex($tableName, $columns)
     {
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
-
-        $columns = array_map('strtolower', $columns);
+        $columns = array_map('strtolower', (array) $columns);
         $indexes = $this->getIndexes($tableName);
 
         foreach ($indexes as $index) {
@@ -699,12 +695,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDropIndexByColumnsInstructions($tableName, $columns)
     {
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
-
         $indexes = $this->getIndexes($tableName);
-        $columns = array_map('strtolower', $columns);
+        $columns = array_map('strtolower', (array) $columns);
         $instructions = new AlterInstructions();
 
         foreach ($indexes as $index) {
@@ -751,10 +743,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             return false;
         }
 
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
-        $missingColumns = array_diff($columns, [$primaryKey]);
+        $missingColumns = array_diff((array) $columns, (array) $primaryKey);
 
         return empty($missingColumns);
     }
@@ -809,12 +798,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
         $foreignKeys = $this->getForeignKeys($tableName);
 
-        return !array_diff($columns, $foreignKeys);
+        return !array_diff((array) $columns, $foreignKeys);
     }
 
     /**
@@ -1158,8 +1144,12 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropDatabase($name)
     {
-        if (file_exists($name . '.sqlite3')) {
-            unlink($name . '.sqlite3');
+        if ($this->getOption('memory')) {
+            $this->disconnect();
+            $this->connect();
+        }
+        if (file_exists($name . $this->suffix)) {
+            unlink($name . $this->suffix);
         }
     }
 

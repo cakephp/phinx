@@ -40,6 +40,8 @@
         <!-- SQLite -->
         <env name="TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED" value="true" />
         <env name="TESTS_PHINX_DB_ADAPTER_SQLITE_DATABASE" value="phinx_testing" />
+        <env name="TESTS_PHINX_DB_ADAPTER_SQLITE_SUFFIX" value=".sqlite3" />
+        <env name="TESTS_PHINX_DB_ADAPTER_SQLITE_MEMORY" value="false" />
     </php>
 
     <testsuite name="Phinx Test Suite">
