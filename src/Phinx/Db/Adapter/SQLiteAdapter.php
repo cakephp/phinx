@@ -641,7 +641,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasIndex($tableName, $columns)
     {
-        $columns = array_map('strtolower', (array) $columns);
+        $columns = array_map('strtolower', (array)$columns);
         $indexes = $this->getIndexes($tableName);
 
         foreach ($indexes as $index) {
@@ -696,7 +696,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     protected function getDropIndexByColumnsInstructions($tableName, $columns)
     {
         $indexes = $this->getIndexes($tableName);
-        $columns = array_map('strtolower', (array) $columns);
+        $columns = array_map('strtolower', (array)$columns);
         $instructions = new AlterInstructions();
 
         foreach ($indexes as $index) {
@@ -743,7 +743,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             return false;
         }
 
-        $missingColumns = array_diff((array) $columns, (array) $primaryKey);
+        $missingColumns = array_diff((array)$columns, (array)$primaryKey);
 
         return empty($missingColumns);
     }
@@ -800,7 +800,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     {
         $foreignKeys = $this->getForeignKeys($tableName);
 
-        return !array_diff((array) $columns, $foreignKeys);
+        return !array_diff((array)$columns, $foreignKeys);
     }
 
     /**
