@@ -169,17 +169,52 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * @param string $tableName Table name
+     * @return array
+     */
+    protected function getSchemaName($tableName)
+    {
+        if (preg_match("/.\.([^\.]+)$/", $tableName, $match)) {
+            $table = $match[1];
+            $schema = substr($tableName, 0, strlen($tableName) - strlen($match[0]) + 1);
+            $result = ['schema' => $schema, 'table' => $table];
+        } else {
+            $result = ['schema' => '', 'table' => $tableName];
+        }
+        
+        return $result;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function hasTable($tableName)
     {
+        $spec = $this->getSchemaName($tableName);
+        switch ($spec['schema']) {
+            case 'main':
+            case '':
+                $master = 'sqlite_master';
+                break;
+            case 'temp':
+                $master = 'sqlite_temp_master';
+                break;
+            default:
+                $master = sprintf('%s.%s', $this->quoteColumnName($spec['schema']), 'sqlite_master');
+        }
+        $table = $spec['table'];
+
         $tables = [];
-        $rows = $this->fetchAll(sprintf('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'%s\'', $tableName));
+        try {
+            $rows = $this->fetchAll(sprintf('SELECT name FROM %s WHERE type=\'table\' AND name=%s', $master, $this->quoteValue($table)));
+        } catch (\PDOException $e) {
+            return false;
+        }
         foreach ($rows as $row) {
             $tables[] = strtolower($row[0]);
         }
 
-        return in_array(strtolower($tableName), $tables);
+        return in_array(strtolower($table), $tables);
     }
 
     /**

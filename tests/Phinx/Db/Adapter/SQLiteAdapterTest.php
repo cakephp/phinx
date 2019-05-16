@@ -86,6 +86,41 @@ class SQLiteAdapterTest extends TestCase
         );
     }
 
+    /** @dataProvider provideTableNamesForPresenceCheck
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::hasTable
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName */
+    public function testHasTable($createName, $tableName, $exp)
+    {
+        // Test case for issue #1535
+        $conn = $this->adapter->getConnection();
+        $conn->exec('ATTACH DATABASE \':memory:\' as etc');
+        $conn->exec('ATTACH DATABASE \':memory:\' as "main.db"');
+        $conn->exec(sprintf('DROP TABLE IF EXISTS %s', $createName));
+        $this->assertFalse($this->adapter->hasTable($tableName), sprintf('Adapter claims table %s exists when it does not', $tableName));
+        $conn->exec(sprintf('CREATE TABLE %s (a text)', $createName));
+        if ($exp == true) {
+            $this->assertTrue($this->adapter->hasTable($tableName), sprintf('Adapter claims table %s does not exist when it should', $tableName));
+        } else {
+            $this->assertFalse($this->adapter->hasTable($tableName), sprintf('Adapter claims table %s exists when it should not', $tableName));
+        }
+    }
+
+    public function provideTableNamesForPresenceCheck()
+    {
+        return [
+            'Ordinary table' => ['t', 't', true],
+            'Ordinary table with schema' => ['t', 'main.t', true],
+            'Temporary table' => ['temp.t', 't', false],
+            'Temporary table with schema' => ['temp.t', 'temp.t', true],
+            'Attached table' => ['etc.t', 't', false],
+            'Attached table with schema' => ['etc.t', 'etc.t', true],
+            'Attached table with unusual schema' => ['"main.db".t', 'main.db.t', true],
+            'Wrong schema' => ['t', 'etc.t', false],
+            'Missing schema' => ['t', 'not_attached.t', false],
+            'Malicious table' => ['t', '\'', false]
+        ];
+    }
+
     public function testCreatingTheSchemaTableOnConnect()
     {
         $this->adapter->connect();
