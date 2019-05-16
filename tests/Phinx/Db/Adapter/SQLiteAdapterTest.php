@@ -26,7 +26,9 @@ class SQLiteAdapterTest extends TestCase
         }
 
         $options = [
-            'name' => TESTS_PHINX_DB_ADAPTER_SQLITE_DATABASE
+            'name' => TESTS_PHINX_DB_ADAPTER_SQLITE_DATABASE,
+            'suffix' => TESTS_PHINX_DB_ADAPTER_SQLITE_SUFFIX,
+            'memory' => TESTS_PHINX_DB_ADAPTER_SQLITE_MEMORY
         ];
         $this->adapter = new SQLiteAdapter($options, new ArrayInput([]), new NullOutput());
 
@@ -1051,6 +1053,7 @@ INSERT INTO `table1` (`string_col`) VALUES (null);
 INSERT INTO `table1` (`int_col`) VALUES (23);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
+        $actualOutput = preg_replace("/\r\n|\r/", "\n", $actualOutput); // normalize line endings for Windows
         $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the insert to the output');
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
