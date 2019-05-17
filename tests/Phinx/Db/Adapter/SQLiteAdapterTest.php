@@ -117,7 +117,7 @@ class SQLiteAdapterTest extends TestCase
             'Attached table with unusual schema' => ['"main.db".t', 'main.db.t', true],
             'Wrong schema' => ['t', 'etc.t', false],
             'Missing schema' => ['t', 'not_attached.t', false],
-            'Malicious table' => ['\'', '\'', true],
+            'Malicious table' => ['"\'"', '\'', true],
             'Malicious missing table' => ['t', '\'', false]
         ];
     }
