@@ -266,6 +266,17 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
+     * Quotes a database string.
+     *
+     * @param string $value  The string to quote
+     * @return mixed
+     */
+    protected function quoteString($value)
+    {
+        return $this->getConnection()->quote($value);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function bulkinsert(Table $table, $rows)

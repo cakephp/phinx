@@ -191,30 +191,32 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     public function hasTable($tableName)
     {
         $spec = $this->getSchemaName($tableName);
-        switch ($spec['schema']) {
+        switch (strtolower($spec['schema'])) {
             case 'main':
             case '':
                 $master = 'sqlite_master';
                 break;
-            case 'temp':
-                $master = 'sqlite_temp_master';
-                break;
             default:
                 $master = sprintf('%s.%s', $this->quoteColumnName($spec['schema']), 'sqlite_master');
         }
-        $table = $spec['table'];
+        $table = strtolower($spec['table']);
 
-        $tables = [];
         try {
-            $rows = $this->fetchAll(sprintf('SELECT name FROM %s WHERE type=\'table\' AND name=%s', $master, $this->quoteValue($table)));
+            $rows = $this->fetchAll(sprintf('SELECT name FROM %s WHERE type=\'table\' AND lower(name) = %s', $master, $this->quoteString($table)));
         } catch (\PDOException $e) {
+            // an exception can occur if the schema part of the table refers to a database which is not attached
             return false;
         }
+
+        // this somewhat pedantic check with strtolower is performed because the SQL lower function may be redefined, 
+        // and can act on all Unicode characters if the ICU extension is loaded, while SQL identifiers are only case-insensitive for ASCII
         foreach ($rows as $row) {
-            $tables[] = strtolower($row[0]);
+            if (strtolower($row['name']) == $table) {
+                return true;
+            }
         }
 
-        return in_array(strtolower($table), $tables);
+        return false;
     }
 
     /**
