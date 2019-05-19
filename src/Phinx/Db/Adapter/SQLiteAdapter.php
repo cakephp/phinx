@@ -208,7 +208,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             return false;
         }
 
-        // this somewhat pedantic check with strtolower is performed because the SQL lower function may be redefined, 
+        // this somewhat pedantic check with strtolower is performed because the SQL lower function may be redefined,
         // and can act on all Unicode characters if the ICU extension is loaded, while SQL identifiers are only case-insensitive for ASCII
         foreach ($rows as $row) {
             if (strtolower($row['name']) == $table) {
