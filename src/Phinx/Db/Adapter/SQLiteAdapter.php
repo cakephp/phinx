@@ -169,17 +169,64 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * @param string $tableName Table name
+     * @return array
+     */
+    protected function getSchemaName($tableName)
+    {
+        if (preg_match("/.\.([^\.]+)$/", $tableName, $match)) {
+            $table = $match[1];
+            $schema = substr($tableName, 0, strlen($tableName) - strlen($match[0]) + 1);
+            $result = ['schema' => $schema, 'table' => $table];
+        } else {
+            $result = ['schema' => '', 'table' => $tableName];
+        }
+
+        return $result;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function hasTable($tableName)
     {
-        $tables = [];
-        $rows = $this->fetchAll(sprintf('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'%s\'', $tableName));
-        foreach ($rows as $row) {
-            $tables[] = strtolower($row[0]);
+        $info = $this->getSchemaName($tableName);
+        if ($info['schema'] === '') {
+            // if no schema is specified we search all schemata
+            $rows = $this->fetchAll('PRAGMA database_list;');
+            $schemata = [];
+            foreach ($rows as $row) {
+                $schemata[] = $row['name'];
+            }
+        } else {
+            // otherwise we search just the specified schema
+            $schemata = (array)$info['schema'];
         }
 
-        return in_array(strtolower($tableName), $tables);
+        $table = strtolower($info['table']);
+        foreach ($schemata as $schema) {
+            if (strtolower($schema) === 'temp') {
+                $master = 'sqlite_temp_master';
+            } else {
+                $master = sprintf('%s.%s', $this->quoteColumnName($schema), 'sqlite_master');
+            }
+            try {
+                $rows = $this->fetchAll(sprintf('SELECT name FROM %s WHERE type=\'table\' AND lower(name) = %s', $master, $this->quoteString($table)));
+            } catch (\PDOException $e) {
+                // an exception can occur if the schema part of the table refers to a database which is not attached
+                return false;
+            }
+
+            // this somewhat pedantic check with strtolower is performed because the SQL lower function may be redefined,
+            // and can act on all Unicode characters if the ICU extension is loaded, while SQL identifiers are only case-insensitive for ASCII
+            foreach ($rows as $row) {
+                if (strtolower($row['name']) === $table) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
