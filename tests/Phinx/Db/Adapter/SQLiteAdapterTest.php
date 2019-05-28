@@ -1172,4 +1172,53 @@ INPUT;
         $this->assertCount(1, $columns);
         $this->assertEquals(Literal::from('real'), array_pop($columns)->getType());
     }
+
+    /** @dataProvider provideTableNamesForPresenceCheck
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::hasTable
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::quoteString
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName */
+    public function testHasTable($createName, $tableName, $exp)
+    {
+        // Test case for issue #1535
+        $conn = $this->adapter->getConnection();
+        $conn->exec('ATTACH DATABASE \':memory:\' as etc');
+        $conn->exec('ATTACH DATABASE \':memory:\' as "main.db"');
+        $conn->exec(sprintf('DROP TABLE IF EXISTS %s', $createName));
+        $this->assertFalse($this->adapter->hasTable($tableName), sprintf('Adapter claims table %s exists when it does not', $tableName));
+        $conn->exec(sprintf('CREATE TABLE %s (a text)', $createName));
+        if ($exp == true) {
+            $this->assertTrue($this->adapter->hasTable($tableName), sprintf('Adapter claims table %s does not exist when it does', $tableName));
+        } else {
+            $this->assertFalse($this->adapter->hasTable($tableName), sprintf('Adapter claims table %s exists when it does not', $tableName));
+        }
+    }
+
+    public function provideTableNamesForPresenceCheck()
+    {
+        return [
+            'Ordinary table' => ['t', 't', true],
+            'Ordinary table with schema' => ['t', 'main.t', true],
+            'Temporary table' => ['temp.t', 't', true],
+            'Temporary table with schema' => ['temp.t', 'temp.t', true],
+            'Attached table' => ['etc.t', 't', true],
+            'Attached table with schema' => ['etc.t', 'etc.t', true],
+            'Attached table with unusual schema' => ['"main.db".t', 'main.db.t', true],
+            'Wrong schema 1' => ['t', 'etc.t', false],
+            'Wrong schema 2' => ['t', 'temp.t', false],
+            'Missing schema' => ['t', 'not_attached.t', false],
+            'Malicious table' => ['"\'"', '\'', true],
+            'Malicious missing table' => ['t', '\'', false],
+            'Table name case 1' => ['t', 'T', true],
+            'Table name case 2' => ['T', 't', true],
+            'Schema name case 1' => ['main.t', 'MAIN.t', true],
+            'Schema name case 2' => ['MAIN.t', 'main.t', true],
+            'Schema name case 3' => ['temp.t', 'TEMP.t', true],
+            'Schema name case 4' => ['TEMP.t', 'temp.t', true],
+            'Schema name case 5' => ['etc.t', 'ETC.t', true],
+            'Schema name case 6' => ['ETC.t', 'etc.t', true],
+            'PHP zero string 1' => ['"0"', '0', true],
+            'PHP zero string 2' => ['"0"', '0e2', false],
+            'PHP zero string 3' => ['"0e2"', '0', false]
+        ];
+    }
 }
