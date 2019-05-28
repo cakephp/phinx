@@ -205,7 +205,11 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $table = strtolower($info['table']);
         foreach ($schemata as $schema) {
-            $master = sprintf('%s.%s', $this->quoteColumnName($schema), 'sqlite_master');
+            if (strtolower($schema) === 'temp') {
+                $master = 'sqlite_temp_master';
+            } else {
+                $master = sprintf('%s.%s', $this->quoteColumnName($schema), 'sqlite_master');
+            }
             try {
                 $rows = $this->fetchAll(sprintf('SELECT name FROM %s WHERE type=\'table\' AND lower(name) = %s', $master, $this->quoteString($table)));
             } catch (\PDOException $e) {
