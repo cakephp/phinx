@@ -252,7 +252,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * @param mixed $value  The value to quote
      * @return mixed
      */
-    protected function quoteValue($value)
+    private function quoteValue($value)
     {
         if (is_numeric($value)) {
             return $value;
@@ -262,17 +262,6 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             return 'null';
         }
 
-        return $this->getConnection()->quote($value);
-    }
-
-    /**
-     * Quotes a database string.
-     *
-     * @param string $value  The string to quote
-     * @return mixed
-     */
-    protected function quoteString($value)
-    {
         return $this->getConnection()->quote($value);
     }
 
