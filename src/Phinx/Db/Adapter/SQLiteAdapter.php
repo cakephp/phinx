@@ -169,54 +169,17 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * @param string $tableName Table name
-     * @return array
-     */
-    protected function getSchemaName($tableName)
-    {
-        if (preg_match("/.\.([^\.]+)$/", $tableName, $match)) {
-            $table = $match[1];
-            $schema = substr($tableName, 0, strlen($tableName) - strlen($match[0]) + 1);
-            $result = ['schema' => $schema, 'table' => $table];
-        } else {
-            $result = ['schema' => '', 'table' => $tableName];
-        }
-        
-        return $result;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function hasTable($tableName)
     {
-        $spec = $this->getSchemaName($tableName);
-        switch (strtolower($spec['schema'])) {
-            case 'main':
-            case '':
-                $master = 'sqlite_master';
-                break;
-            default:
-                $master = sprintf('%s.%s', $this->quoteColumnName($spec['schema']), 'sqlite_master');
-        }
-        $table = strtolower($spec['table']);
-
-        try {
-            $rows = $this->fetchAll(sprintf('SELECT name FROM %s WHERE type=\'table\' AND lower(name) = %s', $master, $this->quoteString($table)));
-        } catch (\PDOException $e) {
-            // an exception can occur if the schema part of the table refers to a database which is not attached
-            return false;
-        }
-
-        // this somewhat pedantic check with strtolower is performed because the SQL lower function may be redefined,
-        // and can act on all Unicode characters if the ICU extension is loaded, while SQL identifiers are only case-insensitive for ASCII
+        $tables = [];
+        $rows = $this->fetchAll(sprintf('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'%s\'', $tableName));
         foreach ($rows as $row) {
-            if (strtolower($row['name']) == $table) {
-                return true;
-            }
+            $tables[] = strtolower($row[0]);
         }
 
-        return false;
+        return in_array(strtolower($tableName), $tables);
     }
 
     /**
