@@ -1221,4 +1221,63 @@ INPUT;
             'PHP zero string 3' => ['"0e2"', '0', false]
         ];
     }
+
+    /** @dataProvider provideIndexColumnsToCheck
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getTableInfo
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getIndexes
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::resolveIndex
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::hasIndex */
+    public function testHasIndex($tableDef, $cols, $exp)
+    {
+        $conn = $this->adapter->getConnection();
+        $conn->exec($tableDef);
+        $this->assertEquals($exp, $this->adapter->hasIndex('t', $cols));
+    }
+
+    public function provideIndexColumnsToCheck()
+    {
+        return [
+            ['create table t(a text)', 'a', false],
+            ['create table t(a text); create index test on t(a);', 'a', true],
+            ['create table t(a text unique)', 'a', true],
+            ['create table t(a text primary key)', 'a', true],
+            ['create table t(a text unique, b text unique)', ['a', 'b'], false],
+            ['create table t(a text, b text, unique(a,b))', ['a', 'b'], true],
+            ['create table t(a text, b text); create index test on t(a,b)', ['a', 'b'], true],
+            ['create table t(a text, b text); create index test on t(a,b)', ['a'], false],
+            ['create table t(a text, b text); create index test on t(a)', ['a', 'b'], false],
+            ['create table t(a text, b text); create index test on t(a,b)', ['A', 'B'], true],
+            ['create table t("A" text, "B" text); create index test on t("A","B")', ['a', 'b'], true],
+            ['create table not_t(a text, b text, unique(a,b))', ['A', 'B'], false], // test checks table t which does not exist
+            ['create table t(a text, b text); create index test on t(a)', ['a', 'a'], true], // duplicate column is collapsed
+            ['create table t(a text unique); create temp table t(a text)', 'a', false],
+        ];
+    }
+
+    /** @dataProvider provideIndexNamesToCheck
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getTableInfo
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getIndexes
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::hasIndexByName */
+    public function testHasIndexByName($tableDef, $index, $exp)
+    {
+        $conn = $this->adapter->getConnection();
+        $conn->exec($tableDef);
+        $this->assertEquals($exp, $this->adapter->hasIndexByName('t', $index));
+    }
+
+    public function provideIndexNamesToCheck()
+    {
+        return [
+            ['create table t(a text)', 'test', false],
+            ['create table t(a text); create index test on t(a);', 'test', true],
+            ['create table t(a text); create index test on t(a);', 'TEST', true],
+            ['create table t(a text); create index "TEST" on t(a);', 'test', true],
+            ['create table t(a text unique)', 'sqlite_autoindex_t_1', true],
+            ['create table t(a text primary key)', 'sqlite_autoindex_t_1', true],
+            ['create table not_t(a text); create index test on not_t(a);', 'test', false], // test checks table t which does not exist
+            ['create table t(a text unique); create temp table t(a text)', 'sqlite_autoindex_t_1', false],
+        ];
+    }
 }
