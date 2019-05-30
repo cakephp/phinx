@@ -183,7 +183,8 @@ class SQLiteAdapterTest extends TestCase
               ->addColumn('tag_id', 'integer')
               ->save();
         $this->assertTrue($this->adapter->hasIndex('table1', ['user_id', 'tag_id']));
-        $this->assertTrue($this->adapter->hasIndex('table1', ['tag_id', 'USER_ID']));
+        $this->assertTrue($this->adapter->hasIndex('table1', ['USER_ID', 'tag_id']));
+        $this->assertFalse($this->adapter->hasIndex('table1', ['tag_id', 'USER_ID']));
         $this->assertFalse($this->adapter->hasIndex('table1', ['tag_id', 'user_email']));
     }
 
@@ -1245,12 +1246,13 @@ INPUT;
             ['create table t(a text unique, b text unique)', ['a', 'b'], false],
             ['create table t(a text, b text, unique(a,b))', ['a', 'b'], true],
             ['create table t(a text, b text); create index test on t(a,b)', ['a', 'b'], true],
+            ['create table t(a text, b text); create index test on t(a,b)', ['b', 'a'], false],
             ['create table t(a text, b text); create index test on t(a,b)', ['a'], false],
             ['create table t(a text, b text); create index test on t(a)', ['a', 'b'], false],
             ['create table t(a text, b text); create index test on t(a,b)', ['A', 'B'], true],
             ['create table t("A" text, "B" text); create index test on t("A","B")', ['a', 'b'], true],
             ['create table not_t(a text, b text, unique(a,b))', ['A', 'B'], false], // test checks table t which does not exist
-            ['create table t(a text, b text); create index test on t(a)', ['a', 'a'], true], // duplicate column is collapsed
+            ['create table t(a text, b text); create index test on t(a)', ['a', 'a'], false],
             ['create table t(a text unique); create temp table t(a text)', 'a', false],
         ];
     }

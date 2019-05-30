@@ -703,29 +703,26 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Finds the name of a table's index matching the supplied columns
+     * Finds the names of a table's indexes matching the supplied columns
      *
      * @param string $tableName The table to which the index belongs
      * @param string|string[] $columns The columns of the index
-     * @return string|null
+     * @return array
      */
     protected function resolveIndex($tableName, $columns)
     {
         $columns = array_map('strtolower', (array)$columns);
         $indexes = $this->getIndexes($tableName);
+        $matches = [];
 
         foreach ($indexes as $name => $index) {
             $indexCols = array_map('strtolower', $index);
-            if (array_diff($columns, $indexCols)) {
-                continue;
-            } elseif (array_diff($indexCols, $columns)) {
-                continue;
-            } else {
-                return $name;
+            if ($columns == $indexCols) {
+                $matches[] = $name;
             }
         }
 
-        return null;
+        return $matches;
     }
 
     /**
@@ -733,7 +730,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasIndex($tableName, $columns)
     {
-        return ($this->resolveIndex($tableName, $columns) !== null);
+        return (bool)$this->resolveIndex($tableName, $columns);
     }
 
     /**
@@ -779,14 +776,16 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     protected function getDropIndexByColumnsInstructions($tableName, $columns)
     {
         $instructions = new AlterInstructions();
-        $indexName = $this->resolveIndex($tableName, $columns);
-        if (!is_null($indexName)) {
-            $schema = $this->getSchemaName($tableName, true)['schema'];
+        $indexNames = $this->resolveIndex($tableName, $columns);
+        $schema = $this->getSchemaName($tableName, true)['schema'];
+        foreach ($indexNames as $indexName) {
+            if (strpos($indexName, 'sqlite_autoindex_') !== 0) {
                 $instructions->addPostStep(sprintf(
                     'DROP INDEX %s%s',
                     $schema,
                     $this->quoteColumnName($indexName)
                 ));
+            }
         }
 
         return $instructions;
