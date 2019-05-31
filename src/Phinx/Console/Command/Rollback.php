@@ -97,7 +97,7 @@ EOT
             $output->writeln('<info>using environment</info> ' . $environment);
         }
 
-        $envOptions = $config->getEnvironment($environment);
+        $envOptions = $this->getManager()->getEnvironment($environment)->getOptions();
         if (isset($envOptions['adapter'])) {
             $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         }
@@ -110,8 +110,7 @@ EOT
             $output->writeln('<info>using database</info> ' . $envOptions['name']);
         }
 
-        $versionOrder = $this->getConfig()->getVersionOrder();
-        $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
+        $output->writeln('<info>ordering by </info>' . $envOptions['version_order'] . " time");
 
         if ($fake) {
             $output->writeln('<comment>warning</comment> performing fake rollbacks');
