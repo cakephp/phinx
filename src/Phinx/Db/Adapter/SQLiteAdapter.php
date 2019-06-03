@@ -170,9 +170,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
     /**
      * @param string $tableName Table name
+     * @param boolean $quoted Whether to return the schema name and table name escaped and quoted. If quoted, the schema (if any) will also be appended with a dot
      * @return array
      */
-    protected function getSchemaName($tableName)
+    protected function getSchemaName($tableName, $quoted = false)
     {
         if (preg_match("/.\.([^\.]+)$/", $tableName, $match)) {
             $table = $match[1];
@@ -180,6 +181,11 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $result = ['schema' => $schema, 'table' => $table];
         } else {
             $result = ['schema' => '', 'table' => $tableName];
+        }
+
+        if ($quoted) {
+            $result['schema'] = strlen($result['schema']) ? $this->quoteColumnName($result['schema']) . '.' : '';
+            $result['table'] = $this->quoteColumnName($result['table']);
         }
 
         return $result;
@@ -227,6 +233,19 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
 
         return false;
+    }
+
+    /**
+     * Retrieves information about a given table from one of the SQLite pragmas
+     *
+     * @param string $tableName The table to query
+     * @param string $pragma The pragma to query
+     * @return array
+     */
+    protected function getTableInfo($tableName, $pragma = 'table_info')
+    {
+        $info = $this->getSchemaName($tableName, true);
+        return $this->fetchAll(sprintf('PRAGMA %s%s(%s)', $info['schema'], $pragma, $info['table']));
     }
 
     /**
@@ -668,19 +687,42 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     protected function getIndexes($tableName)
     {
         $indexes = [];
-        $rows = $this->fetchAll(sprintf('pragma index_list(%s)', $tableName));
+        $schema = $this->getSchemaName($tableName, true)['schema'];
+        $indexList = $this->getTableInfo($tableName, 'index_list');
 
-        foreach ($rows as $row) {
-            $indexData = $this->fetchAll(sprintf('pragma index_info(%s)', $row['name']));
-            if (!isset($indexes[$tableName])) {
-                $indexes[$tableName] = ['index' => $row['name'], 'columns' => []];
-            }
+        foreach ($indexList as $index) {
+            $indexData = $this->fetchAll(sprintf('pragma %sindex_info(%s)', $schema, $this->quoteColumnName($index['name'])));
+            $cols = [];
             foreach ($indexData as $indexItem) {
-                $indexes[$tableName]['columns'][] = strtolower($indexItem['name']);
+                $cols[] = $indexItem['name'];
             }
+            $indexes[$index['name']] = $cols;
         }
 
         return $indexes;
+    }
+
+    /**
+     * Finds the names of a table's indexes matching the supplied columns
+     *
+     * @param string $tableName The table to which the index belongs
+     * @param string|string[] $columns The columns of the index
+     * @return array
+     */
+    protected function resolveIndex($tableName, $columns)
+    {
+        $columns = array_map('strtolower', (array)$columns);
+        $indexes = $this->getIndexes($tableName);
+        $matches = [];
+
+        foreach ($indexes as $name => $index) {
+            $indexCols = array_map('strtolower', $index);
+            if ($columns == $indexCols) {
+                $matches[] = $name;
+            }
+        }
+
+        return $matches;
     }
 
     /**
@@ -688,17 +730,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasIndex($tableName, $columns)
     {
-        $columns = array_map('strtolower', (array)$columns);
-        $indexes = $this->getIndexes($tableName);
-
-        foreach ($indexes as $index) {
-            $a = array_diff($columns, $index['columns']);
-            if (empty($a)) {
-                return true;
-            }
-        }
-
-        return false;
+        return (bool)$this->resolveIndex($tableName, $columns);
     }
 
     /**
@@ -706,10 +738,11 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasIndexByName($tableName, $indexName)
     {
+        $indexName = strtolower($indexName);
         $indexes = $this->getIndexes($tableName);
 
-        foreach ($indexes as $index) {
-            if ($indexName === $index['index']) {
+        foreach (array_keys($indexes) as $index) {
+            if ($indexName === strtolower($index)) {
                 return true;
             }
         }
@@ -742,16 +775,15 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDropIndexByColumnsInstructions($tableName, $columns)
     {
-        $indexes = $this->getIndexes($tableName);
-        $columns = array_map('strtolower', (array)$columns);
         $instructions = new AlterInstructions();
-
-        foreach ($indexes as $index) {
-            $a = array_diff($columns, $index['columns']);
-            if (empty($a)) {
+        $indexNames = $this->resolveIndex($tableName, $columns);
+        $schema = $this->getSchemaName($tableName, true)['schema'];
+        foreach ($indexNames as $indexName) {
+            if (strpos($indexName, 'sqlite_autoindex_') !== 0) {
                 $instructions->addPostStep(sprintf(
-                    'DROP INDEX %s',
-                    $this->quoteColumnName($index['index'])
+                    'DROP INDEX %s%s',
+                    $schema,
+                    $this->quoteColumnName($indexName)
                 ));
             }
         }
@@ -764,16 +796,25 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDropIndexByNameInstructions($tableName, $indexName)
     {
-        $indexes = $this->getIndexes($tableName);
         $instructions = new AlterInstructions();
+        $indexName = strtolower($indexName);
+        $indexes = $this->getIndexes($tableName);
 
-        foreach ($indexes as $index) {
-            if ($indexName === $index['index']) {
+        $found = false;
+        foreach (array_keys($indexes) as $index) {
+            if ($indexName === strtolower($index)) {
+                $found = true;
+                break;
+            }
+        }
+
+        if ($found) {
+            $schema = $this->getSchemaName($tableName, true)['schema'];
                 $instructions->addPostStep(sprintf(
-                    'DROP INDEX %s',
+                    'DROP INDEX %s%s',
+                    $schema,
                     $this->quoteColumnName($indexName)
                 ));
-            }
         }
 
         return $instructions;
