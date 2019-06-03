@@ -249,19 +249,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Retrieves information about a given table from one of the SQLite pragmas
-     *
-     * @param string $tableName The table to query
-     * @param string $pragma The pragma to query
-     * @return array
-     */
-    protected function getTableInfo($tableName, $pragma = 'table_info')
-    {
-        $info = $this->getSchemaName($tableName, true);
-        return $this->fetchAll(sprintf('PRAGMA %s%s(%s)', $info['schema'], $pragma, $info['table']));
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
