@@ -811,13 +811,11 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $columns = array_map('strtolower', (array)$columns);
         $primaryKey = array_map('strtolower', $this->getPrimaryKey($tableName));
 
-        if (array_diff($primaryKey, $columns)) {
+        if (array_diff($primaryKey, $columns) || array_diff($columns, $primaryKey)) {
             return false;
-        } elseif (array_diff($columns, $primaryKey)) {
-            return false;
-        } else {
-            return true;
         }
+        
+        return true;
     }
 
     /**
@@ -855,13 +853,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         foreach ($foreignKeys as $key) {
             $key = array_map('strtolower', $key);
-            if (array_diff($key, $columns)) {
+            if (array_diff($key, $columns) || array_diff($columns, $key)) {
                 continue;
-            } elseif (array_diff($columns, $key)) {
-                continue;
-            } else {
-                return true;
             }
+            return true;
         }
 
         return false;
