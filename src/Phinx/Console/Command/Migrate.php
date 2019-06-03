@@ -85,7 +85,8 @@ EOT
             $output->writeln('<info>using environment</info> ' . $environment);
         }
 
-        $envOptions = $this->getManager()->getEnvironment($environment)->getOptions();
+        $manager = $this->getManager();
+        $envOptions = isset($manager) ? $manager->getEnvironment($environment)->getOptions() : [];
         if (isset($envOptions['adapter'])) {
             $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
         }
