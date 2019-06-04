@@ -192,6 +192,19 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * Retrieves information about a given table from one of the SQLite pragmas
+     *
+     * @param string $tableName The table to query
+     * @param string $pragma The pragma to query
+     * @return array
+     */
+    protected function getTableInfo($tableName, $pragma = 'table_info')
+    {
+        $info = $this->getSchemaName($tableName, true);
+        return $this->fetchAll(sprintf('PRAGMA %s%s(%s)', $info['schema'], $pragma, $info['table']));
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function hasTable($tableName)
@@ -233,19 +246,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
 
         return false;
-    }
-
-    /**
-     * Retrieves information about a given table from one of the SQLite pragmas
-     *
-     * @param string $tableName The table to query
-     * @param string $pragma The pragma to query
-     * @return array
-     */
-    protected function getTableInfo($tableName, $pragma = 'table_info')
-    {
-        $info = $this->getSchemaName($tableName, true);
-        return $this->fetchAll(sprintf('PRAGMA %s%s(%s)', $info['schema'], $pragma, $info['table']));
     }
 
     /**
@@ -323,7 +323,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $primaryKey = $this->getPrimaryKey($table->getName());
         if (!empty($primaryKey)) {
             $instructions->merge(
-                $this->getDropPrimaryKeyInstructions($table, $primaryKey)
+                // FIXME: array access is a hack to make this incomplete implementation work with a correct getPrimaryKey implementation
+                $this->getDropPrimaryKeyInstructions($table, $primaryKey[0])
             );
         }
 
@@ -825,60 +826,39 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasPrimaryKey($tableName, $columns, $constraint = null)
     {
-        $primaryKey = $this->getPrimaryKey($tableName);
-
-        if (empty($primaryKey)) {
-            return false;
+        if (!is_null($constraint)) {
+            throw new \InvalidArgumentException('SQLite does not support named constraints.');
         }
 
-        $missingColumns = array_diff((array)$columns, (array)$primaryKey);
+        $columns = array_map('strtolower', (array)$columns);
+        $primaryKey = array_map('strtolower', $this->getPrimaryKey($tableName));
 
-        return empty($missingColumns);
+        if (array_diff($primaryKey, $columns) || array_diff($columns, $primaryKey)) {
+            return false;
+        }
+        
+        return true;
     }
 
     /**
      * Get the primary key from a particular table.
      *
      * @param string $tableName Table Name
-     * @return string|null
+     * @return string[]
      */
     protected function getPrimaryKey($tableName)
     {
-        $rows = $this->fetchAll(
-            "SELECT sql, tbl_name
-              FROM (
-                    SELECT sql sql, type type, tbl_name tbl_name, name name
-                      FROM sqlite_master
-                     UNION ALL
-                    SELECT sql, type, tbl_name, name
-                      FROM sqlite_temp_master
-                   )
-             WHERE type != 'meta'
-               AND sql NOTNULL
-               AND name NOT LIKE 'sqlite_%'
-             ORDER BY substr(type, 2, 1), name"
-        );
+        $primaryKey = [];
+
+        $rows = $this->getTableInfo($tableName);
 
         foreach ($rows as $row) {
-            if ($row['tbl_name'] === $tableName) {
-                if (strpos($row['sql'], 'PRIMARY KEY') !== false) {
-                    preg_match_all("/PRIMARY KEY\s*\(`([^`]+)`\)/", $row['sql'], $matches);
-                    foreach ($matches[1] as $match) {
-                        if (!empty($match)) {
-                            return $match;
-                        }
-                    }
-                    preg_match_all("/`([^`]+)`\s+\w+(\(\d+\))?((\s+NOT)?\s+NULL)?\s+PRIMARY KEY/", $row['sql'], $matches);
-                    foreach ($matches[1] as $match) {
-                        if (!empty($match)) {
-                            return $match;
-                        }
-                    }
-                }
+            if ($row['pk'] > 0) {
+                $primaryKey[$row['pk'] - 1] = $row['name'];
             }
         }
 
-        return null;
+        return $primaryKey;
     }
 
     /**
@@ -886,9 +866,22 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
+        if (!is_null($constraint)) {
+            throw new \InvalidArgumentException('SQLite does not support named constraints.');
+        }
+
+        $columns = array_map('strtolower', (array)$columns);
         $foreignKeys = $this->getForeignKeys($tableName);
 
-        return !array_diff((array)$columns, $foreignKeys);
+        foreach ($foreignKeys as $key) {
+            $key = array_map('strtolower', $key);
+            if (array_diff($key, $columns) || array_diff($columns, $key)) {
+                continue;
+            }
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -900,30 +893,14 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     protected function getForeignKeys($tableName)
     {
         $foreignKeys = [];
-        $rows = $this->fetchAll(
-            "SELECT sql, tbl_name
-              FROM (
-                    SELECT sql sql, type type, tbl_name tbl_name, name name
-                      FROM sqlite_master
-                     UNION ALL
-                    SELECT sql, type, tbl_name, name
-                      FROM sqlite_temp_master
-                   )
-             WHERE type != 'meta'
-               AND sql NOTNULL
-               AND name NOT LIKE 'sqlite_%'
-             ORDER BY substr(type, 2, 1), name"
-        );
+
+        $rows = $this->getTableInfo($tableName, 'foreign_key_list');
 
         foreach ($rows as $row) {
-            if ($row['tbl_name'] === $tableName) {
-                if (strpos($row['sql'], 'REFERENCES') !== false) {
-                    preg_match_all("/\(`([^`]*)`\) REFERENCES/", $row['sql'], $matches);
-                    foreach ($matches[1] as $match) {
-                        $foreignKeys[] = $match;
-                    }
-                }
+            if (!isset($foreignKeys[$row['id']])) {
+                $foreignKeys[$row['id']] = [];
             }
+            $foreignKeys[$row['id']][$row['seq']] = $row['from'];
         }
 
         return $foreignKeys;

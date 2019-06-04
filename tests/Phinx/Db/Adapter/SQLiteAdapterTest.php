@@ -1282,4 +1282,114 @@ INPUT;
             ['create table t(a text unique); create temp table t(a text)', 'sqlite_autoindex_t_1', false],
         ];
     }
-}
+
+
+    /** @dataProvider providePrimaryKeysToCheck
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getTableInfo
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::hasPrimaryKey
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getPrimaryKey */
+    public function testHasPrimaryKey($tableDef, $key, $exp)
+    {
+        $this->assertFalse($this->adapter->hasTable('t'), 'Dirty test fixture');
+        $conn = $this->adapter->getConnection();
+        $conn->exec($tableDef);
+        $this->assertSame($exp, $this->adapter->hasPrimaryKey('t', $key));
+    }
+
+    public function providePrimaryKeysToCheck()
+    {
+        return [
+            ['create table t(a integer)', 'a', false],
+            ['create table t(a integer)', [], true],
+            ['create table t(a integer primary key)', 'a', true],
+            ['create table t(a integer primary key)', [], false],
+            ['create table t(a integer PRIMARY KEY)', 'a', true],
+            ['create table t(`a` integer PRIMARY KEY)', 'a', true],
+            ['create table t("a" integer PRIMARY KEY)', 'a', true],
+            ['create table t([a] integer PRIMARY KEY)', 'a', true],
+            ['create table t(`a` integer PRIMARY KEY)', 'a', true],
+            ['create table t(\'a\' integer PRIMARY KEY)', 'a', true],
+            ['create table t(`a.a` integer PRIMARY KEY)', 'a.a', true],
+            ['create table t(a integer primary key)', ['a'], true],
+            ['create table t(a integer primary key)', ['a', 'b'], false],
+            ['create table t(a integer, primary key(a))', 'a', true],
+            ['create table t(a integer, primary key("a"))', 'a', true],
+            ['create table t(a integer, primary key([a]))', 'a', true],
+            ['create table t(a integer, primary key(`a`))', 'a', true],
+            ['create table t(a integer, b integer primary key)', 'a', false],
+            ['create table t(a integer, b text primary key)', 'b', true],
+            ['create table t(a integer, b integer default 2112 primary key)', ['a'], false],
+            ['create table t(a integer, b integer primary key)', ['b'], true],
+            ['create table t(a integer, b integer primary key)', ['b', 'b'], true], // duplicate column is collapsed
+            ['create table t(a integer, b integer, primary key(a,b))', ['b', 'a'], true],
+            ['create table t(a integer, b integer, primary key(a,b))', ['a', 'b'], true],
+            ['create table t(a integer, b integer, primary key(a,b))', 'a', false],
+            ['create table t(a integer, b integer, primary key(a,b))', ['a'], false],
+            ['create table t(a integer, b integer, primary key(a,b))', ['a', 'b', 'c'], false],
+            ['create table t(a integer, b integer, primary key(a,b))', ['a', 'B'], true],
+            ['create table t(a integer, "B" integer, primary key(a,b))', ['a', 'b'], true],
+            ['create table t(a integer, b integer, constraint t_pk primary key(a,b))', ['a', 'b'], true],
+            ['create table t(a integer); create temp table t(a integer primary key)', 'a', true],
+            ['create temp table t(a integer primary key)', 'a', true],
+            ['create table t("0" integer primary key)', ['0'], true],
+            ['create table t("0" integer primary key)', ['0e0'], false],
+            ['create table t("0e0" integer primary key)', ['0'], false],
+            ['create table not_t(a integer)', 'a', false] // test checks table t which does not exist
+        ];
+    }
+
+    /** @covers \Phinx\Db\Adapter\SQLiteAdapter::hasPrimaryKey */
+    public function testHasNamedPrimaryKey()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->adapter->hasPrimaryKey('t', [], 'named_constraint');
+    }
+
+    /** @dataProvider provideForeignKeysToCheck
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getTableInfo
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::hasForeignKey
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getForeignKeys */
+    public function testHasForeignKey($tableDef, $key, $exp)
+    {
+        $conn = $this->adapter->getConnection();
+        $conn->exec('CREATE TABLE other(a integer, b integer, c integer)');
+        $conn->exec($tableDef);
+        $this->assertSame($exp, $this->adapter->hasForeignKey('t', $key));
+    }
+
+    public function provideForeignKeysToCheck()
+    {
+        return [
+            ['create table t(a integer)', 'a', false],
+            ['create table t(a integer)', [], false],
+            ['create table t(a integer primary key)', 'a', false],
+            ['create table t(a integer references other(a))', 'a', true],
+            ['create table t(a integer references other(b))', 'a', true],
+            ['create table t(a integer references other(b))', ['a'], true],
+            ['create table t(a integer references other(b))', ['a', 'a'], true], // duplicate column is collapsed
+            ['create table t(a integer, foreign key(a) references other(a))', 'a', true],
+            ['create table t(a integer, b integer, foreign key(a,b) references other(a,b))', 'a', false],
+            ['create table t(a integer, b integer, foreign key(a,b) references other(a,b))', ['a', 'b'], true],
+            ['create table t(a integer, b integer, foreign key(a,b) references other(a,b))', ['b', 'a'], true],
+            ['create table t(a integer, "B" integer, foreign key(a,b) references other(a,b))', ['a', 'b'], true],
+            ['create table t(a integer, b integer, foreign key(a,b) references other(a,b))', ['a', 'B'], true],
+            ['create table t(a integer, b integer, c integer, foreign key(a,b,c) references other(a,b,c))', ['a', 'b'], false],
+            ['create table t(a integer, foreign key(a) references other(a))', ['a', 'b'], false],
+            ['create table t(a integer references other(a), b integer references other(b))', ['a', 'b'], false],
+            ['create table t(a integer references other(a), b integer references other(b))', ['a', 'b'], false],
+            ['create table t(a integer); create temp table t(a integer references other(a))', ['a'], true],
+            ['create temp table t(a integer references other(a))', ['a'], true],
+            ['create table t("0" integer references other(a))', '0', true],
+            ['create table t("0" integer references other(a))', '0e0', false],
+            ['create table t("0e0" integer references other(a))', '0', false],
+        ];
+    }
+
+    /** @covers \Phinx\Db\Adapter\SQLiteAdapter::hasForeignKey */
+    public function testHasNamedForeignKey()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->adapter->hasForeignKey('t', [], 'named_constraint');
+    }}
