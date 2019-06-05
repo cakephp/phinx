@@ -1119,13 +1119,13 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Returns Phinx type by SQL type
      *
-     * @param string $sqlTypeDef SQL type
+     * @param string|null $sqlTypeDef SQL type
      * @return array
      */
     public function getPhinxType($sqlTypeDef)
     {
-            $limit = null;
-            $scale = null;
+        $limit = null;
+        $scale = null;
         if (is_null($sqlTypeDef)) {
             // in SQLite columns can legitimately have null as a type, which is distinct from the empty string
             $name = null;
