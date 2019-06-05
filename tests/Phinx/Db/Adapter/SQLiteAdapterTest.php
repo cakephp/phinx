@@ -543,7 +543,7 @@ class SQLiteAdapterTest extends TestCase
     {
         return [
             [ ['column1', 'string'] ],
-            [ ['profile_colour', 'enum', ['values' => ['blue', 'red', 'white']]] ]
+            [ ['profile_colour', 'integer'] ]
         ];
     }
 
@@ -555,17 +555,15 @@ class SQLiteAdapterTest extends TestCase
             ['column3', 'biginteger', []],
             ['column4', 'text', []],
             ['column5', 'float', []],
-            ['column6', 'decimal', []],
             ['column7', 'datetime', []],
             ['column8', 'time', []],
-            ['column9', 'timestamp', [], 'datetime'],
+            ['column9', 'timestamp', []],
             ['column10', 'date', []],
             ['column11', 'binary', []],
             ['column13', 'string', ['limit' => 10]],
             ['column15', 'smallinteger', []],
             ['column15', 'integer', []],
-            ['column22', 'enum', ['values' => ['three', 'four']]],
-            ['column23', 'json', [], 'text'],
+            ['column23', 'json', []],
         ];
     }
 
@@ -786,13 +784,14 @@ class SQLiteAdapterTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \Phinx\Db\Adapter\UnsupportedColumnTypeException
-     * @expectedExceptionMessage Column type "?int?" is not supported by SQLite.
-     */
     public function testPhinxTypeNotValidTypeRegex()
     {
-        $this->adapter->getPhinxType('?int?');
+        $exp = [
+            'name' => Literal::from('?int?'),
+            'limit' => null,
+            'scale' => null
+        ];
+        $this->assertEquals($exp, $this->adapter->getPhinxType('?int?'));
     }
 
     public function testAddIndexTwoTablesSameIndex()
@@ -900,27 +899,9 @@ class SQLiteAdapterTest extends TestCase
     public function testBulkInsertDataEnum()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-        $table->addColumn('column1', 'enum', ['values' => ['a', 'b', 'c']])
-              ->addColumn('column2', 'enum', ['values' => ['a', 'b', 'c'], 'null' => true])
-              ->addColumn('column3', 'enum', ['values' => ['a', 'b', 'c'], 'default' => 'c'])
-              ->insert([
-                  'column1' => 'a',
-              ])
-              ->save();
-
-        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-
-        $this->assertEquals('a', $rows[0]['column1']);
-        $this->assertEquals(null, $rows[0]['column2']);
-        $this->assertEquals('c', $rows[0]['column3']);
-    }
-
-    public function testInsertDataEnum()
-    {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-        $table->addColumn('column1', 'enum', ['values' => ['a', 'b', 'c']])
-              ->addColumn('column2', 'enum', ['values' => ['a', 'b', 'c'], 'null' => true])
-              ->addColumn('column3', 'enum', ['values' => ['a', 'b', 'c'], 'default' => 'c'])
+        $table->addColumn('column1', 'string')
+              ->addColumn('column2', 'string', ['null' => true])
+              ->addColumn('column3', 'string', ['default' => 'c'])
               ->insert([
                   'column1' => 'a',
               ])
@@ -1012,7 +993,7 @@ class SQLiteAdapterTest extends TestCase
             ->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR(255) NULL, `column2` INTEGER NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test');
+CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR NULL, `column2` INTEGER NULL, `column3` VARCHAR NOT NULL DEFAULT 'test');
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
@@ -1165,13 +1146,13 @@ OUTPUT;
 
     public function testLiteralSupport() {
         $createQuery = <<<'INPUT'
-CREATE TABLE `test` (`real_col` REAL)
+CREATE TABLE `test` (`real_col` DECIMAL)
 INPUT;
         $this->adapter->execute($createQuery);
         $table = new \Phinx\Db\Table('test', [], $this->adapter);
         $columns = $table->getColumns();
         $this->assertCount(1, $columns);
-        $this->assertEquals(Literal::from('real'), array_pop($columns)->getType());
+        $this->assertEquals(Literal::from('decimal'), array_pop($columns)->getType());
     }
 
     /** @dataProvider provideTableNamesForPresenceCheck
@@ -1392,4 +1373,309 @@ INPUT;
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->adapter->hasForeignKey('t', [], 'named_constraint');
-    }}
+    }
+
+    /** @dataProvider providePhinxTypes
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getSqlType */
+    public function testGetSqlType($phinxType, $limit, $exp)
+    {
+        if ($exp instanceof \Exception) {
+            $this->expectException(get_class($exp));
+            $this->adapter->getSqlType($phinxType, $limit);
+        } else {
+            $exp = ['name' => $exp, 'limit' => $limit];
+            $this->assertEquals($exp, $this->adapter->getSqlType($phinxType, $limit));
+        }
+    }
+
+    public function providePhinxTypes()
+    {
+        $unsupported = new \Phinx\Db\Adapter\UnsupportedColumnTypeException;
+        return [
+            [SQLiteAdapter::PHINX_TYPE_BIG_INTEGER, null, SQLiteAdapter::PHINX_TYPE_BIG_INTEGER],
+            [SQLiteAdapter::PHINX_TYPE_BINARY, null, SQLiteAdapter::PHINX_TYPE_BINARY . '_blob'],
+            [SQLiteAdapter::PHINX_TYPE_BIT, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_BLOB, null, SQLiteAdapter::PHINX_TYPE_BLOB],
+            [SQLiteAdapter::PHINX_TYPE_BOOLEAN, null, SQLiteAdapter::PHINX_TYPE_BOOLEAN . '_integer'],
+            [SQLiteAdapter::PHINX_TYPE_CHAR, null, SQLiteAdapter::PHINX_TYPE_CHAR],
+            [SQLiteAdapter::PHINX_TYPE_CIDR, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_DATE, null, SQLiteAdapter::PHINX_TYPE_DATE . '_text'],
+            [SQLiteAdapter::PHINX_TYPE_DATETIME, null, SQLiteAdapter::PHINX_TYPE_DATETIME . '_text'],
+            [SQLiteAdapter::PHINX_TYPE_DECIMAL, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_DOUBLE, null, SQLiteAdapter::PHINX_TYPE_DOUBLE],
+            [SQLiteAdapter::PHINX_TYPE_ENUM, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_FILESTREAM, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_FLOAT, null, SQLiteAdapter::PHINX_TYPE_FLOAT],
+            [SQLiteAdapter::PHINX_TYPE_GEOMETRY, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_INET, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_INTEGER, null, SQLiteAdapter::PHINX_TYPE_INTEGER],
+            [SQLiteAdapter::PHINX_TYPE_INTERVAL, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_JSON, null, SQLiteAdapter::PHINX_TYPE_JSON . '_text'],
+            [SQLiteAdapter::PHINX_TYPE_JSONB, null, SQLiteAdapter::PHINX_TYPE_JSONB . '_text'],
+            [SQLiteAdapter::PHINX_TYPE_LINESTRING, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_MACADDR, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_POINT, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_POLYGON, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_SET, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, null, SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER],
+            [SQLiteAdapter::PHINX_TYPE_STRING, null, 'varchar'],
+            [SQLiteAdapter::PHINX_TYPE_TEXT, null, SQLiteAdapter::PHINX_TYPE_TEXT],
+            [SQLiteAdapter::PHINX_TYPE_TIME, null, SQLiteAdapter::PHINX_TYPE_TIME . '_text'],
+            [SQLiteAdapter::PHINX_TYPE_TIMESTAMP, null, SQLiteAdapter::PHINX_TYPE_TIMESTAMP . '_text'],
+            [SQLiteAdapter::PHINX_TYPE_UUID, null, SQLiteAdapter::PHINX_TYPE_UUID . '_text'],
+            [SQLiteAdapter::PHINX_TYPE_VARBINARY, null, SQLiteAdapter::PHINX_TYPE_VARBINARY . '_blob'],
+            [SQLiteAdapter::PHINX_TYPE_STRING, 5, 'varchar'],
+            [Literal::from('someType'), 5, Literal::from('someType')],
+            ['notAType', null, $unsupported],
+        ];
+    }
+
+    /** @dataProvider provideSqlTypes
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getPhinxType */
+    public function testGetPhinxType($sqlType, $exp)
+    {
+        $this->assertEquals($exp, $this->adapter->getPhinxType($sqlType));
+    }
+
+    public function provideSqlTypes()
+    {
+        return [
+            ['varchar',         ['name' => SQLiteAdapter::PHINX_TYPE_STRING, 'limit' => null, 'scale' => null]],
+            ['string',          ['name' => SQLiteAdapter::PHINX_TYPE_STRING, 'limit' => null, 'scale' => null]],
+            ['string_text',     ['name' => SQLiteAdapter::PHINX_TYPE_STRING, 'limit' => null, 'scale' => null]],
+            ['varchar(5)',      ['name' => SQLiteAdapter::PHINX_TYPE_STRING, 'limit' => 5, 'scale' => null]],
+            ['varchar(55,2)',   ['name' => SQLiteAdapter::PHINX_TYPE_STRING, 'limit' => 55, 'scale' => 2]],
+            ['char',            ['name' => SQLiteAdapter::PHINX_TYPE_CHAR, 'limit' => null, 'scale' => null]],
+            ['boolean',         ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
+            ['boolean_integer', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
+            ['int',             ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
+            ['integer',         ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
+            ['tinyint',         ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
+            ['tinyint(1)',      ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
+            ['smallint',        ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
+            ['smallinteger',    ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
+            ['mediumint',       ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
+            ['mediuminteger',   ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
+            ['bigint',          ['name' => SQLiteAdapter::PHINX_TYPE_BIG_INTEGER, 'limit' => null, 'scale' => null]],
+            ['biginteger',      ['name' => SQLiteAdapter::PHINX_TYPE_BIG_INTEGER, 'limit' => null, 'scale' => null]],
+            ['text',            ['name' => SQLiteAdapter::PHINX_TYPE_TEXT, 'limit' => null, 'scale' => null]],
+            ['tinytext',        ['name' => SQLiteAdapter::PHINX_TYPE_TEXT, 'limit' => null, 'scale' => null]],
+            ['mediumtext',      ['name' => SQLiteAdapter::PHINX_TYPE_TEXT, 'limit' => null, 'scale' => null]],
+            ['longtext',        ['name' => SQLiteAdapter::PHINX_TYPE_TEXT, 'limit' => null, 'scale' => null]],
+            ['blob',            ['name' => SQLiteAdapter::PHINX_TYPE_BLOB, 'limit' => null, 'scale' => null]],
+            ['tinyblob',        ['name' => SQLiteAdapter::PHINX_TYPE_BLOB, 'limit' => null, 'scale' => null]],
+            ['mediumblob',      ['name' => SQLiteAdapter::PHINX_TYPE_BLOB, 'limit' => null, 'scale' => null]],
+            ['longblob',        ['name' => SQLiteAdapter::PHINX_TYPE_BLOB, 'limit' => null, 'scale' => null]],
+            ['float',           ['name' => SQLiteAdapter::PHINX_TYPE_FLOAT, 'limit' => null, 'scale' => null]],
+            ['real',            ['name' => SQLiteAdapter::PHINX_TYPE_FLOAT, 'limit' => null, 'scale' => null]],
+            ['numeric',         ['name' => SQLiteAdapter::PHINX_TYPE_FLOAT, 'limit' => null, 'scale' => null]],
+            ['double',          ['name' => SQLiteAdapter::PHINX_TYPE_DOUBLE, 'limit' => null, 'scale' => null]],
+            ['date',            ['name' => SQLiteAdapter::PHINX_TYPE_DATE, 'limit' => null, 'scale' => null]],
+            ['date_text',       ['name' => SQLiteAdapter::PHINX_TYPE_DATE, 'limit' => null, 'scale' => null]],
+            ['datetime',        ['name' => SQLiteAdapter::PHINX_TYPE_DATETIME, 'limit' => null, 'scale' => null]],
+            ['datetime_text',   ['name' => SQLiteAdapter::PHINX_TYPE_DATETIME, 'limit' => null, 'scale' => null]],
+            ['time',            ['name' => SQLiteAdapter::PHINX_TYPE_TIME, 'limit' => null, 'scale' => null]],
+            ['time_text',       ['name' => SQLiteAdapter::PHINX_TYPE_TIME, 'limit' => null, 'scale' => null]],
+            ['timestamp',       ['name' => SQLiteAdapter::PHINX_TYPE_TIMESTAMP, 'limit' => null, 'scale' => null]],
+            ['timestamp_text',  ['name' => SQLiteAdapter::PHINX_TYPE_TIMESTAMP, 'limit' => null, 'scale' => null]],
+            ['binary',          ['name' => SQLiteAdapter::PHINX_TYPE_BINARY, 'limit' => null, 'scale' => null]],
+            ['binary_blob',     ['name' => SQLiteAdapter::PHINX_TYPE_BINARY, 'limit' => null, 'scale' => null]],
+            ['varbinary',       ['name' => SQLiteAdapter::PHINX_TYPE_VARBINARY, 'limit' => null, 'scale' => null]],
+            ['varbinary_blob',  ['name' => SQLiteAdapter::PHINX_TYPE_VARBINARY, 'limit' => null, 'scale' => null]],
+            ['json',            ['name' => SQLiteAdapter::PHINX_TYPE_JSON, 'limit' => null, 'scale' => null]],
+            ['json_text',       ['name' => SQLiteAdapter::PHINX_TYPE_JSON, 'limit' => null, 'scale' => null]],
+            ['jsonb',           ['name' => SQLiteAdapter::PHINX_TYPE_JSONB, 'limit' => null, 'scale' => null]],
+            ['jsonb_text',      ['name' => SQLiteAdapter::PHINX_TYPE_JSONB, 'limit' => null, 'scale' => null]],
+            ['uuid',            ['name' => SQLiteAdapter::PHINX_TYPE_UUID, 'limit' => null, 'scale' => null]],
+            ['uuid_text',       ['name' => SQLiteAdapter::PHINX_TYPE_UUID, 'limit' => null, 'scale' => null]],
+            ['decimal',         ['name' => Literal::from('decimal'), 'limit' => null, 'scale' => null]],
+            ['point',           ['name' => Literal::from('point'), 'limit' => null, 'scale' => null]],
+            ['polygon',         ['name' => Literal::from('polygon'), 'limit' => null, 'scale' => null]],
+            ['linestring',      ['name' => Literal::from('linestring'), 'limit' => null, 'scale' => null]],
+            ['geometry',        ['name' => Literal::from('geometry'), 'limit' => null, 'scale' => null]],
+            ['bit',             ['name' => Literal::from('bit'), 'limit' => null, 'scale' => null]],
+            ['enum',            ['name' => Literal::from('enum'), 'limit' => null, 'scale' => null]],
+            ['set',             ['name' => Literal::from('set'), 'limit' => null, 'scale' => null]],
+            ['cidr',            ['name' => Literal::from('cidr'), 'limit' => null, 'scale' => null]],
+            ['inet',            ['name' => Literal::from('inet'), 'limit' => null, 'scale' => null]],
+            ['macaddr',         ['name' => Literal::from('macaddr'), 'limit' => null, 'scale' => null]],
+            ['interval',        ['name' => Literal::from('interval'), 'limit' => null, 'scale' => null]],
+            ['filestream',      ['name' => Literal::from('filestream'), 'limit' => null, 'scale' => null]],
+            ['decimal_text',    ['name' => Literal::from('decimal'), 'limit' => null, 'scale' => null]],
+            ['point_text',      ['name' => Literal::from('point'), 'limit' => null, 'scale' => null]],
+            ['polygon_text',    ['name' => Literal::from('polygon'), 'limit' => null, 'scale' => null]],
+            ['linestring_text', ['name' => Literal::from('linestring'), 'limit' => null, 'scale' => null]],
+            ['geometry_text',   ['name' => Literal::from('geometry'), 'limit' => null, 'scale' => null]],
+            ['bit_text',        ['name' => Literal::from('bit'), 'limit' => null, 'scale' => null]],
+            ['enum_text',       ['name' => Literal::from('enum'), 'limit' => null, 'scale' => null]],
+            ['set_text',        ['name' => Literal::from('set'), 'limit' => null, 'scale' => null]],
+            ['cidr_text',       ['name' => Literal::from('cidr'), 'limit' => null, 'scale' => null]],
+            ['inet_text',       ['name' => Literal::from('inet'), 'limit' => null, 'scale' => null]],
+            ['macaddr_text',    ['name' => Literal::from('macaddr'), 'limit' => null, 'scale' => null]],
+            ['interval_text',   ['name' => Literal::from('interval'), 'limit' => null, 'scale' => null]],
+            ['filestream_text', ['name' => Literal::from('filestream'), 'limit' => null, 'scale' => null]],
+            ['bit_text(2,12)',  ['name' => Literal::from('bit'), 'limit' => 2, 'scale' => 12]],
+            ['VARCHAR',         ['name' => SQLiteAdapter::PHINX_TYPE_STRING, 'limit' => null, 'scale' => null]],
+            ['STRING',          ['name' => SQLiteAdapter::PHINX_TYPE_STRING, 'limit' => null, 'scale' => null]],
+            ['STRING_TEXT',     ['name' => SQLiteAdapter::PHINX_TYPE_STRING, 'limit' => null, 'scale' => null]],
+            ['VARCHAR(5)',      ['name' => SQLiteAdapter::PHINX_TYPE_STRING, 'limit' => 5, 'scale' => null]],
+            ['VARCHAR(55,2)',   ['name' => SQLiteAdapter::PHINX_TYPE_STRING, 'limit' => 55, 'scale' => 2]],
+            ['CHAR',            ['name' => SQLiteAdapter::PHINX_TYPE_CHAR, 'limit' => null, 'scale' => null]],
+            ['BOOLEAN',         ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
+            ['BOOLEAN_INTEGER', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
+            ['INT',             ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
+            ['INTEGER',         ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
+            ['TINYINT',         ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
+            ['TINYINT(1)',      ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
+            ['SMALLINT',        ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
+            ['SMALLINTEGER',    ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
+            ['MEDIUMINT',       ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
+            ['MEDIUMINTEGER',   ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
+            ['BIGINT',          ['name' => SQLiteAdapter::PHINX_TYPE_BIG_INTEGER, 'limit' => null, 'scale' => null]],
+            ['BIGINTEGER',      ['name' => SQLiteAdapter::PHINX_TYPE_BIG_INTEGER, 'limit' => null, 'scale' => null]],
+            ['TEXT',            ['name' => SQLiteAdapter::PHINX_TYPE_TEXT, 'limit' => null, 'scale' => null]],
+            ['TINYTEXT',        ['name' => SQLiteAdapter::PHINX_TYPE_TEXT, 'limit' => null, 'scale' => null]],
+            ['MEDIUMTEXT',      ['name' => SQLiteAdapter::PHINX_TYPE_TEXT, 'limit' => null, 'scale' => null]],
+            ['LONGTEXT',        ['name' => SQLiteAdapter::PHINX_TYPE_TEXT, 'limit' => null, 'scale' => null]],
+            ['BLOB',            ['name' => SQLiteAdapter::PHINX_TYPE_BLOB, 'limit' => null, 'scale' => null]],
+            ['TINYBLOB',        ['name' => SQLiteAdapter::PHINX_TYPE_BLOB, 'limit' => null, 'scale' => null]],
+            ['MEDIUMBLOB',      ['name' => SQLiteAdapter::PHINX_TYPE_BLOB, 'limit' => null, 'scale' => null]],
+            ['LONGBLOB',        ['name' => SQLiteAdapter::PHINX_TYPE_BLOB, 'limit' => null, 'scale' => null]],
+            ['FLOAT',           ['name' => SQLiteAdapter::PHINX_TYPE_FLOAT, 'limit' => null, 'scale' => null]],
+            ['REAL',            ['name' => SQLiteAdapter::PHINX_TYPE_FLOAT, 'limit' => null, 'scale' => null]],
+            ['NUMERIC',         ['name' => SQLiteAdapter::PHINX_TYPE_FLOAT, 'limit' => null, 'scale' => null]],
+            ['DOUBLE',          ['name' => SQLiteAdapter::PHINX_TYPE_DOUBLE, 'limit' => null, 'scale' => null]],
+            ['DATE',            ['name' => SQLiteAdapter::PHINX_TYPE_DATE, 'limit' => null, 'scale' => null]],
+            ['DATE_TEXT',       ['name' => SQLiteAdapter::PHINX_TYPE_DATE, 'limit' => null, 'scale' => null]],
+            ['DATETIME',        ['name' => SQLiteAdapter::PHINX_TYPE_DATETIME, 'limit' => null, 'scale' => null]],
+            ['DATETIME_TEXT',   ['name' => SQLiteAdapter::PHINX_TYPE_DATETIME, 'limit' => null, 'scale' => null]],
+            ['TIME',            ['name' => SQLiteAdapter::PHINX_TYPE_TIME, 'limit' => null, 'scale' => null]],
+            ['TIME_TEXT',       ['name' => SQLiteAdapter::PHINX_TYPE_TIME, 'limit' => null, 'scale' => null]],
+            ['TIMESTAMP',       ['name' => SQLiteAdapter::PHINX_TYPE_TIMESTAMP, 'limit' => null, 'scale' => null]],
+            ['TIMESTAMP_TEXT',  ['name' => SQLiteAdapter::PHINX_TYPE_TIMESTAMP, 'limit' => null, 'scale' => null]],
+            ['BINARY',          ['name' => SQLiteAdapter::PHINX_TYPE_BINARY, 'limit' => null, 'scale' => null]],
+            ['BINARY_BLOB',     ['name' => SQLiteAdapter::PHINX_TYPE_BINARY, 'limit' => null, 'scale' => null]],
+            ['VARBINARY',       ['name' => SQLiteAdapter::PHINX_TYPE_VARBINARY, 'limit' => null, 'scale' => null]],
+            ['VARBINARY_BLOB',  ['name' => SQLiteAdapter::PHINX_TYPE_VARBINARY, 'limit' => null, 'scale' => null]],
+            ['JSON',            ['name' => SQLiteAdapter::PHINX_TYPE_JSON, 'limit' => null, 'scale' => null]],
+            ['JSON_TEXT',       ['name' => SQLiteAdapter::PHINX_TYPE_JSON, 'limit' => null, 'scale' => null]],
+            ['JSONB',           ['name' => SQLiteAdapter::PHINX_TYPE_JSONB, 'limit' => null, 'scale' => null]],
+            ['JSONB_TEXT',      ['name' => SQLiteAdapter::PHINX_TYPE_JSONB, 'limit' => null, 'scale' => null]],
+            ['UUID',            ['name' => SQLiteAdapter::PHINX_TYPE_UUID, 'limit' => null, 'scale' => null]],
+            ['UUID_TEXT',       ['name' => SQLiteAdapter::PHINX_TYPE_UUID, 'limit' => null, 'scale' => null]],
+            ['DECIMAL',         ['name' => Literal::from('decimal'), 'limit' => null, 'scale' => null]],
+            ['POINT',           ['name' => Literal::from('point'), 'limit' => null, 'scale' => null]],
+            ['POLYGON',         ['name' => Literal::from('polygon'), 'limit' => null, 'scale' => null]],
+            ['LINESTRING',      ['name' => Literal::from('linestring'), 'limit' => null, 'scale' => null]],
+            ['GEOMETRY',        ['name' => Literal::from('geometry'), 'limit' => null, 'scale' => null]],
+            ['BIT',             ['name' => Literal::from('bit'), 'limit' => null, 'scale' => null]],
+            ['ENUM',            ['name' => Literal::from('enum'), 'limit' => null, 'scale' => null]],
+            ['SET',             ['name' => Literal::from('set'), 'limit' => null, 'scale' => null]],
+            ['CIDR',            ['name' => Literal::from('cidr'), 'limit' => null, 'scale' => null]],
+            ['INET',            ['name' => Literal::from('inet'), 'limit' => null, 'scale' => null]],
+            ['MACADDR',         ['name' => Literal::from('macaddr'), 'limit' => null, 'scale' => null]],
+            ['INTERVAL',        ['name' => Literal::from('interval'), 'limit' => null, 'scale' => null]],
+            ['FILESTREAM',      ['name' => Literal::from('filestream'), 'limit' => null, 'scale' => null]],
+            ['DECIMAL_TEXT',    ['name' => Literal::from('decimal'), 'limit' => null, 'scale' => null]],
+            ['POINT_TEXT',      ['name' => Literal::from('point'), 'limit' => null, 'scale' => null]],
+            ['POLYGON_TEXT',    ['name' => Literal::from('polygon'), 'limit' => null, 'scale' => null]],
+            ['LINESTRING_TEXT', ['name' => Literal::from('linestring'), 'limit' => null, 'scale' => null]],
+            ['GEOMETRY_TEXT',   ['name' => Literal::from('geometry'), 'limit' => null, 'scale' => null]],
+            ['BIT_TEXT',        ['name' => Literal::from('bit'), 'limit' => null, 'scale' => null]],
+            ['ENUM_TEXT',       ['name' => Literal::from('enum'), 'limit' => null, 'scale' => null]],
+            ['SET_TEXT',        ['name' => Literal::from('set'), 'limit' => null, 'scale' => null]],
+            ['CIDR_TEXT',       ['name' => Literal::from('cidr'), 'limit' => null, 'scale' => null]],
+            ['INET_TEXT',       ['name' => Literal::from('inet'), 'limit' => null, 'scale' => null]],
+            ['MACADDR_TEXT',    ['name' => Literal::from('macaddr'), 'limit' => null, 'scale' => null]],
+            ['INTERVAL_TEXT',   ['name' => Literal::from('interval'), 'limit' => null, 'scale' => null]],
+            ['FILESTREAM_TEXT', ['name' => Literal::from('filestream'), 'limit' => null, 'scale' => null]],
+            ['BIT_TEXT(2,12)',  ['name' => Literal::from('bit'), 'limit' => 2, 'scale' => 12]],
+            ['not a type',      ['name' => Literal::from('not a type'), 'limit' => null, 'scale' => null]],
+            ['NOT A TYPE',      ['name' => Literal::from('NOT A TYPE'), 'limit' => null, 'scale' => null]],
+            ['not a type(2)',   ['name' => Literal::from('not a type(2)'), 'limit' => null, 'scale' => null]],
+            ['NOT A TYPE(2)',   ['name' => Literal::from('NOT A TYPE(2)'), 'limit' => null, 'scale' => null]],
+            ['ack',             ['name' => Literal::from('ack'), 'limit' => null, 'scale' => null]],
+            ['ACK',             ['name' => Literal::from('ACK'), 'limit' => null, 'scale' => null]],
+            ['ack_text',        ['name' => Literal::from('ack_text'), 'limit' => null, 'scale' => null]],
+            ['ACK_TEXT',        ['name' => Literal::from('ACK_TEXT'), 'limit' => null, 'scale' => null]],
+            ['ack_text(2,12)',  ['name' => Literal::from('ack_text'), 'limit' => 2, 'scale' => 12]],
+            ['ACK_TEXT(12,2)',  ['name' => Literal::from('ACK_TEXT'), 'limit' => 12, 'scale' => 2]],
+            [null,              ['name' => null, 'limit' => null, 'scale' => null]],
+        ];
+    }
+
+    /** @covers \Phinx\Db\Adapter\SQLiteAdapter::getColumnTypes */
+    public function testGetColumnTypes()
+    {
+        $exp = [
+            SQLiteAdapter::PHINX_TYPE_BIG_INTEGER,
+            SQLiteAdapter::PHINX_TYPE_BINARY,
+            SQLiteAdapter::PHINX_TYPE_BLOB,
+            SQLiteAdapter::PHINX_TYPE_BOOLEAN,
+            SQLiteAdapter::PHINX_TYPE_CHAR,
+            SQLiteAdapter::PHINX_TYPE_DATE,
+            SQLiteAdapter::PHINX_TYPE_DATETIME,
+            SQLiteAdapter::PHINX_TYPE_DOUBLE,
+            SQLiteAdapter::PHINX_TYPE_FLOAT,
+            SQLiteAdapter::PHINX_TYPE_INTEGER,
+            SQLiteAdapter::PHINX_TYPE_JSON,
+            SQLiteAdapter::PHINX_TYPE_JSONB,
+            SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER,
+            SQLiteAdapter::PHINX_TYPE_STRING,
+            SQLiteAdapter::PHINX_TYPE_TEXT,
+            SQLiteAdapter::PHINX_TYPE_TIME,
+            SQLiteAdapter::PHINX_TYPE_UUID,
+            SQLiteAdapter::PHINX_TYPE_TIMESTAMP,
+            SQLiteAdapter::PHINX_TYPE_VARBINARY
+        ];
+        $this->assertEquals($exp, $this->adapter->getColumnTypes());
+    }
+
+    /** @dataProvider provideColumnTypesForValidation
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::isValidColumnType */
+    public function testIsValidColumnType($phinxType, $exp)
+    {
+        $col = (new Column)->setType($phinxType);
+        $this->assertSame($exp, $this->adapter->isValidColumnType($col));
+    }
+
+    public function provideColumnTypesForValidation()
+    {
+        return [
+            [SQLiteAdapter::PHINX_TYPE_BIG_INTEGER,   true],
+            [SQLiteAdapter::PHINX_TYPE_BINARY,        true],
+            [SQLiteAdapter::PHINX_TYPE_BLOB,          true],
+            [SQLiteAdapter::PHINX_TYPE_BOOLEAN,       true],
+            [SQLiteAdapter::PHINX_TYPE_CHAR,          true],
+            [SQLiteAdapter::PHINX_TYPE_DATE,          true],
+            [SQLiteAdapter::PHINX_TYPE_DATETIME,      true],
+            [SQLiteAdapter::PHINX_TYPE_DOUBLE,        true],
+            [SQLiteAdapter::PHINX_TYPE_FLOAT,         true],
+            [SQLiteAdapter::PHINX_TYPE_INTEGER,       true],
+            [SQLiteAdapter::PHINX_TYPE_JSON,          true],
+            [SQLiteAdapter::PHINX_TYPE_JSONB,         true],
+            [SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, true],
+            [SQLiteAdapter::PHINX_TYPE_STRING,        true],
+            [SQLiteAdapter::PHINX_TYPE_TEXT,          true],
+            [SQLiteAdapter::PHINX_TYPE_TIME,          true],
+            [SQLiteAdapter::PHINX_TYPE_UUID,          true],
+            [SQLiteAdapter::PHINX_TYPE_TIMESTAMP,     true],
+            [SQLiteAdapter::PHINX_TYPE_VARBINARY,     true],
+            [SQLiteAdapter::PHINX_TYPE_BIT,           false],
+            [SQLiteAdapter::PHINX_TYPE_CIDR,          false],
+            [SQLiteAdapter::PHINX_TYPE_DECIMAL,       false],
+            [SQLiteAdapter::PHINX_TYPE_ENUM,          false],
+            [SQLiteAdapter::PHINX_TYPE_FILESTREAM,    false],
+            [SQLiteAdapter::PHINX_TYPE_GEOMETRY,      false],
+            [SQLiteAdapter::PHINX_TYPE_INET,          false],
+            [SQLiteAdapter::PHINX_TYPE_INTERVAL,      false],
+            [SQLiteAdapter::PHINX_TYPE_LINESTRING,    false],
+            [SQLiteAdapter::PHINX_TYPE_MACADDR,       false],
+            [SQLiteAdapter::PHINX_TYPE_POINT,         false],
+            [SQLiteAdapter::PHINX_TYPE_POLYGON,       false],
+            [SQLiteAdapter::PHINX_TYPE_SET,           false],
+            [Literal::from('someType'),               true],
+            ['someType',                              false]
+        ];
+    }
+}

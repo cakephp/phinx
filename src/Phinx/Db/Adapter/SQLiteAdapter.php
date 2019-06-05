@@ -45,6 +45,47 @@ use Phinx\Util\Literal;
  */
 class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 {
+    // list of supported Phinx column types with their SQL equivalents
+    // some types have an affinity appended to ensure they do not receive NUMERIC affinity
+    protected static $supportedColumnTypes = [
+        self::PHINX_TYPE_BIG_INTEGER => 'biginteger',
+        self::PHINX_TYPE_BINARY => 'binary_blob',
+        self::PHINX_TYPE_BLOB => 'blob',
+        self::PHINX_TYPE_BOOLEAN => 'boolean_integer',
+        self::PHINX_TYPE_CHAR => 'char',
+        self::PHINX_TYPE_DATE => 'date_text',
+        self::PHINX_TYPE_DATETIME => 'datetime_text',
+        self::PHINX_TYPE_DOUBLE => 'double',
+        self::PHINX_TYPE_FLOAT => 'float',
+        self::PHINX_TYPE_INTEGER => 'integer',
+        self::PHINX_TYPE_JSON => 'json_text',
+        self::PHINX_TYPE_JSONB => 'jsonb_text',
+        self::PHINX_TYPE_SMALL_INTEGER => 'smallinteger',
+        self::PHINX_TYPE_STRING => 'varchar',
+        self::PHINX_TYPE_TEXT => 'text',
+        self::PHINX_TYPE_TIME => 'time_text',
+        self::PHINX_TYPE_UUID => 'uuid_text',
+        self::PHINX_TYPE_TIMESTAMP => 'timestamp_text',
+        self::PHINX_TYPE_VARBINARY => 'varbinary_blob'
+    ];
+
+    // list of known but unsupported Phinx column types
+    protected static $unsupportedColumnTypes = [
+        self::PHINX_TYPE_BIT,
+        self::PHINX_TYPE_CIDR,
+        self::PHINX_TYPE_DECIMAL,
+        self::PHINX_TYPE_ENUM,
+        self::PHINX_TYPE_FILESTREAM,
+        self::PHINX_TYPE_GEOMETRY,
+        self::PHINX_TYPE_INET,
+        self::PHINX_TYPE_INTERVAL,
+        self::PHINX_TYPE_LINESTRING,
+        self::PHINX_TYPE_MACADDR,
+        self::PHINX_TYPE_POINT,
+        self::PHINX_TYPE_POLYGON,
+        self::PHINX_TYPE_SET
+    ];
+
     protected $definitionsWithLimits = [
         'CHAR',
         'CHARACTER',
@@ -1062,130 +1103,102 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getSqlType($type, $limit = null)
     {
-        switch ($type) {
-            case static::PHINX_TYPE_TEXT:
-            case static::PHINX_TYPE_INTEGER:
-            case static::PHINX_TYPE_FLOAT:
-            case static::PHINX_TYPE_DOUBLE:
-            case static::PHINX_TYPE_DECIMAL:
-            case static::PHINX_TYPE_DATETIME:
-            case static::PHINX_TYPE_TIME:
-            case static::PHINX_TYPE_DATE:
-            case static::PHINX_TYPE_BLOB:
-            case static::PHINX_TYPE_BOOLEAN:
-            case static::PHINX_TYPE_ENUM:
-                return ['name' => $type];
-            case static::PHINX_TYPE_STRING:
-                return ['name' => 'varchar', 'limit' => 255];
-            case static::PHINX_TYPE_CHAR:
-                return ['name' => 'char', 'limit' => 255];
-            case static::PHINX_TYPE_SMALL_INTEGER:
-                return ['name' => 'smallint'];
-            case static::PHINX_TYPE_BIG_INTEGER:
-                return ['name' => 'bigint'];
-            case static::PHINX_TYPE_TIMESTAMP:
-                return ['name' => 'datetime'];
-            case static::PHINX_TYPE_BINARY:
-                return ['name' => 'blob'];
-            case static::PHINX_TYPE_UUID:
-                return ['name' => 'char', 'limit' => 36];
-            case static::PHINX_TYPE_JSON:
-            case static::PHINX_TYPE_JSONB:
-                return ['name' => 'text'];
-            // Geospatial database types
-            // No specific data types exist in SQLite, instead all geospatial
-            // functionality is handled in the client. See also: SpatiaLite.
-            case static::PHINX_TYPE_GEOMETRY:
-            case static::PHINX_TYPE_POLYGON:
-                return ['name' => 'text'];
-            case static::PHINX_TYPE_LINESTRING:
-                return ['name' => 'varchar', 'limit' => 255];
-            case static::PHINX_TYPE_POINT:
-                return ['name' => 'float'];
-            default:
+        $typeLC = strtolower($type);
+        if ($type instanceof Literal) {
+            $name = $type;
+        } elseif (isset(self::$supportedColumnTypes[$typeLC])) {
+            $name = self::$supportedColumnTypes[$typeLC];
+        } elseif (in_array($typeLC, self::$unsupportedColumnTypes)) {
                 throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by SQLite.');
+        } else {
+            throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not known by SQLite.');
         }
+        return ['name' => $name, 'limit' => $limit];
     }
 
     /**
      * Returns Phinx type by SQL type
      *
      * @param string $sqlTypeDef SQL type
-     * @throws UnsupportedColumnTypeException
      * @return array
      */
     public function getPhinxType($sqlTypeDef)
     {
-        if (!preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*$/', $sqlTypeDef, $matches)) {
-            throw new UnsupportedColumnTypeException('Column type "' . $sqlTypeDef . '" is not supported by SQLite.');
-        } else {
             $limit = null;
             $scale = null;
-            $type = $matches[1];
-            if (count($matches) > 2) {
-                $limit = $matches[3] ?: null;
-            }
-            if (count($matches) > 4) {
-                $scale = $matches[5];
-            }
-            switch ($type) {
-                case 'varchar':
-                    $type = static::PHINX_TYPE_STRING;
-                    if ($limit === 255) {
-                        $limit = null;
-                    }
-                    break;
-                case 'char':
-                    $type = static::PHINX_TYPE_CHAR;
-                    if ($limit === 255) {
-                        $limit = null;
-                    }
-                    if ($limit === 36) {
-                        $type = static::PHINX_TYPE_UUID;
-                    }
-                    break;
-                case 'smallint':
-                    $type = static::PHINX_TYPE_SMALL_INTEGER;
-                    if ($limit === 11) {
-                        $limit = null;
-                    }
-                    break;
-                case 'int':
-                    $type = static::PHINX_TYPE_INTEGER;
-                    if ($limit === 11) {
-                        $limit = null;
-                    }
-                    break;
-                case 'bigint':
-                    if ($limit === 11) {
-                        $limit = null;
-                    }
-                    $type = static::PHINX_TYPE_BIG_INTEGER;
-                    break;
-                case 'blob':
-                    $type = static::PHINX_TYPE_BINARY;
-                    break;
-            }
-            if ($type === 'tinyint') {
-                if ($matches[3] === 1) {
-                    $type = static::PHINX_TYPE_BOOLEAN;
-                    $limit = null;
+        if (is_null($sqlTypeDef)) {
+            // in SQLite columns can legitimately have null as a type, which is distinct from the empty string
+            $name = null;
+        } elseif (!preg_match('/^([a-z]+)(_(?:integer|float|text|blob))?(?:\((\d+)(?:,(\d+))?\))?$/i', $sqlTypeDef, $match)) {
+            // doesn't match the pattern of a type we'd know about
+            $name = Literal::from($sqlTypeDef);
+        } else {
+            // possibly a known type
+            $type = $match[1];
+            $typeLC = strtolower($type);
+            $affinity = isset($match[2]) ? $match[2] : '';
+            $limit = isset($match[3]) && strlen($match[3]) ? (int)$match[3] : null;
+            $scale = isset($match[4]) && strlen($match[4]) ? (int)$match[4] : null;
+            if (isset(self::$supportedColumnTypes[$typeLC])) {
+                // the type is an explicitly supported type
+                $name = $typeLC;
+            } else {
+                switch ($typeLC) {
+                    // common aliases of supported types should be converted
+                    case 'varchar':
+                        $name = static::PHINX_TYPE_STRING;
+                        break;
+                    case 'tinyint':
+                    case 'tinyinteger':
+                        if ($limit == 1) {
+                            $name = static::PHINX_TYPE_BOOLEAN;
+                            $limit = null;
+                        } else {
+                            $name = static::PHINX_TYPE_SMALL_INTEGER;
+                        }
+                        break;
+                    case 'smallint':
+                        $name = static::PHINX_TYPE_SMALL_INTEGER;
+                        break;
+                    case 'int':
+                    case 'mediumint':
+                    case 'mediuminteger':
+                        $name = static::PHINX_TYPE_INTEGER;
+                        break;
+                    case 'bigint':
+                        $name = static::PHINX_TYPE_BIG_INTEGER;
+                        break;
+                    case 'tinytext':
+                    case 'mediumtext':
+                    case 'longtext':
+                        $name = static::PHINX_TYPE_TEXT;
+                        break;
+                    case 'tinyblob':
+                    case 'mediumblob':
+                    case 'longblob':
+                        $name = static::PHINX_TYPE_BLOB;
+                        break;
+                    case 'real':
+                    case 'numeric':
+                        $name = self::PHINX_TYPE_FLOAT;
+                        break;
+                    default:
+                        if (in_array($typeLC, self::$unsupportedColumnTypes)) {
+                            // unsupported but known types are passed through lowercased, and without appended affinity
+                            $name = Literal::from($typeLC);
+                        } else {
+                            // unknown types are passed through as-is
+                            $name = Literal::from($type . $affinity);
+                        }
                 }
             }
-
-            try {
-                // Call this to check if parsed type is supported.
-                $this->getSqlType($type);
-            } catch (UnsupportedColumnTypeException $e) {
-                $type = Literal::from($type);
-            }
-
-            return [
-                'name' => $type,
-                'limit' => $limit,
-                'scale' => $scale
-            ];
         }
+
+        return [
+            'name' => $name,
+            'limit' => $limit,
+            'scale' => $scale
+        ];
     }
 
     /**
@@ -1240,9 +1253,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
         if ($column->getPrecision() && $column->getScale()) {
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
-        }
-        if (($values = $column->getValues()) && is_array($values)) {
-            $def .= " CHECK({$this->quoteColumnName($column->getName())} IN ('" . implode("', '", $values) . "'))";
         }
 
         $default = $column->getDefault();
@@ -1308,7 +1318,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), ['enum', 'json', 'jsonb']);
+        return array_keys(self::$supportedColumnTypes);
     }
 
     /**
