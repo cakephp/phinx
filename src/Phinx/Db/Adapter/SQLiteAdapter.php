@@ -86,7 +86,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         'mediumblob' => self::PHINX_TYPE_BLOB,
         'longblob' => self::PHINX_TYPE_BLOB,
         'real' => self::PHINX_TYPE_FLOAT,
-        'numeric' => self::PHINX_TYPE_FLOAT,
     ];
 
     // list of known but unsupported Phinx column types
