@@ -69,6 +69,26 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         self::PHINX_TYPE_VARBINARY => 'varbinary_blob'
     ];
 
+    // list of aliases of supported column types
+    protected static $supportedColumnTypeAliases = [
+        'varchar' => self::PHINX_TYPE_STRING,
+        'tinyint' => self::PHINX_TYPE_SMALL_INTEGER,
+        'tinyinteger' => self::PHINX_TYPE_SMALL_INTEGER,
+        'smallint' => self::PHINX_TYPE_SMALL_INTEGER,
+        'int' => self::PHINX_TYPE_INTEGER,
+        'mediumint' => self::PHINX_TYPE_INTEGER,
+        'mediuminteger' => self::PHINX_TYPE_INTEGER,
+        'bigint' => self::PHINX_TYPE_BIG_INTEGER,
+        'tinytext' => self::PHINX_TYPE_TEXT,
+        'mediumtext' => self::PHINX_TYPE_TEXT,
+        'longtext' => self::PHINX_TYPE_TEXT,
+        'tinyblob' => self::PHINX_TYPE_BLOB,
+        'mediumblob' => self::PHINX_TYPE_BLOB,
+        'longblob' => self::PHINX_TYPE_BLOB,
+        'real' => self::PHINX_TYPE_FLOAT,
+        'numeric' => self::PHINX_TYPE_FLOAT,
+    ];
+
     // list of known but unsupported Phinx column types
     protected static $unsupportedColumnTypes = [
         self::PHINX_TYPE_BIT,
@@ -1142,55 +1162,19 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             if (isset(self::$supportedColumnTypes[$typeLC])) {
                 // the type is an explicitly supported type
                 $name = $typeLC;
+            } elseif ($typeLC === 'tinyint' && $limit == 1) {
+                // the type is a MySQL-style boolean
+                $name = static::PHINX_TYPE_BOOLEAN;
+                $limit = null;
+            } elseif (isset(self::$supportedColumnTypeAliases[$typeLC])) {
+                // the type is an alias for a supported type
+                $name = self::$supportedColumnTypeAliases[$typeLC];
+            } elseif (in_array($typeLC, self::$unsupportedColumnTypes)) {
+                // unsupported but known types are passed through lowercased, and without appended affinity
+                $name = Literal::from($typeLC);
             } else {
-                switch ($typeLC) {
-                    // common aliases of supported types should be converted
-                    case 'varchar':
-                        $name = static::PHINX_TYPE_STRING;
-                        break;
-                    case 'tinyint':
-                    case 'tinyinteger':
-                        if ($limit == 1) {
-                            $name = static::PHINX_TYPE_BOOLEAN;
-                            $limit = null;
-                        } else {
-                            $name = static::PHINX_TYPE_SMALL_INTEGER;
-                        }
-                        break;
-                    case 'smallint':
-                        $name = static::PHINX_TYPE_SMALL_INTEGER;
-                        break;
-                    case 'int':
-                    case 'mediumint':
-                    case 'mediuminteger':
-                        $name = static::PHINX_TYPE_INTEGER;
-                        break;
-                    case 'bigint':
-                        $name = static::PHINX_TYPE_BIG_INTEGER;
-                        break;
-                    case 'tinytext':
-                    case 'mediumtext':
-                    case 'longtext':
-                        $name = static::PHINX_TYPE_TEXT;
-                        break;
-                    case 'tinyblob':
-                    case 'mediumblob':
-                    case 'longblob':
-                        $name = static::PHINX_TYPE_BLOB;
-                        break;
-                    case 'real':
-                    case 'numeric':
-                        $name = self::PHINX_TYPE_FLOAT;
-                        break;
-                    default:
-                        if (in_array($typeLC, self::$unsupportedColumnTypes)) {
-                            // unsupported but known types are passed through lowercased, and without appended affinity
-                            $name = Literal::from($typeLC);
-                        } else {
-                            // unknown types are passed through as-is
-                            $name = Literal::from($type . $affinity);
-                        }
-                }
+                // unknown types are passed through as-is
+                $name = Literal::from($type . $affinity);
             }
         }
 
