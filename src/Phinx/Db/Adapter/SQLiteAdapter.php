@@ -450,10 +450,9 @@ PCRE_PATTERN;
         // reconstitute the string, trimming whitespace as well as parentheses
         $vClean = trim(implode('', $matches));
         $vBare = rtrim(ltrim($vClean, $trimChars . '('), $trimChars . ')');
-        if (preg_match('/^true|false$/i', $vBare)) {
-            // boolean literal
-            return filter_var($vClean, \FILTER_VALIDATE_BOOLEAN);
-        } elseif (preg_match('/^CURRENT_(?:DATE|TIME|TIMESTAMP)$/i', $vBare)) {
+
+        // match the string against one of several patterns
+        if (preg_match('/^CURRENT_(?:DATE|TIME|TIMESTAMP)$/i', $vBare)) {
             // magic date or time
             return strtoupper($vBare);
         } elseif (preg_match('/^\'(?:[^\']|\'\')*\'$/i', $vBare)) {
@@ -477,6 +476,9 @@ PCRE_PATTERN;
         } elseif (preg_match('/^null$/i', $vBare)) {
             // null literal
             return null;
+        } elseif (preg_match('/^true|false$/i', $vBare)) {
+            // boolean literal
+            return filter_var($vClean, \FILTER_VALIDATE_BOOLEAN);
         } else {
             // any other expression: return the expression with parentheses, but without comments
             return Expression::from($vClean);
