@@ -581,7 +581,7 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testGetColumnsOld($colName, $type, $options, $actualType = null)
     {
-        // TODO: This test should be obsolete, but there are not other tests covering getPhinxType or getSqlType in this branch
+        // TODO: This test-set should be obsolete, but there are no other tests covering all the same lines of getPhinxType and getSqlType in this branch
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn($colName, $type, $options)->save();
 
@@ -1525,7 +1525,7 @@ INPUT;
             'Explicit null LC'       => ['create table t(a integer default null)', null],
             'Explicit null UC'       => ['create table t(a integer default NULL)', null],
             'Explicit null MC'       => ['create table t(a integer default nuLL)', null],
-            'Extra parentheses'      => ['create table t(a integer default ( null ))', null],
+            'Extra parentheses'      => ['create table t(a integer default ( ( null ) ))', null],
             'Comment 1'              => ["create table t(a integer default ( /* this is perfectly fine */ null ))", null],
             'Comment 2'              => ["create table t(a integer default ( /* this\nis\nperfectly\nfine */ null ))", null],
             'Line comment 1'         => ["create table t(a integer default ( -- this is perfectly fine, too\n null ))", null],
@@ -1567,7 +1567,7 @@ INPUT;
             'Float 8'                => ['create table t(a float default 1e+0)', 1.0],
             'Float 9'                => ['create table t(a float default 1e+1)', 10.0],
             'Float 10'               => ['create table t(a float default 1e-1)', 0.1],
-            'Float 10'               => ['create table t(a float default 1E-1)', 0.1],
+            'Float 11'               => ['create table t(a float default 1E-1)', 0.1],
             'Blob literal 1'         => ['create table t(a float default x\'ff\')', Expression::from('x\'ff\'')],
             'Blob literal 2'         => ['create table t(a float default X\'FF\')', Expression::from('X\'FF\'')],
             'Arbitrary expression'   => ['create table t(a float default ((2) + (2)))', Expression::from('(2) + (2)')],
@@ -1596,12 +1596,12 @@ INPUT;
     public function provideBooleanDefaultValues()
     {
         return [
-            'True LC'                => ['create table t(a boolean default true)', true],
-            'True UC'                => ['create table t(a boolean default TRUE)', true],
-            'True MC'                => ['create table t(a boolean default TRue)', true],
-            'False LC'               => ['create table t(a boolean default false)', false],
-            'False UC'               => ['create table t(a boolean default FALSE)', false],
-            'False MC'               => ['create table t(a boolean default FALse)', false],
+            'True LC'  => ['create table t(a boolean default true)', true],
+            'True UC'  => ['create table t(a boolean default TRUE)', true],
+            'True MC'  => ['create table t(a boolean default TRue)', true],
+            'False LC' => ['create table t(a boolean default false)', false],
+            'False UC' => ['create table t(a boolean default FALSE)', false],
+            'False MC' => ['create table t(a boolean default FALse)', false],
         ];
     }
 }

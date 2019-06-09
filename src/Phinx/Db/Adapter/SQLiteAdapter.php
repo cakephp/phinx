@@ -438,8 +438,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 \[[^\]]*\]|                     # SQL Server identifier
                 --[^\r\n]*|                     # Single-line comment
                 \/\*(?:\*(?!\/)|[^\*])*\*\/|    # Multi-line comment
-               [^\/\-]+|                        # Other non-special characters
-               .                                # Anything else
+                [^\/\-]+|                       # Non-special characters
+                .                               # Any other single character
             /sx
 PCRE_PATTERN;
         preg_match_all($pattern, $v, $matches);
