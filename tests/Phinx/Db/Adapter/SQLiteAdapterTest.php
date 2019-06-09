@@ -1179,8 +1179,7 @@ INPUT;
     /** @dataProvider provideTableNamesForPresenceCheck
      *  @covers \Phinx\Db\Adapter\SQLiteAdapter::hasTable
      *  @covers \Phinx\Db\Adapter\SQLiteAdapter::quoteString
-     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName
-     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::resolveTable */
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName */
     public function testHasTable($createName, $tableName, $exp)
     {
         // Test case for issue #1535

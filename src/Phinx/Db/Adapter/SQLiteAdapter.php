@@ -216,60 +216,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * Searches through all available schemata to find a table and returns an array
-     * containing the bare schema name and whether the table exists at all.
-     * If no schema was specified and the table does not exist the "main" schema is returned
-     *
-     * @param string $tableName The name of the table to find
-     * @return array
-     */
-    protected function resolveTable($tableName)
-    {
-        $info = $this->getSchemaName($tableName);
-        if ($info['schema'] === '') {
-            // if no schema is specified we search all schemata
-            $rows = $this->fetchAll('PRAGMA database_list;');
-            // the temp schema is always first to be searched
-            $schemata = ['temp'];
-            foreach ($rows as $row) {
-                if (strtolower($row['name']) !== 'temp') {
-                    $schemata[] = $row['name'];
-                }
-            }
-            $default = 'main';
-        } else {
-            // otherwise we search just the specified schema
-            $schemata = (array)$info['schema'];
-            $default = $info['schema'];
-        }
-
-        $table = strtolower($info['table']);
-        foreach ($schemata as $schema) {
-            if ($schema === 'temp') {
-                $master = 'sqlite_temp_master';
-            } else {
-                $master = sprintf('%s.%s', $this->quoteColumnName($schema), 'sqlite_master');
-            }
-            try {
-                $rows = $this->fetchAll(sprintf('SELECT name FROM %s WHERE type=\'table\' AND lower(name) = %s', $master, $this->quoteString($table)));
-            } catch (\PDOException $e) {
-                // an exception can occur if the schema part of the table refers to a database which is not attached
-                return ['schema' => $default, 'exists' => false];
-            }
-
-            // this somewhat pedantic check with strtolower is performed because the SQL lower function may be redefined,
-            // and can act on all Unicode characters if the ICU extension is loaded, while SQL identifiers are only case-insensitive for ASCII
-            foreach ($rows as $row) {
-                if (strtolower($row['name']) === $table) {
-                    return ['schema' => $schema, 'exists' => true];
-                }
-            }
-        }
-
-        return ['schema' => $default, 'exists' => false];
-    }
-
-    /**
      * Retrieves information about a given table from one of the SQLite pragmas
      *
      * @param string $tableName The table to query
@@ -287,7 +233,43 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        return $this->resolveTable($tableName)['exists'];
+        $info = $this->getSchemaName($tableName);
+        if ($info['schema'] === '') {
+            // if no schema is specified we search all schemata
+            $rows = $this->fetchAll('PRAGMA database_list;');
+            $schemata = [];
+            foreach ($rows as $row) {
+                $schemata[] = $row['name'];
+            }
+        } else {
+            // otherwise we search just the specified schema
+            $schemata = (array)$info['schema'];
+        }
+
+        $table = strtolower($info['table']);
+        foreach ($schemata as $schema) {
+            if (strtolower($schema) === 'temp') {
+                $master = 'sqlite_temp_master';
+            } else {
+                $master = sprintf('%s.%s', $this->quoteColumnName($schema), 'sqlite_master');
+            }
+            try {
+                $rows = $this->fetchAll(sprintf('SELECT name FROM %s WHERE type=\'table\' AND lower(name) = %s', $master, $this->quoteString($table)));
+            } catch (\PDOException $e) {
+                // an exception can occur if the schema part of the table refers to a database which is not attached
+                return false;
+            }
+
+            // this somewhat pedantic check with strtolower is performed because the SQL lower function may be redefined,
+            // and can act on all Unicode characters if the ICU extension is loaded, while SQL identifiers are only case-insensitive for ASCII
+            foreach ($rows as $row) {
+                if (strtolower($row['name']) === $table) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
