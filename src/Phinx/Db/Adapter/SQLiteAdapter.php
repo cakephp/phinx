@@ -36,6 +36,7 @@ use Phinx\Db\Table\Index;
 use Phinx\Db\Table\Table;
 use Phinx\Db\Util\AlterInstructions;
 use Phinx\Util\Literal;
+use Phinx\Util\Expression;
 
 /**
  * Phinx SQLite Adapter.
@@ -56,6 +57,29 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     ];
 
     protected $suffix = '.sqlite3';
+
+    /** Indicates whether the database library version is at least the specified version
+     *
+     * @param string $ver The version to check against e.g. '3.28.0'
+     * @return boolean
+     */
+    public function databaseVersionAtLeast($ver)
+    {
+        $ver = array_map('intval', explode('.', $ver));
+        $actual = $this->query('SELECT sqlite_version()')->fetchColumn();
+        $actual = array_map('intval', explode('.', $actual));
+        $actual = array_pad($actual, sizeof($ver), 0);
+
+        for ($a = 0; $a < sizeof($ver); $a++) {
+            if ($actual[$a] < $ver[$a]) {
+                return false;
+            } elseif ($actual[$a] > $ver[$a]) {
+                return true;
+            }
+        }
+
+        return true;
+    }
 
     /**
      * {@inheritdoc}
@@ -192,6 +216,60 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * Searches through all available schemata to find a table and returns an array
+     * containing the bare schema name and whether the table exists at all.
+     * If no schema was specified and the table does not exist the "main" schema is returned
+     *
+     * @param string $tableName The name of the table to find
+     * @return array
+     */
+    protected function resolveTable($tableName)
+    {
+        $info = $this->getSchemaName($tableName);
+        if ($info['schema'] === '') {
+            // if no schema is specified we search all schemata
+            $rows = $this->fetchAll('PRAGMA database_list;');
+            // the temp schema is always first to be searched
+            $schemata = ['temp'];
+            foreach ($rows as $row) {
+                if (strtolower($row['name']) !== 'temp') {
+                    $schemata[] = $row['name'];
+                }
+            }
+            $default = 'main';
+        } else {
+            // otherwise we search just the specified schema
+            $schemata = (array)$info['schema'];
+            $default = $info['schema'];
+        }
+
+        $table = strtolower($info['table']);
+        foreach ($schemata as $schema) {
+            if ($schema === 'temp') {
+                $master = 'sqlite_temp_master';
+            } else {
+                $master = sprintf('%s.%s', $this->quoteColumnName($schema), 'sqlite_master');
+            }
+            try {
+                $rows = $this->fetchAll(sprintf('SELECT name FROM %s WHERE type=\'table\' AND lower(name) = %s', $master, $this->quoteString($table)));
+            } catch (\PDOException $e) {
+                // an exception can occur if the schema part of the table refers to a database which is not attached
+                return ['schema' => $default, 'exists' => false];
+            }
+
+            // this somewhat pedantic check with strtolower is performed because the SQL lower function may be redefined,
+            // and can act on all Unicode characters if the ICU extension is loaded, while SQL identifiers are only case-insensitive for ASCII
+            foreach ($rows as $row) {
+                if (strtolower($row['name']) === $table) {
+                    return ['schema' => $schema, 'exists' => true];
+                }
+            }
+        }
+
+        return ['schema' => $default, 'exists' => false];
+    }
+
+    /**
      * Retrieves information about a given table from one of the SQLite pragmas
      *
      * @param string $tableName The table to query
@@ -209,43 +287,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        $info = $this->getSchemaName($tableName);
-        if ($info['schema'] === '') {
-            // if no schema is specified we search all schemata
-            $rows = $this->fetchAll('PRAGMA database_list;');
-            $schemata = [];
-            foreach ($rows as $row) {
-                $schemata[] = $row['name'];
-            }
-        } else {
-            // otherwise we search just the specified schema
-            $schemata = (array)$info['schema'];
-        }
-
-        $table = strtolower($info['table']);
-        foreach ($schemata as $schema) {
-            if (strtolower($schema) === 'temp') {
-                $master = 'sqlite_temp_master';
-            } else {
-                $master = sprintf('%s.%s', $this->quoteColumnName($schema), 'sqlite_master');
-            }
-            try {
-                $rows = $this->fetchAll(sprintf('SELECT name FROM %s WHERE type=\'table\' AND lower(name) = %s', $master, $this->quoteString($table)));
-            } catch (\PDOException $e) {
-                // an exception can occur if the schema part of the table refers to a database which is not attached
-                return false;
-            }
-
-            // this somewhat pedantic check with strtolower is performed because the SQL lower function may be redefined,
-            // and can act on all Unicode characters if the ICU extension is loaded, while SQL identifiers are only case-insensitive for ASCII
-            foreach ($rows as $row) {
-                if (strtolower($row['name']) === $table) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return $this->resolveTable($tableName)['exists'];
     }
 
     /**
@@ -391,29 +433,138 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * Parses a default-value expression to yield either a Literal representing
+     * a string value, a string representing an expression, or some other scalar
+     *
+     * @param mixed $v The default-value expression to interpret
+     * @param string $t The Phinx type of the column
+     * @return mixed
+     */
+    protected function parseDefaultValue($v, $t)
+    {
+        if (is_null($v)) {
+            return null;
+        }
+
+        // split the input into tokens
+        $trimChars = " \t\n\r\0\x0B";
+        $pattern = <<<PCRE_PATTERN
+            /
+                '(?:[^']|'')*'|                 # String literal
+                "(?:[^"]|"")*"|                 # Standard identifier
+                `(?:[^`]|``)*`|                 # MySQL identifier
+                \[[^\]]*\]|                     # SQL Server identifier
+                --[^\r\n]*|                     # Single-line comment
+                \/\*(?:\*(?!\/)|[^\*])*\*\/|    # Multi-line comment
+               [^\/\-]+|                        # Other non-special characters
+               .                                # Anything else
+            /sx
+PCRE_PATTERN;
+        preg_match_all($pattern, $v, $matches);
+        // strip out any comment tokens
+        $matches = array_map(function ($v) {
+            return preg_match('/^(?:\/\*|--)/', $v) ? ' ' : $v;
+        }, $matches[0]);
+        // reconstitute the string, trimming whitespace as well as parentheses
+        $vClean = trim(implode('', $matches));
+        $vBare = rtrim(ltrim($vClean, $trimChars . '('), $trimChars . ')');
+        if (preg_match('/^true|false$/i', $vBare)) {
+            // boolean literal
+            return filter_var($vClean, \FILTER_VALIDATE_BOOLEAN);
+        } elseif (preg_match('/^CURRENT_(?:DATE|TIME|TIMESTAMP)$/i', $vBare)) {
+            // magic date or time
+            return strtoupper($vBare);
+        } elseif (preg_match('/^\'(?:[^\']|\'\')*\'$/i', $vBare)) {
+            // string literal
+            $str = str_replace("''", "'", substr($vBare, 1, strlen($vBare) - 2));
+            return Literal::from($str);
+        } elseif (preg_match('/^[+-]?\d+$/i', $vBare)) {
+            $int = (int)$vBare;
+            // integer literal
+            if ($t === self::PHINX_TYPE_BOOLEAN && ($int == 0 || $int == 1)) {
+                return (bool)$int;
+            } else {
+                return $int;
+            }
+        } elseif (preg_match('/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i', $vBare)) {
+            // float literal
+            return (float)$vBare;
+        } elseif (preg_match('/^0x[0-9a-f]+$/i', $vBare)) {
+            // hexadecimal literal
+            return hexdec(substr($vBare, 2));
+        } elseif (preg_match('/^null$/i', $vBare)) {
+            // null literal
+            return null;
+        } else {
+            // any other expression: return the expression with parentheses, but without comments
+            return Expression::from($vClean);
+        }
+    }
+
+    /**
+     * Returns the name of the specified table's identity column, or null if the table has no identity
+     *
+     * The process of finding an identity column is somewhat convoluted as SQLite has no direct way of querying whether a given column is an alias for the table's row ID
+     *
+     * @param string $tableName The name of the table
+     * @return string|null
+     */
+    protected function resolveIdentity($tableName)
+    {
+        $result = null;
+        // make sure the table has only one primary key column which is of type integer
+        foreach ($this->getTableInfo($tableName) as $col) {
+            $type = strtolower($col['type']);
+            if ($col['pk'] > 1) {
+                // the table has a composite primary key
+                return null;
+            } elseif ($col['pk'] == 0) {
+                // the column is not a primary key column and is thus not relevant
+                continue;
+            } elseif ($type !== 'integer') {
+                // if the primary key's type is not exactly INTEGER, it cannot be a row ID alias
+                return null;
+            } else {
+                // the column is a candidate for a row ID alias
+                $result = $col['name'];
+            }
+        }
+        // if there is no suitable PK column, stop now
+        if (is_null($result)) {
+            return null;
+        }
+        // make sure the table does not have a PK-origin autoindex
+        // such an autoindex would indicate either that the primary key was specified as descending, or that this is a WITHOUT ROWID table
+        foreach ($this->getTableInfo($tableName, 'index_list') as $idx) {
+            if ($idx['origin'] === 'pk') {
+                return null;
+            }
+        }
+        return $result;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getColumns($tableName)
     {
         $columns = [];
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
+
+        $rows = $this->getTableInfo($tableName);
+        $identity = $this->resolveIdentity($tableName);
 
         foreach ($rows as $columnInfo) {
             $column = new Column();
-            $type = strtolower($columnInfo['type']);
+            $type = $this->getPhinxType(strtolower($columnInfo['type']));  // FIXME: this should not be lowercased, but the current implementation of getPhinxType requires it
+            $default = $this->parseDefaultValue($columnInfo['dflt_value'], $type['name']);
+            
             $column->setName($columnInfo['name'])
                    ->setNull($columnInfo['notnull'] !== '1')
-                   ->setDefault($columnInfo['dflt_value']);
-
-            $phinxType = $this->getPhinxType($type);
-
-            $column->setType($phinxType['name'])
-                   ->setLimit($phinxType['limit'])
-                   ->setScale($phinxType['scale']);
-
-            if ($columnInfo['pk'] == 1) {
-                $column->setIdentity(true);
-            }
+                   ->setDefault($default)
+                   ->setType($type['name'])
+                   ->setLimit($type['limit'])
+                   ->setScale($type['scale'])
+                   ->setIdentity($columnInfo['name'] === $identity);
 
             $columns[] = $column;
         }
@@ -426,7 +577,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasColumn($tableName, $columnName)
     {
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
+        $rows = $this->getTableInfo($tableName);
         foreach ($rows as $column) {
             if (strcasecmp($column['name'], $columnName) === 0) {
                 return true;
