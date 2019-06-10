@@ -1644,6 +1644,13 @@ INPUT;
         ];
     }
 
+    /** @dataProvider provideDatabaseVersionStrings
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::databaseVersionAtLeast */
+    public function testDatabaseVersionAtLeast($ver, $exp)
+    {
+        $this->assertSame($exp, $this->adapter->databaseVersionAtLeast($ver));
+    }
+
     public function provideDatabaseVersionStrings()
     {
         return [
