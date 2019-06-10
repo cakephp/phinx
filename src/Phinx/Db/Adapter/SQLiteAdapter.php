@@ -125,20 +125,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function databaseVersionAtLeast($ver)
     {
-        $ver = array_map('intval', explode('.', $ver));
         $actual = $this->query('SELECT sqlite_version()')->fetchColumn();
-        $actual = array_map('intval', explode('.', $actual));
-        $actual = array_pad($actual, sizeof($ver), 0);
-
-        for ($a = 0; $a < sizeof($ver); $a++) {
-            if ($actual[$a] < $ver[$a]) {
-                return false;
-            } elseif ($actual[$a] > $ver[$a]) {
-                return true;
-            }
-        }
-
-        return true;
+        return version_compare($actual, $ver, '>=');
     }
 
     /**
