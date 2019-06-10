@@ -568,45 +568,6 @@ class SQLiteAdapterTest extends TestCase
         ];
     }
 
-    /**
-     *
-     * @dataProvider columnsProvider
-     *
-     * @param string $colName
-     * @param string $type
-     * @param array $options
-     * @param string|null $actualType
-     */
-    public function testGetColumnsOld($colName, $type, $options, $actualType = null)
-    {
-        // TODO: This test-set should be obsolete, but there are no other tests covering all the same lines of getPhinxType and getSqlType in this branch
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
-        $table->addColumn($colName, $type, $options)->save();
-
-        $columns = $this->adapter->getColumns('t');
-        $this->assertCount(2, $columns);
-        $this->assertEquals($colName, $columns[1]->getName());
-
-        $this->assertEquals($actualType ?: $type, $columns[1]->getType());
-
-        if (isset($options['limit'])) {
-            $this->assertEquals($options['limit'], $columns[1]->getLimit());
-        }
-
-        // SQLiteAdapter doesn't return enum values.
-        if (isset($options['values']) && $type !== 'enum') {
-            $this->assertEquals($options['values'], $columns[1]->getValues());
-        }
-
-        if (isset($options['precision'])) {
-            $this->assertEquals($options['precision'], $columns[1]->getPrecision());
-        }
-
-        if (isset($options['scale'])) {
-            $this->assertEquals($options['scale'], $columns[1]->getScale());
-        }
-    }
-
     public function testAddIndex()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);

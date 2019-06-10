@@ -599,7 +599,7 @@ PCRE_PATTERN;
 
         foreach ($rows as $columnInfo) {
             $column = new Column();
-            $type = $this->getPhinxType(strtolower($columnInfo['type']));  // FIXME: this should not be lowercased, but the current implementation of getPhinxType requires it
+            $type = $this->getPhinxType($columnInfo['type']);
             $default = $this->parseDefaultValue($columnInfo['dflt_value'], $type['name']);
             
             $column->setName($columnInfo['name'])
