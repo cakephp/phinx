@@ -36,6 +36,7 @@ use Phinx\Db\Table\Index;
 use Phinx\Db\Table\Table;
 use Phinx\Db\Util\AlterInstructions;
 use Phinx\Util\Literal;
+use Phinx\Util\Expression;
 
 /**
  * Phinx SQLite Adapter.
@@ -116,6 +117,17 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     ];
 
     protected $suffix = '.sqlite3';
+
+    /** Indicates whether the database library version is at least the specified version
+     *
+     * @param string $ver The version to check against e.g. '3.28.0'
+     * @return boolean
+     */
+    public function databaseVersionAtLeast($ver)
+    {
+        $actual = $this->query('SELECT sqlite_version()')->fetchColumn();
+        return version_compare($actual, $ver, '>=');
+    }
 
     /**
      * {@inheritdoc}
@@ -451,29 +463,140 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
+     * Parses a default-value expression to yield either a Literal representing
+     * a string value, a string representing an expression, or some other scalar
+     *
+     * @param mixed $v The default-value expression to interpret
+     * @param string $t The Phinx type of the column
+     * @return mixed
+     */
+    protected function parseDefaultValue($v, $t)
+    {
+        if (is_null($v)) {
+            return null;
+        }
+
+        // split the input into tokens
+        $trimChars = " \t\n\r\0\x0B";
+        $pattern = <<<PCRE_PATTERN
+            /
+                '(?:[^']|'')*'|                 # String literal
+                "(?:[^"]|"")*"|                 # Standard identifier
+                `(?:[^`]|``)*`|                 # MySQL identifier
+                \[[^\]]*\]|                     # SQL Server identifier
+                --[^\r\n]*|                     # Single-line comment
+                \/\*(?:\*(?!\/)|[^\*])*\*\/|    # Multi-line comment
+                [^\/\-]+|                       # Non-special characters
+                .                               # Any other single character
+            /sx
+PCRE_PATTERN;
+        preg_match_all($pattern, $v, $matches);
+        // strip out any comment tokens
+        $matches = array_map(function ($v) {
+            return preg_match('/^(?:\/\*|--)/', $v) ? ' ' : $v;
+        }, $matches[0]);
+        // reconstitute the string, trimming whitespace as well as parentheses
+        $vClean = trim(implode('', $matches));
+        $vBare = rtrim(ltrim($vClean, $trimChars . '('), $trimChars . ')');
+
+        // match the string against one of several patterns
+        if (preg_match('/^CURRENT_(?:DATE|TIME|TIMESTAMP)$/i', $vBare)) {
+            // magic date or time
+            return strtoupper($vBare);
+        } elseif (preg_match('/^\'(?:[^\']|\'\')*\'$/i', $vBare)) {
+            // string literal
+            $str = str_replace("''", "'", substr($vBare, 1, strlen($vBare) - 2));
+            return Literal::from($str);
+        } elseif (preg_match('/^[+-]?\d+$/i', $vBare)) {
+            $int = (int)$vBare;
+            // integer literal
+            if ($t === self::PHINX_TYPE_BOOLEAN && ($int == 0 || $int == 1)) {
+                return (bool)$int;
+            } else {
+                return $int;
+            }
+        } elseif (preg_match('/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i', $vBare)) {
+            // float literal
+            return (float)$vBare;
+        } elseif (preg_match('/^0x[0-9a-f]+$/i', $vBare)) {
+            // hexadecimal literal
+            return hexdec(substr($vBare, 2));
+        } elseif (preg_match('/^null$/i', $vBare)) {
+            // null literal
+            return null;
+        } elseif (preg_match('/^true|false$/i', $vBare)) {
+            // boolean literal
+            return filter_var($vClean, \FILTER_VALIDATE_BOOLEAN);
+        } else {
+            // any other expression: return the expression with parentheses, but without comments
+            return Expression::from($vClean);
+        }
+    }
+
+    /**
+     * Returns the name of the specified table's identity column, or null if the table has no identity
+     *
+     * The process of finding an identity column is somewhat convoluted as SQLite has no direct way of querying whether a given column is an alias for the table's row ID
+     *
+     * @param string $tableName The name of the table
+     * @return string|null
+     */
+    protected function resolveIdentity($tableName)
+    {
+        $result = null;
+        // make sure the table has only one primary key column which is of type integer
+        foreach ($this->getTableInfo($tableName) as $col) {
+            $type = strtolower($col['type']);
+            if ($col['pk'] > 1) {
+                // the table has a composite primary key
+                return null;
+            } elseif ($col['pk'] == 0) {
+                // the column is not a primary key column and is thus not relevant
+                continue;
+            } elseif ($type !== 'integer') {
+                // if the primary key's type is not exactly INTEGER, it cannot be a row ID alias
+                return null;
+            } else {
+                // the column is a candidate for a row ID alias
+                $result = $col['name'];
+            }
+        }
+        // if there is no suitable PK column, stop now
+        if (is_null($result)) {
+            return null;
+        }
+        // make sure the table does not have a PK-origin autoindex
+        // such an autoindex would indicate either that the primary key was specified as descending, or that this is a WITHOUT ROWID table
+        foreach ($this->getTableInfo($tableName, 'index_list') as $idx) {
+            if ($idx['origin'] === 'pk') {
+                return null;
+            }
+        }
+        return $result;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getColumns($tableName)
     {
         $columns = [];
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
+
+        $rows = $this->getTableInfo($tableName);
+        $identity = $this->resolveIdentity($tableName);
 
         foreach ($rows as $columnInfo) {
             $column = new Column();
-            $type = strtolower($columnInfo['type']);
+            $type = $this->getPhinxType($columnInfo['type']);
+            $default = $this->parseDefaultValue($columnInfo['dflt_value'], $type['name']);
+            
             $column->setName($columnInfo['name'])
                    ->setNull($columnInfo['notnull'] !== '1')
-                   ->setDefault($columnInfo['dflt_value']);
-
-            $phinxType = $this->getPhinxType($type);
-
-            $column->setType($phinxType['name'])
-                   ->setLimit($phinxType['limit'])
-                   ->setScale($phinxType['scale']);
-
-            if ($columnInfo['pk'] == 1) {
-                $column->setIdentity(true);
-            }
+                   ->setDefault($default)
+                   ->setType($type['name'])
+                   ->setLimit($type['limit'])
+                   ->setScale($type['scale'])
+                   ->setIdentity($columnInfo['name'] === $identity);
 
             $columns[] = $column;
         }
@@ -486,7 +609,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasColumn($tableName, $columnName)
     {
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
+        $rows = $this->getTableInfo($tableName);
         foreach ($rows as $column) {
             if (strcasecmp($column['name'], $columnName) === 0) {
                 return true;
