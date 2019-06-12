@@ -1049,7 +1049,7 @@ PCRE_PATTERN;
             return false;
         }
         
-            return true;
+        return true;
     }
 
     /**
@@ -1090,7 +1090,7 @@ PCRE_PATTERN;
             if (array_diff($key, $columns) || array_diff($columns, $key)) {
                 continue;
             }
-                return true;
+            return true;
         }
 
         return false;
@@ -1316,7 +1316,7 @@ PCRE_PATTERN;
             } elseif ($typeLC === 'tinyint' && $limit == 1) {
                 // the type is a MySQL-style boolean
                 $name = static::PHINX_TYPE_BOOLEAN;
-                        $limit = null;
+                $limit = null;
             } elseif (isset(self::$supportedColumnTypeAliases[$typeLC])) {
                 // the type is an alias for a supported type
                 $name = self::$supportedColumnTypeAliases[$typeLC];
