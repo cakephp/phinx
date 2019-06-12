@@ -277,26 +277,36 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Searches through all available schemata to find a table and returns an array
+     * containing the bare schema name and whether the table exists at all.
+     * If no schema was specified and the table does not exist the "main" schema is returned
+     *
+     * @param string $tableName The name of the table to find
+     * @return array
      */
-    public function hasTable($tableName)
+    protected function resolveTable($tableName)
     {
         $info = $this->getSchemaName($tableName);
         if ($info['schema'] === '') {
             // if no schema is specified we search all schemata
             $rows = $this->fetchAll('PRAGMA database_list;');
-            $schemata = [];
+            // the temp schema is always first to be searched
+            $schemata = ['temp'];
             foreach ($rows as $row) {
-                $schemata[] = $row['name'];
+                if (strtolower($row['name']) !== 'temp') {
+                    $schemata[] = $row['name'];
+                }
             }
+            $defaultSchema = 'main';
         } else {
             // otherwise we search just the specified schema
             $schemata = (array)$info['schema'];
+            $defaultSchema = $info['schema'];
         }
 
         $table = strtolower($info['table']);
         foreach ($schemata as $schema) {
-            if (strtolower($schema) === 'temp') {
+            if ($schema === 'temp') {
                 $master = 'sqlite_temp_master';
             } else {
                 $master = sprintf('%s.%s', $this->quoteColumnName($schema), 'sqlite_master');
@@ -305,19 +315,27 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 $rows = $this->fetchAll(sprintf('SELECT name FROM %s WHERE type=\'table\' AND lower(name) = %s', $master, $this->quoteString($table)));
             } catch (\PDOException $e) {
                 // an exception can occur if the schema part of the table refers to a database which is not attached
-                return false;
+                break;
             }
 
             // this somewhat pedantic check with strtolower is performed because the SQL lower function may be redefined,
             // and can act on all Unicode characters if the ICU extension is loaded, while SQL identifiers are only case-insensitive for ASCII
             foreach ($rows as $row) {
                 if (strtolower($row['name']) === $table) {
-                    return true;
+                    return ['schema' => $schema, 'table' => $row['name'], 'exists' => true];
                 }
             }
         }
 
-        return false;
+        return ['schema' => $defaultSchema, 'table' => $info['table'], 'exists' => false];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasTable($tableName)
+    {
+        return $this->resolveTable($tableName)['exists'];
     }
 
     /**
@@ -454,12 +472,23 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function truncateTable($tableName)
     {
-        $sql = sprintf(
-            'DELETE FROM %s',
-            $this->quoteTableName($tableName)
-        );
+        $info = $this->resolveTable($tableName);
+        // first try deleting the rows
+        $this->execute(sprintf(
+            'DELETE FROM %s.%s',
+            $this->quoteColumnName($info['schema']),
+            $this->quoteColumnName($info['table'])
+        ));
 
-        $this->execute($sql);
+        // assuming no error occurred, reset the autoincrement (if any)
+        if ($this->hasTable($info['schema'] . '.sqlite_sequence')) {
+            $this->execute(sprintf(
+                'DELETE FROM %s.%s where name  = %s',
+                $this->quoteColumnName($info['schema']),
+                'sqlite_sequence',
+                $this->quoteString($info['table'])
+            ));
+        }
     }
 
     /**
@@ -1020,7 +1049,7 @@ PCRE_PATTERN;
             return false;
         }
         
-        return true;
+            return true;
     }
 
     /**
@@ -1061,7 +1090,7 @@ PCRE_PATTERN;
             if (array_diff($key, $columns) || array_diff($columns, $key)) {
                 continue;
             }
-            return true;
+                return true;
         }
 
         return false;
@@ -1251,7 +1280,7 @@ PCRE_PATTERN;
         } elseif (isset(self::$supportedColumnTypes[$typeLC])) {
             $name = self::$supportedColumnTypes[$typeLC];
         } elseif (in_array($typeLC, self::$unsupportedColumnTypes)) {
-                throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by SQLite.');
+            throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by SQLite.');
         } else {
             throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not known by SQLite.');
         }
@@ -1287,7 +1316,7 @@ PCRE_PATTERN;
             } elseif ($typeLC === 'tinyint' && $limit == 1) {
                 // the type is a MySQL-style boolean
                 $name = static::PHINX_TYPE_BOOLEAN;
-                $limit = null;
+                        $limit = null;
             } elseif (isset(self::$supportedColumnTypeAliases[$typeLC])) {
                 // the type is an alias for a supported type
                 $name = self::$supportedColumnTypeAliases[$typeLC];
