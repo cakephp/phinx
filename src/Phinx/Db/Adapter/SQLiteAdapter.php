@@ -306,7 +306,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         $table = strtolower($info['table']);
         foreach ($schemata as $schema) {
-            if ($schema === 'temp') {
+            if (strtolower($schema) === 'temp') {
                 $master = 'sqlite_temp_master';
             } else {
                 $master = sprintf('%s.%s', $this->quoteColumnName($schema), 'sqlite_master');
