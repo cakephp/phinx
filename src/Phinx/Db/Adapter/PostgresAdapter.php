@@ -37,8 +37,10 @@ use Phinx\Db\Table\Table;
 use Phinx\Db\Util\AlterInstructions;
 use Phinx\Util\Literal;
 
-class PostgresAdapter extends PdoAdapter implements AdapterInterface
+class PostgresAdapter extends PdoAdapter implements DirectActionInterface
 {
+    use AbstractDirectAction;
+
     /**
      * Columns with comments
      *

@@ -42,8 +42,10 @@ use Phinx\Util\Literal;
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-class MysqlAdapter extends PdoAdapter implements AdapterInterface
+class MysqlAdapter extends PdoAdapter implements DirectActionInterface
 {
+    use AbstractDirectAction;
+
     protected $signedColumnTypes = [
         'integer' => true,
         'biginteger' => true,

@@ -42,8 +42,10 @@ use Phinx\Util\Literal;
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-class SqlServerAdapter extends PdoAdapter implements AdapterInterface
+class SqlServerAdapter extends PdoAdapter implements DirectActionInterface
 {
+    use AbstractDirectAction;
+
     protected $schema = 'dbo';
 
     protected $signedColumnTypes = ['integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true];

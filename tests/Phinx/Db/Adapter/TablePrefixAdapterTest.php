@@ -39,7 +39,7 @@ class TablePrefixAdapterTest extends TestCase
             'table_suffix' => '_suf',
         ];
 
-        $this->mock = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+        $this->mock = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
             ->setConstructorArgs([[]])
             ->getMock();
 
