@@ -39,7 +39,7 @@ use Phinx\Util\Literal;
 
 class PostgresAdapter extends PdoAdapter implements DirectActionInterface
 {
-    use AbstractDirectAction;
+    use AbstractDirectActionTrait;
 
     /**
      * Columns with comments

@@ -51,7 +51,7 @@ use Phinx\Db\Util\AlterInstructions;
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-trait AbstractDirectAction
+trait AbstractDirectActionTrait
 {
     /**
      * Executes all the ALTER TABLE instructions passed for the given table

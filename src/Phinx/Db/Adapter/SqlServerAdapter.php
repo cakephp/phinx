@@ -44,7 +44,7 @@ use Phinx\Util\Literal;
  */
 class SqlServerAdapter extends PdoAdapter implements DirectActionInterface
 {
-    use AbstractDirectAction;
+    use AbstractDirectActionTrait;
 
     protected $schema = 'dbo';
 

@@ -46,7 +46,7 @@ use Phinx\Util\Expression;
  */
 class SQLiteAdapter extends PdoAdapter implements DirectActionInterface
 {
-    use AbstractDirectAction;
+    use AbstractDirectActionTrait;
 
     // list of supported Phinx column types with their SQL equivalents
     // some types have an affinity appended to ensure they do not receive NUMERIC affinity
