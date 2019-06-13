@@ -916,30 +916,6 @@ class SQLiteAdapterTest extends TestCase
         $this->assertEquals("some2", $dd->getDefault());
     }
 
-    public function testTruncateTable()
-    {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-        $table->addColumn('column1', 'string')
-              ->addColumn('column2', 'integer')
-              ->insert([
-                  [
-                      'column1' => 'value1',
-                      'column2' => 1,
-                  ],
-                  [
-                      'column1' => 'value2',
-                      'column2' => 2,
-                  ]
-              ])
-              ->save();
-
-        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertCount(2, $rows);
-        $table->truncate();
-        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertCount(0, $rows);
-    }
-
     public function testDumpCreateTable()
     {
         $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
@@ -1120,6 +1096,7 @@ INPUT;
 
     /** @dataProvider provideTableNamesForPresenceCheck
      *  @covers \Phinx\Db\Adapter\SQLiteAdapter::hasTable
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::resolveTable
      *  @covers \Phinx\Db\Adapter\SQLiteAdapter::quoteString
      *  @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName */
     public function testHasTable($createName, $tableName, $exp)
@@ -1850,6 +1827,45 @@ INPUT;
             'False LC' => ['create table t(a boolean default false)', false],
             'False UC' => ['create table t(a boolean default FALSE)', false],
             'False MC' => ['create table t(a boolean default FALse)', false],
+        ];
+    }
+
+    /** @dataProvider provideTablesForTruncation
+     *  @covers \Phinx\Db\Adapter\SQLiteAdapter::truncateTable */
+    public function testTruncateTable($tableDef, $tableName, $tableId)
+    {
+        $conn = $this->adapter->getConnection();
+        $conn->exec($tableDef);
+        $conn->exec("INSERT INTO $tableId default values");
+        $conn->exec("INSERT INTO $tableId default values");
+        $conn->exec("INSERT INTO $tableId default values");
+        $this->assertEquals(3, $conn->query("select count(*) from $tableId")->fetchColumn(), 'Broken fixture: data were not inserted properly');
+        $this->assertEquals(3, $conn->query("select max(id) from $tableId")->fetchColumn(), 'Broken fixture: data were not inserted properly');
+        $this->adapter->truncateTable($tableName);
+        $this->assertEquals(0, $conn->query("select count(*) from $tableId")->fetchColumn(), 'Table was not truncated');
+        $conn->exec("INSERT INTO $tableId default values");
+        $this->assertEquals(1, $conn->query("select max(id) from $tableId")->fetchColumn(), 'Autoincrement was not reset');
+    }
+
+    public function provideTablesForTruncation()
+    {
+        return [
+            ['create table t(id integer primary key)', 't', 't'],
+            ['create table t(id integer primary key autoincrement)', 't', 't'],
+            ['create temp table t(id integer primary key)', 't', 'temp.t'],
+            ['create temp table t(id integer primary key autoincrement)', 't', 'temp.t'],
+            ['create table t(id integer primary key)', 'main.t', 'main.t'],
+            ['create table t(id integer primary key autoincrement)', 'main.t', 'main.t'],
+            ['create temp table t(id integer primary key)', 'temp.t', 'temp.t'],
+            ['create temp table t(id integer primary key autoincrement)', 'temp.t', 'temp.t'],
+            ['create table ["](id integer primary key)', 'main."', 'main.""""'],
+            ['create table ["](id integer primary key autoincrement)', 'main."', 'main.""""'],
+            ['create table [\'](id integer primary key)', 'main.\'', 'main."\'"'],
+            ['create table [\'](id integer primary key autoincrement)', 'main.\'', 'main."\'"'],
+            ['create table T(id integer primary key)', 't', 't'],
+            ['create table T(id integer primary key autoincrement)', 't', 't'],
+            ['create table t(id integer primary key)', 'T', 't'],
+            ['create table t(id integer primary key autoincrement)', 'T', 't'],
         ];
     }
 }
