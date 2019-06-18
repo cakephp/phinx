@@ -613,7 +613,7 @@ class Column
     /**
      * Sets the column SRID.
      *
-     * @param int $srid
+     * @param int $srid SRID
      * @return \Phinx\Db\Table\Column
      */
     public function setSrid($srid)
