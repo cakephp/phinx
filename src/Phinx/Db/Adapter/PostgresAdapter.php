@@ -1119,7 +1119,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $buffer[] = sprintf(
                     '(%s,%s)',
                     strtoupper($sqlType['type']),
-                    $sqlType['srid']
+                    $column->getSrid() ?: $sqlType['srid']
                 );
             } elseif (in_array($sqlType['name'], ['time', 'timestamp'])) {
                 if (is_numeric($column->getPrecision())) {
