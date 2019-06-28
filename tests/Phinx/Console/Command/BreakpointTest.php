@@ -44,7 +44,7 @@ class BreakpointTest extends TestCase
         $this->config = new Config(
             [
                 'paths' => [
-                    'migrations' => sys_get_temp_dir() . DIRECTORY_SEPARATOR.'migrations',
+                    'migrations' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations',
                 ],
                 'environments' => [
                     'default_migration_table' => 'phinxlog',
