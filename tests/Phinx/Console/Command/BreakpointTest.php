@@ -223,19 +223,19 @@ class BreakpointTest extends TestCase
     public function provideCombinedParametersToCauseException()
     {
         return [
-            'Remove with Set'=> [
+            'Remove with Set' => [
                 [
                     '--remove-all' => true,
                     '--set' => true,
                 ]
             ],
-            'Remove with Unset'=> [
+            'Remove with Unset' => [
                 [
                     '--remove-all' => true,
                     '--unset' => true,
                 ]
             ],
-            'Set with Unset'=> [
+            'Set with Unset' => [
                 [
                     '--set' => true,
                     '--unset' => true,

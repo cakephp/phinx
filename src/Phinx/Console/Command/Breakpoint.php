@@ -91,7 +91,7 @@ EOT
             throw new \InvalidArgumentException('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
         }
 
-        if (($set && $unset) || ($set && $removeAll) || ($unset && $removeAll)){
+        if (($set && $unset) || ($set && $removeAll) || ($unset && $removeAll)) {
             throw new \InvalidArgumentException('Cannot use more than one of --set, --clear, or --remove-all at the same time.');
         }
 

@@ -1057,8 +1057,7 @@ class Manager
         $this->getOutput()->writeln(sprintf(
             ' %d breakpoints cleared.',
             $this->getEnvironment($environment)->getAdapter()->resetAllBreakpoints()
-        )
-        );
+        ));
     }
 
     /**
