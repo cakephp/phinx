@@ -5656,7 +5656,7 @@ class ManagerTest extends TestCase
         $this->assertFalse($adapter->hasTable('user_logins_foo_bar'));
     }
 
-    public function testBreakpointsOperateAsExpected()
+    public function testBreakpointsTogglingOperateAsExpected()
     {
         if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
             $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED constant.');
@@ -5675,26 +5675,30 @@ class ManagerTest extends TestCase
         $this->manager->setConfig($config);
         $this->manager->migrate('production');
 
-        $versions = $this->manager->getEnvironment('production')->getVersionLog();
-        $lastVersion = end($versions);
+        // Get the versions
+        $originalVersions = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(0, reset($originalVersions)['breakpoint']);
+        $this->assertEquals(0, end($originalVersions)['breakpoint']);
 
         // Wait until the second has changed.
         $now = time();
         while ($now == time()) {
         }
 
-        // set breakpoint on most recent migration
+        // Toggle the breakpoint on most recent migration
         $this->manager->toggleBreakpoint('production', null);
 
         // ensure breakpoint is set
-        $versions = $this->manager->getEnvironment('production')->getVersionLog();
-        $currentVersion = end($versions);
-        $this->assertEquals(1, $currentVersion['breakpoint']);
+        $firstToggle = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(0, reset($firstToggle)['breakpoint']);
+        $this->assertEquals(1, end($firstToggle)['breakpoint']);
 
         // ensure no other data has changed.
-        foreach ($lastVersion as $key => $value) {
-            if (!is_numeric($key) && $key != 'breakpoint') {
-                $this->assertEquals($value, $currentVersion[$key]);
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column) && $column != 'breakpoint') {
+                    $this->assertEquals($value, $firstToggle[$originalVersionKey][$column]);
+                }
             }
         }
 
@@ -5703,17 +5707,132 @@ class ManagerTest extends TestCase
         while ($now == time()) {
         }
 
-        // reset all breakpoints
-        $this->manager->removeBreakpoints('production');
+        // Toggle the breakpoint on most recent migration
+        $this->manager->toggleBreakpoint('production', null);
 
-        // ensure breakpoint is not set
-        $versions = $this->manager->getEnvironment('production')->getVersionLog();
-        $this->assertEquals(0, end($versions)['breakpoint']);
+        // ensure breakpoint is set
+        $secondToggle = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(0, reset($secondToggle)['breakpoint']);
+        $this->assertEquals(0, end($secondToggle)['breakpoint']);
 
         // ensure no other data has changed.
-        foreach ($lastVersion as $key => $value) {
-            if (!is_numeric($key) && $key != 'breakpoint') {
-                $this->assertEquals($value, $currentVersion[$key]);
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column) && $column != 'breakpoint') {
+                    $this->assertEquals($value, $secondToggle[$originalVersionKey][$column]);
+                }
+            }
+        }
+
+        // Wait until the second has changed.
+        $now = time();
+        while ($now == time()) {
+        }
+
+        // Reset all breakpoints and toggle the most recent migration twice
+        $this->manager->removeBreakpoints('production');
+        $this->manager->toggleBreakpoint('production', null);
+        $this->manager->toggleBreakpoint('production', null);
+
+        // ensure breakpoint is not set
+        $resetVersions = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(0, reset($resetVersions)['breakpoint']);
+        $this->assertEquals(0, end($resetVersions)['breakpoint']);
+
+        // ensure no other data has changed.
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column)) {
+                    $this->assertEquals($value, $resetVersions[$originalVersionKey][$column]);
+                }
+            }
+        }
+
+        // Wait until the second has changed.
+        $now = time();
+        while ($now == time()) {
+        }
+
+        // Set the breakpoint on the latest migration
+        $this->manager->setBreakpoint('production', null);
+
+        // ensure breakpoint is set
+        $setLastVersions = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(0, reset($setLastVersions)['breakpoint']);
+        $this->assertEquals(1, end($setLastVersions)['breakpoint']);
+
+        // ensure no other data has changed.
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column) && $column != 'breakpoint') {
+                    $this->assertEquals($value, $setLastVersions[$originalVersionKey][$column]);
+                }
+            }
+        }
+
+        // Wait until the second has changed.
+        $now = time();
+        while ($now == time()) {
+        }
+
+        // Set the breakpoint on the first migration
+        $this->manager->setBreakpoint('production', reset($originalVersions)['version']);
+
+        // ensure breakpoint is set
+        $setFirstVersion = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(1, reset($setFirstVersion)['breakpoint']);
+        $this->assertEquals(1, end($setFirstVersion)['breakpoint']);
+
+        // ensure no other data has changed.
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column) && $column != 'breakpoint') {
+                    $this->assertEquals($value, $resetVersions[$originalVersionKey][$column]);
+                }
+            }
+        }
+
+        // Wait until the second has changed.
+        $now = time();
+        while ($now == time()) {
+        }
+
+        // Unset the breakpoint on the latest migration
+        $this->manager->unsetBreakpoint('production', null);
+
+        // ensure breakpoint is set
+        $unsetLastVersions = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(1, reset($unsetLastVersions)['breakpoint']);
+        $this->assertEquals(0, end($unsetLastVersions)['breakpoint']);
+
+        // ensure no other data has changed.
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column) && $column != 'breakpoint') {
+                    $this->assertEquals($value, $unsetLastVersions[$originalVersionKey][$column]);
+                }
+            }
+        }
+
+        // Wait until the second has changed.
+        $now = time();
+        while ($now == time()) {
+        }
+
+        // Unset the breakpoint on the first migration
+        $this->manager->unsetBreakpoint('production', reset($originalVersions)['version']);
+
+        // ensure breakpoint is set
+        $unsetFirstVersion = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(0, reset($unsetFirstVersion)['breakpoint']);
+        $this->assertEquals(0, end($unsetFirstVersion)['breakpoint']);
+
+        // ensure no other data has changed.
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column)) {
+                    $this->assertEquals($value, $unsetFirstVersion[$originalVersionKey][$column]);
+                }
             }
         }
     }

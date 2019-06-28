@@ -31,6 +31,10 @@ or ``-r`` for short.
 
         $ phinx breakpoint -e development -r
 
+You can set or unset (rather than just toggle) the breakpoint on the most
+recent migration (or on a specific migration when combined with the
+``--target`` or ``-t`` parameter) by using ``-set`` or ``--unset``.
+
 Breakpoints are visible when you run the ``status`` command.
 
 The Create Command

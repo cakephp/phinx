@@ -432,6 +432,47 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * {@inheritdoc}
      */
+    public function setBreakpoint(MigrationInterface $migration)
+    {
+        return $this->markBreakpoint($migration, true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function unsetBreakpoint(MigrationInterface $migration)
+    {
+        return $this->markBreakpoint($migration, false);
+    }
+
+    /**
+     * Mark a migration breakpoint.
+     *
+     * @param \Phinx\Migration\MigrationInterface $migration
+     * @param bool $stat
+     *
+     * @return \Phinx\Db\Adapter\AdapterInterface
+     */
+    protected function markBreakpoint(MigrationInterface $migration, bool $state)
+    {
+        $this->query(
+            sprintf(
+                'UPDATE %1$s SET %2$s = %3$s, %4$s = %4$s WHERE %5$s = \'%6$s\';',
+                $this->getSchemaTableName(),
+                $this->quoteColumnName('breakpoint'),
+                $this->castToBool($state),
+                $this->quoteColumnName('start_time'),
+                $this->quoteColumnName('version'),
+                $migration->getVersion()
+            )
+        );
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function createSchema($schemaName = 'public')
     {
         throw new BadMethodCallException('Creating a schema is not supported');
