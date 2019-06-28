@@ -5681,7 +5681,7 @@ class ManagerTest extends TestCase
         $this->assertEquals(0, end($originalVersions)['breakpoint']);
 
         // Wait until the second has changed.
-        time_sleep_until(time() + 1);
+        sleep(1);
 
         // Toggle the breakpoint on most recent migration
         $this->manager->toggleBreakpoint('production', null);
@@ -5701,7 +5701,7 @@ class ManagerTest extends TestCase
         }
 
         // Wait until the second has changed.
-        time_sleep_until(time() + 1);
+        sleep(1);
 
         // Toggle the breakpoint on most recent migration
         $this->manager->toggleBreakpoint('production', null);
@@ -5721,7 +5721,7 @@ class ManagerTest extends TestCase
         }
 
         // Wait until the second has changed.
-        time_sleep_until(time() + 1);
+        sleep(1);
 
         // Reset all breakpoints and toggle the most recent migration twice
         $this->manager->removeBreakpoints('production');
@@ -5743,7 +5743,7 @@ class ManagerTest extends TestCase
         }
 
         // Wait until the second has changed.
-        time_sleep_until(time() + 1);
+        sleep(1);
 
         // Set the breakpoint on the latest migration
         $this->manager->setBreakpoint('production', null);
@@ -5763,7 +5763,7 @@ class ManagerTest extends TestCase
         }
 
         // Wait until the second has changed.
-        time_sleep_until(time() + 1);
+        sleep(1);
 
         // Set the breakpoint on the first migration
         $this->manager->setBreakpoint('production', reset($originalVersions)['version']);
@@ -5783,7 +5783,7 @@ class ManagerTest extends TestCase
         }
 
         // Wait until the second has changed.
-        time_sleep_until(time() + 1);
+        sleep(1);
 
         // Unset the breakpoint on the latest migration
         $this->manager->unsetBreakpoint('production', null);
@@ -5803,7 +5803,7 @@ class ManagerTest extends TestCase
         }
 
         // Wait until the second has changed.
-        time_sleep_until(time() + 1);
+        sleep(1);
 
         // Unset the breakpoint on the first migration
         $this->manager->unsetBreakpoint('production', reset($originalVersions)['version']);
