@@ -453,7 +453,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
-    protected function markBreakpoint(MigrationInterface $migration, bool $state)
+    protected function markBreakpoint(MigrationInterface $migration, $state)
     {
         $this->query(
             sprintf(
