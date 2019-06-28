@@ -990,9 +990,9 @@ class Manager
     /**
      * Toggles the breakpoint for a specific version.
      *
-     * @param string $environment
-     * @param int|null $version
-     * @param int $mark
+     * @param string $environment The required environment
+     * @param int|null $version The version of the target migration
+     * @param int $mark The state of the breakpoint as defined by self::BREAKPOINT_xxxx constants.
      *
      * @return void
      */
@@ -1049,7 +1049,7 @@ class Manager
     /**
      * Remove all breakpoints
      *
-     * @param string $environment
+     * @param string $environment The required environment
      * @return void
      */
     public function removeBreakpoints($environment)
@@ -1063,8 +1063,8 @@ class Manager
     /**
      * Set the breakpoint for a specific version.
      *
-     * @param string $environment
-     * @param int|null $version
+     * @param string $environment The required environment
+     * @param int|null $version The version of the target migration
      *
      * @return void
      */
@@ -1076,8 +1076,8 @@ class Manager
     /**
      * Unset the breakpoint for a specific version.
      *
-     * @param string $environment
-     * @param int|null $version
+     * @param string $environment The required environment
+     * @param int|null $version The version of the target migration
      *
      * @return void
      */

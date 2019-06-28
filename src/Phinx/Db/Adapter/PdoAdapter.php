@@ -448,8 +448,8 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Mark a migration breakpoint.
      *
-     * @param \Phinx\Migration\MigrationInterface $migration
-     * @param bool $state
+     * @param \Phinx\Migration\MigrationInterface $migration The migration target for the breakpoint
+     * @param bool $state The required state of the breakpoint
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */

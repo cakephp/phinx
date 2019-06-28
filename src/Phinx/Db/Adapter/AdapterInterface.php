@@ -187,7 +187,7 @@ interface AdapterInterface
     /**
      * Set a migration breakpoint.
      *
-     * @param \Phinx\Migration\MigrationInterface $migration
+     * @param \Phinx\Migration\MigrationInterface $migration The migration target for the breakpoint set
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
@@ -196,7 +196,7 @@ interface AdapterInterface
     /**
      * Unset a migration breakpoint.
      *
-     * @param \Phinx\Migration\MigrationInterface $migration
+     * @param \Phinx\Migration\MigrationInterface $migration The migration target for the breakpoint unset
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */

@@ -40,11 +40,11 @@ class BreakpointTest extends TestCase
 
     protected function setUp()
     {
-        @mkdir(sys_get_temp_dir().DIRECTORY_SEPARATOR.'migrations', 0777, true);
+        @mkdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations', 0777, true);
         $this->config = new Config(
             [
                 'paths' => [
-                    'migrations' => sys_get_temp_dir().DIRECTORY_SEPARATOR.'migrations',
+                    'migrations' => sys_get_temp_dir() . DIRECTORY_SEPARATOR.'migrations',
                 ],
                 'environments' => [
                     'default_migration_table' => 'phinxlog',
@@ -62,7 +62,7 @@ class BreakpointTest extends TestCase
         );
 
         foreach ($this->config->getMigrationPaths() as $path) {
-            foreach (glob($path.'/*.*') as $migration) {
+            foreach (glob($path . '/*.*') as $migration) {
                 unlink($migration);
             }
         }
