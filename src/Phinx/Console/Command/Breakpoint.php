@@ -46,11 +46,13 @@ class Breakpoint extends AbstractCommand
 
         $this->setName($this->getName() ?: 'breakpoint')
             ->setDescription('Manage breakpoints')
-            ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to set or clear a breakpoint against')
+            ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to target for the breakpoint')
+            ->addOption('--set', '-s', InputOption::VALUE_NONE, 'Set the breakpoint')
+            ->addOption('--unset', '-u', InputOption::VALUE_NONE, 'Unset the breakpoint')
             ->addOption('--remove-all', '-r', InputOption::VALUE_NONE, 'Remove all breakpoints')
             ->setHelp(
                 <<<EOT
-The <info>breakpoint</info> command allows you to set or clear a breakpoint against a specific target to inhibit rollbacks beyond a certain target.
+The <info>breakpoint</info> command allows you to toggle, set, or unset a breakpoint against a specific target to inhibit rollbacks beyond a certain target.
 If no target is supplied then the most recent migration will be used.
 You cannot specify un-migrated targets
 
@@ -75,6 +77,8 @@ EOT
         $environment = $input->getOption('environment');
         $version = $input->getOption('target');
         $removeAll = $input->getOption('remove-all');
+        $set = $input->getOption('set');
+        $unset = $input->getOption('unset');
 
         if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -87,9 +91,19 @@ EOT
             throw new \InvalidArgumentException('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
         }
 
-        // Remove all breakpoints
+        if (($set && $unset) || ($set && $removeAll) || ($unset && $removeAll)) {
+            throw new \InvalidArgumentException('Cannot use more than one of --set, --clear, or --remove-all at the same time.');
+        }
+
         if ($removeAll) {
+            // Remove all breakpoints.
             $this->getManager()->removeBreakpoints($environment);
+        } elseif ($set) {
+            // Set the breakpoint.
+            $this->getManager()->setBreakpoint($environment, $version);
+        } elseif ($unset) {
+            // Unset the breakpoint.
+            $this->getManager()->unsetBreakpoint($environment, $version);
         } else {
             // Toggle the breakpoint.
             $this->getManager()->toggleBreakpoint($environment, $version);

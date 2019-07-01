@@ -39,6 +39,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Manager
 {
+    const BREAKPOINT_TOGGLE = 1;
+    const BREAKPOINT_SET = 2;
+    const BREAKPOINT_UNSET = 3;
+
     /**
      * @var \Phinx\Config\ConfigInterface
      */
@@ -980,6 +984,20 @@ class Manager
      */
     public function toggleBreakpoint($environment, $version)
     {
+        $this->markBreakpoint($environment, $version, self::BREAKPOINT_TOGGLE);
+    }
+
+    /**
+     * Toggles the breakpoint for a specific version.
+     *
+     * @param string $environment The required environment
+     * @param int|null $version The version of the target migration
+     * @param int $mark The state of the breakpoint as defined by self::BREAKPOINT_xxxx constants.
+     *
+     * @return void
+     */
+    protected function markBreakpoint($environment, $version, $mark)
+    {
         $migrations = $this->getMigrations($environment);
         $this->getMigrations($environment);
         $env = $this->getEnvironment($environment);
@@ -1003,7 +1021,21 @@ class Manager
             return;
         }
 
-        $env->getAdapter()->toggleBreakpoint($migrations[$version]);
+        switch ($mark) {
+            case self::BREAKPOINT_TOGGLE:
+                $env->getAdapter()->toggleBreakpoint($migrations[$version]);
+                break;
+            case self::BREAKPOINT_SET:
+                if ($versions[$version]['breakpoint'] == 0) {
+                    $env->getAdapter()->setBreakpoint($migrations[$version]);
+                }
+                break;
+            case self::BREAKPOINT_UNSET:
+                if ($versions[$version]['breakpoint'] == 1) {
+                    $env->getAdapter()->unsetBreakpoint($migrations[$version]);
+                }
+                break;
+        }
 
         $versions = $env->getVersionLog();
 
@@ -1017,7 +1049,7 @@ class Manager
     /**
      * Remove all breakpoints
      *
-     * @param string $environment
+     * @param string $environment The required environment
      * @return void
      */
     public function removeBreakpoints($environment)
@@ -1026,5 +1058,31 @@ class Manager
             ' %d breakpoints cleared.',
             $this->getEnvironment($environment)->getAdapter()->resetAllBreakpoints()
         ));
+    }
+
+    /**
+     * Set the breakpoint for a specific version.
+     *
+     * @param string $environment The required environment
+     * @param int|null $version The version of the target migration
+     *
+     * @return void
+     */
+    public function setBreakpoint($environment, $version)
+    {
+        $this->markBreakpoint($environment, $version, self::BREAKPOINT_SET);
+    }
+
+    /**
+     * Unset the breakpoint for a specific version.
+     *
+     * @param string $environment The required environment
+     * @param int|null $version The version of the target migration
+     *
+     * @return void
+     */
+    public function unsetBreakpoint($environment, $version)
+    {
+        $this->markBreakpoint($environment, $version, self::BREAKPOINT_UNSET);
     }
 }

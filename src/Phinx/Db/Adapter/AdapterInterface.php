@@ -185,6 +185,24 @@ interface AdapterInterface
     public function resetAllBreakpoints();
 
     /**
+     * Set a migration breakpoint.
+     *
+     * @param \Phinx\Migration\MigrationInterface $migration The migration target for the breakpoint set
+     *
+     * @return \Phinx\Db\Adapter\AdapterInterface
+     */
+    public function setBreakpoint(MigrationInterface $migration);
+
+    /**
+     * Unset a migration breakpoint.
+     *
+     * @param \Phinx\Migration\MigrationInterface $migration The migration target for the breakpoint unset
+     *
+     * @return \Phinx\Db\Adapter\AdapterInterface
+     */
+    public function unsetBreakpoint(MigrationInterface $migration);
+
+    /**
      * Does the schema table exist?
      *
      * @deprecated use hasTable instead.
