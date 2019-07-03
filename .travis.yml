@@ -15,10 +15,10 @@ env:
 
 matrix:
   include:
-    - php: 7
+    - php: 7.3
       env: PHPCS=1 DEFAULT=0
 
-    - php: 7.1
+    - php: 7.3
       env: PHPSTAN=1 DEFAULT=0
 
 before_script:
