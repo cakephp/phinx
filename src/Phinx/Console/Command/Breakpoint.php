@@ -92,7 +92,7 @@ EOT
         }
 
         if (($set && $unset) || ($set && $removeAll) || ($unset && $removeAll)) {
-            throw new \InvalidArgumentException('Cannot use more than one of --set, --clear, or --remove-all at the same time.');
+            throw new \InvalidArgumentException('Cannot use more than one of --set, --unset, or --remove-all at the same time.');
         }
 
         if ($removeAll) {

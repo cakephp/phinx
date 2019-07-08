@@ -195,7 +195,7 @@ class BreakpointTest extends TestCase
      *
      * @dataProvider provideCombinedParametersToCauseException
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Cannot use more than one of --set, --clear, or --remove-all at the same time.
+     * @expectedExceptionMessage Cannot use more than one of --set, --unset, or --remove-all at the same time.
      */
     public function testRemoveAllSetUnsetCombinedThrowsException($commandLine)
     {
