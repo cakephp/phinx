@@ -588,7 +588,8 @@ class Table
     public function insert($data)
     {
         // handle array of array situations
-        $firstKey = array_shift(array_keys($data));
+        $keys = array_keys($data);
+        $firstKey = array_shift($keys);
         if ($firstKey !== null && is_array($data[$firstKey])) {
             foreach ($data as $row) {
                 $this->data[] = $row;
