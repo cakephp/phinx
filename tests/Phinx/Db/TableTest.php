@@ -196,6 +196,27 @@ class TableTest extends TestCase
         $this->assertEquals($expectedData, $table->getData());
     }
 
+    public function testInsertMultipleRowsWithoutZeroKey()
+    {
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $data = [
+            1 => [
+                'column1' => 'value1',
+                'column2' => 'value2',
+            ],
+            2 => [
+                'column1' => 'value1',
+                'column2' => 'value2',
+            ]
+        ];
+        $table->insert($data);
+        $expectedData = array_values($data);
+        $this->assertEquals($expectedData, $table->getData());
+    }
+
     public function testInsertSaveEmptyData()
     {
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
