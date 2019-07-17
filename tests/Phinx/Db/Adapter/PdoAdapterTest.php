@@ -167,4 +167,15 @@ class PdoAdapterTest extends TestCase
 
         $this->assertSame('SELECT 1;', $pdo->getExecutedSqlForTest());
     }
+
+    public function testExecuteRightTrimsSemiColons()
+    {
+        $pdo = new PdoAdapterTestPDOMockWithExecChecks();
+
+        $this->adapter->setConnection($pdo);
+
+        $this->adapter->execute('SELECT 1;;');
+
+        $this->assertSame('SELECT 1;', $pdo->getExecutedSqlForTest());
+    }
 }
