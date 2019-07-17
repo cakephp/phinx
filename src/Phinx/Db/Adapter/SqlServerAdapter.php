@@ -199,6 +199,10 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
+        if (in_array($tableName, $this->createdTables)) {
+            return true;
+        }
+
         $result = $this->fetchRow(sprintf('SELECT count(*) as [count] FROM information_schema.tables WHERE table_name = \'%s\';', $tableName));
 
         return $result['count'] > 0;
@@ -267,6 +271,10 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 
         // execute the sql
         $this->execute($sql);
+
+        if (substr_compare($table->getName(), 'phinxlog', -strlen('phinxlog')) !== 0) {
+            $this->createdTables[] = $table->getName();
+        }
     }
 
     /**

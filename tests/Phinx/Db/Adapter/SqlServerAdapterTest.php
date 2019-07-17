@@ -6,6 +6,9 @@ use Phinx\Db\Adapter\SqlServerAdapter;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 
 class SqlServerAdapterTest extends TestCase
@@ -849,6 +852,36 @@ class SqlServerAdapterTest extends TestCase
         $table->truncate();
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
         $this->assertCount(0, $rows);
+    }
+
+    public function testDumpCreateTableAndThenInsert()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
+
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->save();
+
+        $expectedOutput = 'C';
+
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->insert([
+            'column1' => 'id1',
+            'column2' => 1
+        ])->save();
+
+        $expectedOutput = <<<'OUTPUT'
+CREATE TABLE [table1] ([column1] NVARCHAR (255)   NOT NULL , [column2] INT   NOT NULL , CONSTRAINT PK_table1 PRIMARY KEY ([column1]));
+INSERT INTO [table1] ([column1], [column2]) VALUES ('id1', 1);
+OUTPUT;
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
     }
 
     /**

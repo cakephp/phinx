@@ -167,6 +167,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
+        if (in_array($tableName, $this->createdTables)) {
+            return true;
+        }
+
         $parts = $this->getSchemaName($tableName);
         $result = $this->getConnection()->query(
             sprintf(
@@ -261,6 +265,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $this->getConnection()->quote($options['comment'])
             );
             $this->execute($sql);
+        }
+
+        if (substr_compare($table->getName(), 'phinxlog', -strlen('phinxlog')) !== 0) {
+            $this->createdTables[] = $table->getName();
         }
     }
 

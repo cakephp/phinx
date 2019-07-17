@@ -56,6 +56,11 @@ abstract class AbstractAdapter implements AdapterInterface
     protected $output;
 
     /**
+     * @var string[]
+     */
+    protected $createdTables = [];
+
+    /**
      * @var string
      */
     protected $schemaTableName = 'phinxlog';

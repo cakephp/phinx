@@ -335,7 +335,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        return $this->resolveTable($tableName)['exists'];
+        return in_array($tableName, $this->createdTables) || $this->resolveTable($tableName)['exists'];
     }
 
     /**
@@ -399,6 +399,10 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
         foreach ($indexes as $index) {
             $this->addIndex($table, $index);
+        }
+
+        if (substr_compare($table->getName(), 'phinxlog', -strlen('phinxlog')) !== 0) {
+            $this->createdTables[] = $table->getName();
         }
     }
 

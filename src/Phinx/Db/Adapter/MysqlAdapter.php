@@ -195,6 +195,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
+        if (in_array($tableName, $this->createdTables)) {
+            return true;
+        }
+
         $options = $this->getOptions();
 
         $exists = $this->fetchRow(sprintf(
@@ -297,6 +301,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 
         // execute the sql
         $this->execute($sql);
+
+        if (substr_compare($table->getName(), 'phinxlog', -strlen('phinxlog')) !== 0) {
+            $this->createdTables[] = $table->getName();
+        }
     }
 
     /**
