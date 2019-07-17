@@ -873,8 +873,8 @@ class SqlServerAdapterTest extends TestCase
         $this->adapter->rollbackTransaction();
 
         $actualOutput = str_replace("\r\n", "\n", $consoleOutput->fetch());
-        $this->assertStringStartsWith("BEGIN TRANSACTION;\n", $actualOutput, 'Passing the --dry-run doesn\'t drump the transaction to the output');
-        $this->assertStringEndsWith("COMMIT TRANSACTION;\nROLLBACK TRANSACTION;\n", $actualOutput, 'Passing the --dry-run doesn\'t drump the transaction to the output');
+        $this->assertStringStartsWith("BEGIN TRANSACTION;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
+        $this->assertStringEndsWith("COMMIT TRANSACTION;\nROLLBACK TRANSACTION;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
     }
 
     /**

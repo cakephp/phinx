@@ -1898,8 +1898,8 @@ OUTPUT;
         $this->adapter->rollbackTransaction();
 
         $actualOutput = $consoleOutput->fetch();
-        $this->assertStringStartsWith("BEGIN;\n", $actualOutput, 'Passing the --dry-run doesn\'t drump the transaction to the output');
-        $this->assertStringEndsWith("COMMIT;\nROLLBACK;\n", $actualOutput, 'Passing the --dry-run doesn\'t drump the transaction to the output');
+        $this->assertStringStartsWith("BEGIN;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
+        $this->assertStringEndsWith("COMMIT;\nROLLBACK;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
     }
 
     /**
