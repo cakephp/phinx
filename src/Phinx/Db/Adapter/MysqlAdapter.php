@@ -195,7 +195,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        if (in_array($tableName, $this->createdTables)) {
+        if ($this->hasCreatedTable($tableName)) {
             return true;
         }
 
@@ -302,9 +302,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         // execute the sql
         $this->execute($sql);
 
-        if (substr_compare($table->getName(), 'phinxlog', -strlen('phinxlog')) !== 0) {
-            $this->createdTables[] = $table->getName();
-        }
+        $this->addCreatedTable($table->getName());
     }
 
     /**
@@ -362,6 +360,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
+        $this->updateCreatedTableName($tableName, $newTableName);
         $sql = sprintf(
             'RENAME TABLE %s TO %s',
             $this->quoteTableName($tableName),
@@ -376,6 +375,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDropTableInstructions($tableName)
     {
+        $this->removeCreatedTable($tableName);
         $sql = sprintf('DROP TABLE %s', $this->quoteTableName($tableName));
 
         return new AlterInstructions([], [$sql]);

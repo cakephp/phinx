@@ -167,7 +167,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        if (in_array($tableName, $this->createdTables)) {
+        if ($this->hasCreatedTable($tableName)) {
             return true;
         }
 
@@ -267,9 +267,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $this->execute($sql);
         }
 
-        if (substr_compare($table->getName(), 'phinxlog', -strlen('phinxlog')) !== 0) {
-            $this->createdTables[] = $table->getName();
-        }
+        $this->addCreatedTable($table->getName());
     }
 
     /**
@@ -340,6 +338,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
+        $this->updateCreatedTableName($tableName, $newTableName);
         $sql = sprintf(
             'ALTER TABLE %s RENAME TO %s',
             $this->quoteTableName($tableName),
@@ -354,6 +353,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDropTableInstructions($tableName)
     {
+        $this->removeCreatedTable($tableName);
         $sql = sprintf('DROP TABLE %s', $this->quoteTableName($tableName));
 
         return new AlterInstructions([], [$sql]);

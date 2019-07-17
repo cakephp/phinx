@@ -263,4 +263,40 @@ abstract class AbstractAdapter implements AdapterInterface
 
         return ($input && $input->hasOption('dry-run')) ? (bool)$input->getOption('dry-run') : false;
     }
+
+    /**
+     * Adds user-created tables (e.g. not phinxlog) to a cached list
+     */
+    public function addCreatedTable($tableName) {
+        if (substr_compare($tableName, 'phinxlog', -strlen('phinxlog')) !== 0) {
+            $this->createdTables[] = $tableName;
+        }
+    }
+
+    /**
+     * Updates the name of the cached table
+     */
+    public function updateCreatedTableName($tableName, $newTableName) {
+        if (($key = array_search($tableName, $this->createdTables)) !== false) {
+            $this->createdTables[$key] = $newTableName;
+        }
+    }
+
+    /**
+     * Removes table from the cached created list
+     */
+    public function removeCreatedTable($tableName) {
+        if (($key = array_search($tableName, $this->createdTables)) !== false) {
+            unset($this->createdTables[$key]);
+        }
+    }
+
+    /**
+     * Check if the table is in the cached list of created tables
+     * 
+     * @return bool
+     */
+    public function hasCreatedTable($tableName) {
+        return in_array($tableName, $this->createdTables);
+    }
 }
