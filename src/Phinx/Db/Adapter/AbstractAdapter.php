@@ -266,6 +266,9 @@ abstract class AbstractAdapter implements AdapterInterface
 
     /**
      * Adds user-created tables (e.g. not phinxlog) to a cached list
+     *
+     * @param string $tableName The name of the table
+     * @return void
      */
     public function addCreatedTable($tableName)
     {
@@ -276,16 +279,24 @@ abstract class AbstractAdapter implements AdapterInterface
 
     /**
      * Updates the name of the cached table
+     *
+     * @param string $tableName Original name of the table
+     * @param string $newTableName New name of the table
+     * @return void
      */
     public function updateCreatedTableName($tableName, $newTableName)
     {
-        if (($key = array_search($tableName, $this->createdTables)) !== false) {
+        $key = array_search($tableName, $this->createdTables);
+        if ($key !== false) {
             $this->createdTables[$key] = $newTableName;
         }
     }
 
     /**
      * Removes table from the cached created list
+     *
+     * @param string $tableName The name of the table
+     * @return void
      */
     public function removeCreatedTable($tableName)
     {
@@ -297,6 +308,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * Check if the table is in the cached list of created tables
      *
+     * @param string $tableName The name of the table
      * @return bool
      */
     public function hasCreatedTable($tableName)
