@@ -300,7 +300,8 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     public function removeCreatedTable($tableName)
     {
-        if (($key = array_search($tableName, $this->createdTables)) !== false) {
+        $key = array_search($tableName, $this->createdTables);
+        if ($key !== false) {
             unset($this->createdTables[$key]);
         }
     }
