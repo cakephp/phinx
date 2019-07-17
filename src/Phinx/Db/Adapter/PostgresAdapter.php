@@ -235,23 +235,21 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $sql .= ')';
+        $this->execute($sql);
 
         // process column comments
         if (!empty($this->columnsWithComments)) {
             foreach ($this->columnsWithComments as $column) {
-                $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
+                $this->execute($this->getColumnCommentSqlDefinition($column, $table->getName()));
             }
         }
 
         // set the indexes
         if (!empty($indexes)) {
             foreach ($indexes as $index) {
-                $sql .= $this->getIndexSqlDefinition($index, $table->getName());
+                $this->execute($this->getIndexSqlDefinition($index, $table->getName()));
             }
         }
-
-        // execute the sql
-        $this->execute($sql);
 
         // process table comments
         if (isset($options['comment'])) {
