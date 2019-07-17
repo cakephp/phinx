@@ -165,6 +165,6 @@ class PdoAdapterTest extends TestCase
 
         $this->adapter->execute('SELECT 1');
 
-        $this->assertSame('SELECT 1', $pdo->getExecutedSqlForTest());
+        $this->assertSame('SELECT 1;', $pdo->getExecutedSqlForTest());
     }
 }

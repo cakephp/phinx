@@ -114,7 +114,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function beginTransaction()
     {
-        $this->execute('BEGIN;');
+        $this->execute('BEGIN');
     }
 
     /**
@@ -122,7 +122,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function commitTransaction()
     {
-        $this->execute('COMMIT;');
+        $this->execute('COMMIT');
     }
 
     /**
@@ -130,7 +130,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function rollbackTransaction()
     {
-        $this->execute('ROLLBACK;');
+        $this->execute('ROLLBACK');
     }
 
     /**
@@ -234,7 +234,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $sql = rtrim($sql, ', '); // no primary keys
         }
 
-        $sql .= ');';
+        $sql .= ')';
 
         // process column comments
         if (!empty($this->columnsWithComments)) {
@@ -1245,7 +1245,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function createSchema($schemaName = 'public')
     {
         // from postgres 9.3 we can use "CREATE SCHEMA IF NOT EXISTS schema_name"
-        $sql = sprintf('CREATE SCHEMA %s;', $this->quoteSchemaName($schemaName));
+        $sql = sprintf('CREATE SCHEMA %s', $this->quoteSchemaName($schemaName));
         $this->execute($sql);
     }
 
@@ -1276,7 +1276,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropSchema($schemaName)
     {
-        $sql = sprintf("DROP SCHEMA IF EXISTS %s CASCADE;", $this->quoteSchemaName($schemaName));
+        $sql = sprintf("DROP SCHEMA IF EXISTS %s CASCADE", $this->quoteSchemaName($schemaName));
         $this->execute($sql);
     }
 
