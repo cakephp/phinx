@@ -296,7 +296,7 @@ abstract class AbstractAdapter implements AdapterInterface
 
     /**
      * Check if the table is in the cached list of created tables
-     * 
+     *
      * @return bool
      */
     public function hasCreatedTable($tableName)
