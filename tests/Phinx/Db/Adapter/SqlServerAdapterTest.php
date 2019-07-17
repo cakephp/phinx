@@ -880,7 +880,7 @@ class SqlServerAdapterTest extends TestCase
 CREATE TABLE [table1] ([column1] NVARCHAR (255)   NOT NULL , [column2] INT   NOT NULL , CONSTRAINT PK_table1 PRIMARY KEY ([column1]));
 INSERT INTO [table1] ([column1], [column2]) VALUES ('id1', 1);
 OUTPUT;
-        $actualOutput = $consoleOutput->fetch();
+        $actualOutput = str_replace("\r\n", "\n", $consoleOutput->fetch());
         $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
     }
 
