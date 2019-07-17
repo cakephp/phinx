@@ -155,7 +155,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function beginTransaction()
     {
-        $this->execute('START TRANSACTION');
+        $this->execute('START TRANSACTION;');
     }
 
     /**
@@ -163,7 +163,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function commitTransaction()
     {
-        $this->execute('COMMIT');
+        $this->execute('COMMIT;');
     }
 
     /**
@@ -171,7 +171,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function rollbackTransaction()
     {
-        $this->execute('ROLLBACK');
+        $this->execute('ROLLBACK;');
     }
 
     /**

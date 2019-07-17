@@ -6,6 +6,9 @@ use Phinx\Db\Adapter\SqlServerAdapter;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 
 class SqlServerAdapterTest extends TestCase
@@ -849,6 +852,29 @@ class SqlServerAdapterTest extends TestCase
         $table->truncate();
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
         $this->assertCount(0, $rows);
+    }
+
+    public function testDumpTransaction()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $this->adapter->beginTransaction();
+        $table = new \Phinx\Db\Table('schema1.table1', [], $this->adapter);
+
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', ['default' => 'test'])
+            ->save();
+        $this->adapter->commitTransaction();
+        $this->adapter->rollbackTransaction();
+
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertStringStartsWith("BEGIN TRANSACTION;\n", $actualOutput, 'Passing the --dry-run doesn\'t drump the transaction to the output');
+        $this->assertStringEndsWith("COMMIT TRANSACTION;\nROLLBACK TRANSACTION;\n", $actualOutput, 'Passing the --dry-run doesn\'t drump the transaction to the output');
     }
 
     /**

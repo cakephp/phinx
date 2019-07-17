@@ -114,7 +114,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function beginTransaction()
     {
-        $this->execute('BEGIN');
+        $this->execute('BEGIN;');
     }
 
     /**
@@ -122,7 +122,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function commitTransaction()
     {
-        $this->execute('COMMIT');
+        $this->execute('COMMIT;');
     }
 
     /**
@@ -130,7 +130,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function rollbackTransaction()
     {
-        $this->execute('ROLLBACK');
+        $this->execute('ROLLBACK;');
     }
 
     /**

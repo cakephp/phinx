@@ -1572,6 +1572,29 @@ OUTPUT;
         $this->assertEquals(0, $res[0]['COUNT(*)']);
     }
 
+    public function testDumpTransaction()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $this->adapter->beginTransaction();
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', ['default' => 'test'])
+            ->save();
+        $this->adapter->commitTransaction();
+        $this->adapter->rollbackTransaction();
+
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertStringStartsWith("START TRANSACTION;\n", $actualOutput, 'Passing the --dry-run doesn\'t drump the transaction to the output');
+        $this->assertStringEndsWith("COMMIT;\nROLLBACK;\n", $actualOutput, 'Passing the --dry-run doesn\'t drump the transaction to the output');
+    }
+
     /**
      * Tests interaction with the query builder
      *

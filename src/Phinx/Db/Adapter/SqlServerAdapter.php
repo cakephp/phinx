@@ -159,7 +159,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     public function beginTransaction()
     {
-        $this->execute('BEGIN TRANSACTION');
+        $this->execute('BEGIN TRANSACTION;');
     }
 
     /**
@@ -167,7 +167,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     public function commitTransaction()
     {
-        $this->execute('COMMIT TRANSACTION');
+        $this->execute('COMMIT TRANSACTION;');
     }
 
     /**
@@ -175,7 +175,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     public function rollbackTransaction()
     {
-        $this->execute('ROLLBACK TRANSACTION');
+        $this->execute('ROLLBACK TRANSACTION;');
     }
 
     /**
