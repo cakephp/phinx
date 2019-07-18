@@ -270,7 +270,7 @@ abstract class AbstractAdapter implements AdapterInterface
      * @param string $tableName The name of the table
      * @return void
      */
-    public function addCreatedTable($tableName)
+    protected function addCreatedTable($tableName)
     {
         if (substr_compare($tableName, 'phinxlog', -strlen('phinxlog')) !== 0) {
             $this->createdTables[] = $tableName;
@@ -284,7 +284,7 @@ abstract class AbstractAdapter implements AdapterInterface
      * @param string $newTableName New name of the table
      * @return void
      */
-    public function updateCreatedTableName($tableName, $newTableName)
+    protected function updateCreatedTableName($tableName, $newTableName)
     {
         $key = array_search($tableName, $this->createdTables);
         if ($key !== false) {
@@ -298,7 +298,7 @@ abstract class AbstractAdapter implements AdapterInterface
      * @param string $tableName The name of the table
      * @return void
      */
-    public function removeCreatedTable($tableName)
+    protected function removeCreatedTable($tableName)
     {
         $key = array_search($tableName, $this->createdTables);
         if ($key !== false) {
@@ -312,7 +312,7 @@ abstract class AbstractAdapter implements AdapterInterface
      * @param string $tableName The name of the table
      * @return bool
      */
-    public function hasCreatedTable($tableName)
+    protected function hasCreatedTable($tableName)
     {
         return in_array($tableName, $this->createdTables);
     }
