@@ -335,7 +335,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
-        return $this->resolveTable($tableName)['exists'];
+        return $this->hasCreatedTable($tableName) || $this->resolveTable($tableName)['exists'];
     }
 
     /**
@@ -400,6 +400,8 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         foreach ($indexes as $index) {
             $this->addIndex($table, $index);
         }
+
+        $this->addCreatedTable($table->getName());
     }
 
     /**
@@ -448,6 +450,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
+        $this->updateCreatedTableName($tableName, $newTableName);
         $sql = sprintf(
             'ALTER TABLE %s RENAME TO %s',
             $this->quoteTableName($tableName),
@@ -462,6 +465,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDropTableInstructions($tableName)
     {
+        $this->removeCreatedTable($tableName);
         $sql = sprintf('DROP TABLE %s', $this->quoteTableName($tableName));
 
         return new AlterInstructions([], [$sql]);

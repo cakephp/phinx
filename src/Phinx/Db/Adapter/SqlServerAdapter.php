@@ -199,6 +199,10 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
+        if ($this->hasCreatedTable($tableName)) {
+            return true;
+        }
+
         $result = $this->fetchRow(sprintf('SELECT count(*) as [count] FROM information_schema.tables WHERE table_name = \'%s\';', $tableName));
 
         return $result['count'] > 0;
@@ -267,6 +271,8 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 
         // execute the sql
         $this->execute($sql);
+
+        $this->addCreatedTable($table->getName());
     }
 
     /**
@@ -349,6 +355,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
+        $this->updateCreatedTableName($tableName, $newTableName);
         $sql = sprintf(
             'EXEC sp_rename \'%s\', \'%s\'',
             $tableName,
@@ -363,6 +370,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDropTableInstructions($tableName)
     {
+        $this->removeCreatedTable($tableName);
         $sql = sprintf('DROP TABLE %s', $this->quoteTableName($tableName));
 
         return new AlterInstructions([], [$sql]);
