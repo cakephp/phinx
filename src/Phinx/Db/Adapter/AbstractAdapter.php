@@ -56,6 +56,11 @@ abstract class AbstractAdapter implements AdapterInterface
     protected $output;
 
     /**
+     * @var string[]
+     */
+    protected $createdTables = [];
+
+    /**
      * @var string
      */
     protected $schemaTableName = 'phinxlog';
@@ -257,5 +262,58 @@ abstract class AbstractAdapter implements AdapterInterface
         $input = $this->getInput();
 
         return ($input && $input->hasOption('dry-run')) ? (bool)$input->getOption('dry-run') : false;
+    }
+
+    /**
+     * Adds user-created tables (e.g. not phinxlog) to a cached list
+     *
+     * @param string $tableName The name of the table
+     * @return void
+     */
+    protected function addCreatedTable($tableName)
+    {
+        if (substr_compare($tableName, 'phinxlog', -strlen('phinxlog')) !== 0) {
+            $this->createdTables[] = $tableName;
+        }
+    }
+
+    /**
+     * Updates the name of the cached table
+     *
+     * @param string $tableName Original name of the table
+     * @param string $newTableName New name of the table
+     * @return void
+     */
+    protected function updateCreatedTableName($tableName, $newTableName)
+    {
+        $key = array_search($tableName, $this->createdTables);
+        if ($key !== false) {
+            $this->createdTables[$key] = $newTableName;
+        }
+    }
+
+    /**
+     * Removes table from the cached created list
+     *
+     * @param string $tableName The name of the table
+     * @return void
+     */
+    protected function removeCreatedTable($tableName)
+    {
+        $key = array_search($tableName, $this->createdTables);
+        if ($key !== false) {
+            unset($this->createdTables[$key]);
+        }
+    }
+
+    /**
+     * Check if the table is in the cached list of created tables
+     *
+     * @param string $tableName The name of the table
+     * @return bool
+     */
+    protected function hasCreatedTable($tableName)
+    {
+        return in_array($tableName, $this->createdTables);
     }
 }
