@@ -884,6 +884,29 @@ OUTPUT;
         $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
     }
 
+    public function testDumpTransaction()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $this->adapter->beginTransaction();
+        $table = new \Phinx\Db\Table('schema1.table1', [], $this->adapter);
+
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', ['default' => 'test'])
+            ->save();
+        $this->adapter->commitTransaction();
+        $this->adapter->rollbackTransaction();
+
+        $actualOutput = str_replace("\r\n", "\n", $consoleOutput->fetch());
+        $this->assertStringStartsWith("BEGIN TRANSACTION;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
+        $this->assertStringEndsWith("COMMIT TRANSACTION;\nROLLBACK TRANSACTION;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
+    }
+
     /**
      * Tests interaction with the query builder
      *

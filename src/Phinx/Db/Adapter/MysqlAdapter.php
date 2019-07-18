@@ -297,7 +297,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $sql .= ') ' . $optionsStr;
-        $sql = rtrim($sql) . ';';
+        $sql = rtrim($sql);
 
         // execute the sql
         $this->execute($sql);
