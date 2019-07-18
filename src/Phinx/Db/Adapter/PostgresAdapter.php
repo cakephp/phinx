@@ -187,6 +187,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
+        $queries = [];
+
         $options = $table->getOptions();
         $parts = $this->getSchemaName($table->getName());
 
@@ -235,30 +237,33 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $sql .= ')';
-        $this->execute($sql);
+        $queries[] = $sql;
 
         // process column comments
         if (!empty($this->columnsWithComments)) {
             foreach ($this->columnsWithComments as $column) {
-                $this->execute($this->getColumnCommentSqlDefinition($column, $table->getName()));
+                $queries[] = $this->getColumnCommentSqlDefinition($column, $table->getName());
             }
         }
 
         // set the indexes
         if (!empty($indexes)) {
             foreach ($indexes as $index) {
-                $this->execute($this->getIndexSqlDefinition($index, $table->getName()));
+               $queries[] = $this->getIndexSqlDefinition($index, $table->getName());
             }
         }
 
         // process table comments
         if (isset($options['comment'])) {
-            $sql = sprintf(
+            $queries[] = sprintf(
                 'COMMENT ON TABLE %s IS %s',
                 $this->quoteTableName($table->getName()),
                 $this->getConnection()->quote($options['comment'])
             );
-            $this->execute($sql);
+        }
+
+        foreach ($queries as $query) {
+            $this->execute($query);
         }
     }
 
