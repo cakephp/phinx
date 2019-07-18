@@ -249,7 +249,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         // set the indexes
         if (!empty($indexes)) {
             foreach ($indexes as $index) {
-               $queries[] = $this->getIndexSqlDefinition($index, $table->getName());
+                $queries[] = $this->getIndexSqlDefinition($index, $table->getName());
             }
         }
 
