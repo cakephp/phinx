@@ -5857,15 +5857,14 @@ class ManagerTest extends TestCase
         if (!TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED) {
             $this->markTestSkipped('Postgres tests disabled. See TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED constant.');
         }
-        $configArray = $this->getConfigArray();
-        $adapter = $this->manager->getEnvironment('production')->getAdapter();
 
+        $configArray = $this->getConfigArray();
         // override the migrations directory to use the reversible migrations
         $configArray['paths']['migrations'] = [
             $this->getCorrectedPath(__DIR__ . '/_files/postgres'),
         ];
         $configArray['environments']['production'] = [
-            'adapter' => 'postgres',
+            'adapter' => 'pgsql',
             'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
             'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
             'user' => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
@@ -5874,14 +5873,16 @@ class ManagerTest extends TestCase
             'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA
         ];
         $config = new Config($configArray);
+        $this->manager->setConfig($config);
+
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
 
         // ensure the database is empty
-        $adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE);
-        $adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE);
+        $adapter->dropSchema(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA);
+        $adapter->createSchema(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA);
         $adapter->disconnect();
 
         // migrate to the latest version
-        $this->manager->setConfig($config);
         $this->manager->migrate('production');
 
         $this->assertTrue($adapter->hasTable('articles'));
