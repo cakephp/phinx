@@ -38,13 +38,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Init extends Command
 {
     const FILE_NAME = 'phinx';
-
+    private $name = 'init';
+    
     /**
      * {@inheritdoc}
      */
     protected function configure()
     {
-        $this->setName($this->getName() ?: 'init')
+        $this->setName($this->getName())
             ->setDescription('Initialize the application for Phinx')
             ->addOption('--format', '-f', InputArgument::OPTIONAL, 'What format should we use to initialize?', 'yml')
             ->addArgument('path', InputArgument::OPTIONAL, 'Which path should we initialize for Phinx?')
