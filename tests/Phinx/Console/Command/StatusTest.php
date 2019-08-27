@@ -64,7 +64,7 @@ class StatusTest extends TestCase
     public function testExecute()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Status());
+        $application->add(new Status(Status::COMMAND_NAME));
 
         /** @var Status $command */
         $command = $application->find('status');
@@ -97,7 +97,7 @@ class StatusTest extends TestCase
     public function testExecuteWithEnvironmentOption()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Status());
+        $application->add(new Status(Status::COMMAND_NAME));
 
         /** @var Status $command */
         $command = $application->find('status');
@@ -124,7 +124,7 @@ class StatusTest extends TestCase
     public function testFormatSpecified()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Status());
+        $application->add(new Status(Status::COMMAND_NAME));
 
         /** @var Status $command */
         $command = $application->find('status');
@@ -151,7 +151,7 @@ class StatusTest extends TestCase
     public function testExecuteVersionOrderByExecutionTime()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Status());
+        $application->add(new Status(Status::COMMAND_NAME));
 
         /** @var Status $command */
         $command = $application->find('status');

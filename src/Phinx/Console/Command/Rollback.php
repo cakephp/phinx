@@ -34,6 +34,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Rollback extends AbstractCommand
 {
+    const COMMAND_NAME = 'rollback';
+
     /**
      * {@inheritdoc}
      */
@@ -43,8 +45,7 @@ class Rollback extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName($this->getName() ?: 'rollback')
-            ->setDescription('Rollback the last or to a specific migration')
+        $this->setDescription('Rollback the last or to a specific migration')
             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to rollback to')
             ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to rollback to')
             ->addOption('--force', '-f', InputOption::VALUE_NONE, 'Force rollback to ignore breakpoints')

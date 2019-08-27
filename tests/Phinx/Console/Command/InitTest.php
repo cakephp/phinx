@@ -22,7 +22,7 @@ class InitTest extends TestCase
     protected function writeConfig($configName = '')
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Init());
+        $application->add(new Init(Init::COMMAND_NAME));
         $command = $application->find("init");
         $commandTester = new CommandTester($command);
         $fullPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $configName;
@@ -86,7 +86,7 @@ class InitTest extends TestCase
         chdir(sys_get_temp_dir());
 
         $application = new PhinxApplication('testing');
-        $application->add(new Init());
+        $application->add(new Init(Init::COMMAND_NAME));
 
         $command = $application->find('init');
 
@@ -113,7 +113,7 @@ class InitTest extends TestCase
     {
         touch(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.yml');
         $application = new PhinxApplication('testing');
-        $application->add(new Init());
+        $application->add(new Init(Init::COMMAND_NAME));
 
         $command = $application->find('init');
 
@@ -133,7 +133,7 @@ class InitTest extends TestCase
     public function testThrowsExceptionWhenInvalidDir()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Init());
+        $application->add(new Init(Init::COMMAND_NAME));
 
         $command = $application->find('init');
 
@@ -153,7 +153,7 @@ class InitTest extends TestCase
     public function testThrowsExceptionWhenInvalidFormat()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Init());
+        $application->add(new Init(Init::COMMAND_NAME));
 
         $command = $application->find('init');
 
