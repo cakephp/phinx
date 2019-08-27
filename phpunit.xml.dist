@@ -55,8 +55,7 @@
     </filter>
 
     <logging>
-        <log type="coverage-html" target="./tests/log/report" charset="UTF-8"
-            yui="true" highlight="true"
+        <log type="coverage-html" target="./tests/log/report"
             lowUpperBound="50" highLowerBound="80"/>
         <log type="testdox-html" target="./tests/log/testdox.html" />
     </logging>

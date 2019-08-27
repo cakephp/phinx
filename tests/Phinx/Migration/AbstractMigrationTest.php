@@ -40,7 +40,6 @@ class AbstractMigrationTest extends TestCase
 
         // stub output
         $outputStub = $this->getMockBuilder('\Symfony\Component\Console\Output\OutputInterface')
-            ->setConstructorArgs([[]])
             ->getMock();
 
         // test methods
@@ -53,7 +52,6 @@ class AbstractMigrationTest extends TestCase
     {
         // stub input
         $inputStub = $this->getMockBuilder('\Symfony\Component\Console\Input\InputInterface')
-            ->setConstructorArgs([[]])
             ->getMock();
 
         // stub migration
@@ -68,7 +66,6 @@ class AbstractMigrationTest extends TestCase
     {
         // stub output
         $outputStub = $this->getMockBuilder('\Symfony\Component\Console\Output\OutputInterface')
-            ->setConstructorArgs([[]])
             ->getMock();
 
         // stub migration
