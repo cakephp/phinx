@@ -34,7 +34,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Rollback extends AbstractCommand
 {
-    const COMMAND_NAME = 'rollback';
+    protected static $defaultName = 'rollback';
 
     /**
      * {@inheritdoc}

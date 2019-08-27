@@ -34,7 +34,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Migrate extends AbstractCommand
 {
-    const COMMAND_NAME = 'migrate';
+    protected static $defaultName = 'migrate';
 
     /**
      * {@inheritdoc}
