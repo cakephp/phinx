@@ -34,6 +34,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Migrate extends AbstractCommand
 {
+    const COMMAND_NAME = 'migrate';
+
     /**
      * {@inheritdoc}
      */
@@ -43,8 +45,7 @@ class Migrate extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName($this->getName() ?: 'migrate')
-            ->setDescription('Migrate the database')
+        $this->setDescription('Migrate the database')
             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
             ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to migrate to')
             ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')

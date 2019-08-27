@@ -39,6 +39,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Test extends AbstractCommand
 {
+    const COMMAND_NAME = 'test';
+
     /**
      * {@inheritdoc}
      */
@@ -48,8 +50,7 @@ class Test extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName($this->getName() ?: 'test')
-            ->setDescription('Verify the configuration file')
+        $this->setDescription('Verify the configuration file')
             ->setHelp(
                 <<<EOT
 The <info>test</info> command verifies the YAML configuration file and optionally an environment

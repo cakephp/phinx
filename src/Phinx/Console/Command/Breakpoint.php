@@ -35,6 +35,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Breakpoint extends AbstractCommand
 {
+    const COMMAND_NAME = 'breakpoint';
+
     /**
      * {@inheritdoc}
      */
@@ -44,8 +46,7 @@ class Breakpoint extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment.');
 
-        $this->setName($this->getName() ?: 'breakpoint')
-            ->setDescription('Manage breakpoints')
+        $this->setDescription('Manage breakpoints')
             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to target for the breakpoint')
             ->addOption('--set', '-s', InputOption::VALUE_NONE, 'Set the breakpoint')
             ->addOption('--unset', '-u', InputOption::VALUE_NONE, 'Unset the breakpoint')

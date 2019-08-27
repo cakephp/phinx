@@ -39,6 +39,8 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class Create extends AbstractCommand
 {
+    const COMMAND_NAME = 'create';
+
     /**
      * The name of the interface that any external template creation class is required to implement.
      */
@@ -51,8 +53,7 @@ class Create extends AbstractCommand
     {
         parent::configure();
 
-        $this->setName($this->getName() ?: 'create')
-            ->setDescription('Create a new migration')
+        $this->setDescription('Create a new migration')
             ->addArgument('name', InputArgument::REQUIRED, 'What is the name of the migration (in CamelCase)?')
             ->setHelp(sprintf(
                 '%sCreates a new database migration%s',

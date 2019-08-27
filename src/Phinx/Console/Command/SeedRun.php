@@ -34,6 +34,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SeedRun extends AbstractCommand
 {
+    const COMMAND_NAME = 'seed:run';
+
     /**
      * {@inheritdoc}
      */
@@ -43,8 +45,7 @@ class SeedRun extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName($this->getName() ?: 'seed:run')
-            ->setDescription('Run database seeders')
+        $this->setDescription('Run database seeders')
             ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
             ->setHelp(
                 <<<EOT

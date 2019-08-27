@@ -28,7 +28,15 @@
  */
 namespace Phinx\Console;
 
-use Phinx\Console\Command;
+use Phinx\Console\Command\Breakpoint;
+use Phinx\Console\Command\Create;
+use Phinx\Console\Command\Init;
+use Phinx\Console\Command\Migrate;
+use Phinx\Console\Command\Rollback;
+use Phinx\Console\Command\SeedCreate;
+use Phinx\Console\Command\SeedRun;
+use Phinx\Console\Command\Status;
+use Phinx\Console\Command\Test;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -57,15 +65,15 @@ class PhinxApplication extends Application
         parent::__construct('Phinx by CakePHP - https://phinx.org.', $version);
 
         $this->addCommands([
-            new Command\Init(),
-            new Command\Create(),
-            new Command\Migrate(),
-            new Command\Rollback(),
-            new Command\Status(),
-            new Command\Breakpoint(),
-            new Command\Test(),
-            new Command\SeedCreate(),
-            new Command\SeedRun(),
+            new Init(Init::COMMAND_NAME),
+            new Create(Create::COMMAND_NAME),
+            new Migrate(Migrate::COMMAND_NAME),
+            new Rollback(Rollback::COMMAND_NAME),
+            new Status(Status::COMMAND_NAME),
+            new Breakpoint(Breakpoint::COMMAND_NAME),
+            new Test(Test::COMMAND_NAME),
+            new SeedCreate(SeedCreate::COMMAND_NAME),
+            new SeedRun(SeedRun::COMMAND_NAME),
         ]);
     }
 
