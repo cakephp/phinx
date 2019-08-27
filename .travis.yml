@@ -4,6 +4,7 @@ addons:
   postgresql: "9.2"
 
 services:
+  - postgresql
   - mysql
 
 php:
