@@ -37,7 +37,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Init extends Command
 {
-    const COMMAND_NAME = 'init';
+    protected static $defaultName = 'init';
     const FILE_NAME = 'phinx';
 
     /**

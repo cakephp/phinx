@@ -64,7 +64,7 @@ class SeedCreateTest extends TestCase
     public function testExecute()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new SeedCreate(SeedCreate::COMMAND_NAME));
+        $application->add(new SeedCreate());
 
         /** @var SeedCreate $command */
         $command = $application->find('seed:create');
@@ -90,7 +90,7 @@ class SeedCreateTest extends TestCase
     public function testExecuteWithInvalidClassName()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new SeedCreate(SeedCreate::COMMAND_NAME));
+        $application->add(new SeedCreate());
 
         /** @var SeedCreate $command */
         $command = $application->find('seed:create');

@@ -65,15 +65,15 @@ class PhinxApplication extends Application
         parent::__construct('Phinx by CakePHP - https://phinx.org.', $version);
 
         $this->addCommands([
-            new Init(Init::COMMAND_NAME),
-            new Create(Create::COMMAND_NAME),
-            new Migrate(Migrate::COMMAND_NAME),
-            new Rollback(Rollback::COMMAND_NAME),
-            new Status(Status::COMMAND_NAME),
-            new Breakpoint(Breakpoint::COMMAND_NAME),
-            new Test(Test::COMMAND_NAME),
-            new SeedCreate(SeedCreate::COMMAND_NAME),
-            new SeedRun(SeedRun::COMMAND_NAME),
+            new Init(),
+            new Create(),
+            new Migrate(),
+            new Rollback(),
+            new Status(),
+            new Breakpoint(),
+            new Test(),
+            new SeedCreate(),
+            new SeedRun(),
         ]);
     }
 

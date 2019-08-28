@@ -39,7 +39,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class SeedCreate extends AbstractCommand
 {
-    const COMMAND_NAME = 'seed:create';
+    protected static $defaultName = 'seed:create';
 
     /**
      * {@inheritdoc}

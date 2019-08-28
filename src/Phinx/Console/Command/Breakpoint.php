@@ -35,7 +35,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Breakpoint extends AbstractCommand
 {
-    const COMMAND_NAME = 'breakpoint';
+    protected static $defaultName = 'breakpoint';
 
     /**
      * {@inheritdoc}
