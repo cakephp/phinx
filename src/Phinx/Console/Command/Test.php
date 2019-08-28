@@ -39,7 +39,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Test extends AbstractCommand
 {
-    const COMMAND_NAME = 'test';
+    protected static $defaultName = 'test';
 
     /**
      * {@inheritdoc}

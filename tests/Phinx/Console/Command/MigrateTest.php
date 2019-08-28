@@ -59,7 +59,7 @@ class MigrateTest extends TestCase
     public function testExecute()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Migrate(Migrate::COMMAND_NAME));
+        $application->add(new Migrate());
 
         /** @var Migrate $command */
         $command = $application->find('migrate');
@@ -85,7 +85,7 @@ class MigrateTest extends TestCase
     public function testExecuteWithEnvironmentOption()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Migrate(Migrate::COMMAND_NAME));
+        $application->add(new Migrate());
 
         /** @var Migrate $command */
         $command = $application->find('migrate');
@@ -111,7 +111,7 @@ class MigrateTest extends TestCase
     public function testDatabaseNameSpecified()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Migrate(Migrate::COMMAND_NAME));
+        $application->add(new Migrate());
 
         /** @var Migrate $command */
         $command = $application->find('migrate');
@@ -137,7 +137,7 @@ class MigrateTest extends TestCase
     public function testFakeMigrate()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Migrate(Migrate::COMMAND_NAME));
+        $application->add(new Migrate());
 
         /** @var Migrate $command */
         $command = $application->find('migrate');

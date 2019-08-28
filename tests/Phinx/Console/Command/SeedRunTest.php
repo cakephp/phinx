@@ -60,7 +60,7 @@ class SeedRunTest extends TestCase
     public function testExecute()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new SeedRun(SeedRun::COMMAND_NAME));
+        $application->add(new SeedRun());
 
         /** @var SeedRun $command */
         $command = $application->find('seed:run');
@@ -85,7 +85,7 @@ class SeedRunTest extends TestCase
     public function testExecuteWithEnvironmentOption()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new SeedRun(SeedRun::COMMAND_NAME));
+        $application->add(new SeedRun());
 
         /** @var SeedRun $command */
         $command = $application->find('seed:run');
@@ -109,7 +109,7 @@ class SeedRunTest extends TestCase
     public function testDatabaseNameSpecified()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new SeedRun(SeedRun::COMMAND_NAME));
+        $application->add(new SeedRun());
 
         /** @var SeedRun $command */
         $command = $application->find('seed:run');
@@ -133,7 +133,7 @@ class SeedRunTest extends TestCase
     public function testExecuteMultipleSeeders()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new SeedRun(SeedRun::COMMAND_NAME));
+        $application->add(new SeedRun());
 
         /** @var SeedRun $command */
         $command = $application->find('seed:run');

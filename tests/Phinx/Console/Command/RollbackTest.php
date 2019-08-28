@@ -64,7 +64,7 @@ class RollbackTest extends TestCase
     public function testExecute()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Rollback(Rollback::COMMAND_NAME));
+        $application->add(new Rollback());
 
         /** @var Rollback $command */
         $command = $application->find('rollback');
@@ -95,7 +95,7 @@ class RollbackTest extends TestCase
     public function testExecuteWithEnvironmentOption()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Rollback(Rollback::COMMAND_NAME));
+        $application->add(new Rollback());
 
         /** @var Rollback $command */
         $command = $application->find('rollback');
@@ -120,7 +120,7 @@ class RollbackTest extends TestCase
     public function testDatabaseNameSpecified()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Rollback(Rollback::COMMAND_NAME));
+        $application->add(new Rollback());
 
         /** @var Rollback $command */
         $command = $application->find('rollback');
@@ -145,7 +145,7 @@ class RollbackTest extends TestCase
     public function testStartTimeVersionOrder()
     {
         $application = new \Phinx\Console\PhinxApplication('testing');
-        $application->add(new Rollback(Rollback::COMMAND_NAME));
+        $application->add(new Rollback());
 
         // setup dependencies
         $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
@@ -175,19 +175,8 @@ class RollbackTest extends TestCase
 
         $date = '20160101';
         $target = '20160101000000';
-        $rollbackStub = $this->getMockBuilder('\Phinx\Console\Command\Rollback')
-            ->setMethods(['getName', 'getTargetFromDate'])
-            ->getMock();
-        
-        $rollbackStub->method('getName')
-                    ->will($this->returnValue(Rollback::COMMAND_NAME));
 
-        $rollbackStub->expects($this->once())
-                    ->method('getTargetFromDate')
-                    ->with($date)
-                    ->will($this->returnValue($target));
-
-        $application->add($rollbackStub);
+        $application->add(new Rollback());
 
         // setup dependencies
         $command = $application->find('rollback');
@@ -212,7 +201,7 @@ class RollbackTest extends TestCase
      */
     public function testGetTargetFromDate($date, $expectedTarget)
     {
-        $rollbackCommand = new Rollback(Rollback::COMMAND_NAME);
+        $rollbackCommand = new Rollback();
         $this->assertEquals($expectedTarget, $rollbackCommand->getTargetFromDate($date));
     }
 
@@ -247,7 +236,7 @@ class RollbackTest extends TestCase
      */
     public function testGetTargetFromDateThrowsException($invalidDate)
     {
-        $rollbackCommand = new Rollback(Rollback::COMMAND_NAME);
+        $rollbackCommand = new Rollback();
         $rollbackCommand->getTargetFromDate($invalidDate);
     }
 
@@ -263,7 +252,7 @@ class RollbackTest extends TestCase
     public function testStarTimeVersionOrderWithDate()
     {
         $application = new \Phinx\Console\PhinxApplication('testing');
-        $application->add(new Rollback(Rollback::COMMAND_NAME));
+        $application->add(new Rollback());
 
         // setup dependencies
         $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
@@ -290,7 +279,7 @@ class RollbackTest extends TestCase
     public function testFakeRollback()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Rollback(Rollback::COMMAND_NAME));
+        $application->add(new Rollback());
 
         /** @var Rollback $command */
         $command = $application->find('rollback');

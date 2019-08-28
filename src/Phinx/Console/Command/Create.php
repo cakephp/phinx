@@ -39,7 +39,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class Create extends AbstractCommand
 {
-    const COMMAND_NAME = 'create';
+    protected static $defaultName = 'create';
 
     /**
      * The name of the interface that any external template creation class is required to implement.

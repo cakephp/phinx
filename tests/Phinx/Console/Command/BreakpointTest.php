@@ -82,7 +82,7 @@ class BreakpointTest extends TestCase
     public function testExecute($testMethod, $commandLine, $version = null, $noVersionParameter = false)
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Breakpoint(Breakpoint::COMMAND_NAME));
+        $application->add(new Breakpoint());
 
         /** @var Breakpoint $command */
         $command = $application->find('breakpoint');
@@ -164,7 +164,7 @@ class BreakpointTest extends TestCase
     public function testRemoveAllAndTargetThrowsException()
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Breakpoint(Breakpoint::COMMAND_NAME));
+        $application->add(new Breakpoint());
 
         /** @var Breakpoint $command */
         $command = $application->find('breakpoint');
@@ -200,7 +200,7 @@ class BreakpointTest extends TestCase
     public function testRemoveAllSetUnsetCombinedThrowsException($commandLine)
     {
         $application = new PhinxApplication('testing');
-        $application->add(new Breakpoint(Breakpoint::COMMAND_NAME));
+        $application->add(new Breakpoint());
 
         /** @var Breakpoint $command */
         $command = $application->find('breakpoint');

@@ -34,7 +34,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Status extends AbstractCommand
 {
-    const COMMAND_NAME = 'status';
+    protected static $defaultName = 'status';
 
     /**
      * {@inheritdoc}
