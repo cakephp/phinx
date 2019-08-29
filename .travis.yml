@@ -15,6 +15,7 @@ php:
   - 7.1
   - 7.2
   - 7.3
+  - 7.4snapshot
 
 env:
   global:
@@ -30,6 +31,9 @@ matrix:
 
     - php: 7.1
       env: PHPSTAN=1 DEFAULT=0
+
+before_install:
+  - if [[ ${TRAVIS_PHP_VERSION} != "7.4snapshot" ]]; then phpenv config-rm xdebug.ini; fi
 
 before_script:
     - if [[ $PREFER_LOWEST != 1 ]]; then travis_retry composer update --no-interaction --prefer-stable; fi
@@ -48,6 +52,11 @@ script:
 
 after_success:
   - if [[ $DEFAULT = 1 ]]; then bash <(curl -s https://codecov.io/bash); fi
+
+cache:
+  directories:
+    - vendor
+    - $HOME/.composer/cache
 
 notifications:
   email: false
