@@ -1,9 +1,9 @@
 language: php
 
-dist: trusty
+dist: xenial
 
 addons:
-  postgresql: "9.2"
+  postgresql: "9.6"
 
 services:
   - postgresql
