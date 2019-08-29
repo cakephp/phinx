@@ -86,14 +86,14 @@ class Util
      * Get the version from the beginning of a file name.
      *
      * @param string $fileName File Name
-     * @return int
+     * @return float
      */
     public static function getVersionFromFileName($fileName)
     {
         $matches = [];
         preg_match('/^[0-9]+/', basename($fileName), $matches);
 
-        return (int) $matches[0];
+        return (float) $matches[0];
     }
 
     /**

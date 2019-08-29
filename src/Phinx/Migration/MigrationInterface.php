@@ -116,7 +116,7 @@ interface MigrationInterface
     /**
      * Sets the migration version number.
      *
-     * @param int $version Version
+     * @param float $version Version
      * @return \Phinx\Migration\MigrationInterface
      */
     public function setVersion($version);
@@ -124,7 +124,7 @@ interface MigrationInterface
     /**
      * Gets the migration version number.
      *
-     * @return int
+     * @return float
      */
     public function getVersion();
 

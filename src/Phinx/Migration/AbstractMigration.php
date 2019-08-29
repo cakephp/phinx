@@ -87,7 +87,7 @@ abstract class AbstractMigration implements MigrationInterface
      * Class Constructor.
      *
      * @param string $environment Environment Detected
-     * @param int $version Migration Version
+     * @param float $version Migration Version
      * @param \Symfony\Component\Console\Input\InputInterface|null $input
      * @param \Symfony\Component\Console\Output\OutputInterface|null $output
      */
