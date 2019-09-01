@@ -111,7 +111,7 @@ within your seed class and then use the `insert()` method to insert data:
     You must call the `save()` method to commit your data to the table. Phinx
     will buffer data until you do so.
     If you call the `save()` method and all the keys of each data are the same,
-    Phinx executes bulk-insert and improve the performance.
+    Phinx executes bulk-insert and improves the performance.
 
 Integrating with the Faker library
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
