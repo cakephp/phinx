@@ -622,7 +622,7 @@ PCRE_PATTERN;
             $column = new Column();
             $type = $this->getPhinxType($columnInfo['type']);
             $default = $this->parseDefaultValue($columnInfo['dflt_value'], $type['name']);
-            
+
             $column->setName($columnInfo['name'])
                    ->setNull($columnInfo['notnull'] !== '1')
                    ->setDefault($default)
@@ -709,8 +709,8 @@ PCRE_PATTERN;
     }
 
     /**
-     * Modifies the passed instructions to copy all data from the tmp table into
-     * the provided table and then drops the tmp table.
+     * Modifies the passed instructions to copy all data from the table into
+     * the provided tmp table and then drops the table and rename tmp table.
      *
      * @param AlterInstructions $instructions The instructions to modify
      * @param string $tableName The table name to copy the data to
@@ -720,13 +720,18 @@ PCRE_PATTERN;
     {
         $instructions->addPostStep(function ($state) use ($tableName) {
             $this->copyDataToNewTable(
-                $tableName,
                 $state['tmpTableName'],
+                $tableName,
                 $state['writeColumns'],
                 $state['selectColumns']
             );
 
-            $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($state['tmpTableName'])));
+            $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
+            $this->execute(sprintf(
+                'ALTER TABLE %s RENAME TO %s',
+                $this->quoteTableName($state['tmpTableName']),
+                $this->quoteTableName($tableName)
+            ));
 
             return $state;
         });
@@ -782,7 +787,7 @@ PCRE_PATTERN;
 
     /**
      * Returns the initial instructions to alter a table using the
-     * rename-alter-copy strategy
+     * create-copy-drop strategy
      *
      * @param string $tableName The table to modify
      * @return AlterInstructions
@@ -791,16 +796,23 @@ PCRE_PATTERN;
     {
         $instructions = new AlterInstructions();
         $instructions->addPostStep(function ($state) use ($tableName) {
+            $tmpTableName = "tmp_{$tableName}";
             $createSQL = $this->getDeclaringSql($tableName);
 
-            $tmpTableName = 'tmp_' . $tableName;
-            $this->execute(
-                sprintf(
-                    'ALTER TABLE %s RENAME TO %s',
-                    $this->quoteTableName($tableName),
-                    $this->quoteTableName($tmpTableName)
-                )
+            // Table name in SQLite can be hilarious inside declaring SQL:
+            // - tableName
+            // - `tableName`
+            // - "tableName"
+            // - [this is a valid table name too!]
+            // - etc.
+            // Just remove all characters before first "(" and build them again
+            $createSQL = preg_replace(
+                "/^CREATE TABLE .* \(/Ui",
+                "",
+                $createSQL
             );
+
+            $createSQL = "CREATE TABLE {$this->quoteTableName($tmpTableName)} ({$createSQL}";
 
             return compact('createSQL', 'tmpTableName') + $state;
         });
@@ -814,11 +826,6 @@ PCRE_PATTERN;
     protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName)
     {
         $instructions = $this->beginAlterByCopyTable($tableName);
-        $instructions->addPostStep(function ($state) use ($columnName, $newColumnName) {
-            $newState = $this->calculateNewTableColumns($state['tmpTableName'], $columnName, $newColumnName);
-
-            return $newState + $state;
-        });
 
         $instructions->addPostStep(function ($state) use ($columnName, $newColumnName) {
             $sql = str_replace(
@@ -829,6 +836,12 @@ PCRE_PATTERN;
             $this->execute($sql);
 
             return $state;
+        });
+
+        $instructions->addPostStep(function ($state) use ($columnName, $newColumnName, $tableName) {
+            $newState = $this->calculateNewTableColumns($tableName, $columnName, $newColumnName);
+
+            return $newState + $state;
         });
 
         return $this->copyAndDropTmpTable($instructions, $tableName);
@@ -842,12 +855,6 @@ PCRE_PATTERN;
         $instructions = $this->beginAlterByCopyTable($tableName);
 
         $newColumnName = $newColumn->getName();
-        $instructions->addPostStep(function ($state) use ($columnName, $newColumnName) {
-            $newState = $this->calculateNewTableColumns($state['tmpTableName'], $columnName, $newColumnName);
-
-            return $newState + $state;
-        });
-
         $instructions->addPostStep(function ($state) use ($columnName, $newColumn) {
             $sql = preg_replace(
                 sprintf("/%s(?:\/\*.*?\*\/|\([^)]+\)|'[^']*?'|[^,])+([,)])/", $this->quoteColumnName($columnName)),
@@ -860,6 +867,12 @@ PCRE_PATTERN;
             return $state;
         });
 
+        $instructions->addPostStep(function ($state) use ($columnName, $newColumnName, $tableName) {
+            $newState = $this->calculateNewTableColumns($tableName, $columnName, $newColumnName);
+
+            return $newState + $state;
+        });
+
         return $this->copyAndDropTmpTable($instructions, $tableName);
     }
 
@@ -870,8 +883,8 @@ PCRE_PATTERN;
     {
         $instructions = $this->beginAlterByCopyTable($tableName);
 
-        $instructions->addPostStep(function ($state) use ($columnName) {
-            $newState = $this->calculateNewTableColumns($state['tmpTableName'], $columnName, false);
+        $instructions->addPostStep(function ($state) use ($tableName, $columnName) {
+            $newState = $this->calculateNewTableColumns($tableName, $columnName, false);
 
             return $newState + $state;
         });
@@ -1052,7 +1065,7 @@ PCRE_PATTERN;
         if (array_diff($primaryKey, $columns) || array_diff($columns, $primaryKey)) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -1174,12 +1187,6 @@ PCRE_PATTERN;
     {
         $instructions = $this->beginAlterByCopyTable($table->getName());
 
-        $instructions->addPostStep(function ($state) use ($column) {
-            $newState = $this->calculateNewTableColumns($state['tmpTableName'], $column, $column);
-
-            return $newState + $state;
-        });
-
         $instructions->addPostStep(function ($state) {
             $search = "/(,?\s*PRIMARY KEY\s*\([^\)]*\)|\s+PRIMARY KEY(\s+AUTOINCREMENT)?)/";
             $sql = preg_replace($search, '', $state['createSQL'], 1);
@@ -1189,6 +1196,12 @@ PCRE_PATTERN;
             }
 
             return $state;
+        });
+
+        $instructions->addPostStep(function ($state) use ($column) {
+            $newState = $this->calculateNewTableColumns($state['tmpTableName'], $column, $column);
+
+            return $newState + $state;
         });
 
         return $this->copyAndDropTmpTable($instructions, $table->getName());
@@ -1237,22 +1250,6 @@ PCRE_PATTERN;
         $instructions = $this->beginAlterByCopyTable($tableName);
 
         $instructions->addPostStep(function ($state) use ($columns) {
-            $newState = $this->calculateNewTableColumns($state['tmpTableName'], $columns[0], $columns[0]);
-
-            $selectColumns = $newState['selectColumns'];
-            $columns = array_map([$this, 'quoteColumnName'], $columns);
-            $diff = array_diff($columns, $selectColumns);
-
-            if (!empty($diff)) {
-                throw new \InvalidArgumentException(sprintf(
-                    'The specified columns don\'t exist: ' . implode(', ', $diff)
-                ));
-            }
-
-            return $newState + $state;
-        });
-
-        $instructions->addPostStep(function ($state) use ($columns) {
             $sql = '';
 
             foreach ($columns as $columnName) {
@@ -1268,6 +1265,22 @@ PCRE_PATTERN;
             }
 
             return $state;
+        });
+
+        $instructions->addPostStep(function ($state) use ($columns) {
+            $newState = $this->calculateNewTableColumns($state['tmpTableName'], $columns[0], $columns[0]);
+
+            $selectColumns = $newState['selectColumns'];
+            $columns = array_map([$this, 'quoteColumnName'], $columns);
+            $diff = array_diff($columns, $selectColumns);
+
+            if (!empty($diff)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'The specified columns don\'t exist: ' . implode(', ', $diff)
+                ));
+            }
+
+            return $newState + $state;
         });
 
         return $this->copyAndDropTmpTable($instructions, $tableName);
