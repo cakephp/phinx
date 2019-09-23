@@ -242,7 +242,7 @@ class Manager
                             'pending_count' => $pendingMigrationCount,
                             'missing_count' => $missingCount,
                             'total_count' => $migrationCount + $missingCount,
-                            'migrations' => $migrations_final
+                            'migrations' => $finalMigrations
                         ]
                     ));
                     break;
