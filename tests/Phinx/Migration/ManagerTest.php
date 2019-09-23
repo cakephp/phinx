@@ -198,7 +198,7 @@ class ManagerTest extends TestCase
         $this->assertSame(0, $return);
         rewind($this->manager->getOutput()->getStream());
         $outputStr = trim(stream_get_contents($this->manager->getOutput()->getStream()));
-        $this->assertStringEndsWith('{"pending_count":0,"missing_count":0,"total_count":2,"migrations":[{"migration_status":"up","migration_id":"20120111235330","migration_name":"TestMigration"},{"migration_status":"up","migration_id":"20120116183504","migration_name":"TestMigration2"}]}', $outputStr);
+        $this->assertEquals('{"pending_count":0,"missing_count":0,"total_count":2,"migrations":[{"migration_status":"up","migration_id":"20120111235330","migration_name":"TestMigration"},{"migration_status":"up","migration_id":"20120116183504","migration_name":"TestMigration2"}]}', $outputStr);
     }
 
     public function testPrintStatusMethodWithNamespace()

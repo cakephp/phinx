@@ -100,8 +100,8 @@ class Manager
     /**
      * Prints the specified environment's migration status.
      *
-     * @param string $environment
-     * @param null $format
+     * @param string $environment environment to print status of
+     * @param string|null $format format to print status in (either text, json, or null)
      * @return int 0 if all migrations are up, or an error code
      */
     public function printStatus($environment, $format = null)
@@ -114,6 +114,10 @@ class Manager
         $missingCount = 0;
         $pendingMigrationCount = 0;
         $finalMigrations = [];
+        $verbosity = $output->getVerbosity();
+        if ($format === 'json') {
+            $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
+        }
         if (count($migrations)) {
             // TODO - rewrite using Symfony Table Helper as we already have this library
             // included and it will fix formatting issues (e.g drawing the lines)
@@ -234,9 +238,11 @@ class Manager
 
         // write an empty line
         $output->writeln('');
+
         if ($format !== null) {
             switch ($format) {
                 case 'json':
+                    $output->setVerbosity($verbosity);
                     $output->writeln(json_encode(
                         [
                             'pending_count' => $pendingMigrationCount,
