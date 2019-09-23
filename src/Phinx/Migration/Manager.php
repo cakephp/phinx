@@ -113,7 +113,7 @@ class Manager
         $migrationCount = 0;
         $missingCount = 0;
         $pendingMigrationCount = 0;
-        $migrations_final = [];
+        $finalMigrations = [];
         if (count($migrations)) {
             // TODO - rewrite using Symfony Table Helper as we already have this library
             // included and it will fix formatting issues (e.g drawing the lines)
@@ -216,7 +216,7 @@ class Manager
                     $output->writeln('         <error>BREAKPOINT SET</error>');
                 }
 
-                $migrations_final[] = ['migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName()];
+                $finalMigrations[] = ['migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName()];
                 unset($versions[$migration->getVersion()]);
             }
 
