@@ -164,6 +164,43 @@ class ManagerTest extends TestCase
         $this->assertRegExp('/up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2/', $outputStr);
     }
 
+    public function testPrintStatusMethodJsonFormat()
+    {
+        // stub environment
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock();
+        $envStub->expects($this->once())
+                ->method('getVersionLog')
+                ->will($this->returnValue(
+                    [
+                        '20120111235330' =>
+                            [
+                                'version' => '20120111235330',
+                                'start_time' => '2012-01-11 23:53:36',
+                                'end_time' => '2012-01-11 23:53:37',
+                                'migration_name' => '',
+                                'breakpoint' => '0',
+                            ],
+                        '20120116183504' =>
+                            [
+                                'version' => '20120116183504',
+                                'start_time' => '2012-01-16 18:35:40',
+                                'end_time' => '2012-01-16 18:35:41',
+                                'migration_name' => '',
+                                'breakpoint' => '0',
+                            ]
+                    ]
+                ));
+        $this->manager->setEnvironments(['mockenv' => $envStub]);
+        $this->manager->getOutput()->setDecorated(false);
+        $return = $this->manager->printStatus('mockenv', 'json');
+        $this->assertSame(0, $return);
+        rewind($this->manager->getOutput()->getStream());
+        $outputStr = trim(stream_get_contents($this->manager->getOutput()->getStream()));
+        $this->assertStringEndsWith('{"pending_count":0,"missing_count":0,"total_count":2,"migrations":[{"migration_status":"up","migration_id":"20120111235330","migration_name":"TestMigration"},{"migration_status":"up","migration_id":"20120116183504","migration_name":"TestMigration2"}]}', $outputStr);
+    }
+
     public function testPrintStatusMethodWithNamespace()
     {
         // stub environment
