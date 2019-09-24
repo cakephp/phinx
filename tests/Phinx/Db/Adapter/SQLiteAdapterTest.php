@@ -1898,4 +1898,145 @@ INPUT;
             ['create table t(id integer primary key autoincrement)', 'T', 't'],
         ];
     }
+
+    public function testForeignKeyReferenceCorrectAfterRenameColumn()
+    {
+        $refTableColumnId = 'ref_table_id';
+        $refTableColumnToRename = 'columnToRename';
+        $refTableRenamedColumn = 'renamedColumn';
+        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable->addColumn($refTableColumnToRename, 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table->addColumn($refTableColumnId, 'integer');
+        $table->addForeignKey($refTableColumnId, $refTable->getName(), 'id');
+        $table->save();
+
+        $refTable->renameColumn($refTableColumnToRename, $refTableRenamedColumn)->save();
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), [$refTableColumnId]));
+        $this->assertFalse($this->adapter->hasTable("tmp_{$refTable->getName()}"));
+        $this->assertTrue($this->adapter->hasColumn($refTable->getName(), $refTableRenamedColumn));
+
+        $rows = $this->adapter->fetchAll('select * from sqlite_master where `type` = \'table\'');
+        foreach ($rows as $row) {
+            if ($row['tbl_name'] === $table->getName()) {
+                $sql = $row['sql'];
+            }
+        }
+        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+    }
+
+    public function testForeignKeyReferenceCorrectAfterChangeColumn()
+    {
+        $refTableColumnId = 'ref_table_id';
+        $refTableColumnToChange = 'columnToChange';
+        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable->addColumn($refTableColumnToChange, 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table->addColumn($refTableColumnId, 'integer');
+        $table->addForeignKey($refTableColumnId, $refTable->getName(), 'id');
+        $table->save();
+
+        $refTable->changeColumn($refTableColumnToChange, 'text')->save();
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), [$refTableColumnId]));
+        $this->assertFalse($this->adapter->hasTable("tmp_{$refTable->getName()}"));
+        $this->assertEquals('text', $this->adapter->getColumns($refTable->getName())[1]->getType());
+
+        $rows = $this->adapter->fetchAll('select * from sqlite_master where `type` = \'table\'');
+        foreach ($rows as $row) {
+            if ($row['tbl_name'] === $table->getName()) {
+                $sql = $row['sql'];
+            }
+        }
+        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+    }
+
+    public function testForeignKeyReferenceCorrectAfterRemoveColumn()
+    {
+        $refTableColumnId = 'ref_table_id';
+        $refTableColumnToRemove = 'columnToRemove';
+        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable->addColumn($refTableColumnToRemove, 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table->addColumn($refTableColumnId, 'integer');
+        $table->addForeignKey($refTableColumnId, $refTable->getName(), 'id');
+        $table->save();
+
+        $refTable->removeColumn($refTableColumnToRemove)->save();
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), [$refTableColumnId]));
+        $this->assertFalse($this->adapter->hasTable("tmp_{$refTable->getName()}"));
+        $this->assertFalse($this->adapter->hasColumn($refTable->getName(), $refTableColumnToRemove));
+
+        $rows = $this->adapter->fetchAll('select * from sqlite_master where `type` = \'table\'');
+        foreach ($rows as $row) {
+            if ($row['tbl_name'] === $table->getName()) {
+                $sql = $row['sql'];
+            }
+        }
+        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+    }
+
+    public function testForeignKeyReferenceCorrectAfterChangePrimaryKey()
+    {
+        $refTableColumnAdditionalId = 'additional_id';
+        $refTableColumnId = 'ref_table_id';
+        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable->addColumn($refTableColumnAdditionalId, 'integer')->save();
+
+        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table->addColumn($refTableColumnId, 'integer');
+        $table->addForeignKey($refTableColumnId, $refTable->getName(), 'id');
+        $table->save();
+
+        $refTable->changePrimaryKey($refTableColumnAdditionalId)->save();
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), [$refTableColumnId]));
+        $this->assertFalse($this->adapter->hasTable("tmp_{$refTable->getName()}"));
+        $this->assertTrue($this->adapter->getColumns($refTable->getName())[1]->getIdentity());
+
+        $rows = $this->adapter->fetchAll('select * from sqlite_master where `type` = \'table\'');
+        foreach ($rows as $row) {
+            if ($row['tbl_name'] === $table->getName()) {
+                $sql = $row['sql'];
+            }
+        }
+        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+    }
+
+    public function testForeignKeyReferenceCorrectAfterDropForeignKey()
+    {
+        $refTableAdditionalColumnId = 'ref_table_additional_id';
+        $refTableAdditional = new \Phinx\Db\Table('ref_table_additional', [], $this->adapter);
+        $refTableAdditional->save();
+
+        $refTableColumnId = 'ref_table_id';
+        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable->addColumn($refTableAdditionalColumnId, 'integer');
+        $refTable->addForeignKey($refTableAdditionalColumnId, $refTableAdditional->getName(), 'id');
+        $refTable->save();
+
+        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table->addColumn($refTableColumnId, 'integer');
+        $table->addForeignKey($refTableColumnId, $refTable->getName(), 'id');
+        $table->save();
+
+        $refTable->dropForeignKey($refTableAdditionalColumnId)->save();
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), [$refTableColumnId]));
+        $this->assertFalse($this->adapter->hasTable("tmp_{$refTable->getName()}"));
+        $this->assertFalse($this->adapter->hasForeignKey($refTable->getName(), [$refTableAdditionalColumnId]));
+
+        $rows = $this->adapter->fetchAll('select * from sqlite_master where `type` = \'table\'');
+        foreach ($rows as $row) {
+            if ($row['tbl_name'] === $table->getName()) {
+                $sql = $row['sql'];
+            }
+        }
+        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+    }
 }
