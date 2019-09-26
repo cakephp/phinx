@@ -54,7 +54,7 @@ class Create extends AbstractCommand
         parent::configure();
 
         $this->setDescription('Create a new migration')
-            ->addArgument('name', InputArgument::REQUIRED, 'What is the name of the migration (in CamelCase)?')
+            ->addArgument('name', InputArgument::REQUIRED, 'What is the name of the migration (in PascalCase)?')
             ->setHelp(sprintf(
                 '%sCreates a new database migration%s',
                 PHP_EOL,
@@ -175,7 +175,7 @@ class Create extends AbstractCommand
 
         if (!Util::isValidPhinxClassName($className)) {
             throw new \InvalidArgumentException(sprintf(
-                'The migration class name "%s" is invalid. Please use CamelCase format.',
+                'The migration class name "%s" is invalid. Please use PascalCase format.',
                 $className
             ));
         }

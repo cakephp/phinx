@@ -136,7 +136,7 @@ class Util
      *
      * This method takes a class name and a path to a migrations directory.
      *
-     * Migration class names must be in CamelCase format.
+     * Migration class names must be in PascalCase format.
      * e.g: CreateUserTable or AddIndexToPostsTable.
      *
      * Single words are not allowed on their own.
@@ -155,7 +155,7 @@ class Util
     /**
      * Check if a migration/seed class name is valid.
      *
-     * Migration & Seed class names must be in CamelCase format.
+     * Migration & Seed class names must be in PascalCase format.
      * e.g: CreateUserTable, AddIndexToPostsTable or UserSeeder.
      *
      * Single words are not allowed on their own.

@@ -85,7 +85,7 @@ class SeedCreateTest extends TestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The seed class name "badseedname" is invalid. Please use CamelCase format
+     * @expectedExceptionMessage The seed class name "badseedname" is invalid. Please use PascalCase format
      */
     public function testExecuteWithInvalidClassName()
     {

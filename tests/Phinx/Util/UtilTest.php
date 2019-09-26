@@ -50,7 +50,7 @@ class UtilTest extends TestCase
     public function testMapClassNameToFileName()
     {
         $expectedResults = [
-            'CamelCase87afterSomeBooze' => '/^\d{14}_camel_case87after_some_booze\.php$/',
+            'PascalCase87afterSomeBooze' => '/^\d{14}_pascal_case87after_some_booze\.php$/',
             'CreateUserTable' => '/^\d{14}_create_user_table\.php$/',
             'LimitResourceNamesTo30Chars' => '/^\d{14}_limit_resource_names_to30_chars\.php$/',
         ];
@@ -75,7 +75,7 @@ class UtilTest extends TestCase
     public function testisValidPhinxClassName()
     {
         $expectedResults = [
-            'CAmelCase' => false,
+            'PascalCase' => false,
             'CreateUserTable' => true,
             'UserSeeder' => true,
             'Test' => true,
