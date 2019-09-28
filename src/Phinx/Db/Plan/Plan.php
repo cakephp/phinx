@@ -88,6 +88,13 @@ class Plan
     protected $constraints = [];
 
     /**
+     * List of dropped columns
+     *
+     * @var \Phinx\Db\Plan\AlterTable[]
+     */
+    protected $columnRemoves = [];
+
+    /**
      * Constructor
      *
      * @param Intent $intent All the actions that should be executed
@@ -124,7 +131,24 @@ class Plan
             $this->tableUpdates,
             $this->constraints,
             $this->indexes,
+            $this->columnRemoves,
             $this->tableMoves,
+        ];
+    }
+
+    /**
+     * Returns a nested list of all the steps to execute in inverse order
+     *
+     * @return AlterTable[][]
+     */
+    protected function inverseUpdatesSequence()
+    {
+        return [
+            $this->tableMoves,
+            $this->constraints,
+            $this->indexes,
+            $this->columnRemoves,
+            $this->tableUpdates
         ];
     }
 
@@ -155,7 +179,7 @@ class Plan
      */
     public function executeInverse(AdapterInterface $executor)
     {
-        collection(array_reverse($this->updatesSequence()))
+        collection($this->inverseUpdatesSequence())
             ->unfold()
             ->each(function ($updates) use ($executor) {
                 $executor->executeActions($updates->getTable(), $updates->getActions());
@@ -183,6 +207,20 @@ class Plan
                 $this->tableUpdates = $this->forgetTable($action->getTable(), $this->tableUpdates);
                 $this->constraints = $this->forgetTable($action->getTable(), $this->constraints);
                 $this->indexes = $this->forgetTable($action->getTable(), $this->indexes);
+                $this->columnRemoves = $this->forgetTable($action->getTable(), $this->columnRemoves);
+            }
+        }
+
+        // Columns that are dropped will automatically cause the indexes to be dropped as well
+        foreach ($this->columnRemoves as $columnRemove) {
+            foreach ($columnRemove->getActions() as $action) {
+                if ($action instanceof RemoveColumn) {
+                    list($this->indexes) = $this->forgetDropIndex(
+                        $action->getTable(),
+                        [$action->getColumn()->getName()],
+                        $this->indexes
+                    );
+                }
             }
         }
 
@@ -198,7 +236,7 @@ class Plan
         $this->constraints = collection($this->constraints)
             ->map(function (AlterTable $alter) {
                 // Dropping indexes used by foreign keys is a conflict, but one we can resolve
-                // if the foreign key is also scheduled to be dropped. If we can find sucha a case,
+                // if the foreign key is also scheduled to be dropped. If we can find such a a case,
                 // we force the execution of the index drop after the foreign key is dropped.
                 return $this->remapContraintAndIndexConflicts($alter);
             })
@@ -257,11 +295,12 @@ class Plan
                     $this->indexes
                 );
 
+                $return = [$action];
                 if (!empty($dropIndexActions)) {
-                    return array_merge([$action], $dropIndexActions);
+                    $return = array_merge($return, $dropIndexActions);
                 }
 
-                return [$action];
+                return $return;
             })
             ->each(function ($action) use ($newAlter) {
                 $newAlter->addAction($action);
@@ -315,6 +354,53 @@ class Plan
             ->toArray();
 
         return [$indexes, $dropIndexActions->getArrayCopy()];
+    }
+
+    /**
+     * Deletes any RemoveColumn actions for the given table and exact columns
+     *
+     * @param Table $table The table to find in the list of actions
+     * @param string[] $columns The column names to match
+     * @param AlterTable[] $actions The actions to transform
+     * @return array A tuple containing the list of actions without actions for removing the column
+     * and a list of remove column actions that were removed.
+     */
+    protected function forgetRemoveColumn(Table $table, array $columns, array $actions)
+    {
+        $removeColumnActions = new ArrayObject();
+        $indexes = collection($actions)
+            ->map(function ($alter) use ($table, $columns, $removeColumnActions) {
+                if ($alter->getTable()->getName() !== $table->getName()) {
+                    return $alter;
+                }
+
+                $newAlter = new AlterTable($table);
+                collection($alter->getActions())
+                    ->map(function ($action) use ($columns) {
+                        if (!$action instanceof RemoveColumn) {
+                            return [$action, null];
+                        }
+                        if (in_array($action->getColumn(), $columns)) {
+                            return [null, $action];
+                        }
+
+                        return [$action, null];
+                    })
+                    ->each(function ($tuple) use ($newAlter, $removeColumnActions) {
+                        list($action, $removeColumn) = $tuple;
+                        if ($action) {
+                            $newAlter->addAction($action);
+                        }
+                        if ($removeColumn) {
+                            $removeColumnActions->append($removeColumn);
+                        }
+                    });
+
+                return $newAlter;
+            })
+            ->toArray();
+
+        return [$indexes, $removeColumnActions->getArrayCopy()];
     }
 
     /**
@@ -380,11 +466,17 @@ class Plan
                 $table = $action->getTable();
                 $name = $table->getName();
 
-                if (!isset($this->tableUpdates[$name])) {
-                    $this->tableUpdates[$name] = new AlterTable($table);
+                if ($action instanceof RemoveColumn) {
+                    if (!isset($this->columnRemoves[$name])) {
+                        $this->columnRemoves[$name] = new AlterTable($table);
+                    }
+                    $this->columnRemoves[$name]->addAction($action);
+                } else {
+                    if (!isset($this->tableUpdates[$name])) {
+                        $this->tableUpdates[$name] = new AlterTable($table);
+                    }
+                    $this->tableUpdates[$name]->addAction($action);
                 }
-
-                $this->tableUpdates[$name]->addAction($action);
             });
     }
 
