@@ -246,4 +246,23 @@ class Util
 
         return $filePath;
     }
+
+    /**
+     * Given an array of paths, return all unique files that are in them
+     *
+     * @return string[]
+     */
+    public static function getFiles($paths)
+    {
+        $files = static::globAll(array_map(function ($path) {
+            return $path . DIRECTORY_SEPARATOR . "*.php";
+        }, $paths));
+        // glob() can return the same file multiple times
+        // This will cause the migration to fail with a
+        // false assumption of duplicate migrations
+        // http://php.net/manual/en/function.glob.php#110340
+        $files = array_unique($files);
+
+        return $files;
+    }
 }

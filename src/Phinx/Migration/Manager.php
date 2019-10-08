@@ -793,23 +793,7 @@ class Manager
      */
     protected function getMigrationFiles()
     {
-        $config = $this->getConfig();
-        $paths = $config->getMigrationPaths();
-        $files = [];
-
-        foreach ($paths as $path) {
-            $files = array_merge(
-                $files,
-                Util::glob($path . DIRECTORY_SEPARATOR . '*.php')
-            );
-        }
-        // glob() can return the same file multiple times
-        // This will cause the migration to fail with a
-        // false assumption of duplicate migrations
-        // http://php.net/manual/en/function.glob.php#110340
-        $files = array_unique($files);
-
-        return $files;
+        return Util::getFiles($this->getConfig()->getMigrationPaths());
     }
 
     /**
@@ -940,23 +924,7 @@ class Manager
      */
     protected function getSeedFiles()
     {
-        $config = $this->getConfig();
-        $paths = $config->getSeedPaths();
-        $files = [];
-
-        foreach ($paths as $path) {
-            $files = array_merge(
-                $files,
-                Util::glob($path . DIRECTORY_SEPARATOR . '*.php')
-            );
-        }
-        // glob() can return the same file multiple times
-        // This will cause the migration to fail with a
-        // false assumption of duplicate migrations
-        // http://php.net/manual/en/function.glob.php#110340
-        $files = array_unique($files);
-
-        return $files;
+        return Util::getFiles($this->getConfig()->getSeedPaths());
     }
 
     /**
