@@ -248,8 +248,9 @@ class Util
     }
 
     /**
-     * Given an array of paths, return all unique files that are in them
+     * Given an array of paths, return all unique PHP files that are in them
      *
+     * @param string[] $paths array of paths to get php files
      * @return string[]
      */
     public static function getFiles($paths)
