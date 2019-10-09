@@ -601,10 +601,6 @@ Dropping a Table
 Tables can be dropped quite easily using the ``drop()`` method. It is a
 good idea to recreate the table again in the ``down()`` method.
 
-Note that like other methods in the ``Table`` class, ``drop`` also needs ``save()``
-to be called at the end in order to be executed. This allows phinx to intelligently
-plan migrations when more than one table is involved.
-
 .. code-block:: php
 
         <?php
@@ -618,7 +614,7 @@ plan migrations when more than one table is involved.
              */
             public function up()
             {
-                $this->table('users')->drop()->save();
+                $this->table('users')->drop();
             }
 
             /**
