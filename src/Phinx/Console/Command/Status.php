@@ -82,6 +82,7 @@ EOT
 
         if (!$this->getConfig()->hasEnvironment($environment)) {
             $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
+
             return 1;
         }
 
