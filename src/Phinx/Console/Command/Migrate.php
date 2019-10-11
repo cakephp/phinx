@@ -86,6 +86,11 @@ EOT
             $output->writeln('<info>using environment</info> ' . $environment);
         }
 
+        if (!$this->getConfig()->hasEnvironment($environment)) {
+            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
+            return 1;
+        }
+
         $envOptions = $this->getConfig()->getEnvironment($environment);
         if (isset($envOptions['adapter'])) {
             $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);

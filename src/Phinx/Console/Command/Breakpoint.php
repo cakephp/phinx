@@ -88,6 +88,11 @@ EOT
             $output->writeln('<info>using environment</info> ' . $environment);
         }
 
+        if (!$this->getConfig()->hasEnvironment($environment)) {
+            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
+            return 1;
+        }
+
         if ($version && $removeAll) {
             throw new \InvalidArgumentException('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
         }

@@ -95,7 +95,33 @@ class MigrateTest extends TestCase
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
-        $managerStub->expects($this->any())
+        $managerStub->expects($this->once())
+                    ->method('migrate');
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+
+        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
+        $this->assertSame(0, $exitCode);
+    }
+
+    public function testExecuteWithInvalidEnvironmentOption()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Migrate());
+
+        /** @var Migrate $command */
+        $command = $application->find('migrate');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->never())
                     ->method('migrate');
 
         $command->setConfig($this->config);
@@ -105,6 +131,7 @@ class MigrateTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
 
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
+        $this->assertStringEndsWith("The environment \"fakeenv\" does not exist\n", $commandTester->getDisplay());
         $this->assertSame(1, $exitCode);
     }
 
