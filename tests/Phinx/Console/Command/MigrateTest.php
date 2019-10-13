@@ -131,7 +131,7 @@ class MigrateTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
 
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
-        $this->assertStringEndsWith("The environment \"fakeenv\" does not exist\n", $commandTester->getDisplay());
+        $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
         $this->assertSame(1, $exitCode);
     }
 

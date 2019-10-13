@@ -145,7 +145,7 @@ class StatusTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
 
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
-        $this->assertStringEndsWith("The environment \"fakeenv\" does not exist\n", $commandTester->getDisplay());
+        $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
         $this->assertEquals(1, $exitCode);
     }
 
