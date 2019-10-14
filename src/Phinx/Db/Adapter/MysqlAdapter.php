@@ -194,35 +194,35 @@ class MysqlAdapter extends PdoAdapter
 
         if (strpos($tableName, '.') !== false) {
             list($schema, $table) = explode('.', $tableName);
-            $exists = $this->queryTableExists($schema, $table);
+            $exists = $this->hasTableWithSchema($schema, $table);
             // Only break here on success, because it is possible for table names to contain a dot.
-            if (!empty($exists)) {
+            if ($exists) {
                 return true;
             }
         }
 
         $options = $this->getOptions();
 
-        $exists = $this->queryTableExists($options['name'], $tableName);
-
-        return !empty($exists);
+        return $this->hasTableWithSchema($options['name'], $tableName);
     }
 
     /**
      * @param string $schema The table schema
      * @param string $tableName The table name
      *
-     * @return array|mixed
+     * @return bool
      */
-    private function queryTableExists($schema, $tableName)
+    private function hasTableWithSchema($schema, $tableName)
     {
-        return $this->fetchRow(sprintf(
+        $result = $this->fetchRow(sprintf(
             "SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
             WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'",
             $schema,
             $tableName
         ));
+
+        return !empty($result);
     }
     /**
      * {@inheritDoc}
