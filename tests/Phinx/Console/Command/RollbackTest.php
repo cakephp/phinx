@@ -107,14 +107,43 @@ class RollbackTest extends TestCase
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('rollback')
-                    ->with('fakeenv', null, false, true);
+                    ->with('development', null, false, true);
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+
+        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
+        $this->assertSame(0, $exitCode);
+    }
+
+    public function testExecuteWithInvalidEnvironmentOption()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        /** @var Rollback $command */
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->never())
+                    ->method('rollback');
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
+
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
+        $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
+        $this->assertSame(1, $exitCode);
     }
 
     public function testDatabaseNameSpecified()
