@@ -199,19 +199,38 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
             return true;
         }
 
+        if (strpos($tableName, '.') !== false) {
+            list($schema, $table) = explode('.', $tableName);
+            $exists = $this->queryTableExists($schema, $table);
+            // Only break here on success, because it is possible for table names to contain a dot.
+            if (!empty($exists)) {
+                return true;
+            }
+        }
+
         $options = $this->getOptions();
 
-        $exists = $this->fetchRow(sprintf(
-            "SELECT TABLE_NAME
-            FROM INFORMATION_SCHEMA.TABLES
-            WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'",
-            $options['name'],
-            $tableName
-        ));
+        $exists = $this->queryTableExists($options['name'], $tableName);
 
         return !empty($exists);
     }
 
+    /**
+     * @param string $schema The table schema
+     * @param string $tableName The table name
+     *
+     * @return array|mixed
+     */
+    private function queryTableExists($schema, $tableName)
+    {
+        return $this->fetchRow(sprintf(
+            "SELECT TABLE_NAME
+            FROM INFORMATION_SCHEMA.TABLES
+            WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'",
+            $schema,
+            $tableName
+        ));
+    }
     /**
      * {@inheritdoc}
      */
@@ -745,19 +764,24 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getForeignKeys($tableName)
     {
+        if (strpos($tableName, '.') !== false) {
+            list($schema, $tableName) = explode('.', $tableName);
+        }
+
         $foreignKeys = [];
         $rows = $this->fetchAll(sprintf(
             "SELECT
               CONSTRAINT_NAME,
-              TABLE_NAME,
+              CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) AS TABLE_NAME,
               COLUMN_NAME,
-              REFERENCED_TABLE_NAME,
+              CONCAT(REFERENCED_TABLE_SCHEMA, '.', REFERENCED_TABLE_NAME) AS REFERENCED_TABLE_NAME,
               REFERENCED_COLUMN_NAME
             FROM information_schema.KEY_COLUMN_USAGE
-            WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
-              AND REFERENCED_TABLE_NAME IS NOT NULL
+            WHERE REFERENCED_TABLE_NAME IS NOT NULL
+              AND TABLE_SCHEMA = %s
               AND TABLE_NAME = '%s'
             ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
+            empty($schema) ? 'DATABASE()' : "'$schema'",
             $tableName
         ));
         foreach ($rows as $row) {

@@ -133,6 +133,22 @@ class MysqlAdapterTest extends TestCase
         $this->assertEquals('`test_column`', $this->adapter->quoteColumnName('test_column'));
     }
 
+    public function testHasTableUnderstandsSchemaNotation()
+    {
+        $this->assertTrue($this->adapter->hasTable('performance_schema.threads'), 'Failed asserting hasTable understands tables in another schema.');
+        $this->assertFalse($this->adapter->hasTable('performance_schema.unknown_table'));
+        $this->assertFalse($this->adapter->hasTable('unknown_schema.phinxlog'));
+    }
+
+    public function testHasTableRespectsDotInTableName()
+    {
+        $sql = "CREATE TABLE `discouraged.naming.convention` 
+                (id INT(11) NOT NULL) 
+                ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci";
+        $this->adapter->execute($sql);
+        $this->assertTrue($this->adapter->hasTable('discouraged.naming.convention'));
+    }
+
     public function testCreateTable()
     {
         $table = new \Phinx\Db\Table('ntable', [], $this->adapter);
@@ -369,6 +385,15 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+    }
+
+    public function testCreateTableWithSchema()
+    {
+        $table = new \Phinx\Db\Table('phinx_testing.ntable', [], $this->adapter);
+        $table->addColumn('realname', 'string')
+            ->addColumn('email', 'integer')
+            ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
     }
 
     public function testAddPrimarykey()
@@ -1299,6 +1324,21 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id'], 'my_constraint2'));
     }
 
+    public function testsHasForeignKeyWithSchemaDotTableName()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable->addColumn('field1', 'string')->save();
+
+        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table
+            ->addColumn('ref_table_id', 'integer')
+            ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasForeignKey('phinx_testing.' . $table->getName(), ['ref_table_id']));
+        $this->assertFalse($this->adapter->hasForeignKey('phinx_testing.' . $table->getName(), ['ref_table_id2']));
+    }
+
     public function testHasDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
@@ -1585,7 +1625,7 @@ OUTPUT;
         $table->addColumn('column1', 'string')
             ->addColumn('column2', 'integer')
             ->save();
-        
+
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->insert([
             'column1' => 'id1',
