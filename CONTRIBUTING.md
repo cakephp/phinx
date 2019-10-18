@@ -32,19 +32,13 @@ Great, so you want to contribute. Let's get started:
 
 1. Clone your repository to a local directory on your development box.
 
-1. Pull necessary dependencies with [Composer](getcomposer.org):
-
-    ```
-    composer install
-    ```
-
-   If you do not have Composer set up already, install it:
+1. If you do not have [Composer](getcomposer.org) set up already, install it:
 
     ```
     curl -sS https://getcomposer.org/installer | php
     ```
 
-   And then pull the necessary dependencies:
+1. Change to your Phinx clone directory and pull the necessary dependencies:
 
     ```
     php composer.phar install
