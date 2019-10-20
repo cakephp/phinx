@@ -78,6 +78,18 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
+     * Default PDO connection attributes
+     *
+     * @return array
+     */
+    protected function getDefaultAttributes()
+    {
+        return [
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+        ];
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function setOptions(array $options)
