@@ -42,7 +42,7 @@ use Phinx\Util\Literal;
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-class MysqlAdapter extends PdoAdapter implements AdapterInterface
+class MysqlAdapter extends PdoAdapter
 {
     protected $signedColumnTypes = [
         'integer' => true,
@@ -88,7 +88,6 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 // @codeCoverageIgnoreEnd
             }
 
-            $db = null;
             $options = $this->getOptions();
 
             $dsn = 'mysql:';
@@ -111,7 +110,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 $dsn .= ';charset=' . $options['charset'];
             }
 
-            $driverOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
+            $driverOptions = [];
+
+            // use custom data fetch mode
+            if (!empty($options['fetch_mode'])) {
+                $driverOptions[\PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
+            }
 
             // support arbitrary \PDO::MYSQL_ATTR_* driver options and pass them to PDO
             // http://php.net/manual/en/ref.pdo-mysql.php#pdo-mysql.constants
@@ -121,14 +125,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
 
-            try {
-                $db = new \PDO($dsn, $options['user'], $options['pass'], $driverOptions);
-            } catch (\PDOException $exception) {
-                throw new \InvalidArgumentException(sprintf(
-                    'There was a problem connecting to the database: %s',
-                    $exception->getMessage()
-                ));
-            }
+            $db = $this->createPdoConnection($dsn, $options['user'], $options['pass'], $driverOptions);
 
             $this->setConnection($db);
         }

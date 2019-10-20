@@ -37,7 +37,7 @@ use Phinx\Db\Table\Table;
 use Phinx\Db\Util\AlterInstructions;
 use Phinx\Util\Literal;
 
-class PostgresAdapter extends PdoAdapter implements AdapterInterface
+class PostgresAdapter extends PdoAdapter
 {
     /**
      * Columns with comments
@@ -58,24 +58,23 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 // @codeCoverageIgnoreEnd
             }
 
-            $db = null;
             $options = $this->getOptions();
 
-            // if port is specified use it, otherwise use the PostgreSQL default
+            $dsn = $dsn = 'pgsql:host=' . $options['host'] . ';dbname=' . $options['name'];
+
+            // if custom port is specified use it
             if (isset($options['port'])) {
-                $dsn = 'pgsql:host=' . $options['host'] . ';port=' . $options['port'] . ';dbname=' . $options['name'];
-            } else {
-                $dsn = 'pgsql:host=' . $options['host'] . ';dbname=' . $options['name'];
+                $dsn .= ';port=' . $options['port'];
             }
 
-            try {
-                $db = new \PDO($dsn, $options['user'], $options['pass'], [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
-            } catch (\PDOException $exception) {
-                throw new \InvalidArgumentException(sprintf(
-                    'There was a problem connecting to the database: %s',
-                    $exception->getMessage()
-                ), $exception->getCode(), $exception);
+            $driverOptions = [];
+
+            // use custom data fetch mode
+            if (!empty($options['fetch_mode'])) {
+                $driverOptions[\PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
             }
+
+            $db = $this->createPdoConnection($dsn, $options['user'], $options['pass'], $driverOptions);
 
             try {
                 if (isset($options['schema'])) {

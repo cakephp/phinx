@@ -42,7 +42,7 @@ use Phinx\Util\Literal;
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-class SqlServerAdapter extends PdoAdapter implements AdapterInterface
+class SqlServerAdapter extends PdoAdapter
 {
     protected $schema = 'dbo';
 
@@ -61,7 +61,6 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
                 return;
             }
 
-            $db = null;
             $options = $this->getOptions();
 
             // if port is specified use it, otherwise use the SqlServer default
@@ -72,11 +71,16 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             }
             $dsn .= ';MultipleActiveResultSets=false';
 
-            $driverOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
+            $driverOptions = [];
 
             // charset support
             if (isset($options['charset'])) {
                 $driverOptions[\PDO::SQLSRV_ATTR_ENCODING] = $options['charset'];
+            }
+
+            // use custom data fetch mode
+            if (!empty($options['fetch_mode'])) {
+                $driverOptions[\PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
             }
 
             // support arbitrary \PDO::SQLSRV_ATTR_* driver options and pass them to PDO
@@ -87,14 +91,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
 
-            try {
-                $db = new \PDO($dsn, $options['user'], $options['pass'], $driverOptions);
-            } catch (\PDOException $exception) {
-                throw new \InvalidArgumentException(sprintf(
-                    'There was a problem connecting to the database: %s',
-                    $exception->getMessage()
-                ));
-            }
+            $db = $this->createPdoConnection($dsn, $options['user'], $options['pass'], $driverOptions);
 
             $this->setConnection($db);
         }

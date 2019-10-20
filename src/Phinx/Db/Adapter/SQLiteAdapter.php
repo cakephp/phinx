@@ -44,7 +44,7 @@ use Phinx\Util\Expression;
  * @author Rob Morgan <robbym@gmail.com>
  * @author Richard McIntyre <richard.mackstars@gmail.com>
  */
-class SQLiteAdapter extends PdoAdapter implements AdapterInterface
+class SQLiteAdapter extends PdoAdapter
 {
     // list of supported Phinx column types with their SQL equivalents
     // some types have an affinity appended to ensure they do not receive NUMERIC affinity
@@ -141,7 +141,6 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 // @codeCoverageIgnoreEnd
             }
 
-            $db = null;
             $options = $this->getOptions();
 
             // use a memory database if the option was specified
@@ -151,16 +150,15 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
                 $dsn = 'sqlite:' . $options['name'] . $this->suffix;
             }
 
-            try {
-                $db = new \PDO($dsn);
-            } catch (\PDOException $exception) {
-                throw new \InvalidArgumentException(sprintf(
-                    'There was a problem connecting to the database: %s',
-                    $exception->getMessage()
-                ));
+            $driverOptions = [];
+
+            // use custom data fetch mode
+            if (!empty($options['fetch_mode'])) {
+                $driverOptions[\PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
             }
 
-            $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $db = $this->createPdoConnection($dsn, null, null, $driverOptions);
+
             $this->setConnection($db);
         }
     }
