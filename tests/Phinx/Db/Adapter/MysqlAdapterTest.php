@@ -52,6 +52,16 @@ class MysqlAdapterTest extends TestCase
     public function testConnection()
     {
         $this->assertInstanceOf('PDO', $this->adapter->getConnection());
+        $this->assertSame(\PDO::ERRMODE_EXCEPTION, $this->adapter->getConnection()->getAttribute(\PDO::ATTR_ERRMODE));
+    }
+
+    public function testConnectionWithFetchMode()
+    {
+        $options = $this->adapter->getOptions();
+        $options['fetch_mode'] = 'assoc';
+        $this->adapter->setOptions($options);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
+        $this->assertSame(\PDO::FETCH_ASSOC, $this->adapter->getConnection()->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE));
     }
 
     public function testConnectionWithoutPort()
@@ -1585,7 +1595,7 @@ OUTPUT;
         $table->addColumn('column1', 'string')
             ->addColumn('column2', 'integer')
             ->save();
-        
+
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->insert([
             'column1' => 'id1',
