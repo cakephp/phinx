@@ -32,7 +32,7 @@ Great, so you want to contribute. Let's get started:
 
 1. Clone your repository to a local directory on your development box.
 
-1. If you do not have [Composer](getcomposer.org) set up already, install it:
+1. If you do not have [Composer](https://getcomposer.org) set up already, install it:
 
     ```
     curl -sS https://getcomposer.org/installer | php
