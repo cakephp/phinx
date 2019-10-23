@@ -144,8 +144,8 @@ class Plan
     protected function inverseUpdatesSequence()
     {
         return [
-            $this->tableMoves,
             $this->constraints,
+            $this->tableMoves,
             $this->indexes,
             $this->columnRemoves,
             $this->tableUpdates

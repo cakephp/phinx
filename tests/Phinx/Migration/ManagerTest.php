@@ -5583,6 +5583,49 @@ class ManagerTest extends TestCase
         $this->assertFalse($adapter->hasIndex('my_table', ['entity_id']));
     }
 
+    public function testReversibleMigrationWithFKConflictOnTableDrop()
+    {
+        if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
+            $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED constant.');
+        }
+        $configArray = $this->getConfigArray();
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+
+        // override the migrations directory to use the reversible migrations
+        $configArray['paths']['migrations'] = $this->getCorrectedPath(__DIR__ . '/_files/drop_table_with_fk_regression');
+        $config = new Config($configArray);
+
+        // ensure the database is empty
+        $adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->disconnect();
+
+        // migrate to the latest version
+        $this->manager->setConfig($config);
+        $this->manager->migrate('production');
+
+        // ensure up migrations worked
+        $this->assertTrue($adapter->hasTable('orders'));
+        $this->assertTrue($adapter->hasTable('customers'));
+        $this->assertTrue($adapter->hasColumn('orders', 'order_date'));
+        $this->assertTrue($adapter->hasColumn('orders', 'customer_id'));
+        $this->assertTrue($adapter->hasForeignKey('orders', ['customer_id']));
+
+        // revert all changes to the first
+        $this->manager->rollback('production', '20190928205056');
+
+        // ensure reversed migrations worked
+        $this->assertTrue($adapter->hasTable('orders'));
+        $this->assertTrue($adapter->hasColumn('orders', 'order_date'));
+        $this->assertFalse($adapter->hasColumn('orders', 'customer_id'));
+        $this->assertFalse($adapter->hasTable('customers'));
+        $this->assertFalse($adapter->hasForeignKey('orders', ['customer_id']));
+
+        $this->manager->rollback('production');
+        $this->assertFalse($adapter->hasTable('orders'));
+        $this->assertFalse($adapter->hasTable('customers'));
+    }
+
     public function testReversibleMigrationsWorkAsExpectedWithNamespace()
     {
         if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {

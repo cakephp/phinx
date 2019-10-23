@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class FirstMigration extends AbstractMigration
+class FirstFkIndexMigration extends AbstractMigration
 {
     public function up()
     {
