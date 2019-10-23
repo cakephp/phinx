@@ -4,7 +4,8 @@ use Phinx\Migration\AbstractMigration;
 
 class SecondDropFkMigration extends AbstractMigration
 {
-    public function change() {
+    public function change()
+    {
         $this->table('customers')
             ->addColumn('name', 'text')
             ->create();
