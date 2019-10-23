@@ -1029,8 +1029,8 @@ class ManagerTest extends TestCase
      *
      * @dataProvider statusVersionOrderProvider
      *
-     * @param array  $config
-     * @param string $expectedStatusHeader
+     * @param Config $config Config to use for the test
+     * @param string $expectedStatusHeader expected header string
      */
     public function testPrintStatusMethodVersionOrderHeader($config, $expectedStatusHeader)
     {
