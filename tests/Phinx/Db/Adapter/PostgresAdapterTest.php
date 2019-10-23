@@ -1974,4 +1974,27 @@ OUTPUT;
 
         $this->assertEquals(1, $stm->rowCount());
     }
+
+    public function testDumpCreateTableWithColumnTimestampAndLimitGreaterThanSix()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+
+        $table->addColumn('column1', 'timestamp', ['limit' => 99])
+            ->save();
+
+        $expectedOutput = 'CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" TIMESTAMP (6) ' .
+            'NOT NULL, CONSTRAINT "table1_pkey" PRIMARY KEY ("id"));';
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertContains(
+            $expectedOutput,
+            $actualOutput,
+            'Passing the --dry-run option does not dump create table query'
+        );
+    }
 }
