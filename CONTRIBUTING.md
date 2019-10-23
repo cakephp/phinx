@@ -80,7 +80,7 @@ install [docker-compose](https://docs.docker.com/compose/) for your platform.
 1. Install dependencies:
 
     ```
-    composer update --prefer-lowest
+    composer update
     ```
 
 1. Run unittest:
