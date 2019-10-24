@@ -4,7 +4,6 @@ namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
-use Phinx\Db\Table\Column;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -12,7 +11,6 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
-use Symfony\Component\Console\Output\StreamOutput;
 
 class MysqlAdapterTest extends TestCase
 {
@@ -427,9 +425,9 @@ class MysqlAdapterTest extends TestCase
 
         $rows = $this->adapter->fetchAll(
             sprintf(
-                "SELECT table_comment 
-                    FROM INFORMATION_SCHEMA.TABLES 
-                    WHERE table_schema='%s' 
+                "SELECT table_comment
+                    FROM INFORMATION_SCHEMA.TABLES
+                    WHERE table_schema='%s'
                         AND table_name='%s'",
                 TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
                 'table1'
@@ -449,9 +447,9 @@ class MysqlAdapterTest extends TestCase
 
         $rows = $this->adapter->fetchAll(
             sprintf(
-                "SELECT table_comment 
-                    FROM INFORMATION_SCHEMA.TABLES 
-                    WHERE table_schema='%s' 
+                "SELECT table_comment
+                    FROM INFORMATION_SCHEMA.TABLES
+                    WHERE table_schema='%s'
                         AND table_name='%s'",
                 TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
                 'table1'
@@ -471,9 +469,9 @@ class MysqlAdapterTest extends TestCase
 
         $rows = $this->adapter->fetchAll(
             sprintf(
-                "SELECT table_comment 
-                    FROM INFORMATION_SCHEMA.TABLES 
-                    WHERE table_schema='%s' 
+                "SELECT table_comment
+                    FROM INFORMATION_SCHEMA.TABLES
+                    WHERE table_schema='%s'
                         AND table_name='%s'",
                 TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
                 'table1'
@@ -584,6 +582,50 @@ class MysqlAdapterTest extends TestCase
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals('int(11) unsigned', $rows[1]['Type']);
+    }
+
+    public function testAddSmallIntegerColumnWithDefaultSigned()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('user_id', 'smallinteger')
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('smallint(6)', $rows[1]['Type']);
+    }
+
+    public function testAddSmallIntegerColumnWithSignedEqualsFalse()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('user_id', 'smallinteger', ['signed' => false])
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('smallint(6) unsigned', $rows[1]['Type']);
+    }
+
+    public function testAddBigIntegerColumnWithDefaultSigned()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('user_id', 'biginteger')
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('bigint(20)', $rows[1]['Type']);
+    }
+
+    public function testAddBigIntegerColumnWithSignedEqualsFalse()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('user_id', 'biginteger', ['signed' => false])
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('bigint(20) unsigned', $rows[1]['Type']);
     }
 
     public function testAddDoubleColumnWithDefaultSigned()
@@ -1585,7 +1627,7 @@ OUTPUT;
         $table->addColumn('column1', 'string')
             ->addColumn('column2', 'integer')
             ->save();
-        
+
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->insert([
             'column1' => 'id1',

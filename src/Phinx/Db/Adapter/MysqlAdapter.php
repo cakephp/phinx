@@ -46,6 +46,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
     protected $signedColumnTypes = [
         'integer' => true,
+        'smallinteger' => true,
         'biginteger' => true,
         'float' => true,
         'decimal' => true,
