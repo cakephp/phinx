@@ -1134,11 +1134,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 );
             } elseif (in_array($sqlType['name'], ['time', 'timestamp'])) {
                 if (is_numeric($column->getPrecision())) {
-                    if ($sqlType['name'] == 'timestamp' && $column->getPrecision() > 6) {
-                        $buffer[] = sprintf('(6)');
-                    } else {
-                        $buffer[] = sprintf('(%s)', $column->getPrecision());
-                    }
+                    $buffer[] = sprintf('(%s)', min($column->getPrecision(), 6));
                 }
 
                 if ($column->isTimezone()) {
