@@ -16,8 +16,12 @@ services:
         environment:
             - MYSQL_DATABASE=phinx_testing
             - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+        ports:
+            - 3306:3306
+
     postgres:
         image: postgres:9.2
         environment:
             - POSTGRES_DB=phinx_testing
-
+        ports:
+            - 5432:5432
