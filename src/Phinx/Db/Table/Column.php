@@ -349,6 +349,51 @@ class Column
         return $this->limit;
     }
 
+      /**
+     * Gets the column identity seed.
+     *
+     * @return int
+     */
+    public function getSeed()
+    {
+        return $this->seed;
+    }
+
+  /**
+     * Gets the column identity increment.
+     *
+     * @return int
+     */
+    public function getIncrement()
+    {
+        return $this->increment;
+    }
+
+  /**
+     * Sets the column identity seed.
+     *
+     * @param int $seed
+     * @return \Phinx\Db\Table\Column
+     */
+    public function setSeed($seed)
+    {
+        $this->seed = $seed;
+        return $this;
+    }
+
+  /**
+     * Sets the column identity increment.
+     *
+     * @param int $increment
+     * @return \Phinx\Db\Table\Column
+     */
+    public function setIncrement($increment)
+    {
+        $this->increment = $increment;
+
+        return $this;
+    }
+
     /**
      * Sets the number scale for decimal or float column.
      *
@@ -626,7 +671,10 @@ class Column
             'properties',
             'values',
             'collation',
-            'encoding',
+	    'encoding',
+	    /* James Duncan Added seed and increment for MS SQL identity columns */
+	    'seed',
+	    'increment',
         ];
     }
 
