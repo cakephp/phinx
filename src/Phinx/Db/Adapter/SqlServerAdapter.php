@@ -1186,11 +1186,11 @@ SQL;
         }
 
         if ($column->isIdentity()) {
-		//$buffer[] = 'IDENTITY(1, 1)';
-		 $seed = $column->getSeed() ? $column->getSeed() : 1;
-		 $increment = $column->getIncrement() ? $column->getIncrement() : 1;
-		 //$buffer[] = 'IDENTITY(' . $column->getSeed() . ',' . $column->getIncrement() . ')';
-		 $buffer[] = 'IDENTITY(' . $seed . ',' . $increment . ')';
+        //$buffer[] = 'IDENTITY(1, 1)';
+            $seed = $column->getSeed() ? $column->getSeed() : 1;
+            $increment = $column->getIncrement() ? $column->getIncrement() : 1;
+         //$buffer[] = 'IDENTITY(' . $column->getSeed() . ',' . $column->getIncrement() . ')';
+            $buffer[] = 'IDENTITY(' . $seed . ',' . $increment . ')';
         }
 
         return implode(' ', $buffer);
