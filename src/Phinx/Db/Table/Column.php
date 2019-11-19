@@ -383,7 +383,7 @@ class Column
   /**
      * Sets the column identity seed.
      *
-     * @param int $seed
+     * @param int $seed Number seed
      * @return \Phinx\Db\Table\Column
      */
     public function setSeed($seed)
@@ -395,7 +395,7 @@ class Column
   /**
      * Sets the column identity increment.
      *
-     * @param int $increment
+     * @param int $increment Number increment
      * @return \Phinx\Db\Table\Column
      */
     public function setIncrement($increment)
