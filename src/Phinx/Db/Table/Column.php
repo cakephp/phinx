@@ -76,7 +76,6 @@ class Column
      */
     protected $increment;
 
-
     /**
      * @var integer
      */
@@ -360,7 +359,7 @@ class Column
         return $this->limit;
     }
 
-      /**
+    /**
      * Gets the column identity seed.
      *
      * @return int
@@ -370,7 +369,7 @@ class Column
         return $this->seed;
     }
 
-  /**
+    /**
      * Gets the column identity increment.
      *
      * @return int
@@ -380,7 +379,7 @@ class Column
         return $this->increment;
     }
 
-  /**
+    /**
      * Sets the column identity seed.
      *
      * @param int $seed
@@ -389,10 +388,11 @@ class Column
     public function setSeed($seed)
     {
         $this->seed = $seed;
+
         return $this;
     }
 
-  /**
+    /**
      * Sets the column identity increment.
      *
      * @param int $increment
@@ -682,10 +682,10 @@ class Column
             'properties',
             'values',
             'collation',
-	    'encoding',
-	    /* James Duncan Added seed and increment for MS SQL identity columns */
-	    'seed',
-	    'increment',
+        'encoding',
+        /* James Duncan Added seed and increment for MS SQL identity columns */
+        'seed',
+        'increment',
         ];
     }
 
