@@ -84,7 +84,7 @@ interface ConfigInterface extends \ArrayAccess
     /**
      * Get all the aliased values.
      *
-     * @return array|null
+     * @return array
      */
     public function getAliases();
 

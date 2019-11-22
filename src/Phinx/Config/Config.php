@@ -237,7 +237,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      */
     public function getAliases()
     {
-        return !empty($this->values['aliases']) ? $this->values['aliases'] : null;
+        return !empty($this->values['aliases']) ? $this->values['aliases'] : [];
     }
 
     /**
