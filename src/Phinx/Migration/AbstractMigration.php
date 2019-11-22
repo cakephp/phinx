@@ -337,8 +337,10 @@ abstract class AbstractMigration implements MigrationInterface
     public function preFlightCheck($direction = null)
     {
         if (method_exists($this, MigrationInterface::CHANGE)) {
-            if (method_exists($this, MigrationInterface::UP) ||
-                method_exists($this, MigrationInterface::DOWN) ) {
+            if (
+                method_exists($this, MigrationInterface::UP) ||
+                method_exists($this, MigrationInterface::DOWN)
+            ) {
                 $this->output->writeln(sprintf(
                     '<comment>warning</comment> Migration contains both change() and/or up()/down() methods.  <options=bold>Ignoring up() and down()</>.'
                 ));

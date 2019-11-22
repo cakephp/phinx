@@ -131,9 +131,11 @@ EOT
             $end = microtime(true);
         } catch (\Exception $e) {
             $output->writeln('<error>' . $e->__toString() . '</error>');
+
             return 1;
         } catch (\Throwable $e) {
             $output->writeln('<error>' . $e->__toString() . '</error>');
+
             return 1;
         }
 

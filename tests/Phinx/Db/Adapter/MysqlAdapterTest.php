@@ -1585,7 +1585,7 @@ OUTPUT;
         $table->addColumn('column1', 'string')
             ->addColumn('column2', 'integer')
             ->save();
-        
+
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->insert([
             'column1' => 'id1',
@@ -1666,7 +1666,8 @@ OUTPUT;
         $this->assertEquals(1, $stm->rowCount());
     }
 
-    public function testLiteralSupport() {
+    public function testLiteralSupport()
+    {
         $createQuery = <<<'INPUT'
 CREATE TABLE `test` (`double_col` double NOT NULL)
 INPUT;
