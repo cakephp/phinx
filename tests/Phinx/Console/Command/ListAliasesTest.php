@@ -26,7 +26,7 @@ class ListAliasesTest extends TestCase
      *
      * @dataProvider provideConfigurations
      */
-    public function testListingAliases(string $file, bool $hasAliases)
+    public function testListingAliases($file, $hasAliases)
     {
         $command = (new PhinxApplication('testing'))->find('list:aliases');
         $commandTester = new CommandTester($command);
