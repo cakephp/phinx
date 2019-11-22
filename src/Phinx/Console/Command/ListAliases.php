@@ -49,12 +49,9 @@ class ListAliases extends AbstractCommand
     }
 
     /**
-     * Toggle the breakpoint.
+     * List migration template creation aliases.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     *
-     * @return int integer 0 on success, or an error code.
+     * {@inheritdoc}
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
