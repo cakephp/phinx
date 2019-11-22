@@ -33,7 +33,7 @@ class ListAliasesTest extends TestCase
         $commandTester->execute(
             [
                 'command' => $command->getName(),
-                '--configuration' => realpath(__DIR__.'/../../Config/_files/'.$file),
+                '--configuration' => realpath(sprintf('%s/../../Config/_files/%s', __DIR__, $file)),
             ],
             ['decorated' => false]
         );
