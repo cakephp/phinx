@@ -188,8 +188,7 @@ class Manager
                         } else {
                             if ($missingVersion['start_time'] > $version['start_time']) {
                                 break;
-                            } elseif (
-                                $missingVersion['start_time'] == $version['start_time'] &&
+                            } elseif ($missingVersion['start_time'] == $version['start_time'] &&
                                 $missingVersion['version'] > $version['version']
                             ) {
                                 break;
@@ -529,8 +528,7 @@ class Manager
                 $executedVersion = $executedVersions[$migration->getVersion()];
 
                 if (!$targetMustMatchVersion) {
-                    if (
-                        ($this->getConfig()->isVersionOrderCreationTime() && $executedVersion['version'] <= $target) ||
+                    if (($this->getConfig()->isVersionOrderCreationTime() && $executedVersion['version'] <= $target) ||
                         (!$this->getConfig()->isVersionOrderCreationTime() && $executedVersion['start_time'] <= $target)
                     ) {
                         break;
