@@ -82,6 +82,13 @@ interface ConfigInterface extends \ArrayAccess
     public function getAlias($alias);
 
     /**
+     * Get all the aliased values.
+     *
+     * @return array|null
+     */
+    public function getAliases();
+
+    /**
      * Gets the config file path.
      *
      * @return string

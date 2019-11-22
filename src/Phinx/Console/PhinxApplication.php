@@ -31,6 +31,7 @@ namespace Phinx\Console;
 use Phinx\Console\Command\Breakpoint;
 use Phinx\Console\Command\Create;
 use Phinx\Console\Command\Init;
+use Phinx\Console\Command\ListAliases;
 use Phinx\Console\Command\Migrate;
 use Phinx\Console\Command\Rollback;
 use Phinx\Console\Command\SeedCreate;
@@ -74,6 +75,7 @@ class PhinxApplication extends Application
             new Test(),
             new SeedCreate(),
             new SeedRun(),
+            new ListAliases(),
         ]);
     }
 
