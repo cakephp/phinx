@@ -133,7 +133,7 @@ class SeedCreate extends AbstractCommand
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     * @return void
+     * @return int 0 on success
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -196,5 +196,7 @@ class SeedCreate extends AbstractCommand
 
         $output->writeln('<info>using seed base class</info> ' . $classes['$useClassName']);
         $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
+
+        return 0;
     }
 }
