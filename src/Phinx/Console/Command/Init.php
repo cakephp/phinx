@@ -63,7 +63,7 @@ class Init extends Command
      *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     * @return void
+     * @return int 0 on success
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -72,6 +72,8 @@ class Init extends Command
         $this->writeConfig($path, $format);
 
         $output->writeln("<info>created</info> {$path}");
+
+        return 0;
     }
 
     /**

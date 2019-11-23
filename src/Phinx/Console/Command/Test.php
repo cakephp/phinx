@@ -69,7 +69,7 @@ EOT
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     * @return void
+     * @return int 0 on success
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -107,5 +107,7 @@ EOT
         }
 
         $output->writeln('<info>success!</info>');
+
+        return 0;
     }
 }
