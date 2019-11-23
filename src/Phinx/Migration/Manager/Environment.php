@@ -361,7 +361,7 @@ class Environment
         if (isset($this->adapter)) {
             return $this->adapter;
         }
-        
+
         $options = $this->getOptions();
         if (isset($options['connection'])) {
             if (!($options['connection'] instanceof \PDO)) {

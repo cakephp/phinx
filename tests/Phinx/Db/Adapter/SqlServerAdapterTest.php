@@ -952,7 +952,8 @@ OUTPUT;
         $stm->closeCursor();
     }
 
-    public function testLiteralSupport() {
+    public function testLiteralSupport()
+    {
         $createQuery = <<<'INPUT'
 CREATE TABLE test (smallmoney_col smallmoney)
 INPUT;

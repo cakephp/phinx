@@ -189,7 +189,8 @@ class Manager
                             if ($missingVersion['start_time'] > $version['start_time']) {
                                 break;
                             } elseif ($missingVersion['start_time'] == $version['start_time'] &&
-                                $missingVersion['version'] > $version['version']) {
+                                $missingVersion['version'] > $version['version']
+                            ) {
                                 break;
                             }
                         }
@@ -528,7 +529,8 @@ class Manager
 
                 if (!$targetMustMatchVersion) {
                     if (($this->getConfig()->isVersionOrderCreationTime() && $executedVersion['version'] <= $target) ||
-                        (!$this->getConfig()->isVersionOrderCreationTime() && $executedVersion['start_time'] <= $target)) {
+                        (!$this->getConfig()->isVersionOrderCreationTime() && $executedVersion['start_time'] <= $target)
+                    ) {
                         break;
                     }
                 }

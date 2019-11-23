@@ -126,6 +126,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     public function databaseVersionAtLeast($ver)
     {
         $actual = $this->query('SELECT sqlite_version()')->fetchColumn();
+
         return version_compare($actual, $ver, '>=');
     }
 
@@ -242,7 +243,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
 
     /**
      * @param string $tableName Table name
-     * @param boolean $quoted Whether to return the schema name and table name escaped and quoted. If quoted, the schema (if any) will also be appended with a dot
+     * @param bool $quoted Whether to return the schema name and table name escaped and quoted. If quoted, the schema (if any) will also be appended with a dot
      * @return array
      */
     protected function getSchemaName($tableName, $quoted = false)
@@ -273,6 +274,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     protected function getTableInfo($tableName, $pragma = 'table_info')
     {
         $info = $this->getSchemaName($tableName, true);
+
         return $this->fetchAll(sprintf('PRAGMA %s%s(%s)', $info['schema'], $pragma, $info['table']));
     }
 
@@ -539,6 +541,7 @@ PCRE_PATTERN;
         } elseif (preg_match('/^\'(?:[^\']|\'\')*\'$/i', $vBare)) {
             // string literal
             $str = str_replace("''", "'", substr($vBare, 1, strlen($vBare) - 2));
+
             return Literal::from($str);
         } elseif (preg_match('/^[+-]?\d+$/i', $vBare)) {
             $int = (int)$vBare;
@@ -605,6 +608,7 @@ PCRE_PATTERN;
                 return null;
             }
         }
+
         return $result;
     }
 
@@ -1107,6 +1111,7 @@ PCRE_PATTERN;
             if (array_diff($key, $columns) || array_diff($columns, $key)) {
                 continue;
             }
+
             return true;
         }
 
@@ -1301,6 +1306,7 @@ PCRE_PATTERN;
         } else {
             throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not known by SQLite.');
         }
+
         return ['name' => $name, 'limit' => $limit];
     }
 
