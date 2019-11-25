@@ -235,6 +235,14 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * {@inheritdoc}
      */
+    public function getAliases()
+    {
+        return !empty($this->values['aliases']) ? $this->values['aliases'] : [];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getConfigFilePath()
     {
         return $this->configFilePath;
