@@ -152,7 +152,7 @@ class SqlServerAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasTable('ntable'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
 
-        $rows = $this->adapter->fetchAll("select seed_value, increment_value
+        $rows = $this->adapter->fetchAll("select cast(seed_value as int) seed_value, cast(increment_value as int) increment_value
 from sys.columns c join sys.tables t on c.object_id=t.object_id
 join sys.identity_columns ic on c.object_id=ic.object_id and c.column_id=ic.column_id
 where t.name='ntable'");
