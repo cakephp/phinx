@@ -147,7 +147,7 @@ class SqlServerAdapterTest extends TestCase
     public function testCreateTableIdentityColumn()
     {
         $table = new \Phinx\Db\Table('ntable', ['id' => false, 'primary_key' => 'id'], $this->adapter);
-        $table->addColumn('id', 'integer', ['identity' => true, 'seed' => 1, 'increment' => 10, ])
+        $table->addColumn('id', 'integer', ['identity' => true, 'seed' => 1, 'increment' => 10 ])
               ->save();
         $this->assertTrue($this->adapter->hasTable('ntable'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
