@@ -142,7 +142,8 @@
  <div class="row">
   <div class="col-xs-12 text-center">
    <p class="text-center">Buy the introductory screencast and help support Phinx development. Its only $5 USD!</p>
-   <p class="text-center"><a type="button" class="btn btn-primary" href="https://plasso.co/s/JPREn3x3NQ" role="button" data-toggle="modal" onclick="_gaq.push(['_trackEvent', 'Screencast actions', 'Purchase', 'Intro Screencast']);">BUY NOW</a></p>
+   <p class="text-center"><a id="checkout-button-sku_GJ42F7RXlqt8r8" type="button" class="btn btn-primary" href="javascript:;" role="link" data-toggle="modal" onclick="_gaq.push(['_trackEvent', 'Screencast actions', 'Purchase', 'Intro Screencast']);">BUY NOW</a></p>
+   <div id="error-message"></div>
    <p class="text-center"><small>230mb MP4 Video DRM-Free. Duration: 16m51s.</small></p>
   </div>
  </div>
@@ -201,7 +202,7 @@
 <div class="container">
  <div class="row">
   <div class="col-xs-12">
-  <p>Copyright &copy; 2017 - Phinx is open-source software.</p>
+  <p>Copyright &copy; 2020 - Phinx is open-source software.</p>
   </div>
   </div>
   </div>
@@ -264,6 +265,37 @@ $ vendor/bin/phinx migrate -e development
 </script>
 <script src="js/jquery.min.js"></script>
 <script src="js/bootstrap.js"></script>
+<script src="https://js.stripe.com/v3"></script>
+<script>
+(function() {
+  var stripe = Stripe('pk_live_0046yNs4GNSSpiCAsgfQxeSa');
+
+  var checkoutButton = document.getElementById('checkout-button-sku_GJ42F7RXlqt8r8');
+  checkoutButton.addEventListener('click', function () {
+    // When the customer clicks on the button, redirect
+    // them to Checkout.
+    stripe.redirectToCheckout({
+      items: [{sku: 'sku_GJ42F7RXlqt8r8', quantity: 1}],
+
+      // Do not rely on the redirect to the successUrl for fulfilling
+      // purchases, customers may not always reach the success_url after
+      // a successful payment.
+      // Instead use one of the strategies described in
+      // https://stripe.com/docs/payments/checkout/fulfillment
+      successUrl: 'https://phinx.org/index.html',
+      cancelUrl: 'https://phinx.org/index.html',
+    })
+    .then(function (result) {
+      if (result.error) {
+        // If `redirectToCheckout` fails due to a browser or network
+        // error, display the localized error message to your customer.
+        var displayError = document.getElementById('error-message');
+        displayError.textContent = result.error.message;
+      }
+    });
+  });
+})();
+</script>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 </body>
 </html>
