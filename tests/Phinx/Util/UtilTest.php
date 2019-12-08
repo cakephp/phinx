@@ -113,4 +113,19 @@ class UtilTest extends TestCase
         $this->assertEquals('not_a_migration.php', basename($files[2]));
         $this->assertEquals('empty.txt', basename($files[3]));
     }
+
+    public function testGetFiles()
+    {
+        $files = Util::getFiles([
+            __DIR__ . '/_files/migrations',
+            __DIR__ . '/_files/migrations/subdirectory',
+            __DIR__ . '/_files/migrations/subdirectory'
+        ]);
+
+        $this->assertCount(4, $files);
+        $this->assertEquals('20120111235330_test_migration.php', basename($files[0]));
+        $this->assertEquals('20120116183504_test_migration_2.php', basename($files[1]));
+        $this->assertEquals('not_a_migration.php', basename($files[2]));
+        $this->assertEquals('foobar.php', basename($files[3]));
+    }
 }
