@@ -53,10 +53,8 @@ class PhinxApplication extends Application
      * Class Constructor.
      *
      * Initialize the Phinx console application.
-     *
-     * @param string|null $version The Application Version, not used.
      */
-    public function __construct($version = null)
+    public function __construct()
     {
         parent::__construct('Phinx by CakePHP - https://phinx.org.');
 
