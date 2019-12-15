@@ -69,6 +69,16 @@ class Column
     /**
      * @var integer
      */
+    protected $seed;
+
+    /**
+     * @var integer
+     */
+    protected $increment;
+
+    /**
+     * @var integer
+     */
     protected $scale;
 
     /**
@@ -350,6 +360,52 @@ class Column
     }
 
     /**
+     * Gets the column identity seed.
+     *
+     * @return int
+     */
+    public function getSeed()
+    {
+        return $this->seed;
+    }
+
+    /**
+     * Gets the column identity increment.
+     *
+     * @return int
+     */
+    public function getIncrement()
+    {
+        return $this->increment;
+    }
+
+    /**
+     * Sets the column identity seed.
+     *
+     * @param int $seed Number seed
+     * @return \Phinx\Db\Table\Column
+     */
+    public function setSeed($seed)
+    {
+        $this->seed = $seed;
+
+        return $this;
+    }
+
+    /**
+     * Sets the column identity increment.
+     *
+     * @param int $increment Number increment
+     * @return \Phinx\Db\Table\Column
+     */
+    public function setIncrement($increment)
+    {
+        $this->increment = $increment;
+
+        return $this;
+    }
+
+    /**
      * Sets the number scale for decimal or float column.
      *
      * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
@@ -627,6 +683,8 @@ class Column
             'values',
             'collation',
             'encoding',
+            'seed',
+            'increment',
         ];
     }
 

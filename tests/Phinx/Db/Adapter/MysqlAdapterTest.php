@@ -4,7 +4,6 @@ namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
-use Phinx\Db\Table\Column;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -12,7 +11,6 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
-use Symfony\Component\Console\Output\StreamOutput;
 
 class MysqlAdapterTest extends TestCase
 {
@@ -427,9 +425,9 @@ class MysqlAdapterTest extends TestCase
 
         $rows = $this->adapter->fetchAll(
             sprintf(
-                "SELECT table_comment 
-                    FROM INFORMATION_SCHEMA.TABLES 
-                    WHERE table_schema='%s' 
+                "SELECT table_comment
+                    FROM INFORMATION_SCHEMA.TABLES
+                    WHERE table_schema='%s'
                         AND table_name='%s'",
                 TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
                 'table1'
@@ -449,9 +447,9 @@ class MysqlAdapterTest extends TestCase
 
         $rows = $this->adapter->fetchAll(
             sprintf(
-                "SELECT table_comment 
-                    FROM INFORMATION_SCHEMA.TABLES 
-                    WHERE table_schema='%s' 
+                "SELECT table_comment
+                    FROM INFORMATION_SCHEMA.TABLES
+                    WHERE table_schema='%s'
                         AND table_name='%s'",
                 TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
                 'table1'
@@ -471,9 +469,9 @@ class MysqlAdapterTest extends TestCase
 
         $rows = $this->adapter->fetchAll(
             sprintf(
-                "SELECT table_comment 
-                    FROM INFORMATION_SCHEMA.TABLES 
-                    WHERE table_schema='%s' 
+                "SELECT table_comment
+                    FROM INFORMATION_SCHEMA.TABLES
+                    WHERE table_schema='%s'
                         AND table_name='%s'",
                 TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
                 'table1'
@@ -584,6 +582,50 @@ class MysqlAdapterTest extends TestCase
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertEquals('int(11) unsigned', $rows[1]['Type']);
+    }
+
+    public function testAddSmallIntegerColumnWithDefaultSigned()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('user_id', 'smallinteger')
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('smallint(6)', $rows[1]['Type']);
+    }
+
+    public function testAddSmallIntegerColumnWithSignedEqualsFalse()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('user_id', 'smallinteger', ['signed' => false])
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('smallint(6) unsigned', $rows[1]['Type']);
+    }
+
+    public function testAddBigIntegerColumnWithDefaultSigned()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('user_id', 'biginteger')
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('bigint(20)', $rows[1]['Type']);
+    }
+
+    public function testAddBigIntegerColumnWithSignedEqualsFalse()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('user_id'));
+        $table->addColumn('user_id', 'biginteger', ['signed' => false])
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertEquals('bigint(20) unsigned', $rows[1]['Type']);
     }
 
     public function testAddDoubleColumnWithDefaultSigned()
@@ -1572,6 +1614,57 @@ OUTPUT;
         $this->assertEquals(0, $res[0]['COUNT(*)']);
     }
 
+    public function testDumpCreateTableAndThenInsert()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
+
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->save();
+
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->insert([
+            'column1' => 'id1',
+            'column2' => 1
+        ])->save();
+
+        $expectedOutput = <<<'OUTPUT'
+CREATE TABLE `table1` (`column1` VARCHAR(255) NOT NULL, `column2` INT(11) NOT NULL, PRIMARY KEY (`column1`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;
+INSERT INTO `table1` (`column1`, `column2`) VALUES ('id1', 1);
+OUTPUT;
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
+    }
+
+    public function testDumpTransaction()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $this->adapter->beginTransaction();
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', ['default' => 'test'])
+            ->save();
+        $this->adapter->commitTransaction();
+        $this->adapter->rollbackTransaction();
+
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertStringStartsWith("START TRANSACTION;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
+        $this->assertStringEndsWith("COMMIT;\nROLLBACK;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
+    }
+
     /**
      * Tests interaction with the query builder
      *
@@ -1615,7 +1708,8 @@ OUTPUT;
         $this->assertEquals(1, $stm->rowCount());
     }
 
-    public function testLiteralSupport() {
+    public function testLiteralSupport()
+    {
         $createQuery = <<<'INPUT'
 CREATE TABLE `test` (`double_col` double NOT NULL)
 INPUT;

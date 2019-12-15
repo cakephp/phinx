@@ -46,6 +46,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
 {
     protected $signedColumnTypes = [
         'integer' => true,
+        'smallinteger' => true,
         'biginteger' => true,
         'float' => true,
         'decimal' => true,
@@ -195,6 +196,10 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
+        if ($this->hasCreatedTable($tableName)) {
+            return true;
+        }
+
         $options = $this->getOptions();
 
         $exists = $this->fetchRow(sprintf(
@@ -293,10 +298,12 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
         }
 
         $sql .= ') ' . $optionsStr;
-        $sql = rtrim($sql) . ';';
+        $sql = rtrim($sql);
 
         // execute the sql
         $this->execute($sql);
+
+        $this->addCreatedTable($table->getName());
     }
 
     /**
@@ -354,6 +361,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
+        $this->updateCreatedTableName($tableName, $newTableName);
         $sql = sprintf(
             'RENAME TABLE %s TO %s',
             $this->quoteTableName($tableName),
@@ -368,6 +376,7 @@ class MysqlAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDropTableInstructions($tableName)
     {
+        $this->removeCreatedTable($tableName);
         $sql = sprintf('DROP TABLE %s', $this->quoteTableName($tableName));
 
         return new AlterInstructions([], [$sql]);

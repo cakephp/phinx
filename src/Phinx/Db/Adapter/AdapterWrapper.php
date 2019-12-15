@@ -438,7 +438,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
      */
     public function hasDatabase($name)
     {
-        $this->getAdapter()->hasDatabase($name);
+        return $this->getAdapter()->hasDatabase($name);
     }
 
     /**

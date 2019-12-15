@@ -34,6 +34,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Rollback extends AbstractCommand
 {
+    protected static $defaultName = 'rollback';
+
     /**
      * {@inheritdoc}
      */
@@ -43,8 +45,7 @@ class Rollback extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName($this->getName() ?: 'rollback')
-            ->setDescription('Rollback the last or to a specific migration')
+        $this->setDescription('Rollback the last or to a specific migration')
             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to rollback to')
             ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to rollback to')
             ->addOption('--force', '-f', InputOption::VALUE_NONE, 'Force rollback to ignore breakpoints')
@@ -76,7 +77,7 @@ EOT
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @return void
+     * @return int integer 0 on success, or an error code.
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -95,6 +96,12 @@ EOT
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
+        }
+
+        if (!$this->getConfig()->hasEnvironment($environment)) {
+            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
+
+            return 1;
         }
 
         $envOptions = $config->getEnvironment($environment);
@@ -132,6 +139,8 @@ EOT
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+
+        return 0;
     }
 
     /**

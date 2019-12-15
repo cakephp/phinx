@@ -1,5 +1,5 @@
 <phpunit
-        bootstrap="./tests/phpunit-bootstrap.php"
+        bootstrap="tests/phpunit-bootstrap.php"
         colors="true"
         columns="max"
 >
@@ -44,8 +44,8 @@
         <env name="TESTS_PHINX_DB_ADAPTER_SQLITE_MEMORY" value="false" />
     </php>
 
-    <testsuite name="Phinx Test Suite">
-        <directory>./tests/</directory>
+    <testsuite name="phinx">
+        <directory>tests/</directory>
     </testsuite>
 
     <filter>
@@ -55,9 +55,8 @@
     </filter>
 
     <logging>
-        <log type="coverage-html" target="./tests/log/report" charset="UTF-8"
-            yui="true" highlight="true"
+        <log type="coverage-html" target="tests/log/report"
             lowUpperBound="50" highLowerBound="80"/>
-        <log type="testdox-html" target="./tests/log/testdox.html" />
+        <log type="testdox-html" target="tests/log/testdox.html" />
     </logging>
 </phpunit>

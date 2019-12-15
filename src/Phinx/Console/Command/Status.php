@@ -34,6 +34,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Status extends AbstractCommand
 {
+    protected static $defaultName = 'status';
+
     /**
      * {@inheritdoc}
      */
@@ -43,8 +45,7 @@ class Status extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment.');
 
-        $this->setName($this->getName() ?: 'status')
-            ->setDescription('Show migration status')
+        $this->setDescription('Show migration status')
             ->addOption('--format', '-f', InputOption::VALUE_REQUIRED, 'The output format: text or json. Defaults to text.')
             ->setHelp(
                 <<<EOT
@@ -78,6 +79,13 @@ EOT
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
         }
+
+        if (!$this->getConfig()->hasEnvironment($environment)) {
+            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
+
+            return 1;
+        }
+
         if ($format !== null) {
             $output->writeln('<info>using format</info> ' . $format);
         }

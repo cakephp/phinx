@@ -39,6 +39,8 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class SeedCreate extends AbstractCommand
 {
+    protected static $defaultName = 'seed:create';
+
     /**
      * {@inheritdoc}
      */
@@ -46,8 +48,7 @@ class SeedCreate extends AbstractCommand
     {
         parent::configure();
 
-        $this->setName($this->getName() ?: 'seed:create')
-            ->setDescription('Create a new database seeder')
+        $this->setDescription('Create a new database seeder')
             ->addArgument('name', InputArgument::REQUIRED, 'What is the name of the seeder?')
             ->addOption('path', null, InputOption::VALUE_REQUIRED, 'Specify the path in which to create this seeder')
             ->setHelp(sprintf(
@@ -132,7 +133,7 @@ class SeedCreate extends AbstractCommand
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     * @return void
+     * @return int 0 on success
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -195,5 +196,7 @@ class SeedCreate extends AbstractCommand
 
         $output->writeln('<info>using seed base class</info> ' . $classes['$useClassName']);
         $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
+
+        return 0;
     }
 }

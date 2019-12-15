@@ -180,7 +180,7 @@ class BreakpointTest extends TestCase
 
         $commandTester = new CommandTester($command);
 
-        $commandTester->execute(
+        $exitCode = $commandTester->execute(
             [
                 'command' => $command->getName(),
                 '--remove-all' => true,
@@ -188,6 +188,8 @@ class BreakpointTest extends TestCase
             ],
             ['decorated' => false]
         );
+
+        $this->assertSame(0, $exitCode);
     }
 
     /**
@@ -195,7 +197,7 @@ class BreakpointTest extends TestCase
      *
      * @dataProvider provideCombinedParametersToCauseException
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Cannot use more than one of --set, --clear, or --remove-all at the same time.
+     * @expectedExceptionMessage Cannot use more than one of --set, --unset, or --remove-all at the same time.
      */
     public function testRemoveAllSetUnsetCombinedThrowsException($commandLine)
     {
@@ -217,7 +219,8 @@ class BreakpointTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $commandLine = array_merge(['command' => $command->getName()], $commandLine);
-        $commandTester->execute($commandLine, ['decorated' => false]);
+        $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
+        $this->assertSame(0, $exitCode);
     }
 
     public function provideCombinedParametersToCauseException()
@@ -242,5 +245,61 @@ class BreakpointTest extends TestCase
                 ]
             ],
         ];
+    }
+
+    public function testExecuteWithEnvironmentOption()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Breakpoint());
+
+        /** @var Breakpoint $command */
+        $command = $application->find('breakpoint');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $managerStub->expects($this->once())
+            ->method('toggleBreakpoint')
+            ->with(self::DEFAULT_TEST_ENVIRONMENT);
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+
+        $commandLine = array_merge(['command' => $command->getName(), '--environment' => 'development'], []);
+        $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
+        $this->assertSame(0, $exitCode);
+    }
+
+    public function testExecuteWithInvalidEnvironmentOption()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Breakpoint());
+
+        /** @var Breakpoint $command */
+        $command = $application->find('breakpoint');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $managerStub->expects($this->never())
+            ->method('toggleBreakpoint');
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
+
+        $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
+        $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
+        $this->assertSame(1, $exitCode);
     }
 }

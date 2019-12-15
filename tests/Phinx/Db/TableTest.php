@@ -196,6 +196,27 @@ class TableTest extends TestCase
         $this->assertEquals($expectedData, $table->getData());
     }
 
+    public function testInsertMultipleRowsWithoutZeroKey()
+    {
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $data = [
+            1 => [
+                'column1' => 'value1',
+                'column2' => 'value2',
+            ],
+            2 => [
+                'column1' => 'value1',
+                'column2' => 'value2',
+            ]
+        ];
+        $table->insert($data);
+        $expectedData = array_values($data);
+        $this->assertEquals($expectedData, $table->getData());
+    }
+
     public function testInsertSaveEmptyData()
     {
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
@@ -337,7 +358,8 @@ class TableTest extends TestCase
      * @param string $indexIdentifier
      * @param Index $index
      */
-    public function testRemoveIndex($indexIdentifier, Index $index) {
+    public function testRemoveIndex($indexIdentifier, Index $index)
+    {
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
             ->setConstructorArgs([[]])
             ->getMock();
@@ -345,14 +367,15 @@ class TableTest extends TestCase
         $table = new \Phinx\Db\Table('table', [], $adapterStub);
         $table->removeIndex($indexIdentifier);
 
-        $indexes = array_map(function(DropIndex $action) {
+        $indexes = array_map(function (DropIndex $action) {
             return $action->getIndex();
         }, $this->getPendingActions($table));
 
         $this->assertEquals([$index], $indexes);
     }
 
-    public function removeIndexDataprovider() {
+    public function removeIndexDataprovider()
+    {
         return [
             [
                 'indexA',

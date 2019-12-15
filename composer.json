@@ -5,7 +5,6 @@
     "keywords": ["phinx", "migrations", "database", "db", "database migrations"],
     "homepage": "https://phinx.org",
     "license": "MIT",
-    "version": "0.10.7",
     "authors": [{
         "name": "Rob Morgan",
         "email": "robbym@gmail.com",
@@ -14,7 +13,7 @@
     }, {
         "name": "Woody Gilk",
         "email": "woody.gilk@gmail.com",
-        "homepage": "http://shadowhand.me",
+        "homepage": "https://shadowhand.me",
         "role": "Developer"
     }, {
         "name": "Richard Quadling",
@@ -22,17 +21,18 @@
         "role": "Developer"
     }, {
         "name": "CakePHP Community",
+        "role": "Developer",
         "homepage": "https://github.com/cakephp/phinx/graphs/contributors"
     }],
     "require": {
         "php": ">=7.2",
         "cakephp/cakephp": "4.x-dev as 4.0.0",
-        "symfony/console": "^2.8|^3.0|^4.0",
-        "symfony/config": "^2.8|^3.0|^4.0",
-        "symfony/yaml": "^2.8|^3.0|^4.0"
+        "symfony/console": "^3.4|^4.0|^5.0",
+        "symfony/config": "^3.4|^4.0|^5.0",
+        "symfony/yaml": "^3.4|^4.0|^5.0"
     },
     "require-dev": {
-        "phpunit/phpunit": ">=5.7,<7.0",
+        "phpunit/phpunit": ">=5.7,<8.0",
         "sebastian/comparator": ">=1.2.3",
         "cakephp/cakephp-codesniffer": "^3.0"
     },
@@ -51,8 +51,8 @@
             "@test",
             "@cs-check"
         ],
-        "cs-check": "phpcs --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP ./src ./tests ./app",
-        "cs-fix": "phpcbf --colors --standard=vendor/cakephp/cakephp-codesniffer/CakePHP ./src ./tests ./app",
+        "cs-check": "phpcs --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --ignore=/tests/Phinx/Config/_rootDirectories/,/tests/log/ src/ tests/ app/",
+        "cs-fix": "phpcbf --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --ignore=/tests/Phinx/Config/_rootDirectories/,/tests/log/ src/ tests/ app/",
         "test": "phpunit --colors=always"
     },
     "bin": ["bin/phinx"],

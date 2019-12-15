@@ -164,6 +164,43 @@ class ManagerTest extends TestCase
         $this->assertRegExp('/up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2/', $outputStr);
     }
 
+    public function testPrintStatusMethodJsonFormat()
+    {
+        // stub environment
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock();
+        $envStub->expects($this->once())
+                ->method('getVersionLog')
+                ->will($this->returnValue(
+                    [
+                        '20120111235330' =>
+                            [
+                                'version' => '20120111235330',
+                                'start_time' => '2012-01-11 23:53:36',
+                                'end_time' => '2012-01-11 23:53:37',
+                                'migration_name' => '',
+                                'breakpoint' => '0',
+                            ],
+                        '20120116183504' =>
+                            [
+                                'version' => '20120116183504',
+                                'start_time' => '2012-01-16 18:35:40',
+                                'end_time' => '2012-01-16 18:35:41',
+                                'migration_name' => '',
+                                'breakpoint' => '0',
+                            ]
+                    ]
+                ));
+        $this->manager->setEnvironments(['mockenv' => $envStub]);
+        $this->manager->getOutput()->setDecorated(false);
+        $return = $this->manager->printStatus('mockenv', 'json');
+        $this->assertSame(0, $return);
+        rewind($this->manager->getOutput()->getStream());
+        $outputStr = trim(stream_get_contents($this->manager->getOutput()->getStream()));
+        $this->assertEquals('{"pending_count":0,"missing_count":0,"total_count":2,"migrations":[{"migration_status":"up","migration_id":"20120111235330","migration_name":"TestMigration"},{"migration_status":"up","migration_id":"20120116183504","migration_name":"TestMigration2"}]}', $outputStr);
+    }
+
     public function testPrintStatusMethodWithNamespace()
     {
         // stub environment
@@ -992,8 +1029,8 @@ class ManagerTest extends TestCase
      *
      * @dataProvider statusVersionOrderProvider
      *
-     * @param array  $config
-     * @param string $expectedStatusHeader
+     * @param Config $config Config to use for the test
+     * @param string $expectedStatusHeader expected header string
      */
     public function testPrintStatusMethodVersionOrderHeader($config, $expectedStatusHeader)
     {
@@ -5546,6 +5583,49 @@ class ManagerTest extends TestCase
         $this->assertFalse($adapter->hasIndex('my_table', ['entity_id']));
     }
 
+    public function testReversibleMigrationWithFKConflictOnTableDrop()
+    {
+        if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
+            $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED constant.');
+        }
+        $configArray = $this->getConfigArray();
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+
+        // override the migrations directory to use the reversible migrations
+        $configArray['paths']['migrations'] = $this->getCorrectedPath(__DIR__ . '/_files/drop_table_with_fk_regression');
+        $config = new Config($configArray);
+
+        // ensure the database is empty
+        $adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->disconnect();
+
+        // migrate to the latest version
+        $this->manager->setConfig($config);
+        $this->manager->migrate('production');
+
+        // ensure up migrations worked
+        $this->assertTrue($adapter->hasTable('orders'));
+        $this->assertTrue($adapter->hasTable('customers'));
+        $this->assertTrue($adapter->hasColumn('orders', 'order_date'));
+        $this->assertTrue($adapter->hasColumn('orders', 'customer_id'));
+        $this->assertTrue($adapter->hasForeignKey('orders', ['customer_id']));
+
+        // revert all changes to the first
+        $this->manager->rollback('production', '20190928205056');
+
+        // ensure reversed migrations worked
+        $this->assertTrue($adapter->hasTable('orders'));
+        $this->assertTrue($adapter->hasColumn('orders', 'order_date'));
+        $this->assertFalse($adapter->hasColumn('orders', 'customer_id'));
+        $this->assertFalse($adapter->hasTable('customers'));
+        $this->assertFalse($adapter->hasForeignKey('orders', ['customer_id']));
+
+        $this->manager->rollback('production');
+        $this->assertFalse($adapter->hasTable('orders'));
+        $this->assertFalse($adapter->hasTable('customers'));
+    }
+
     public function testReversibleMigrationsWorkAsExpectedWithNamespace()
     {
         if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
@@ -5857,15 +5937,14 @@ class ManagerTest extends TestCase
         if (!TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED) {
             $this->markTestSkipped('Postgres tests disabled. See TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED constant.');
         }
-        $configArray = $this->getConfigArray();
-        $adapter = $this->manager->getEnvironment('production')->getAdapter();
 
+        $configArray = $this->getConfigArray();
         // override the migrations directory to use the reversible migrations
         $configArray['paths']['migrations'] = [
             $this->getCorrectedPath(__DIR__ . '/_files/postgres'),
         ];
         $configArray['environments']['production'] = [
-            'adapter' => 'postgres',
+            'adapter' => 'pgsql',
             'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
             'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
             'user' => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
@@ -5874,14 +5953,16 @@ class ManagerTest extends TestCase
             'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA
         ];
         $config = new Config($configArray);
+        $this->manager->setConfig($config);
+
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
 
         // ensure the database is empty
-        $adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE);
-        $adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE);
+        $adapter->dropSchema(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA);
+        $adapter->createSchema(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA);
         $adapter->disconnect();
 
         // migrate to the latest version
-        $this->manager->setConfig($config);
         $this->manager->migrate('production');
 
         $this->assertTrue($adapter->hasTable('articles'));
@@ -5903,6 +5984,64 @@ class ManagerTest extends TestCase
         $this->assertFalse($adapter->hasTable('special_pks'));
         $this->assertFalse($adapter->hasTable('special_tags'));
         $this->assertFalse($adapter->hasTable('users'));
+    }
+
+    public function testMigrationWithDropColumnAndForeignKeyAndIndex()
+    {
+        if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
+            $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED constant.');
+        }
+        $configArray = $this->getConfigArray();
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+
+        // override the migrations directory to use the reversible migrations
+        $configArray['paths']['migrations'] = $this->getCorrectedPath(__DIR__ . '/_files/drop_column_fk_index_regression');
+        $config = new Config($configArray);
+
+        // ensure the database is empty
+        $adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->disconnect();
+
+        $this->manager->setConfig($config);
+        $this->manager->migrate('production', '20190928205056');
+
+        $this->assertTrue($adapter->hasTable('table1'));
+        $this->assertTrue($adapter->hasTable('table2'));
+        $this->assertTrue($adapter->hasTable('table3'));
+        $this->assertTrue($adapter->hasColumn('table1', 'table2_id'));
+        $this->assertTrue($adapter->hasForeignKey('table1', ['table2_id'], 'table1_table2_id'));
+        $this->assertTrue($adapter->hasIndexByName('table1', 'table1_table2_id'));
+        $this->assertTrue($adapter->hasColumn('table1', 'table3_id'));
+        $this->assertTrue($adapter->hasForeignKey('table1', ['table3_id'], 'table1_table3_id'));
+        $this->assertTrue($adapter->hasIndexByName('table1', 'table1_table3_id'));
+
+        // Run the next migration
+        $this->manager->migrate('production');
+        $this->assertTrue($adapter->hasTable('table1'));
+        $this->assertTrue($adapter->hasTable('table2'));
+        $this->assertTrue($adapter->hasTable('table3'));
+        $this->assertTrue($adapter->hasColumn('table1', 'table2_id'));
+        $this->assertTrue($adapter->hasForeignKey('table1', ['table2_id'], 'table1_table2_id'));
+        $this->assertTrue($adapter->hasIndexByName('table1', 'table1_table2_id'));
+        $this->assertFalse($adapter->hasColumn('table1', 'table3_id'));
+        $this->assertFalse($adapter->hasForeignKey('table1', ['table3_id'], 'table1_table3_id'));
+        $this->assertFalse($adapter->hasIndexByName('table1', 'table1_table3_id'));
+
+        // rollback
+        $this->manager->rollback('production');
+        $this->manager->rollback('production');
+
+        // ensure reversed migrations worked
+        $this->assertTrue($adapter->hasTable('table1'));
+        $this->assertTrue($adapter->hasTable('table2'));
+        $this->assertTrue($adapter->hasTable('table3'));
+        $this->assertFalse($adapter->hasColumn('table1', 'table2_id'));
+        $this->assertFalse($adapter->hasForeignKey('table1', ['table2_id'], 'table1_table2_id'));
+        $this->assertFalse($adapter->hasIndexByName('table1', 'table1_table2_id'));
+        $this->assertFalse($adapter->hasColumn('table1', 'table3_id'));
+        $this->assertFalse($adapter->hasForeignKey('table1', ['table3_id'], 'table1_table3_id'));
+        $this->assertFalse($adapter->hasIndexByName('table1', 'table1_table3_id'));
     }
 
     public function setExpectedException($exceptionName, $exceptionMessage = '', $exceptionCode = null)

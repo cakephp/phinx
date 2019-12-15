@@ -39,13 +39,14 @@ class Init extends Command
 {
     const FILE_NAME = 'phinx';
 
+    protected static $defaultName = 'init';
+
     /**
      * {@inheritdoc}
      */
     protected function configure()
     {
-        $this->setName($this->getName() ?: 'init')
-            ->setDescription('Initialize the application for Phinx')
+        $this->setDescription('Initialize the application for Phinx')
             ->addOption('--format', '-f', InputArgument::OPTIONAL, 'What format should we use to initialize?', 'yml')
             ->addArgument('path', InputArgument::OPTIONAL, 'Which path should we initialize for Phinx?')
             ->setHelp(sprintf(
@@ -63,7 +64,7 @@ class Init extends Command
      *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     * @return void
+     * @return int 0 on success
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -72,6 +73,8 @@ class Init extends Command
         $this->writeConfig($path, $format);
 
         $output->writeln("<info>created</info> {$path}");
+
+        return 0;
     }
 
     /**

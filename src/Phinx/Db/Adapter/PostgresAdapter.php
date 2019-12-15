@@ -167,6 +167,10 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function hasTable($tableName)
     {
+        if ($this->hasCreatedTable($tableName)) {
+            return true;
+        }
+
         $parts = $this->getSchemaName($tableName);
         $result = $this->getConnection()->query(
             sprintf(
@@ -187,6 +191,8 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
+        $queries = [];
+
         $options = $table->getOptions();
         $parts = $this->getSchemaName($table->getName());
 
@@ -234,34 +240,37 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $sql = rtrim($sql, ', '); // no primary keys
         }
 
-        $sql .= ');';
+        $sql .= ')';
+        $queries[] = $sql;
 
         // process column comments
         if (!empty($this->columnsWithComments)) {
             foreach ($this->columnsWithComments as $column) {
-                $sql .= $this->getColumnCommentSqlDefinition($column, $table->getName());
+                $queries[] = $this->getColumnCommentSqlDefinition($column, $table->getName());
             }
         }
 
         // set the indexes
         if (!empty($indexes)) {
             foreach ($indexes as $index) {
-                $sql .= $this->getIndexSqlDefinition($index, $table->getName());
+                $queries[] = $this->getIndexSqlDefinition($index, $table->getName());
             }
         }
 
-        // execute the sql
-        $this->execute($sql);
-
         // process table comments
         if (isset($options['comment'])) {
-            $sql = sprintf(
+            $queries[] = sprintf(
                 'COMMENT ON TABLE %s IS %s',
                 $this->quoteTableName($table->getName()),
                 $this->getConnection()->quote($options['comment'])
             );
-            $this->execute($sql);
         }
+
+        foreach ($queries as $query) {
+            $this->execute($query);
+        }
+
+        $this->addCreatedTable($table->getName());
     }
 
     /**
@@ -332,6 +341,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
+        $this->updateCreatedTableName($tableName, $newTableName);
         $sql = sprintf(
             'ALTER TABLE %s RENAME TO %s',
             $this->quoteTableName($tableName),
@@ -346,6 +356,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     protected function getDropTableInstructions($tableName)
     {
+        $this->removeCreatedTable($tableName);
         $sql = sprintf('DROP TABLE %s', $this->quoteTableName($tableName));
 
         return new AlterInstructions([], [$sql]);
@@ -1129,7 +1140,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 if ($column->isTimezone()) {
                     $buffer[] = strtoupper('with time zone');
                 }
-            } elseif (!in_array($sqlType['name'], ['integer', 'smallint', 'bigint', 'boolean'])) {
+            } elseif (!in_array($sqlType['name'], ['integer', 'smallint', 'bigint', 'boolean', 'text'])) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
                 }
@@ -1245,7 +1256,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function createSchema($schemaName = 'public')
     {
         // from postgres 9.3 we can use "CREATE SCHEMA IF NOT EXISTS schema_name"
-        $sql = sprintf('CREATE SCHEMA %s;', $this->quoteSchemaName($schemaName));
+        $sql = sprintf('CREATE SCHEMA %s', $this->quoteSchemaName($schemaName));
         $this->execute($sql);
     }
 
@@ -1276,7 +1287,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropSchema($schemaName)
     {
-        $sql = sprintf("DROP SCHEMA IF EXISTS %s CASCADE;", $this->quoteSchemaName($schemaName));
+        $sql = sprintf("DROP SCHEMA IF EXISTS %s CASCADE", $this->quoteSchemaName($schemaName));
         $this->execute($sql);
     }
 

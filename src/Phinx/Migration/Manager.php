@@ -100,8 +100,8 @@ class Manager
     /**
      * Prints the specified environment's migration status.
      *
-     * @param string $environment
-     * @param null $format
+     * @param string $environment environment to print status of
+     * @param string|null $format format to print status in (either text, json, or null)
      * @return int 0 if all migrations are up, or an error code
      */
     public function printStatus($environment, $format = null)
@@ -113,6 +113,11 @@ class Manager
         $migrationCount = 0;
         $missingCount = 0;
         $pendingMigrationCount = 0;
+        $finalMigrations = [];
+        $verbosity = $output->getVerbosity();
+        if ($format === 'json') {
+            $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
+        }
         if (count($migrations)) {
             // TODO - rewrite using Symfony Table Helper as we already have this library
             // included and it will fix formatting issues (e.g drawing the lines)
@@ -184,7 +189,8 @@ class Manager
                             if ($missingVersion['start_time'] > $version['start_time']) {
                                 break;
                             } elseif ($missingVersion['start_time'] == $version['start_time'] &&
-                                $missingVersion['version'] > $version['version']) {
+                                $missingVersion['version'] > $version['version']
+                            ) {
                                 break;
                             }
                         }
@@ -206,8 +212,8 @@ class Manager
                     '%s %14.0f  %19s  %19s  <comment>%s</comment>',
                     $status,
                     $migration->getVersion(),
-                    $version['start_time'],
-                    $version['end_time'],
+                    ($version ? $version['start_time'] : ''),
+                    ($version ? $version['end_time'] : ''),
                     $migration->getName()
                 ));
 
@@ -215,7 +221,7 @@ class Manager
                     $output->writeln('         <error>BREAKPOINT SET</error>');
                 }
 
-                $migrations[] = ['migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName()];
+                $finalMigrations[] = ['migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName()];
                 unset($versions[$migration->getVersion()]);
             }
 
@@ -233,15 +239,17 @@ class Manager
 
         // write an empty line
         $output->writeln('');
+
         if ($format !== null) {
             switch ($format) {
                 case 'json':
+                    $output->setVerbosity($verbosity);
                     $output->writeln(json_encode(
                         [
                             'pending_count' => $pendingMigrationCount,
                             'missing_count' => $missingCount,
                             'total_count' => $migrationCount + $missingCount,
-                            'migrations' => $migrations
+                            'migrations' => $finalMigrations
                         ]
                     ));
                     break;
@@ -521,7 +529,8 @@ class Manager
 
                 if (!$targetMustMatchVersion) {
                     if (($this->getConfig()->isVersionOrderCreationTime() && $executedVersion['version'] <= $target) ||
-                        (!$this->getConfig()->isVersionOrderCreationTime() && $executedVersion['start_time'] <= $target)) {
+                        (!$this->getConfig()->isVersionOrderCreationTime() && $executedVersion['start_time'] <= $target)
+                    ) {
                         break;
                     }
                 }
@@ -786,23 +795,7 @@ class Manager
      */
     protected function getMigrationFiles()
     {
-        $config = $this->getConfig();
-        $paths = $config->getMigrationPaths();
-        $files = [];
-
-        foreach ($paths as $path) {
-            $files = array_merge(
-                $files,
-                Util::glob($path . DIRECTORY_SEPARATOR . '*.php')
-            );
-        }
-        // glob() can return the same file multiple times
-        // This will cause the migration to fail with a
-        // false assumption of duplicate migrations
-        // http://php.net/manual/en/function.glob.php#110340
-        $files = array_unique($files);
-
-        return $files;
+        return Util::getFiles($this->getConfig()->getMigrationPaths());
     }
 
     /**
@@ -933,23 +926,7 @@ class Manager
      */
     protected function getSeedFiles()
     {
-        $config = $this->getConfig();
-        $paths = $config->getSeedPaths();
-        $files = [];
-
-        foreach ($paths as $path) {
-            $files = array_merge(
-                $files,
-                Util::glob($path . DIRECTORY_SEPARATOR . '*.php')
-            );
-        }
-        // glob() can return the same file multiple times
-        // This will cause the migration to fail with a
-        // false assumption of duplicate migrations
-        // http://php.net/manual/en/function.glob.php#110340
-        $files = array_unique($files);
-
-        return $files;
+        return Util::getFiles($this->getConfig()->getSeedPaths());
     }
 
     /**

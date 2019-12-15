@@ -70,7 +70,8 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     protected function verboseLog($message)
     {
         if (!$this->isDryRunEnabled() &&
-             $this->getOutput()->getVerbosity() < OutputInterface::VERBOSITY_VERY_VERBOSE) {
+             $this->getOutput()->getVerbosity() < OutputInterface::VERBOSITY_VERY_VERBOSE
+        ) {
             return;
         }
 
@@ -158,6 +159,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     public function execute($sql)
     {
+        $sql = rtrim($sql, "; \t\n\r\0\x0B") . ';';
         $this->verboseLog($sql);
 
         if ($this->isDryRunEnabled()) {

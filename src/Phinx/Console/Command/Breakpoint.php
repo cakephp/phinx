@@ -35,6 +35,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Breakpoint extends AbstractCommand
 {
+    protected static $defaultName = 'breakpoint';
+
     /**
      * {@inheritdoc}
      */
@@ -44,8 +46,7 @@ class Breakpoint extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment.');
 
-        $this->setName($this->getName() ?: 'breakpoint')
-            ->setDescription('Manage breakpoints')
+        $this->setDescription('Manage breakpoints')
             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to target for the breakpoint')
             ->addOption('--set', '-s', InputOption::VALUE_NONE, 'Set the breakpoint')
             ->addOption('--unset', '-u', InputOption::VALUE_NONE, 'Unset the breakpoint')
@@ -68,7 +69,7 @@ EOT
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @return void
+     * @return int integer 0 on success, or an error code.
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -87,12 +88,18 @@ EOT
             $output->writeln('<info>using environment</info> ' . $environment);
         }
 
+        if (!$this->getConfig()->hasEnvironment($environment)) {
+            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
+
+            return 1;
+        }
+
         if ($version && $removeAll) {
             throw new \InvalidArgumentException('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
         }
 
         if (($set && $unset) || ($set && $removeAll) || ($unset && $removeAll)) {
-            throw new \InvalidArgumentException('Cannot use more than one of --set, --clear, or --remove-all at the same time.');
+            throw new \InvalidArgumentException('Cannot use more than one of --set, --unset, or --remove-all at the same time.');
         }
 
         if ($removeAll) {
@@ -108,5 +115,7 @@ EOT
             // Toggle the breakpoint.
             $this->getManager()->toggleBreakpoint($environment, $version);
         }
+
+        return 0;
     }
 }
