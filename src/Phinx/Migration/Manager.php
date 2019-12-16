@@ -1,39 +1,22 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Migration
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Migration;
 
+use DateTime;
+use InvalidArgumentException;
+use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
 use Phinx\Config\NamespaceAwareInterface;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Seed\AbstractSeed;
 use Phinx\Seed\SeedInterface;
 use Phinx\Util\Util;
+use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -74,18 +57,16 @@ class Manager
     protected $seeds;
 
     /**
-     * @var integer
+     * @var int
      */
     const EXIT_STATUS_DOWN = 3;
 
     /**
-     * @var integer
+     * @var int
      */
     const EXIT_STATUS_MISSING = 2;
 
     /**
-     * Class Constructor.
-     *
      * @param \Phinx\Config\ConfigInterface $config Configuration Object
      * @param \Symfony\Component\Console\Input\InputInterface $input Console Input
      * @param \Symfony\Component\Console\Output\OutputInterface $output Console Output
@@ -102,6 +83,9 @@ class Manager
      *
      * @param string $environment environment to print status of
      * @param string|null $format format to print status in (either text, json, or null)
+     *
+     * @throws \RuntimeException
+     *
      * @return int 0 if all migrations are up, or an error code
      */
     public function printStatus($environment, $format = null)
@@ -124,14 +108,14 @@ class Manager
             $output->writeln('');
 
             switch ($this->getConfig()->getVersionOrder()) {
-                case \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME:
+                case Config::VERSION_ORDER_CREATION_TIME:
                     $migrationIdAndStartedHeader = "<info>[Migration ID]</info>  Started            ";
                     break;
-                case \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME:
+                case Config::VERSION_ORDER_EXECUTION_TIME:
                     $migrationIdAndStartedHeader = "Migration ID    <info>[Started          ]</info>";
                     break;
                 default:
-                    throw new \RuntimeException('Invalid version_order configuration option');
+                    throw new RuntimeException('Invalid version_order configuration option');
             }
 
             $output->writeln(" Status  $migrationIdAndStartedHeader  Finished             Migration Name ");
@@ -249,7 +233,7 @@ class Manager
                             'pending_count' => $pendingMigrationCount,
                             'missing_count' => $missingCount,
                             'total_count' => $migrationCount + $missingCount,
-                            'migrations' => $finalMigrations
+                            'migrations' => $finalMigrations,
                         ]
                     ));
                     break;
@@ -270,8 +254,10 @@ class Manager
     /**
      * Print Missing Version
      *
-     * @param array $version        The missing version to print (in the format returned by Environment.getVersionLog).
-     * @param int   $maxNameLength  The maximum migration name length.
+     * @param array $version The missing version to print (in the format returned by Environment.getVersionLog).
+     * @param int $maxNameLength The maximum migration name length.
+     *
+     * @return void
      */
     private function printMissingVersion($version, $maxNameLength)
     {
@@ -291,14 +277,14 @@ class Manager
     /**
      * Migrate to the version of the database on a given date.
      *
-     * @param string    $environment Environment
-     * @param \DateTime $dateTime    Date to migrate to
-     * @param bool      $fake        flag that if true, we just record running the migration, but not actually do the
+     * @param string $environment Environment
+     * @param \DateTime $dateTime Date to migrate to
+     * @param bool $fake flag that if true, we just record running the migration, but not actually do the
      *                               migration
      *
      * @return void
      */
-    public function migrateToDateTime($environment, \DateTime $dateTime, $fake = false)
+    public function migrateToDateTime($environment, DateTime $dateTime, $fake = false)
     {
         $versions = array_keys($this->getMigrations($environment));
         $dateString = $dateTime->format('YmdHis');
@@ -318,8 +304,9 @@ class Manager
      * Migrate an environment to the specified version.
      *
      * @param string $environment Environment
-     * @param int    $version     version to migrate to
-     * @param bool   $fake        flag that if true, we just record running the migration, but not actually do the migration
+     * @param int|null $version version to migrate to
+     * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
+     *
      * @return void
      */
     public function migrate($environment, $version = null, $fake = false)
@@ -336,7 +323,7 @@ class Manager
         if ($version === null) {
             $version = max(array_merge($versions, array_keys($migrations)));
         } else {
-            if (0 != $version && !isset($migrations[$version])) {
+            if ($version != 0 && !isset($migrations[$version])) {
                 $this->output->writeln(sprintf(
                     '<comment>warning</comment> %s is not a valid version',
                     $version
@@ -382,6 +369,7 @@ class Manager
      * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @param string $direction Direction
      * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
+     *
      * @return void
      */
     public function executeMigration($name, MigrationInterface $migration, $direction = MigrationInterface::UP, $fake = false)
@@ -413,6 +401,7 @@ class Manager
      *
      * @param string $name Environment Name
      * @param \Phinx\Seed\SeedInterface $seed Seed
+     *
      * @return void
      */
     public function executeSeed($name, SeedInterface $seed)
@@ -441,10 +430,11 @@ class Manager
      * Rollback an environment to the specified version.
      *
      * @param string $environment Environment
-     * @param int|string $target
+     * @param int|string|null $target
      * @param bool $force
      * @param bool $targetMustMatchVersion
      * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
+     *
      * @return void
      */
     public function rollback($environment, $target = null, $force = false, $targetMustMatchVersion = true, $fake = false)
@@ -462,7 +452,7 @@ class Manager
             // if we have a date (ie. the target must not match a version) and we are sorting by execution time, we
             // convert the version start time so we can compare directly with the target date
             if (!$this->getConfig()->isVersionOrderCreationTime() && !$targetMustMatchVersion) {
-                $dateTime = \DateTime::createFromFormat('Y-m-d H:i:s', $executedVersion['start_time']);
+                $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $executedVersion['start_time']);
                 $executedVersion['start_time'] = $dateTime->format('YmdHis');
             }
 
@@ -477,7 +467,7 @@ class Manager
 
         if ($target === 'all' || $target === '0') {
             $target = 0;
-        } elseif (!is_numeric($target) && !is_null($target)) { // try to find a target version based on name
+        } elseif (!is_numeric($target) && $target !== null) { // try to find a target version based on name
             // search through the migrations using the name
             $migrationNames = array_map(function ($item) {
                 return $item['migration_name'];
@@ -510,7 +500,7 @@ class Manager
         }
 
         // If the target must match a version, check the target version exists
-        if ($targetMustMatchVersion && 0 !== $target && !isset($migrations[$target])) {
+        if ($targetMustMatchVersion && $target !== 0 && !isset($migrations[$target])) {
             $this->getOutput()->writeln("<error>Target version ($target) not found</error>");
 
             return;
@@ -535,7 +525,7 @@ class Manager
                     }
                 }
 
-                if (0 != $executedVersion['breakpoint'] && !$force) {
+                if ($executedVersion['breakpoint'] != 0 && !$force) {
                     $this->getOutput()->writeln('<error>Breakpoint reached. Further rollbacks inhibited.</error>');
                     break;
                 }
@@ -553,7 +543,10 @@ class Manager
      * Run database seeders against an environment.
      *
      * @param string $environment Environment
-     * @param string $seed Seeder
+     * @param string|null $seed Seeder
+     *
+     * @throws \InvalidArgumentException
+     *
      * @return void
      */
     public function seed($environment, $seed = null)
@@ -572,7 +565,7 @@ class Manager
             if (array_key_exists($seed, $seeds)) {
                 $this->executeSeed($environment, $seeds[$seed]);
             } else {
-                throw new \InvalidArgumentException(sprintf('The seed class "%s" does not exist', $seed));
+                throw new InvalidArgumentException(sprintf('The seed class "%s" does not exist', $seed));
             }
         }
     }
@@ -581,7 +574,8 @@ class Manager
      * Sets the environments.
      *
      * @param array $environments Environments
-     * @return \Phinx\Migration\Manager
+     *
+     * @return $this
      */
     public function setEnvironments($environments = [])
     {
@@ -594,7 +588,9 @@ class Manager
      * Gets the manager class for the given environment.
      *
      * @param string $name Environment Name
+     *
      * @throws \InvalidArgumentException
+     *
      * @return \Phinx\Migration\Manager\Environment
      */
     public function getEnvironment($name)
@@ -605,7 +601,7 @@ class Manager
 
         // check the environment exists
         if (!$this->getConfig()->hasEnvironment($name)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The environment "%s" does not exist',
                 $name
             ));
@@ -627,7 +623,8 @@ class Manager
      * Sets the console input.
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     * @return \Phinx\Migration\Manager
+     *
+     * @return $this
      */
     public function setInput(InputInterface $input)
     {
@@ -650,7 +647,8 @@ class Manager
      * Sets the console output.
      *
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     * @return \Phinx\Migration\Manager
+     *
+     * @return $this
      */
     public function setOutput(OutputInterface $output)
     {
@@ -673,7 +671,8 @@ class Manager
      * Sets the database migrations.
      *
      * @param array $migrations Migrations
-     * @return \Phinx\Migration\Manager
+     *
+     * @return $this
      */
     public function setMigrations(array $migrations)
     {
@@ -687,7 +686,9 @@ class Manager
      * order
      *
      * @param string $environment Environment
+     *
      * @throws \InvalidArgumentException
+     *
      * @return \Phinx\Migration\AbstractMigration[]
      */
     public function getMigrations($environment)
@@ -721,7 +722,7 @@ class Manager
                     $version = Util::getVersionFromFileName(basename($filePath));
 
                     if (isset($versions[$version])) {
-                        throw new \InvalidArgumentException(sprintf('Duplicate migration - "%s" has the same version as "%s"', $filePath, $versions[$version]->getVersion()));
+                        throw new InvalidArgumentException(sprintf('Duplicate migration - "%s" has the same version as "%s"', $filePath, $versions[$version]->getVersion()));
                     }
 
                     $config = $this->getConfig();
@@ -731,7 +732,7 @@ class Manager
                     $class = ($namespace === null ? '' : $namespace . '\\') . Util::mapFileNameToClassName(basename($filePath));
 
                     if (isset($fileNames[$class])) {
-                        throw new \InvalidArgumentException(sprintf(
+                        throw new InvalidArgumentException(sprintf(
                             'Migration "%s" has the same name as "%s"',
                             basename($filePath),
                             $fileNames[$class]
@@ -751,7 +752,7 @@ class Manager
                     require_once $filePath;
                     ini_set('display_errors', $orig_display_errors_setting);
                     if (!class_exists($class)) {
-                        throw new \InvalidArgumentException(sprintf(
+                        throw new InvalidArgumentException(sprintf(
                             'Could not find class "%s" in file "%s"',
                             $class,
                             $filePath
@@ -766,7 +767,7 @@ class Manager
                     $migration = new $class($environment, $version, $this->getInput(), $this->getOutput());
 
                     if (!($migration instanceof AbstractMigration)) {
-                        throw new \InvalidArgumentException(sprintf(
+                        throw new InvalidArgumentException(sprintf(
                             'The class "%s" in file "%s" must extend \Phinx\Migration\AbstractMigration',
                             $class,
                             $filePath
@@ -802,7 +803,8 @@ class Manager
      * Sets the database seeders.
      *
      * @param array $seeds Seeders
-     * @return \Phinx\Migration\Manager
+     *
+     * @return $this
      */
     public function setSeeds(array $seeds)
     {
@@ -814,9 +816,9 @@ class Manager
     /**
      * Get seed dependencies instances from seed dependency array
      *
-     * @param AbstractSeed $seed Seed
+     * @param \Phinx\Seed\AbstractSeed $seed Seed
      *
-     * @return AbstractSeed[]
+     * @return \Phinx\Seed\AbstractSeed[]
      */
     private function getSeedDependenciesInstances(AbstractSeed $seed)
     {
@@ -838,9 +840,9 @@ class Manager
     /**
      * Order seeds by dependencies
      *
-     * @param AbstractSeed[] $seeds Seeds
+     * @param \Phinx\Seed\AbstractSeed[] $seeds Seeds
      *
-     * @return AbstractSeed[]
+     * @return \Phinx\Seed\AbstractSeed[]
      */
     private function orderSeedsByDependencies(array $seeds)
     {
@@ -863,6 +865,7 @@ class Manager
      * Gets an array of database seeders.
      *
      * @throws \InvalidArgumentException
+     *
      * @return \Phinx\Seed\AbstractSeed[]
      */
     public function getSeeds()
@@ -888,7 +891,7 @@ class Manager
                     /** @noinspection PhpIncludeInspection */
                     require_once $filePath;
                     if (!class_exists($class)) {
-                        throw new \InvalidArgumentException(sprintf(
+                        throw new InvalidArgumentException(sprintf(
                             'Could not find class "%s" in file "%s"',
                             $class,
                             $filePath
@@ -899,7 +902,7 @@ class Manager
                     $seed = new $class($this->getInput(), $this->getOutput());
 
                     if (!($seed instanceof AbstractSeed)) {
-                        throw new \InvalidArgumentException(sprintf(
+                        throw new InvalidArgumentException(sprintf(
                             'The class "%s" in file "%s" must extend \Phinx\Seed\AbstractSeed',
                             $class,
                             $filePath
@@ -932,8 +935,9 @@ class Manager
     /**
      * Sets the config.
      *
-     * @param  \Phinx\Config\ConfigInterface $config Configuration Object
-     * @return \Phinx\Migration\Manager
+     * @param \Phinx\Config\ConfigInterface $config Configuration Object
+     *
+     * @return $this
      */
     public function setConfig(ConfigInterface $config)
     {
@@ -957,6 +961,7 @@ class Manager
      *
      * @param string $environment
      * @param int|null $version
+     *
      * @return void
      */
     public function toggleBreakpoint($environment, $version)
@@ -989,7 +994,7 @@ class Manager
             $version = $lastVersion['version'];
         }
 
-        if (0 != $version && !isset($migrations[$version])) {
+        if ($version != 0 && !isset($migrations[$version])) {
             $this->output->writeln(sprintf(
                 '<comment>warning</comment> %s is not a valid version',
                 $version
@@ -1027,6 +1032,7 @@ class Manager
      * Remove all breakpoints
      *
      * @param string $environment The required environment
+     *
      * @return void
      */
     public function removeBreakpoints($environment)
