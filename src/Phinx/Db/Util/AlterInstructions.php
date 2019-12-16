@@ -1,27 +1,10 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Db\Util;
 
 /**
@@ -30,7 +13,6 @@ namespace Phinx\Db\Util;
  */
 class AlterInstructions
 {
-
     /**
      * @var string[] The SQL snippets to be added to an ALTER instruction
      */
@@ -57,6 +39,7 @@ class AlterInstructions
      * Adds another part to the single ALTER instruction
      *
      * @param string $part The SQL snipped to add as part of the ALTER instruction
+     *
      * @return void
      */
     public function addAlter($part)
@@ -73,6 +56,7 @@ class AlterInstructions
      * This allows to keep a single state across callbacks.
      *
      * @param string|callable $sql The SQL to run after, or a callable to execute
+     *
      * @return void
      */
     public function addPostStep($sql)
@@ -103,7 +87,8 @@ class AlterInstructions
     /**
      * Merges another AlterInstructions object to this one
      *
-     * @param AlterInstructions $other The other collection of instructions to merge in
+     * @param \Phinx\Db\Util\AlterInstructions $other The other collection of instructions to merge in
+     *
      * @return void
      */
     public function merge(AlterInstructions $other)
@@ -117,6 +102,7 @@ class AlterInstructions
      *
      * @param string $alterTemplate The template for the alter instruction
      * @param callable $executor The function to be used to execute all instructions
+     *
      * @return void
      */
     public function execute($alterTemplate, callable $executor)

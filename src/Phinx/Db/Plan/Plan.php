@@ -1,27 +1,10 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Db\Plan;
 
 use ArrayObject;
@@ -51,7 +34,6 @@ use Phinx\Db\Table\Table;
  */
 class Plan
 {
-
     /**
      * List of tables to be created
      *
@@ -97,7 +79,7 @@ class Plan
     /**
      * Constructor
      *
-     * @param Intent $intent All the actions that should be executed
+     * @param \Phinx\Db\Plan\Intent $intent All the actions that should be executed
      */
     public function __construct(Intent $intent)
     {
@@ -107,7 +89,8 @@ class Plan
     /**
      * Parses the given Intent and creates the separate steps to execute
      *
-     * @param Intent $actions The actions to use for the plan
+     * @param \Phinx\Db\Plan\Intent $actions The actions to use for the plan
+     *
      * @return void
      */
     protected function createPlan($actions)
@@ -123,7 +106,7 @@ class Plan
     /**
      * Returns a nested list of all the steps to execute
      *
-     * @return AlterTable[][]
+     * @return \Phinx\Db\Plan\AlterTable[][]
      */
     protected function updatesSequence()
     {
@@ -139,7 +122,7 @@ class Plan
     /**
      * Returns a nested list of all the steps to execute in inverse order
      *
-     * @return AlterTable[][]
+     * @return \Phinx\Db\Plan\AlterTable[][]
      */
     protected function inverseUpdatesSequence()
     {
@@ -148,14 +131,15 @@ class Plan
             $this->tableMoves,
             $this->indexes,
             $this->columnRemoves,
-            $this->tableUpdates
+            $this->tableUpdates,
         ];
     }
 
     /**
      * Executes this plan using the given AdapterInterface
      *
-     * @param AdapterInterface $executor The executor object for the plan
+     * @param \Phinx\Db\Adapter\AdapterInterface $executor The executor object for the plan
+     *
      * @return void
      */
     public function execute(AdapterInterface $executor)
@@ -174,7 +158,8 @@ class Plan
     /**
      * Executes the inverse plan (rollback the actions) with the given AdapterInterface:w
      *
-     * @param AdapterInterface $executor The executor object for the plan
+     * @param \Phinx\Db\Adapter\AdapterInterface $executor The executor object for the plan
+     *
      * @return void
      */
     public function executeInverse(AdapterInterface $executor)
@@ -254,9 +239,10 @@ class Plan
      * Deletes all actions related to the given table and keeps the
      * rest
      *
-     * @param Table $table The table to find in the list of actions
-     * @param AlterTable[] $actions The actions to transform
-     * @return AlterTable[] The list of actions without actions for the given table
+     * @param \Phinx\Db\Table\Table $table The table to find in the list of actions
+     * @param \Phinx\Db\Plan\AlterTable[] $actions The actions to transform
+     *
+     * @return \Phinx\Db\Plan\AlterTable[] The list of actions without actions for the given table
      */
     protected function forgetTable(Table $table, $actions)
     {
@@ -276,8 +262,9 @@ class Plan
      * all conflicting DropIndex action in `$this->indexes` into the
      * given AlterTable.
      *
-     * @param AlterTable $alter The collection of actions to inspect
-     * @return AlterTable The updated AlterTable object. This function
+     * @param \Phinx\Db\Plan\AlterTable $alter The collection of actions to inspect
+     *
+     * @return \Phinx\Db\Plan\AlterTable The updated AlterTable object. This function
      * has the side effect of changing the `$this->indexes` property.
      */
     protected function remapContraintAndIndexConflicts(AlterTable $alter)
@@ -312,9 +299,10 @@ class Plan
     /**
      * Deletes any DropIndex actions for the given table and exact columns
      *
-     * @param Table $table The table to find in the list of actions
+     * @param \Phinx\Db\Table\Table $table The table to find in the list of actions
      * @param string[] $columns The column names to match
-     * @param AlterTable[] $actions The actions to transform
+     * @param \Phinx\Db\Plan\AlterTable[] $actions The actions to transform
+     *
      * @return array A tuple containing the list of actions without actions for dropping the index
      * and a list of drop index actions that were removed.
      */
@@ -359,9 +347,10 @@ class Plan
     /**
      * Deletes any RemoveColumn actions for the given table and exact columns
      *
-     * @param Table $table The table to find in the list of actions
+     * @param \Phinx\Db\Table\Table $table The table to find in the list of actions
      * @param string[] $columns The column names to match
-     * @param AlterTable[] $actions The actions to transform
+     * @param \Phinx\Db\Plan\AlterTable[] $actions The actions to transform
+     *
      * @return array A tuple containing the list of actions without actions for removing the column
      * and a list of remove column actions that were removed.
      */
@@ -407,6 +396,7 @@ class Plan
      * Collects all table creation actions from the given intent
      *
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
+     *
      * @return void
      */
     protected function gatherCreates($actions)
@@ -447,6 +437,7 @@ class Plan
      * Collects all alter table actions from the given intent
      *
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
+     *
      * @return void
      */
     protected function gatherUpdates($actions)
@@ -484,6 +475,7 @@ class Plan
      * Collects all alter table drop and renames from the given intent
      *
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
+     *
      * @return void
      */
     protected function gatherTableMoves($actions)
@@ -511,6 +503,7 @@ class Plan
      * Collects all index creation and drops from the given intent
      *
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
+     *
      * @return void
      */
     protected function gatherIndexes($actions)
@@ -541,6 +534,7 @@ class Plan
      * Collects all foreign key creation and drops from the given intent
      *
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
+     *
      * @return void
      */
     protected function gatherConstraints($actions)
