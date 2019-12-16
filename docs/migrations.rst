@@ -1305,10 +1305,12 @@ call this method for each index.
             public function up()
             {
                 $table = $this->table('users');
-                $table->removeIndex(['email']);
+                $table->removeIndex(['email'])
+                    ->save();
 
                 // alternatively, you can delete an index by its name, ie:
-                $table->removeIndexByName('idx_users_email');
+                $table->removeIndexByName('idx_users_email')
+                    ->save();
             }
 
             /**
