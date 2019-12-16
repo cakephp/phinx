@@ -1063,11 +1063,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
 
         parent::createSchemaTable();
     }
-    
-    
-    
+
     /**
-      * {@inheritdoc}
+     * @inheritDoc
      */
     public function getVersions()
     {
@@ -1076,7 +1074,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getVersionLog()
     {
