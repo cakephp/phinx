@@ -109,7 +109,7 @@ class SeedCreate extends AbstractCommand
             return array_shift($paths);
         }
 
-        // Ask the user which of their defined paths they'd like to use:
+        /** @var \Symfony\Component\Console\Helper\Helper $helper */
         $helper = $this->getHelper('question');
         $question = $this->getSelectSeedPathQuestion($paths);
 
