@@ -37,6 +37,8 @@ Phinx natively supports the following database adapters:
 
 ## Install & Run
 
+See [version and branch overview](https://github.com/cakephp/phinx/wiki#phinx-version-and-branch-overview) for branch and PHP compatibility.
+
 ### Composer
 
 The fastest way to install Phinx is to add it to your project using Composer (https://getcomposer.org/).
