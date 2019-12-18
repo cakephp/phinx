@@ -76,7 +76,7 @@ class Manager
      *
      * @throws \RuntimeException
      *
-     * @return int 0 if all migrations are up, or an error code
+     * @return array array indicating if there are any missing or down migrations
      */
     public function printStatus($environment, $format = null)
     {
