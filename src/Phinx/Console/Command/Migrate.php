@@ -77,7 +77,7 @@ EOT
         if (!$this->getConfig()->hasEnvironment($environment)) {
             $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
 
-            return self::EXIT_ERROR;
+            return self::CODE_ERROR;
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
@@ -94,7 +94,7 @@ EOT
         } else {
             $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
 
-            return self::EXIT_ERROR;
+            return self::CODE_ERROR;
         }
 
         if (isset($envOptions['table_prefix'])) {
@@ -120,16 +120,16 @@ EOT
         } catch (Exception $e) {
             $output->writeln('<error>' . $e->__toString() . '</error>');
 
-            return self::EXIT_ERROR;
+            return self::CODE_ERROR;
         } catch (Throwable $e) {
             $output->writeln('<error>' . $e->__toString() . '</error>');
 
-            return self::EXIT_ERROR;
+            return self::CODE_ERROR;
         }
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
 
-        return self::EXIT_SUCCESS;
+        return self::CODE_SUCCESS;
     }
 }

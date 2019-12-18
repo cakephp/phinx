@@ -189,6 +189,6 @@ class SeedCreate extends AbstractCommand
         $output->writeln('<info>using seed base class</info> ' . $classes['$useClassName']);
         $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
 
-        return self::EXIT_SUCCESS;
+        return self::CODE_SUCCESS;
     }
 }

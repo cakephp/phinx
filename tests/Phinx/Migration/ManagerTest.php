@@ -157,7 +157,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(0, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -196,7 +196,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv', 'json');
-        $this->assertSame(0, $return);
+        $this->assertSame(['hasMissingMigration' => false, 'hasDownMigration' => false], $return);
         rewind($this->manager->getOutput()->getStream());
         $outputStr = trim(stream_get_contents($this->manager->getOutput()->getStream()));
         $this->assertEquals('{"pending_count":0,"missing_count":0,"total_count":2,"migrations":[{"migration_status":"up","migration_id":"20120111235330","migration_name":"TestMigration"},{"migration_status":"up","migration_id":"20120116183504","migration_name":"TestMigration2"}]}', $outputStr);
@@ -235,7 +235,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(0, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -308,7 +308,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(0, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -352,7 +352,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(0, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -375,7 +375,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(0, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -414,7 +414,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -459,7 +459,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -504,7 +504,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -560,7 +560,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -612,7 +612,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -696,7 +696,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -746,7 +746,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -775,7 +775,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_DOWN, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -804,7 +804,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_DOWN, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -853,7 +853,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_DOWN, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -908,7 +908,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -950,7 +950,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -1009,7 +1009,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -1048,7 +1048,7 @@ class ManagerTest extends TestCase
 
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(AbstractCommand::EXIT_STATUS_DOWN, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => true], $return);
 
         $outputStr = $this->manager->getOutput()->fetch();
         $this->assertContains($expectedStatusHeader, $outputStr);

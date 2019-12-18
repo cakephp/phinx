@@ -78,7 +78,7 @@ EOT
         if (!$this->getConfig()->hasEnvironment($environment)) {
             $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
 
-            return self::EXIT_ERROR;
+            return self::CODE_ERROR;
         }
 
         if ($version && $removeAll) {
@@ -103,6 +103,6 @@ EOT
             $this->getManager()->toggleBreakpoint($environment, $version);
         }
 
-        return self::EXIT_SUCCESS;
+        return self::CODE_SUCCESS;
     }
 }

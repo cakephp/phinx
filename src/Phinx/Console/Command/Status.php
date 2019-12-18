@@ -68,7 +68,7 @@ EOT
         if (!$this->getConfig()->hasEnvironment($environment)) {
             $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
 
-            return self::EXIT_ERROR;
+            return self::CODE_ERROR;
         }
 
         if ($format !== null) {
@@ -81,11 +81,11 @@ EOT
         $result = $this->getManager()->printStatus($environment, $format);
 
         if ($result['hasMissingMigration']) {
-            return self::EXIT_STATUS_MISSING;
+            return self::CODE_STATUS_MISSING;
         } elseif ($result['hasDownMigration']) {
-            return self::EXIT_STATUS_DOWN;
+            return self::CODE_STATUS_DOWN;
         }
 
-        return self::EXIT_SUCCESS;
+        return self::CODE_SUCCESS;
     }
 }

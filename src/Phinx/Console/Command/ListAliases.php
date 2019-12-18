@@ -72,6 +72,6 @@ class ListAliases extends AbstractCommand
             );
         }
 
-        return self::EXIT_SUCCESS;
+        return self::CODE_SUCCESS;
     }
 }

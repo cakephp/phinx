@@ -117,7 +117,7 @@ class RollbackTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
 
         $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
-        $this->assertSame(AbstractCommand::EXIT_SUCCESS, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function testExecuteWithInvalidEnvironmentOption()
@@ -144,7 +144,7 @@ class RollbackTest extends TestCase
 
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
         $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
-        $this->assertSame(AbstractCommand::EXIT_ERROR, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
     public function testDatabaseNameSpecified()

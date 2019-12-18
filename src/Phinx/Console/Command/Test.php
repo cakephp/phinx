@@ -94,6 +94,6 @@ EOT
 
         $output->writeln('<info>success!</info>');
 
-        return self::EXIT_SUCCESS;
+        return self::CODE_SUCCESS;
     }
 }

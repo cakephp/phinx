@@ -190,7 +190,7 @@ class BreakpointTest extends TestCase
             ['decorated' => false]
         );
 
-        $this->assertSame(AbstractCommand::EXIT_SUCCESS, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     /**
@@ -221,7 +221,7 @@ class BreakpointTest extends TestCase
 
         $commandLine = array_merge(['command' => $command->getName()], $commandLine);
         $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
-        $this->assertSame(AbstractCommand::EXIT_SUCCESS, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function provideCombinedParametersToCauseException()
@@ -273,7 +273,7 @@ class BreakpointTest extends TestCase
 
         $commandLine = array_merge(['command' => $command->getName(), '--environment' => 'development'], []);
         $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
-        $this->assertSame(AbstractCommand::EXIT_SUCCESS, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function testExecuteWithInvalidEnvironmentOption()
@@ -301,6 +301,6 @@ class BreakpointTest extends TestCase
 
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
         $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
-        $this->assertSame(AbstractCommand::EXIT_ERROR, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 }
