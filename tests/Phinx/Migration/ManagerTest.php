@@ -6078,7 +6078,7 @@ class ManagerTest extends TestCase
                                 'end_time' => '2012-01-11 23:53:37',
                                 'migration_name' => '',
                                 'breakpoint' => '0',
-                            ]
+                            ],
                     ]
                 ));
 
