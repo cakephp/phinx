@@ -234,7 +234,7 @@ class Manager
 
         return [
             'hasMissingMigration' => $hasMissingMigration,
-            'hasDownMigration' => $hasDownMigration
+            'hasDownMigration' => $hasDownMigration,
         ];
     }
 
