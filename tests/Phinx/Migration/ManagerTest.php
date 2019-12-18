@@ -6060,6 +6060,36 @@ class ManagerTest extends TestCase
             parent::setExpectedException($exceptionName, $exceptionMessage, $exceptionCode);
         }
     }
+
+    public function testInvalidVersionBreakpoint()
+    {
+        // stub environment
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock();
+        $envStub->expects($this->once())
+                ->method('getVersionLog')
+                ->will($this->returnValue(
+                    [
+                        '20120111235330' =>
+                            [
+                                'version' => '20120111235330',
+                                'start_time' => '2012-01-11 23:53:36',
+                                'end_time' => '2012-01-11 23:53:37',
+                                'migration_name' => '',
+                                'breakpoint' => '0',
+                            ]
+                    ]
+                ));
+
+        $this->manager->setEnvironments(['mockenv' => $envStub]);
+        $this->manager->getOutput()->setDecorated(false);
+        $return = $this->manager->setBreakpoint('mockenv', '20120133235330');
+
+        rewind($this->manager->getOutput()->getStream());
+        $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
+        $this->assertEquals("warning 20120133235330 is not a valid version\n", $outputStr);
+    }
 }
 
 /**
