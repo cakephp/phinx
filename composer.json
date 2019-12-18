@@ -59,5 +59,6 @@
         "test": "phpunit --colors=always"
     },
     "bin": ["bin/phinx"],
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
