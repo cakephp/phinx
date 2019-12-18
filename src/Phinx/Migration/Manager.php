@@ -970,7 +970,7 @@ class Manager
     }
 
     /**
-     * Toggles the breakpoint for a specific version.
+     * Updates the breakpoint for a specific version.
      *
      * @param string $environment The required environment
      * @param int|null $version The version of the target migration
@@ -994,7 +994,7 @@ class Manager
             $version = $lastVersion['version'];
         }
 
-        if ($version != 0 && !isset($migrations[$version])) {
+        if ($version != 0 && (!isset($versions[$version]) || !isset($migrations[$version]))) {
             $this->output->writeln(sprintf(
                 '<comment>warning</comment> %s is not a valid version',
                 $version
