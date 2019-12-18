@@ -242,13 +242,10 @@ class Manager
             }
         }
 
-        if ($hasMissingMigration) {
-            return self::EXIT_STATUS_MISSING;
-        } elseif ($hasDownMigration) {
-            return self::EXIT_STATUS_DOWN;
-        } else {
-            return 0;
-        }
+        return [
+            'hasMissingMigration' => $hasMissingMigration,
+            'hasDownMigration' => $hasDownMigration
+        ];
     }
 
     /**

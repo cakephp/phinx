@@ -53,6 +53,26 @@ abstract class AbstractCommand extends Command
     protected $manager;
 
     /**
+     * @var int
+     */
+    const EXIT_SUCCESS = 0;
+
+    /**
+     * @var int
+     */
+    const EXIT_ERROR = 1;
+
+    /**
+     * @var int
+     */
+    const EXIT_STATUS_MISSING = 2;
+
+    /**
+     * @var int
+     */
+    const EXIT_STATUS_DOWN = 3;
+
+    /**
      * {@inheritDoc}
      *
      * @return void
