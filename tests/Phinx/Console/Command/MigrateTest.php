@@ -78,7 +78,9 @@ class MigrateTest extends TestCase
         $commandTester = new CommandTester($command);
         $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
-        $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
+        $output = $commandTester->getDisplay();
+        $this->assertRegExp('/no environment specified/', $output);
+        $this->assertRegExp('/ordering by creation time/', $output);
         $this->assertSame(0, $exitCode);
     }
 
@@ -184,6 +186,36 @@ class MigrateTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--fake' => true], ['decorated' => false]);
 
         $this->assertRegExp('/warning performing fake migrations/', $commandTester->getDisplay());
+        $this->assertSame(0, $exitCode);
+    }
+
+    public function testMigrateExecutionOrder()
+    {
+        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+
+        $application = new PhinxApplication('testing');
+        $application->add(new Migrate());
+
+        /** @var Migrate $command */
+        $command = $application->find('migrate');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('migrate');
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+
+        $output = $commandTester->getDisplay();
+        $this->assertRegExp('/no environment specified/', $output);
+        $this->assertRegExp('/ordering by execution time/', $output);
         $this->assertSame(0, $exitCode);
     }
 }
