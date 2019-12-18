@@ -984,8 +984,6 @@ class Manager
         $this->getMigrations($environment);
         $env = $this->getEnvironment($environment);
         $versions = $env->getVersionLog();
-        var_dump($versions);
-        var_dump($version);
 
         if (empty($versions) || empty($migrations)) {
             return;
