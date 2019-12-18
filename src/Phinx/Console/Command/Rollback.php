@@ -88,7 +88,7 @@ EOT
         if (!$this->getConfig()->hasEnvironment($environment)) {
             $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
 
-            return 1;
+            return self::EXIT_ERROR;
         }
 
         $envOptions = $config->getEnvironment($environment);
@@ -127,7 +127,7 @@ EOT
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
 
-        return 0;
+        return self::EXIT_SUCCESS;
     }
 
     /**

@@ -56,7 +56,7 @@ class Init extends Command
 
         $output->writeln("<info>created</info> {$path}");
 
-        return 0;
+        return AbstractCommand::EXIT_SUCCESS;
     }
 
     /**

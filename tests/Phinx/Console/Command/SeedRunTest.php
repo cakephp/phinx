@@ -4,6 +4,7 @@ namespace Test\Phinx\Console\Command;
 
 use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\SeedRun;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
@@ -105,7 +106,7 @@ class SeedRunTest extends TestCase
         $commandTester = new CommandTester($command);
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
         $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
-        $this->assertSame(0, $exitCode);
+        $this->assertSame(AbstractCommand::EXIT_SUCCESS, $exitCode);
     }
 
     public function testExecuteWithInvalidEnvironmentOption()
@@ -132,7 +133,7 @@ class SeedRunTest extends TestCase
 
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
         $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
-        $this->assertSame(1, $exitCode);
+        $this->assertSame(AbstractCommand::EXIT_ERROR, $exitCode);
     }
 
     public function testDatabaseNameSpecified()
