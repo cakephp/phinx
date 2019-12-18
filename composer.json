@@ -26,7 +26,7 @@
     }],
     "require": {
         "php": ">=7.2",
-        "cakephp/cakephp": "4.x-dev as 4.0.0",
+        "cakephp/cakephp": "^4.0",
         "symfony/console": "^3.4|^4.0|^5.0",
         "symfony/config": "^3.4|^4.0|^5.0",
         "symfony/yaml": "^3.4|^4.0|^5.0"
