@@ -154,15 +154,6 @@ interface AdapterInterface
     public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime);
 
     /**
-     * Toggle a migration breakpoint.
-     *
-     * @param \Phinx\Migration\MigrationInterface $migration
-     *
-     * @return \Phinx\Db\Adapter\AdapterInterface
-     */
-    public function toggleBreakpoint(MigrationInterface $migration);
-
-    /**
      * Reset all migration breakpoints.
      *
      * @return int The number of breakpoints reset

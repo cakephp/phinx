@@ -970,7 +970,7 @@ class Manager
     }
 
     /**
-     * Toggles the breakpoint for a specific version.
+     * Updates the breakpoint for a specific version.
      *
      * @param string $environment The required environment
      * @param int|null $version The version of the target migration
@@ -994,7 +994,7 @@ class Manager
             $version = $lastVersion['version'];
         }
 
-        if ($version != 0 && !isset($migrations[$version])) {
+        if ($version != 0 && (!isset($versions[$version]) || !isset($migrations[$version]))) {
             $this->output->writeln(sprintf(
                 '<comment>warning</comment> %s is not a valid version',
                 $version
@@ -1003,23 +1003,24 @@ class Manager
             return;
         }
 
+        if ($mark === self::BREAKPOINT_TOGGLE) {
+            $mark = ($versions[$version]['breakpoint'] === 0) ? self::BREAKPOINT_SET : self::BREAKPOINT_UNSET;
+        }
+
         switch ($mark) {
-            case self::BREAKPOINT_TOGGLE:
-                $env->getAdapter()->toggleBreakpoint($migrations[$version]);
-                break;
             case self::BREAKPOINT_SET:
                 if ($versions[$version]['breakpoint'] == 0) {
                     $env->getAdapter()->setBreakpoint($migrations[$version]);
+                    $versions[$version]['breakpoint'] = 1;
                 }
                 break;
             case self::BREAKPOINT_UNSET:
                 if ($versions[$version]['breakpoint'] == 1) {
                     $env->getAdapter()->unsetBreakpoint($migrations[$version]);
+                    $versions[$version]['breakpoint'] = 0;
                 }
                 break;
         }
-
-        $versions = $env->getVersionLog();
 
         $this->getOutput()->writeln(
             ' Breakpoint ' . ($versions[$version]['breakpoint'] ? 'set' : 'cleared') .

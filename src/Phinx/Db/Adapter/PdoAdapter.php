@@ -394,27 +394,6 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * @inheritDoc
      */
-    public function toggleBreakpoint(MigrationInterface $migration)
-    {
-        $this->query(
-            sprintf(
-                'UPDATE %1$s SET %2$s = CASE %2$s WHEN %3$s THEN %4$s ELSE %3$s END, %7$s = %7$s WHERE %5$s = \'%6$s\';',
-                $this->getSchemaTableName(),
-                $this->quoteColumnName('breakpoint'),
-                $this->castToBool(true),
-                $this->castToBool(false),
-                $this->quoteColumnName('version'),
-                $migration->getVersion(),
-                $this->quoteColumnName('start_time')
-            )
-        );
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function resetAllBreakpoints()
     {
         return $this->execute(
