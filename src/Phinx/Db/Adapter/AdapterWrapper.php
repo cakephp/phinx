@@ -228,6 +228,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function toggleBreakpoint(MigrationInterface $migration)
     {
         $this->getAdapter()->toggleBreakpoint($migration);
+
         return $this;
     }
 

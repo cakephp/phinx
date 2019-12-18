@@ -408,6 +408,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
                 $this->quoteColumnName('start_time')
             )
         );
+
         return $this;
     }
 
