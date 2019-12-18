@@ -3,6 +3,7 @@
 namespace Test\Phinx\Migration;
 
 use Phinx\Config\Config;
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Migration\Manager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -413,7 +414,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -458,7 +459,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -503,7 +504,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -559,7 +560,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -611,7 +612,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -695,7 +696,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -745,7 +746,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -774,7 +775,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_DOWN, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_DOWN, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -803,7 +804,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_DOWN, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_DOWN, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -852,7 +853,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_DOWN, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_DOWN, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -907,7 +908,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -949,7 +950,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -1008,7 +1009,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_MISSING, $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -1047,7 +1048,7 @@ class ManagerTest extends TestCase
 
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_DOWN, $return);
+        $this->assertEquals(AbstractCommand::EXIT_STATUS_DOWN, $return);
 
         $outputStr = $this->manager->getOutput()->fetch();
         $this->assertContains($expectedStatusHeader, $outputStr);
