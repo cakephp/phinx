@@ -11,7 +11,6 @@ use Cake\Database\Connection;
 use Cake\Database\Driver\Mysql as MysqlDriver;
 use InvalidArgumentException;
 use PDO;
-use PDOException;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
@@ -259,12 +258,12 @@ class MysqlAdapter extends PdoAdapter
 
         // set the table comment
         if (isset($options['comment'])) {
-            $optionsStr .= sprintf(" COMMENT=%s ", $this->getConnection()->quote($options['comment']));
+            $optionsStr .= sprintf(' COMMENT=%s ', $this->getConnection()->quote($options['comment']));
         }
 
         // set the table row format
         if (isset($options['row_format'])) {
-            $optionsStr .= sprintf(" ROW_FORMAT=%s ", $options['row_format']);
+            $optionsStr .= sprintf(' ROW_FORMAT=%s ', $options['row_format']);
         }
 
         $sql = 'CREATE TABLE ';
@@ -325,7 +324,7 @@ class MysqlAdapter extends PdoAdapter
                 $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newColumns));
             } else {
                 throw new InvalidArgumentException(sprintf(
-                    "Invalid value for primary key: %s",
+                    'Invalid value for primary key: %s',
                     json_encode($newColumns)
                 ));
             }
@@ -347,7 +346,7 @@ class MysqlAdapter extends PdoAdapter
         $newComment = ($newComment !== null)
             ? $newComment
             : '';
-        $sql = sprintf(" COMMENT=%s ", $this->getConnection()->quote($newComment));
+        $sql = sprintf(' COMMENT=%s ', $this->getConnection()->quote($newComment));
         $instructions->addAlter($sql);
 
         return $instructions;
@@ -491,7 +490,7 @@ class MysqlAdapter extends PdoAdapter
         }
 
         throw new InvalidArgumentException(sprintf(
-            'The specified column doesn\'t exist: ' .
+            "The specified column doesn't exist: " .
             $columnName
         ));
     }

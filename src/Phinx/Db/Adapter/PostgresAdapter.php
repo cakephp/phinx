@@ -304,7 +304,7 @@ class PostgresAdapter extends PdoAdapter
                 $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newColumns));
             } else {
                 throw new InvalidArgumentException(sprintf(
-                    "Invalid value for primary key: %s",
+                    'Invalid value for primary key: %s',
                     json_encode($newColumns)
                 ));
             }
@@ -385,11 +385,11 @@ class PostgresAdapter extends PdoAdapter
         $parts = $this->getSchemaName($tableName);
         $columns = [];
         $sql = sprintf(
-            "SELECT column_name, data_type, udt_name, is_identity, is_nullable,
+            'SELECT column_name, data_type, udt_name, is_identity, is_nullable,
              column_default, character_maximum_length, numeric_precision, numeric_scale,
              datetime_precision
              FROM information_schema.columns
-             WHERE table_schema = %s AND table_name = %s",
+             WHERE table_schema = %s AND table_name = %s',
             $this->getConnection()->quote($parts['schema']),
             $this->getConnection()->quote($parts['table'])
         );
@@ -453,9 +453,9 @@ class PostgresAdapter extends PdoAdapter
     {
         $parts = $this->getSchemaName($tableName);
         $sql = sprintf(
-            "SELECT count(*)
+            'SELECT count(*)
             FROM information_schema.columns
-            WHERE table_schema = %s AND table_name = %s AND column_name = %s",
+            WHERE table_schema = %s AND table_name = %s AND column_name = %s',
             $this->getConnection()->quote($parts['schema']),
             $this->getConnection()->quote($parts['table']),
             $this->getConnection()->quote($columnName)
@@ -494,9 +494,9 @@ class PostgresAdapter extends PdoAdapter
     {
         $parts = $this->getSchemaName($tableName);
         $sql = sprintf(
-            "SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS column_exists
+            'SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS column_exists
              FROM information_schema.columns
-             WHERE table_schema = %s AND table_name = %s AND column_name = %s",
+             WHERE table_schema = %s AND table_name = %s AND column_name = %s',
             $this->getConnection()->quote($parts['schema']),
             $this->getConnection()->quote($parts['table']),
             $this->getConnection()->quote($columnName)
@@ -810,16 +810,16 @@ class PostgresAdapter extends PdoAdapter
             }
 
             return false;
-        } else {
-            foreach ($foreignKeys as $key) {
-                $a = array_diff($columns, $key['columns']);
-                if (empty($a)) {
-                    return true;
-                }
-            }
-
-            return false;
         }
+
+        foreach ($foreignKeys as $key) {
+            $a = array_diff($columns, $key['columns']);
+            if (empty($a)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -892,7 +892,7 @@ class PostgresAdapter extends PdoAdapter
         $instructions = new AlterInstructions();
 
         $parts = $this->getSchemaName($tableName);
-        $sql = "SELECT c.CONSTRAINT_NAME
+        $sql = 'SELECT c.CONSTRAINT_NAME
                 FROM (
                     SELECT CONSTRAINT_NAME, array_agg(COLUMN_NAME::varchar) as columns
                     FROM information_schema.KEY_COLUMN_USAGE
@@ -904,7 +904,7 @@ class PostgresAdapter extends PdoAdapter
                 ) c
                 WHERE
                     ARRAY[%s]::varchar[] <@ c.columns AND
-                    ARRAY[%s]::varchar[] @> c.columns";
+                    ARRAY[%s]::varchar[] @> c.columns';
 
         $array = [];
         foreach ($columns as $col) {
@@ -1215,15 +1215,13 @@ class PostgresAdapter extends PdoAdapter
             $columnNames = $index->getColumns();
             $indexName = sprintf('%s_%s', $parts['table'], implode('_', $columnNames));
         }
-        $def = sprintf(
-            "CREATE %s INDEX %s ON %s (%s);",
+        return sprintf(
+            'CREATE %s INDEX %s ON %s (%s);',
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $this->quoteColumnName($indexName),
             $this->quoteTableName($tableName),
             implode(',', array_map([$this, 'quoteColumnName'], $index->getColumns()))
         );
-
-        return $def;
     }
 
     /**
@@ -1294,9 +1292,9 @@ class PostgresAdapter extends PdoAdapter
     public function hasSchema($schemaName)
     {
         $sql = sprintf(
-            "SELECT count(*)
+            'SELECT count(*)
              FROM pg_namespace
-             WHERE nspname = %s",
+             WHERE nspname = %s',
             $this->getConnection()->quote($schemaName)
         );
         $result = $this->fetchRow($sql);
@@ -1313,7 +1311,7 @@ class PostgresAdapter extends PdoAdapter
      */
     public function dropSchema($schemaName)
     {
-        $sql = sprintf("DROP SCHEMA IF EXISTS %s CASCADE", $this->quoteSchemaName($schemaName));
+        $sql = sprintf('DROP SCHEMA IF EXISTS %s CASCADE', $this->quoteSchemaName($schemaName));
         $this->execute($sql);
     }
 

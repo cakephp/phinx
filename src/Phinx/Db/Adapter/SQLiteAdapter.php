@@ -167,7 +167,7 @@ class SQLiteAdapter extends PdoAdapter
         }
         //don't "fix" the file extension if it is blank, some people
         //might want a SQLITE db file with absolutely no extension.
-        if (strlen($this->suffix) && substr($this->suffix, 0, 1) !== '.') {
+        if ($this->suffix !== '' && strpos($this->suffix, '.') !== 0) {
             $this->suffix = '.' . $this->suffix;
         }
 
@@ -255,7 +255,7 @@ class SQLiteAdapter extends PdoAdapter
         }
 
         if ($quoted) {
-            $result['schema'] = strlen($result['schema']) ? $this->quoteColumnName($result['schema']) . '.' : '';
+            $result['schema'] = $result['schema'] !== '' ? $this->quoteColumnName($result['schema']) . '.' : '';
             $result['table'] = $this->quoteColumnName($result['table']);
         }
 
@@ -314,7 +314,7 @@ class SQLiteAdapter extends PdoAdapter
                 $master = sprintf('%s.%s', $this->quoteColumnName($schema), 'sqlite_master');
             }
             try {
-                $rows = $this->fetchAll(sprintf('SELECT name FROM %s WHERE type=\'table\' AND lower(name) = %s', $master, $this->quoteString($table)));
+                $rows = $this->fetchAll(sprintf("SELECT name FROM %s WHERE type='table' AND lower(name) = %s", $master, $this->quoteString($table)));
             } catch (PDOException $e) {
                 // an exception can occur if the schema part of the table refers to a database which is not attached
                 break;
@@ -430,7 +430,7 @@ class SQLiteAdapter extends PdoAdapter
         if (!empty($newColumns)) {
             if (!is_string($newColumns)) {
                 throw new InvalidArgumentException(sprintf(
-                    "Invalid value for primary key: %s",
+                    'Invalid value for primary key: %s',
                     json_encode($newColumns)
                 ));
             }
@@ -692,7 +692,7 @@ PCRE_PATTERN;
      */
     protected function getDeclaringSql($tableName)
     {
-        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
+        $rows = $this->fetchAll("SELECT * FROM sqlite_master WHERE `type` = 'table'");
 
         $sql = '';
         foreach ($rows as $table) {
@@ -831,7 +831,7 @@ PCRE_PATTERN;
             // Just remove all characters before first "(" and build them again
             $createSQL = preg_replace(
                 "/^CREATE TABLE .* \(/Ui",
-                "",
+                '',
                 $createSQL
             );
 
@@ -915,7 +915,7 @@ PCRE_PATTERN;
         $instructions->addPostStep(function ($state) use ($columnName) {
             $sql = preg_replace(
                 sprintf("/%s\s%s.*(,\s(?!')|\)$)/U", preg_quote($this->quoteColumnName($columnName)), preg_quote($state['columnType'])),
-                "",
+                '',
                 $state['createSQL']
             );
 
