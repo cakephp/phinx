@@ -1215,6 +1215,7 @@ class PostgresAdapter extends PdoAdapter
             $columnNames = $index->getColumns();
             $indexName = sprintf('%s_%s', $parts['table'], implode('_', $columnNames));
         }
+
         return sprintf(
             'CREATE %s INDEX %s ON %s (%s);',
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
