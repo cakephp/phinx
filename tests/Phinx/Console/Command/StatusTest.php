@@ -4,6 +4,7 @@ namespace Test\Phinx\Console\Command;
 
 use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Status;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
@@ -77,15 +78,15 @@ class StatusTest extends TestCase
         $managerStub->expects($this->once())
                     ->method('printStatus')
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, null)
-                    ->will($this->returnValue(0));
+                    ->will($this->returnValue(['hasMissingMigration' => false, 'hasDownMigration' => false]));
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $return = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
-        $this->assertEquals(0, $return);
+        $this->assertEquals(AbstractCommand::CODE_SUCCESS, $exitCode);
 
         $display = $commandTester->getDisplay();
         $this->assertRegExp('/no environment specified/', $display);
@@ -110,7 +111,7 @@ class StatusTest extends TestCase
         $managerStub->expects($this->once())
                     ->method('printStatus')
                     ->with('development', null)
-                    ->will($this->returnValue(0));
+                    ->will($this->returnValue(['hasMissingMigration' => false, 'hasDownMigration' => false]));
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -119,7 +120,7 @@ class StatusTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
 
         $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
-        $this->assertEquals(0, $exitCode);
+        $this->assertEquals(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function testExecuteWithInvalidEnvironmentOption()
@@ -146,7 +147,7 @@ class StatusTest extends TestCase
 
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
         $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
-        $this->assertEquals(1, $exitCode);
+        $this->assertEquals(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
     public function testFormatSpecified()
@@ -165,14 +166,14 @@ class StatusTest extends TestCase
         $managerStub->expects($this->once())
                     ->method('printStatus')
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, 'json')
-                    ->will($this->returnValue(0));
+                    ->will($this->returnValue(['hasMissingMigration' => false, 'hasDownMigration' => false]));
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $return = $commandTester->execute(['command' => $command->getName(), '--format' => 'json'], ['decorated' => false]);
-        $this->assertEquals(0, $return);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--format' => 'json'], ['decorated' => false]);
+        $this->assertEquals(AbstractCommand::CODE_SUCCESS, $exitCode);
         $this->assertRegExp('/using format json/', $commandTester->getDisplay());
     }
 
@@ -192,7 +193,7 @@ class StatusTest extends TestCase
         $managerStub->expects($this->once())
                     ->method('printStatus')
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, null)
-                    ->will($this->returnValue(0));
+                    ->will($this->returnValue(['hasMissingMigration' => false, 'hasDownMigration' => false]));
 
         $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
 
@@ -200,12 +201,99 @@ class StatusTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $return = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
-        $this->assertEquals(0, $return);
+        $this->assertEquals(AbstractCommand::CODE_SUCCESS, $exitCode);
 
         $display = $commandTester->getDisplay();
         $this->assertRegExp('/no environment specified/', $display);
         $this->assertRegExp('/ordering by execution time/', $display);
+    }
+
+    public function testExitCodeMissingMigrations()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Status());
+
+        /** @var Status $command */
+        $command = $application->find('status');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('printStatus')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null)
+                    ->will($this->returnValue(['hasMissingMigration' => true, 'hasDownMigration' => false]));
+
+        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+
+        $this->assertEquals(AbstractCommand::CODE_STATUS_MISSING, $exitCode);
+    }
+
+    public function testExitCodeDownMigrations()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Status());
+
+        /** @var Status $command */
+        $command = $application->find('status');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('printStatus')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null)
+                    ->will($this->returnValue(['hasMissingMigration' => false, 'hasDownMigration' => true]));
+
+        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+
+        $this->assertEquals(AbstractCommand::CODE_STATUS_DOWN, $exitCode);
+    }
+
+    public function testExitCodeMissingAndDownMigrations()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Status());
+
+        /** @var Status $command */
+        $command = $application->find('status');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('printStatus')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null)
+                    ->will($this->returnValue(['hasMissingMigration' => true, 'hasDownMigration' => true]));
+
+        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+
+        $this->assertEquals(AbstractCommand::CODE_STATUS_MISSING, $exitCode);
     }
 }

@@ -1,41 +1,24 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Db\Adapter
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Db\Adapter;
 
 use Cake\Database\Connection;
 use Cake\Database\Driver\Mysql as MysqlDriver;
+use InvalidArgumentException;
+use PDO;
+use PDOException;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
 use Phinx\Db\Table\Table;
 use Phinx\Db\Util\AlterInstructions;
 use Phinx\Util\Literal;
+use RuntimeException;
 
 /**
  * Phinx MySQL Adapter.
@@ -46,6 +29,7 @@ class MysqlAdapter extends PdoAdapter
 {
     protected $signedColumnTypes = [
         'integer' => true,
+        'smallinteger' => true,
         'biginteger' => true,
         'float' => true,
         'decimal' => true,
@@ -77,14 +61,19 @@ class MysqlAdapter extends PdoAdapter
     const TYPE_YEAR = 'year';
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     *
+     * @return void
      */
     public function connect()
     {
         if ($this->connection === null) {
-            if (!class_exists('PDO') || !in_array('mysql', \PDO::getAvailableDrivers(), true)) {
+            if (!class_exists('PDO') || !in_array('mysql', PDO::getAvailableDrivers(), true)) {
                 // @codeCoverageIgnoreStart
-                throw new \RuntimeException('You need to enable the PDO_Mysql extension for Phinx to run properly.');
+                throw new RuntimeException('You need to enable the PDO_Mysql extension for Phinx to run properly.');
                 // @codeCoverageIgnoreEnd
             }
 
@@ -114,7 +103,7 @@ class MysqlAdapter extends PdoAdapter
 
             // use custom data fetch mode
             if (!empty($options['fetch_mode'])) {
-                $driverOptions[\PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
+                $driverOptions[PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
             }
 
             // support arbitrary \PDO::MYSQL_ATTR_* driver options and pass them to PDO
@@ -132,7 +121,9 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function disconnect()
     {
@@ -140,7 +131,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasTransactions()
     {
@@ -148,7 +139,9 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function beginTransaction()
     {
@@ -156,7 +149,9 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function commitTransaction()
     {
@@ -164,7 +159,9 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function rollbackTransaction()
     {
@@ -172,7 +169,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function quoteTableName($tableName)
     {
@@ -180,7 +177,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function quoteColumnName($columnName)
     {
@@ -188,7 +185,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasTable($tableName)
     {
@@ -210,14 +207,16 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
         // This method is based on the MySQL docs here: http://dev.mysql.com/doc/refman/5.1/en/create-index.html
         $defaultOptions = [
             'engine' => 'InnoDB',
-            'collation' => 'utf8_general_ci'
+            'collation' => 'utf8_general_ci',
         ];
 
         $options = array_merge(
@@ -303,7 +302,9 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
      */
     protected function getChangePrimaryKeyInstructions(Table $table, $newColumns)
     {
@@ -323,7 +324,7 @@ class MysqlAdapter extends PdoAdapter
             } elseif (is_array($newColumns)) { // handle primary_key => array('tag_id', 'resource_id')
                 $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newColumns));
             } else {
-                throw new \InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(sprintf(
                     "Invalid value for primary key: %s",
                     json_encode($newColumns)
                 ));
@@ -336,7 +337,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getChangeCommentInstructions(Table $table, $newComment)
     {
@@ -353,7 +354,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
@@ -368,7 +369,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getDropTableInstructions($tableName)
     {
@@ -379,7 +380,9 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function truncateTable($tableName)
     {
@@ -392,7 +395,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getColumns($tableName)
     {
@@ -425,7 +428,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasColumn($tableName, $columnName)
     {
@@ -440,7 +443,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getAddColumnInstructions(Table $table, Column $column)
     {
@@ -458,7 +461,9 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
      */
     protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName)
     {
@@ -469,7 +474,7 @@ class MysqlAdapter extends PdoAdapter
                 $null = ($row['Null'] == 'NO') ? 'NOT NULL' : 'NULL';
                 $comment = isset($row['Comment']) ? ' COMMENT ' . '\'' . addslashes($row['Comment']) . '\'' : '';
                 $extra = ' ' . strtoupper($row['Extra']);
-                if (!is_null($row['Default'])) {
+                if (($row['Default'] !== null)) {
                     $extra .= $this->getDefaultValueDefinition($row['Default']);
                 }
                 $definition = $row['Type'] . ' ' . $null . $extra . $comment;
@@ -485,14 +490,14 @@ class MysqlAdapter extends PdoAdapter
             }
         }
 
-        throw new \InvalidArgumentException(sprintf(
+        throw new InvalidArgumentException(sprintf(
             'The specified column doesn\'t exist: ' .
             $columnName
         ));
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn)
     {
@@ -509,7 +514,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getDropColumnInstructions($tableName, $columnName)
     {
@@ -522,6 +527,7 @@ class MysqlAdapter extends PdoAdapter
      * Get an array of indexes from a particular table.
      *
      * @param string $tableName Table Name
+     *
      * @return array
      */
     protected function getIndexes($tableName)
@@ -539,7 +545,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasIndex($tableName, $columns)
     {
@@ -560,7 +566,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasIndexByName($tableName, $indexName)
     {
@@ -576,7 +582,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getAddIndexInstructions(Table $table, Index $index)
     {
@@ -605,7 +611,9 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
      */
     protected function getDropIndexByColumnsInstructions($tableName, $columns)
     {
@@ -625,18 +633,19 @@ class MysqlAdapter extends PdoAdapter
             }
         }
 
-        throw new \InvalidArgumentException(sprintf(
+        throw new InvalidArgumentException(sprintf(
             "The specified index on columns '%s' does not exist",
             implode(',', $columns)
         ));
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
      */
     protected function getDropIndexByNameInstructions($tableName, $indexName)
     {
-
         $indexes = $this->getIndexes($tableName);
 
         foreach ($indexes as $name => $index) {
@@ -648,14 +657,14 @@ class MysqlAdapter extends PdoAdapter
             }
         }
 
-        throw new \InvalidArgumentException(sprintf(
+        throw new InvalidArgumentException(sprintf(
             "The specified index name '%s' does not exist",
             $indexName
         ));
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasPrimaryKey($tableName, $columns, $constraint = null)
     {
@@ -681,6 +690,7 @@ class MysqlAdapter extends PdoAdapter
      * Get the primary key from a particular table.
      *
      * @param string $tableName Table Name
+     *
      * @return array
      */
     public function getPrimaryKey($tableName)
@@ -709,7 +719,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
@@ -738,6 +748,7 @@ class MysqlAdapter extends PdoAdapter
      * Get an array of foreign keys from a particular table.
      *
      * @param string $tableName Table Name
+     *
      * @return array
      */
     protected function getForeignKeys($tableName)
@@ -768,7 +779,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getAddForeignKeyInstructions(Table $table, ForeignKey $foreignKey)
     {
@@ -781,7 +792,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getDropForeignKeyInstructions($tableName, $constraint)
     {
@@ -794,7 +805,9 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
      */
     protected function getDropForeignKeyByColumnsInstructions($tableName, $columns)
     {
@@ -820,7 +833,7 @@ class MysqlAdapter extends PdoAdapter
         }
 
         if (empty($instructions->getAlterParts())) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 "Not foreign key on columns '%s' exist",
                 implode(',', $columns)
             ));
@@ -830,7 +843,9 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
     public function getSqlType($type, $limit = null)
     {
@@ -948,9 +963,12 @@ class MysqlAdapter extends PdoAdapter
     /**
      * Returns Phinx type by SQL type
      *
-     * @param string $sqlTypeDef
-     * @throws UnsupportedColumnTypeException
      * @internal param string $sqlType SQL type
+     *
+     * @param string $sqlTypeDef
+     *
+     * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
+     *
      * @return array Phinx type
      */
     public function getPhinxType($sqlTypeDef)
@@ -1057,10 +1075,10 @@ class MysqlAdapter extends PdoAdapter
             $phinxType = [
                 'name' => $type,
                 'limit' => $limit,
-                'scale' => $scale
+                'scale' => $scale,
             ];
 
-            if (static::PHINX_TYPE_ENUM == $type || static::PHINX_TYPE_SET == $type) {
+            if ($type == static::PHINX_TYPE_ENUM || $type == static::PHINX_TYPE_SET) {
                 $phinxType['values'] = explode("','", trim($matches[6], "()'"));
             }
 
@@ -1069,7 +1087,9 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function createDatabase($name, $options = [])
     {
@@ -1083,7 +1103,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasDatabase($name)
     {
@@ -1104,7 +1124,9 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function dropDatabase($name)
     {
@@ -1115,6 +1137,7 @@ class MysqlAdapter extends PdoAdapter
      * Gets the MySQL Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
+     *
      * @return string
      */
     protected function getColumnSqlDefinition(Column $column)
@@ -1155,6 +1178,7 @@ class MysqlAdapter extends PdoAdapter
      * Gets the MySQL Index Definition for an Index object.
      *
      * @param \Phinx\Db\Table\Index $index Index
+     *
      * @return string
      */
     protected function getIndexSqlDefinition(Index $index)
@@ -1200,6 +1224,7 @@ class MysqlAdapter extends PdoAdapter
      * Gets the MySQL Foreign Key Definition for an ForeignKey object.
      *
      * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     *
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey)
@@ -1232,6 +1257,7 @@ class MysqlAdapter extends PdoAdapter
      * Describes a database table. This is a MySQL adapter specific method.
      *
      * @param string $tableName Table name
+     *
      * @return array
      */
     public function describeTable($tableName)
@@ -1253,6 +1279,7 @@ class MysqlAdapter extends PdoAdapter
 
     /**
      * Returns MySQL column types (inherited and MySQL specified).
+     *
      * @return array
      */
     public function getColumnTypes()
@@ -1261,8 +1288,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
+     * @inheritDoc
      */
     public function getDecoratedConnection()
     {

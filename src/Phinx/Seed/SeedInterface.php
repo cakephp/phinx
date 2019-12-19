@@ -1,31 +1,10 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Seed
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Seed;
 
 use Phinx\Db\Adapter\AdapterInterface;
@@ -55,6 +34,7 @@ interface SeedInterface
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
+     *
      * @return \Phinx\Seed\SeedInterface
      */
     public function setAdapter(AdapterInterface $adapter);
@@ -70,6 +50,7 @@ interface SeedInterface
      * Sets the input object to be used in migration object
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
+     *
      * @return \Phinx\Seed\SeedInterface
      */
     public function setInput(InputInterface $input);
@@ -85,6 +66,7 @@ interface SeedInterface
      * Sets the output object to be used in migration object
      *
      * @param \Symfony\Component\Console\Output\OutputInterface $output
+     *
      * @return \Phinx\Seed\SeedInterface
      */
     public function setOutput(OutputInterface $output);
@@ -107,6 +89,7 @@ interface SeedInterface
      * Executes a SQL statement and returns the number of affected rows.
      *
      * @param string $sql SQL
+     *
      * @return int
      */
     public function execute($sql);
@@ -115,6 +98,7 @@ interface SeedInterface
      * Executes a SQL statement and returns the result as an array.
      *
      * @param string $sql SQL
+     *
      * @return array
      */
     public function query($sql);
@@ -123,6 +107,7 @@ interface SeedInterface
      * Executes a query and returns only one row as an array.
      *
      * @param string $sql SQL
+     *
      * @return array
      */
     public function fetchRow($sql);
@@ -131,6 +116,7 @@ interface SeedInterface
      * Executes a query and returns an array of rows.
      *
      * @param string $sql SQL
+     *
      * @return array
      */
     public function fetchAll($sql);
@@ -140,6 +126,7 @@ interface SeedInterface
      *
      * @param string $tableName
      * @param array $data
+     *
      * @return void
      */
     public function insert($tableName, $data);
@@ -148,6 +135,7 @@ interface SeedInterface
      * Checks to see if a table exists.
      *
      * @param string $tableName Table Name
+     *
      * @return bool
      */
     public function hasTable($tableName);
@@ -159,6 +147,7 @@ interface SeedInterface
      *
      * @param string $tableName Table Name
      * @param array $options Options
+     *
      * @return \Phinx\Db\Table
      */
     public function table($tableName, $options);

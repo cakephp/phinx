@@ -1,27 +1,10 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Db\Plan\Solver;
 
 use Phinx\Db\Plan\AlterTable;
@@ -37,6 +20,7 @@ class ActionSplitter
 {
     /**
      * The fully qualified class name of the Action class to match for conflicts
+     *
      * @var string
      */
     protected $conflictClass;
@@ -44,6 +28,7 @@ class ActionSplitter
     /**
      * The fully qualified class name of the Action class to match for conflicts, which
      * is the dual of $conflictClass. For example `AddColumn` and `DropColumn` are duals.
+     *
      * @var string
      */
     protected $conflictClassDual;
@@ -78,8 +63,9 @@ class ActionSplitter
      * Returs a sequence of AlterTable instructions that are non conflicting
      * based on the constructor parameters.
      *
-     * @param AlterTable $alter The collection of actions to inspect
-     * @return AlterTable[] A list of AlterTable that can be executed without
+     * @param \Phinx\Db\Plan\AlterTable $alter The collection of actions to inspect
+     *
+     * @return \Phinx\Db\Plan\AlterTable[] A list of AlterTable that can be executed without
      * this type of conflict
      */
     public function __invoke(AlterTable $alter)

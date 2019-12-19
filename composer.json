@@ -5,7 +5,6 @@
     "keywords": ["phinx", "migrations", "database", "db", "database migrations"],
     "homepage": "https://phinx.org",
     "license": "MIT",
-    "version": "0.11.1",
     "authors": [{
         "name": "Rob Morgan",
         "email": "robbym@gmail.com",
@@ -27,13 +26,11 @@
     }],
     "require": {
         "php": ">=5.6",
-        "cakephp/collection": "^3.6",
-        "cakephp/core": "^3.6",
-        "cakephp/database": "^3.6",
-        "cakephp/datasource": "^3.6",
-        "symfony/console": "^3.4|^4.0",
-        "symfony/config": "^3.4|^4.0",
-        "symfony/yaml": "^3.4|^4.0"
+        "cakephp/collection": "^3.7",
+        "cakephp/database": "^3.7",
+        "symfony/console": "^3.4|^4.0|^5.0",
+        "symfony/config": "^3.4|^4.0|^5.0",
+        "symfony/yaml": "^3.4|^4.0|^5.0"
     },
     "require-dev": {
         "phpunit/phpunit": ">=5.7,<8.0",
@@ -55,8 +52,8 @@
             "@test",
             "@cs-check"
         ],
-        "cs-check": "phpcs --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP src/ tests/ app/",
-        "cs-fix": "phpcbf --colors --standard=vendor/cakephp/cakephp-codesniffer/CakePHP src/ tests/ app/",
+        "cs-check": "phpcs --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --ignore=/tests/Phinx/Config/_rootDirectories/,/tests/log/ src/ tests/ app/",
+        "cs-fix": "phpcbf --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --ignore=/tests/Phinx/Config/_rootDirectories/,/tests/log/ src/ tests/ app/",
         "test": "phpunit --colors=always"
     },
     "bin": ["bin/phinx"]

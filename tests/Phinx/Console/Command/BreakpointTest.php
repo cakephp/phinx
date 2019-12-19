@@ -5,6 +5,7 @@ namespace Test\Phinx\Console\Command;
 use InvalidArgumentException;
 use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Breakpoint;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
@@ -189,7 +190,7 @@ class BreakpointTest extends TestCase
             ['decorated' => false]
         );
 
-        $this->assertSame(0, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     /**
@@ -220,7 +221,7 @@ class BreakpointTest extends TestCase
 
         $commandLine = array_merge(['command' => $command->getName()], $commandLine);
         $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
-        $this->assertSame(0, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function provideCombinedParametersToCauseException()
@@ -272,7 +273,7 @@ class BreakpointTest extends TestCase
 
         $commandLine = array_merge(['command' => $command->getName(), '--environment' => 'development'], []);
         $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
-        $this->assertSame(0, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function testExecuteWithInvalidEnvironmentOption()
@@ -300,6 +301,6 @@ class BreakpointTest extends TestCase
 
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
         $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
-        $this->assertSame(1, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 }
