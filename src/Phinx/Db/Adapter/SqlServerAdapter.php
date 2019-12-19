@@ -1170,7 +1170,7 @@ SQL;
      * Gets the SqlServer Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
-     * @param bool $create
+     * @param bool $create Create column flag
      *
      * @return string
      */
@@ -1195,7 +1195,7 @@ SQL;
                     $column->getScale() ?: $sqlType['scale']
                 );
             } elseif (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
-                $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
+                $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
             }
         }
 
@@ -1226,7 +1226,7 @@ SQL;
      * Gets the SqlServer Index Definition for an Index object.
      *
      * @param \Phinx\Db\Table\Index $index Index
-     * @param string $tableName
+     * @param string $tableName Table name
      *
      * @return string
      */
@@ -1250,8 +1250,8 @@ SQL;
     /**
      * Gets the SqlServer Foreign Key Definition for an ForeignKey object.
      *
-     * @param \Phinx\Db\Table\ForeignKey $foreignKey
-     * @param string $tableName
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign key
+     * @param string $tableName Table name
      *
      * @return string
      */
