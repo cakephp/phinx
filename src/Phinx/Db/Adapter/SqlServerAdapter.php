@@ -27,7 +27,7 @@ use RuntimeException;
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-class SqlServerAdapter extends PdoAdapter implements AdapterInterface
+class SqlServerAdapter extends PdoAdapter
 {
     protected $schema = 'dbo';
 
@@ -50,7 +50,6 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
                 return;
             }
 
-            $db = null;
             $options = $this->getOptions();
 
             // if port is specified use it, otherwise use the SqlServer default
@@ -61,11 +60,16 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             }
             $dsn .= ';MultipleActiveResultSets=false';
 
-            $driverOptions = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+            $driverOptions = [];
 
             // charset support
             if (isset($options['charset'])) {
                 $driverOptions[PDO::SQLSRV_ATTR_ENCODING] = $options['charset'];
+            }
+
+            // use custom data fetch mode
+            if (!empty($options['fetch_mode'])) {
+                $driverOptions[PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
             }
 
             // support arbitrary \PDO::SQLSRV_ATTR_* driver options and pass them to PDO
@@ -76,14 +80,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
 
-            try {
-                $db = new PDO($dsn, $options['user'], $options['pass'], $driverOptions);
-            } catch (PDOException $exception) {
-                throw new InvalidArgumentException(sprintf(
-                    'There was a problem connecting to the database: %s',
-                    $exception->getMessage()
-                ));
-            }
+            $db = $this->createPdoConnection($dsn, $options['user'], $options['pass'], $driverOptions);
 
             $this->setConnection($db);
         }
@@ -203,7 +200,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             return true;
         }
 
-        $result = $this->fetchRow(sprintf('SELECT count(*) as [count] FROM information_schema.tables WHERE table_name = \'%s\';', $tableName));
+        $result = $this->fetchRow(sprintf("SELECT count(*) as [count] FROM information_schema.tables WHERE table_name = '%s';", $tableName));
 
         return $result['count'] > 0;
     }
@@ -309,7 +306,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
                 $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newColumns));
             } else {
                 throw new InvalidArgumentException(sprintf(
-                    "Invalid value for primary key: %s",
+                    'Invalid value for primary key: %s',
                     json_encode($newColumns)
                 ));
             }
@@ -365,7 +362,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     {
         $this->updateCreatedTableName($tableName, $newTableName);
         $sql = sprintf(
-            'EXEC sp_rename \'%s\', \'%s\'',
+            "EXEC sp_rename '%s', '%s'",
             $tableName,
             $newTableName
         );
@@ -1145,7 +1142,7 @@ ORDER BY T.[name], I.[index_id];";
     {
         $result = $this->fetchRow(
             sprintf(
-                'SELECT count(*) as [count] FROM master.dbo.sysdatabases WHERE [name] = \'%s\'',
+                "SELECT count(*) as [count] FROM master.dbo.sysdatabases WHERE [name] = '%s'",
                 $name
             )
         );
@@ -1173,6 +1170,7 @@ SQL;
      * Gets the SqlServer Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
+     * @param bool $create Create column flag
      *
      * @return string
      */
@@ -1197,7 +1195,7 @@ SQL;
                     $column->getScale() ?: $sqlType['scale']
                 );
             } elseif (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
-                $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
+                $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
             }
         }
 
@@ -1228,6 +1226,7 @@ SQL;
      * Gets the SqlServer Index Definition for an Index object.
      *
      * @param \Phinx\Db\Table\Index $index Index
+     * @param string $tableName Table name
      *
      * @return string
      */
@@ -1239,21 +1238,21 @@ SQL;
             $columnNames = $index->getColumns();
             $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         }
-        $def = sprintf(
-            "CREATE %s INDEX %s ON %s (%s);",
+
+        return sprintf(
+            'CREATE %s INDEX %s ON %s (%s);',
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
             $this->quoteTableName($tableName),
             '[' . implode('],[', $index->getColumns()) . ']'
         );
-
-        return $def;
     }
 
     /**
      * Gets the SqlServer Foreign Key Definition for an ForeignKey object.
      *
-     * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign key
+     * @param string $tableName Table name
      *
      * @return string
      */

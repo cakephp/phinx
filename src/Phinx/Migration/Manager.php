@@ -57,16 +57,6 @@ class Manager
     protected $seeds;
 
     /**
-     * @var int
-     */
-    const EXIT_STATUS_DOWN = 3;
-
-    /**
-     * @var int
-     */
-    const EXIT_STATUS_MISSING = 2;
-
-    /**
      * @param \Phinx\Config\ConfigInterface $config Configuration Object
      * @param \Symfony\Component\Console\Input\InputInterface $input Console Input
      * @param \Symfony\Component\Console\Output\OutputInterface $output Console Output
@@ -86,7 +76,7 @@ class Manager
      *
      * @throws \RuntimeException
      *
-     * @return int 0 if all migrations are up, or an error code
+     * @return array array indicating if there are any missing or down migrations
      */
     public function printStatus($environment, $format = null)
     {
@@ -242,13 +232,10 @@ class Manager
             }
         }
 
-        if ($hasMissingMigration) {
-            return self::EXIT_STATUS_MISSING;
-        } elseif ($hasDownMigration) {
-            return self::EXIT_STATUS_DOWN;
-        } else {
-            return 0;
-        }
+        return [
+            'hasMissingMigration' => $hasMissingMigration,
+            'hasDownMigration' => $hasDownMigration,
+        ];
     }
 
     /**
