@@ -347,7 +347,7 @@ The aliased classes will still be required to implement the ``Phinx\Migration\Cr
         view: \Namespace\Migrations\ViewMigrationTemplateGenerator
 
 Version Order
-------
+-------------
 
 When rolling back or printing the status of migrations, Phinx orders the executed migrations according to the
 ``version_order`` option, which can have the following values:
