@@ -104,6 +104,9 @@ EOT
             $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
         }
 
+        $versionOrder = $this->getConfig()->getVersionOrder();
+        $output->writeln('<info>ordering by</info> ' . $versionOrder . ' time');
+
         if ($fake) {
             $output->writeln('<comment>warning</comment> performing fake migrations');
         }

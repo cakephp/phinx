@@ -105,7 +105,7 @@ EOT
         }
 
         $versionOrder = $this->getConfig()->getVersionOrder();
-        $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
+        $output->writeln('<info>ordering by</info> ' . $versionOrder . ' time');
 
         if ($fake) {
             $output->writeln('<comment>warning</comment> performing fake rollbacks');
