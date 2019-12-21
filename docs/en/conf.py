@@ -11,7 +11,7 @@ from cakephpsphinx.config.all import *
 release = '0.11.x'
 
 # The search index version.
-search_version = 'phinx-1'
+search_version = 'phinx-0'
 
 # The marketing display name for the book.
 version_name = ''
