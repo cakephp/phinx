@@ -79,6 +79,16 @@ class PostgresAdapterTest extends TestCase
     public function testConnection()
     {
         $this->assertInstanceOf('PDO', $this->adapter->getConnection());
+        $this->assertSame(\PDO::ERRMODE_EXCEPTION, $this->adapter->getConnection()->getAttribute(\PDO::ATTR_ERRMODE));
+    }
+
+    public function testConnectionWithFetchMode()
+    {
+        $options = $this->adapter->getOptions();
+        $options['fetch_mode'] = 'assoc';
+        $this->adapter->setOptions($options);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
+        $this->assertSame(\PDO::FETCH_ASSOC, $this->adapter->getConnection()->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE));
     }
 
     public function testConnectionWithoutPort()
@@ -1877,6 +1887,59 @@ OUTPUT;
         self::assertTrue($countQuery->execute());
         $res = $countQuery->fetchAll();
         $this->assertEquals(0, $res[0]['count']);
+    }
+
+    public function testDumpCreateTableAndThenInsert()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $table = new \Phinx\Db\Table('schema1.table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
+
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->save();
+
+        $expectedOutput = 'C';
+
+        $table = new \Phinx\Db\Table('schema1.table1', [], $this->adapter);
+        $table->insert([
+            'column1' => 'id1',
+            'column2' => 1
+        ])->save();
+
+        $expectedOutput = <<<'OUTPUT'
+CREATE TABLE "schema1"."table1" ("column1" CHARACTER VARYING (255) NOT NULL, "column2" INTEGER NOT NULL, CONSTRAINT "table1_pkey" PRIMARY KEY ("column1"));
+INSERT INTO "schema1"."table1" ("column1", "column2") VALUES ('id1', 1);
+OUTPUT;
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
+    }
+
+    public function testDumpTransaction()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $this->adapter->beginTransaction();
+        $table = new \Phinx\Db\Table('schema1.table1', [], $this->adapter);
+
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', ['default' => 'test'])
+            ->save();
+        $this->adapter->commitTransaction();
+        $this->adapter->rollbackTransaction();
+
+        $actualOutput = $consoleOutput->fetch();
+        $this->assertStringStartsWith("BEGIN;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
+        $this->assertStringEndsWith("COMMIT;\nROLLBACK;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
     }
 
     /**

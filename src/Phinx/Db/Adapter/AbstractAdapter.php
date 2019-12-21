@@ -1,33 +1,14 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2017 Cake Software Foundation
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Db\Adapter
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Db\Adapter;
 
+use Exception;
+use InvalidArgumentException;
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Util\Literal;
@@ -56,16 +37,19 @@ abstract class AbstractAdapter implements AdapterInterface
     protected $output;
 
     /**
+     * @var string[]
+     */
+    protected $createdTables = [];
+
+    /**
      * @var string
      */
     protected $schemaTableName = 'phinxlog';
 
     /**
-     * Class Constructor.
-     *
      * @param array $options Options
-     * @param \Symfony\Component\Console\Input\InputInterface $input Input Interface
-     * @param \Symfony\Component\Console\Output\OutputInterface  $output Output Interface
+     * @param \Symfony\Component\Console\Input\InputInterface|null $input Input Interface
+     * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output Interface
      */
     public function __construct(array $options, InputInterface $input = null, OutputInterface $output = null)
     {
@@ -79,7 +63,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function setOptions(array $options)
     {
@@ -93,7 +77,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getOptions()
     {
@@ -101,7 +85,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasOption($name)
     {
@@ -109,7 +93,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getOption($name)
     {
@@ -121,7 +105,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function setInput(InputInterface $input)
     {
@@ -131,7 +115,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getInput()
     {
@@ -139,7 +123,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function setOutput(OutputInterface $output)
     {
@@ -149,7 +133,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getOutput()
     {
@@ -162,7 +146,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @return array
      */
@@ -187,6 +171,7 @@ abstract class AbstractAdapter implements AdapterInterface
      * Sets the schema table name.
      *
      * @param string $schemaTableName Schema Table Name
+     *
      * @return $this
      */
     public function setSchemaTableName($schemaTableName)
@@ -197,7 +182,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasSchemaTable()
     {
@@ -205,14 +190,18 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return void
      */
     public function createSchemaTable()
     {
         try {
             $options = [
                 'id' => false,
-                'primary_key' => 'version'
+                'primary_key' => 'version',
             ];
 
             $table = new Table($this->getSchemaTableName(), $options, $this);
@@ -222,17 +211,17 @@ abstract class AbstractAdapter implements AdapterInterface
                 ->addColumn('end_time', 'timestamp', ['default' => null, 'null' => true])
                 ->addColumn('breakpoint', 'boolean', ['default' => false])
                 ->save();
-        } catch (\Exception $exception) {
-            throw new \InvalidArgumentException(
+        } catch (Exception $exception) {
+            throw new InvalidArgumentException(
                 'There was a problem creating the schema table: ' . $exception->getMessage(),
-                intval($exception->getCode()),
+                (int)$exception->getCode(),
                 $exception
             );
         }
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getAdapterType()
     {
@@ -240,7 +229,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function isValidColumnType(Column $column)
     {
@@ -257,5 +246,62 @@ abstract class AbstractAdapter implements AdapterInterface
         $input = $this->getInput();
 
         return ($input && $input->hasOption('dry-run')) ? (bool)$input->getOption('dry-run') : false;
+    }
+
+    /**
+     * Adds user-created tables (e.g. not phinxlog) to a cached list
+     *
+     * @param string $tableName The name of the table
+     *
+     * @return void
+     */
+    protected function addCreatedTable($tableName)
+    {
+        if (substr_compare($tableName, 'phinxlog', -strlen('phinxlog')) !== 0) {
+            $this->createdTables[] = $tableName;
+        }
+    }
+
+    /**
+     * Updates the name of the cached table
+     *
+     * @param string $tableName Original name of the table
+     * @param string $newTableName New name of the table
+     *
+     * @return void
+     */
+    protected function updateCreatedTableName($tableName, $newTableName)
+    {
+        $key = array_search($tableName, $this->createdTables);
+        if ($key !== false) {
+            $this->createdTables[$key] = $newTableName;
+        }
+    }
+
+    /**
+     * Removes table from the cached created list
+     *
+     * @param string $tableName The name of the table
+     *
+     * @return void
+     */
+    protected function removeCreatedTable($tableName)
+    {
+        $key = array_search($tableName, $this->createdTables);
+        if ($key !== false) {
+            unset($this->createdTables[$key]);
+        }
+    }
+
+    /**
+     * Check if the table is in the cached list of created tables
+     *
+     * @param string $tableName The name of the table
+     *
+     * @return bool
+     */
+    protected function hasCreatedTable($tableName)
+    {
+        return in_array($tableName, $this->createdTables);
     }
 }

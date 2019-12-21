@@ -1,35 +1,17 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Console
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Console\Command;
 
+use Exception;
+use InvalidArgumentException;
 use Phinx\Config\NamespaceAwareInterface;
 use Phinx\Util\Util;
+use RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -40,19 +22,25 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 class Create extends AbstractCommand
 {
     /**
+     * @var string
+     */
+    protected static $defaultName = 'create';
+
+    /**
      * The name of the interface that any external template creation class is required to implement.
      */
     const CREATION_INTERFACE = 'Phinx\Migration\CreationInterface';
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     protected function configure()
     {
         parent::configure();
 
-        $this->setName($this->getName() ?: 'create')
-            ->setDescription('Create a new migration')
+        $this->setDescription('Create a new migration')
             ->addArgument('name', InputArgument::REQUIRED, 'What is the name of the migration (in CamelCase)?')
             ->setHelp(sprintf(
                 '%sCreates a new database migration%s',
@@ -86,6 +74,7 @@ class Create extends AbstractCommand
      * Get the question that allows the user to select which migration path to use.
      *
      * @param string[] $paths
+     *
      * @return \Symfony\Component\Console\Question\ChoiceQuestion
      */
     protected function getSelectMigrationPathQuestion(array $paths)
@@ -98,8 +87,10 @@ class Create extends AbstractCommand
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @return mixed
+     *
      * @throws \Exception
+     *
+     * @return mixed
      */
     protected function getMigrationPath(InputInterface $input, OutputInterface $output)
     {
@@ -114,13 +105,13 @@ class Create extends AbstractCommand
 
         // No paths? That's a problem.
         if (empty($paths)) {
-            throw new \Exception('No migration paths set in your Phinx configuration file.');
+            throw new Exception('No migration paths set in your Phinx configuration file.');
         }
 
         $paths = Util::globAll($paths);
 
         if (empty($paths)) {
-            throw new \Exception(
+            throw new Exception(
                 'You probably used curly braces to define migration path in your Phinx configuration file, ' .
                 'but no directories have been matched using this pattern. ' .
                 'You need to create a migration directory manually.'
@@ -128,7 +119,7 @@ class Create extends AbstractCommand
         }
 
         // Only one path set, so select that:
-        if (1 === count($paths)) {
+        if (count($paths) === 1) {
             return array_shift($paths);
         }
 
@@ -144,9 +135,11 @@ class Create extends AbstractCommand
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
+     *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     * @return void
+     *
+     * @return int 0 on success
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -173,14 +166,14 @@ class Create extends AbstractCommand
         $className = $input->getArgument('name');
 
         if (!Util::isValidPhinxClassName($className)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The migration class name "%s" is invalid. Please use CamelCase format.',
                 $className
             ));
         }
 
         if (!Util::isUniqueMigrationClassName($className, $path)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The migration class name "%s%s" already exists',
                 $namespace ? ($namespace . '\\') : '',
                 $className
@@ -192,7 +185,7 @@ class Create extends AbstractCommand
         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
 
         if (is_file($filePath)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The file "%s" already exists',
                 $filePath
             ));
@@ -202,14 +195,14 @@ class Create extends AbstractCommand
         $defaultAltTemplate = $this->getConfig()->getTemplateFile();
         $defaultCreationClassName = $this->getConfig()->getTemplateClass();
         if ($defaultAltTemplate && $defaultCreationClassName) {
-            throw new \InvalidArgumentException('Cannot define template:class and template:file at the same time');
+            throw new InvalidArgumentException('Cannot define template:class and template:file at the same time');
         }
 
         // Get the alternative template and static class options from the command line, but only allow one of them.
         $altTemplate = $input->getOption('template');
         $creationClassName = $input->getOption('class');
         if ($altTemplate && $creationClassName) {
-            throw new \InvalidArgumentException('Cannot use --template and --class at the same time');
+            throw new InvalidArgumentException('Cannot use --template and --class at the same time');
         }
 
         // If no commandline options then use the defaults.
@@ -220,7 +213,7 @@ class Create extends AbstractCommand
 
         // Verify the alternative template file's existence.
         if ($altTemplate && !is_file($altTemplate)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The alternative template file "%s" does not exist',
                 $altTemplate
             ));
@@ -233,13 +226,13 @@ class Create extends AbstractCommand
             if (!class_exists($creationClassName)) {
                 $aliasedClassName = $this->getConfig()->getAlias($creationClassName);
                 if ($aliasedClassName && !class_exists($aliasedClassName)) {
-                    throw new \InvalidArgumentException(sprintf(
+                    throw new InvalidArgumentException(sprintf(
                         'The class "%s" via the alias "%s" does not exist',
                         $aliasedClassName,
                         $creationClassName
                     ));
                 } elseif (!$aliasedClassName) {
-                    throw new \InvalidArgumentException(sprintf(
+                    throw new InvalidArgumentException(sprintf(
                         'The class "%s" does not exist',
                         $creationClassName
                     ));
@@ -248,13 +241,13 @@ class Create extends AbstractCommand
 
             // Does the class implement the required interface?
             if (!$aliasedClassName && !is_subclass_of($creationClassName, self::CREATION_INTERFACE)) {
-                throw new \InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(sprintf(
                     'The class "%s" does not implement the required interface "%s"',
                     $creationClassName,
                     self::CREATION_INTERFACE
                 ));
             } elseif ($aliasedClassName && !is_subclass_of($aliasedClassName, self::CREATION_INTERFACE)) {
-                throw new \InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(sprintf(
                     'The class "%s" via the alias "%s" does not implement the required interface "%s"',
                     $aliasedClassName,
                     $creationClassName,
@@ -288,7 +281,7 @@ class Create extends AbstractCommand
         $contents = strtr($contents, $classes);
 
         if (file_put_contents($filePath, $contents) === false) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'The file "%s" could not be written to',
                 $path
             ));
@@ -310,5 +303,7 @@ class Create extends AbstractCommand
         }
 
         $output->writeln('<info>created</info> ' . str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $filePath));
+
+        return self::CODE_SUCCESS;
     }
 }

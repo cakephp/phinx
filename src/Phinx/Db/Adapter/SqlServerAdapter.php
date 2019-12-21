@@ -1,67 +1,55 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Db\Adapter
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Db\Adapter;
 
+use BadMethodCallException;
 use Cake\Database\Connection;
 use Cake\Database\Driver\Sqlserver as SqlServerDriver;
+use InvalidArgumentException;
+use PDO;
+use PDOException;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
 use Phinx\Db\Table\Table;
 use Phinx\Db\Util\AlterInstructions;
+use Phinx\Migration\MigrationInterface;
 use Phinx\Util\Literal;
+use RuntimeException;
 
 /**
  * Phinx SqlServer Adapter.
  *
  * @author Rob Morgan <robbym@gmail.com>
  */
-class SqlServerAdapter extends PdoAdapter implements AdapterInterface
+class SqlServerAdapter extends PdoAdapter
 {
     protected $schema = 'dbo';
 
     protected $signedColumnTypes = ['integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true];
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return void
      */
     public function connect()
     {
         if ($this->connection === null) {
-            if (!class_exists('PDO') || !in_array('sqlsrv', \PDO::getAvailableDrivers(), true)) {
+            if (!class_exists('PDO') || !in_array('sqlsrv', PDO::getAvailableDrivers(), true)) {
                 // try our connection via freetds (Mac/Linux)
                 $this->connectDblib();
 
                 return;
             }
 
-            $db = null;
             $options = $this->getOptions();
 
             // if port is specified use it, otherwise use the SqlServer default
@@ -72,11 +60,16 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             }
             $dsn .= ';MultipleActiveResultSets=false';
 
-            $driverOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
+            $driverOptions = [];
 
             // charset support
             if (isset($options['charset'])) {
-                $driverOptions[\PDO::SQLSRV_ATTR_ENCODING] = $options['charset'];
+                $driverOptions[PDO::SQLSRV_ATTR_ENCODING] = $options['charset'];
+            }
+
+            // use custom data fetch mode
+            if (!empty($options['fetch_mode'])) {
+                $driverOptions[PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
             }
 
             // support arbitrary \PDO::SQLSRV_ATTR_* driver options and pass them to PDO
@@ -87,14 +80,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
                 }
             }
 
-            try {
-                $db = new \PDO($dsn, $options['user'], $options['pass'], $driverOptions);
-            } catch (\PDOException $exception) {
-                throw new \InvalidArgumentException(sprintf(
-                    'There was a problem connecting to the database: %s',
-                    $exception->getMessage()
-                ));
-            }
+            $db = $this->createPdoConnection($dsn, $options['user'], $options['pass'], $driverOptions);
 
             $this->setConnection($db);
         }
@@ -106,12 +92,15 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
      * The "sqlsrv" driver is not available on Unix machines.
      *
      * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     *
+     * @return void
      */
     protected function connectDblib()
     {
-        if (!class_exists('PDO') || !in_array('dblib', \PDO::getAvailableDrivers(), true)) {
+        if (!class_exists('PDO') || !in_array('dblib', PDO::getAvailableDrivers(), true)) {
             // @codeCoverageIgnoreStart
-            throw new \RuntimeException('You need to enable the PDO_Dblib extension for Phinx to run properly.');
+            throw new RuntimeException('You need to enable the PDO_Dblib extension for Phinx to run properly.');
             // @codeCoverageIgnoreEnd
         }
 
@@ -124,12 +113,12 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             $dsn = 'dblib:host=' . $options['host'] . ':' . $options['port'] . ';dbname=' . $options['name'];
         }
 
-        $driverOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
+        $driverOptions = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
 
         try {
-            $db = new \PDO($dsn, $options['user'], $options['pass'], $driverOptions);
-        } catch (\PDOException $exception) {
-            throw new \InvalidArgumentException(sprintf(
+            $db = new PDO($dsn, $options['user'], $options['pass'], $driverOptions);
+        } catch (PDOException $exception) {
+            throw new InvalidArgumentException(sprintf(
                 'There was a problem connecting to the database: %s',
                 $exception->getMessage()
             ));
@@ -139,7 +128,9 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function disconnect()
     {
@@ -147,7 +138,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasTransactions()
     {
@@ -155,7 +146,9 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function beginTransaction()
     {
@@ -163,7 +156,9 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function commitTransaction()
     {
@@ -171,7 +166,9 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function rollbackTransaction()
     {
@@ -179,7 +176,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function quoteTableName($tableName)
     {
@@ -187,7 +184,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function quoteColumnName($columnName)
     {
@@ -195,17 +192,23 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasTable($tableName)
     {
-        $result = $this->fetchRow(sprintf('SELECT count(*) as [count] FROM information_schema.tables WHERE table_name = \'%s\';', $tableName));
+        if ($this->hasCreatedTable($tableName)) {
+            return true;
+        }
+
+        $result = $this->fetchRow(sprintf("SELECT count(*) as [count] FROM information_schema.tables WHERE table_name = '%s';", $tableName));
 
         return $result['count'] > 0;
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -267,10 +270,14 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
 
         // execute the sql
         $this->execute($sql);
+
+        $this->addCreatedTable($table->getName());
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
      */
     protected function getChangePrimaryKeyInstructions(Table $table, $newColumns)
     {
@@ -298,8 +305,8 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
             } elseif (is_array($newColumns)) { // handle primary_key => array('tag_id', 'resource_id')
                 $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newColumns));
             } else {
-                throw new \InvalidArgumentException(sprintf(
-                    "Invalid value for primary key: %s",
+                throw new InvalidArgumentException(sprintf(
+                    'Invalid value for primary key: %s',
                     json_encode($newColumns)
                 ));
             }
@@ -311,17 +318,21 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \BadMethodCallException
+     *
+     * @return void
      */
     protected function getChangeCommentInstructions(Table $table, $newComment)
     {
-        throw new \BadMethodCallException('SQLite does not have table comments');
+        throw new BadMethodCallException('SQLite does not have table comments');
     }
 
     /**
      * Gets the SqlServer Column Comment Defininition for a column object.
      *
-     * @param \Phinx\Db\Table\Column $column    Column
+     * @param \Phinx\Db\Table\Column $column Column
      * @param string $tableName Table name
      *
      * @return string
@@ -345,12 +356,13 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getRenameTableInstructions($tableName, $newTableName)
     {
+        $this->updateCreatedTableName($tableName, $newTableName);
         $sql = sprintf(
-            'EXEC sp_rename \'%s\', \'%s\'',
+            "EXEC sp_rename '%s', '%s'",
             $tableName,
             $newTableName
         );
@@ -359,17 +371,20 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getDropTableInstructions($tableName)
     {
+        $this->removeCreatedTable($tableName);
         $sql = sprintf('DROP TABLE %s', $this->quoteTableName($tableName));
 
         return new AlterInstructions([], [$sql]);
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function truncateTable($tableName)
     {
@@ -404,7 +419,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getColumns($tableName)
     {
@@ -461,7 +476,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasColumn($tableName, $columnName)
     {
@@ -478,7 +493,7 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getAddColumnInstructions(Table $table, Column $column)
     {
@@ -493,12 +508,14 @@ class SqlServerAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
      */
     protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName)
     {
         if (!$this->hasColumn($tableName, $columnName)) {
-            throw new \InvalidArgumentException("The specified column does not exist: $columnName");
+            throw new InvalidArgumentException("The specified column does not exist: $columnName");
         }
 
         $instructions = new AlterInstructions();
@@ -531,8 +548,9 @@ SQL;
      * Returns the instructions to change a column default value
      *
      * @param string $tableName The table where the column is
-     * @param Column $newColumn The column to alter
-     * @return AlterInstructions
+     * @param \Phinx\Db\Table\Column $newColumn The column to alter
+     *
+     * @return \Phinx\Db\Util\AlterInstructions
      */
     protected function getChangeDefault($tableName, Column $newColumn)
     {
@@ -562,7 +580,7 @@ SQL;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn)
     {
@@ -602,7 +620,7 @@ SQL;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getDropColumnInstructions($tableName, $columnName)
     {
@@ -618,7 +636,7 @@ SQL;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getDropDefaultConstraint($tableName, $columnName)
     {
@@ -681,6 +699,7 @@ ORDER BY IC.[key_ordinal];";
      * Get an array of indexes from a particular table.
      *
      * @param string $tableName Table Name
+     *
      * @return array
      */
     public function getIndexes($tableName)
@@ -702,7 +721,7 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasIndex($tableName, $columns)
     {
@@ -725,7 +744,7 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasIndexByName($tableName, $indexName)
     {
@@ -741,7 +760,7 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getAddIndexInstructions(Table $table, Index $index)
     {
@@ -751,7 +770,9 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
      */
     protected function getDropIndexByColumnsInstructions($tableName, $columns)
     {
@@ -776,14 +797,16 @@ ORDER BY T.[name], I.[index_id];";
             }
         }
 
-        throw new \InvalidArgumentException(sprintf(
+        throw new InvalidArgumentException(sprintf(
             "The specified index on columns '%s' does not exist",
             implode(',', $columns)
         ));
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
      */
     protected function getDropIndexByNameInstructions($tableName, $indexName)
     {
@@ -802,14 +825,14 @@ ORDER BY T.[name], I.[index_id];";
             }
         }
 
-        throw new \InvalidArgumentException(sprintf(
+        throw new InvalidArgumentException(sprintf(
             "The specified index name '%s' does not exist",
             $indexName
         ));
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasPrimaryKey($tableName, $columns, $constraint = null)
     {
@@ -835,6 +858,7 @@ ORDER BY T.[name], I.[index_id];";
      * Get the primary key from a particular table.
      *
      * @param string $tableName Table Name
+     *
      * @return array
      */
     public function getPrimaryKey($tableName)
@@ -864,7 +888,7 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
@@ -894,6 +918,7 @@ ORDER BY T.[name], I.[index_id];";
      * Get an array of foreign keys from a particular table.
      *
      * @param string $tableName Table Name
+     *
      * @return array
      */
     protected function getForeignKeys($tableName)
@@ -924,7 +949,7 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getAddForeignKeyInstructions(Table $table, ForeignKey $foreignKey)
     {
@@ -939,7 +964,7 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getDropForeignKeyInstructions($tableName, $constraint)
     {
@@ -954,7 +979,7 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function getDropForeignKeyByColumnsInstructions($tableName, $columns)
     {
@@ -987,7 +1012,9 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
     public function getSqlType($type, $limit = null)
     {
@@ -1037,9 +1064,12 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * Returns Phinx type by SQL type
      *
-     * @param string $sqlType SQL Type definition
-     * @throws UnsupportedColumnTypeException
      * @internal param string $sqlType SQL type
+     *
+     * @param string $sqlType SQL Type definition
+     *
+     * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
+     *
      * @return string Phinx type
      */
     public function getPhinxType($sqlType)
@@ -1091,7 +1121,9 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function createDatabase($name, $options = [])
     {
@@ -1104,13 +1136,13 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasDatabase($name)
     {
         $result = $this->fetchRow(
             sprintf(
-                'SELECT count(*) as [count] FROM master.dbo.sysdatabases WHERE [name] = \'%s\'',
+                "SELECT count(*) as [count] FROM master.dbo.sysdatabases WHERE [name] = '%s'",
                 $name
             )
         );
@@ -1119,7 +1151,9 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function dropDatabase($name)
     {
@@ -1136,6 +1170,8 @@ SQL;
      * Gets the SqlServer Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
+     * @param bool $create Create column flag
+     *
      * @return string
      */
     protected function getColumnSqlDefinition(Column $column, $create = true)
@@ -1150,16 +1186,16 @@ SQL;
             $noLimits = [
                 'bigint',
                 'int',
-                'tinyint'
+                'tinyint',
             ];
-            if (static::PHINX_TYPE_DECIMAL === $sqlType['name'] && $column->getPrecision() && $column->getScale()) {
+            if ($sqlType['name'] === static::PHINX_TYPE_DECIMAL && $column->getPrecision() && $column->getScale()) {
                 $buffer[] = sprintf(
                     '(%s, %s)',
                     $column->getPrecision() ?: $sqlType['precision'],
                     $column->getScale() ?: $sqlType['scale']
                 );
             } elseif (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
-                $buffer[] = sprintf('(%s)', $column->getLimit() ? $column->getLimit() : $sqlType['limit']);
+                $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
             }
         }
 
@@ -1178,7 +1214,9 @@ SQL;
         }
 
         if ($column->isIdentity()) {
-            $buffer[] = 'IDENTITY(1, 1)';
+            $seed = $column->getSeed() ?: 1;
+            $increment = $column->getIncrement() ?: 1;
+            $buffer[] = sprintf('IDENTITY(%d,%d)', $seed, $increment);
         }
 
         return implode(' ', $buffer);
@@ -1188,6 +1226,8 @@ SQL;
      * Gets the SqlServer Index Definition for an Index object.
      *
      * @param \Phinx\Db\Table\Index $index Index
+     * @param string $tableName Table name
+     *
      * @return string
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
@@ -1198,21 +1238,22 @@ SQL;
             $columnNames = $index->getColumns();
             $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         }
-        $def = sprintf(
-            "CREATE %s INDEX %s ON %s (%s);",
+
+        return sprintf(
+            'CREATE %s INDEX %s ON %s (%s);',
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
             $this->quoteTableName($tableName),
             '[' . implode('],[', $index->getColumns()) . ']'
         );
-
-        return $def;
     }
 
     /**
      * Gets the SqlServer Foreign Key Definition for an ForeignKey object.
      *
-     * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign key
+     * @param string $tableName Table name
+     *
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
@@ -1232,7 +1273,7 @@ SQL;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getColumnTypes()
     {
@@ -1246,9 +1287,10 @@ SQL;
      * @param string $direction Direction
      * @param int $startTime Start Time
      * @param int $endTime End Time
+     *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
-    public function migrated(\Phinx\Migration\MigrationInterface $migration, $direction, $startTime, $endTime)
+    public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
     {
         $startTime = str_replace(' ', 'T', $startTime);
         $endTime = str_replace(' ', 'T', $endTime);
@@ -1257,8 +1299,7 @@ SQL;
     }
 
     /**
-     * {@inheritDoc}
-     *
+     * @inheritDoc
      */
     public function getDecoratedConnection()
     {

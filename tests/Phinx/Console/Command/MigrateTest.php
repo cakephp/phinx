@@ -4,6 +4,7 @@ namespace Test\Phinx\Console\Command;
 
 use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Migrate;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
@@ -79,7 +80,7 @@ class MigrateTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
-        $this->assertSame(0, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function testExecuteWithEnvironmentOption()
@@ -95,7 +96,33 @@ class MigrateTest extends TestCase
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
-        $managerStub->expects($this->any())
+        $managerStub->expects($this->once())
+                    ->method('migrate');
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+
+        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
+    }
+
+    public function testExecuteWithInvalidEnvironmentOption()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Migrate());
+
+        /** @var Migrate $command */
+        $command = $application->find('migrate');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->never())
                     ->method('migrate');
 
         $command->setConfig($this->config);
@@ -105,7 +132,8 @@ class MigrateTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
 
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
-        $this->assertSame(1, $exitCode);
+        $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
     public function testDatabaseNameSpecified()
@@ -131,7 +159,7 @@ class MigrateTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
         $this->assertRegExp('/using database development/', $commandTester->getDisplay());
-        $this->assertSame(0, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function testFakeMigrate()
@@ -157,6 +185,6 @@ class MigrateTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--fake' => true], ['decorated' => false]);
 
         $this->assertRegExp('/warning performing fake migrations/', $commandTester->getDisplay());
-        $this->assertSame(0, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 }

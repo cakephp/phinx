@@ -1,28 +1,8 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- * Copyright (c) 2015 Woody Gilk
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
 
 namespace Phinx\Wrapper;
@@ -50,7 +30,7 @@ class TextWrapper
     private $options = [];
 
     /**
-     * @var integer
+     * @var int
      */
     private $exit_code;
 
@@ -76,6 +56,7 @@ class TextWrapper
 
     /**
      * Returns the exit code from the last run command.
+     *
      * @return int
      */
     public function getExitCode()
@@ -85,7 +66,9 @@ class TextWrapper
 
     /**
      * Returns the output from running the "status" command.
-     * @param  string $env environment name (optional)
+     *
+     * @param string|null $env environment name (optional)
+     *
      * @return string
      */
     public function getStatus($env = null)
@@ -106,8 +89,10 @@ class TextWrapper
 
     /**
      * Returns the output from running the "migrate" command.
-     * @param  string $env environment name (optional)
-     * @param  string $target target version (optional)
+     *
+     * @param string|null $env environment name (optional)
+     * @param string|null $target target version (optional)
+     *
      * @return string
      */
     public function getMigrate($env = null, $target = null)
@@ -131,9 +116,11 @@ class TextWrapper
 
     /**
      * Returns the output from running the "seed:run" command.
-     * @param  string|null       $env environment name
-     * @param  string|null       $target target version
-     * @param  array|string|null $seed array of seed names or seed name
+     *
+     * @param string|null $env environment name
+     * @param string|null $target target version
+     * @param array|string|null $seed array of seed names or seed name
+     *
      * @return string
      */
     public function getSeed($env = null, $target = null, $seed = null)
@@ -161,8 +148,10 @@ class TextWrapper
 
     /**
      * Returns the output from running the "rollback" command.
-     * @param  string $env environment name (optional)
-     * @param  mixed $target target version, or 0 (zero) fully revert (optional)
+     *
+     * @param string|null $env environment name (optional)
+     * @param mixed $target target version, or 0 (zero) fully revert (optional)
+     *
      * @return string
      */
     public function getRollback($env = null, $target = null)
@@ -189,7 +178,8 @@ class TextWrapper
     /**
      * Check option from options array
      *
-     * @param  string $key
+     * @param string $key
+     *
      * @return bool
      */
     protected function hasOption($key)
@@ -200,7 +190,8 @@ class TextWrapper
     /**
      * Get option from options array
      *
-     * @param  string $key
+     * @param string $key
+     *
      * @return string|null
      */
     protected function getOption($key)
@@ -215,8 +206,9 @@ class TextWrapper
     /**
      * Set option in options array
      *
-     * @param  string $key
-     * @param  string $value
+     * @param string $key
+     * @param string $value
+     *
      * @return object
      */
     public function setOption($key, $value)
@@ -229,7 +221,8 @@ class TextWrapper
     /**
      * Execute a command, capturing output and storing the exit code.
      *
-     * @param  array $command
+     * @param array $command
+     *
      * @return string
      */
     protected function executeRun(array $command)

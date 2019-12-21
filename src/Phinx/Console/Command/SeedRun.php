@@ -1,31 +1,10 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Console
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Console\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,7 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 class SeedRun extends AbstractCommand
 {
     /**
-     * {@inheritdoc}
+     * @var string
+     */
+    protected static $defaultName = 'seed:run';
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
      */
     protected function configure()
     {
@@ -43,8 +29,7 @@ class SeedRun extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName($this->getName() ?: 'seed:run')
-            ->setDescription('Run database seeders')
+        $this->setDescription('Run database seeders')
             ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
             ->setHelp(
                 <<<EOT
@@ -64,7 +49,8 @@ EOT
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @return void
+     *
+     * @return int integer 0 on success, or an error code.
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -78,6 +64,12 @@ EOT
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
+        }
+
+        if (!$this->getConfig()->hasEnvironment($environment)) {
+            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
+
+            return self::CODE_ERROR;
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
@@ -94,7 +86,7 @@ EOT
         } else {
             $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
 
-            return;
+            return self::CODE_ERROR;
         }
 
         if (isset($envOptions['table_prefix'])) {
@@ -120,5 +112,7 @@ EOT
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+
+        return self::CODE_SUCCESS;
     }
 }

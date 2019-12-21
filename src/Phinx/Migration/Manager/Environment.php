@@ -1,37 +1,18 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Migration\Manager
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Migration\Manager;
 
+use PDO;
 use Phinx\Db\Adapter\AdapterFactory;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Migration\MigrationInterface;
 use Phinx\Seed\SeedInterface;
+use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -73,8 +54,6 @@ class Environment
     protected $adapter;
 
     /**
-     * Class Constructor.
-     *
      * @param string $name Environment Name
      * @param array $options Options
      */
@@ -90,6 +69,7 @@ class Environment
      * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @param string $direction Direction
      * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
+     *
      * @return void
      */
     public function executeMigration(MigrationInterface $migration, $direction = MigrationInterface::UP, $fake = false)
@@ -142,6 +122,7 @@ class Environment
      * Executes the specified seeder on this environment.
      *
      * @param \Phinx\Seed\SeedInterface $seed
+     *
      * @return void
      */
     public function executeSeed(SeedInterface $seed)
@@ -168,7 +149,8 @@ class Environment
      * Sets the environment's name.
      *
      * @param string $name Environment Name
-     * @return \Phinx\Migration\Manager\Environment
+     *
+     * @return $this
      */
     public function setName($name)
     {
@@ -191,7 +173,8 @@ class Environment
      * Sets the environment's options.
      *
      * @param array $options Environment Options
-     * @return \Phinx\Migration\Manager\Environment
+     *
+     * @return $this
      */
     public function setOptions($options)
     {
@@ -214,6 +197,7 @@ class Environment
      * Parse a database-agnostic DSN into individual options.
      *
      * @param array $options Options
+     *
      * @return array
      */
     protected function parseAgnosticDsn(array $options)
@@ -240,7 +224,8 @@ class Environment
      * Sets the console input.
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @return \Phinx\Migration\Manager\Environment
+     *
+     * @return $this
      */
     public function setInput(InputInterface $input)
     {
@@ -263,7 +248,8 @@ class Environment
      * Sets the console output.
      *
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     * @return \Phinx\Migration\Manager\Environment
+     *
+     * @return $this
      */
     public function setOutput(OutputInterface $output)
     {
@@ -307,7 +293,8 @@ class Environment
      * Sets the current version of the environment.
      *
      * @param int $version Environment Version
-     * @return \Phinx\Migration\Manager\Environment
+     *
+     * @return $this
      */
     public function setCurrentVersion($version)
     {
@@ -342,7 +329,8 @@ class Environment
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
-     * @return \Phinx\Migration\Manager\Environment
+     *
+     * @return $this
      */
     public function setAdapter(AdapterInterface $adapter)
     {
@@ -354,6 +342,8 @@ class Environment
     /**
      * Gets the database adapter.
      *
+     * @throws \RuntimeException
+     *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getAdapter()
@@ -361,18 +351,18 @@ class Environment
         if (isset($this->adapter)) {
             return $this->adapter;
         }
-        
+
         $options = $this->getOptions();
         if (isset($options['connection'])) {
-            if (!($options['connection'] instanceof \PDO)) {
-                throw new \RuntimeException('The specified connection is not a PDO instance');
+            if (!($options['connection'] instanceof PDO)) {
+                throw new RuntimeException('The specified connection is not a PDO instance');
             }
 
-            $options['connection']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $options['adapter'] = $options['connection']->getAttribute(\PDO::ATTR_DRIVER_NAME);
+            $options['connection']->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $options['adapter'] = $options['connection']->getAttribute(PDO::ATTR_DRIVER_NAME);
         }
         if (!isset($options['adapter'])) {
-            throw new \RuntimeException('No adapter was specified for environment: ' . $this->getName());
+            throw new RuntimeException('No adapter was specified for environment: ' . $this->getName());
         }
 
         $factory = AdapterFactory::instance();
@@ -410,7 +400,8 @@ class Environment
      * Sets the schema table name.
      *
      * @param string $schemaTableName Schema Table Name
-     * @return \Phinx\Migration\Manager\Environment
+     *
+     * @return $this
      */
     public function setSchemaTableName($schemaTableName)
     {

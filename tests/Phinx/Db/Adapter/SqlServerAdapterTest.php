@@ -6,6 +6,9 @@ use Phinx\Db\Adapter\SqlServerAdapter;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 
 class SqlServerAdapterTest extends TestCase
@@ -49,6 +52,16 @@ class SqlServerAdapterTest extends TestCase
     public function testConnection()
     {
         $this->assertInstanceOf('PDO', $this->adapter->getConnection());
+        $this->assertSame(\PDO::ERRMODE_EXCEPTION, $this->adapter->getConnection()->getAttribute(\PDO::ATTR_ERRMODE));
+    }
+
+    public function testConnectionWithFetchMode()
+    {
+        $options = $this->adapter->getOptions();
+        $options['fetch_mode'] = 'assoc';
+        $this->adapter->setOptions($options);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
+        $this->assertSame(\PDO::FETCH_ASSOC, $this->adapter->getConnection()->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE));
     }
 
     public function testConnectionWithoutPort()
@@ -141,7 +154,22 @@ class SqlServerAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
+    public function testCreateTableIdentityColumn()
+    {
+        $table = new \Phinx\Db\Table('ntable', ['id' => false, 'primary_key' => 'id'], $this->adapter);
+        $table->addColumn('id', 'integer', ['identity' => true, 'seed' => 1, 'increment' => 10 ])
+              ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
 
+        $rows = $this->adapter->fetchAll("SELECT CAST(seed_value AS INT) seed_value, CAST(increment_value AS INT) increment_value
+FROM sys.columns c JOIN sys.tables t ON c.object_id=t.object_id
+JOIN sys.identity_columns ic ON c.object_id=ic.object_id AND c.column_id=ic.column_id
+WHERE t.name='ntable'");
+        $identity = $rows[0];
+        $this->assertEquals($identity['seed_value'], '1');
+        $this->assertEquals($identity['increment_value'], '10');
+    }
     public function testCreateTableWithNoPrimaryKey()
     {
         $options = [
@@ -851,6 +879,59 @@ class SqlServerAdapterTest extends TestCase
         $this->assertCount(0, $rows);
     }
 
+    public function testDumpCreateTableAndThenInsert()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
+
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->save();
+
+        $expectedOutput = 'C';
+
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->insert([
+            'column1' => 'id1',
+            'column2' => 1
+        ])->save();
+
+        $expectedOutput = <<<'OUTPUT'
+CREATE TABLE [table1] ([column1] NVARCHAR (255)   NOT NULL , [column2] INT   NOT NULL , CONSTRAINT PK_table1 PRIMARY KEY ([column1]));
+INSERT INTO [table1] ([column1], [column2]) VALUES ('id1', 1);
+OUTPUT;
+        $actualOutput = str_replace("\r\n", "\n", $consoleOutput->fetch());
+        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
+    }
+
+    public function testDumpTransaction()
+    {
+        $inputDefinition = new InputDefinition([new InputOption('dry-run')]);
+        $this->adapter->setInput(new ArrayInput(['--dry-run' => true], $inputDefinition));
+
+        $consoleOutput = new BufferedOutput();
+        $this->adapter->setOutput($consoleOutput);
+
+        $this->adapter->beginTransaction();
+        $table = new \Phinx\Db\Table('schema1.table1', [], $this->adapter);
+
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'integer')
+            ->addColumn('column3', 'string', ['default' => 'test'])
+            ->save();
+        $this->adapter->commitTransaction();
+        $this->adapter->rollbackTransaction();
+
+        $actualOutput = str_replace("\r\n", "\n", $consoleOutput->fetch());
+        $this->assertStringStartsWith("BEGIN TRANSACTION;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
+        $this->assertStringEndsWith("COMMIT TRANSACTION;\nROLLBACK TRANSACTION;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
+    }
+
     /**
      * Tests interaction with the query builder
      *
@@ -896,7 +977,8 @@ class SqlServerAdapterTest extends TestCase
         $stm->closeCursor();
     }
 
-    public function testLiteralSupport() {
+    public function testLiteralSupport()
+    {
         $createQuery = <<<'INPUT'
 CREATE TABLE test (smallmoney_col smallmoney)
 INPUT;

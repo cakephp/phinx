@@ -1,34 +1,14 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Db
- * @author     Leonid Kuzmin <lndkuzmin@gmail.com>
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
 
 namespace Phinx\Db\Table;
+
+use InvalidArgumentException;
+use RuntimeException;
 
 class ForeignKey
 {
@@ -63,7 +43,7 @@ class ForeignKey
     protected $onUpdate;
 
     /**
-     * @var string|boolean
+     * @var string|bool
      */
     protected $constraint;
 
@@ -71,7 +51,8 @@ class ForeignKey
      * Sets the foreign key columns.
      *
      * @param array|string $columns
-     * @return \Phinx\Db\Table\ForeignKey
+     *
+     * @return $this
      */
     public function setColumns($columns)
     {
@@ -94,7 +75,8 @@ class ForeignKey
      * Sets the foreign key referenced table.
      *
      * @param \Phinx\Db\Table\Table $table The table this KEY is pointing to
-     * @return \Phinx\Db\Table\ForeignKey
+     *
+     * @return $this
      */
     public function setReferencedTable(Table $table)
     {
@@ -117,7 +99,8 @@ class ForeignKey
      * Sets the foreign key referenced columns.
      *
      * @param array $referencedColumns
-     * @return \Phinx\Db\Table\ForeignKey
+     *
+     * @return $this
      */
     public function setReferencedColumns(array $referencedColumns)
     {
@@ -140,7 +123,8 @@ class ForeignKey
      * Sets ON DELETE action for the foreign key.
      *
      * @param string $onDelete
-     * @return \Phinx\Db\Table\ForeignKey
+     *
+     * @return $this
      */
     public function setOnDelete($onDelete)
     {
@@ -173,7 +157,8 @@ class ForeignKey
      * Sets ON UPDATE action for the foreign key.
      *
      * @param string $onUpdate
-     * @return \Phinx\Db\Table\ForeignKey
+     *
+     * @return $this
      */
     public function setOnUpdate($onUpdate)
     {
@@ -186,7 +171,8 @@ class ForeignKey
      * Sets constraint for the foreign key.
      *
      * @param string $constraint
-     * @return \Phinx\Db\Table\ForeignKey
+     *
+     * @return $this
      */
     public function setConstraint($constraint)
     {
@@ -209,9 +195,10 @@ class ForeignKey
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
+     *
      * @throws \RuntimeException
-     * @throws \InvalidArgumentException
-     * @return \Phinx\Db\Table\ForeignKey
+     *
+     * @return $this
      */
     public function setOptions($options)
     {
@@ -219,13 +206,13 @@ class ForeignKey
         $validOptions = ['delete', 'update', 'constraint'];
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions, true)) {
-                throw new \RuntimeException(sprintf('"%s" is not a valid foreign key option.', $option));
+                throw new RuntimeException(sprintf('"%s" is not a valid foreign key option.', $option));
             }
 
             // handle $options['delete'] as $options['update']
-            if ('delete' === $option) {
+            if ($option === 'delete') {
                 $this->setOnDelete($value);
-            } elseif ('update' === $option) {
+            } elseif ($option === 'update') {
                 $this->setOnUpdate($value);
             } else {
                 $method = 'set' . ucfirst($option);
@@ -240,14 +227,16 @@ class ForeignKey
      * From passed value checks if it's correct and fixes if needed
      *
      * @param string $action
+     *
      * @throws \InvalidArgumentException
+     *
      * @return string
      */
     protected function normalizeAction($action)
     {
         $constantName = 'static::' . str_replace(' ', '_', strtoupper(trim($action)));
         if (!defined($constantName)) {
-            throw new \InvalidArgumentException('Unknown action passed: ' . $action);
+            throw new InvalidArgumentException('Unknown action passed: ' . $action);
         }
 
         return constant($constantName);

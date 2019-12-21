@@ -1,34 +1,22 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Console
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Console;
 
-use Phinx\Console\Command;
+use Phinx\Console\Command\Breakpoint;
+use Phinx\Console\Command\Create;
+use Phinx\Console\Command\Init;
+use Phinx\Console\Command\ListAliases;
+use Phinx\Console\Command\Migrate;
+use Phinx\Console\Command\Rollback;
+use Phinx\Console\Command\SeedCreate;
+use Phinx\Console\Command\SeedRun;
+use Phinx\Console\Command\Status;
+use Phinx\Console\Command\Test;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -41,31 +29,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 class PhinxApplication extends Application
 {
     /**
-     * Class Constructor.
-     *
      * Initialize the Phinx console application.
-     *
-     * @param string|null $version The Application Version, if null, use version out of composer.json file
      */
-    public function __construct($version = null)
+    public function __construct()
     {
-        if ($version === null) {
-            $composerConfig = json_decode(file_get_contents(__DIR__ . '/../../../composer.json'));
-            $version = $composerConfig->version;
-        }
-
-        parent::__construct('Phinx by CakePHP - https://phinx.org.', $version);
+        parent::__construct('Phinx by CakePHP - https://phinx.org.');
 
         $this->addCommands([
-            new Command\Init(),
-            new Command\Create(),
-            new Command\Migrate(),
-            new Command\Rollback(),
-            new Command\Status(),
-            new Command\Breakpoint(),
-            new Command\Test(),
-            new Command\SeedCreate(),
-            new Command\SeedRun(),
+            new Init(),
+            new Create(),
+            new Migrate(),
+            new Rollback(),
+            new Status(),
+            new Breakpoint(),
+            new Test(),
+            new SeedCreate(),
+            new SeedRun(),
+            new ListAliases(),
         ]);
     }
 
@@ -74,6 +54,7 @@ class PhinxApplication extends Application
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input An Input instance
      * @param \Symfony\Component\Console\Output\OutputInterface $output An Output instance
+     *
      * @return int 0 if everything went fine, or an error code
      */
     public function doRun(InputInterface $input, OutputInterface $output)

@@ -31,6 +31,10 @@ or ``-r`` for short.
 
         $ phinx breakpoint -e development -r
 
+You can set or unset (rather than just toggle) the breakpoint on the most
+recent migration (or on a specific migration when combined with the
+``--target`` or ``-t`` parameter) by using ``-set`` or ``--unset``.
+
 Breakpoints are visible when you run the ``status`` command.
 
 The Create Command
@@ -301,6 +305,51 @@ and to rollback use `<http://localhost:8000/rollback>`__.
         To modify configuration variables at runtime and override ``%%PHINX_DBNAME%%``
         or other another dynamic option, set ``$_SERVER['PHINX_DBNAME']`` before
         running commands. Available options are documented in the Configuration page.
+
+Wrapping Phinx in another Symfony Console Application
+-----------------------------------------------------
+
+Phinx can be wrapped and run as part of a separate Symfony console application. This
+may be desirable to present a unified interface to the user for all aspects of your
+application, or because you wish to run multiple Phinx commands. While you could
+run the commands through ``exec`` or use the above ``Phinx\Wrapper\TextWrapper``,
+though this makes it hard to deal with the return code and output in a similar fashion
+as your application.
+
+Luckily, Symfony makes doing this sort of "meta" command straight-forward:
+
+.. code-block:: php
+
+    use Symfony\Component\Console\Input\ArrayInput;
+    use Symfony\Component\Console\Input\InputInterface;
+    use Symfony\Component\Console\Output\OutputInterface;
+    use Phinx\Console\PhinxApplication;
+
+    // ...
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+
+        $phinx = new PhinxApplication();        
+        $command = $phinx->find('migrate');
+
+        $arguments = [
+            'command'         => 'migrate',
+            '--environment'   => 'production',
+            '--configuration' => '/path/to/config/phinx.yml'
+        ];
+        
+        $input = new ArrayInput($arguments);
+        $returnCode = $command->run(new ArrayInput($arguments), $output);
+        // ...
+    }
+    
+Here, you are instantianting the ``PhinxApplication``, telling it to find the ``migrate``
+command, defining the arguments to pass to it (which match the commandline arguments and flags),
+and then finally running the command, passing it the same ``OutputInterface`` that your
+application uses.
+
+See this `Symfony page <https://symfony.com/doc/current/console/calling_commands.html>`_ for more information.
 
 Using Phinx with PHPUnit
 --------------------------
