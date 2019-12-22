@@ -102,9 +102,9 @@ class Column
     protected $encoding;
 
     /**
-     * @var integer
+     * @var int|null
      */
-    protected $srid = null;
+    protected $srid;
 
     /**
      * @var array
@@ -680,7 +680,7 @@ class Column
     /**
      * Gets the column SRID.
      *
-     * @return int
+     * @return int|null
      */
     public function getSrid()
     {
