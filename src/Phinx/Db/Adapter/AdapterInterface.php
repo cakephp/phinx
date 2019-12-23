@@ -397,7 +397,7 @@ interface AdapterInterface
      * Checks to see if an index exists.
      *
      * @param string $tableName Table Name
-     * @param mixed $columns Column(s)
+     * @param string|string[] $columns Column(s)
      *
      * @return bool
      */
@@ -417,7 +417,7 @@ interface AdapterInterface
      * Checks to see if the specified primary key exists.
      *
      * @param string $tableName Table Name
-     * @param string[] $columns Column(s)
+     * @param string|string[] $columns Column(s)
      * @param string|null $constraint Constraint name
      *
      * @return bool
@@ -428,7 +428,7 @@ interface AdapterInterface
      * Checks to see if a foreign key exists.
      *
      * @param string $tableName
-     * @param string[] $columns Column(s)
+     * @param string|string[] $columns Column(s)
      * @param string|null $constraint Constraint name
      *
      * @return bool
