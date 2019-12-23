@@ -102,6 +102,11 @@ class Column
     protected $encoding;
 
     /**
+     * @var int|null
+     */
+    protected $srid;
+
+    /**
      * @var array
      */
     protected $values;
@@ -660,6 +665,29 @@ class Column
     }
 
     /**
+     * Sets the column SRID.
+     *
+     * @param int $srid SRID
+     * @return \Phinx\Db\Table\Column
+     */
+    public function setSrid($srid)
+    {
+        $this->srid = $srid;
+
+        return $this;
+    }
+
+    /**
+     * Gets the column SRID.
+     *
+     * @return int|null
+     */
+    public function getSrid()
+    {
+        return $this->srid;
+    }
+
+    /**
      * Gets all allowed options. Each option must have a corresponding `setFoo` method.
      *
      * @return array
@@ -681,6 +709,7 @@ class Column
             'values',
             'collation',
             'encoding',
+            'srid',
             'seed',
             'increment',
         ];

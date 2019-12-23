@@ -53,6 +53,31 @@ abstract class AbstractCommand extends Command
     protected $manager;
 
     /**
+     * Exit code for when command executes successfully
+     * @var int
+     */
+    const CODE_SUCCESS = 0;
+
+    /**
+     * Exit code for when command hits a non-recoverable error during execution
+     * @var int
+     */
+    const CODE_ERROR = 1;
+
+    /**
+     * Exit code for when status command is run and there are missing migrations
+     * @var int
+     */
+    const CODE_STATUS_MISSING = 2;
+
+    /**
+     * Exit code for when status command is run and there are no missing migations,
+     * but does have down migrations
+     * @var int
+     */
+    const CODE_STATUS_DOWN = 3;
+
+    /**
      * {@inheritDoc}
      *
      * @return void

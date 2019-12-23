@@ -11,6 +11,7 @@ services:
 
 php:
   - 7.2
+  - 7.3
   - 7.4
 
 env:
@@ -29,7 +30,7 @@ matrix:
       env: PHPSTAN=1 DEFAULT=0
 
 before_install:
-  - if [[ ${TRAVIS_PHP_VERSION} != "7.4snapshot" ]]; then phpenv config-rm xdebug.ini; fi
+  - phpenv config-rm xdebug.ini
 
 before_script:
     - if [[ $PREFER_LOWEST != 1 ]]; then travis_retry composer update --no-interaction --prefer-stable; fi

@@ -88,7 +88,7 @@ EOT
         if (!$this->getConfig()->hasEnvironment($environment)) {
             $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
 
-            return 1;
+            return self::CODE_ERROR;
         }
 
         $envOptions = $config->getEnvironment($environment);
@@ -105,7 +105,7 @@ EOT
         }
 
         $versionOrder = $this->getConfig()->getVersionOrder();
-        $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
+        $output->writeln('<info>ordering by</info> ' . $versionOrder . ' time');
 
         if ($fake) {
             $output->writeln('<comment>warning</comment> performing fake rollbacks');
@@ -127,7 +127,7 @@ EOT
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
 
-        return 0;
+        return self::CODE_SUCCESS;
     }
 
     /**

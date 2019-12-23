@@ -10,6 +10,7 @@ namespace Phinx\Db\Adapter;
 use BadMethodCallException;
 use InvalidArgumentException;
 use PDO;
+use PDOException;
 use Phinx\Config\Config;
 use Phinx\Db\Action\AddColumn;
 use Phinx\Db\Action\AddForeignKey;
@@ -61,6 +62,30 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
         }
 
         $this->getOutput()->writeln($message);
+    }
+
+    /**
+     * Create PDO connection
+     *
+     * @param string $dsn Connection string
+     * @param string|null $username Database username
+     * @param string|null $password Database password
+     * @param array $options Connection options
+     * @return \PDO
+     */
+    protected function createPdoConnection($dsn, $username = null, $password = null, array $options = [])
+    {
+        try {
+            $db = new PDO($dsn, $username, $password, $options);
+            $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            throw new InvalidArgumentException(sprintf(
+                'There was a problem connecting to the database: %s',
+                $e->getMessage()
+            ), $e->getCode(), $e);
+        }
+
+        return $db;
     }
 
     /**

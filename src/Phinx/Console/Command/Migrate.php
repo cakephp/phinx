@@ -77,7 +77,7 @@ EOT
         if (!$this->getConfig()->hasEnvironment($environment)) {
             $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
 
-            return 1;
+            return self::CODE_ERROR;
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
@@ -94,7 +94,7 @@ EOT
         } else {
             $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
 
-            return 1;
+            return self::CODE_ERROR;
         }
 
         if (isset($envOptions['table_prefix'])) {
@@ -103,6 +103,9 @@ EOT
         if (isset($envOptions['table_suffix'])) {
             $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
         }
+
+        $versionOrder = $this->getConfig()->getVersionOrder();
+        $output->writeln('<info>ordering by</info> ' . $versionOrder . ' time');
 
         if ($fake) {
             $output->writeln('<comment>warning</comment> performing fake migrations');
@@ -120,16 +123,16 @@ EOT
         } catch (Exception $e) {
             $output->writeln('<error>' . $e->__toString() . '</error>');
 
-            return 1;
+            return self::CODE_ERROR;
         } catch (Throwable $e) {
             $output->writeln('<error>' . $e->__toString() . '</error>');
 
-            return 1;
+            return self::CODE_ERROR;
         }
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
 
-        return 0;
+        return self::CODE_SUCCESS;
     }
 }
