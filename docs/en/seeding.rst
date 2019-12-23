@@ -72,8 +72,8 @@ command. You should use this method to insert your test data.
 The Init Method
 ~~~~~~~~~~~~~~~
 
-The init method is run by Phinx before the run method if it exists. This can be
-used to initialize properties of the Seed class before using run.
+The ``init()`` method is run by Phinx before the run method if it exists. This
+can be used to initialize properties of the Seed class before using run.
 
 Foreign Key Dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~
