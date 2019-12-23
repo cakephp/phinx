@@ -3,6 +3,6 @@ parameters:
 		- '#Variable \$lastException might not be defined#'
 		- '#Access to undefined constant PDO::SQLSRV_ATTR_ENCODING#'
 		- '#Call to an undefined method Phinx\\Migration\\MigrationInterface::change\(\)#'
-		- '#Call to an undefined method Phinx\\(Migration|Seed)\\(Migration|Seed)Interface::run\(\)#'
+		- '#Call to an undefined method Phinx\\(Migration|Seed)\\(Migration|Seed)Interface::init\(\)#'
 		- "#Casting to bool something that's already bool#"
 		- '#Method Phinx\\Console\\Command\\AbstractCommand::locateConfigFile\(\) should return string but returns array\|string#'
