@@ -82,17 +82,6 @@ abstract class AbstractMigration implements MigrationInterface
         if ($output !== null) {
             $this->setOutput($output);
         }
-
-        $this->init();
-    }
-
-    /**
-     * Initialize method.
-     *
-     * @return void
-     */
-    protected function init()
-    {
     }
 
     /**

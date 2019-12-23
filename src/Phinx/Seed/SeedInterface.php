@@ -24,6 +24,11 @@ interface SeedInterface
     const RUN = 'run';
 
     /**
+     * @var string
+     */
+    const INIT = 'init';
+
+    /**
      * Run the seeder.
      *
      * @return void

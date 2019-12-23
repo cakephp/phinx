@@ -411,4 +411,51 @@ class EnvironmentTest extends TestCase
         $inputObject = $this->environment->getInput();
         $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $inputObject);
     }
+
+    public function testExecuteMigrationCallsInit()
+    {
+        // stub adapter
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $adapterStub->expects($this->once())
+                    ->method('migrated')
+                    ->will($this->returnArgument(0));
+
+        $this->environment->setAdapter($adapterStub);
+
+        // up
+        $upMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
+            ->setConstructorArgs(['mockenv', '20110301080000'])
+            ->setMethods(['up', 'init'])
+            ->getMock();
+        $upMigration->expects($this->once())
+                    ->method('up');
+        $upMigration->expects($this->once())
+                    ->method('init');
+
+        $this->environment->executeMigration($upMigration, MigrationInterface::UP);
+    }
+
+    public function testExecuteSeedInit()
+    {
+        // stub adapter
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+
+        $this->environment->setAdapter($adapterStub);
+
+        // up
+        $seed = $this->getMockBuilder('\Phinx\Seed\AbstractSeed')
+            ->setMethods(['run', 'init'])
+            ->getMock();
+
+        $seed->expects($this->once())
+                    ->method('run');
+        $seed->expects($this->once())
+                    ->method('init');
+
+        $this->environment->executeSeed($seed);
+    }
 }
