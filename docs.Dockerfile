@@ -5,7 +5,7 @@ COPY docs /data/docs
 
 # Build docs with sphinx
 RUN cd /data/docs-builder && \
-  make website SOURCE=/data/docs DEST=/data/website
+  make website LANGS="en es fr ja" SOURCE=/data/docs DEST=/data/website
 
 
 # Build a small nginx container with just the static site in it.
