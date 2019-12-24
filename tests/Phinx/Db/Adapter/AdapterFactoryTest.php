@@ -12,12 +12,12 @@ class AdapterFactoryTest extends TestCase
      */
     private $factory;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->factory = AdapterFactory::instance();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->factory);
     }

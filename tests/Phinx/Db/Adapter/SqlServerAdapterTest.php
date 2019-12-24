@@ -18,7 +18,7 @@ class SqlServerAdapterTest extends TestCase
      */
     private $adapter;
 
-    public function setUp()
+    public function setUp(): void
     {
         if (!TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED) {
             $this->markTestSkipped('SqlServer tests disabled. See TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED constant.');
@@ -41,7 +41,7 @@ class SqlServerAdapterTest extends TestCase
         $this->adapter->disconnect();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         if (!empty($this->adapter)) {
             $this->adapter->disconnect();

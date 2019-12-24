@@ -24,7 +24,7 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
     /**
      * Pass vars to $_SERVER
      */
-    public function setUp()
+    public function setUp(): void
     {
         foreach (static::$server as $name => $value) {
             $_SERVER[$name] = $value;
@@ -34,7 +34,7 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
     /**
      * Clean-up
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         foreach (static::$server as $name => $value) {
              unset($_SERVER[$name]);

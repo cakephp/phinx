@@ -13,7 +13,7 @@ class ForeignKeyTest extends TestCase
      */
     private $fk = null;
 
-    protected function setUp()
+    public function setUp(): void
     {
         $this->fk = new ForeignKey();
     }
