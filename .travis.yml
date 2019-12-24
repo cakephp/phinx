@@ -12,9 +12,6 @@ services:
 php:
   - 5.6
   - 7.0
-  - 7.1
-  - 7.2
-  - 7.3
   - 7.4
 
 env:
@@ -26,10 +23,10 @@ matrix:
     - php: 5.6
       env: PREFER_LOWEST=1
 
-    - php: 7.0
+    - php: 7.2
       env: PHPCS=1 DEFAULT=0
 
-    - php: 7.1
+    - php: 7.3
       env: PHPSTAN=1 DEFAULT=0
 
 before_install:
@@ -55,7 +52,6 @@ after_success:
 
 cache:
   directories:
-    - vendor
     - $HOME/.composer/cache
 
 notifications:
