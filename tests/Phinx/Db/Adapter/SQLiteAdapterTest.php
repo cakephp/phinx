@@ -697,7 +697,7 @@ class SQLiteAdapterTest extends TestCase
     public function testFailingDropForeignKey()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageRegExp('/test/');
+        $this->expectExceptionMessageMatches('/test/');
 
         $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
         $refTable->save();
@@ -942,7 +942,7 @@ class SQLiteAdapterTest extends TestCase
 CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR NULL, `column2` INTEGER NULL, `column3` VARCHAR NOT NULL DEFAULT 'test');
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
     }
 
     /**
@@ -982,7 +982,7 @@ INSERT INTO `table1` (`int_col`) VALUES (23);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $actualOutput = preg_replace("/\r\n|\r/", "\n", $actualOutput); // normalize line endings for Windows
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the insert to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the insert to the output');
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
         self::assertTrue($countQuery->execute());
@@ -1023,7 +1023,7 @@ OUTPUT;
 INSERT INTO `table1` (`string_col`, `int_col`) VALUES ('test_data1', 23), (null, 42);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the bulkinsert to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the bulkinsert to the output');
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
         self::assertTrue($countQuery->execute());
@@ -1058,7 +1058,7 @@ CREATE TABLE `table1` (`column1` VARCHAR NULL, `column2` INTEGER NULL, PRIMARY K
 INSERT INTO `table1` (`column1`, `column2`) VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
     }
 
     /**

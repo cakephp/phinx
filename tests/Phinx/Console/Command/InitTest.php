@@ -39,7 +39,7 @@ class InitTest extends TestCase
 
         $commandTester->execute($command, ['decorated' => false]);
 
-        $this->assertContains(
+        $this->assertStringContainsString(
             "created $fullPath",
             $commandTester->getDisplay()
         );
@@ -109,7 +109,7 @@ class InitTest extends TestCase
     public function testThrowsExceptionWhenConfigFilePresent()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageRegExp('/Config file ".*" already exists./');
+        $this->expectExceptionMessageMatches('/Config file ".*" already exists./');
         touch(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.yml');
         $application = new PhinxApplication('testing');
         $application->add(new Init());
@@ -128,7 +128,7 @@ class InitTest extends TestCase
     public function testThrowsExceptionWhenInvalidDir()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageRegExp('/Invalid path ".*" for config file./');
+        $this->expectExceptionMessageMatches('/Invalid path ".*" for config file./');
         $application = new PhinxApplication('testing');
         $application->add(new Init());
 

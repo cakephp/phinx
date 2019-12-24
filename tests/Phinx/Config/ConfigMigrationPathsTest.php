@@ -40,7 +40,7 @@ class ConfigMigrationPathsTest extends AbstractConfigTest
         $config = new Config($values);
         $paths = $config->getMigrationPaths();
 
-        $this->assertInternalType('array', $paths);
+        $this->assertIsArray($paths);
         $this->assertCount(1, $paths);
     }
 }

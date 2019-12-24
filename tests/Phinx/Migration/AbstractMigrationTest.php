@@ -79,7 +79,7 @@ class AbstractMigrationTest extends TestCase
     public function testGetName()
     {
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
-        $this->assertContains('AbstractMigration', $migrationStub->getName());
+        $this->assertStringContainsString('AbstractMigration', $migrationStub->getName());
     }
 
     public function testVersionMethods()

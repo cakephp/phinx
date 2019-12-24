@@ -40,7 +40,7 @@ class ConfigSeedPathsTest extends AbstractConfigTest
         $config = new Config($values);
         $paths = $config->getSeedPaths();
 
-        $this->assertInternalType('array', $paths);
+        $this->assertIsArray($paths);
         $this->assertCount(1, $paths);
     }
 }

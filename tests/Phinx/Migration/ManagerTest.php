@@ -1053,7 +1053,7 @@ class ManagerTest extends TestCase
         $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => true], $return);
 
         $outputStr = $this->manager->getOutput()->fetch();
-        $this->assertContains($expectedStatusHeader, $outputStr);
+        $this->assertStringContainsString($expectedStatusHeader, $outputStr);
     }
 
     public function statusVersionOrderProvider()
@@ -1248,7 +1248,7 @@ class ManagerTest extends TestCase
         if (is_null($expectedMigration)) {
             $this->assertEmpty($output, $message);
         } else {
-            $this->assertContains($expectedMigration, $output, $message);
+            $this->assertStringContainsString($expectedMigration, $output, $message);
         }
     }
 
@@ -1280,7 +1280,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1314,7 +1314,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1348,7 +1348,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1381,7 +1381,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1415,7 +1415,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1449,7 +1449,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1492,7 +1492,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1535,7 +1535,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1577,7 +1577,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1620,7 +1620,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1662,7 +1662,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1686,10 +1686,10 @@ class ManagerTest extends TestCase
         $this->manager->rollback('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('== 20120111235330 TestMigration: reverting', $output);
-        $this->assertContains('== 20120111235330 TestMigration: reverted', $output);
-        $this->assertNotContains('No migrations to rollback', $output);
-        $this->assertNotContains('Undefined offset: -1', $output);
+        $this->assertStringContainsString('== 20120111235330 TestMigration: reverting', $output);
+        $this->assertStringContainsString('== 20120111235330 TestMigration: reverted', $output);
+        $this->assertStringNotContainsString('No migrations to rollback', $output);
+        $this->assertStringNotContainsString('Undefined offset: -1', $output);
     }
 
     public function testRollbackToVersionWithTwoMigrationsDoesNotRollbackBothMigrations()
@@ -1723,7 +1723,7 @@ class ManagerTest extends TestCase
         $this->manager->rollback('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertNotContains('== 20120111235330 TestMigration: reverting', $output);
+        $this->assertStringNotContainsString('== 20120111235330 TestMigration: reverting', $output);
     }
 
     public function testRollbackToVersionWithTwoMigrationsDoesNotRollbackBothMigrationsWithNamespace()
@@ -1758,7 +1758,7 @@ class ManagerTest extends TestCase
         $this->manager->rollback('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertNotContains('== 20160111235330 Foo\Bar\TestMigration: reverting', $output);
+        $this->assertStringNotContainsString('== 20160111235330 Foo\Bar\TestMigration: reverting', $output);
     }
 
     public function testRollbackToVersionWithTwoMigrationsDoesNotRollbackBothMigrationsWithMixedNamespace()
@@ -1793,8 +1793,8 @@ class ManagerTest extends TestCase
         $this->manager->rollback('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('== 20150116183504 Baz\TestMigration2: reverting', $output);
-        $this->assertNotContains('== 20160111235330 TestMigration: reverting', $output);
+        $this->assertStringContainsString('== 20150116183504 Baz\TestMigration2: reverting', $output);
+        $this->assertStringNotContainsString('== 20160111235330 TestMigration: reverting', $output);
     }
 
     /**
@@ -1832,7 +1832,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1871,7 +1871,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1910,7 +1910,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -5311,9 +5311,9 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('GSeeder', $output);
-        $this->assertContains('PostSeeder', $output);
-        $this->assertContains('UserSeeder', $output);
+        $this->assertStringContainsString('GSeeder', $output);
+        $this->assertStringContainsString('PostSeeder', $output);
+        $this->assertStringContainsString('UserSeeder', $output);
     }
 
     public function testExecuteSeedWorksAsExpectedWithNamespace()
@@ -5327,9 +5327,9 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('Foo\Bar\GSeeder', $output);
-        $this->assertContains('Foo\Bar\PostSeeder', $output);
-        $this->assertContains('Foo\Bar\UserSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\GSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\PostSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\UserSeeder', $output);
     }
 
     public function testExecuteSeedWorksAsExpectedWithMixedNamespace()
@@ -5343,15 +5343,15 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('GSeeder', $output);
-        $this->assertContains('PostSeeder', $output);
-        $this->assertContains('UserSeeder', $output);
-        $this->assertContains('Baz\GSeeder', $output);
-        $this->assertContains('Baz\PostSeeder', $output);
-        $this->assertContains('Baz\UserSeeder', $output);
-        $this->assertContains('Foo\Bar\GSeeder', $output);
-        $this->assertContains('Foo\Bar\PostSeeder', $output);
-        $this->assertContains('Foo\Bar\UserSeeder', $output);
+        $this->assertStringContainsString('GSeeder', $output);
+        $this->assertStringContainsString('PostSeeder', $output);
+        $this->assertStringContainsString('UserSeeder', $output);
+        $this->assertStringContainsString('Baz\GSeeder', $output);
+        $this->assertStringContainsString('Baz\PostSeeder', $output);
+        $this->assertStringContainsString('Baz\UserSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\GSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\PostSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\UserSeeder', $output);
     }
 
     public function testExecuteASingleSeedWorksAsExpected()
@@ -5364,7 +5364,7 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv', 'UserSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('UserSeeder', $output);
+        $this->assertStringContainsString('UserSeeder', $output);
     }
 
     public function testExecuteASingleSeedWorksAsExpectedWithNamespace()
@@ -5378,7 +5378,7 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv', 'Foo\Bar\UserSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('Foo\Bar\UserSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\UserSeeder', $output);
     }
 
     public function testExecuteASingleSeedWorksAsExpectedWithMixedNamespace()
@@ -5392,7 +5392,7 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv', 'Baz\UserSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('Baz\UserSeeder', $output);
+        $this->assertStringContainsString('Baz\UserSeeder', $output);
     }
 
     public function testExecuteANonExistentSeedWorksAsExpected()
@@ -5408,7 +5408,7 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv', 'NonExistentSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('UserSeeder', $output);
+        $this->assertStringContainsString('UserSeeder', $output);
     }
 
     public function testExecuteANonExistentSeedWorksAsExpectedWithNamespace()
@@ -5425,7 +5425,7 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv', 'Foo\Bar\NonExistentSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('Foo\Bar\UserSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\UserSeeder', $output);
     }
 
     public function testExecuteANonExistentSeedWorksAsExpectedWithMixedNamespace()
@@ -5442,9 +5442,9 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv', 'Baz\NonExistentSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('UserSeeder', $output);
-        $this->assertContains('Baz\UserSeeder', $output);
-        $this->assertContains('Foo\Bar\UserSeeder', $output);
+        $this->assertStringContainsString('UserSeeder', $output);
+        $this->assertStringContainsString('Baz\UserSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\UserSeeder', $output);
     }
 
     public function testOrderSeeds()
@@ -5926,7 +5926,7 @@ class ManagerTest extends TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
 
-        $this->assertContains('is not a valid version', $output);
+        $this->assertStringContainsString('is not a valid version', $output);
     }
 
     public function testPostgresFullMigration()
