@@ -2,9 +2,11 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use BadMethodCallException;
 use Phinx\Db\Adapter\SqlServerAdapter;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
@@ -276,11 +278,9 @@ WHERE t.name='ntable'");
         $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
     }
 
-    /**
-     * @expectedException \BadMethodCallException
-     */
     public function testChangeCommentFails()
     {
+        $this->expectException(BadMethodCallException::class);
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
 
@@ -685,12 +685,10 @@ WHERE t.name='ntable'");
         $this->adapter->dropDatabase('phinx_temp_database');
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Column type "idontexist" is not supported by SqlServer.
-     */
     public function testInvalidSqlType()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Column type "idontexist" is not supported by SqlServer.');
         $this->adapter->getSqlType('idontexist');
     }
 

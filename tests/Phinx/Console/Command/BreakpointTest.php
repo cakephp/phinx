@@ -158,12 +158,10 @@ class BreakpointTest extends TestCase
         ];
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Cannot toggle a breakpoint and remove all breakpoints at the same time.
-     */
     public function testRemoveAllAndTargetThrowsException()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
         $application = new PhinxApplication('testing');
         $application->add(new Breakpoint());
 
@@ -189,19 +187,17 @@ class BreakpointTest extends TestCase
             ],
             ['decorated' => false]
         );
-
-        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     /**
      * @param array $commandLine
      *
      * @dataProvider provideCombinedParametersToCauseException
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Cannot use more than one of --set, --unset, or --remove-all at the same time.
      */
     public function testRemoveAllSetUnsetCombinedThrowsException($commandLine)
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot use more than one of --set, --unset, or --remove-all at the same time.');
         $application = new PhinxApplication('testing');
         $application->add(new Breakpoint());
 

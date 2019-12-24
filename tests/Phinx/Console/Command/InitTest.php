@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Console\Command;
 
+use InvalidArgumentException;
 use Phinx\Console\Command\Init;
 use Phinx\Console\PhinxApplication;
 use PHPUnit\Framework\TestCase;
@@ -105,12 +106,10 @@ class InitTest extends TestCase
         chdir($current_dir);
     }
 
-    /**
-     * @expectedException              \InvalidArgumentException
-     * @expectedExceptionMessageRegExp /Config file ".*" already exists./
-     */
     public function testThrowsExceptionWhenConfigFilePresent()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageRegExp('/Config file ".*" already exists./');
         touch(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.yml');
         $application = new PhinxApplication('testing');
         $application->add(new Init());
@@ -126,12 +125,10 @@ class InitTest extends TestCase
         ]);
     }
 
-    /**
-     * @expectedException              \InvalidArgumentException
-     * @expectedExceptionMessageRegExp /Invalid path ".*" for config file./
-     */
     public function testThrowsExceptionWhenInvalidDir()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageRegExp('/Invalid path ".*" for config file./');
         $application = new PhinxApplication('testing');
         $application->add(new Init());
 
@@ -146,12 +143,10 @@ class InitTest extends TestCase
         ]);
     }
 
-    /**
-     * @expectedException              \InvalidArgumentException
-     * @expectedExceptionMessageRegExp /Invalid format "invalid". Format must be either yml, json, or php./
-     */
     public function testThrowsExceptionWhenInvalidFormat()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid format "invalid". Format must be either yml, json, or php.');
         $application = new PhinxApplication('testing');
         $application->add(new Init());
 

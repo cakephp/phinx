@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class PdoAdapterTestPDOMock extends \PDO
 {
@@ -140,12 +141,10 @@ class PdoAdapterTest extends TestCase
         ];
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Invalid version_order configuration option
-     */
     public function testGetVersionLogInvalidVersionOrderKO()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Invalid version_order configuration option');
         $adapter = $this->getMockForAbstractClass(
             '\Phinx\Db\Adapter\PdoAdapter',
             [['version_order' => 'invalid']]

@@ -2,6 +2,8 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use BadMethodCallException;
+use InvalidArgumentException;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Table\Column;
 use Phinx\Util\Literal;
@@ -315,11 +317,9 @@ class SQLiteAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testAddMultipleColumnPrimaryKeyFails()
     {
+        $this->expectException(InvalidArgumentException::class);
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table
             ->addColumn('column1', 'integer')
@@ -331,11 +331,9 @@ class SQLiteAdapterTest extends TestCase
             ->save();
     }
 
-    /**
-     * @expectedException \BadMethodCallException
-     */
     public function testChangeCommentFails()
     {
+        $this->expectException(BadMethodCallException::class);
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
 
@@ -696,12 +694,11 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasTable($table->getName()));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessageRegExp /test/
-     */
     public function testFailingDropForeignKey()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageRegExp('/test/');
+
         $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
         $refTable->save();
 

@@ -4,6 +4,7 @@ namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\AdapterFactory;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class AdapterFactoryTest extends TestCase
 {
@@ -40,12 +41,10 @@ class AdapterFactoryTest extends TestCase
         $this->assertEquals($adapter, $method->invoke($this->factory, 'test'));
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Adapter class "Test\Phinx\Db\Adapter\AdapterFactoryTest" must implement Phinx\Db\Adapter\AdapterInterface
-     */
     public function testRegisterAdapterFailure()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Adapter class "Test\Phinx\Db\Adapter\AdapterFactoryTest" must implement Phinx\Db\Adapter\AdapterInterface');
         $adapter = get_class($this);
         $this->factory->registerAdapter('test', $adapter);
     }
@@ -57,12 +56,10 @@ class AdapterFactoryTest extends TestCase
         $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $adapter);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Adapter "bad" has not been registered
-     */
     public function testGetAdapterFailure()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Adapter "bad" has not been registered');
         $this->factory->getAdapter('bad', []);
     }
 
@@ -79,12 +76,10 @@ class AdapterFactoryTest extends TestCase
         $this->assertEquals($wrapper, $method->invoke($this->factory, 'test'));
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Wrapper class "Test\Phinx\Db\Adapter\AdapterFactoryTest" must be implement Phinx\Db\Adapter\WrapperInterface
-     */
     public function testRegisterWrapperFailure()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Wrapper class "Test\Phinx\Db\Adapter\AdapterFactoryTest" must be implement Phinx\Db\Adapter\WrapperInterface');
         $wrapper = get_class($this);
         $this->factory->registerWrapper('test', $wrapper);
     }
@@ -101,12 +96,10 @@ class AdapterFactoryTest extends TestCase
         $this->assertInstanceOf('Phinx\Db\Adapter\TablePrefixAdapter', $wrapper);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Wrapper "nope" has not been registered
-     */
     public function testGetWrapperFailure()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Wrapper "nope" has not been registered');
         $this->factory->getWrapper('nope', $this->getAdapterMock());
     }
 }

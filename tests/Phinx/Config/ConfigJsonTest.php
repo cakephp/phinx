@@ -4,6 +4,7 @@ namespace Test\Phinx\Config;
 
 use Phinx\Config\Config;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 /**
  * Class ConfigJsonTest
@@ -24,10 +25,10 @@ class ConfigJsonTest extends TestCase
 
     /**
      * @covers \Phinx\Config\Config::fromJson
-     * @expectedException \RuntimeException
      */
     public function testFromJSONInvalidJson()
     {
+        $this->expectException(RuntimeException::class);
         $path = __DIR__ . '/_files';
         Config::fromJson($path . '/invalid.json');
     }

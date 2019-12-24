@@ -2,10 +2,12 @@
 
 namespace Test\Phinx\Migration;
 
+use InvalidArgumentException;
 use Phinx\Config\Config;
 use Phinx\Console\Command\AbstractCommand;
 use Phinx\Migration\Manager;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -1083,12 +1085,10 @@ class ManagerTest extends TestCase
         ];
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Invalid version_order configuration option
-     */
     public function testPrintStatusInvalidVersionOrderKO()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Invalid version_order configuration option');
         // stub environment
         $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
             ->setConstructorArgs(['mockenv', []])
@@ -5395,12 +5395,11 @@ class ManagerTest extends TestCase
         $this->assertContains('Baz\UserSeeder', $output);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The seed class "NonExistentSeeder" does not exist
-     */
     public function testExecuteANonExistentSeedWorksAsExpected()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The seed class "NonExistentSeeder" does not exist');
+
         // stub environment
         $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
             ->setConstructorArgs(['mockenv', []])
@@ -5412,12 +5411,11 @@ class ManagerTest extends TestCase
         $this->assertContains('UserSeeder', $output);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The seed class "Foo\Bar\NonExistentSeeder" does not exist
-     */
     public function testExecuteANonExistentSeedWorksAsExpectedWithNamespace()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The seed class "Foo\Bar\NonExistentSeeder" does not exist');
+
         // stub environment
         $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
             ->setConstructorArgs(['mockenv', []])
@@ -5430,12 +5428,11 @@ class ManagerTest extends TestCase
         $this->assertContains('Foo\Bar\UserSeeder', $output);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The seed class "Baz\NonExistentSeeder" does not exist
-     */
     public function testExecuteANonExistentSeedWorksAsExpectedWithMixedNamespace()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The seed class "Baz\NonExistentSeeder" does not exist');
+
         // stub environment
         $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
             ->setConstructorArgs(['mockenv', []])
@@ -5488,12 +5485,11 @@ class ManagerTest extends TestCase
         }
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The environment "invalidenv" does not exist
-     */
     public function testGettingAnInvalidEnvironment()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The environment "invalidenv" does not exist');
+
         $this->manager->getEnvironment('invalidenv');
     }
 

@@ -2,6 +2,8 @@
 
 namespace Test\Phinx\Console\Command;
 
+use Exception;
+use InvalidArgumentException;
 use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
 use Phinx\Console\Command\Create;
@@ -69,12 +71,10 @@ class CreateTest extends TestCase
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The migration class name "MyDuplicateMigration" already exists
-     */
     public function testExecuteWithDuplicateMigrationNames()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The migration class name "MyDuplicateMigration" already exists');
         $application = new PhinxApplication('testing');
         $application->add(new Create());
 
@@ -95,12 +95,10 @@ class CreateTest extends TestCase
         $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The migration class name "Foo\Bar\MyDuplicateMigration" already exists
-     */
     public function testExecuteWithDuplicateMigrationNamesWithNamespace()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The migration class name "Foo\Bar\MyDuplicateMigration" already exists');
         $application = new PhinxApplication('testing');
         $application->add(new Create());
 
@@ -127,12 +125,10 @@ class CreateTest extends TestCase
         $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
     }
 
-    /**
-     * @expectedException \Exception
-     * @expectedExceptionMessage Cannot use --template and --class at the same time
-     */
     public function testSupplyingBothClassAndTemplateAtCommandLineThrowsException()
     {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Cannot use --template and --class at the same time');
         $application = new PhinxApplication('testing');
         $application->add(new Create());
 
@@ -151,12 +147,10 @@ class CreateTest extends TestCase
         $commandTester->execute(['command' => $command->getName(), 'name' => 'MyFailingMigration', '--template' => 'MyTemplate', '--class' => 'MyTemplateClass']);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Cannot define template:class and template:file at the same time
-     */
     public function testSupplyingBothClassAndTemplateInConfigThrowsException()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot define template:class and template:file at the same time');
         $application = new PhinxApplication('testing');
         $application->add(new Create());
 

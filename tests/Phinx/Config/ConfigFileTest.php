@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Config;
 
+use InvalidArgumentException;
 use Phinx\Console\Command\AbstractCommand;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -50,10 +51,10 @@ class ConfigFileTest extends TestCase
      *
      * @param $input
      * @param $dir
-     * @expectedException \InvalidArgumentException
      */
     public function testNotWorkingGetConfigFile($input, $dir)
     {
+        $this->expectException(InvalidArgumentException::class);
         $this->runLocateFile($input, $dir);
     }
 

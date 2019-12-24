@@ -2,8 +2,10 @@
 
 namespace Test\Phinx\Db\Table;
 
+use InvalidArgumentException;
 use Phinx\Db\Table\ForeignKey;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class ForeignKeyTest extends TestCase
 {
@@ -59,19 +61,15 @@ class ForeignKeyTest extends TestCase
         $this->assertEquals($valueOfConstant, $this->fk->getOnUpdate());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testUnknownActionsNotAllowedThroughSetter()
     {
+        $this->expectException(InvalidArgumentException::class);
         $this->fk->setOnDelete('i m dump');
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testUnknownActionsNotAllowedThroughOptions()
     {
+        $this->expectException(InvalidArgumentException::class);
         $this->fk->setOptions(['update' => 'no yu a dumb']);
     }
 
@@ -89,12 +87,10 @@ class ForeignKeyTest extends TestCase
         ];
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage "0" is not a valid foreign key option.
-     */
     public function testSetOptionThrowsExceptionIfOptionIsNotString()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('"0" is not a valid foreign key option');
         $this->fk->setOptions(['update']);
     }
 }

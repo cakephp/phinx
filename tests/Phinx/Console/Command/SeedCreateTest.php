@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Console\Command;
 
+use InvalidArgumentException;
 use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
 use Phinx\Console\Command\SeedCreate;
@@ -57,12 +58,10 @@ class SeedCreateTest extends TestCase
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The file "MyDuplicateSeeder.php" already exists
-     */
     public function testExecute()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The file "MyDuplicateSeeder.php" already exists');
         $application = new PhinxApplication('testing');
         $application->add(new SeedCreate());
 
@@ -83,12 +82,11 @@ class SeedCreateTest extends TestCase
         $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateSeeder'], ['decorated' => false]);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The seed class name "badseedname" is invalid. Please use CamelCase format
-     */
     public function testExecuteWithInvalidClassName()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The seed class name "badseedname" is invalid. Please use CamelCase format');
+
         $application = new PhinxApplication('testing');
         $application->add(new SeedCreate());
 

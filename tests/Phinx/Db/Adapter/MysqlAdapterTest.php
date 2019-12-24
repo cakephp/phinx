@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use PDOException;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Util\Literal;
@@ -940,11 +941,9 @@ class MysqlAdapterTest extends TestCase
         $this->assertEquals($limit, $sqlType['limit']);
     }
 
-    /**
-     * @expectedException \PDOException
-     */
     public function testTimestampInvalidLimit()
     {
+        $this->expectException(PDOException::class);
         $this->adapter->connect();
         if (version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.4') === -1) {
             $this->markTestSkipped('Cannot test datetime limit on versions less than 5.6.4');
