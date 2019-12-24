@@ -20,7 +20,7 @@ use Phinx\Db\Util\AlterInstructions;
 use Phinx\Util\Literal;
 use RuntimeException;
 
-class PostgresAdapter extends PdoAdapter implements AdapterInterface
+class PostgresAdapter extends PdoAdapter
 {
     /**
      * Columns with comments
@@ -46,24 +46,23 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 // @codeCoverageIgnoreEnd
             }
 
-            $db = null;
             $options = $this->getOptions();
 
-            // if port is specified use it, otherwise use the PostgreSQL default
+            $dsn = $dsn = 'pgsql:host=' . $options['host'] . ';dbname=' . $options['name'];
+
+            // if custom port is specified use it
             if (isset($options['port'])) {
-                $dsn = 'pgsql:host=' . $options['host'] . ';port=' . $options['port'] . ';dbname=' . $options['name'];
-            } else {
-                $dsn = 'pgsql:host=' . $options['host'] . ';dbname=' . $options['name'];
+                $dsn .= ';port=' . $options['port'];
             }
 
-            try {
-                $db = new PDO($dsn, $options['user'], $options['pass'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-            } catch (PDOException $exception) {
-                throw new InvalidArgumentException(sprintf(
-                    'There was a problem connecting to the database: %s',
-                    $exception->getMessage()
-                ), $exception->getCode(), $exception);
+            $driverOptions = [];
+
+            // use custom data fetch mode
+            if (!empty($options['fetch_mode'])) {
+                $driverOptions[PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
             }
+
+            $db = $this->createPdoConnection($dsn, $options['user'], $options['pass'], $driverOptions);
 
             try {
                 if (isset($options['schema'])) {
@@ -305,7 +304,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $sql .= implode(',', array_map([$this, 'quoteColumnName'], $newColumns));
             } else {
                 throw new InvalidArgumentException(sprintf(
-                    "Invalid value for primary key: %s",
+                    'Invalid value for primary key: %s',
                     json_encode($newColumns)
                 ));
             }
@@ -386,11 +385,11 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $parts = $this->getSchemaName($tableName);
         $columns = [];
         $sql = sprintf(
-            "SELECT column_name, data_type, udt_name, is_identity, is_nullable,
+            'SELECT column_name, data_type, udt_name, is_identity, is_nullable,
              column_default, character_maximum_length, numeric_precision, numeric_scale,
              datetime_precision
              FROM information_schema.columns
-             WHERE table_schema = %s AND table_name = %s",
+             WHERE table_schema = %s AND table_name = %s',
             $this->getConnection()->quote($parts['schema']),
             $this->getConnection()->quote($parts['table'])
         );
@@ -454,9 +453,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $parts = $this->getSchemaName($tableName);
         $sql = sprintf(
-            "SELECT count(*)
+            'SELECT count(*)
             FROM information_schema.columns
-            WHERE table_schema = %s AND table_name = %s AND column_name = %s",
+            WHERE table_schema = %s AND table_name = %s AND column_name = %s',
             $this->getConnection()->quote($parts['schema']),
             $this->getConnection()->quote($parts['table']),
             $this->getConnection()->quote($columnName)
@@ -495,9 +494,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     {
         $parts = $this->getSchemaName($tableName);
         $sql = sprintf(
-            "SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS column_exists
+            'SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS column_exists
              FROM information_schema.columns
-             WHERE table_schema = %s AND table_name = %s AND column_name = %s",
+             WHERE table_schema = %s AND table_name = %s AND column_name = %s',
             $this->getConnection()->quote($parts['schema']),
             $this->getConnection()->quote($parts['table']),
             $this->getConnection()->quote($columnName)
@@ -811,16 +810,16 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             }
 
             return false;
-        } else {
-            foreach ($foreignKeys as $key) {
-                $a = array_diff($columns, $key['columns']);
-                if (empty($a)) {
-                    return true;
-                }
-            }
-
-            return false;
         }
+
+        foreach ($foreignKeys as $key) {
+            $a = array_diff($columns, $key['columns']);
+            if (empty($a)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -893,7 +892,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
         $instructions = new AlterInstructions();
 
         $parts = $this->getSchemaName($tableName);
-        $sql = "SELECT c.CONSTRAINT_NAME
+        $sql = 'SELECT c.CONSTRAINT_NAME
                 FROM (
                     SELECT CONSTRAINT_NAME, array_agg(COLUMN_NAME::varchar) as columns
                     FROM information_schema.KEY_COLUMN_USAGE
@@ -905,7 +904,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 ) c
                 WHERE
                     ARRAY[%s]::varchar[] <@ c.columns AND
-                    ARRAY[%s]::varchar[] @> c.columns";
+                    ARRAY[%s]::varchar[] @> c.columns';
 
         $array = [];
         foreach ($columns as $col) {
@@ -1149,7 +1148,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
                 $buffer[] = sprintf(
                     '(%s,%s)',
                     strtoupper($sqlType['type']),
-                    $sqlType['srid']
+                    $column->getSrid() ?: $sqlType['srid']
                 );
             } elseif (in_array($sqlType['name'], ['time', 'timestamp'])) {
                 if (is_numeric($column->getPrecision())) {
@@ -1216,15 +1215,14 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
             $columnNames = $index->getColumns();
             $indexName = sprintf('%s_%s', $parts['table'], implode('_', $columnNames));
         }
-        $def = sprintf(
-            "CREATE %s INDEX %s ON %s (%s);",
+
+        return sprintf(
+            'CREATE %s INDEX %s ON %s (%s);',
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $this->quoteColumnName($indexName),
             $this->quoteTableName($tableName),
             implode(',', array_map([$this, 'quoteColumnName'], $index->getColumns()))
         );
-
-        return $def;
     }
 
     /**
@@ -1295,9 +1293,9 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
     public function hasSchema($schemaName)
     {
         $sql = sprintf(
-            "SELECT count(*)
+            'SELECT count(*)
              FROM pg_namespace
-             WHERE nspname = %s",
+             WHERE nspname = %s',
             $this->getConnection()->quote($schemaName)
         );
         $result = $this->fetchRow($sql);
@@ -1314,7 +1312,7 @@ class PostgresAdapter extends PdoAdapter implements AdapterInterface
      */
     public function dropSchema($schemaName)
     {
-        $sql = sprintf("DROP SCHEMA IF EXISTS %s CASCADE", $this->quoteSchemaName($schemaName));
+        $sql = sprintf('DROP SCHEMA IF EXISTS %s CASCADE', $this->quoteSchemaName($schemaName));
         $this->execute($sql);
     }
 

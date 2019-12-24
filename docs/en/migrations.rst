@@ -495,6 +495,8 @@ Option    Description
 comment   set a text comment on the table
 ========= ===========
 
+.. _valid-column-types:
+
 Valid Column Types
 ~~~~~~~~~~~~~~~~~~
 
@@ -525,7 +527,7 @@ In addition, the Postgres adapter supports ``interval``, ``json``, ``jsonb``, ``
 For valid options, see the `Valid Column Options`_ below.
 
 Custom Column Types & Default Values
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Some DBMS systems provide additional column types and default values that are specific to them.
 If you don't want to keep your migrations DBMS-agnostic you can use those custom types in your migrations
@@ -1146,7 +1148,7 @@ Changing Column Attributes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To change column type or options on an existing column, use the ``changeColumn()`` method.
-See `Valid Column Types`_ and `Valid Column Options`_ for allowed values.
+See :ref:`valid-column-types` and `Valid Column Options`_ for allowed values.
 
 .. code-block:: php
 
@@ -1305,10 +1307,12 @@ call this method for each index.
             public function up()
             {
                 $table = $this->table('users');
-                $table->removeIndex(['email']);
+                $table->removeIndex(['email'])
+                    ->save();
 
                 // alternatively, you can delete an index by its name, ie:
-                $table->removeIndexByName('idx_users_email');
+                $table->removeIndexByName('idx_users_email')
+                    ->save();
             }
 
             /**
