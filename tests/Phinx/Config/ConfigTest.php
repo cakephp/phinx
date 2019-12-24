@@ -22,7 +22,6 @@ class ConfigTest extends AbstractConfigTest
         $config = new Config([]);
         // this option is set to its default value when not being passed in the constructor, so we can ignore it
         unset($config['version_order']);
-        ;
         $this->assertAttributeEmpty('values', $config);
         $this->assertAttributeEmpty('configFilePath', $config);
         $this->assertNull($config->getConfigFilePath());
