@@ -26,7 +26,7 @@ matrix:
     - php: 7.2
       env: PHPCS=1 DEFAULT=0
 
-    - php: 7.3
+    - php: 7.1
       env: PHPSTAN=1 DEFAULT=0
 
 before_install:
