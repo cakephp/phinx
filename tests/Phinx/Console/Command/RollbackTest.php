@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Console\Command;
 
+use InvalidArgumentException;
 use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
 use Phinx\Console\Command\AbstractCommand;
@@ -38,7 +39,7 @@ class RollbackTest extends TestCase
      */
     const DEFAULT_TEST_ENVIRONMENT = 'development';
 
-    protected function setUp()
+    public function setUp(): void
     {
         $this->config = new Config([
             'paths' => [
@@ -261,12 +262,14 @@ class RollbackTest extends TestCase
 
     /**
      * @dataProvider getTargetFromDateThrowsExceptionDataProvider
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].
      */
     public function testGetTargetFromDateThrowsException($invalidDate)
     {
         $rollbackCommand = new Rollback();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
+
         $rollbackCommand->getTargetFromDate($invalidDate);
     }
 

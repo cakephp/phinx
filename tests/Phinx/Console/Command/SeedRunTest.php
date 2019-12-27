@@ -33,7 +33,7 @@ class SeedRunTest extends TestCase
      */
     protected $output;
 
-    protected function setUp()
+    public function setUp(): void
     {
         $this->config = new Config([
             'paths' => [

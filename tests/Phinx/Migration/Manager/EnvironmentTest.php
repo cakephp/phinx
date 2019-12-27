@@ -6,6 +6,7 @@ use Phinx\Db\Adapter\AdapterFactory;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Migration\MigrationInterface;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class PDOMock extends \PDO
 {
@@ -33,7 +34,7 @@ class EnvironmentTest extends TestCase
      */
     private $environment;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->environment = new Environment('test', []);
     }
@@ -204,21 +205,20 @@ class EnvironmentTest extends TestCase
         $this->assertArrayHasKey('dsn', $env->getOptions());
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Adapter "fakeadapter" has not been registered
-     */
     public function testInvalidAdapter()
     {
         $this->environment->setOptions(['adapter' => 'fakeadapter']);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Adapter "fakeadapter" has not been registered');
+
         $this->environment->getAdapter();
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testNoAdapter()
     {
+        $this->expectException(RuntimeException::class);
+
         $this->environment->getAdapter();
     }
 
@@ -241,13 +241,13 @@ class EnvironmentTest extends TestCase
         $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $options['connection']->getAttribute(\PDO::ATTR_ERRMODE));
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage The specified connection is not a PDO instance
-     */
     public function testGetAdapterWithBadExistingPdoInstance()
     {
         $this->environment->setOptions(['connection' => new \stdClass()]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The specified connection is not a PDO instance');
+
         $this->environment->getAdapter();
     }
 

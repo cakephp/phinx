@@ -36,7 +36,7 @@ class PostgresAdapterTest extends TestCase
      */
     private $adapter;
 
-    public function setUp()
+    public function setUp(): void
     {
         if (!TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED) {
             $this->markTestSkipped('Postgres tests disabled.  See TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED constant.');
@@ -68,7 +68,7 @@ class PostgresAdapterTest extends TestCase
         $this->adapter->disconnect();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         if ($this->adapter) {
             $this->adapter->dropAllSchemas();
@@ -1175,12 +1175,11 @@ class PostgresAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasSchema('bar'));
     }
 
-    /**
-     * @expectedException \Phinx\Db\Adapter\UnsupportedColumnTypeException
-     * @expectedExceptionMessage Column type "idontexist" is not supported by Postgresql.
-     */
     public function testInvalidSqlType()
     {
+        $this->expectException(UnsupportedColumnTypeException::class);
+        $this->expectExceptionMessage('Column type "idontexist" is not supported by Postgresql.');
+
         $this->adapter->getSqlType('idontexist');
     }
 
@@ -1763,7 +1762,7 @@ class PostgresAdapterTest extends TestCase
         'NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
         '"table1_pkey" PRIMARY KEY ("id"));';
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains(
+        $this->assertStringContainsString(
             $expectedOutput,
             $actualOutput,
             'Passing the --dry-run option does not dump create table query'
@@ -1789,7 +1788,7 @@ class PostgresAdapterTest extends TestCase
         'NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
         '"table1_pkey" PRIMARY KEY ("id"));';
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains(
+        $this->assertStringContainsString(
             $expectedOutput,
             $actualOutput,
             'Passing the --dry-run option does not dump create table query'
@@ -1832,7 +1831,7 @@ INSERT INTO "public"."table1" ("string_col") VALUES (null);
 INSERT INTO "public"."table1" ("int_col") VALUES (23);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains(
+        $this->assertStringContainsString(
             $expectedOutput,
             $actualOutput,
             'Passing the --dry-run option doesn\'t dump the insert to the output'
@@ -1877,7 +1876,7 @@ OUTPUT;
 INSERT INTO "public"."table1" ("string_col", "int_col") VALUES ('test_data1', 23), (null, 42);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains(
+        $this->assertStringContainsString(
             $expectedOutput,
             $actualOutput,
             'Passing the --dry-run option doesn\'t dump the bulkinsert to the output'
@@ -1916,7 +1915,7 @@ CREATE TABLE "schema1"."table1" ("column1" CHARACTER VARYING (255) NOT NULL, "co
 INSERT INTO "schema1"."table1" ("column1", "column2") VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
     }
 
     public function testDumpTransaction()

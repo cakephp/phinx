@@ -39,7 +39,7 @@ class BreakpointTest extends TestCase
      */
     const DEFAULT_TEST_ENVIRONMENT = 'development';
 
-    protected function setUp()
+    public function setUp(): void
     {
         @mkdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations', 0777, true);
         $this->config = new Config(
@@ -158,10 +158,6 @@ class BreakpointTest extends TestCase
         ];
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Cannot toggle a breakpoint and remove all breakpoints at the same time.
-     */
     public function testRemoveAllAndTargetThrowsException()
     {
         $application = new PhinxApplication('testing');
@@ -181,7 +177,10 @@ class BreakpointTest extends TestCase
 
         $commandTester = new CommandTester($command);
 
-        $exitCode = $commandTester->execute(
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
+
+        $commandTester->execute(
             [
                 'command' => $command->getName(),
                 '--remove-all' => true,
@@ -189,16 +188,12 @@ class BreakpointTest extends TestCase
             ],
             ['decorated' => false]
         );
-
-        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     /**
      * @param array $commandLine
      *
      * @dataProvider provideCombinedParametersToCauseException
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Cannot use more than one of --set, --unset, or --remove-all at the same time.
      */
     public function testRemoveAllSetUnsetCombinedThrowsException($commandLine)
     {
@@ -220,8 +215,11 @@ class BreakpointTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $commandLine = array_merge(['command' => $command->getName()], $commandLine);
-        $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
-        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot use more than one of --set, --unset, or --remove-all at the same time.');
+
+        $commandTester->execute($commandLine, ['decorated' => false]);
     }
 
     public function provideCombinedParametersToCauseException()

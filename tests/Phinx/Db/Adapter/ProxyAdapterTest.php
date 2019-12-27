@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\ProxyAdapter;
+use Phinx\Migration\IrreversibleMigrationException;
 use PHPUnit\Framework\TestCase;
 
 class ProxyAdapterTest extends TestCase
@@ -12,7 +13,7 @@ class ProxyAdapterTest extends TestCase
      */
     private $adapter;
 
-    public function setUp()
+    public function setUp(): void
     {
         $stub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
             ->setConstructorArgs([[]])
@@ -26,7 +27,7 @@ class ProxyAdapterTest extends TestCase
         $this->adapter = new ProxyAdapter($stub);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->adapter);
     }
@@ -125,10 +126,6 @@ class ProxyAdapterTest extends TestCase
         $this->assertEquals(['ref_table_id'], $commands[0]->getForeignKey()->getColumns());
     }
 
-    /**
-     * @expectedException \Phinx\Migration\IrreversibleMigrationException
-     * @expectedExceptionMessage Cannot reverse a "Phinx\Db\Action\RemoveColumn" command
-     */
     public function testGetInvertedCommandsThrowsExceptionForIrreversibleCommand()
     {
         $this->adapter
@@ -140,6 +137,10 @@ class ProxyAdapterTest extends TestCase
         $table = new \Phinx\Db\Table('atable', [], $this->adapter);
         $table->removeColumn('thing')
               ->save();
+
+        $this->expectException(IrreversibleMigrationException::class);
+        $this->expectExceptionMessage('Cannot reverse a "Phinx\Db\Action\RemoveColumn" command');
+
         $this->adapter->getInvertedCommands();
     }
 }
