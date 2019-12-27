@@ -128,9 +128,6 @@ class ProxyAdapterTest extends TestCase
 
     public function testGetInvertedCommandsThrowsExceptionForIrreversibleCommand()
     {
-        $this->expectException(IrreversibleMigrationException::class);
-        $this->expectExceptionMessage('Cannot reverse a "Phinx\Db\Action\RemoveColumn" command');
-
         $this->adapter
             ->getAdapter()
             ->expects($this->any())
@@ -140,6 +137,10 @@ class ProxyAdapterTest extends TestCase
         $table = new \Phinx\Db\Table('atable', [], $this->adapter);
         $table->removeColumn('thing')
               ->save();
+
+        $this->expectException(IrreversibleMigrationException::class);
+        $this->expectExceptionMessage('Cannot reverse a "Phinx\Db\Action\RemoveColumn" command');
+
         $this->adapter->getInvertedCommands();
     }
 }

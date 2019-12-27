@@ -319,12 +319,13 @@ class SQLiteAdapterTest extends TestCase
 
     public function testAddMultipleColumnPrimaryKeyFails()
     {
-        $this->expectException(InvalidArgumentException::class);
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table
             ->addColumn('column1', 'integer')
             ->addColumn('column2', 'integer')
             ->save();
+
+        $this->expectException(InvalidArgumentException::class);
 
         $table
             ->changePrimaryKey(['column1', 'column2'])
@@ -333,9 +334,10 @@ class SQLiteAdapterTest extends TestCase
 
     public function testChangeCommentFails()
     {
-        $this->expectException(BadMethodCallException::class);
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
+
+        $this->expectException(BadMethodCallException::class);
 
         $table
             ->changeComment('comment1')
@@ -696,9 +698,6 @@ class SQLiteAdapterTest extends TestCase
 
     public function testFailingDropForeignKey()
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches('/test/');
-
         $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
         $refTable->save();
 
@@ -707,6 +706,9 @@ class SQLiteAdapterTest extends TestCase
             ->addColumn('ref_table_id', 'integer')
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
             ->save();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/test/');
 
         $this->adapter->dropForeignKey($table->getName(), ['ref_table_id', 'test']);
     }
@@ -1357,7 +1359,8 @@ INPUT;
         $this->adapter->hasForeignKey('t', [], 'named_constraint');
     }
 
-    /** @dataProvider providePhinxTypes
+    /**
+     * @dataProvider providePhinxTypes
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getSqlType
      */
     public function testGetSqlType($phinxType, $limit, $exp)

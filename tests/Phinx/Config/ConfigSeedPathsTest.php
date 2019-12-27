@@ -15,8 +15,10 @@ class ConfigSeedPathsTest extends AbstractConfigTest
 {
     public function testGetSeedPathsThrowsExceptionForNoPath()
     {
-        $this->expectException(UnexpectedValueException::class);
         $config = new Config([]);
+
+        $this->expectException(UnexpectedValueException::class);
+
         $config->getSeedPaths();
     }
 

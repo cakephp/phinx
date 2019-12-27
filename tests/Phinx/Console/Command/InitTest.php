@@ -108,8 +108,6 @@ class InitTest extends TestCase
 
     public function testThrowsExceptionWhenConfigFilePresent()
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches('/Config file ".*" already exists./');
         touch(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.yml');
         $application = new PhinxApplication('testing');
         $application->add(new Init());
@@ -117,6 +115,10 @@ class InitTest extends TestCase
         $command = $application->find('init');
 
         $commandTester = new CommandTester($command);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/Config file ".*" already exists./');
+
         $commandTester->execute([
             'command' => $command->getName(),
             'path' => sys_get_temp_dir(),
@@ -127,14 +129,16 @@ class InitTest extends TestCase
 
     public function testThrowsExceptionWhenInvalidDir()
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches('/Invalid path ".*" for config file./');
         $application = new PhinxApplication('testing');
         $application->add(new Init());
 
         $command = $application->find('init');
 
         $commandTester = new CommandTester($command);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/Invalid path ".*" for config file./');
+
         $commandTester->execute([
             'command' => $command->getName(),
             'path' => '/this/dir/does/not/exists',
@@ -145,14 +149,16 @@ class InitTest extends TestCase
 
     public function testThrowsExceptionWhenInvalidFormat()
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid format "invalid". Format must be either yml, json, or php.');
         $application = new PhinxApplication('testing');
         $application->add(new Init());
 
         $command = $application->find('init');
 
         $commandTester = new CommandTester($command);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid format "invalid". Format must be either yml, json, or php.');
+
         $commandTester->execute([
             'command' => $command->getName(),
             'path' => sys_get_temp_dir() . DIRECTORY_SEPARATOR,

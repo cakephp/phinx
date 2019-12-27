@@ -943,12 +943,14 @@ class MysqlAdapterTest extends TestCase
 
     public function testTimestampInvalidLimit()
     {
-        $this->expectException(PDOException::class);
         $this->adapter->connect();
         if (version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '5.6.4') === -1) {
             $this->markTestSkipped('Cannot test datetime limit on versions less than 5.6.4');
         }
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
+
+        $this->expectException(PDOException::class);
+
         $table->addColumn('column1', 'timestamp', ['limit' => 7])->save();
     }
 

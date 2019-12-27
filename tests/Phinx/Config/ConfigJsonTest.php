@@ -28,8 +28,10 @@ class ConfigJsonTest extends TestCase
      */
     public function testFromJSONInvalidJson()
     {
-        $this->expectException(RuntimeException::class);
         $path = __DIR__ . '/_files';
+
+        $this->expectException(RuntimeException::class);
+
         Config::fromJson($path . '/invalid.json');
     }
 }

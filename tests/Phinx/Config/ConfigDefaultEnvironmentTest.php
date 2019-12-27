@@ -40,11 +40,12 @@ class ConfigDefaultEnvironmentTest extends AbstractConfigTest
 
     public function testGetDefaultEnvironmentOverridenByEnvButNotSet()
     {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('The environment configuration (read from $PHINX_ENVIRONMENT) for \'conf-test\' is missing');
         // set dummy
         $dummyEnv = 'conf-test';
         putenv('PHINX_ENVIRONMENT=' . $dummyEnv);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The environment configuration (read from $PHINX_ENVIRONMENT) for \'conf-test\' is missing');
 
         try {
             $config = new Config([]);
@@ -60,12 +61,14 @@ class ConfigDefaultEnvironmentTest extends AbstractConfigTest
 
     public function testGetDefaultEnvironmentOverridenFailedToFind()
     {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Could not find a default environment');
         // set empty env var
         putenv('PHINX_ENVIRONMENT=');
 
         $config = new Config([]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Could not find a default environment');
+
         $config->getDefaultEnvironment();
     }
 }

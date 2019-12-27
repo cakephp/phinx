@@ -10,9 +10,11 @@ class ColumnTest extends TestCase
 {
     public function testSetOptionThrowsExceptionIfOptionIsNotString()
     {
+        $column = new Column();
+
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('"0" is not a valid column option.');
-        $column = new Column();
+
         $column->setOptions(['identity']);
     }
 }

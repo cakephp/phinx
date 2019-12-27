@@ -143,12 +143,13 @@ class PdoAdapterTest extends TestCase
 
     public function testGetVersionLogInvalidVersionOrderKO()
     {
-        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Invalid version_order configuration option');
         $adapter = $this->getMockForAbstractClass(
             '\Phinx\Db\Adapter\PdoAdapter',
             [['version_order' => 'invalid']]
         );
+
+        $this->expectException(RuntimeException::class);
 
         $adapter->getVersionLog();
     }

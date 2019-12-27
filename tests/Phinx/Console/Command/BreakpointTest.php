@@ -160,8 +160,6 @@ class BreakpointTest extends TestCase
 
     public function testRemoveAllAndTargetThrowsException()
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
         $application = new PhinxApplication('testing');
         $application->add(new Breakpoint());
 
@@ -179,7 +177,10 @@ class BreakpointTest extends TestCase
 
         $commandTester = new CommandTester($command);
 
-        $exitCode = $commandTester->execute(
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
+
+        $commandTester->execute(
             [
                 'command' => $command->getName(),
                 '--remove-all' => true,
@@ -196,8 +197,6 @@ class BreakpointTest extends TestCase
      */
     public function testRemoveAllSetUnsetCombinedThrowsException($commandLine)
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Cannot use more than one of --set, --unset, or --remove-all at the same time.');
         $application = new PhinxApplication('testing');
         $application->add(new Breakpoint());
 
@@ -216,8 +215,11 @@ class BreakpointTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $commandLine = array_merge(['command' => $command->getName()], $commandLine);
-        $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
-        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot use more than one of --set, --unset, or --remove-all at the same time.');
+
+        $commandTester->execute($commandLine, ['decorated' => false]);
     }
 
     public function provideCombinedParametersToCauseException()

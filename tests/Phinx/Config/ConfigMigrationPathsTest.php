@@ -15,8 +15,10 @@ class ConfigMigrationPathsTest extends AbstractConfigTest
 {
     public function testGetMigrationPathsThrowsExceptionForNoPath()
     {
-        $this->expectException(UnexpectedValueException::class);
         $config = new Config([]);
+
+        $this->expectException(UnexpectedValueException::class);
+
         $config->getMigrationPaths();
     }
 

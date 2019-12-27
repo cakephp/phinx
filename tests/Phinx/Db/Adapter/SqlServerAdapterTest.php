@@ -280,9 +280,10 @@ WHERE t.name='ntable'");
 
     public function testChangeCommentFails()
     {
-        $this->expectException(BadMethodCallException::class);
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
+
+        $this->expectException(BadMethodCallException::class);
 
         $table
             ->changeComment('comment1')

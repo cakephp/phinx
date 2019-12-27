@@ -10,9 +10,11 @@ class IndexTest extends TestCase
 {
     public function testSetOptionThrowsExceptionIfOptionIsNotString()
     {
+        $column = new Index();
+
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('"0" is not a valid index option.');
-        $column = new Index();
+
         $column->setOptions(['type']);
     }
 }

@@ -30,10 +30,11 @@ class ConfigPhpTest extends TestCase
      */
     public function testFromPHPMethodWithoutArray()
     {
-        $this->expectException(RuntimeException::class);
         $path = __DIR__ . '/_files';
+
+        $this->expectException(RuntimeException::class);
+
         $config = Config::fromPhp($path . '/config_without_array.php');
-        $this->assertEquals('dev', $config->getDefaultEnvironment());
     }
 
     /**
@@ -42,9 +43,10 @@ class ConfigPhpTest extends TestCase
      */
     public function testFromJSONMethodWithoutJSON()
     {
-        $this->expectException(RuntimeException::class);
         $path = __DIR__ . '/_files';
+
+        $this->expectException(RuntimeException::class);
+
         $config = Config::fromPhp($path . '/empty.json');
-        $this->assertEquals('dev', $config->getDefaultEnvironment());
     }
 }

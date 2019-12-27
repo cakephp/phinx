@@ -119,9 +119,11 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testUndefinedArrayAccess()
     {
+        $config = new Config([]);
+
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Identifier "foo" is not defined.');
-        $config = new Config([]);
+
         $config['foo'];
     }
 
@@ -212,8 +214,8 @@ class ConfigTest extends AbstractConfigTest
     {
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Seeds path missing from config file');
+
         $config = new \Phinx\Config\Config([]);
-        $this->assertEquals('db/seeds', $config->getSeedPaths());
     }
 
     /**

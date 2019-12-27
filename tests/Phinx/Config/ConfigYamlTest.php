@@ -19,10 +19,12 @@ class ConfigYamlTest extends TestCase
      */
     public function testGetDefaultEnvironmentWithAnEmptyYamlFile()
     {
-        $this->expectException(RuntimeException::class);
         // test using a Yaml file with no key or entries
         $path = __DIR__ . '/_files';
         $config = Config::fromYaml($path . '/empty.yml');
+
+        $this->expectException(RuntimeException::class);
+
         $config->getDefaultEnvironment();
     }
 
@@ -32,12 +34,14 @@ class ConfigYamlTest extends TestCase
      */
     public function testGetDefaultEnvironmentWithAMissingEnvironmentEntry()
     {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("The environment configuration for 'staging' is missing");
         // test using a Yaml file with a 'default_database' key, but without a
         // corresponding entry
         $path = __DIR__ . '/_files';
         $config = Config::fromYaml($path . '/missing_environment_entry.yml');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("The environment configuration for 'staging' is missing");
+
         $config->getDefaultEnvironment();
     }
 

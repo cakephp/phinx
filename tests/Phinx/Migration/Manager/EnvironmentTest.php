@@ -207,9 +207,11 @@ class EnvironmentTest extends TestCase
 
     public function testInvalidAdapter()
     {
+        $this->environment->setOptions(['adapter' => 'fakeadapter']);
+
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Adapter "fakeadapter" has not been registered');
-        $this->environment->setOptions(['adapter' => 'fakeadapter']);
+
         $this->environment->getAdapter();
     }
 
@@ -240,9 +242,11 @@ class EnvironmentTest extends TestCase
 
     public function testGetAdapterWithBadExistingPdoInstance()
     {
+        $this->environment->setOptions(['connection' => new \stdClass()]);
+
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('The specified connection is not a PDO instance');
-        $this->environment->setOptions(['connection' => new \stdClass()]);
+
         $this->environment->getAdapter();
     }
 
