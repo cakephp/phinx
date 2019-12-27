@@ -212,10 +212,12 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testGetSeedPathThrowsException()
     {
+        $config = new \Phinx\Config\Config([]);
+
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Seeds path missing from config file');
 
-        $config = new \Phinx\Config\Config([]);
+        $config->getSeedPaths();
     }
 
     /**

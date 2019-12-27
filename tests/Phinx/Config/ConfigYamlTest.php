@@ -21,11 +21,11 @@ class ConfigYamlTest extends TestCase
     {
         // test using a Yaml file with no key or entries
         $path = __DIR__ . '/_files';
-        $config = Config::fromYaml($path . '/empty.yml');
 
         $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessageMatches("/File '.*\/empty.yml' must be valid YAML/");
 
-        $config->getDefaultEnvironment();
+        Config::fromYaml($path . '/empty.yml');
     }
 
     /**

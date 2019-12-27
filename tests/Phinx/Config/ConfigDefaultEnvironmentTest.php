@@ -50,8 +50,7 @@ class ConfigDefaultEnvironmentTest extends AbstractConfigTest
         try {
             $config = new Config([]);
             $config->getDefaultEnvironment();
-        }
-        finally {
+        } finally {
             putenv('PHINX_ENVIRONMENT=');
         }
     }
