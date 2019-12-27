@@ -1307,6 +1307,7 @@ INPUT;
     public function testHasNamedPrimaryKey()
     {
         $this->expectException(\InvalidArgumentException::class);
+
         $this->adapter->hasPrimaryKey('t', [], 'named_constraint');
     }
 
@@ -1356,6 +1357,7 @@ INPUT;
     public function testHasNamedForeignKey()
     {
         $this->expectException(\InvalidArgumentException::class);
+
         $this->adapter->hasForeignKey('t', [], 'named_constraint');
     }
 
@@ -1367,6 +1369,7 @@ INPUT;
     {
         if ($exp instanceof \Exception) {
             $this->expectException(get_class($exp));
+
             $this->adapter->getSqlType($phinxType, $limit);
         } else {
             $exp = ['name' => $exp, 'limit' => $limit];

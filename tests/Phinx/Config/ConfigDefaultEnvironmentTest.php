@@ -50,12 +50,9 @@ class ConfigDefaultEnvironmentTest extends AbstractConfigTest
         try {
             $config = new Config([]);
             $config->getDefaultEnvironment();
-        } catch (\Exception $e) {
-            // reset back to normal
+        }
+        finally {
             putenv('PHINX_ENVIRONMENT=');
-
-            // throw again in order to finish test
-            throw $e;
         }
     }
 

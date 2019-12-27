@@ -64,12 +64,14 @@ class ForeignKeyTest extends TestCase
     public function testUnknownActionsNotAllowedThroughSetter()
     {
         $this->expectException(InvalidArgumentException::class);
+
         $this->fk->setOnDelete('i m dump');
     }
 
     public function testUnknownActionsNotAllowedThroughOptions()
     {
         $this->expectException(InvalidArgumentException::class);
+
         $this->fk->setOptions(['update' => 'no yu a dumb']);
     }
 
@@ -91,6 +93,7 @@ class ForeignKeyTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('"0" is not a valid foreign key option');
+
         $this->fk->setOptions(['update']);
     }
 }

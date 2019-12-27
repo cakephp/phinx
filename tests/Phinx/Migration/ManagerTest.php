@@ -5409,9 +5409,6 @@ class ManagerTest extends TestCase
         $this->expectExceptionMessage('The seed class "NonExistentSeeder" does not exist');
 
         $this->manager->seed('mockenv', 'NonExistentSeeder');
-        rewind($this->manager->getOutput()->getStream());
-        $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertStringContainsString('UserSeeder', $output);
     }
 
     public function testExecuteANonExistentSeedWorksAsExpectedWithNamespace()
@@ -5427,9 +5424,6 @@ class ManagerTest extends TestCase
         $this->expectExceptionMessage('The seed class "Foo\Bar\NonExistentSeeder" does not exist');
 
         $this->manager->seed('mockenv', 'Foo\Bar\NonExistentSeeder');
-        rewind($this->manager->getOutput()->getStream());
-        $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertStringContainsString('Foo\Bar\UserSeeder', $output);
     }
 
     public function testExecuteANonExistentSeedWorksAsExpectedWithMixedNamespace()
@@ -5445,11 +5439,6 @@ class ManagerTest extends TestCase
         $this->expectExceptionMessage('The seed class "Baz\NonExistentSeeder" does not exist');
 
         $this->manager->seed('mockenv', 'Baz\NonExistentSeeder');
-        rewind($this->manager->getOutput()->getStream());
-        $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertStringContainsString('UserSeeder', $output);
-        $this->assertStringContainsString('Baz\UserSeeder', $output);
-        $this->assertStringContainsString('Foo\Bar\UserSeeder', $output);
     }
 
     public function testOrderSeeds()

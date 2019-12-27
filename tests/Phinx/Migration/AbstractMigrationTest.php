@@ -289,6 +289,7 @@ class AbstractMigrationTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Migration has pending actions after execution!');
+
         $migrationStub->postFlightCheck();
     }
 

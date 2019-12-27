@@ -62,6 +62,7 @@ class AdapterFactoryTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Adapter "bad" has not been registered');
+
         $this->factory->getAdapter('bad', []);
     }
 
@@ -104,6 +105,7 @@ class AdapterFactoryTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Wrapper "nope" has not been registered');
+
         $this->factory->getWrapper('nope', $this->getAdapterMock());
     }
 }

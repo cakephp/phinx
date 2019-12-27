@@ -218,6 +218,7 @@ class EnvironmentTest extends TestCase
     public function testNoAdapter()
     {
         $this->expectException(RuntimeException::class);
+
         $this->environment->getAdapter();
     }
 

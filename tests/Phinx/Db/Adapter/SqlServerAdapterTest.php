@@ -690,6 +690,7 @@ WHERE t.name='ntable'");
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Column type "idontexist" is not supported by SqlServer.');
+
         $this->adapter->getSqlType('idontexist');
     }
 
