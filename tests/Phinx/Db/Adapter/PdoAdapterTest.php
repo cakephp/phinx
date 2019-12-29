@@ -89,13 +89,17 @@ class PdoAdapterTest extends TestCase
             true,
             true,
             true,
-            ['fetchAll', 'getSchemaTableName']
+            ['fetchAll', 'getSchemaTableName', 'quoteTableName']
         );
 
         $schemaTableName = 'log';
         $adapter->expects($this->once())
             ->method('getSchemaTableName')
             ->will($this->returnValue($schemaTableName));
+        $adapter->expects($this->once())
+            ->method('quoteTableName')
+            ->with($schemaTableName)
+            ->will($this->returnValue("'$schemaTableName'"));
 
         $mockRows = [
             [
@@ -110,7 +114,7 @@ class PdoAdapterTest extends TestCase
 
         $adapter->expects($this->once())
             ->method('fetchAll')
-            ->with("SELECT * FROM $schemaTableName ORDER BY $expectedOrderBy")
+            ->with("SELECT * FROM '$schemaTableName' ORDER BY $expectedOrderBy")
             ->will($this->returnValue($mockRows));
 
         // we expect the mock rows but indexed by version creation time
