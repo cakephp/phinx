@@ -297,6 +297,9 @@ class Table
         if ($columnName instanceof Column) {
             $action = new AddColumn($this->table, $columnName);
         } else {
+            if ('sqlite' == $this->getAdapter()->getAdapterType() || 'sqlite' == (getenv('PHINX_TESTING_ADAPTER'))) {
+                array_key_exists('null', $options) ?: $options['null'] = true;
+            }
             $action = AddColumn::build($this->table, $columnName, $type, $options);
         }
 

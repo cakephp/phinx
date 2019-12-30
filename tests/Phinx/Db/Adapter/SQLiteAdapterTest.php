@@ -22,6 +22,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function setUp()
     {
+        putenv('PHINX_TESTING_ADAPTER=sqlite');
         if (!TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED) {
             $this->markTestSkipped('SQLite tests disabled. See TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED constant.');
         }
@@ -938,11 +939,12 @@ class SQLiteAdapterTest extends TestCase
 
         $table->addColumn('column1', 'string')
             ->addColumn('column2', 'integer')
-            ->addColumn('column3', 'string', ['default' => 'test'])
+            ->addColumn('column3', 'string', ['null' => false, 'default' => 'test'])
+            ->addColumn('column4', 'string', ['default' => 'test'])
             ->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR NULL, `column2` INTEGER NULL, `column3` VARCHAR NOT NULL DEFAULT 'test');
+CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR NULL, `column2` INTEGER NULL, `column3` VARCHAR NOT NULL DEFAULT 'test', `column4` VARCHAR NULL DEFAULT 'test');
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
