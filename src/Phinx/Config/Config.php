@@ -190,16 +190,21 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             ));
         }
 
-        // if the user has configured a default database then use it,
-        // providing it actually exists!
+        // deprecated: to be removed 0.13
         if (isset($this->values['environments']['default_database'])) {
-            if ($this->getEnvironment($this->values['environments']['default_database'])) {
-                return $this->values['environments']['default_database'];
+            $this->values['environments']['default_environment'] = $this->values['environments']['default_database'];
+        }
+
+        // if the user has configured a default environment then use it,
+        // providing it actually exists!
+        if (isset($this->values['environments']['default_environment'])) {
+            if ($this->getEnvironment($this->values['environments']['default_environment'])) {
+                return $this->values['environments']['default_environment'];
             }
 
             throw new RuntimeException(sprintf(
                 'The environment configuration for \'%s\' is missing',
-                $this->values['environments']['default_database']
+                $this->values['environments']['default_environment']
             ));
         }
 

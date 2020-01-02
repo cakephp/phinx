@@ -42,7 +42,7 @@ class SeedCreateTest extends TestCase
             ],
             'environments' => [
                 'default_migration_table' => 'phinxlog',
-                'default_database' => 'development',
+                'default_environment' => 'development',
                 'development' => [
                     'adapter' => 'mysql',
                     'host' => 'fakehost',

@@ -46,7 +46,7 @@ abstract class AbstractConfigTest extends TestCase
             ],
             'environments' => [
                 'default_migration_table' => 'phinxlog',
-                'default_database' => 'testing',
+                'default_environment' => 'testing',
                 'testing' => [
                     'adapter' => 'sqllite',
                     'wrapper' => 'testwrapper',

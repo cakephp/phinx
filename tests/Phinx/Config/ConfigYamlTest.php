@@ -34,7 +34,7 @@ class ConfigYamlTest extends TestCase
      */
     public function testGetDefaultEnvironmentWithAMissingEnvironmentEntry()
     {
-        // test using a Yaml file with a 'default_database' key, but without a
+        // test using a Yaml file with a 'default_environment' key, but without a
         // corresponding entry
         $path = __DIR__ . '/_files';
         $config = Config::fromYaml($path . '/missing_environment_entry.yml');
@@ -52,15 +52,15 @@ class ConfigYamlTest extends TestCase
     {
         $path = __DIR__ . '/_files';
 
-        // test using a Yaml file without the 'default_database' key.
+        // test using a Yaml file without the 'default_environment' key.
         // (it should default to the first one).
-        $config = Config::fromYaml($path . '/no_default_database_key.yml');
+        $config = Config::fromYaml($path . '/no_default_environment_key.yml');
         $this->assertEquals('production', $config->getDefaultEnvironment());
 
         // test using environment variable PHINX_ENVIRONMENT
         // (it should return the configuration specified in the environment)
         putenv('PHINX_ENVIRONMENT=externally-specified-environment');
-        $config = Config::fromYaml($path . '/no_default_database_key.yml');
+        $config = Config::fromYaml($path . '/no_default_environment_key.yml');
         $this->assertEquals('externally-specified-environment', $config->getDefaultEnvironment());
         putenv('PHINX_ENVIRONMENT=');
     }

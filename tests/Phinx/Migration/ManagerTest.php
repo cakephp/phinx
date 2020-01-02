@@ -106,7 +106,7 @@ class ManagerTest extends TestCase
             ],
             'environments' => [
                 'default_migration_table' => 'phinxlog',
-                'default_database' => 'production',
+                'default_environment' => 'production',
                 'production' => [
                     'adapter' => 'mysql',
                     'host' => TESTS_PHINX_DB_ADAPTER_MYSQL_HOST,

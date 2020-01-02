@@ -226,7 +226,7 @@ YAML に加えて、設定ファイルは PHP 配列として PHP ファイル�
                 ],
                 "environments" => [
                     "default_migration_table" => "phinxlog",
-                    "default_database" => "dev",
+                    "default_environment" => "dev",
                     "dev" => [
                         "adapter" => "mysql",
                         "host" => $_ENV['DB_HOST'],
@@ -255,7 +255,7 @@ Phinx は ``hasTable()`` のような特定のメソッドに対してデータ�
                 ],
                 "environments" => [
                     "default_migration_table" => "phinxlog",
-                    "default_database" => "dev",
+                    "default_environment" => "dev",
                     "dev" => [
                         "name" => "dev_db",
                         "connection" => $pdo_instance

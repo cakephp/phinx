@@ -40,7 +40,7 @@ This means that:
 
     return [
         'environments' => [
-            'default_database' => 'development',
+            'default_environment' => 'development',
             'development' => [
                 'name' => 'devdb',
                 'connection' => $pdo
@@ -151,7 +151,7 @@ specified under the ``environments`` nested collection. For example:
 
     environments:
         default_migration_table: phinxlog
-        default_database: development
+        default_environment: development
         production:
             adapter: mysql
             host: localhost
@@ -204,7 +204,7 @@ network connections. The socket path is configured with ``unix_socket``:
 
     environments:
         default_migration_table: phinxlog
-        default_database: development
+        default_environment: development
         production:
             adapter: mysql
             name: production_db
@@ -228,7 +228,7 @@ demonstrated by the following example:
 
     environments:
         default_migration_table: phinxlog
-        default_database: development
+        default_environment: development
         production:
             adapter: mysql
             host: '%%PHINX_DBHOST%%'
@@ -261,7 +261,7 @@ projects (Doctrine, Rails, AMQP, PaaS, etc).
 
     environments:
         default_migration_table: phinxlog
-        default_database: development
+        default_environment: development
         production:
             # Example data source name
             dsn: mysql://root@localhost:3306/mydb?charset=utf8
@@ -274,7 +274,7 @@ specified directly as connection options.
 
     environments:
         default_migration_table: phinxlog
-        default_database: development
+        default_environment: development
         development:
             dsn: %%DATABASE_URL%%
         production:
