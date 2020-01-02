@@ -99,6 +99,17 @@ class ConfigTest extends AbstractConfigTest
     }
 
     /**
+     * @covers \Phinx\Config\Config::getDefaultEnvironment
+     */
+    public function testGetDefaultEnvironmentUsingDatabaseKey()
+    {
+        $configArray = $this->getConfigArray();
+        $configArray['environments']['default_database'] = 'production';
+        $config = new Config($configArray);
+        $this->assertEquals('production', $config->getDefaultEnvironment());
+    }
+
+    /**
      * @covers \Phinx\Config\Config::offsetGet
      * @covers \Phinx\Config\Config::offsetSet
      * @covers \Phinx\Config\Config::offsetExists

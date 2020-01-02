@@ -247,7 +247,7 @@ configuration file may be the computed output of a PHP file as a PHP array:
                 ],
                 "environments" => [
                     "default_migration_table" => "phinxlog",
-                    "default_database" => "dev",
+                    "default_environment" => "dev",
                     "dev" => [
                         "adapter" => "mysql",
                         "host" => $_ENV['DB_HOST'],
@@ -275,7 +275,7 @@ the database name too, as Phinx requires this for certain methods such as ``hasT
                 ),
                 "environments" => [
                     "default_migration_table" => "phinxlog",
-                    "default_database" => "dev",
+                    "default_environment" => "dev",
                     "dev" => [
                         "name" => "dev_db",
                         "connection" => $pdo_instance
@@ -330,7 +330,7 @@ Luckily, Symfony makes doing this sort of "meta" command straight-forward:
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $phinx = new PhinxApplication();        
+        $phinx = new PhinxApplication();
         $command = $phinx->find('migrate');
 
         $arguments = [
@@ -338,12 +338,12 @@ Luckily, Symfony makes doing this sort of "meta" command straight-forward:
             '--environment'   => 'production',
             '--configuration' => '/path/to/config/phinx.yml'
         ];
-        
+
         $input = new ArrayInput($arguments);
         $returnCode = $command->run(new ArrayInput($arguments), $output);
         // ...
     }
-    
+
 Here, you are instantianting the ``PhinxApplication``, telling it to find the ``migrate``
 command, defining the arguments to pass to it (which match the commandline arguments and flags),
 and then finally running the command, passing it the same ``OutputInterface`` that your
