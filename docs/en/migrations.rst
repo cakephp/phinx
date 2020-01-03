@@ -155,6 +155,13 @@ The down method is automatically run by Phinx when you are migrating down and
 it detects the given migration has been executed in the past. You should use
 the down method to reverse/undo the transformations described in the up method.
 
+The Init Method
+~~~~~~~~~~~~~~~
+
+The ``init()`` method is run by Phinx before the migration methods if it exists.
+This can be used for setting common class properties that are then used within
+the migration methods.
+
 Executing Queries
 -----------------
 

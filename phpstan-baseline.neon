@@ -51,7 +51,6 @@ parameters:
             message: "#^Access to undefined constant PDO::SQLSRV_ATTR_ENCODING\\.$#"
             count: 1
             path: src/Phinx/Db/Adapter/SqlServerAdapter.php
-
         -
             message: "#^Method Phinx\\\\Db\\\\Adapter\\\\SqlServerAdapter::getSqlType\\(\\) should return array<string> but returns array<string, int|string>\\.$#"
             count: 2

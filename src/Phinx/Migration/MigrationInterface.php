@@ -34,6 +34,11 @@ interface MigrationInterface
     const DOWN = 'down';
 
     /**
+     * @var string
+     */
+    const INIT = 'init';
+
+    /**
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
