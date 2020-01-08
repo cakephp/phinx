@@ -140,9 +140,13 @@ interface MigrationInterface
     /**
      * Executes a SQL statement and returns the result as an array.
      *
+     * To improve IDE auto-completion possibility, you can overwrite the query method
+     * phpDoc in your (typically custom abstract parent) migration class, where you can set
+     * the return type by the adapter in your current use.
+     *
      * @param string $sql SQL
      *
-     * @return array
+     * @return mixed
      */
     public function query($sql);
 
