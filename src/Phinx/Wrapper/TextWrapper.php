@@ -168,7 +168,7 @@ class TextWrapper
         }
         if (isset($target)) {
             // Need to use isset() with rollback, because -t0 is a valid option!
-            // See http://docs.phinx.org/en/latest/commands.html#the-rollback-command
+            // See https://book.cakephp.org/phinx/0/en/commands.html#the-rollback-command
             $command += ['-t' => $target];
         }
 
