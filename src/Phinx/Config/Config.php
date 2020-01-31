@@ -365,9 +365,11 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     protected function replaceTokens(array $arr)
     {
         // Get environment variables
-        // $_ENV is empty because variables_order does not include it normally
+        // Depending on configuration of server / OS and variables_order directive,
+        // environment variables either end up in $_SERVER (most likely) or $_ENV,
+        // so we search through both
         $tokens = [];
-        foreach ($_SERVER as $varname => $varvalue) {
+        foreach (array_merge($_ENV, $_SERVER) as $varname => $varvalue) {
             if (strpos($varname, 'PHINX_') === 0) {
                 $tokens['%%' . $varname . '%%'] = $varvalue;
             }
