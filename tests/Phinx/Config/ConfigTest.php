@@ -297,7 +297,7 @@ class ConfigTest extends AbstractConfigTest
                     'production' => [
                         'adapter' => '%%PHINX_TEST_CONFIG_ADAPTER%%',
                         'name' => '%%PHINX_TEST_CONFIG_NAME%%',
-                        'suffix' => '%%PHINX_TEST_CONFIG_SUFFIX%%'
+                        'suffix' => '%%PHINX_TEST_CONFIG_SUFFIX%%',
                     ],
                 ],
             ]);
