@@ -259,9 +259,9 @@ configuration file may be the computed output of a PHP file as a PHP array:
                 ]
             ];
 
-Phinx auto-detects which language parser to use for files with ``*.yml``, ``*.json``, and ``*.php`` extensions. The appropriate
-parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than  ``"json"`` or ``"php"`` is
-treated as YAML.
+Phinx auto-detects which language parser to use for files with ``*.yaml``, ``*.yml``, ``*.json``, and ``*.php`` extensions.
+The appropriate parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than  ``"json"`` or
+``"php"`` is treated as YAML.
 
 When using a PHP array, you can provide a ``connection`` key with an existing PDO instance. It is also important to pass
 the database name too, as Phinx requires this for certain methods such as ``hasTable()``:
@@ -330,7 +330,7 @@ Luckily, Symfony makes doing this sort of "meta" command straight-forward:
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $phinx = new PhinxApplication();        
+        $phinx = new PhinxApplication();
         $command = $phinx->find('migrate');
 
         $arguments = [
@@ -338,12 +338,12 @@ Luckily, Symfony makes doing this sort of "meta" command straight-forward:
             '--environment'   => 'production',
             '--configuration' => '/path/to/config/phinx.yml'
         ];
-        
+
         $input = new ArrayInput($arguments);
         $returnCode = $command->run(new ArrayInput($arguments), $output);
         // ...
     }
-    
+
 Here, you are instantianting the ``PhinxApplication``, telling it to find the ``migrate``
 command, defining the arguments to pass to it (which match the commandline arguments and flags),
 and then finally running the command, passing it the same ``OutputInterface`` that your
