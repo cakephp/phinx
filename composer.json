@@ -47,6 +47,9 @@
             "Test\\Phinx\\": "tests/Phinx/"
         }
     },
+    "suggest": {
+        "ext-json": "Install if using JSON configuration format"
+    },
     "scripts": {
         "check": [
             "@test",
