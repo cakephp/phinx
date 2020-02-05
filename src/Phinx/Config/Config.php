@@ -87,6 +87,10 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      */
     public static function fromJson($configFilePath)
     {
+        if (!function_exists('json_decode')) {
+            throw new RuntimeException("Need to install JSON PHP extension to use JSON config");
+        }
+
         $configArray = json_decode(file_get_contents($configFilePath), true);
         if (!is_array($configArray)) {
             throw new RuntimeException(sprintf(

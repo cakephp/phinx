@@ -33,6 +33,7 @@
         "symfony/yaml": "^3.4|^4.0|^5.0"
     },
     "require-dev": {
+        "ext-json": "*",
         "phpunit/phpunit": ">=5.7,<8.0",
         "sebastian/comparator": ">=1.2.3",
         "cakephp/cakephp-codesniffer": "^3.0"
@@ -46,6 +47,9 @@
         "psr-4": {
             "Test\\Phinx\\": "tests/Phinx/"
         }
+    },
+    "suggest": {
+        "ext-json": "Install if using JSON configuration format"
     },
     "scripts": {
         "check": [
