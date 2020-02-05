@@ -83,6 +83,9 @@ class TextWrapper
         if ($this->hasOption('parser')) {
             $command += ['-p' => $this->getOption('parser')];
         }
+        if ($this->hasOption('format')) {
+            $command += ['-f' => $this->getOption('format')];
+        }
 
         return $this->executeRun($command);
     }
