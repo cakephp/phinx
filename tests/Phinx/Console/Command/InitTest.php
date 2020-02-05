@@ -11,7 +11,7 @@ class InitTest extends TestCase
 {
     protected function setUp()
     {
-        foreach (['.yml', '.json', '.php'] as $format) {
+        foreach (['.yaml', '.yml', '.json', '.php'] as $format) {
             $file = sys_get_temp_dir() . '/phinx' . $format;
             if (is_file($file)) {
                 unlink($file);
@@ -105,6 +105,31 @@ class InitTest extends TestCase
         chdir($current_dir);
     }
 
+    public function testYamlFormat()
+    {
+        $current_dir = getcwd();
+        chdir(sys_get_temp_dir());
+
+        $application = new PhinxApplication('testing');
+        $application->add(new Init());
+
+        $command = $application->find('init');
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), '--format' => 'yaml'], ['decorated' => false]);
+        $this->assertRegExp(
+            "/created (.*)[\/\\\\]phinx.yaml\\n/",
+            $commandTester->getDisplay(true)
+        );
+
+        $this->assertFileExists(
+            'phinx.yaml',
+            'Phinx configuration not existent'
+        );
+
+        chdir($current_dir);
+    }
+
     /**
      * @expectedException              \InvalidArgumentException
      * @expectedExceptionMessageRegExp /Config file ".*" already exists./
@@ -148,7 +173,7 @@ class InitTest extends TestCase
 
     /**
      * @expectedException              \InvalidArgumentException
-     * @expectedExceptionMessageRegExp /Invalid format "invalid". Format must be either yml, json, or php./
+     * @expectedExceptionMessageRegExp /Invalid format "invalid". Format must be either yaml, yml, json, or php./
      */
     public function testThrowsExceptionWhenInvalidFormat()
     {
