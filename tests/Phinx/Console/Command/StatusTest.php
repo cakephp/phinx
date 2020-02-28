@@ -111,9 +111,9 @@ class StatusTest extends TestCase
                 'default_migration_table' => 'phinxlog',
                 'default_database' => 'development',
                 'development' => [
-                    'dsn' => 'pgsql://fakehost:5433/development'
-                ]
-            ]
+                    'dsn' => 'pgsql://fakehost:5433/development',
+                ],
+            ],
         ]);
 
         // mock the manager class

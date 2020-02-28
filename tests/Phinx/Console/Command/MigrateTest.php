@@ -101,9 +101,9 @@ class MigrateTest extends TestCase
                 'default_migration_table' => 'phinxlog',
                 'default_database' => 'development',
                 'development' => [
-                    'dsn' => 'mysql://fakehost:3006/development'
-                ]
-            ]
+                    'dsn' => 'mysql://fakehost:3006/development',
+                ],
+            ],
         ]);
 
         // mock the manager class
