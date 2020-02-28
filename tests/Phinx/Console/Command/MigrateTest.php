@@ -85,6 +85,47 @@ class MigrateTest extends TestCase
         $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
+    public function testExecuteWithDsn()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Migrate());
+
+        /** @var Migrate $command */
+        $command = $application->find('migrate');
+
+        $config = new Config([
+            'paths' => [
+                'migrations' => __FILE__,
+            ],
+            'environments' => [
+                'default_migration_table' => 'phinxlog',
+                'default_database' => 'development',
+                'development' => [
+                    'dsn' => 'mysql://fakehost:3006/development'
+                ]
+            ]
+        ]);
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('migrate');
+
+        $command->setConfig($config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+
+        $output = $commandTester->getDisplay();
+        $this->assertRegExp('/no environment specified/', $output);
+        $this->assertRegExp('/ordering by creation time/', $output);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
+    }
+
     public function testExecuteWithEnvironmentOption()
     {
         $application = new PhinxApplication('testing');

@@ -83,6 +83,45 @@ class SeedRunTest extends TestCase
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
     }
 
+    public function testExecuteWithDsn()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new SeedRun());
+
+        /** @var SeedRun $command */
+        $command = $application->find('seed:run');
+
+        $config = new Config([
+            'paths' => [
+                'migrations' => __FILE__,
+                'seeds' => __FILE__,
+            ],
+            'environments' => [
+                'default_migration_table' => 'phinxlog',
+                'default_database' => 'development',
+                'development' => [
+                    'dsn' => 'mysql://fakehost:3006/development'
+                ]
+            ]
+        ]);
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('seed')->with($this->identicalTo('development'), $this->identicalTo(null));
+
+        $command->setConfig($config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+
+        $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
+    }
+
     public function testExecuteWithEnvironmentOption()
     {
         $application = new PhinxApplication('testing');
