@@ -162,7 +162,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
                     $this->values['environments']['default_migration_table'];
             }
 
-            return $environments[$name];
+            return $this->parseAgnosticDsn($environments[$name]);
         }
 
         return null;
@@ -414,6 +414,33 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         }
 
         return $out;
+    }
+
+    /**
+     * Parse a database-agnostic DSN into individual options.
+     *
+     * @param array $options Options
+     *
+     * @return array
+     */
+    protected function parseAgnosticDsn(array $options)
+    {
+        if (isset($options['dsn']) && is_string($options['dsn'])) {
+            $regex = '#^(?P<adapter>[^\\:]+)\\://(?:(?P<user>[^\\:@]+)(?:\\:(?P<pass>[^@]*))?@)?'
+                   . '(?P<host>[^\\:@/]+)(?:\\:(?P<port>[1-9]\\d*))?/(?P<name>[^\?]+)(?:\?(?P<query>.*))?$#';
+            if (preg_match($regex, trim($options['dsn']), $parsedOptions)) {
+                $additionalOpts = [];
+                if (isset($parsedOptions['query'])) {
+                    parse_str($parsedOptions['query'], $additionalOpts);
+                }
+                $validOptions = ['adapter', 'user', 'pass', 'host', 'port', 'name'];
+                $parsedOptions = array_filter(array_intersect_key($parsedOptions, array_flip($validOptions)));
+                $options = array_merge($additionalOpts, $parsedOptions, $options);
+                unset($options['dsn']);
+            }
+        }
+
+        return $options;
     }
 
     /**
