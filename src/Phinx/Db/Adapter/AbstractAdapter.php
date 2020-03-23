@@ -261,7 +261,7 @@ abstract class AbstractAdapter implements AdapterInterface
             // Save the data domain types in a more suitable format
             $this->dataDomain[$type] = [
                 'type' => $internal_type,
-                'options' => $options
+                'options' => $options,
             ];
         }
 

@@ -19,8 +19,8 @@ class DataDomainTest extends TestCase
     {
         $data_domain = [
             "phone_number" => [
-                "length" => 19
-            ]
+                "length" => 19,
+            ],
         ];
 
         $adapter = new MysqlAdapter(['data_domain' => $data_domain]);
@@ -35,8 +35,8 @@ class DataDomainTest extends TestCase
         $data_domain = [
             'phone_number' => [
                 'type' => 'str', // _Must be_ an invalid Phinx type
-                'length' => 19
-            ]
+                'length' => 19,
+            ],
         ];
 
         $adapter = new MysqlAdapter(['data_domain' => $data_domain]);
@@ -50,8 +50,8 @@ class DataDomainTest extends TestCase
         $data_domain = [
             'phone_number' => [
                 'type' => 'string',
-                'length' => 19
-            ]
+                'length' => 19,
+            ],
         ];
 
         $mysql_adapter = new MysqlAdapter(['data_domain' => $data_domain]);
@@ -68,8 +68,8 @@ class DataDomainTest extends TestCase
         $data_domain = [
             'phone_number' => [
                 'type' => 'string',
-                'length' => 19
-            ]
+                'length' => 19,
+            ],
         ];
 
         $mysql_adapter = new MysqlAdapter(['data_domain' => $data_domain]);
@@ -87,8 +87,8 @@ class DataDomainTest extends TestCase
         $data_domain = [
             'prime' => [
                 'type' => 'integer',
-                'limit' => 'INT_BIG'
-            ]
+                'limit' => 'INT_BIG',
+            ],
         ];
 
         $mysql_adapter = new MysqlAdapter(['data_domain' => $data_domain]);
@@ -105,8 +105,8 @@ class DataDomainTest extends TestCase
         $data_domain = [
             'prime' => [
                 'type' => 'PHINX_TYPE_INTEGER',
-                'limit' => 'INT_BIG'
-            ]
+                'limit' => 'INT_BIG',
+            ],
         ];
 
         $mysql_adapter = new MysqlAdapter(['data_domain' => $data_domain]);
@@ -125,8 +125,8 @@ class DataDomainTest extends TestCase
         $data_domain = [
             'prime' => [
                 'type' => 'integer',
-                'limit' => 'BIG_SUR'
-            ]
+                'limit' => 'BIG_SUR',
+            ],
         ];
 
         $mysql_adapter = new MysqlAdapter(['data_domain' => $data_domain]);
@@ -140,8 +140,8 @@ class DataDomainTest extends TestCase
         $data_domain = [
             'phone_number' => [
                 'type' => 'string',
-                'length' => 19
-            ]
+                'length' => 19,
+            ],
         ];
 
         $adapter = new MysqlAdapter(['data_domain' => $data_domain]);
@@ -159,8 +159,8 @@ class DataDomainTest extends TestCase
         $data_domain = [
             'phone_number' => [
                 'type' => 'string',
-                'length' => 19
-            ]
+                'length' => 19,
+            ],
         ];
 
         $adapter = new MysqlAdapter(['data_domain' => $data_domain]);
