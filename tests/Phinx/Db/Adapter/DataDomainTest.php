@@ -100,24 +100,6 @@ class DataDomainTest extends TestCase
     /**
      *
      */
-    public function testConvertsToPostgresLimit()
-    {
-        $data_domain = [
-            'prime' => [
-                'type' => 'integer',
-                'limit' => 'INT_SMALL'
-            ]
-        ];
-
-        $mysql_adapter = new PostgresAdapter(['data_domain' => $data_domain]);
-        $dd = $mysql_adapter->getDataDomain();
-
-        $this->assertEquals(PostgresAdapter::INT_SMALL, $dd['prime']['options']['limit']);
-    }
-
-    /**
-     *
-     */
     public function testCreatesTypeFromPhinxConstant()
     {
         $data_domain = [
