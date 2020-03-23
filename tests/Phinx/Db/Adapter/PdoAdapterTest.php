@@ -2,7 +2,6 @@
 
 namespace Test\Phinx\Db\Adapter;
 
-use Phinx\Db\Adapter\PdoAdapter;
 use PHPUnit\Framework\TestCase;
 
 class PdoAdapterTestPDOMock extends \PDO
@@ -90,13 +89,17 @@ class PdoAdapterTest extends TestCase
             true,
             true,
             true,
-            ['fetchAll', 'getSchemaTableName']
+            ['fetchAll', 'getSchemaTableName', 'quoteTableName']
         );
 
         $schemaTableName = 'log';
         $adapter->expects($this->once())
             ->method('getSchemaTableName')
             ->will($this->returnValue($schemaTableName));
+        $adapter->expects($this->once())
+            ->method('quoteTableName')
+            ->with($schemaTableName)
+            ->will($this->returnValue("'$schemaTableName'"));
 
         $mockRows = [
             [
@@ -111,7 +114,7 @@ class PdoAdapterTest extends TestCase
 
         $adapter->expects($this->once())
             ->method('fetchAll')
-            ->with("SELECT * FROM $schemaTableName ORDER BY $expectedOrderBy")
+            ->with("SELECT * FROM '$schemaTableName' ORDER BY $expectedOrderBy")
             ->will($this->returnValue($mockRows));
 
         // we expect the mock rows but indexed by version creation time
@@ -166,6 +169,17 @@ class PdoAdapterTest extends TestCase
 
         $this->adapter->execute('SELECT 1');
 
-        $this->assertSame('SELECT 1', $pdo->getExecutedSqlForTest());
+        $this->assertSame('SELECT 1;', $pdo->getExecutedSqlForTest());
+    }
+
+    public function testExecuteRightTrimsSemiColons()
+    {
+        $pdo = new PdoAdapterTestPDOMockWithExecChecks();
+
+        $this->adapter->setConnection($pdo);
+
+        $this->adapter->execute('SELECT 1;;');
+
+        $this->assertSame('SELECT 1;', $pdo->getExecutedSqlForTest());
     }
 }

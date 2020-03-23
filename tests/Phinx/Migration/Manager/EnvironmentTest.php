@@ -3,7 +3,6 @@
 namespace Test\Phinx\Migration\Manager;
 
 use Phinx\Db\Adapter\AdapterFactory;
-use Phinx\Db\Adapter\PdoAdapter;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Migration\MigrationInterface;
 use PHPUnit\Framework\TestCase;

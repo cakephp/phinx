@@ -1,33 +1,13 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Console
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Console\Command;
 
+use InvalidArgumentException;
 use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
 use Phinx\Db\Adapter\AdapterInterface;
@@ -38,6 +18,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use UnexpectedValueException;
 
 /**
  * Abstract command, contains bootstrapping info
@@ -72,7 +53,34 @@ abstract class AbstractCommand extends Command
     protected $manager;
 
     /**
-     * {@inheritdoc}
+     * Exit code for when command executes successfully
+     * @var int
+     */
+    const CODE_SUCCESS = 0;
+
+    /**
+     * Exit code for when command hits a non-recoverable error during execution
+     * @var int
+     */
+    const CODE_ERROR = 1;
+
+    /**
+     * Exit code for when status command is run and there are missing migrations
+     * @var int
+     */
+    const CODE_STATUS_MISSING = 2;
+
+    /**
+     * Exit code for when status command is run and there are no missing migations,
+     * but does have down migrations
+     * @var int
+     */
+    const CODE_STATUS_DOWN = 3;
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
      */
     protected function configure()
     {
@@ -85,6 +93,7 @@ abstract class AbstractCommand extends Command
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
+     *
      * @return void
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
@@ -94,6 +103,11 @@ abstract class AbstractCommand extends Command
         }
 
         $this->loadManager($input, $output);
+
+        if ($bootstrap = $this->getConfig()->getBootstrapFile()) {
+            $output->writeln('<info>using bootstrap</info> .' . str_replace(getcwd(), '', realpath($bootstrap)) . ' ');
+            Util::loadPhpFile($bootstrap);
+        }
 
         // report the paths
         $paths = $this->getConfig()->getMigrationPaths();
@@ -112,7 +126,7 @@ abstract class AbstractCommand extends Command
             foreach (Util::globAll($paths) as $path) {
                 $output->writeln('<info> - ' . realpath($path) . '</info>');
             }
-        } catch (\UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
             // do nothing as seeds are optional
         }
     }
@@ -120,8 +134,9 @@ abstract class AbstractCommand extends Command
     /**
      * Sets the config.
      *
-     * @param  \Phinx\Config\ConfigInterface $config
-     * @return \Phinx\Console\Command\AbstractCommand
+     * @param \Phinx\Config\ConfigInterface $config
+     *
+     * @return $this
      */
     public function setConfig(ConfigInterface $config)
     {
@@ -144,7 +159,8 @@ abstract class AbstractCommand extends Command
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter
-     * @return \Phinx\Console\Command\AbstractCommand
+     *
+     * @return $this
      */
     public function setAdapter(AdapterInterface $adapter)
     {
@@ -167,7 +183,8 @@ abstract class AbstractCommand extends Command
      * Sets the migration manager.
      *
      * @param \Phinx\Migration\Manager $manager
-     * @return \Phinx\Console\Command\AbstractCommand
+     *
+     * @return $this
      */
     public function setManager(Manager $manager)
     {
@@ -179,7 +196,7 @@ abstract class AbstractCommand extends Command
     /**
      * Gets the migration manager.
      *
-     * @return \Phinx\Migration\Manager
+     * @return \Phinx\Migration\Manager|null
      */
     public function getManager()
     {
@@ -190,6 +207,7 @@ abstract class AbstractCommand extends Command
      * Returns config file path
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
+     *
      * @return string
      */
     protected function locateConfigFile(InputInterface $input)
@@ -207,7 +225,7 @@ abstract class AbstractCommand extends Command
         // locate the phinx config file (default: phinx.yml)
         // TODO - In future walk the tree in reverse (max 10 levels)
         $locator = new FileLocator([
-            $cwd . DIRECTORY_SEPARATOR
+            $cwd . DIRECTORY_SEPARATOR,
         ]);
 
         if (!$useDefault) {
@@ -215,11 +233,11 @@ abstract class AbstractCommand extends Command
             return $locator->locate($configFile, $cwd, $first = true);
         }
 
-        $possibleConfigFiles = ['phinx.php', 'phinx.json', 'phinx.yml'];
+        $possibleConfigFiles = ['phinx.php', 'phinx.json', 'phinx.yaml', 'phinx.yml'];
         foreach ($possibleConfigFiles as $configFile) {
             try {
-                return $locator->locate($configFile, $cwd, $first = true);
-            } catch (\InvalidArgumentException $exception) {
+                return $locator->locate($configFile, $cwd, true);
+            } catch (InvalidArgumentException $exception) {
                 $lastException = $exception;
             }
         }
@@ -231,7 +249,9 @@ abstract class AbstractCommand extends Command
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
+     *
      * @throws \InvalidArgumentException
+     *
      * @return void
      */
     protected function loadConfig(InputInterface $input, OutputInterface $output)
@@ -252,6 +272,7 @@ abstract class AbstractCommand extends Command
                 case 'php':
                     $parser = 'php';
                     break;
+                case 'yaml':
                 case 'yml':
                 default:
                     $parser = 'yaml';
@@ -269,7 +290,7 @@ abstract class AbstractCommand extends Command
                 $config = Config::fromYaml($configFilePath);
                 break;
             default:
-                throw new \InvalidArgumentException(sprintf('\'%s\' is not a valid parser.', $parser));
+                throw new InvalidArgumentException(sprintf('\'%s\' is not a valid parser.', $parser));
         }
 
         $output->writeln('<info>using config parser</info> ' . $parser);
@@ -282,6 +303,8 @@ abstract class AbstractCommand extends Command
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
+     *
+     * @return void
      */
     protected function loadManager(InputInterface $input, OutputInterface $output)
     {
@@ -299,20 +322,22 @@ abstract class AbstractCommand extends Command
      * Verify that the migration directory exists and is writable.
      *
      * @param string $path
+     *
      * @throws \InvalidArgumentException
+     *
      * @return void
      */
     protected function verifyMigrationDirectory($path)
     {
         if (!is_dir($path)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Migration directory "%s" does not exist',
                 $path
             ));
         }
 
         if (!is_writable($path)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Migration directory "%s" is not writable',
                 $path
             ));
@@ -323,20 +348,22 @@ abstract class AbstractCommand extends Command
      * Verify that the seed directory exists and is writable.
      *
      * @param string $path
+     *
      * @throws \InvalidArgumentException
+     *
      * @return void
      */
     protected function verifySeedDirectory($path)
     {
         if (!is_dir($path)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Seed directory "%s" does not exist',
                 $path
             ));
         }
 
         if (!is_writable($path)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Seed directory "%s" is not writable',
                 $path
             ));

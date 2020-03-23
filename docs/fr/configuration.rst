@@ -9,9 +9,9 @@ creates a default file called ``phinx.yml`` in the root of your project director
 This file uses the YAML data serialization format.
 
 If a ``--configuration`` command line option is given, Phinx will load the
-specified file. Otherwise, it will attempt to find ``phinx.php``, ``phinx.json`` or
-``phinx.yml`` and load the first file found. See the :doc:`Commands <commands>`
-chapter for more information.
+specified file. Otherwise, it will attempt to find ``phinx.php``, ``phinx.json``,
+``phinx.yml`` or ``phinx.yaml`` and load the first file found. See the
+:doc:`Commands <commands>` chapter for more information.
 
 .. warning::
 
@@ -32,21 +32,23 @@ This means that:
   and/or share the same connection. However remember to also pass the database name
   as Phinx cannot infer this from the PDO connection.
 
-.. code-block:: php
+::
 
-   require 'app/init.php';
+    <?php
+    require 'app/init.php';
 
-   global $app;
-   $pdo = $app->getDatabase()->getPdo();
+    global $app;
+    $pdo = $app->getDatabase()->getPdo();
 
-   return ['environments' => [
-              'default_database' => 'development',
-              'development' => [
-                'name' => 'devdb',
-                'connection' => $pdo
-              ]
-            ]
-          ];
+    return ['environments' =>
+             [
+               'default_database' => 'development',
+               'development' => [
+                 'name' => 'devdb',
+                 'connection' => $pdo,
+               ]
+             ]
+           ];
 
 Migration Paths
 ---------------
@@ -76,7 +78,6 @@ You can also provide multiple migration paths by using an array in your configur
             - application/module1/migrations
             - application/module2/migrations
 
-
 You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 
 .. code-block:: yaml
@@ -95,8 +96,8 @@ directories.
 Custom Migration Base
 ---------------------
 
-By default all migrations will extend from Phinx's `AbstractMigration` class.
-This can be set to a custom class that extends from `AbstractMigration` by
+By default all migrations will extend from Phinx's ``AbstractMigration`` class.
+This can be set to a custom class that extends from ``AbstractMigration`` by
 setting ``migration_base_class`` in your config:
 
 .. code-block:: yaml
@@ -130,7 +131,6 @@ You can also provide multiple seed paths by using an array in your configuration
         seeds:
             - /your/full/path1
             - /your/full/path2
-
 
 You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 
@@ -175,7 +175,6 @@ file:
 
     export PHINX_ENVIRONMENT=dev-`whoami`-`hostname`
 
-
 Table Prefix and Suffix
 -----------------------
 
@@ -192,7 +191,6 @@ You can define a table prefix and table suffix:
             ....
             table_prefix: test_
             table_suffix: _v2
-
 
 Socket Connections
 ------------------
@@ -219,7 +217,7 @@ External Variables
 Phinx will automatically grab any environment variable prefixed with ``PHINX_``
 and make it available as a token in the config file. The token will have
 exactly the same name as the variable but you must access it by wrapping two
-``%%`` symbols on either side. e.g: ``'%%PHINX_DBUSER%%'``. This is especially
+``%%`` symbols on either side. e.g: ``%%PHINX_DBUSER%%``. This is especially
 useful if you wish to store your secret database credentials directly on the
 server and not in a version control system. This feature can be easily
 demonstrated by the following example:
@@ -249,7 +247,7 @@ Phinx currently supports the following database adapters natively:
 * `SQL Server <http://www.microsoft.com/sqlserver>`_: specify the ``sqlsrv`` adapter.
 
 SQLite
-`````````````````
+~~~~~~
 
 Declaring an SQLite database uses a simplified structure:
 
@@ -264,7 +262,7 @@ Declaring an SQLite database uses a simplified structure:
             memory: true     # Setting memory to *any* value overrides name
 
 SQL Server
-`````````````````
+~~~~~~~~~~
 
 When using the ``sqlsrv`` adapter and connecting to a named instance you should
 omit the ``port`` setting as SQL Server will negotiate the port automatically.
@@ -272,10 +270,10 @@ Additionally, omit the ``charset: utf8`` or change to ``charset: 65001`` which
 corresponds to UTF8 for SQL Server.
 
 Custom Adapters
-`````````````````
+~~~~~~~~~~~~~~~
 
-You can provide a custom adapter by registering an implementation of the `Phinx\\Db\\Adapter\\AdapterInterface`
-with `AdapterFactory`:
+You can provide a custom adapter by registering an implementation of the
+``Phinx\\Db\\Adapter\\AdapterInterface`` with ``AdapterFactory``:
 
 .. code-block:: php
 
@@ -301,9 +299,9 @@ The aliased classes will still be required to implement the ``Phinx\Migration\Cr
         view: \Namespace\Migrations\ViewMigrationTemplateGenerator
 
 Version Order
-------
+-------------
 
-When rolling back or printing the status of migrations, Phinx orders the executed migrations according to the 
+When rolling back or printing the status of migrations, Phinx orders the executed migrations according to the
 ``version_order`` option, which can have the following values:
 
 * ``creation`` (the default): migrations are ordered by their creation time, which is also part of their filename.

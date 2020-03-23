@@ -1,37 +1,26 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Db\Adapter
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Db\Adapter;
 
-use Phinx\Db\Table;
+use BadMethodCallException;
+use Cake\Database\Connection;
+use Cake\Database\Driver\Sqlite as SqliteDriver;
+use InvalidArgumentException;
+use PDO;
+use PDOException;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
+use Phinx\Db\Table\Table;
+use Phinx\Db\Util\AlterInstructions;
+use Phinx\Util\Expression;
+use Phinx\Util\Literal;
+use RuntimeException;
 
 /**
  * Phinx SQLite Adapter.
@@ -39,57 +28,156 @@ use Phinx\Db\Table\Index;
  * @author Rob Morgan <robbym@gmail.com>
  * @author Richard McIntyre <richard.mackstars@gmail.com>
  */
-class SQLiteAdapter extends PdoAdapter implements AdapterInterface
+class SQLiteAdapter extends PdoAdapter
 {
+    // list of supported Phinx column types with their SQL equivalents
+    // some types have an affinity appended to ensure they do not receive NUMERIC affinity
+    protected static $supportedColumnTypes = [
+        self::PHINX_TYPE_BIG_INTEGER => 'biginteger',
+        self::PHINX_TYPE_BINARY => 'binary_blob',
+        self::PHINX_TYPE_BLOB => 'blob',
+        self::PHINX_TYPE_BOOLEAN => 'boolean_integer',
+        self::PHINX_TYPE_CHAR => 'char',
+        self::PHINX_TYPE_DATE => 'date_text',
+        self::PHINX_TYPE_DATETIME => 'datetime_text',
+        self::PHINX_TYPE_DOUBLE => 'double',
+        self::PHINX_TYPE_FLOAT => 'float',
+        self::PHINX_TYPE_INTEGER => 'integer',
+        self::PHINX_TYPE_JSON => 'json_text',
+        self::PHINX_TYPE_JSONB => 'jsonb_text',
+        self::PHINX_TYPE_SMALL_INTEGER => 'smallinteger',
+        self::PHINX_TYPE_STRING => 'varchar',
+        self::PHINX_TYPE_TEXT => 'text',
+        self::PHINX_TYPE_TIME => 'time_text',
+        self::PHINX_TYPE_UUID => 'uuid_text',
+        self::PHINX_TYPE_TIMESTAMP => 'timestamp_text',
+        self::PHINX_TYPE_VARBINARY => 'varbinary_blob',
+    ];
+
+    // list of aliases of supported column types
+    protected static $supportedColumnTypeAliases = [
+        'varchar' => self::PHINX_TYPE_STRING,
+        'tinyint' => self::PHINX_TYPE_SMALL_INTEGER,
+        'tinyinteger' => self::PHINX_TYPE_SMALL_INTEGER,
+        'smallint' => self::PHINX_TYPE_SMALL_INTEGER,
+        'int' => self::PHINX_TYPE_INTEGER,
+        'mediumint' => self::PHINX_TYPE_INTEGER,
+        'mediuminteger' => self::PHINX_TYPE_INTEGER,
+        'bigint' => self::PHINX_TYPE_BIG_INTEGER,
+        'tinytext' => self::PHINX_TYPE_TEXT,
+        'mediumtext' => self::PHINX_TYPE_TEXT,
+        'longtext' => self::PHINX_TYPE_TEXT,
+        'tinyblob' => self::PHINX_TYPE_BLOB,
+        'mediumblob' => self::PHINX_TYPE_BLOB,
+        'longblob' => self::PHINX_TYPE_BLOB,
+        'real' => self::PHINX_TYPE_FLOAT,
+    ];
+
+    // list of known but unsupported Phinx column types
+    protected static $unsupportedColumnTypes = [
+        self::PHINX_TYPE_BIT,
+        self::PHINX_TYPE_CIDR,
+        self::PHINX_TYPE_DECIMAL,
+        self::PHINX_TYPE_ENUM,
+        self::PHINX_TYPE_FILESTREAM,
+        self::PHINX_TYPE_GEOMETRY,
+        self::PHINX_TYPE_INET,
+        self::PHINX_TYPE_INTERVAL,
+        self::PHINX_TYPE_LINESTRING,
+        self::PHINX_TYPE_MACADDR,
+        self::PHINX_TYPE_POINT,
+        self::PHINX_TYPE_POLYGON,
+        self::PHINX_TYPE_SET,
+    ];
+
     protected $definitionsWithLimits = [
+        'CHAR',
         'CHARACTER',
         'VARCHAR',
         'VARYING CHARACTER',
         'NCHAR',
         'NATIVE CHARACTER',
-        'NVARCHAR'
+        'NVARCHAR',
     ];
 
+    protected $suffix = '.sqlite3';
+
     /**
-     * {@inheritdoc}
+     * Indicates whether the database library version is at least the specified version
+     *
+     * @param string $ver The version to check against e.g. '3.28.0'
+     *
+     * @return bool
+     */
+    public function databaseVersionAtLeast($ver)
+    {
+        $actual = $this->query('SELECT sqlite_version()')->fetchColumn();
+
+        return version_compare($actual, $ver, '>=');
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     *
+     * @return void
      */
     public function connect()
     {
         if ($this->connection === null) {
-            if (!class_exists('PDO') || !in_array('sqlite', \PDO::getAvailableDrivers(), true)) {
+            if (!class_exists('PDO') || !in_array('sqlite', PDO::getAvailableDrivers(), true)) {
                 // @codeCoverageIgnoreStart
-                throw new \RuntimeException('You need to enable the PDO_SQLITE extension for Phinx to run properly.');
+                throw new RuntimeException('You need to enable the PDO_SQLITE extension for Phinx to run properly.');
                 // @codeCoverageIgnoreEnd
             }
 
-            $db = null;
             $options = $this->getOptions();
 
-            // if port is specified use it, otherwise use the MySQL default
-            if (isset($options['memory'])) {
+            // use a memory database if the option was specified
+            if (!empty($options['memory'])) {
                 $dsn = 'sqlite::memory:';
             } else {
-                $dsn = 'sqlite:' . $options['name'];
-                if (file_exists($options['name'] . '.sqlite3')) {
-                    $dsn = 'sqlite:' . $options['name'] . '.sqlite3';
-                }
+                $dsn = 'sqlite:' . $options['name'] . $this->suffix;
             }
 
-            try {
-                $db = new \PDO($dsn);
-            } catch (\PDOException $exception) {
-                throw new \InvalidArgumentException(sprintf(
-                    'There was a problem connecting to the database: %s',
-                    $exception->getMessage()
-                ));
+            $driverOptions = [];
+
+            // use custom data fetch mode
+            if (!empty($options['fetch_mode'])) {
+                $driverOptions[PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
             }
+
+            $db = $this->createPdoConnection($dsn, null, null, $driverOptions);
 
             $this->setConnection($db);
         }
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
+     */
+    public function setOptions(array $options)
+    {
+        parent::setOptions($options);
+
+        if (isset($options['suffix'])) {
+            $this->suffix = $options['suffix'];
+        }
+        //don't "fix" the file extension if it is blank, some people
+        //might want a SQLITE db file with absolutely no extension.
+        if ($this->suffix !== '' && strpos($this->suffix, '.') !== 0) {
+            $this->suffix = '.' . $this->suffix;
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function disconnect()
     {
@@ -97,7 +185,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasTransactions()
     {
@@ -105,31 +193,37 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function beginTransaction()
     {
-        $this->execute('BEGIN TRANSACTION');
+        $this->getConnection()->beginTransaction();
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function commitTransaction()
     {
-        $this->execute('COMMIT');
+        $this->getConnection()->commit();
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function rollbackTransaction()
     {
-        $this->execute('ROLLBACK');
+        $this->getConnection()->rollBack();
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function quoteTableName($tableName)
     {
@@ -137,7 +231,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function quoteColumnName($columnName)
     {
@@ -145,35 +239,121 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $tableName Table name
+     * @param bool $quoted Whether to return the schema name and table name escaped and quoted. If quoted, the schema (if any) will also be appended with a dot
+     *
+     * @return array
      */
-    public function hasTable($tableName)
+    protected function getSchemaName($tableName, $quoted = false)
     {
-        $tables = [];
-        $rows = $this->fetchAll(sprintf('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'%s\'', $tableName));
-        foreach ($rows as $row) {
-            $tables[] = strtolower($row[0]);
+        if (preg_match("/.\.([^\.]+)$/", $tableName, $match)) {
+            $table = $match[1];
+            $schema = substr($tableName, 0, strlen($tableName) - strlen($match[0]) + 1);
+            $result = ['schema' => $schema, 'table' => $table];
+        } else {
+            $result = ['schema' => '', 'table' => $tableName];
         }
 
-        return in_array(strtolower($tableName), $tables);
+        if ($quoted) {
+            $result['schema'] = $result['schema'] !== '' ? $this->quoteColumnName($result['schema']) . '.' : '';
+            $result['table'] = $this->quoteColumnName($result['table']);
+        }
+
+        return $result;
     }
 
     /**
-     * {@inheritdoc}
+     * Retrieves information about a given table from one of the SQLite pragmas
+     *
+     * @param string $tableName The table to query
+     * @param string $pragma The pragma to query
+     *
+     * @return array
      */
-    public function createTable(Table $table)
+    protected function getTableInfo($tableName, $pragma = 'table_info')
+    {
+        $info = $this->getSchemaName($tableName, true);
+
+        return $this->fetchAll(sprintf('PRAGMA %s%s(%s)', $info['schema'], $pragma, $info['table']));
+    }
+
+    /**
+     * Searches through all available schemata to find a table and returns an array
+     * containing the bare schema name and whether the table exists at all.
+     * If no schema was specified and the table does not exist the "main" schema is returned
+     *
+     * @param string $tableName The name of the table to find
+     *
+     * @return array
+     */
+    protected function resolveTable($tableName)
+    {
+        $info = $this->getSchemaName($tableName);
+        if ($info['schema'] === '') {
+            // if no schema is specified we search all schemata
+            $rows = $this->fetchAll('PRAGMA database_list;');
+            // the temp schema is always first to be searched
+            $schemata = ['temp'];
+            foreach ($rows as $row) {
+                if (strtolower($row['name']) !== 'temp') {
+                    $schemata[] = $row['name'];
+                }
+            }
+            $defaultSchema = 'main';
+        } else {
+            // otherwise we search just the specified schema
+            $schemata = (array)$info['schema'];
+            $defaultSchema = $info['schema'];
+        }
+
+        $table = strtolower($info['table']);
+        foreach ($schemata as $schema) {
+            if (strtolower($schema) === 'temp') {
+                $master = 'sqlite_temp_master';
+            } else {
+                $master = sprintf('%s.%s', $this->quoteColumnName($schema), 'sqlite_master');
+            }
+            try {
+                $rows = $this->fetchAll(sprintf("SELECT name FROM %s WHERE type='table' AND lower(name) = %s", $master, $this->quoteString($table)));
+            } catch (PDOException $e) {
+                // an exception can occur if the schema part of the table refers to a database which is not attached
+                break;
+            }
+
+            // this somewhat pedantic check with strtolower is performed because the SQL lower function may be redefined,
+            // and can act on all Unicode characters if the ICU extension is loaded, while SQL identifiers are only case-insensitive for ASCII
+            foreach ($rows as $row) {
+                if (strtolower($row['name']) === $table) {
+                    return ['schema' => $schema, 'table' => $row['name'], 'exists' => true];
+                }
+            }
+        }
+
+        return ['schema' => $defaultSchema, 'table' => $info['table'], 'exists' => false];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasTable($tableName)
+    {
+        return $this->hasCreatedTable($tableName) || $this->resolveTable($tableName)['exists'];
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
+     */
+    public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
         // Add the default primary key
-        $columns = $table->getPendingColumns();
         $options = $table->getOptions();
         if (!isset($options['id']) || (isset($options['id']) && $options['id'] === true)) {
-            $column = new Column();
-            $column->setName('id')
-                   ->setType('integer')
-                   ->setIdentity(true);
+            $options['id'] = 'id';
+        }
 
-            array_unshift($columns, $column);
-        } elseif (isset($options['id']) && is_string($options['id'])) {
+        if (isset($options['id']) && is_string($options['id'])) {
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
             $column->setName($options['id'])
@@ -187,6 +367,20 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         $sql .= $this->quoteTableName($table->getName()) . ' (';
         foreach ($columns as $column) {
             $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
+
+            if (isset($options['primary_key']) && $column->getIdentity()) {
+                //remove column from the primary key array as it is already defined as an autoincrement
+                //primary id
+                $identityColumnIndex = array_search($column->getName(), $options['primary_key']);
+                if ($identityColumnIndex !== false) {
+                    unset($options['primary_key'][$identityColumnIndex]);
+
+                    if (empty($options['primary_key'])) {
+                        //The last primary key has been removed
+                        unset($options['primary_key']);
+                    }
+                }
+            }
         }
 
         // set the primary key(s)
@@ -203,74 +397,255 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             $sql = substr(rtrim($sql), 0, -1); // no primary keys
         }
 
-        // set the foreign keys
-        $foreignKeys = $table->getForeignKeys();
-        if (!empty($foreignKeys)) {
-            foreach ($foreignKeys as $foreignKey) {
-                $sql .= ', ' . $this->getForeignKeySqlDefinition($foreignKey);
-            }
-        }
-
         $sql = rtrim($sql) . ');';
         // execute the sql
         $this->execute($sql);
 
-        foreach ($table->getIndexes() as $index) {
+        foreach ($indexes as $index) {
             $this->addIndex($table, $index);
+        }
+
+        $this->addCreatedTable($table->getName());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function getChangePrimaryKeyInstructions(Table $table, $newColumns)
+    {
+        $instructions = new AlterInstructions();
+
+        // Drop the existing primary key
+        $primaryKey = $this->getPrimaryKey($table->getName());
+        if (!empty($primaryKey)) {
+            $instructions->merge(
+                // FIXME: array access is a hack to make this incomplete implementation work with a correct getPrimaryKey implementation
+                $this->getDropPrimaryKeyInstructions($table, $primaryKey[0])
+            );
+        }
+
+        // Add the primary key(s)
+        if (!empty($newColumns)) {
+            if (!is_string($newColumns)) {
+                throw new InvalidArgumentException(sprintf(
+                    'Invalid value for primary key: %s',
+                    json_encode($newColumns)
+                ));
+            }
+
+            $instructions->merge(
+                $this->getAddPrimaryKeyInstructions($table, $newColumns)
+            );
+        }
+
+        return $instructions;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws \BadMethodCallException
+     *
+     * @return void
+     */
+    protected function getChangeCommentInstructions(Table $table, $newComment)
+    {
+        throw new BadMethodCallException('SQLite does not have table comments');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getRenameTableInstructions($tableName, $newTableName)
+    {
+        $this->updateCreatedTableName($tableName, $newTableName);
+        $sql = sprintf(
+            'ALTER TABLE %s RENAME TO %s',
+            $this->quoteTableName($tableName),
+            $this->quoteTableName($newTableName)
+        );
+
+        return new AlterInstructions([], [$sql]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getDropTableInstructions($tableName)
+    {
+        $this->removeCreatedTable($tableName);
+        $sql = sprintf('DROP TABLE %s', $this->quoteTableName($tableName));
+
+        return new AlterInstructions([], [$sql]);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
+     */
+    public function truncateTable($tableName)
+    {
+        $info = $this->resolveTable($tableName);
+        // first try deleting the rows
+        $this->execute(sprintf(
+            'DELETE FROM %s.%s',
+            $this->quoteColumnName($info['schema']),
+            $this->quoteColumnName($info['table'])
+        ));
+
+        // assuming no error occurred, reset the autoincrement (if any)
+        if ($this->hasTable($info['schema'] . '.sqlite_sequence')) {
+            $this->execute(sprintf(
+                'DELETE FROM %s.%s where name  = %s',
+                $this->quoteColumnName($info['schema']),
+                'sqlite_sequence',
+                $this->quoteString($info['table'])
+            ));
         }
     }
 
     /**
-     * {@inheritdoc}
+     * Parses a default-value expression to yield either a Literal representing
+     * a string value, a string representing an expression, or some other scalar
+     *
+     * @param mixed $v The default-value expression to interpret
+     * @param string $t The Phinx type of the column
+     *
+     * @return mixed
      */
-    public function renameTable($tableName, $newTableName)
+    protected function parseDefaultValue($v, $t)
     {
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($tableName), $this->quoteTableName($newTableName)));
+        if ($v === null) {
+            return null;
+        }
+
+        // split the input into tokens
+        $trimChars = " \t\n\r\0\x0B";
+        $pattern = <<<PCRE_PATTERN
+            /
+                '(?:[^']|'')*'|                 # String literal
+                "(?:[^"]|"")*"|                 # Standard identifier
+                `(?:[^`]|``)*`|                 # MySQL identifier
+                \[[^\]]*\]|                     # SQL Server identifier
+                --[^\r\n]*|                     # Single-line comment
+                \/\*(?:\*(?!\/)|[^\*])*\*\/|    # Multi-line comment
+                [^\/\-]+|                       # Non-special characters
+                .                               # Any other single character
+            /sx
+PCRE_PATTERN;
+        preg_match_all($pattern, $v, $matches);
+        // strip out any comment tokens
+        $matches = array_map(function ($v) {
+            return preg_match('/^(?:\/\*|--)/', $v) ? ' ' : $v;
+        }, $matches[0]);
+        // reconstitute the string, trimming whitespace as well as parentheses
+        $vClean = trim(implode('', $matches));
+        $vBare = rtrim(ltrim($vClean, $trimChars . '('), $trimChars . ')');
+
+        // match the string against one of several patterns
+        if (preg_match('/^CURRENT_(?:DATE|TIME|TIMESTAMP)$/i', $vBare)) {
+            // magic date or time
+            return strtoupper($vBare);
+        } elseif (preg_match('/^\'(?:[^\']|\'\')*\'$/i', $vBare)) {
+            // string literal
+            $str = str_replace("''", "'", substr($vBare, 1, strlen($vBare) - 2));
+
+            return Literal::from($str);
+        } elseif (preg_match('/^[+-]?\d+$/i', $vBare)) {
+            $int = (int)$vBare;
+            // integer literal
+            if ($t === self::PHINX_TYPE_BOOLEAN && ($int == 0 || $int == 1)) {
+                return (bool)$int;
+            } else {
+                return $int;
+            }
+        } elseif (preg_match('/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i', $vBare)) {
+            // float literal
+            return (float)$vBare;
+        } elseif (preg_match('/^0x[0-9a-f]+$/i', $vBare)) {
+            // hexadecimal literal
+            return hexdec(substr($vBare, 2));
+        } elseif (preg_match('/^null$/i', $vBare)) {
+            // null literal
+            return null;
+        } elseif (preg_match('/^true|false$/i', $vBare)) {
+            // boolean literal
+            return filter_var($vClean, \FILTER_VALIDATE_BOOLEAN);
+        } else {
+            // any other expression: return the expression with parentheses, but without comments
+            return Expression::from($vClean);
+        }
     }
 
     /**
-     * {@inheritdoc}
+     * Returns the name of the specified table's identity column, or null if the table has no identity
+     *
+     * The process of finding an identity column is somewhat convoluted as SQLite has no direct way of querying whether a given column is an alias for the table's row ID
+     *
+     * @param string $tableName The name of the table
+     *
+     * @return string|null
      */
-    public function dropTable($tableName)
+    protected function resolveIdentity($tableName)
     {
-        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
+        $result = null;
+        // make sure the table has only one primary key column which is of type integer
+        foreach ($this->getTableInfo($tableName) as $col) {
+            $type = strtolower($col['type']);
+            if ($col['pk'] > 1) {
+                // the table has a composite primary key
+                return null;
+            } elseif ($col['pk'] == 0) {
+                // the column is not a primary key column and is thus not relevant
+                continue;
+            } elseif ($type !== 'integer') {
+                // if the primary key's type is not exactly INTEGER, it cannot be a row ID alias
+                return null;
+            } else {
+                // the column is a candidate for a row ID alias
+                $result = $col['name'];
+            }
+        }
+        // if there is no suitable PK column, stop now
+        if ($result === null) {
+            return null;
+        }
+        // make sure the table does not have a PK-origin autoindex
+        // such an autoindex would indicate either that the primary key was specified as descending, or that this is a WITHOUT ROWID table
+        foreach ($this->getTableInfo($tableName, 'index_list') as $idx) {
+            if ($idx['origin'] === 'pk') {
+                return null;
+            }
+        }
+
+        return $result;
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function truncateTable($tableName)
-    {
-        $sql = sprintf(
-            'DELETE FROM %s',
-            $this->quoteTableName($tableName)
-        );
-
-        $this->execute($sql);
-    }
-
-    /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getColumns($tableName)
     {
         $columns = [];
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
+
+        $rows = $this->getTableInfo($tableName);
+        $identity = $this->resolveIdentity($tableName);
 
         foreach ($rows as $columnInfo) {
             $column = new Column();
-            $type = strtolower($columnInfo['type']);
+            $type = $this->getPhinxType($columnInfo['type']);
+            $default = $this->parseDefaultValue($columnInfo['dflt_value'], $type['name']);
+
             $column->setName($columnInfo['name'])
                    ->setNull($columnInfo['notnull'] !== '1')
-                   ->setDefault($columnInfo['dflt_value']);
-
-            $phinxType = $this->getPhinxType($type);
-            $column->setType($phinxType['name'])
-                   ->setLimit($phinxType['limit']);
-
-            if ($columnInfo['pk'] == 1) {
-                $column->setIdentity(true);
-            }
+                   ->setDefault($default)
+                   ->setType($type['name'])
+                   ->setLimit($type['limit'])
+                   ->setScale($type['scale'])
+                   ->setIdentity($columnInfo['name'] === $identity);
 
             $columns[] = $column;
         }
@@ -279,11 +654,11 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasColumn($tableName, $columnName)
     {
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
+        $rows = $this->getTableInfo($tableName);
         foreach ($rows as $column) {
             if (strcasecmp($column['name'], $columnName) === 0) {
                 return true;
@@ -294,28 +669,30 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function addColumn(Table $table, Column $column)
+    protected function getAddColumnInstructions(Table $table, Column $column)
     {
-        $sql = sprintf(
+        $alter = sprintf(
             'ALTER TABLE %s ADD COLUMN %s %s',
             $this->quoteTableName($table->getName()),
             $this->quoteColumnName($column->getName()),
             $this->getColumnSqlDefinition($column)
         );
 
-        $this->execute($sql);
+        return new AlterInstructions([], [$alter]);
     }
 
     /**
-     * {@inheritdoc}
+     * Returns the original CREATE statement for the give table
+     *
+     * @param string $tableName The table name to get the create statement for
+     *
+     * @return string
      */
-    public function renameColumn($tableName, $columnName, $newColumnName)
+    protected function getDeclaringSql($tableName)
     {
-        $tmpTableName = 'tmp_' . $tableName;
-
-        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
+        $rows = $this->fetchAll("SELECT * FROM sqlite_master WHERE `type` = 'table'");
 
         $sql = '';
         foreach ($rows as $table) {
@@ -324,216 +701,303 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
             }
         }
 
+        return $sql;
+    }
+
+    /**
+     * Copies all the data from a tmp table to another table
+     *
+     * @param string $tableName The table name to copy the data to
+     * @param string $tmpTableName The tmp table name where the data is stored
+     * @param string[] $writeColumns The list of columns in the target table
+     * @param string[] $selectColumns The list of columns in the tmp table
+     *
+     * @return void
+     */
+    protected function copyDataToNewTable($tableName, $tmpTableName, $writeColumns, $selectColumns)
+    {
+        $sql = sprintf(
+            'INSERT INTO %s(%s) SELECT %s FROM %s',
+            $this->quoteTableName($tableName),
+            implode(', ', $writeColumns),
+            implode(', ', $selectColumns),
+            $this->quoteTableName($tmpTableName)
+        );
+        $this->execute($sql);
+    }
+
+    /**
+     * Modifies the passed instructions to copy all data from the table into
+     * the provided tmp table and then drops the table and rename tmp table.
+     *
+     * @param \Phinx\Db\Util\AlterInstructions $instructions The instructions to modify
+     * @param string $tableName The table name to copy the data to
+     *
+     * @return \Phinx\Db\Util\AlterInstructions
+     */
+    protected function copyAndDropTmpTable($instructions, $tableName)
+    {
+        $instructions->addPostStep(function ($state) use ($tableName) {
+            $this->copyDataToNewTable(
+                $state['tmpTableName'],
+                $tableName,
+                $state['writeColumns'],
+                $state['selectColumns']
+            );
+
+            $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
+            $this->execute(sprintf(
+                'ALTER TABLE %s RENAME TO %s',
+                $this->quoteTableName($state['tmpTableName']),
+                $this->quoteTableName($tableName)
+            ));
+
+            return $state;
+        });
+
+        return $instructions;
+    }
+
+    /**
+     * Returns the columns and type to use when copying a table to another in the process
+     * of altering a table
+     *
+     * @param string $tableName The table to modify
+     * @param string $columnName The column name that is about to change
+     * @param string|false $newColumnName Optionally the new name for the column
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return \Phinx\Db\Util\AlterInstructions
+     */
+    protected function calculateNewTableColumns($tableName, $columnName, $newColumnName)
+    {
         $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
         $selectColumns = [];
         $writeColumns = [];
-        foreach ($columns as $column) {
-            $selectName = $column['name'];
-            $writeName = ($selectName == $columnName)? $newColumnName : $selectName;
-            $selectColumns[] = $this->quoteColumnName($selectName);
-            $writeColumns[] = $this->quoteColumnName($writeName);
-        }
-
-        if (!in_array($this->quoteColumnName($columnName), $selectColumns)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The specified column doesn\'t exist: ' . $columnName
-            ));
-        }
-
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
-
-        $sql = str_replace(
-            $this->quoteColumnName($columnName),
-            $this->quoteColumnName($newColumnName),
-            $sql
-        );
-        $this->execute($sql);
-
-        $sql = sprintf(
-            'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $tableName,
-            implode(', ', $writeColumns),
-            implode(', ', $selectColumns),
-            $tmpTableName
-        );
-
-        $this->execute($sql);
-
-        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function changeColumn($tableName, $columnName, Column $newColumn)
-    {
-        // TODO: DRY this up....
-        $tmpTableName = 'tmp_' . $tableName;
-
-        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
-
-        $sql = '';
-        foreach ($rows as $table) {
-            if ($table['tbl_name'] === $tableName) {
-                $sql = $table['sql'];
-            }
-        }
-
-        $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
-        $selectColumns = [];
-        $writeColumns = [];
-        foreach ($columns as $column) {
-            $selectName = $column['name'];
-            $writeName = ($selectName === $columnName)? $newColumn->getName() : $selectName;
-            $selectColumns[] = $this->quoteColumnName($selectName);
-            $writeColumns[] = $this->quoteColumnName($writeName);
-        }
-
-        if (!in_array($this->quoteColumnName($columnName), $selectColumns)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The specified column doesn\'t exist: ' . $columnName
-            ));
-        }
-
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
-
-        $sql = preg_replace(
-            sprintf("/%s(?:\/\*.*?\*\/|\([^)]+\)|'[^']*?'|[^,])+([,)])/", $this->quoteColumnName($columnName)),
-            sprintf('%s %s$1', $this->quoteColumnName($newColumn->getName()), $this->getColumnSqlDefinition($newColumn)),
-            $sql,
-            1
-        );
-
-        $this->execute($sql);
-
-        $sql = sprintf(
-            'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $tableName,
-            implode(', ', $writeColumns),
-            implode(', ', $selectColumns),
-            $tmpTableName
-        );
-
-        $this->execute($sql);
-        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function dropColumn($tableName, $columnName)
-    {
-        // TODO: DRY this up....
-        $tmpTableName = 'tmp_' . $tableName;
-
-        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
-
-        $sql = '';
-        foreach ($rows as $table) {
-            if ($table['tbl_name'] === $tableName) {
-                $sql = $table['sql'];
-            }
-        }
-
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
-        $columns = [];
         $columnType = null;
-        foreach ($rows as $row) {
-            if ($row['name'] !== $columnName) {
-                $columns[] = $row['name'];
-            } else {
+        $found = false;
+
+        foreach ($columns as $column) {
+            $selectName = $column['name'];
+            $writeName = $selectName;
+
+            if ($selectName == $columnName) {
+                $writeName = $newColumnName;
                 $found = true;
-                $columnType = $row['type'];
+                $columnType = $column['type'];
+                $selectName = $newColumnName === false ? $newColumnName : $selectName;
             }
+
+            $selectColumns[] = $selectName;
+            $writeColumns[] = $writeName;
         }
 
-        if (!isset($found)) {
-            throw new \InvalidArgumentException(sprintf(
+        $selectColumns = array_filter($selectColumns, 'strlen');
+        $writeColumns = array_filter($writeColumns, 'strlen');
+        $selectColumns = array_map([$this, 'quoteColumnName'], $selectColumns);
+        $writeColumns = array_map([$this, 'quoteColumnName'], $writeColumns);
+
+        if (!$found) {
+            throw new InvalidArgumentException(sprintf(
                 'The specified column doesn\'t exist: ' . $columnName
             ));
         }
 
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $tableName, $tmpTableName));
+        return compact('writeColumns', 'selectColumns', 'columnType');
+    }
 
-        $sql = preg_replace(
-            sprintf("/%s\s%s.*(,\s(?!')|\)$)/U", preg_quote($this->quoteColumnName($columnName)), preg_quote($columnType)),
-            "",
-            $sql
-        );
+    /**
+     * Returns the initial instructions to alter a table using the
+     * create-copy-drop strategy
+     *
+     * @param string $tableName The table to modify
+     *
+     * @return \Phinx\Db\Util\AlterInstructions
+     */
+    protected function beginAlterByCopyTable($tableName)
+    {
+        $instructions = new AlterInstructions();
+        $instructions->addPostStep(function ($state) use ($tableName) {
+            $tmpTableName = "tmp_{$tableName}";
+            $createSQL = $this->getDeclaringSql($tableName);
 
-        if (substr($sql, -2) === ', ') {
-            $sql = substr($sql, 0, -2) . ')';
-        }
+            // Table name in SQLite can be hilarious inside declaring SQL:
+            // - tableName
+            // - `tableName`
+            // - "tableName"
+            // - [this is a valid table name too!]
+            // - etc.
+            // Just remove all characters before first "(" and build them again
+            $createSQL = preg_replace(
+                "/^CREATE TABLE .* \(/Ui",
+                '',
+                $createSQL
+            );
 
-        $this->execute($sql);
+            $createSQL = "CREATE TABLE {$this->quoteTableName($tmpTableName)} ({$createSQL}";
 
-        $sql = sprintf(
-            'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $tableName,
-            implode(', ', $columns),
-            implode(', ', $columns),
-            $tmpTableName
-        );
+            return compact('createSQL', 'tmpTableName') + $state;
+        });
 
-        $this->execute($sql);
-        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
+        return $instructions;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName)
+    {
+        $instructions = $this->beginAlterByCopyTable($tableName);
+
+        $instructions->addPostStep(function ($state) use ($columnName, $newColumnName) {
+            $sql = str_replace(
+                $this->quoteColumnName($columnName),
+                $this->quoteColumnName($newColumnName),
+                $state['createSQL']
+            );
+            $this->execute($sql);
+
+            return $state;
+        });
+
+        $instructions->addPostStep(function ($state) use ($columnName, $newColumnName, $tableName) {
+            $newState = $this->calculateNewTableColumns($tableName, $columnName, $newColumnName);
+
+            return $newState + $state;
+        });
+
+        return $this->copyAndDropTmpTable($instructions, $tableName);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn)
+    {
+        $instructions = $this->beginAlterByCopyTable($tableName);
+
+        $newColumnName = $newColumn->getName();
+        $instructions->addPostStep(function ($state) use ($columnName, $newColumn) {
+            $sql = preg_replace(
+                sprintf("/%s(?:\/\*.*?\*\/|\([^)]+\)|'[^']*?'|[^,])+([,)])/", $this->quoteColumnName($columnName)),
+                sprintf('%s %s$1', $this->quoteColumnName($newColumn->getName()), $this->getColumnSqlDefinition($newColumn)),
+                $state['createSQL'],
+                1
+            );
+            $this->execute($sql);
+
+            return $state;
+        });
+
+        $instructions->addPostStep(function ($state) use ($columnName, $newColumnName, $tableName) {
+            $newState = $this->calculateNewTableColumns($tableName, $columnName, $newColumnName);
+
+            return $newState + $state;
+        });
+
+        return $this->copyAndDropTmpTable($instructions, $tableName);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getDropColumnInstructions($tableName, $columnName)
+    {
+        $instructions = $this->beginAlterByCopyTable($tableName);
+
+        $instructions->addPostStep(function ($state) use ($tableName, $columnName) {
+            $newState = $this->calculateNewTableColumns($tableName, $columnName, false);
+
+            return $newState + $state;
+        });
+
+        $instructions->addPostStep(function ($state) use ($columnName) {
+            $sql = preg_replace(
+                sprintf("/%s\s%s.*(,\s(?!')|\)$)/U", preg_quote($this->quoteColumnName($columnName)), preg_quote($state['columnType'])),
+                '',
+                $state['createSQL']
+            );
+
+            if (substr($sql, -2) === ', ') {
+                $sql = substr($sql, 0, -2) . ')';
+            }
+
+            $this->execute($sql);
+
+            return $state;
+        });
+
+        return $this->copyAndDropTmpTable($instructions, $tableName);
     }
 
     /**
      * Get an array of indexes from a particular table.
      *
      * @param string $tableName Table Name
+     *
      * @return array
      */
     protected function getIndexes($tableName)
     {
         $indexes = [];
-        $rows = $this->fetchAll(sprintf('pragma index_list(%s)', $tableName));
+        $schema = $this->getSchemaName($tableName, true)['schema'];
+        $indexList = $this->getTableInfo($tableName, 'index_list');
 
-        foreach ($rows as $row) {
-            $indexData = $this->fetchAll(sprintf('pragma index_info(%s)', $row['name']));
-            if (!isset($indexes[$tableName])) {
-                $indexes[$tableName] = ['index' => $row['name'], 'columns' => []];
-            }
+        foreach ($indexList as $index) {
+            $indexData = $this->fetchAll(sprintf('pragma %sindex_info(%s)', $schema, $this->quoteColumnName($index['name'])));
+            $cols = [];
             foreach ($indexData as $indexItem) {
-                $indexes[$tableName]['columns'][] = strtolower($indexItem['name']);
+                $cols[] = $indexItem['name'];
             }
+            $indexes[$index['name']] = $cols;
         }
 
         return $indexes;
     }
 
     /**
-     * {@inheritdoc}
+     * Finds the names of a table's indexes matching the supplied columns
+     *
+     * @param string $tableName The table to which the index belongs
+     * @param string|string[] $columns The columns of the index
+     *
+     * @return array
+     */
+    protected function resolveIndex($tableName, $columns)
+    {
+        $columns = array_map('strtolower', (array)$columns);
+        $indexes = $this->getIndexes($tableName);
+        $matches = [];
+
+        foreach ($indexes as $name => $index) {
+            $indexCols = array_map('strtolower', $index);
+            if ($columns == $indexCols) {
+                $matches[] = $name;
+            }
+        }
+
+        return $matches;
+    }
+
+    /**
+     * @inheritDoc
      */
     public function hasIndex($tableName, $columns)
     {
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
-
-        $columns = array_map('strtolower', $columns);
-        $indexes = $this->getIndexes($tableName);
-
-        foreach ($indexes as $index) {
-            $a = array_diff($columns, $index['columns']);
-            if (empty($a)) {
-                return true;
-            }
-        }
-
-        return false;
+        return (bool)$this->resolveIndex($tableName, $columns);
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasIndexByName($tableName, $indexName)
     {
+        $indexName = strtolower($indexName);
         $indexes = $this->getIndexes($tableName);
 
-        foreach ($indexes as $index) {
-            if ($indexName === $index['index']) {
+        foreach (array_keys($indexes) as $index) {
+            if ($indexName === strtolower($index)) {
                 return true;
             }
         }
@@ -542,85 +1006,138 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function addIndex(Table $table, Index $index)
+    protected function getAddIndexInstructions(Table $table, Index $index)
     {
         $indexColumnArray = [];
         foreach ($index->getColumns() as $column) {
             $indexColumnArray[] = sprintf('`%s` ASC', $column);
         }
         $indexColumns = implode(',', $indexColumnArray);
-        $this->execute(
-            sprintf(
-                'CREATE %s ON %s (%s)',
-                $this->getIndexSqlDefinition($table, $index),
-                $this->quoteTableName($table->getName()),
-                $indexColumns
-            )
+        $sql = sprintf(
+            'CREATE %s ON %s (%s)',
+            $this->getIndexSqlDefinition($table, $index),
+            $this->quoteTableName($table->getName()),
+            $indexColumns
         );
+
+        return new AlterInstructions([], [$sql]);
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function dropIndex($tableName, $columns)
+    protected function getDropIndexByColumnsInstructions($tableName, $columns)
     {
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
-
-        $indexes = $this->getIndexes($tableName);
-        $columns = array_map('strtolower', $columns);
-
-        foreach ($indexes as $index) {
-            $a = array_diff($columns, $index['columns']);
-            if (empty($a)) {
-                $this->execute(
-                    sprintf(
-                        'DROP INDEX %s',
-                        $this->quoteColumnName($index['index'])
-                    )
-                );
-
-                return;
+        $instructions = new AlterInstructions();
+        $indexNames = $this->resolveIndex($tableName, $columns);
+        $schema = $this->getSchemaName($tableName, true)['schema'];
+        foreach ($indexNames as $indexName) {
+            if (strpos($indexName, 'sqlite_autoindex_') !== 0) {
+                $instructions->addPostStep(sprintf(
+                    'DROP INDEX %s%s',
+                    $schema,
+                    $this->quoteColumnName($indexName)
+                ));
             }
         }
+
+        return $instructions;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function dropIndexByName($tableName, $indexName)
+    protected function getDropIndexByNameInstructions($tableName, $indexName)
     {
+        $instructions = new AlterInstructions();
+        $indexName = strtolower($indexName);
         $indexes = $this->getIndexes($tableName);
 
-        foreach ($indexes as $index) {
-            if ($indexName === $index['index']) {
-                $this->execute(
-                    sprintf(
-                        'DROP INDEX %s',
-                        $this->quoteColumnName($indexName)
-                    )
-                );
-
-                return;
+        $found = false;
+        foreach (array_keys($indexes) as $index) {
+            if ($indexName === strtolower($index)) {
+                $found = true;
+                break;
             }
         }
+
+        if ($found) {
+            $schema = $this->getSchemaName($tableName, true)['schema'];
+                $instructions->addPostStep(sprintf(
+                    'DROP INDEX %s%s',
+                    $schema,
+                    $this->quoteColumnName($indexName)
+                ));
+        }
+
+        return $instructions;
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function hasPrimaryKey($tableName, $columns, $constraint = null)
+    {
+        if ($constraint !== null) {
+            throw new InvalidArgumentException('SQLite does not support named constraints.');
+        }
+
+        $columns = array_map('strtolower', (array)$columns);
+        $primaryKey = array_map('strtolower', $this->getPrimaryKey($tableName));
+
+        if (array_diff($primaryKey, $columns) || array_diff($columns, $primaryKey)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the primary key from a particular table.
+     *
+     * @param string $tableName Table Name
+     *
+     * @return string[]
+     */
+    protected function getPrimaryKey($tableName)
+    {
+        $primaryKey = [];
+
+        $rows = $this->getTableInfo($tableName);
+
+        foreach ($rows as $row) {
+            if ($row['pk'] > 0) {
+                $primaryKey[$row['pk'] - 1] = $row['name'];
+            }
+        }
+
+        return $primaryKey;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
      */
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
+        if ($constraint !== null) {
+            throw new InvalidArgumentException('SQLite does not support named constraints.');
         }
+
+        $columns = array_map('strtolower', (array)$columns);
         $foreignKeys = $this->getForeignKeys($tableName);
 
-        $a = array_diff($columns, $foreignKeys);
-        if (empty($a)) {
+        foreach ($foreignKeys as $key) {
+            $key = array_map('strtolower', $key);
+            if (array_diff($key, $columns) || array_diff($columns, $key)) {
+                continue;
+            }
+
             return true;
         }
 
@@ -631,354 +1148,319 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      * Get an array of foreign keys from a particular table.
      *
      * @param string $tableName Table Name
+     *
      * @return array
      */
     protected function getForeignKeys($tableName)
     {
         $foreignKeys = [];
-        $rows = $this->fetchAll(
-            "SELECT sql, tbl_name
-              FROM (
-                    SELECT sql sql, type type, tbl_name tbl_name, name name
-                      FROM sqlite_master
-                     UNION ALL
-                    SELECT sql, type, tbl_name, name
-                      FROM sqlite_temp_master
-                   )
-             WHERE type != 'meta'
-               AND sql NOTNULL
-               AND name NOT LIKE 'sqlite_%'
-             ORDER BY substr(type, 2, 1), name"
-        );
+
+        $rows = $this->getTableInfo($tableName, 'foreign_key_list');
 
         foreach ($rows as $row) {
-            if ($row['tbl_name'] === $tableName) {
-                if (strpos($row['sql'], 'REFERENCES') !== false) {
-                    preg_match_all("/\(`([^`]*)`\) REFERENCES/", $row['sql'], $matches);
-                    foreach ($matches[1] as $match) {
-                        $foreignKeys[] = $match;
-                    }
-                }
+            if (!isset($foreignKeys[$row['id']])) {
+                $foreignKeys[$row['id']] = [];
             }
+            $foreignKeys[$row['id']][$row['seq']] = $row['from'];
         }
 
         return $foreignKeys;
     }
 
     /**
-     * {@inheritdoc}
+     * @param \Phinx\Db\Table\Table $table The Table
+     * @param string $column Column Name
+     *
+     * @return \Phinx\Db\Util\AlterInstructions
      */
-    public function addForeignKey(Table $table, ForeignKey $foreignKey)
+    protected function getAddPrimaryKeyInstructions(Table $table, $column)
     {
-        // TODO: DRY this up....
-        $this->execute('pragma foreign_keys = ON');
+        $instructions = $this->beginAlterByCopyTable($table->getName());
 
-        $tmpTableName = 'tmp_' . $table->getName();
-        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
+        $tableName = $table->getName();
+        $instructions->addPostStep(function ($state) use ($column) {
+            $matchPattern = "/(`$column`)\s+(\w+(\(\d+\))?)\s+((NOT )?NULL)/";
 
-        $sql = '';
-        foreach ($rows as $row) {
-            if ($row['tbl_name'] === $table->getName()) {
-                $sql = $row['sql'];
+            $sql = $state['createSQL'];
+
+            if (preg_match($matchPattern, $state['createSQL'], $matches)) {
+                if (isset($matches[2])) {
+                    if ($matches[2] === 'INTEGER') {
+                        $replace = '$1 INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT';
+                    } else {
+                        $replace = '$1 $2 NOT NULL PRIMARY KEY';
+                    }
+
+                    $sql = preg_replace($matchPattern, $replace, $state['createSQL'], 1);
+                }
             }
-        }
 
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($table->getName())));
-        $columns = [];
-        foreach ($rows as $column) {
-            $columns[] = $this->quoteColumnName($column['name']);
-        }
+            $this->execute($sql);
 
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($table->getName()), $tmpTableName));
+            return $state;
+        });
 
-        $sql = substr($sql, 0, -1) . ',' . $this->getForeignKeySqlDefinition($foreignKey) . ')';
-        $this->execute($sql);
+        $instructions->addPostStep(function ($state) {
+            $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($state['tmpTableName'])));
+            $names = array_map([$this, 'quoteColumnName'], array_column($columns, 'name'));
+            $selectColumns = $writeColumns = $names;
 
-        $sql = sprintf(
-            'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $this->quoteTableName($table->getName()),
-            implode(', ', $columns),
-            implode(', ', $columns),
-            $this->quoteTableName($tmpTableName)
-        );
+            return compact('selectColumns', 'writeColumns') + $state;
+        });
 
-        $this->execute($sql);
-        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
+        return $this->copyAndDropTmpTable($instructions, $tableName);
     }
 
     /**
-     * {@inheritdoc}
+     * @param \Phinx\Db\Table\Table $table Table
+     * @param string $column Column Name
+     *
+     * @return \Phinx\Db\Util\AlterInstructions
      */
-    public function dropForeignKey($tableName, $columns, $constraint = null)
+    protected function getDropPrimaryKeyInstructions($table, $column)
     {
-        // TODO: DRY this up....
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
+        $instructions = $this->beginAlterByCopyTable($table->getName());
 
-        $tmpTableName = 'tmp_' . $tableName;
+        $instructions->addPostStep(function ($state) {
+            $search = "/(,?\s*PRIMARY KEY\s*\([^\)]*\)|\s+PRIMARY KEY(\s+AUTOINCREMENT)?)/";
+            $sql = preg_replace($search, '', $state['createSQL'], 1);
 
-        $rows = $this->fetchAll('select * from sqlite_master where `type` = \'table\'');
-
-        $sql = '';
-        foreach ($rows as $table) {
-            if ($table['tbl_name'] === $tableName) {
-                $sql = $table['sql'];
+            if ($sql) {
+                $this->execute($sql);
             }
-        }
 
-        $rows = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
-        $replaceColumns = [];
-        foreach ($rows as $row) {
-            if (!in_array($row['name'], $columns)) {
-                $replaceColumns[] = $row['name'];
-            } else {
-                $found = true;
-            }
-        }
+            return $state;
+        });
 
-        if (!isset($found)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The specified column doesn\'t exist: '
-            ));
-        }
+        $instructions->addPostStep(function ($state) use ($column) {
+            $newState = $this->calculateNewTableColumns($state['tmpTableName'], $column, $column);
 
-        $this->execute(sprintf('ALTER TABLE %s RENAME TO %s', $this->quoteTableName($tableName), $tmpTableName));
+            return $newState + $state;
+        });
 
-        foreach ($columns as $columnName) {
-            $search = sprintf(
-                "/,[^,]*\(%s(?:,`?(.*)`?)?\) REFERENCES[^,]*\([^\)]*\)[^,)]*/",
-                $this->quoteColumnName($columnName)
-            );
-            $sql = preg_replace($search, '', $sql, 1);
-        }
-
-        $this->execute($sql);
-
-        $sql = sprintf(
-            'INSERT INTO %s(%s) SELECT %s FROM %s',
-            $tableName,
-            implode(', ', $columns),
-            implode(', ', $columns),
-            $tmpTableName
-        );
-
-        $this->execute($sql);
-        $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tmpTableName)));
+        return $this->copyAndDropTmpTable($instructions, $table->getName());
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function insert(Table $table, $row)
+    protected function getAddForeignKeyInstructions(Table $table, ForeignKey $foreignKey)
     {
-        $sql = sprintf(
-            "INSERT INTO %s ",
-            $this->quoteTableName($table->getName())
-        );
+        $instructions = $this->beginAlterByCopyTable($table->getName());
 
-        $columns = array_keys($row);
-        $sql .= "(" . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ")";
-        $sql .= " VALUES ";
+        $tableName = $table->getName();
+        $instructions->addPostStep(function ($state) use ($foreignKey) {
+            $this->execute('pragma foreign_keys = ON');
+            $sql = substr($state['createSQL'], 0, -1) . ',' . $this->getForeignKeySqlDefinition($foreignKey) . ')';
+            $this->execute($sql);
 
-        $sql .= "(" . implode(', ', array_map(function ($value) {
-            if (is_numeric($value)) {
-                return $value;
-            }
+            return $state;
+        });
 
-            if ($value === null) {
-                return 'null';
-            }
+        $instructions->addPostStep(function ($state) {
+            $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($state['tmpTableName'])));
+            $names = array_map([$this, 'quoteColumnName'], array_column($columns, 'name'));
+            $selectColumns = $writeColumns = $names;
 
-                return $this->getConnection()->quote($value);
-        }, $row)) . ")";
+            return compact('selectColumns', 'writeColumns') + $state;
+        });
 
-        $this->execute($sql);
+        return $this->copyAndDropTmpTable($instructions, $tableName);
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @throws \BadMethodCallException
+     *
+     * @return void
+     */
+    protected function getDropForeignKeyInstructions($tableName, $constraint)
+    {
+        throw new BadMethodCallException('SQLite does not have named foreign keys');
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function getDropForeignKeyByColumnsInstructions($tableName, $columns)
+    {
+        $instructions = $this->beginAlterByCopyTable($tableName);
+
+        $instructions->addPostStep(function ($state) use ($columns) {
+            $sql = '';
+
+            foreach ($columns as $columnName) {
+                $search = sprintf(
+                    "/,[^,]*\(%s(?:,`?(.*)`?)?\) REFERENCES[^,]*\([^\)]*\)[^,)]*/",
+                    $this->quoteColumnName($columnName)
+                );
+                $sql = preg_replace($search, '', $state['createSQL'], 1);
+            }
+
+            if ($sql) {
+                $this->execute($sql);
+            }
+
+            return $state;
+        });
+
+        $instructions->addPostStep(function ($state) use ($columns) {
+            $newState = $this->calculateNewTableColumns($state['tmpTableName'], $columns[0], $columns[0]);
+
+            $selectColumns = $newState['selectColumns'];
+            $columns = array_map([$this, 'quoteColumnName'], $columns);
+            $diff = array_diff($columns, $selectColumns);
+
+            if (!empty($diff)) {
+                throw new InvalidArgumentException(sprintf(
+                    'The specified columns don\'t exist: ' . implode(', ', $diff)
+                ));
+            }
+
+            return $newState + $state;
+        });
+
+        return $this->copyAndDropTmpTable($instructions, $tableName);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
     public function getSqlType($type, $limit = null)
     {
-        switch ($type) {
-            case static::PHINX_TYPE_TEXT:
-            case static::PHINX_TYPE_INTEGER:
-            case static::PHINX_TYPE_FLOAT:
-            case static::PHINX_TYPE_DECIMAL:
-            case static::PHINX_TYPE_DATETIME:
-            case static::PHINX_TYPE_TIME:
-            case static::PHINX_TYPE_DATE:
-            case static::PHINX_TYPE_BLOB:
-            case static::PHINX_TYPE_BOOLEAN:
-            case static::PHINX_TYPE_ENUM:
-                return ['name' => $type];
-            case static::PHINX_TYPE_STRING:
-                return ['name' => 'varchar', 'limit' => 255];
-            case static::PHINX_TYPE_CHAR:
-                return ['name' => 'char', 'limit' => 255];
-            case static::PHINX_TYPE_BIG_INTEGER:
-                return ['name' => 'bigint'];
-            case static::PHINX_TYPE_TIMESTAMP:
-                return ['name' => 'datetime'];
-            case static::PHINX_TYPE_BINARY:
-                return ['name' => 'blob'];
-            case static::PHINX_TYPE_UUID:
-                return ['name' => 'char', 'limit' => 36];
-            // Geospatial database types
-            // No specific data types exist in SQLite, instead all geospatial
-            // functionality is handled in the client. See also: SpatiaLite.
-            case static::PHINX_TYPE_GEOMETRY:
-            case static::PHINX_TYPE_POLYGON:
-                return ['name' => 'text'];
-            case static::PHINX_TYPE_LINESTRING:
-                return ['name' => 'varchar', 'limit' => 255];
-            case static::PHINX_TYPE_POINT:
-                return ['name' => 'float'];
-            default:
-                throw new \RuntimeException('The type: "' . $type . '" is not supported.');
+        $typeLC = strtolower($type);
+        if ($type instanceof Literal) {
+            $name = $type;
+        } elseif (isset(self::$supportedColumnTypes[$typeLC])) {
+            $name = self::$supportedColumnTypes[$typeLC];
+        } elseif (in_array($typeLC, self::$unsupportedColumnTypes)) {
+            throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by SQLite.');
+        } else {
+            throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not known by SQLite.');
         }
+
+        return ['name' => $name, 'limit' => $limit];
     }
 
     /**
      * Returns Phinx type by SQL type
      *
-     * @param string $sqlTypeDef SQL type
-     * @returns string Phinx type
+     * @param string|null $sqlTypeDef SQL type
+     *
+     * @return array
      */
     public function getPhinxType($sqlTypeDef)
     {
-        if (!preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*$/', $sqlTypeDef, $matches)) {
-            throw new \RuntimeException('Column type ' . $sqlTypeDef . ' is not supported');
+        $limit = null;
+        $scale = null;
+        if ($sqlTypeDef === null) {
+            // in SQLite columns can legitimately have null as a type, which is distinct from the empty string
+            $name = null;
+        } elseif (!preg_match('/^([a-z]+)(_(?:integer|float|text|blob))?(?:\((\d+)(?:,(\d+))?\))?$/i', $sqlTypeDef, $match)) {
+            // doesn't match the pattern of a type we'd know about
+            $name = Literal::from($sqlTypeDef);
         } else {
-            $limit = null;
-            $precision = null;
-            $type = $matches[1];
-            if (count($matches) > 2) {
-                $limit = $matches[3] ?: null;
+            // possibly a known type
+            $type = $match[1];
+            $typeLC = strtolower($type);
+            $affinity = isset($match[2]) ? $match[2] : '';
+            $limit = isset($match[3]) && strlen($match[3]) ? (int)$match[3] : null;
+            $scale = isset($match[4]) && strlen($match[4]) ? (int)$match[4] : null;
+            if (isset(self::$supportedColumnTypes[$typeLC])) {
+                // the type is an explicitly supported type
+                $name = $typeLC;
+            } elseif ($typeLC === 'tinyint' && $limit == 1) {
+                // the type is a MySQL-style boolean
+                $name = static::PHINX_TYPE_BOOLEAN;
+                $limit = null;
+            } elseif (isset(self::$supportedColumnTypeAliases[$typeLC])) {
+                // the type is an alias for a supported type
+                $name = self::$supportedColumnTypeAliases[$typeLC];
+            } elseif (in_array($typeLC, self::$unsupportedColumnTypes)) {
+                // unsupported but known types are passed through lowercased, and without appended affinity
+                $name = Literal::from($typeLC);
+            } else {
+                // unknown types are passed through as-is
+                $name = Literal::from($type . $affinity);
             }
-            if (count($matches) > 4) {
-                $precision = $matches[5];
-            }
-            switch ($matches[1]) {
-                case 'varchar':
-                    $type = static::PHINX_TYPE_STRING;
-                    if ($limit === 255) {
-                        $limit = null;
-                    }
-                    break;
-                case 'char':
-                    $type = static::PHINX_TYPE_CHAR;
-                    if ($limit === 255) {
-                        $limit = null;
-                    }
-                    if ($limit === 36) {
-                        $type = static::PHINX_TYPE_UUID;
-                    }
-                    break;
-                case 'int':
-                    $type = static::PHINX_TYPE_INTEGER;
-                    if ($limit === 11) {
-                        $limit = null;
-                    }
-                    break;
-                case 'bigint':
-                    if ($limit === 11) {
-                        $limit = null;
-                    }
-                    $type = static::PHINX_TYPE_BIG_INTEGER;
-                    break;
-                case 'blob':
-                    $type = static::PHINX_TYPE_BINARY;
-                    break;
-            }
-            if ($type === 'tinyint') {
-                if ($matches[3] === 1) {
-                    $type = static::PHINX_TYPE_BOOLEAN;
-                    $limit = null;
-                }
-            }
-
-            $this->getSqlType($type);
-
-            return [
-                'name' => $type,
-                'limit' => $limit,
-                'precision' => $precision
-            ];
         }
+
+        return [
+            'name' => $name,
+            'limit' => $limit,
+            'scale' => $scale,
+        ];
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function createDatabase($name, $options = [])
     {
-        touch($name . '.sqlite3');
+        touch($name . $this->suffix);
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function hasDatabase($name)
     {
-        return is_file($name . '.sqlite3');
+        return is_file($name . $this->suffix);
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @return void
      */
     public function dropDatabase($name)
     {
-        if (file_exists($name . '.sqlite3')) {
-            unlink($name . '.sqlite3');
+        if ($this->getOption('memory')) {
+            $this->disconnect();
+            $this->connect();
         }
-    }
-
-    /**
-     * Get the definition for a `DEFAULT` statement.
-     *
-     * @param  mixed $default
-     * @return string
-     */
-    protected function getDefaultValueDefinition($default)
-    {
-        if (is_string($default) && 'CURRENT_TIMESTAMP' !== $default) {
-            $default = $this->getConnection()->quote($default);
-        } elseif (is_bool($default)) {
-            $default = $this->castToBool($default);
+        if (file_exists($name . $this->suffix)) {
+            unlink($name . $this->suffix);
         }
-
-        return isset($default) ? ' DEFAULT ' . $default : '';
     }
 
     /**
      * Gets the SQLite Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
+     *
      * @return string
      */
     protected function getColumnSqlDefinition(Column $column)
     {
-        $sqlType = $this->getSqlType($column->getType());
-        $def = '';
-        $def .= strtoupper($sqlType['name']);
+        $isLiteralType = $column->getType() instanceof Literal;
+        if ($isLiteralType) {
+            $def = (string)$column->getType();
+        } else {
+            $sqlType = $this->getSqlType($column->getType());
+            $def = strtoupper($sqlType['name']);
+
+            $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits);
+            if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
+                $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
+            }
+        }
         if ($column->getPrecision() && $column->getScale()) {
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
-        }
-        $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits);
-        if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
-            $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
-        }
-        if (($values = $column->getValues()) && is_array($values)) {
-            $def .= " CHECK({$column->getName()} IN ('" . implode("', '", $values) . "'))";
         }
 
         $default = $column->getDefault();
 
-        $def .= ($column->isNull() || is_null($default)) ? ' NULL' : ' NOT NULL';
-        $def .= $this->getDefaultValueDefinition($default);
-        $def .= ($column->isIdentity()) ? ' PRIMARY KEY AUTOINCREMENT' : '';
+        $def .= (!$column->isIdentity() && ($column->isNull() || $default === null)) ? ' NULL' : ' NOT NULL';
+        $def .= $this->getDefaultValueDefinition($default, $column->getType());
+        $def .= $column->isIdentity() ? ' PRIMARY KEY AUTOINCREMENT' : '';
 
         if ($column->getUpdate()) {
             $def .= ' ON UPDATE ' . $column->getUpdate();
@@ -993,6 +1475,7 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
      * Gets the comment Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
+     *
      * @return string
      */
     protected function getCommentDefinition(Column $column)
@@ -1007,8 +1490,9 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     /**
      * Gets the SQLite Index Definition for an Index object.
      *
-     * @param \Phinx\Db\Table $table Table
+     * @param \Phinx\Db\Table\Table $table Table
      * @param \Phinx\Db\Table\Index $index Index
+     *
      * @return string
      */
     protected function getIndexSqlDefinition(Table $table, Index $index)
@@ -1033,17 +1517,18 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), ['enum']);
+        return array_keys(self::$supportedColumnTypes);
     }
 
     /**
      * Gets the SQLite Foreign Key Definition for an ForeignKey object.
      *
      * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     *
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey)
@@ -1071,5 +1556,32 @@ class SQLiteAdapter extends PdoAdapter implements AdapterInterface
         }
 
         return $def;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDecoratedConnection()
+    {
+        $options = $this->getOptions();
+        $options['quoteIdentifiers'] = true;
+        $database = ':memory:';
+
+        if (!empty($options['name'])) {
+            $options['database'] = $options['name'];
+
+            if (file_exists($options['name'] . $this->suffix)) {
+                $options['database'] = $options['name'] . $this->suffix;
+            }
+        }
+
+        $driver = new SqliteDriver($options);
+        if (method_exists($driver, 'setConnection')) {
+            $driver->setConnection($this->connection);
+        } else {
+            $driver->connection($this->connection);
+        }
+
+        return new Connection(['driver' => $driver] + $options);
     }
 }

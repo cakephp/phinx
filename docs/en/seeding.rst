@@ -69,6 +69,42 @@ command. You should use this method to insert your test data.
     been run. This means database seeders can be run repeatedly. Keep this in
     mind when developing them.
 
+Foreign Key Dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Often you'll find that seeders need to run in a particular order, so they don't
+violate foreign key constraints. To define this order, you can implement the
+``getDependencies()`` method that returns an array of seeders to run before the
+current seeder:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Seed\AbstractSeed;
+
+        class ShoppingCartSeeder extends AbstractSeed
+        {
+            public function getDependencies()
+            {
+                return [
+                    'UserSeeder',
+                    'ShopItemSeeder'
+                ];
+            }
+
+            public function run()
+            {
+                // Seed the shopping cart  after the `UserSeeder` and
+                // `ShopItemSeeder` have been run.
+            }
+        }
+        
+.. note::
+
+    Dependencies are only considered when executing all seed classes (default behavior). 
+    They won't be considered when running specific seed classes.
+
 Inserting Data
 --------------
 
@@ -101,13 +137,13 @@ within your seed class and then use the `insert()` method to insert data:
 
                 $posts = $this->table('posts');
                 $posts->insert($data)
-                      ->save();
+                      ->saveData();
             }
         }
 
 .. note::
 
-    You must call the `save()` method to commit your data to the table. Phinx
+    You must call the `saveData()` method to commit your data to the table. Phinx
     will buffer data until you do so.
 
 Integrating with the Faker library
@@ -147,7 +183,7 @@ Then use it in your seed classes:
                     ];
                 }
 
-                $this->insert('users', $data);
+                $this->table('users')->insert($data)->saveData();
             }
         }
 
@@ -180,7 +216,7 @@ SQL `TRUNCATE` command:
 
                 $posts = $this->table('posts');
                 $posts->insert($data)
-                      ->save();
+                      ->saveData();
 
                 // empty the table
                 $posts->truncate();

@@ -1,32 +1,13 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Db
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Db\Table;
+
+use RuntimeException;
 
 class Index
 {
@@ -56,20 +37,21 @@ class Index
     protected $type = self::INDEX;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $name = null;
+    protected $name;
 
     /**
-     * @var integer
+     * @var int|array|null
      */
-    protected $limit = null;
+    protected $limit;
 
     /**
      * Sets the index columns.
      *
      * @param array $columns
-     * @return \Phinx\Db\Table\Index
+     *
+     * @return $this
      */
     public function setColumns($columns)
     {
@@ -92,7 +74,8 @@ class Index
      * Sets the index type.
      *
      * @param string $type
-     * @return \Phinx\Db\Table\Index
+     *
+     * @return $this
      */
     public function setType($type)
     {
@@ -115,7 +98,8 @@ class Index
      * Sets the index name.
      *
      * @param string $name
-     * @return \Phinx\Db\Table\Index
+     *
+     * @return $this
      */
     public function setName($name)
     {
@@ -127,7 +111,7 @@ class Index
     /**
      * Gets the index name.
      *
-     * @return string
+     * @return string|null
      */
     public function getName()
     {
@@ -137,8 +121,9 @@ class Index
     /**
      * Sets the index limit.
      *
-     * @param int $limit
-     * @return \Phinx\Db\Table\Index
+     * @param int|array $limit limit value or array of limit value
+     *
+     * @return $this
      */
     public function setLimit($limit)
     {
@@ -150,7 +135,7 @@ class Index
     /**
      * Gets the index limit.
      *
-     * @return int
+     * @return int|array
      */
     public function getLimit()
     {
@@ -161,8 +146,10 @@ class Index
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
+     *
      * @throws \RuntimeException
-     * @return \Phinx\Db\Table\Index
+     *
+     * @return $this
      */
     public function setOptions($options)
     {
@@ -170,7 +157,7 @@ class Index
         $validOptions = ['type', 'unique', 'name', 'limit'];
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions, true)) {
-                throw new \RuntimeException(sprintf('"%s" is not a valid index option.', $option));
+                throw new RuntimeException(sprintf('"%s" is not a valid index option.', $option));
             }
 
             // handle $options['unique']

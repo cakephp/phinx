@@ -302,4 +302,34 @@ class ConfigTest extends AbstractConfigTest
             ],
         ];
     }
+
+    public function testConfigReplacesEnvironmentTokens()
+    {
+        $_SERVER['PHINX_TEST_CONFIG_ADAPTER'] = 'sqlite';
+        $_SERVER['PHINX_TEST_CONFIG_SUFFIX'] = 'sqlite3';
+        $_ENV['PHINX_TEST_CONFIG_NAME'] = 'phinx_testing';
+        $_ENV['PHINX_TEST_CONFIG_SUFFIX'] = 'foo';
+
+        try {
+            $config = new \Phinx\Config\Config([
+                'environments' => [
+                    'production' => [
+                        'adapter' => '%%PHINX_TEST_CONFIG_ADAPTER%%',
+                        'name' => '%%PHINX_TEST_CONFIG_NAME%%',
+                        'suffix' => '%%PHINX_TEST_CONFIG_SUFFIX%%',
+                    ],
+                ],
+            ]);
+
+            $this->assertSame(
+                ['adapter' => 'sqlite', 'name' => 'phinx_testing', 'suffix' => 'sqlite3'],
+                $config->getEnvironment('production')
+            );
+        } finally {
+            unset($_SERVER['PHINX_TEST_CONFIG_ADAPTER']);
+            unset($_SERVER['PHINX_TEST_CONFIG_SUFFIX']);
+            unset($_ENV['PHINX_TEST_CONFIG_NAME']);
+            unset($_ENV['PHINX_TEST_CONFIG_SUFFIX']);
+        }
+    }
 }

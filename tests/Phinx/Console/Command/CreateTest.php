@@ -304,7 +304,8 @@ class CreateTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $commandLine = array_merge(['command' => $command->getName()], $commandLine);
-        $commandTester->execute($commandLine);
+        $res = $commandTester->execute($commandLine);
+        $this->assertEquals(0, $res);
     }
 
     public function provideSimpleTemplateGenerator()

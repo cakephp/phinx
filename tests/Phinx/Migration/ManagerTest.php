@@ -3,8 +3,8 @@
 namespace Test\Phinx\Migration;
 
 use Phinx\Config\Config;
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Migration\Manager;
-use Phinx\Migration\Manager\Environment;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -175,12 +175,49 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(0, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
         $this->assertRegExp('/up  20120111235330  2012-01-11 23:53:36  2012-01-11 23:53:37  TestMigration/', $outputStr);
         $this->assertRegExp('/up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2/', $outputStr);
+    }
+
+    public function testPrintStatusMethodJsonFormat()
+    {
+        // stub environment
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock();
+        $envStub->expects($this->once())
+                ->method('getVersionLog')
+                ->will($this->returnValue(
+                    [
+                        '20120111235330' =>
+                            [
+                                'version' => '20120111235330',
+                                'start_time' => '2012-01-11 23:53:36',
+                                'end_time' => '2012-01-11 23:53:37',
+                                'migration_name' => '',
+                                'breakpoint' => '0',
+                            ],
+                        '20120116183504' =>
+                            [
+                                'version' => '20120116183504',
+                                'start_time' => '2012-01-16 18:35:40',
+                                'end_time' => '2012-01-16 18:35:41',
+                                'migration_name' => '',
+                                'breakpoint' => '0',
+                            ]
+                    ]
+                ));
+        $this->manager->setEnvironments(['mockenv' => $envStub]);
+        $this->manager->getOutput()->setDecorated(false);
+        $return = $this->manager->printStatus('mockenv', 'json');
+        $this->assertSame(['hasMissingMigration' => false, 'hasDownMigration' => false], $return);
+        rewind($this->manager->getOutput()->getStream());
+        $outputStr = trim(stream_get_contents($this->manager->getOutput()->getStream()));
+        $this->assertEquals('{"pending_count":0,"missing_count":0,"total_count":2,"migrations":[{"migration_status":"up","migration_id":"20120111235330","migration_name":"TestMigration"},{"migration_status":"up","migration_id":"20120116183504","migration_name":"TestMigration2"}]}', $outputStr);
     }
 
     public function testPrintStatusMethodWithNamespace()
@@ -216,7 +253,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(0, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -289,7 +326,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(0, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -333,7 +370,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(0, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -356,7 +393,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(0, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -395,7 +432,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -440,7 +477,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -485,7 +522,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -541,7 +578,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -593,7 +630,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -677,7 +714,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => false], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -727,7 +764,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -756,7 +793,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_DOWN, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -785,7 +822,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_DOWN, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -834,7 +871,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_DOWN, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -889,7 +926,7 @@ class ManagerTest extends TestCase
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -931,7 +968,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -990,7 +1027,7 @@ class ManagerTest extends TestCase
         $this->manager->getOutput()->setDecorated(false);
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_MISSING, $return);
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -1011,8 +1048,8 @@ class ManagerTest extends TestCase
      *
      * @dataProvider statusVersionOrderProvider
      *
-     * @param array  $config
-     * @param string $expectedStatusHeader
+     * @param Config $config Config to use for the test
+     * @param string $expectedStatusHeader expected header string
      */
     public function testPrintStatusMethodVersionOrderHeader($config, $expectedStatusHeader)
     {
@@ -1029,7 +1066,7 @@ class ManagerTest extends TestCase
 
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $return = $this->manager->printStatus('mockenv');
-        $this->assertEquals(Manager::EXIT_STATUS_DOWN, $return);
+        $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => true], $return);
 
         $outputStr = $this->manager->getOutput()->fetch();
         $this->assertContains($expectedStatusHeader, $outputStr);
@@ -5503,9 +5540,10 @@ class ManagerTest extends TestCase
         $this->assertFalse($adapter->hasTable('info'));
         $this->assertTrue($adapter->hasTable('statuses'));
         $this->assertTrue($adapter->hasTable('users'));
-        $this->assertTrue($adapter->hasTable('user_logins'));
+        $this->assertTrue($adapter->hasTable('just_logins'));
+        $this->assertFalse($adapter->hasTable('user_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'biography'));
-        $this->assertTrue($adapter->hasForeignKey('user_logins', ['user_id']));
+        $this->assertTrue($adapter->hasForeignKey('just_logins', ['user_id']));
         $this->assertTrue($adapter->hasTable('change_direction_test'));
         $this->assertTrue($adapter->hasColumn('change_direction_test', 'subthing'));
         $this->assertEquals(
@@ -5520,9 +5558,91 @@ class ManagerTest extends TestCase
         $this->assertTrue($adapter->hasTable('info'));
         $this->assertFalse($adapter->hasTable('statuses'));
         $this->assertFalse($adapter->hasTable('user_logins'));
+        $this->assertFalse($adapter->hasTable('just_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'bio'));
         $this->assertFalse($adapter->hasForeignKey('user_logins', ['user_id']));
         $this->assertFalse($adapter->hasTable('change_direction_test'));
+    }
+
+    public function testReversibleMigrationWithIndexConflict()
+    {
+        if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
+            $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED constant.');
+        }
+        $configArray = $this->getConfigArray();
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+
+        // override the migrations directory to use the reversible migrations
+        $configArray['paths']['migrations'] = $this->getCorrectedPath(__DIR__ . '/_files/drop_index_regression');
+        $config = new Config($configArray);
+
+        // ensure the database is empty
+        $adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->disconnect();
+
+        // migrate to the latest version
+        $this->manager->setConfig($config);
+        $this->manager->migrate('production');
+
+        // ensure up migrations worked
+        $this->assertTrue($adapter->hasTable('my_table'));
+        $this->assertTrue($adapter->hasTable('my_other_table'));
+        $this->assertTrue($adapter->hasColumn('my_table', 'entity_id'));
+        $this->assertTrue($adapter->hasForeignKey('my_table', ['entity_id']));
+
+        // revert all changes to the first
+        $this->manager->rollback('production', '20121213232502');
+
+        // ensure reversed migrations worked
+        $this->assertTrue($adapter->hasTable('my_table'));
+        $this->assertTrue($adapter->hasTable('my_other_table'));
+        $this->assertTrue($adapter->hasColumn('my_table', 'entity_id'));
+        $this->assertFalse($adapter->hasForeignKey('my_table', ['entity_id']));
+        $this->assertFalse($adapter->hasIndex('my_table', ['entity_id']));
+    }
+
+    public function testReversibleMigrationWithFKConflictOnTableDrop()
+    {
+        if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
+            $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED constant.');
+        }
+        $configArray = $this->getConfigArray();
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+
+        // override the migrations directory to use the reversible migrations
+        $configArray['paths']['migrations'] = $this->getCorrectedPath(__DIR__ . '/_files/drop_table_with_fk_regression');
+        $config = new Config($configArray);
+
+        // ensure the database is empty
+        $adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->disconnect();
+
+        // migrate to the latest version
+        $this->manager->setConfig($config);
+        $this->manager->migrate('production');
+
+        // ensure up migrations worked
+        $this->assertTrue($adapter->hasTable('orders'));
+        $this->assertTrue($adapter->hasTable('customers'));
+        $this->assertTrue($adapter->hasColumn('orders', 'order_date'));
+        $this->assertTrue($adapter->hasColumn('orders', 'customer_id'));
+        $this->assertTrue($adapter->hasForeignKey('orders', ['customer_id']));
+
+        // revert all changes to the first
+        $this->manager->rollback('production', '20190928205056');
+
+        // ensure reversed migrations worked
+        $this->assertTrue($adapter->hasTable('orders'));
+        $this->assertTrue($adapter->hasColumn('orders', 'order_date'));
+        $this->assertFalse($adapter->hasColumn('orders', 'customer_id'));
+        $this->assertFalse($adapter->hasTable('customers'));
+        $this->assertFalse($adapter->hasForeignKey('orders', ['customer_id']));
+
+        $this->manager->rollback('production');
+        $this->assertFalse($adapter->hasTable('orders'));
+        $this->assertFalse($adapter->hasTable('customers'));
     }
 
     public function testReversibleMigrationsWorkAsExpectedWithNamespace()
@@ -5594,9 +5714,10 @@ class ManagerTest extends TestCase
         $this->assertFalse($adapter->hasTable('info'));
         $this->assertTrue($adapter->hasTable('statuses'));
         $this->assertTrue($adapter->hasTable('users'));
-        $this->assertTrue($adapter->hasTable('user_logins'));
+        $this->assertFalse($adapter->hasTable('user_logins'));
+        $this->assertTrue($adapter->hasTable('just_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'biography'));
-        $this->assertTrue($adapter->hasForeignKey('user_logins', ['user_id']));
+        $this->assertTrue($adapter->hasForeignKey('just_logins', ['user_id']));
 
         $this->assertFalse($adapter->hasTable('info_baz'));
         $this->assertTrue($adapter->hasTable('statuses_baz'));
@@ -5619,6 +5740,7 @@ class ManagerTest extends TestCase
         $this->assertTrue($adapter->hasTable('info'));
         $this->assertFalse($adapter->hasTable('statuses'));
         $this->assertFalse($adapter->hasTable('user_logins'));
+        $this->assertFalse($adapter->hasTable('just_logins'));
         $this->assertTrue($adapter->hasColumn('users', 'bio'));
         $this->assertFalse($adapter->hasForeignKey('user_logins', ['user_id']));
 
@@ -5633,7 +5755,7 @@ class ManagerTest extends TestCase
         $this->assertFalse($adapter->hasTable('user_logins_foo_bar'));
     }
 
-    public function testBreakpointsOperateAsExpected()
+    public function testBreakpointsTogglingOperateAsExpected()
     {
         if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
             $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED constant.');
@@ -5652,45 +5774,150 @@ class ManagerTest extends TestCase
         $this->manager->setConfig($config);
         $this->manager->migrate('production');
 
-        $versions = $this->manager->getEnvironment('production')->getVersionLog();
-        $lastVersion = end($versions);
+        // Get the versions
+        $originalVersions = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(0, reset($originalVersions)['breakpoint']);
+        $this->assertEquals(0, end($originalVersions)['breakpoint']);
 
         // Wait until the second has changed.
-        $now = time();
-        while ($now == time()) {
-        }
+        sleep(1);
 
-        // set breakpoint on most recent migration
+        // Toggle the breakpoint on most recent migration
         $this->manager->toggleBreakpoint('production', null);
 
         // ensure breakpoint is set
-        $versions = $this->manager->getEnvironment('production')->getVersionLog();
-        $currentVersion = end($versions);
-        $this->assertEquals(1, $currentVersion['breakpoint']);
+        $firstToggle = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(0, reset($firstToggle)['breakpoint']);
+        $this->assertEquals(1, end($firstToggle)['breakpoint']);
 
         // ensure no other data has changed.
-        foreach ($lastVersion as $key => $value) {
-            if (!is_numeric($key) && $key != 'breakpoint') {
-                $this->assertEquals($value, $currentVersion[$key]);
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column) && $column != 'breakpoint') {
+                    $this->assertEquals($value, $firstToggle[$originalVersionKey][$column]);
+                }
             }
         }
 
         // Wait until the second has changed.
-        $now = time();
-        while ($now == time()) {
-        }
+        sleep(1);
 
-        // reset all breakpoints
-        $this->manager->removeBreakpoints('production');
+        // Toggle the breakpoint on most recent migration
+        $this->manager->toggleBreakpoint('production', null);
 
-        // ensure breakpoint is not set
-        $versions = $this->manager->getEnvironment('production')->getVersionLog();
-        $this->assertEquals(0, end($versions)['breakpoint']);
+        // ensure breakpoint is set
+        $secondToggle = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(0, reset($secondToggle)['breakpoint']);
+        $this->assertEquals(0, end($secondToggle)['breakpoint']);
 
         // ensure no other data has changed.
-        foreach ($lastVersion as $key => $value) {
-            if (!is_numeric($key) && $key != 'breakpoint') {
-                $this->assertEquals($value, $currentVersion[$key]);
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column) && $column != 'breakpoint') {
+                    $this->assertEquals($value, $secondToggle[$originalVersionKey][$column]);
+                }
+            }
+        }
+
+        // Wait until the second has changed.
+        sleep(1);
+
+        // Reset all breakpoints and toggle the most recent migration twice
+        $this->manager->removeBreakpoints('production');
+        $this->manager->toggleBreakpoint('production', null);
+        $this->manager->toggleBreakpoint('production', null);
+
+        // ensure breakpoint is not set
+        $resetVersions = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(0, reset($resetVersions)['breakpoint']);
+        $this->assertEquals(0, end($resetVersions)['breakpoint']);
+
+        // ensure no other data has changed.
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column)) {
+                    $this->assertEquals($value, $resetVersions[$originalVersionKey][$column]);
+                }
+            }
+        }
+
+        // Wait until the second has changed.
+        sleep(1);
+
+        // Set the breakpoint on the latest migration
+        $this->manager->setBreakpoint('production', null);
+
+        // ensure breakpoint is set
+        $setLastVersions = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(0, reset($setLastVersions)['breakpoint']);
+        $this->assertEquals(1, end($setLastVersions)['breakpoint']);
+
+        // ensure no other data has changed.
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column) && $column != 'breakpoint') {
+                    $this->assertEquals($value, $setLastVersions[$originalVersionKey][$column]);
+                }
+            }
+        }
+
+        // Wait until the second has changed.
+        sleep(1);
+
+        // Set the breakpoint on the first migration
+        $this->manager->setBreakpoint('production', reset($originalVersions)['version']);
+
+        // ensure breakpoint is set
+        $setFirstVersion = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(1, reset($setFirstVersion)['breakpoint']);
+        $this->assertEquals(1, end($setFirstVersion)['breakpoint']);
+
+        // ensure no other data has changed.
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column) && $column != 'breakpoint') {
+                    $this->assertEquals($value, $resetVersions[$originalVersionKey][$column]);
+                }
+            }
+        }
+
+        // Wait until the second has changed.
+        sleep(1);
+
+        // Unset the breakpoint on the latest migration
+        $this->manager->unsetBreakpoint('production', null);
+
+        // ensure breakpoint is set
+        $unsetLastVersions = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(1, reset($unsetLastVersions)['breakpoint']);
+        $this->assertEquals(0, end($unsetLastVersions)['breakpoint']);
+
+        // ensure no other data has changed.
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column) && $column != 'breakpoint') {
+                    $this->assertEquals($value, $unsetLastVersions[$originalVersionKey][$column]);
+                }
+            }
+        }
+
+        // Wait until the second has changed.
+        sleep(1);
+
+        // Unset the breakpoint on the first migration
+        $this->manager->unsetBreakpoint('production', reset($originalVersions)['version']);
+
+        // ensure breakpoint is set
+        $unsetFirstVersion = $this->manager->getEnvironment('production')->getVersionLog();
+        $this->assertEquals(0, reset($unsetFirstVersion)['breakpoint']);
+        $this->assertEquals(0, end($unsetFirstVersion)['breakpoint']);
+
+        // ensure no other data has changed.
+        foreach ($originalVersions as $originalVersionKey => $originalVersion) {
+            foreach ($originalVersion as $column => $value) {
+                if (!is_numeric($column)) {
+                    $this->assertEquals($value, $unsetFirstVersion[$originalVersionKey][$column]);
+                }
             }
         }
     }
@@ -5724,6 +5951,118 @@ class ManagerTest extends TestCase
         $this->assertContains('is not a valid version', $output);
     }
 
+    public function testPostgresFullMigration()
+    {
+        if (!TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED) {
+            $this->markTestSkipped('Postgres tests disabled. See TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED constant.');
+        }
+
+        $configArray = $this->getConfigArray();
+        // override the migrations directory to use the reversible migrations
+        $configArray['paths']['migrations'] = [
+            $this->getCorrectedPath(__DIR__ . '/_files/postgres'),
+        ];
+        $configArray['environments']['production'] = [
+            'adapter' => 'pgsql',
+            'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
+            'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
+            'user' => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
+            'pass' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
+            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
+            'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA
+        ];
+        $config = new Config($configArray);
+        $this->manager->setConfig($config);
+
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+
+        // ensure the database is empty
+        $adapter->dropSchema(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA);
+        $adapter->createSchema(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA);
+        $adapter->disconnect();
+
+        // migrate to the latest version
+        $this->manager->migrate('production');
+
+        $this->assertTrue($adapter->hasTable('articles'));
+        $this->assertTrue($adapter->hasTable('categories'));
+        $this->assertTrue($adapter->hasTable('composite_pks'));
+        $this->assertTrue($adapter->hasTable('orders'));
+        $this->assertTrue($adapter->hasTable('products'));
+        $this->assertTrue($adapter->hasTable('special_pks'));
+        $this->assertTrue($adapter->hasTable('special_tags'));
+        $this->assertTrue($adapter->hasTable('users'));
+
+        $this->manager->rollback('production', 'all');
+
+        $this->assertFalse($adapter->hasTable('articles'));
+        $this->assertFalse($adapter->hasTable('categories'));
+        $this->assertFalse($adapter->hasTable('composite_pks'));
+        $this->assertFalse($adapter->hasTable('orders'));
+        $this->assertFalse($adapter->hasTable('products'));
+        $this->assertFalse($adapter->hasTable('special_pks'));
+        $this->assertFalse($adapter->hasTable('special_tags'));
+        $this->assertFalse($adapter->hasTable('users'));
+    }
+
+    public function testMigrationWithDropColumnAndForeignKeyAndIndex()
+    {
+        if (!TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED) {
+            $this->markTestSkipped('Mysql tests disabled. See TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED constant.');
+        }
+        $configArray = $this->getConfigArray();
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+
+        // override the migrations directory to use the reversible migrations
+        $configArray['paths']['migrations'] = $this->getCorrectedPath(__DIR__ . '/_files/drop_column_fk_index_regression');
+        $config = new Config($configArray);
+
+        // ensure the database is empty
+        $adapter->dropDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->createDatabase(TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE);
+        $adapter->disconnect();
+
+        $this->manager->setConfig($config);
+        $this->manager->migrate('production', '20190928205056');
+
+        $this->assertTrue($adapter->hasTable('table1'));
+        $this->assertTrue($adapter->hasTable('table2'));
+        $this->assertTrue($adapter->hasTable('table3'));
+        $this->assertTrue($adapter->hasColumn('table1', 'table2_id'));
+        $this->assertTrue($adapter->hasForeignKey('table1', ['table2_id'], 'table1_table2_id'));
+        $this->assertTrue($adapter->hasIndexByName('table1', 'table1_table2_id'));
+        $this->assertTrue($adapter->hasColumn('table1', 'table3_id'));
+        $this->assertTrue($adapter->hasForeignKey('table1', ['table3_id'], 'table1_table3_id'));
+        $this->assertTrue($adapter->hasIndexByName('table1', 'table1_table3_id'));
+
+        // Run the next migration
+        $this->manager->migrate('production');
+        $this->assertTrue($adapter->hasTable('table1'));
+        $this->assertTrue($adapter->hasTable('table2'));
+        $this->assertTrue($adapter->hasTable('table3'));
+        $this->assertTrue($adapter->hasColumn('table1', 'table2_id'));
+        $this->assertTrue($adapter->hasForeignKey('table1', ['table2_id'], 'table1_table2_id'));
+        $this->assertTrue($adapter->hasIndexByName('table1', 'table1_table2_id'));
+        $this->assertFalse($adapter->hasColumn('table1', 'table3_id'));
+        $this->assertFalse($adapter->hasForeignKey('table1', ['table3_id'], 'table1_table3_id'));
+        $this->assertFalse($adapter->hasIndexByName('table1', 'table1_table3_id'));
+
+        // rollback
+        $this->manager->rollback('production');
+        $this->manager->rollback('production');
+
+        // ensure reversed migrations worked
+        $this->assertTrue($adapter->hasTable('table1'));
+        $this->assertTrue($adapter->hasTable('table2'));
+        $this->assertTrue($adapter->hasTable('table3'));
+        $this->assertFalse($adapter->hasColumn('table1', 'table2_id'));
+        $this->assertFalse($adapter->hasForeignKey('table1', ['table2_id'], 'table1_table2_id'));
+        $this->assertFalse($adapter->hasIndexByName('table1', 'table1_table2_id'));
+        $this->assertFalse($adapter->hasColumn('table1', 'table3_id'));
+        $this->assertFalse($adapter->hasForeignKey('table1', ['table3_id'], 'table1_table3_id'));
+        $this->assertFalse($adapter->hasIndexByName('table1', 'table1_table3_id'));
+    }
+
     public function setExpectedException($exceptionName, $exceptionMessage = '', $exceptionCode = null)
     {
         if (method_exists($this, 'expectException')) {
@@ -5739,6 +6078,36 @@ class ManagerTest extends TestCase
             //PHPUnit 4
             parent::setExpectedException($exceptionName, $exceptionMessage, $exceptionCode);
         }
+    }
+
+    public function testInvalidVersionBreakpoint()
+    {
+        // stub environment
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock();
+        $envStub->expects($this->once())
+                ->method('getVersionLog')
+                ->will($this->returnValue(
+                    [
+                        '20120111235330' =>
+                            [
+                                'version' => '20120111235330',
+                                'start_time' => '2012-01-11 23:53:36',
+                                'end_time' => '2012-01-11 23:53:37',
+                                'migration_name' => '',
+                                'breakpoint' => '0',
+                            ],
+                    ]
+                ));
+
+        $this->manager->setEnvironments(['mockenv' => $envStub]);
+        $this->manager->getOutput()->setDecorated(false);
+        $return = $this->manager->setBreakpoint('mockenv', '20120133235330');
+
+        rewind($this->manager->getOutput()->getStream());
+        $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
+        $this->assertEquals("warning 20120133235330 is not a valid version", trim($outputStr));
     }
 }
 

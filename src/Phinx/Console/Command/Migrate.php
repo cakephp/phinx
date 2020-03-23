@@ -1,41 +1,30 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Console
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Console\Command;
 
+use DateTime;
+use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 class Migrate extends AbstractCommand
 {
     /**
-     * {@inheritdoc}
+     * @var string
+     */
+    protected static $defaultName = 'migrate';
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
      */
     protected function configure()
     {
@@ -43,11 +32,11 @@ class Migrate extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName('migrate')
-            ->setDescription('Migrate the database')
+        $this->setDescription('Migrate the database')
             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
             ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to migrate to')
             ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
+            ->addOption('--fake', null, InputOption::VALUE_NONE, "Mark any migrations selected as run, but don't actually execute them")
             ->setHelp(
                 <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
@@ -66,6 +55,7 @@ EOT
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
+     *
      * @return int integer 0 on success, or an error code.
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -75,12 +65,19 @@ EOT
         $version = $input->getOption('target');
         $environment = $input->getOption('environment');
         $date = $input->getOption('date');
+        $fake = (bool)$input->getOption('fake');
 
         if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
+        }
+
+        if (!$this->getConfig()->hasEnvironment($environment)) {
+            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
+
+            return self::CODE_ERROR;
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
@@ -97,7 +94,7 @@ EOT
         } else {
             $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
 
-            return 1;
+            return self::CODE_ERROR;
         }
 
         if (isset($envOptions['table_prefix'])) {
@@ -107,18 +104,35 @@ EOT
             $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
         }
 
-        // run the migrations
-        $start = microtime(true);
-        if ($date !== null) {
-            $this->getManager()->migrateToDateTime($environment, new \DateTime($date));
-        } else {
-            $this->getManager()->migrate($environment, $version);
+        $versionOrder = $this->getConfig()->getVersionOrder();
+        $output->writeln('<info>ordering by</info> ' . $versionOrder . ' time');
+
+        if ($fake) {
+            $output->writeln('<comment>warning</comment> performing fake migrations');
         }
-        $end = microtime(true);
+
+        try {
+            // run the migrations
+            $start = microtime(true);
+            if ($date !== null) {
+                $this->getManager()->migrateToDateTime($environment, new DateTime($date), $fake);
+            } else {
+                $this->getManager()->migrate($environment, $version, $fake);
+            }
+            $end = microtime(true);
+        } catch (Exception $e) {
+            $output->writeln('<error>' . $e->__toString() . '</error>');
+
+            return self::CODE_ERROR;
+        } catch (Throwable $e) {
+            $output->writeln('<error>' . $e->__toString() . '</error>');
+
+            return self::CODE_ERROR;
+        }
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
 
-        return 0;
+        return self::CODE_SUCCESS;
     }
 }

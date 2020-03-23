@@ -2,36 +2,26 @@
    single: Commands
 
 Commands
-========
+########
 
 Phinx is run using a number of commands.
 
-The Breakpoint Command
-----------------------
+Migration Commands
+==================
 
-The Breakpoint command is used to set breakpoints, allowing you to limit
-rollbacks. You can toggle the breakpoint of the most recent migration by
-not supplying any parameters.
+The Init Command
 
-.. code-block:: bash
-
-        $ phinx breakpoint -e development
-
-To toggle a breakpoint on a specific version then use the ``--target``
-parameter or ``-t`` for short.
+The Init command (short for initialize) is used to prepare your project for
+Phinx. This command generates the ``phinx.yml`` file in the root of your
+project directory.
 
 .. code-block:: bash
 
-        $ phinx breakpoint -e development -t 20120103083322
+        $ cd yourapp
+        $ phinx init .
 
-You can remove all the breakpoints by using the ``--remove-all`` parameter
-or ``-r`` for short.
-
-.. code-block:: bash
-
-        $ phinx breakpoint -e development -r
-
-Breakpoints are visible when you run the ``status`` command.
+Open this file in your text editor to setup your project configuration. Please
+see the :doc:`Configuration <configuration>` chapter for more information.
 
 The Create Command
 ------------------
@@ -68,35 +58,6 @@ a callback that will be called once the migration file has been generated from t
 template.
 
 You cannot use ``--template`` and ``--class`` together.
-
-The Init Command
-----------------
-
-The Init command (short for initialize) is used to prepare your project for
-Phinx. This command generates the ``phinx.yml`` file in the root of your
-project directory.
-
-.. code-block:: bash
-
-        $ cd yourapp
-        $ phinx init
-
-Optionally you can specify a custom location for Phinx's config file:
-
-.. code-block:: bash
-
-        $ cd yourapp
-        $ phinx init ./custom/location/
-
-You can also specify a custom file name:
-
-.. code-block:: bash
-
-        $ cd yourapp
-        $ phinx init custom-config.yml
-
-Open this file in your text editor to setup your project configuration. Please
-see the :doc:`Configuration <configuration>` chapter for more information.
 
 The Migrate Command
 -------------------
@@ -174,8 +135,8 @@ Use ``--dry-run`` to print the queries to standard output without executing them
 
 .. note::
 
-        When rolling back, Phinx orders the executed migrations using 
-        the order specified in the ``version_order`` option of your 
+        When rolling back, Phinx orders the executed migrations using
+        the order specified in the ``version_order`` option of your
         ``phinx.yml`` file.
         Please see the :doc:`Configuration <configuration>` chapter for more information.
 
@@ -191,8 +152,38 @@ status. You can use this command to determine which migrations have been run.
 
 This command exits with code 0 if the database is up-to-date (ie. all migrations are up) or one of the following codes otherwise:
 
-* 1: There is at least one down migration.
-* 2: There is at least one missing migration.
+* 1: There is at least one migration left to be executed.
+* 2: There was a migration run and recorded in the database, but the migration file is now missing.
+
+The Breakpoint Command
+----------------------
+
+The Breakpoint command is used to set breakpoints, allowing you to limit
+rollbacks. You can toggle the breakpoint of the most recent migration by
+not supplying any parameters.
+
+.. code-block:: bash
+
+        $ phinx breakpoint -e development
+
+To toggle a breakpoint on a specific version then use the ``--target``
+parameter or ``-t`` for short.
+
+.. code-block:: bash
+
+        $ phinx breakpoint -e development -t 20120103083322
+
+You can remove all the breakpoints by using the ``--remove-all`` parameter
+or ``-r`` for short.
+
+.. code-block:: bash
+
+        $ phinx breakpoint -e development -r
+
+Breakpoints are visible when you run the ``status`` command.
+
+Database Seeding
+================
 
 The Seed Create Command
 -----------------------
@@ -248,7 +239,7 @@ configuration file may be the computed output of a PHP file as a PHP array:
                         "name" => $_ENV['DB_NAME'],
                         "user" => $_ENV['DB_USER'],
                         "pass" => $_ENV['DB_PASS'],
-                        "port" => $_ENV['DB_PORT']
+                        "port" => $_ENV['DB_PORT'],
                     ]
                 ]
             ];
@@ -265,7 +256,7 @@ the database name too, as Phinx requires this for certain methods such as ``hasT
             return [
                 "paths" => [
                     "migrations" => "application/migrations"
-                ),
+                ],
                 "environments" => [
                     "default_migration_table" => "phinxlog",
                     "default_database" => "dev",
@@ -313,7 +304,7 @@ Phinx can be used within your unit tests to prepare or seed the database. You ca
           $app->run(new StringInput('migrate'), new NullOutput());
         }
 
-If you use a memory database, you'll need to give Phinx a specific PDO instance. You can interact with Phinx directly using the Manager class : 
+If you use a memory database, you'll need to give Phinx a specific PDO instance. You can interact with Phinx directly using the Manager class :
 
 .. code-block:: php
 
@@ -325,7 +316,7 @@ If you use a memory database, you'll need to give Phinx a specific PDO instance.
         use Symfony\Component\Console\Output\NullOutput;
 
         class DatabaseTestCase extends TestCase {
-                
+
             public function setUp ()
             {
                 $pdo = new PDO('sqlite::memory:', null, null, [

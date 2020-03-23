@@ -4,6 +4,7 @@ namespace Test\Phinx\Console\Command;
 
 use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Rollback;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
@@ -107,14 +108,43 @@ class RollbackTest extends TestCase
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('rollback')
-                    ->with('fakeenv', null, false, true);
+                    ->with('development', null, false, true);
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+
+        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
+    }
+
+    public function testExecuteWithInvalidEnvironmentOption()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        /** @var Rollback $command */
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->never())
+                    ->method('rollback');
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
+
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
+        $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
     public function testDatabaseNameSpecified()
@@ -175,16 +205,8 @@ class RollbackTest extends TestCase
 
         $date = '20160101';
         $target = '20160101000000';
-        $rollbackStub = $this->getMockBuilder('\Phinx\Console\Command\Rollback')
-            ->setMethods(['getTargetFromDate'])
-            ->getMock();
 
-        $rollbackStub->expects($this->once())
-                    ->method('getTargetFromDate')
-                    ->with($date)
-                    ->will($this->returnValue($target));
-
-        $application->add($rollbackStub);
+        $application->add(new Rollback());
 
         // setup dependencies
         $command = $application->find('rollback');
@@ -282,5 +304,33 @@ class RollbackTest extends TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(['command' => $command->getName(), '-d' => $targetDate], ['decorated' => false]);
         $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
+    }
+
+    public function testFakeRollback()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Rollback());
+
+        /** @var Rollback $command */
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->once())
+            ->method('rollback')
+            ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false, true);
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), '--fake' => true], ['decorated' => false]);
+
+        $display = $commandTester->getDisplay();
+
+        $this->assertRegExp('/warning performing fake rollback/', $display);
     }
 }

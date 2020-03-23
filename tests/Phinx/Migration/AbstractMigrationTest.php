@@ -7,20 +7,6 @@ use PHPUnit\Framework\TestCase;
 
 class AbstractMigrationTest extends TestCase
 {
-    public function testUp()
-    {
-        // stub migration
-        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
-        $this->assertNull($migrationStub->up());
-    }
-
-    public function testDown()
-    {
-        // stub migration
-        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
-        $this->assertNull($migrationStub->down());
-    }
-
     public function testAdapterMethods()
     {
         // stub migration
@@ -54,7 +40,6 @@ class AbstractMigrationTest extends TestCase
 
         // stub output
         $outputStub = $this->getMockBuilder('\Symfony\Component\Console\Output\OutputInterface')
-            ->setConstructorArgs([[]])
             ->getMock();
 
         // test methods
@@ -67,7 +52,6 @@ class AbstractMigrationTest extends TestCase
     {
         // stub input
         $inputStub = $this->getMockBuilder('\Symfony\Component\Console\Input\InputInterface')
-            ->setConstructorArgs([[]])
             ->getMock();
 
         // stub migration
@@ -82,7 +66,6 @@ class AbstractMigrationTest extends TestCase
     {
         // stub output
         $outputStub = $this->getMockBuilder('\Symfony\Component\Console\Output\OutputInterface')
-            ->setConstructorArgs([[]])
             ->getMock();
 
         // stub migration
@@ -175,7 +158,7 @@ class AbstractMigrationTest extends TestCase
         $this->assertEquals([['0' => 'bar', 'foo' => 'bar']], $migrationStub->fetchAll('SELECT FOO FROM BAR'));
     }
 
-    public function testInsert()
+    public function testInsertTable()
     {
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
@@ -190,7 +173,35 @@ class AbstractMigrationTest extends TestCase
         $table = new Table('testdb', [], $adapterStub);
 
         $migrationStub->setAdapter($adapterStub);
-        $migrationStub->insert($table, ['row' => 'value']);
+        @$migrationStub->insert($table, ['row' => 'value']);
+    }
+
+    public function testInsertString()
+    {
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
+
+        // stub adapter
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $adapterStub->expects($this->once())
+            ->method('bulkinsert');
+
+        $migrationStub->setAdapter($adapterStub);
+        @$migrationStub->insert('testdb', ['row' => 'value']);
+    }
+
+    public function testInsertDeprecated()
+    {
+        if (PHP_VERSION_ID < 70000) {
+            $this->expectException(\PHPUnit_Framework_Error_Deprecated::class);
+        } else {
+            $this->expectException(\PHPUnit\Framework\Error\Deprecated::class);
+        }
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
+        $migrationStub->insert('testdb', ['row' => 'value']);
     }
 
     public function testCreateDatabase()
@@ -261,19 +272,60 @@ class AbstractMigrationTest extends TestCase
         );
     }
 
-    public function testDropTableMethod()
+    public function testPostFlightCheckFail()
     {
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
 
-        // stub adapter
-        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
             ->setConstructorArgs([[]])
             ->getMock();
-        $adapterStub->expects($this->once())
-                    ->method('dropTable');
+        $adapterStub->expects($this->any())
+            ->method('isValidColumnType')
+            ->willReturn(true);
 
         $migrationStub->setAdapter($adapterStub);
+
+        $table = $migrationStub->table('test_table');
+        $table->addColumn("column1", "integer", ['null' => true]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Migration has pending actions after execution!');
+        $migrationStub->postFlightCheck();
+    }
+
+    public function testPostFlightCheckSuccess()
+    {
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
+
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $adapterStub->expects($this->any())
+            ->method('isValidColumnType')
+            ->willReturn(true);
+
+        $migrationStub->setAdapter($adapterStub);
+
+        $table = $migrationStub->table('test_table');
+        $table->addColumn("column1", "integer", ['null' => true])->create();
+
+        $migrationStub->postFlightCheck();
+
+        // Dummy assert to prevent the test being marked as risky
+        $this->assertTrue(true);
+    }
+
+    public function testDropTableDeprecated()
+    {
+        if (PHP_VERSION_ID < 70000) {
+            $this->expectException(\PHPUnit_Framework_Error_Deprecated::class);
+        } else {
+            $this->expectException(\PHPUnit\Framework\Error\Deprecated::class);
+        }
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
         $migrationStub->dropTable('test_table');
     }
 }

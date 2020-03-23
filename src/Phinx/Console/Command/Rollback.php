@@ -1,33 +1,14 @@
 <?php
+
 /**
- * Phinx
- *
- * (The MIT license)
- * Copyright (c) 2015 Rob Morgan
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated * documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * @package    Phinx
- * @subpackage Phinx\Console
+ * MIT License
+ * For full license information, please view the LICENSE file that was distributed with this source code.
  */
+
 namespace Phinx\Console\Command;
 
+use DateTime;
+use InvalidArgumentException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -35,7 +16,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Rollback extends AbstractCommand
 {
     /**
-     * {@inheritdoc}
+     * @var string
+     */
+    protected static $defaultName = 'rollback';
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
      */
     protected function configure()
     {
@@ -43,12 +31,12 @@ class Rollback extends AbstractCommand
 
         $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment');
 
-        $this->setName('rollback')
-            ->setDescription('Rollback the last or to a specific migration')
+        $this->setDescription('Rollback the last or to a specific migration')
             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to rollback to')
             ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to rollback to')
             ->addOption('--force', '-f', InputOption::VALUE_NONE, 'Force rollback to ignore breakpoints')
             ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
+            ->addOption('--fake', null, InputOption::VALUE_NONE, "Mark any rollbacks selected as run, but don't actually execute them")
             ->setHelp(
                 <<<EOT
 The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
@@ -75,7 +63,8 @@ EOT
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @return void
+     *
+     * @return int integer 0 on success, or an error code.
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -85,6 +74,7 @@ EOT
         $version = $input->getOption('target');
         $date = $input->getOption('date');
         $force = (bool)$input->getOption('force');
+        $fake = (bool)$input->getOption('fake');
 
         $config = $this->getConfig();
 
@@ -93,6 +83,12 @@ EOT
             $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
         } else {
             $output->writeln('<info>using environment</info> ' . $environment);
+        }
+
+        if (!$this->getConfig()->hasEnvironment($environment)) {
+            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
+
+            return self::CODE_ERROR;
         }
 
         $envOptions = $config->getEnvironment($environment);
@@ -109,7 +105,11 @@ EOT
         }
 
         $versionOrder = $this->getConfig()->getVersionOrder();
-        $output->writeln('<info>ordering by </info>' . $versionOrder . " time");
+        $output->writeln('<info>ordering by</info> ' . $versionOrder . ' time');
+
+        if ($fake) {
+            $output->writeln('<comment>warning</comment> performing fake rollbacks');
+        }
 
         // rollback the specified environment
         if ($date === null) {
@@ -121,23 +121,28 @@ EOT
         }
 
         $start = microtime(true);
-        $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion);
+        $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion, $fake);
         $end = microtime(true);
 
         $output->writeln('');
         $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+
+        return self::CODE_SUCCESS;
     }
 
     /**
      * Get Target from Date
      *
      * @param string $date The date to convert to a target.
+     *
+     * @throws \InvalidArgumentException
+     *
      * @return string The target
      */
     public function getTargetFromDate($date)
     {
         if (!preg_match('/^\d{4,14}$/', $date)) {
-            throw new \InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
+            throw new InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
         }
 
         // what we need to append to the date according to the possible date string lengths
@@ -151,15 +156,15 @@ EOT
         ];
 
         if (!isset($dateStrlenToAppend[strlen($date)])) {
-            throw new \InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
+            throw new InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
         }
 
         $target = $date . $dateStrlenToAppend[strlen($date)];
 
-        $dateTime = \DateTime::createFromFormat('YmdHis', $target);
+        $dateTime = DateTime::createFromFormat('YmdHis', $target);
 
         if ($dateTime === false) {
-            throw new \InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
+            throw new InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');
         }
 
         return $dateTime->format('YmdHis');
