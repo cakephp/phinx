@@ -111,16 +111,16 @@ class ManagerTest extends TestCase
                     'name' => TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
                     'user' => TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME,
                     'pass' => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
-                    'port' => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT
-                ]
+                    'port' => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT,
+                ],
             ],
             'data_domain' => [
                 'phone_number' => [
                     'type' => 'string',
                     'null' => true,
-                    'length' => 15
-                ]
-            ]
+                    'length' => 15,
+                ],
+            ],
         ];
     }
 

@@ -50,19 +50,19 @@ abstract class AbstractConfigTest extends TestCase
                 'testing' => [
                     'adapter' => 'sqllite',
                     'wrapper' => 'testwrapper',
-                    'path' => '%%PHINX_CONFIG_PATH%%/testdb/test.db'
+                    'path' => '%%PHINX_CONFIG_PATH%%/testdb/test.db',
                 ],
                 'production' => [
-                    'adapter' => 'mysql'
-                ]
+                    'adapter' => 'mysql',
+                ],
             ],
             'data_domain' => [
                 'phone_number' => [
                     'type' => 'string',
                     'null' => true,
-                    'length' => 15
-                ]
-            ]
+                    'length' => 15,
+                ],
+            ],
         ];
     }
 
