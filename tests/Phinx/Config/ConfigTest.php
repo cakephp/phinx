@@ -116,8 +116,8 @@ class ConfigTest extends AbstractConfigTest
         $this->assertInternalType('array', $config->getDataDomain());
         $this->assertCount(0, $config->getDataDomain());
     }
-      
-    /** 
+
+    /**
      * @covers \Phinx\Config\Config::getDefaultEnvironment
      */
     public function testGetDefaultEnvironmentUsingDatabaseKey()
