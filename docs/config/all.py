@@ -8,7 +8,7 @@
 from cakephpsphinx.config.all import *
 
 # The full version, including alpha/beta/rc tags.
-release = '0.11.x'
+release = '0.12.x'
 
 # The search index version.
 search_version = 'phinx-0'

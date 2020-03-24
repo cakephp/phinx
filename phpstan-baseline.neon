@@ -1,0 +1,65 @@
+parameters:
+    ignoreErrors:
+        - '#Unsafe usage of new static\(\)\.#'
+        -
+            message: "#^Negated boolean expression is always false\\.$#"
+            count: 1
+            path: src/Phinx/Console/Command/AbstractCommand.php
+        -
+            message: "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Helper\\\\Helper::ask\\(\\)\\.$#"
+            count: 1
+            path: src/Phinx/Console/Command/Create.php
+        -
+            message: "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Helper\\\\Helper::ask\\(\\)\\.$#"
+            count: 1
+            path: src/Phinx/Console/Command/SeedCreate.php
+        -
+            message: "#^Left side of && is always true.$#"
+            count: 1
+            path: src/Phinx/Db/Adapter/AbstractAdapter.php
+        -
+            message: "#^Negated boolean expression is always false\\.$#"
+            count: 1
+            path: src/Phinx/Db/Adapter/AdapterFactory.php
+
+        -
+            message: "#^Method Phinx\\\\Db\\\\Adapter\\\\MysqlAdapter::getSqlType\\(\\) should return array<string> but returns array<string, int|string|null>\\.$#"
+            count: 13
+            path: src/Phinx/Db/Adapter/MysqlAdapter.php
+
+        -
+            message: "#^Method Phinx\\\\Db\\\\Adapter\\\\PostgresAdapter::getSqlType\\(\\) should return array<string> but returns array<string, int|string>\\.$#"
+            count: 7
+            path: src/Phinx/Db/Adapter/PostgresAdapter.php
+        -
+            message: "#^Method Phinx\\\\Db\\\\Adapter\\\\SQLiteAdapter::calculateNewTableColumns\\(\\) should return Phinx\\\\Db\\\\Util\\\\AlterInstructions but returns array\\.$#"
+            count: 1
+            path: src/Phinx/Db/Adapter/SQLiteAdapter.php
+        -
+            message: "#^Cannot access offset 'selectColumns' on Phinx\\\\Db\\\\Util\\\\AlterInstructions\\.$#"
+            count: 1
+            path: src/Phinx/Db/Adapter/SQLiteAdapter.php
+        -
+            message: "#^Instanceof between string and Phinx\\\\Util\\\\Literal will always evaluate to false\\.$#"
+            count: 1
+            path: src/Phinx/Db/Adapter/SQLiteAdapter.php
+        -
+            message: "#^Method Phinx\\\\Db\\\\Adapter\\\\SQLiteAdapter::getSqlType\\(\\) should return array<string> but returns array<string, mixed>\\.$#"
+            count: 1
+            path: src/Phinx/Db/Adapter/SQLiteAdapter.php
+        -
+            message: "#^Access to undefined constant PDO::SQLSRV_ATTR_ENCODING\\.$#"
+            count: 1
+            path: src/Phinx/Db/Adapter/SqlServerAdapter.php
+        -
+            message: "#^Method Phinx\\\\Db\\\\Adapter\\\\SqlServerAdapter::getSqlType\\(\\) should return array<string> but returns array<string, int|string>\\.$#"
+            count: 2
+            path: src/Phinx/Db/Adapter/SqlServerAdapter.php
+        -
+            message: "#^Negated boolean expression is always false\\.$#"
+            count: 1
+            path: src/Phinx/Db/Table.php
+        -
+            message: "#^If condition is always true\\.$#"
+            count: 2
+            path: src/Phinx/Migration/Manager/Environment.php

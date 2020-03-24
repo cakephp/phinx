@@ -2,6 +2,8 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use BadMethodCallException;
+use InvalidArgumentException;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Table\Column;
 use Phinx\Util\Literal;
@@ -20,7 +22,7 @@ class SQLiteAdapterTest extends TestCase
      */
     private $adapter;
 
-    public function setUp()
+    public function setUp(): void
     {
         if (!TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED) {
             $this->markTestSkipped('SQLite tests disabled. See TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED constant.');
@@ -41,7 +43,7 @@ class SQLiteAdapterTest extends TestCase
         $this->adapter->disconnect();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->adapter);
     }
@@ -315,9 +317,6 @@ class SQLiteAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testAddMultipleColumnPrimaryKeyFails()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -326,18 +325,19 @@ class SQLiteAdapterTest extends TestCase
             ->addColumn('column2', 'integer')
             ->save();
 
+        $this->expectException(InvalidArgumentException::class);
+
         $table
             ->changePrimaryKey(['column1', 'column2'])
             ->save();
     }
 
-    /**
-     * @expectedException \BadMethodCallException
-     */
     public function testChangeCommentFails()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
+
+        $this->expectException(BadMethodCallException::class);
 
         $table
             ->changeComment('comment1')
@@ -696,10 +696,6 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasTable($table->getName()));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessageRegExp /test/
-     */
     public function testFailingDropForeignKey()
     {
         $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
@@ -710,6 +706,9 @@ class SQLiteAdapterTest extends TestCase
             ->addColumn('ref_table_id', 'integer')
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
             ->save();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/test/');
 
         $this->adapter->dropForeignKey($table->getName(), ['ref_table_id', 'test']);
     }
@@ -945,7 +944,7 @@ class SQLiteAdapterTest extends TestCase
 CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR NULL, `column2` INTEGER NULL, `column3` VARCHAR NOT NULL DEFAULT 'test');
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
     }
 
     /**
@@ -985,7 +984,7 @@ INSERT INTO `table1` (`int_col`) VALUES (23);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $actualOutput = preg_replace("/\r\n|\r/", "\n", $actualOutput); // normalize line endings for Windows
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the insert to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the insert to the output');
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
         self::assertTrue($countQuery->execute());
@@ -1026,7 +1025,7 @@ OUTPUT;
 INSERT INTO `table1` (`string_col`, `int_col`) VALUES ('test_data1', 23), (null, 42);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the bulkinsert to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the bulkinsert to the output');
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
         self::assertTrue($countQuery->execute());
@@ -1061,7 +1060,7 @@ CREATE TABLE `table1` (`column1` VARCHAR NULL, `column2` INTEGER NULL, PRIMARY K
 INSERT INTO `table1` (`column1`, `column2`) VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
     }
 
     /**
@@ -1308,6 +1307,7 @@ INPUT;
     public function testHasNamedPrimaryKey()
     {
         $this->expectException(\InvalidArgumentException::class);
+
         $this->adapter->hasPrimaryKey('t', [], 'named_constraint');
     }
 
@@ -1357,16 +1357,19 @@ INPUT;
     public function testHasNamedForeignKey()
     {
         $this->expectException(\InvalidArgumentException::class);
+
         $this->adapter->hasForeignKey('t', [], 'named_constraint');
     }
 
-    /** @dataProvider providePhinxTypes
+    /**
+     * @dataProvider providePhinxTypes
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getSqlType
      */
     public function testGetSqlType($phinxType, $limit, $exp)
     {
         if ($exp instanceof \Exception) {
             $this->expectException(get_class($exp));
+
             $this->adapter->getSqlType($phinxType, $limit);
         } else {
             $exp = ['name' => $exp, 'limit' => $limit];

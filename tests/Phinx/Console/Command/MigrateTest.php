@@ -33,7 +33,7 @@ class MigrateTest extends TestCase
      */
     protected $output;
 
-    protected function setUp()
+    public function setUp(): void
     {
         $this->config = new Config([
             'paths' => [
@@ -41,7 +41,7 @@ class MigrateTest extends TestCase
             ],
             'environments' => [
                 'default_migration_table' => 'phinxlog',
-                'default_database' => 'development',
+                'default_environment' => 'development',
                 'development' => [
                     'adapter' => 'mysql',
                     'host' => 'fakehost',

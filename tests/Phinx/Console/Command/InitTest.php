@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Console\Command;
 
+use InvalidArgumentException;
 use Phinx\Console\Command\Init;
 use Phinx\Console\PhinxApplication;
 use PHPUnit\Framework\TestCase;
@@ -9,7 +10,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class InitTest extends TestCase
 {
-    protected function setUp()
+    public function setUp(): void
     {
         foreach (['.yaml', '.yml', '.json', '.php'] as $format) {
             $file = sys_get_temp_dir() . '/phinx' . $format;
@@ -38,7 +39,7 @@ class InitTest extends TestCase
 
         $commandTester->execute($command, ['decorated' => false]);
 
-        $this->assertContains(
+        $this->assertStringContainsString(
             "created $fullPath",
             $commandTester->getDisplay()
         );
@@ -105,35 +106,6 @@ class InitTest extends TestCase
         chdir($current_dir);
     }
 
-    public function testYamlFormat()
-    {
-        $current_dir = getcwd();
-        chdir(sys_get_temp_dir());
-
-        $application = new PhinxApplication('testing');
-        $application->add(new Init());
-
-        $command = $application->find('init');
-
-        $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--format' => 'yaml'], ['decorated' => false]);
-        $this->assertRegExp(
-            "/created (.*)[\/\\\\]phinx.yaml\\n/",
-            $commandTester->getDisplay(true)
-        );
-
-        $this->assertFileExists(
-            'phinx.yaml',
-            'Phinx configuration not existent'
-        );
-
-        chdir($current_dir);
-    }
-
-    /**
-     * @expectedException              \InvalidArgumentException
-     * @expectedExceptionMessageRegExp /Config file ".*" already exists./
-     */
     public function testThrowsExceptionWhenConfigFilePresent()
     {
         touch(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.yml');
@@ -143,6 +115,10 @@ class InitTest extends TestCase
         $command = $application->find('init');
 
         $commandTester = new CommandTester($command);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/Config file ".*" already exists./');
+
         $commandTester->execute([
             'command' => $command->getName(),
             'path' => sys_get_temp_dir(),
@@ -151,10 +127,6 @@ class InitTest extends TestCase
         ]);
     }
 
-    /**
-     * @expectedException              \InvalidArgumentException
-     * @expectedExceptionMessageRegExp /Invalid path ".*" for config file./
-     */
     public function testThrowsExceptionWhenInvalidDir()
     {
         $application = new PhinxApplication('testing');
@@ -163,6 +135,10 @@ class InitTest extends TestCase
         $command = $application->find('init');
 
         $commandTester = new CommandTester($command);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/Invalid path ".*" for config file./');
+
         $commandTester->execute([
             'command' => $command->getName(),
             'path' => '/this/dir/does/not/exists',
@@ -171,10 +147,6 @@ class InitTest extends TestCase
         ]);
     }
 
-    /**
-     * @expectedException              \InvalidArgumentException
-     * @expectedExceptionMessageRegExp /Invalid format "invalid". Format must be either yaml, yml, json, or php./
-     */
     public function testThrowsExceptionWhenInvalidFormat()
     {
         $application = new PhinxApplication('testing');
@@ -183,6 +155,10 @@ class InitTest extends TestCase
         $command = $application->find('init');
 
         $commandTester = new CommandTester($command);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid format "invalid". Format must be either yml, json, or php.');
+
         $commandTester->execute([
             'command' => $command->getName(),
             'path' => sys_get_temp_dir() . DIRECTORY_SEPARATOR,

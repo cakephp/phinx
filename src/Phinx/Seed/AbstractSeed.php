@@ -51,17 +51,6 @@ abstract class AbstractSeed implements SeedInterface
         if ($output !== null) {
             $this->setOutput($output);
         }
-
-        $this->init();
-    }
-
-    /**
-     * Initialize method.
-     *
-     * @return void
-     */
-    protected function init()
-    {
     }
 
     /**

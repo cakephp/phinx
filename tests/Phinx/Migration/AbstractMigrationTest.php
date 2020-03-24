@@ -79,7 +79,7 @@ class AbstractMigrationTest extends TestCase
     public function testGetName()
     {
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
-        $this->assertContains('AbstractMigration', $migrationStub->getName());
+        $this->assertStringContainsString('AbstractMigration', $migrationStub->getName());
     }
 
     public function testVersionMethods()
@@ -194,13 +194,11 @@ class AbstractMigrationTest extends TestCase
 
     public function testInsertDeprecated()
     {
-        if (PHP_VERSION_ID < 70000) {
-            $this->expectException(\PHPUnit_Framework_Error_Deprecated::class);
-        } else {
-            $this->expectException(\PHPUnit\Framework\Error\Deprecated::class);
-        }
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
+
+        $this->expectException(\PHPUnit\Framework\Error\Deprecated::class);
+
         $migrationStub->insert('testdb', ['row' => 'value']);
     }
 
@@ -291,6 +289,7 @@ class AbstractMigrationTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Migration has pending actions after execution!');
+
         $migrationStub->postFlightCheck();
     }
 
@@ -319,13 +318,11 @@ class AbstractMigrationTest extends TestCase
 
     public function testDropTableDeprecated()
     {
-        if (PHP_VERSION_ID < 70000) {
-            $this->expectException(\PHPUnit_Framework_Error_Deprecated::class);
-        } else {
-            $this->expectException(\PHPUnit\Framework\Error\Deprecated::class);
-        }
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
+
+        $this->expectException(\PHPUnit\Framework\Error\Deprecated::class);
+
         $migrationStub->dropTable('test_table');
     }
 }

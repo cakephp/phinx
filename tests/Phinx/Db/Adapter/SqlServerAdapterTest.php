@@ -2,9 +2,11 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use BadMethodCallException;
 use Phinx\Db\Adapter\SqlServerAdapter;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
@@ -18,7 +20,7 @@ class SqlServerAdapterTest extends TestCase
      */
     private $adapter;
 
-    public function setUp()
+    public function setUp(): void
     {
         if (!TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED) {
             $this->markTestSkipped('SqlServer tests disabled. See TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED constant.');
@@ -41,7 +43,7 @@ class SqlServerAdapterTest extends TestCase
         $this->adapter->disconnect();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         if (!empty($this->adapter)) {
             $this->adapter->disconnect();
@@ -276,13 +278,12 @@ WHERE t.name='ntable'");
         $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
     }
 
-    /**
-     * @expectedException \BadMethodCallException
-     */
     public function testChangeCommentFails()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
+
+        $this->expectException(BadMethodCallException::class);
 
         $table
             ->changeComment('comment1')
@@ -685,12 +686,11 @@ WHERE t.name='ntable'");
         $this->adapter->dropDatabase('phinx_temp_database');
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Column type "idontexist" is not supported by SqlServer.
-     */
     public function testInvalidSqlType()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Column type "idontexist" is not supported by SqlServer.');
+
         $this->adapter->getSqlType('idontexist');
     }
 
@@ -906,7 +906,7 @@ CREATE TABLE [table1] ([column1] NVARCHAR (255)   NOT NULL , [column2] INT   NOT
 INSERT INTO [table1] ([column1], [column2]) VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = str_replace("\r\n", "\n", $consoleOutput->fetch());
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
     }
 
     public function testDumpTransaction()

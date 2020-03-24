@@ -4,16 +4,17 @@ namespace Test\Phinx\Db\Table;
 
 use Phinx\Db\Table\Index;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class IndexTest extends TestCase
 {
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage "0" is not a valid index option.
-     */
     public function testSetOptionThrowsExceptionIfOptionIsNotString()
     {
         $column = new Index();
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('"0" is not a valid index option.');
+
         $column->setOptions(['type']);
     }
 }

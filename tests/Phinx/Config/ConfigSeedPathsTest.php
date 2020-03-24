@@ -3,6 +3,7 @@
 namespace Test\Phinx\Config;
 
 use Phinx\Config\Config;
+use UnexpectedValueException;
 
 /**
  * Class ConfigSeedPathsTest
@@ -12,12 +13,12 @@ use Phinx\Config\Config;
  */
 class ConfigSeedPathsTest extends AbstractConfigTest
 {
-    /**
-     * @expectedException \UnexpectedValueException
-     */
     public function testGetSeedPathsThrowsExceptionForNoPath()
     {
         $config = new Config([]);
+
+        $this->expectException(UnexpectedValueException::class);
+
         $config->getSeedPaths();
     }
 
@@ -41,7 +42,7 @@ class ConfigSeedPathsTest extends AbstractConfigTest
         $config = new Config($values);
         $paths = $config->getSeedPaths();
 
-        $this->assertInternalType('array', $paths);
+        $this->assertIsArray($paths);
         $this->assertCount(1, $paths);
     }
 }

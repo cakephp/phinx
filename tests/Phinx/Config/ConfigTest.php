@@ -2,7 +2,9 @@
 
 namespace Test\Phinx\Config;
 
+use InvalidArgumentException;
 use Phinx\Config\Config;
+use UnexpectedValueException;
 
 /**
  * Class ConfigTest
@@ -114,6 +116,17 @@ class ConfigTest extends AbstractConfigTest
         $this->assertInternalType('array', $config->getDataDomain());
         $this->assertCount(0, $config->getDataDomain());
     }
+      
+    /** 
+     * @covers \Phinx\Config\Config::getDefaultEnvironment
+     */
+    public function testGetDefaultEnvironmentUsingDatabaseKey()
+    {
+        $configArray = $this->getConfigArray();
+        $configArray['environments']['default_database'] = 'production';
+        $config = new Config($configArray);
+        $this->assertEquals('production', $config->getDefaultEnvironment());
+    }
 
     /**
      * @covers \Phinx\Config\Config::offsetGet
@@ -133,12 +146,14 @@ class ConfigTest extends AbstractConfigTest
 
     /**
      * @covers \Phinx\Config\Config::offsetGet
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Identifier "foo" is not defined.
      */
     public function testUndefinedArrayAccess()
     {
         $config = new Config([]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Identifier "foo" is not defined.');
+
         $config['foo'];
     }
 
@@ -224,13 +239,15 @@ class ConfigTest extends AbstractConfigTest
 
     /**
      * @covers \Phinx\Config\Config::getSeedPaths
-     * @expectedException \UnexpectedValueException
-     * @expectedExceptionMessage Seeds path missing from config file
      */
     public function testGetSeedPathThrowsException()
     {
         $config = new \Phinx\Config\Config([]);
-        $this->assertEquals('db/seeds', $config->getSeedPaths());
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Seeds path missing from config file');
+
+        $config->getSeedPaths();
     }
 
     /**

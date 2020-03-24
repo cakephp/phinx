@@ -79,6 +79,11 @@ class Environment
 
         $startTime = time();
         $migration->setAdapter($this->getAdapter());
+        if (method_exists($migration, MigrationInterface::INIT)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            $migration->init();
+        }
+
 
         if (!$fake) {
             // begin the transaction if the adapter supports it
@@ -128,6 +133,10 @@ class Environment
     public function executeSeed(SeedInterface $seed)
     {
         $seed->setAdapter($this->getAdapter());
+        if (method_exists($seed, SeedInterface::INIT)) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            $seed->init();
+        }
 
         // begin the transaction if the adapter supports it
         if ($this->getAdapter()->hasTransactions()) {

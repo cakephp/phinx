@@ -2,10 +2,12 @@
 
 namespace Test\Phinx\Migration;
 
+use InvalidArgumentException;
 use Phinx\Config\Config;
 use Phinx\Console\Command\AbstractCommand;
 use Phinx\Migration\Manager;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -31,7 +33,7 @@ class ManagerTest extends TestCase
      */
     private $manager;
 
-    protected function setUp()
+    public function setUp(): void
     {
         $this->config = new Config($this->getConfigArray());
         $this->input = new ArrayInput([]);
@@ -80,7 +82,7 @@ class ManagerTest extends TestCase
         return $config;
     }
 
-    protected function tearDown()
+    public function tearDown(): void
     {
         $this->manager = null;
     }
@@ -104,7 +106,7 @@ class ManagerTest extends TestCase
             ],
             'environments' => [
                 'default_migration_table' => 'phinxlog',
-                'default_database' => 'production',
+                'default_environment' => 'production',
                 'production' => [
                     'adapter' => 'mysql',
                     'host' => TESTS_PHINX_DB_ADAPTER_MYSQL_HOST,
@@ -1069,7 +1071,7 @@ class ManagerTest extends TestCase
         $this->assertEquals(['hasMissingMigration' => false, 'hasDownMigration' => true], $return);
 
         $outputStr = $this->manager->getOutput()->fetch();
-        $this->assertContains($expectedStatusHeader, $outputStr);
+        $this->assertStringContainsString($expectedStatusHeader, $outputStr);
     }
 
     public function statusVersionOrderProvider()
@@ -1101,10 +1103,6 @@ class ManagerTest extends TestCase
         ];
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Invalid version_order configuration option
-     */
     public function testPrintStatusInvalidVersionOrderKO()
     {
         // stub environment
@@ -1119,37 +1117,37 @@ class ManagerTest extends TestCase
         $this->manager = new Manager($config, $this->input, $this->output);
 
         $this->manager->setEnvironments(['mockenv' => $envStub]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Invalid version_order configuration option');
+
         $this->manager->printStatus('mockenv');
     }
 
     public function testGetMigrationsWithDuplicateMigrationVersions()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'Duplicate migration - "' . $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions/20120111235330_duplicate_migration_2.php') . '" has the same version as "20120111235330"'
-        );
         $config = new Config(['paths' => ['migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions')]]);
         $manager = new Manager($config, $this->input, $this->output);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Duplicate migration - "' . $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions/20120111235330_duplicate_migration_2.php') . '" has the same version as "20120111235330"');
+
         $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithDuplicateMigrationVersionsWithNamespace()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'Duplicate migration - "' . $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/duplicateversions/20160111235330_duplicate_migration_2.php') . '" has the same version as "20160111235330"'
-        );
         $config = new Config(['paths' => ['migrations' => ['Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/duplicateversions')]]]);
         $manager = new Manager($config, $this->input, $this->output);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Duplicate migration - "' . $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/duplicateversions/20160111235330_duplicate_migration_2.php') . '" has the same version as "20160111235330"');
+
         $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithDuplicateMigrationVersionsWithMixedNamespace()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'Duplicate migration - "' . $this->getCorrectedPath(__DIR__ . '/_files_baz/duplicateversions_mix_ns/20120111235330_duplicate_migration_mixed_namespace_2.php') . '" has the same version as "20120111235330"'
-        );
         $config = new Config(['paths' => [
             'migrations' => [
                 $this->getCorrectedPath(__DIR__ . '/_files/duplicateversions_mix_ns'),
@@ -1157,72 +1155,76 @@ class ManagerTest extends TestCase
             ]
         ]]);
         $manager = new Manager($config, $this->input, $this->output);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Duplicate migration - "' . $this->getCorrectedPath(__DIR__ . '/_files_baz/duplicateversions_mix_ns/20120111235330_duplicate_migration_mixed_namespace_2.php') . '" has the same version as "20120111235330"');
+
         $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithDuplicateMigrationNames()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'Migration "20120111235331_duplicate_migration_name.php" has the same name as "20120111235330_duplicate_migration_name.php"'
-        );
         $config = new Config(['paths' => ['migrations' => $this->getCorrectedPath(__DIR__ . '/_files/duplicatenames')]]);
         $manager = new Manager($config, $this->input, $this->output);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Migration "20120111235331_duplicate_migration_name.php" has the same name as "20120111235330_duplicate_migration_name.php"');
+
         $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithDuplicateMigrationNamesWithNamespace()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'Migration "20160111235331_duplicate_migration_name.php" has the same name as "20160111235330_duplicate_migration_name.php"'
-        );
         $config = new Config(['paths' => ['migrations' => ['Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/duplicatenames')]]]);
         $manager = new Manager($config, $this->input, $this->output);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Migration "20160111235331_duplicate_migration_name.php" has the same name as "20160111235330_duplicate_migration_name.php"');
+
         $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithInvalidMigrationClassName()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'Could not find class "InvalidClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname/20120111235330_invalid_class.php') . '"'
-        );
         $config = new Config(['paths' => ['migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname')]]);
         $manager = new Manager($config, $this->input, $this->output);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Could not find class "InvalidClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidclassname/20120111235330_invalid_class.php') . '"');
+
         $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithInvalidMigrationClassNameWithNamespace()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'Could not find class "Foo\Bar\InvalidClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/invalidclassname/20160111235330_invalid_class.php') . '"'
-        );
         $config = new Config(['paths' => ['migrations' => ['Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/invalidclassname')]]]);
         $manager = new Manager($config, $this->input, $this->output);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Could not find class "Foo\Bar\InvalidClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/invalidclassname/20160111235330_invalid_class.php') . '"');
+
         $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithClassThatDoesntExtendAbstractMigration()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'The class "InvalidSuperClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass/20120111235330_invalid_super_class.php') . '" must extend \Phinx\Migration\AbstractMigration'
-        );
         $config = new Config(['paths' => ['migrations' => $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass')]]);
         $manager = new Manager($config, $this->input, $this->output);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The class "InvalidSuperClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files/invalidsuperclass/20120111235330_invalid_super_class.php') . '" must extend \Phinx\Migration\AbstractMigration');
+
         $manager->getMigrations('mockenv');
     }
 
     public function testGetMigrationsWithClassThatDoesntExtendAbstractMigrationWithNamespace()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'The class "Foo\Bar\InvalidSuperClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/invalidsuperclass/20160111235330_invalid_super_class.php') . '" must extend \Phinx\Migration\AbstractMigration'
-        );
         $config = new Config(['paths' => ['migrations' => ['Foo\Bar' => $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/invalidsuperclass')]]]);
         $manager = new Manager($config, $this->input, $this->output);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The class "Foo\Bar\InvalidSuperClass" in file "' . $this->getCorrectedPath(__DIR__ . '/_files_foo_bar/invalidsuperclass/20160111235330_invalid_super_class.php') . '" must extend \Phinx\Migration\AbstractMigration');
+
         $manager->getMigrations('mockenv');
     }
 
@@ -1266,7 +1268,7 @@ class ManagerTest extends TestCase
         if (is_null($expectedMigration)) {
             $this->assertEmpty($output, $message);
         } else {
-            $this->assertContains($expectedMigration, $output, $message);
+            $this->assertStringContainsString($expectedMigration, $output, $message);
         }
     }
 
@@ -1298,7 +1300,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1332,7 +1334,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1366,7 +1368,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1399,7 +1401,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1433,7 +1435,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1467,7 +1469,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1510,7 +1512,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1553,7 +1555,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1595,7 +1597,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1638,7 +1640,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1680,7 +1682,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1704,10 +1706,10 @@ class ManagerTest extends TestCase
         $this->manager->rollback('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('== 20120111235330 TestMigration: reverting', $output);
-        $this->assertContains('== 20120111235330 TestMigration: reverted', $output);
-        $this->assertNotContains('No migrations to rollback', $output);
-        $this->assertNotContains('Undefined offset: -1', $output);
+        $this->assertStringContainsString('== 20120111235330 TestMigration: reverting', $output);
+        $this->assertStringContainsString('== 20120111235330 TestMigration: reverted', $output);
+        $this->assertStringNotContainsString('No migrations to rollback', $output);
+        $this->assertStringNotContainsString('Undefined offset: -1', $output);
     }
 
     public function testRollbackToVersionWithTwoMigrationsDoesNotRollbackBothMigrations()
@@ -1741,7 +1743,7 @@ class ManagerTest extends TestCase
         $this->manager->rollback('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertNotContains('== 20120111235330 TestMigration: reverting', $output);
+        $this->assertStringNotContainsString('== 20120111235330 TestMigration: reverting', $output);
     }
 
     public function testRollbackToVersionWithTwoMigrationsDoesNotRollbackBothMigrationsWithNamespace()
@@ -1776,7 +1778,7 @@ class ManagerTest extends TestCase
         $this->manager->rollback('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertNotContains('== 20160111235330 Foo\Bar\TestMigration: reverting', $output);
+        $this->assertStringNotContainsString('== 20160111235330 Foo\Bar\TestMigration: reverting', $output);
     }
 
     public function testRollbackToVersionWithTwoMigrationsDoesNotRollbackBothMigrationsWithMixedNamespace()
@@ -1811,8 +1813,8 @@ class ManagerTest extends TestCase
         $this->manager->rollback('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('== 20150116183504 Baz\TestMigration2: reverting', $output);
-        $this->assertNotContains('== 20160111235330 TestMigration: reverting', $output);
+        $this->assertStringContainsString('== 20150116183504 Baz\TestMigration2: reverting', $output);
+        $this->assertStringNotContainsString('== 20160111235330 TestMigration: reverting', $output);
     }
 
     /**
@@ -1850,7 +1852,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1889,7 +1891,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -1928,7 +1930,7 @@ class ManagerTest extends TestCase
             }
 
             foreach ($expectedOutput as $expectedLine) {
-                $this->assertContains($expectedLine, $output);
+                $this->assertStringContainsString($expectedLine, $output);
             }
         }
     }
@@ -5329,9 +5331,9 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('GSeeder', $output);
-        $this->assertContains('PostSeeder', $output);
-        $this->assertContains('UserSeeder', $output);
+        $this->assertStringContainsString('GSeeder', $output);
+        $this->assertStringContainsString('PostSeeder', $output);
+        $this->assertStringContainsString('UserSeeder', $output);
     }
 
     public function testExecuteSeedWorksAsExpectedWithNamespace()
@@ -5345,9 +5347,9 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('Foo\Bar\GSeeder', $output);
-        $this->assertContains('Foo\Bar\PostSeeder', $output);
-        $this->assertContains('Foo\Bar\UserSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\GSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\PostSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\UserSeeder', $output);
     }
 
     public function testExecuteSeedWorksAsExpectedWithMixedNamespace()
@@ -5361,15 +5363,15 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('GSeeder', $output);
-        $this->assertContains('PostSeeder', $output);
-        $this->assertContains('UserSeeder', $output);
-        $this->assertContains('Baz\GSeeder', $output);
-        $this->assertContains('Baz\PostSeeder', $output);
-        $this->assertContains('Baz\UserSeeder', $output);
-        $this->assertContains('Foo\Bar\GSeeder', $output);
-        $this->assertContains('Foo\Bar\PostSeeder', $output);
-        $this->assertContains('Foo\Bar\UserSeeder', $output);
+        $this->assertStringContainsString('GSeeder', $output);
+        $this->assertStringContainsString('PostSeeder', $output);
+        $this->assertStringContainsString('UserSeeder', $output);
+        $this->assertStringContainsString('Baz\GSeeder', $output);
+        $this->assertStringContainsString('Baz\PostSeeder', $output);
+        $this->assertStringContainsString('Baz\UserSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\GSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\PostSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\UserSeeder', $output);
     }
 
     public function testExecuteASingleSeedWorksAsExpected()
@@ -5382,7 +5384,7 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv', 'UserSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('UserSeeder', $output);
+        $this->assertStringContainsString('UserSeeder', $output);
     }
 
     public function testExecuteASingleSeedWorksAsExpectedWithNamespace()
@@ -5396,7 +5398,7 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv', 'Foo\Bar\UserSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('Foo\Bar\UserSeeder', $output);
+        $this->assertStringContainsString('Foo\Bar\UserSeeder', $output);
     }
 
     public function testExecuteASingleSeedWorksAsExpectedWithMixedNamespace()
@@ -5410,13 +5412,9 @@ class ManagerTest extends TestCase
         $this->manager->seed('mockenv', 'Baz\UserSeeder');
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('Baz\UserSeeder', $output);
+        $this->assertStringContainsString('Baz\UserSeeder', $output);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The seed class "NonExistentSeeder" does not exist
-     */
     public function testExecuteANonExistentSeedWorksAsExpected()
     {
         // stub environment
@@ -5424,16 +5422,13 @@ class ManagerTest extends TestCase
             ->setConstructorArgs(['mockenv', []])
             ->getMock();
         $this->manager->setEnvironments(['mockenv' => $envStub]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The seed class "NonExistentSeeder" does not exist');
+
         $this->manager->seed('mockenv', 'NonExistentSeeder');
-        rewind($this->manager->getOutput()->getStream());
-        $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('UserSeeder', $output);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The seed class "Foo\Bar\NonExistentSeeder" does not exist
-     */
     public function testExecuteANonExistentSeedWorksAsExpectedWithNamespace()
     {
         // stub environment
@@ -5442,16 +5437,13 @@ class ManagerTest extends TestCase
             ->getMock();
         $this->manager->setConfig($this->getConfigWithNamespace());
         $this->manager->setEnvironments(['mockenv' => $envStub]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The seed class "Foo\Bar\NonExistentSeeder" does not exist');
+
         $this->manager->seed('mockenv', 'Foo\Bar\NonExistentSeeder');
-        rewind($this->manager->getOutput()->getStream());
-        $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('Foo\Bar\UserSeeder', $output);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The seed class "Baz\NonExistentSeeder" does not exist
-     */
     public function testExecuteANonExistentSeedWorksAsExpectedWithMixedNamespace()
     {
         // stub environment
@@ -5460,12 +5452,11 @@ class ManagerTest extends TestCase
             ->getMock();
         $this->manager->setConfig($this->getConfigWithMixedNamespace());
         $this->manager->setEnvironments(['mockenv' => $envStub]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The seed class "Baz\NonExistentSeeder" does not exist');
+
         $this->manager->seed('mockenv', 'Baz\NonExistentSeeder');
-        rewind($this->manager->getOutput()->getStream());
-        $output = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertContains('UserSeeder', $output);
-        $this->assertContains('Baz\UserSeeder', $output);
-        $this->assertContains('Foo\Bar\UserSeeder', $output);
     }
 
     public function testOrderSeeds()
@@ -5506,12 +5497,11 @@ class ManagerTest extends TestCase
         }
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The environment "invalidenv" does not exist
-     */
     public function testGettingAnInvalidEnvironment()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The environment "invalidenv" does not exist');
+
         $this->manager->getEnvironment('invalidenv');
     }
 
@@ -5948,7 +5938,7 @@ class ManagerTest extends TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
 
-        $this->assertContains('is not a valid version', $output);
+        $this->assertStringContainsString('is not a valid version', $output);
     }
 
     public function testPostgresFullMigration()
@@ -6061,23 +6051,6 @@ class ManagerTest extends TestCase
         $this->assertFalse($adapter->hasColumn('table1', 'table3_id'));
         $this->assertFalse($adapter->hasForeignKey('table1', ['table3_id'], 'table1_table3_id'));
         $this->assertFalse($adapter->hasIndexByName('table1', 'table1_table3_id'));
-    }
-
-    public function setExpectedException($exceptionName, $exceptionMessage = '', $exceptionCode = null)
-    {
-        if (method_exists($this, 'expectException')) {
-            //PHPUnit 5+
-            $this->expectException($exceptionName);
-            if ($exceptionMessage !== '') {
-                $this->expectExceptionMessage($exceptionMessage);
-            }
-            if ($exceptionCode !== null) {
-                $this->expectExceptionCode($exceptionCode);
-            }
-        } else {
-            //PHPUnit 4
-            parent::setExpectedException($exceptionName, $exceptionMessage, $exceptionCode);
-        }
     }
 
     public function testInvalidVersionBreakpoint()

@@ -42,7 +42,7 @@ JSON ファイルと YAML ファイルは *パース* されますが、PHP フ�
 
     return ['environments' =>
              [
-               'default_database' => 'development',
+               'default_environment' => 'development',
                'development' => [
                  'name' => 'devdb',
                  'connection' => $pdo,
@@ -149,7 +149,7 @@ Phinx の主な機能の1つは、複数のデータベース環境をサポー�
 
     environments:
         default_migration_table: phinxlog
-        default_database: development
+        default_environment: development
         production:
             adapter: mysql
             host: localhost
@@ -198,7 +198,7 @@ MySQL アダプターを使用する場合、ネットワーク接続の代わ�
 
     environments:
         default_migration_table: phinxlog
-        default_database: development
+        default_environment: development
         production:
             adapter: mysql
             name: production_db
@@ -221,7 +221,7 @@ Phinx は ``PHINX_`` というプレフィックスが付いた環境変数を�
 
     environments:
         default_migration_table: phinxlog
-        default_database: development
+        default_environment: development
         production:
             adapter: mysql
             host: '%%PHINX_DBHOST%%'

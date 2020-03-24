@@ -5,12 +5,12 @@ Installation
 ============
 
 Phinx should be installed using Composer, which is a tool for dependency
-management in PHP. Please visit the `Composer <https://getcomposer.org/>`_ 
+management in PHP. Please visit the `Composer <https://getcomposer.org/>`_
 website for more information.
 
 .. note::
 
-    Phinx requires at least PHP 5.6 (or later).
+    Phinx requires at least PHP 7.2 (or later).
 
 To install Phinx, simply require it using Composer:
 
