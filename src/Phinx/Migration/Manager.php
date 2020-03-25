@@ -44,15 +44,15 @@ class Manager
     /**
      * @var array
      */
-    protected $environments;
+    protected $environments = [];
 
     /**
-     * @var array
+     * @var array|null
      */
     protected $migrations;
 
     /**
-     * @var array
+     * @var array|null
      */
     protected $seeds;
 
