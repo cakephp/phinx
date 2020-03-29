@@ -181,6 +181,18 @@ WHERE t.name='ntable'");
         $this->assertFalse($this->adapter->hasColumn('atable', 'id'));
     }
 
+    public function testCreateTableWithConflictingPrimaryKeys()
+    {
+        $options = [
+            'primary_key' => 'user_id',
+        ];
+        $table = new \Phinx\Db\Table('atable', $options, $this->adapter);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('You cannot enable an auto incrementing ID field and a primary key');
+        $table->addColumn('user_id', 'integer')->save();
+    }
+
     public function testCreateTableWithMultiplePrimaryKeys()
     {
         $options = [
