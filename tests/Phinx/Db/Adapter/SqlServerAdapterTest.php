@@ -776,10 +776,10 @@ WHERE t.name='ntable'");
         $userId = 'user';
         $sessionId = 'session';
 
-        $local = new \Phinx\Db\Table('users', ['primary_key' => $userId, 'id' => $userId], $this->adapter);
+        $local = new \Phinx\Db\Table('users', ['id' => $userId], $this->adapter);
         $local->create();
 
-        $foreign = new \Phinx\Db\Table('sessions', ['primary_key' => $sessionId, 'id' => $sessionId], $this->adapter);
+        $foreign = new \Phinx\Db\Table('sessions', ['id' => $sessionId], $this->adapter);
         $foreign->addColumn('user', 'integer')
                 ->addForeignKey('user', 'users', $userId)
                 ->create();

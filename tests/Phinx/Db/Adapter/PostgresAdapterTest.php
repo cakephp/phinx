@@ -1426,12 +1426,12 @@ class PostgresAdapterTest extends TestCase
         $userId = 'user';
         $sessionId = 'session';
 
-        $local = new \Phinx\Db\Table('users', ['primary_key' => $userId, 'id' => $userId], $this->adapter);
+        $local = new \Phinx\Db\Table('users', ['id' => $userId], $this->adapter);
         $local->create();
 
         $foreign = new \Phinx\Db\Table(
             'sessions',
-            ['primary_key' => $sessionId, 'id' => $sessionId],
+            ['id' => $sessionId],
             $this->adapter
         );
         $foreign->addColumn('user', 'integer')
@@ -1450,14 +1450,14 @@ class PostgresAdapterTest extends TestCase
 
         $local = new \Phinx\Db\Table(
             'schema_users.users',
-            ['primary_key' => $userId, 'id' => $userId],
+            ['id' => $userId],
             $this->adapter
         );
         $local->create();
 
         $foreign = new \Phinx\Db\Table(
             'schema_users.sessions',
-            ['primary_key' => $sessionId, 'id' => $sessionId],
+            ['id' => $sessionId],
             $this->adapter
         );
         $foreign->addColumn('user', 'integer')
@@ -1479,14 +1479,14 @@ class PostgresAdapterTest extends TestCase
 
         $local = new \Phinx\Db\Table(
             'schema_users.users',
-            ['primary_key' => $userId, 'id' => $userId],
+            ['id' => $userId],
             $this->adapter
         );
         $local->create();
 
         $foreign = new \Phinx\Db\Table(
             'schema_sessions.sessions',
-            ['primary_key' => $sessionId, 'id' => $sessionId],
+            ['id' => $sessionId],
             $this->adapter
         );
         $foreign->addColumn('user', 'integer')
