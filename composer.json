@@ -50,7 +50,7 @@
     },
     "suggest": {
         "ext-json": "Install if using JSON configuration format",
-        "symfony/yaml": "Install if using Yaml configuration format"
+        "symfony/yaml": "Install if using YAML configuration format"
     },
     "scripts": {
         "check": [
