@@ -63,6 +63,10 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      */
     public static function fromYaml($configFilePath)
     {
+        if (!class_exists('Symfony\\Component\\Yaml\\Yaml', true)) {
+            throw new RuntimeException('Missing yaml parser, symfony/yaml package is not installed.');
+        }
+
         $configFile = file_get_contents($configFilePath);
         $configArray = Yaml::parse($configFile);
 
