@@ -809,7 +809,7 @@ Option  Description
 limit   set maximum length for strings, also hints column types in adapters (see note below)
 length  alias for ``limit``
 default set default value or action
-null    allow ``NULL`` values (should not be used with primary keys!)
+null    allow ``NULL`` values, defaults to false (should not be used with primary keys!) (see note below)
 after   specify the column that a new column should be placed after *(only applies to MySQL)*
 comment set a text comment on the column
 ======= ===========
@@ -951,6 +951,25 @@ INT_BIG      BIGINT
                ->addColumn('quantity', 'integer', ['limit' => MysqlAdapter::INT_TINY])
                ->create();
 
+Null Option and SQLite
+~~~~~~~~~~~~~~~~~~~~~~
+
+When using the SQLite adapter, if appending a column to an existing table, you must
+specify a default or make the column nullable. This does not apply when initially creating
+the table.
+
+.. code-block:: php
+
+        $table = $this->table('cart_items', 'id' => false);
+        // Can not specify default here and use NOT NULL
+        $table->addColumn('column1', 'integer')
+            ->create();
+
+        // Must either specify null => false, or specify a default here
+        $table
+            ->addColumn('column2', 'integer', ['null' => false])
+            ->addColumn('column3', 'integer', ['default' => 1])
+            ->update();
 
 Get a column list
 ~~~~~~~~~~~~~~~~~
