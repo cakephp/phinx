@@ -123,7 +123,7 @@ class Create extends AbstractCommand
             return array_shift($paths);
         }
 
-        /** @var \Symfony\Component\Console\Helper\Helper $helper */
+        /** @var \Symfony\Component\Console\Helper\QuestionHelper $helper */
         $helper = $this->getHelper('question');
         $question = $this->getSelectMigrationPathQuestion($paths);
 
