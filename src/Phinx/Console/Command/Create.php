@@ -149,6 +149,7 @@ class Create extends AbstractCommand
         $path = $this->getMigrationPath($input, $output);
 
         if (!file_exists($path)) {
+            /** @var \Symfony\Component\Console\Helper\QuestionHelper $helper */
             $helper = $this->getHelper('question');
             $question = $this->getCreateMigrationDirectoryQuestion();
 
@@ -289,6 +290,7 @@ class Create extends AbstractCommand
 
         // Do we need to do the post creation call to the creation class?
         if (isset($creationClass)) {
+            /** @var \Phinx\Migration\CreationInterface $creationClass */
             $creationClass->postMigrationCreation($filePath, $className, $this->getConfig()->getMigrationBaseClassName());
         }
 

@@ -124,6 +124,7 @@ class Manager
             $hasMissingMigration = !empty($missingVersions);
 
             // get the migrations sorted in the same way as the versions
+            /** @var \Phinx\Migration\AbstractMigration[] $sortedMigrations */
             $sortedMigrations = [];
 
             foreach ($versions as $versionCreationTime => $version) {
