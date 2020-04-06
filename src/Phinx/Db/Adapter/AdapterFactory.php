@@ -19,7 +19,7 @@ use RuntimeException;
 class AdapterFactory
 {
     /**
-     * @var \Phinx\Db\Adapter\AdapterFactory
+     * @var \Phinx\Db\Adapter\AdapterFactory|null
      */
     protected static $instance;
 

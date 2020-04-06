@@ -135,6 +135,7 @@ class SeedCreate extends AbstractCommand
         $path = $this->getSeedPath($input, $output);
 
         if (!file_exists($path)) {
+            /** @var \Symfony\Component\Console\Helper\QuestionHelper $helper */
             $helper = $this->getHelper('question');
             $question = $this->getCreateSeedDirectoryQuestion();
 

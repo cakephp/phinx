@@ -1288,8 +1288,8 @@ SQL;
      *
      * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @param string $direction Direction
-     * @param int $startTime Start Time
-     * @param int $endTime End Time
+     * @param string $startTime Start Time
+     * @param string $endTime End Time
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */

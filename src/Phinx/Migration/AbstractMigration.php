@@ -31,7 +31,7 @@ abstract class AbstractMigration implements MigrationInterface
     protected $environment;
 
     /**
-     * @var float
+     * @var int
      */
     protected $version;
 

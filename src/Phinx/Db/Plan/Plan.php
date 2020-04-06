@@ -89,7 +89,7 @@ class Plan
     /**
      * Parses the given Intent and creates the separate steps to execute
      *
-     * @param \Phinx\Db\Plan\Intent $actions The actions to use for the plan
+     * @param \Phinx\Db\Action\Action[] $actions The actions to use for the plan
      *
      * @return void
      */
