@@ -213,6 +213,18 @@ class PostgresAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasColumn('atable', 'id'));
     }
 
+    public function testCreateTableWithConflictingPrimaryKeys()
+    {
+        $options = [
+            'primary_key' => 'user_id',
+        ];
+        $table = new \Phinx\Db\Table('atable', $options, $this->adapter);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('You cannot enable an auto incrementing ID field and a primary key');
+        $table->addColumn('user_id', 'integer')->save();
+    }
+
     public function testCreateTableWithMultiplePrimaryKeys()
     {
         $options = [
@@ -1425,12 +1437,12 @@ class PostgresAdapterTest extends TestCase
         $userId = 'user';
         $sessionId = 'session';
 
-        $local = new \Phinx\Db\Table('users', ['primary_key' => $userId, 'id' => $userId], $this->adapter);
+        $local = new \Phinx\Db\Table('users', ['id' => $userId], $this->adapter);
         $local->create();
 
         $foreign = new \Phinx\Db\Table(
             'sessions',
-            ['primary_key' => $sessionId, 'id' => $sessionId],
+            ['id' => $sessionId],
             $this->adapter
         );
         $foreign->addColumn('user', 'integer')
@@ -1449,14 +1461,14 @@ class PostgresAdapterTest extends TestCase
 
         $local = new \Phinx\Db\Table(
             'schema_users.users',
-            ['primary_key' => $userId, 'id' => $userId],
+            ['id' => $userId],
             $this->adapter
         );
         $local->create();
 
         $foreign = new \Phinx\Db\Table(
             'schema_users.sessions',
-            ['primary_key' => $sessionId, 'id' => $sessionId],
+            ['id' => $sessionId],
             $this->adapter
         );
         $foreign->addColumn('user', 'integer')
@@ -1478,14 +1490,14 @@ class PostgresAdapterTest extends TestCase
 
         $local = new \Phinx\Db\Table(
             'schema_users.users',
-            ['primary_key' => $userId, 'id' => $userId],
+            ['id' => $userId],
             $this->adapter
         );
         $local->create();
 
         $foreign = new \Phinx\Db\Table(
             'schema_sessions.sessions',
-            ['primary_key' => $sessionId, 'id' => $sessionId],
+            ['id' => $sessionId],
             $this->adapter
         );
         $foreign->addColumn('user', 'integer')

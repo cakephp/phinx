@@ -259,9 +259,9 @@ configuration file may be the computed output of a PHP file as a PHP array:
                 ]
             ];
 
-Phinx auto-detects which language parser to use for files with ``*.yml``, ``*.json``, and ``*.php`` extensions. The appropriate
-parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than  ``"json"`` or ``"php"`` is
-treated as YAML.
+Phinx auto-detects which language parser to use for files with ``*.yaml``, ``*.yml``, ``*.json``, and ``*.php`` extensions.
+The appropriate parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than  ``"json"`` or
+``"php"`` is treated as YAML.
 
 When using a PHP array, you can provide a ``connection`` key with an existing PDO instance. It is also important to pass
 the database name too, as Phinx requires this for certain methods such as ``hasTable()``:

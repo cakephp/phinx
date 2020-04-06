@@ -9,9 +9,9 @@ creates a default file called ``phinx.yml`` in the root of your project director
 This file uses the YAML data serialization format.
 
 If a ``--configuration`` command line option is given, Phinx will load the
-specified file. Otherwise, it will attempt to find ``phinx.php``, ``phinx.json`` or
-``phinx.yml`` and load the first file found. See the :doc:`Commands <commands>`
-chapter for more information.
+specified file. Otherwise, it will attempt to find ``phinx.php``, ``phinx.json``,
+``phinx.yml`` or ``phinx.yaml`` and load the first file found. See the
+:doc:`Commands <commands>` chapter for more information.
 
 .. warning::
 

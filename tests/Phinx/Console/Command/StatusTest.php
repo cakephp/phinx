@@ -95,6 +95,47 @@ class StatusTest extends TestCase
         $this->assertRegExp('/ordering by creation time/', $display);
     }
 
+    public function testExecuteWithDsn()
+    {
+        $application = new PhinxApplication('testing');
+        $application->add(new Status());
+
+        /** @var Status $command */
+        $command = $application->find('status');
+
+        $config = new Config([
+            'paths' => [
+                'migrations' => __FILE__,
+            ],
+            'environments' => [
+                'default_migration_table' => 'phinxlog',
+                'default_database' => 'development',
+                'development' => [
+                    'dsn' => 'pgsql://fakehost:5433/development',
+                ],
+            ],
+        ]);
+
+        // mock the manager class
+        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('printStatus')
+                    ->with('development', null)
+                    ->will($this->returnValue(['hasMissingMigration' => false, 'hasDownMigration' => false]));
+
+        $command->setConfig($config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+
+        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
+        $this->assertEquals(AbstractCommand::CODE_SUCCESS, $exitCode);
+    }
+
     public function testExecuteWithEnvironmentOption()
     {
         $application = new PhinxApplication('testing');

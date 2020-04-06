@@ -60,6 +60,10 @@ class SeedCreateTest extends TestCase
 
     public function testExecute()
     {
+        if (file_exists(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'MyDuplicateSeeder.php')) {
+            unlink(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'MyDuplicateSeeder.php');
+        }
+
         $application = new PhinxApplication('testing');
         $application->add(new SeedCreate());
 

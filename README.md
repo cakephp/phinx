@@ -12,7 +12,7 @@
 
 Phinx makes it ridiculously easy to manage the database migrations for your PHP app. In less than 5 minutes, you can install Phinx and create your first database migration. Phinx is just about migrations without all the bloat of a database ORM system or framework.
 
-**Check out [docs.phinx.org/en/latest/](http://docs.phinx.org/en/latest/) ([EN](http://docs.phinx.org/en/latest/), [ZH](https://tsy12321.gitbooks.io/phinx-doc/)) for the comprehensive documentation.**
+**Check out [book.cakephp.org/phinx](https://book.cakephp.org/phinx) ([EN](https://book.cakephp.org/phinx), [ZH](https://tsy12321.gitbooks.io/phinx-doc/)) for the comprehensive documentation.**
 
 ![phinxterm](https://cloud.githubusercontent.com/assets/178939/3887559/e6b5e524-21f2-11e4-8256-0ba6040725fc.gif)
 
@@ -105,7 +105,7 @@ You can also use the Box application to build Phinx as a Phar archive (https://b
 
 ## Documentation
 
-Check out http://docs.phinx.org/en/latest/ for the comprehensive documentation.
+Check out https://book.cakephp.org/phinx for the comprehensive documentation.
 
 Other translations include:
 

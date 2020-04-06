@@ -13,3 +13,14 @@ rather than reverse creation order. To achieve this new ordering, you will need 
   This feature will be of most importance when development of migrations takes place in different branches
   within a codebase and are merged in to master for deployment. It will no longer matter when the migrations
   were created if it becomes necessary to rollback the migrations.
+
+* Using an older version of Phinx on a pre 5.6 MySQL installation could lead to a case of an invalid table definition
+for the `default_migration_table` (e.g. `phinxlog`) when the database was upgraded to 5.6. On upgrading, if you used
+phinx on a pre 5.6 MySQL installation, it is suggested to do the following:
+
+```
+ALTER TABLE phinxlog MODIFY start_time timestamp NULL DEFAULT NULL;
+ALTER TABLE phinxlog MODIFY end_time timestamp NULL DEFAULT NULL;
+UPDATE phinxlog SET start_time = NULL WHERE start_time = '0000-00-00 00:00:00';
+UPDATE phinxlog SET end_time = NULL WHERE end_time = '0000-00-00 00:00:00';
+```
