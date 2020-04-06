@@ -51,7 +51,6 @@ after_success:
 
 cache:
   directories:
-    - vendor
     - $HOME/.composer/cache
 
 notifications:

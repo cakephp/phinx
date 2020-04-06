@@ -366,14 +366,27 @@ your database migration.
 You can then manipulate this table using the methods provided by the Table
 object.
 
-The Save Method
-~~~~~~~~~~~~~~~
+Saving Changes
+~~~~~~~~~~~~~~
 
 When working with the Table object, Phinx stores certain operations in a
-pending changes cache.
+pending changes cache. Once you have made the changes you want to the table,
+you must save them. To perform this operation, Phinx provides three methods,
+``create()``, ``update()``, and ``save()``. ``create()`` will first create
+the table and then run the pending changes. ``update()`` will just run the
+pending changes, and should be used when the table already exists. ``save()``
+is a helper function that checks first if the table exists and if it does not
+will run ``create()``, else it will run ``update()``.
 
-When in doubt, it is recommended you call this method. It will commit any
-pending changes to the database.
+As stated above, when using the ``change()`` migration method, you should always
+use ``create()`` or ``update()``, and never ``save()`` as otherwise migrating
+and rolling back may result in different states, due to ``save()`` calling
+``create()`` when running migrate and then ``update()`` on rollback. When
+using the ``up()``/``down()`` methods, it is safe to use either ``save()`` or
+the more explicit methods.
+
+When in doubt with working with tables, it is always recommended to call
+the appropriate function and commit any pending changes to the database.
 
 Creating a Table
 ~~~~~~~~~~~~~~~~
@@ -566,7 +579,7 @@ is a function, in PostgreSQL. This method of preventing the built-in escaping is
                           'timezone' => true,
                           'default' => Literal::from('now()')
                       ])
-                      ->save();
+                      ->create();
             }
         }
 

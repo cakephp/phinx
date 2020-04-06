@@ -50,8 +50,8 @@ class Init extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $path = $this->resolvePath($input);
         $format = strtolower($input->getOption('format'));
+        $path = $this->resolvePath($input, $format);
         $this->writeConfig($path, $format);
 
         $output->writeln("<info>created</info> {$path}");
@@ -63,20 +63,20 @@ class Init extends Command
      * Return valid $path for Phinx's config file.
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Interface implemented by all input classes.
+     * @param string $format Format to resolve for
      *
      * @throws \InvalidArgumentException
      *
      * @return string
      */
-    protected function resolvePath(InputInterface $input)
+    protected function resolvePath(InputInterface $input, $format)
     {
         // get the migration path from the config
         $path = (string)$input->getArgument('path');
 
-        $format = strtolower($input->getOption('format'));
-        if (!in_array($format, ['yml', 'json', 'php'])) {
+        if (!in_array($format, ['yaml', 'yml', 'json', 'php'])) {
             throw new InvalidArgumentException(sprintf(
-                'Invalid format "%s". Format must be either yml, json, or php.',
+                'Invalid format "%s". Format must be either yaml, yml, json, or php.',
                 $format
             ));
         }
@@ -134,11 +134,15 @@ class Init extends Command
             ));
         }
 
+        if ($format === 'yaml') {
+            $format = 'yml';
+        }
+
         // load the config template
         if (is_dir(__DIR__ . '/../../../data/Phinx')) {
             $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/' . self::FILE_NAME . '.' . $format . '.dist');
-        } elseif ($format === 'yml') {
-            $contents = file_get_contents(__DIR__ . '/../../../../' . self::FILE_NAME . '.' . $format);
+        } elseif ($format === 'yml' || $format === 'yaml') {
+            $contents = file_get_contents(__DIR__ . '/../../../../' . self::FILE_NAME . '.yml');
         } else {
             throw new RuntimeException(sprintf(
                 'Could not find template for format "%s".',

@@ -233,10 +233,10 @@ abstract class AbstractCommand extends Command
             return $locator->locate($configFile, $cwd, $first = true);
         }
 
-        $possibleConfigFiles = ['phinx.php', 'phinx.json', 'phinx.yml'];
+        $possibleConfigFiles = ['phinx.php', 'phinx.json', 'phinx.yaml', 'phinx.yml'];
         foreach ($possibleConfigFiles as $configFile) {
             try {
-                return $locator->locate($configFile, $cwd, $first = true);
+                return $locator->locate($configFile, $cwd, true);
             } catch (InvalidArgumentException $exception) {
                 $lastException = $exception;
             }
@@ -272,6 +272,7 @@ abstract class AbstractCommand extends Command
                 case 'php':
                     $parser = 'php';
                     break;
+                case 'yaml':
                 case 'yml':
                 default:
                     $parser = 'yaml';
