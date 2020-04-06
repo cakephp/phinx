@@ -243,6 +243,7 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     public function isDryRunEnabled()
     {
+        /** @var \Symfony\Component\Console\Input\InputInterface|null $input */
         $input = $this->getInput();
 
         return ($input && $input->hasOption('dry-run')) ? (bool)$input->getOption('dry-run') : false;
