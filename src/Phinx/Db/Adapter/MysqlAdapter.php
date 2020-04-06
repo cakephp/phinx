@@ -238,7 +238,7 @@ class MysqlAdapter extends PdoAdapter
                    ->setIdentity(true);
 
             array_unshift($columns, $column);
-            if (isset($options['primary_key'])) {
+            if (isset($options['primary_key']) && (array)$options['id'] !== (array)$options['primary_key']) {
                 throw new InvalidArgumentException('You cannot enable an auto incrementing ID field and a primary key');
             }
             $options['primary_key'] = $options['id'];

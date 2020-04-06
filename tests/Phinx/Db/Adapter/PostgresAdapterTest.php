@@ -225,6 +225,41 @@ class PostgresAdapterTest extends TestCase
         $table->addColumn('user_id', 'integer')->save();
     }
 
+    public function testCreateTableWithPrimaryKeySetToImplicitId()
+    {
+        $options = [
+            'primary_key' => 'id',
+        ];
+        $table = new \Phinx\Db\Table('ztable', $options, $this->adapter);
+        $table->addColumn('user_id', 'integer')->save();
+        $this->assertTrue($this->adapter->hasColumn('ztable', 'id'));
+        $this->assertTrue($this->adapter->hasIndex('ztable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ztable', 'user_id'));
+    }
+
+    public function testCreateTableWithPrimaryKeyArraySetToImplicitId()
+    {
+        $options = [
+            'primary_key' => ['id'],
+        ];
+        $table = new \Phinx\Db\Table('ztable', $options, $this->adapter);
+        $table->addColumn('user_id', 'integer')->save();
+        $this->assertTrue($this->adapter->hasColumn('ztable', 'id'));
+        $this->assertTrue($this->adapter->hasIndex('ztable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ztable', 'user_id'));
+    }
+
+    public function testCreateTableWithMultiplePrimaryKeyArraySetToImplicitId()
+    {
+        $options = [
+            'primary_key' => ['id', 'user_id'],
+        ];
+        $table = new \Phinx\Db\Table('ztable', $options, $this->adapter);
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('You cannot enable an auto incrementing ID field and a primary key');
+        $table->addColumn('user_id', 'integer')->save();
+    }
+
     public function testCreateTableWithMultiplePrimaryKeys()
     {
         $options = [
