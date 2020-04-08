@@ -860,7 +860,10 @@ timezone enable or disable the ``with time zone`` option for ``time`` and ``time
 You can add ``created_at`` and ``updated_at`` timestamps to a table using the ``addTimestamps()`` method. This method also
 allows you to supply alternative names. The optional third argument allows you to change the ``timezone`` option for the
 columns being added. Additionally, you can use the ``addTimestampsWithTimezone()`` method, which is an alias to
-``addTimestamps()`` that will always set the third argument to ``true`` (see examples below).
+``addTimestamps()`` that will always set the third argument to ``true`` (see examples below). Please note that
+for SQLite, when altering an existing table, you will not be able to use ``CURRENT_TIMESTAMP`` as a default due
+to limitations with the engine. This means that ``addTimestamps()`` and ``addTimestampsWithTimezone()`` methods can
+only be used on table creation for SQLite, and attempting to use them to alter an existing table will throw an error.
 
 .. code-block:: php
 
