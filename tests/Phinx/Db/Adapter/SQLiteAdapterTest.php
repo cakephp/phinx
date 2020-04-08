@@ -1117,9 +1117,28 @@ OUTPUT;
 
         $table->addColumn('string_col', 'string', ['default' => '']);
         $table->addColumn('string_col_2', 'string', ['null' => true]);
+        $table->addColumn('string_col_3', 'string');
+        $table->addTimestamps();
         $table->save();
-        $this->assertTrue($this->adapter->hasColumn('table1', 'string_col'));
-        $this->assertTrue($this->adapter->hasColumn('table1', 'string_col_2'));
+
+        $columns = $this->adapter->getColumns('table1');
+        $expected = [
+            ['name' => 'id', 'type' => 'integer', 'default' => null, 'null' => false],
+            ['name' => 'string_col', 'type' => 'string', 'default' => '', 'null' => false],
+            ['name' => 'string_col_2', 'type' => 'string', 'default' => '', 'null' => true],
+            ['name' => 'string_col_3', 'type' => 'string', 'default' => '', 'null' => false],
+            ['name' => 'created_at', 'type' => 'timestamp', 'default' => 'CURRENT_TIMESTAMP', 'null' => false],
+            ['name' => 'updated_at', 'type' => 'timestamp', 'default' => null, 'null' => true],
+        ];
+
+        $this->assertEquals(count($expected), count($columns));
+        $columnCount = count($columns);
+        for ($i = 0; $i < $columnCount; $i++) {
+            $this->assertSame($expected[$i]['name'], $columns[$i]->getName(), "Wrong name for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['type'], $columns[$i]->getType(), "Wrong type for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['default'], $columns[$i]->getDefault(), "Wrong default for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['null'], $columns[$i]->getNull(), "Wrong null for {$expected[$i]['name']}");
+        }
     }
 
     public function testLiteralSupport()

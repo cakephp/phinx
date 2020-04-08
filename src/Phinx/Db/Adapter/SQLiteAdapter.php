@@ -673,14 +673,30 @@ PCRE_PATTERN;
      */
     protected function getAddColumnInstructions(Table $table, Column $column)
     {
-        $alter = sprintf(
-            'ALTER TABLE %s ADD COLUMN %s %s',
-            $this->quoteTableName($table->getName()),
-            $this->quoteColumnName($column->getName()),
-            $this->getColumnSqlDefinition($column)
-        );
+        $tableName = $table->getName();
 
-        return new AlterInstructions([], [$alter]);
+        $instructions = $this->beginAlterByCopyTable($tableName);
+
+        $instructions->addPostStep(function ($state) use ($column) {
+            $sql = $state['createSQL'];
+            $sql = preg_replace(
+                "/\)$/",
+                sprintf(', %s %s$1)', $this->quoteColumnName($column->getName()), $this->getColumnSqlDefinition($column)),
+                $state['createSQL'],
+                1
+            );
+            $this->execute($sql);
+
+            return $state;
+        });
+
+        $instructions->addPostStep(function ($state) use ($tableName) {
+            $newState = $this->calculateNewTableColumns($tableName, false, false);
+
+            return $newState + $state;
+        });
+
+        return $this->copyAndDropTmpTable($instructions, $tableName);
     }
 
     /**
@@ -763,7 +779,7 @@ PCRE_PATTERN;
      * of altering a table
      *
      * @param string $tableName The table to modify
-     * @param string $columnName The column name that is about to change
+     * @param string|false $columnName The column name that is about to change
      * @param string|false $newColumnName Optionally the new name for the column
      *
      * @throws \InvalidArgumentException
@@ -798,7 +814,7 @@ PCRE_PATTERN;
         $selectColumns = array_map([$this, 'quoteColumnName'], $selectColumns);
         $writeColumns = array_map([$this, 'quoteColumnName'], $writeColumns);
 
-        if (!$found) {
+        if (!$found && $columnName !== false) {
             throw new InvalidArgumentException(sprintf(
                 'The specified column doesn\'t exist: ' . $columnName
             ));

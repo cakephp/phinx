@@ -1028,26 +1028,6 @@ columns with different lengths, mismatched integer types (long vs. bigint, etc).
                 - jpg
                 - png
 
-Null Option and SQLite
-~~~~~~~~~~~~~~~~~~~~~~
-
-When using the SQLite adapter, if appending a column to an existing table, you must
-specify a default or make the column nullable. This does not apply when initially creating
-the table.
-
-.. code-block:: php
-
-        $table = $this->table('cart_items', 'id' => false);
-        // Can not specify default here and use NOT NULL
-        $table->addColumn('column1', 'integer')
-            ->create();
-
-        // Must either specify null => false, or specify a default here
-        $table
-            ->addColumn('column2', 'integer', ['null' => false])
-            ->addColumn('column3', 'integer', ['default' => 1])
-            ->update();
-
 Get a column list
 ~~~~~~~~~~~~~~~~~
 
