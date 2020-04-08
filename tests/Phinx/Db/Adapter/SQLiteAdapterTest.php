@@ -360,7 +360,7 @@ class SQLiteAdapterTest extends TestCase
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
         $this->assertFalse($table->hasColumn('email'));
-        $table->addColumn('email', 'string')
+        $table->addColumn('email', 'string', ['null' => true])
             ->save();
         $this->assertTrue($table->hasColumn('email'));
 
@@ -405,7 +405,7 @@ class SQLiteAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
-        $table->addColumn('foo', 'double')
+        $table->addColumn('foo', 'double', ['null' => true])
             ->save();
         $rows = $this->adapter->fetchAll(sprintf('pragma table_info(%s)', 'table1'));
         $this->assertEquals('DOUBLE', $rows[1]['type']);
@@ -791,7 +791,7 @@ class SQLiteAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
+            ->addColumn('column2', 'integer', ['null' => true])
             ->insert([
                 [
                     'column1' => 'value1',
@@ -831,7 +831,7 @@ class SQLiteAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
+            ->addColumn('column2', 'integer', ['null' => true])
             ->insert([
                 [
                     'column1' => 'value1',
@@ -941,7 +941,7 @@ class SQLiteAdapterTest extends TestCase
             ->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR NULL, `column2` INTEGER NULL, `column3` VARCHAR NOT NULL DEFAULT 'test');
+CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR NOT NULL, `column2` INTEGER NOT NULL, `column3` VARCHAR NOT NULL DEFAULT 'test');
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
@@ -1056,7 +1056,7 @@ OUTPUT;
         ])->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`column1` VARCHAR NULL, `column2` INTEGER NULL, PRIMARY KEY (`column1`));
+CREATE TABLE `table1` (`column1` VARCHAR NOT NULL, `column2` INTEGER NOT NULL, PRIMARY KEY (`column1`));
 INSERT INTO `table1` (`column1`, `column2`) VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
@@ -1115,8 +1115,8 @@ OUTPUT;
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
 
-        $table->addColumn('string_col', 'string');
-        $table->addColumn('string_col_2', 'string');
+        $table->addColumn('string_col', 'string', ['default' => '']);
+        $table->addColumn('string_col_2', 'string', ['null' => true]);
         $table->save();
         $this->assertTrue($this->adapter->hasColumn('table1', 'string_col'));
         $this->assertTrue($this->adapter->hasColumn('table1', 'string_col_2'));

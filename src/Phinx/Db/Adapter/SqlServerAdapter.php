@@ -227,6 +227,9 @@ class SqlServerAdapter extends PdoAdapter
                    ->setIdentity(true);
 
             array_unshift($columns, $column);
+            if (isset($options['primary_key'])) {
+                throw new InvalidArgumentException('You cannot enable an auto incrementing ID field and a primary key');
+            }
             $options['primary_key'] = $options['id'];
         }
 
@@ -1285,8 +1288,8 @@ SQL;
      *
      * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @param string $direction Direction
-     * @param int $startTime Start Time
-     * @param int $endTime End Time
+     * @param string $startTime Start Time
+     * @param string $endTime End Time
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */

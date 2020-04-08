@@ -1458,7 +1458,7 @@ PCRE_PATTERN;
 
         $default = $column->getDefault();
 
-        $def .= (!$column->isIdentity() && ($column->isNull() || $default === null)) ? ' NULL' : ' NOT NULL';
+        $def .= $column->isNull() ? ' NULL' : ' NOT NULL';
         $def .= $this->getDefaultValueDefinition($default, $column->getType());
         $def .= $column->isIdentity() ? ' PRIMARY KEY AUTOINCREMENT' : '';
 

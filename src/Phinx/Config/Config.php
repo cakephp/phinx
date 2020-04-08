@@ -63,6 +63,10 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      */
     public static function fromYaml($configFilePath)
     {
+        if (!class_exists('Symfony\\Component\\Yaml\\Yaml', true)) {
+            throw new RuntimeException('Missing yaml parser, symfony/yaml package is not installed.');
+        }
+
         $configFile = file_get_contents($configFilePath);
         $configArray = Yaml::parse($configFile);
 
@@ -443,8 +447,8 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     protected function parseAgnosticDsn(array $options)
     {
         if (isset($options['dsn']) && is_string($options['dsn'])) {
-            $regex = '#^(?P<adapter>[^\\:]+)\\://(?:(?P<user>[^\\:@]+)(?:\\:(?P<pass>[^@]*))?@)?'
-                   . '(?P<host>[^\\:@/]+)(?:\\:(?P<port>[1-9]\\d*))?/(?P<name>[^\?]+)(?:\?(?P<query>.*))?$#';
+            $regex = '#^(?P<adapter>[^\\:]+)\\://(?:(?P<user>[^\\:@]+)(?:\\:(?P<pass>[^@]*))?@)?' .
+                '(?P<host>[^\\:@/]+)(?:\\:(?P<port>[1-9]\\d*))?/(?P<name>[^\?]+)(?:\?(?P<query>.*))?$#';
             if (preg_match($regex, trim($options['dsn']), $parsedOptions)) {
                 $additionalOpts = [];
                 if (isset($parsedOptions['query'])) {

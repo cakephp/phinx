@@ -44,15 +44,15 @@ class Manager
     /**
      * @var array
      */
-    protected $environments;
+    protected $environments = [];
 
     /**
-     * @var array
+     * @var array|null
      */
     protected $migrations;
 
     /**
-     * @var array
+     * @var array|null
      */
     protected $seeds;
 
@@ -124,6 +124,7 @@ class Manager
             $hasMissingMigration = !empty($missingVersions);
 
             // get the migrations sorted in the same way as the versions
+            /** @var \Phinx\Migration\AbstractMigration[] $sortedMigrations */
             $sortedMigrations = [];
 
             foreach ($versions as $versionCreationTime => $version) {

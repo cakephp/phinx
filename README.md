@@ -4,6 +4,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/9vag4892hfq6effr)](https://ci.appveyor.com/project/robmorgan/phinx)
 [![Code Coverage](https://codecov.io/gh/cakephp/phinx/branch/master/graph/badge.svg)](https://codecov.io/gh/cakephp/phinx)
 [![Latest Stable Version](https://poser.pugx.org/robmorgan/phinx/version.png)](https://packagist.org/packages/robmorgan/phinx)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.2-8892BF.svg)](https://php.net/)
 [![Total Downloads](https://poser.pugx.org/robmorgan/phinx/d/total.png)](https://packagist.org/packages/robmorgan/phinx)
 [![Join the chat at https://gitter.im/phinx-php/Lobby](https://badges.gitter.im/phinx-php/Lobby.svg)](https://gitter.im/phinx-php/Lobby)
 
@@ -37,7 +38,7 @@ Phinx natively supports the following database adapters:
 
 ## Install & Run
 
-See [version and branch overview](https://github.com/cakephp/phinx/wiki#phinx-version-and-branch-overview) for branch and PHP compatibility.
+See [version and branch overview](https://github.com/cakephp/phinx/wiki#version-and-branch-overview) for branch and PHP compatibility.
 
 ### Composer
 

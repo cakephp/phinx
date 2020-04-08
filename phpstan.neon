@@ -1,5 +1,7 @@
 includes:
     - phpstan-baseline.neon
-
 parameters:
-    level: 4
+    level: 5
+    ignoreErrors:
+        - '#Unsafe usage of new static\(\)\.#'
+        - '#Parameter \#2 \$callback of function array_filter expects callable\(mixed, mixed\): bool, .+ given.#'

@@ -106,6 +106,31 @@ class InitTest extends TestCase
         chdir($current_dir);
     }
 
+    public function testYamlFormat()
+    {
+        $current_dir = getcwd();
+        chdir(sys_get_temp_dir());
+
+        $application = new PhinxApplication('testing');
+        $application->add(new Init());
+
+        $command = $application->find('init');
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), '--format' => 'yaml'], ['decorated' => false]);
+        $this->assertRegExp(
+            "/created (.*)[\/\\\\]phinx.yaml\\n/",
+            $commandTester->getDisplay(true)
+        );
+
+        $this->assertFileExists(
+            'phinx.yaml',
+            'Phinx configuration not existent'
+        );
+
+        chdir($current_dir);
+    }
+
     public function testThrowsExceptionWhenConfigFilePresent()
     {
         touch(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.yml');
@@ -157,7 +182,7 @@ class InitTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid format "invalid". Format must be either yml, json, or php.');
+        $this->expectExceptionMessage('Invalid format "invalid". Format must be either yaml, yml, json, or php.');
 
         $commandTester->execute([
             'command' => $command->getName(),

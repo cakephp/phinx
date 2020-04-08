@@ -29,13 +29,14 @@
         "cakephp/collection": "^4.0",
         "cakephp/database": "^4.0",
         "symfony/console": "^3.4|^4.0|^5.0",
-        "symfony/config": "^3.4|^4.0|^5.0",
-        "symfony/yaml": "^3.4|^4.0|^5.0"
+        "symfony/config": "^3.4|^4.0|^5.0"
     },
     "require-dev": {
+        "ext-json": "*",
         "phpunit/phpunit": "^8.5",
         "sebastian/comparator": ">=1.2.3",
-        "cakephp/cakephp-codesniffer": "^3.0"
+        "cakephp/cakephp-codesniffer": "^3.0",
+        "symfony/yaml": "^3.4|^4.0|^5.0"
     },
     "autoload": {
         "psr-4": {
@@ -48,7 +49,8 @@
         }
     },
     "suggest": {
-        "ext-json": "Install if using JSON configuration format"
+        "ext-json": "Install if using JSON configuration format",
+        "symfony/yaml": "Install if using YAML configuration format"
     },
     "scripts": {
         "check": [
@@ -57,9 +59,9 @@
         ],
         "cs-check": "phpcs --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --ignore=/tests/Phinx/Config/_rootDirectories/,/tests/log/ src/ tests/ app/",
         "cs-fix": "phpcbf --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --ignore=/tests/Phinx/Config/_rootDirectories/,/tests/log/ src/ tests/ app/",
+        "stan": "phpstan analyse src/",
+        "stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^0.12 && mv composer.backup composer.json",
         "test": "phpunit --colors=always"
     },
-    "bin": ["bin/phinx"],
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    "bin": ["bin/phinx"]
 }
