@@ -598,6 +598,7 @@ class Manager
         // create an environment instance and cache it
         $envOptions = $this->getConfig()->getEnvironment($name);
         $envOptions['version_order'] = $this->getConfig()->getVersionOrder();
+        $envOptions['data_domain'] = $this->getConfig()->getDataDomain();
 
         $environment = new Environment($name, $envOptions);
         $this->environments[$name] = $environment;

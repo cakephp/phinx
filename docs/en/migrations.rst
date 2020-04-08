@@ -953,16 +953,80 @@ INT_BIG      BIGINT
 
 .. code-block:: php
 
-         use Phinx\Db\Adapter\MysqlAdapter;
+        <?php
 
-         //...
+        use Phinx\Db\Adapter\MysqlAdapter;
 
-         $table = $this->table('cart_items');
-         $table->addColumn('user_id', 'integer')
-               ->addColumn('product_id', 'integer', ['limit' => MysqlAdapter::INT_BIG])
-               ->addColumn('subtype_id', 'integer', ['limit' => MysqlAdapter::INT_SMALL])
-               ->addColumn('quantity', 'integer', ['limit' => MysqlAdapter::INT_TINY])
-               ->create();
+        //...
+
+        $table = $this->table('cart_items');
+        $table->addColumn('user_id', 'integer')
+              ->addColumn('product_id', 'integer', ['limit' => MysqlAdapter::INT_BIG])
+              ->addColumn('subtype_id', 'integer', ['limit' => MysqlAdapter::INT_SMALL])
+              ->addColumn('quantity', 'integer', ['limit' => MysqlAdapter::INT_TINY])
+              ->create();
+
+User Defined Types (Custom Data Domain)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Building upon the base types and column options you can define your custom
+user defined types. Custom user defined types are configured in the
+``data_domain`` root config option.
+
+.. code-block:: yaml
+
+    data_domain:
+        phone_number:
+            type: string
+            length: 20
+        address_line:
+            type: string
+            length: 150
+
+Each user defined type can hold any valid type and column option, they are just
+used as "macros" and replaced at the time of migration.
+
+.. code-block:: php
+
+        <?php
+
+        //...
+
+        $table = $this->table('user_data');
+        $table->addColumn('user_phone_number', 'phone_number')
+              ->addColumn('user_address_line_1', 'address_line')
+              ->addColumn('user_address_line_2', 'address_line', ['null' => true])
+              ->create();
+
+Specifying a data domain at the beginning of your project is crucial to have a
+homogeneous data model. It avoids mistakes like having many ``contact_name``
+columns with different lengths, mismatched integer types (long vs. bigint, etc).
+
+.. note::
+
+    For ``integer``, ``text`` and ``blob`` columns you can use the special
+    constants from MySQL and Postgress adapter classes.
+
+    You can even customize some internal types to add your own default options,
+    but some column options can't be overriden in the data model (some options
+    are fixed like ``limit`` for the ``uuid`` special data type).
+
+.. code-block:: yaml
+
+    # Some examples of custom data types
+    data_domain:
+        file:
+            type: blob
+            limit: BLOB_LONG    # For MySQL DB. Uses MysqlAdapter::BLOB_LONG
+        boolean:
+            type: boolean       # Customization of the boolean to be unsigned
+            signed: false
+        image_type:
+            type: enum          # Enums can use YAML lists or a comma separated string
+            values:
+                - gif
+                - jpg
+                - png
 
 Null Option and SQLite
 ~~~~~~~~~~~~~~~~~~~~~~
