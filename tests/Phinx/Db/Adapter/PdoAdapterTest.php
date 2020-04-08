@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use PDOException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -156,6 +157,38 @@ class PdoAdapterTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         $adapter->getVersionLog();
+    }
+
+    public function testGetVersionLongDryRun()
+    {
+        $adapter = $this->getMockForAbstractClass(
+            '\Phinx\Db\Adapter\PdoAdapter',
+            [['version_order' => \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME]],
+            '',
+            true,
+            true,
+            true,
+            ['isDryRunEnabled', 'fetchAll', 'getSchemaTableName', 'quoteTableName']
+        );
+
+        $schemaTableName = 'log';
+
+        $adapter->expects($this->once())
+            ->method('isDryRunEnabled')
+            ->will($this->returnValue(true));
+        $adapter->expects($this->once())
+            ->method('getSchemaTableName')
+            ->will($this->returnValue($schemaTableName));
+        $adapter->expects($this->once())
+            ->method('quoteTableName')
+            ->with($schemaTableName)
+            ->will($this->returnValue("'$schemaTableName'"));
+        $adapter->expects($this->once())
+            ->method('fetchAll')
+            ->with("SELECT * FROM '$schemaTableName' ORDER BY version ASC")
+            ->will($this->throwException(new PDOException()));
+
+        $this->assertEquals([], $adapter->getVersionLog());
     }
 
     /**

@@ -370,7 +370,17 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
                 throw new RuntimeException('Invalid version_order configuration option');
         }
 
-        $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s', $this->quoteTableName($this->getSchemaTableName()), $orderBy));
+        // This will throw an exception if doing a --dry-run without any migrations as phinxlog
+        // does not exist, so in that case, we can just expect to trivially return empty set
+        try {
+            $rows = $this->fetchAll(sprintf('SELECT * FROM %s ORDER BY %s', $this->quoteTableName($this->getSchemaTableName()), $orderBy));
+        } catch (PDOException $e) {
+            if (!$this->isDryRunEnabled()) {
+                throw $e;
+            }
+            $rows = [];
+        }
+
         foreach ($rows as $version) {
             $result[$version['version']] = $version;
         }
