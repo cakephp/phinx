@@ -814,7 +814,7 @@ PCRE_PATTERN;
         $selectColumns = array_map([$this, 'quoteColumnName'], $selectColumns);
         $writeColumns = array_map([$this, 'quoteColumnName'], $writeColumns);
 
-        if (!$found && $columnName !== false) {
+        if ($columnName && !$found) {
             throw new InvalidArgumentException(sprintf(
                 'The specified column doesn\'t exist: ' . $columnName
             ));
