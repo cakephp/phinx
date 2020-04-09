@@ -1,9 +1,8 @@
 {
     "alias": "phinx.phar",
-    "chmod": "0755",
     "compactors": [
-        "Herrera\\Box\\Compactor\\Json",
-        "Herrera\\Box\\Compactor\\Php"
+        "KevinGH\\Box\\Compactor\\Json",
+        "KevinGH\\Box\\Compactor\\Php"
     ],
     "directories": ["src","app"],
     "files": [
@@ -26,9 +25,6 @@
             "in": "vendor"
         }
     ],
-    "git-version": "git_tag",
-    "main": "bin/phinx",
-    "output": "phinx-@git-version@.phar",
-    "stub": true,
+    "output": "phinx.phar",
     "exclude-composer-files": false
 }
