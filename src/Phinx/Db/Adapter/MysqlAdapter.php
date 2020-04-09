@@ -1163,7 +1163,8 @@ class MysqlAdapter extends PdoAdapter
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '';
         $def .= $column->isNull() ? ' NULL' : ' NOT NULL';
 
-        if (version_compare($this->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') > -1
+        if (
+            version_compare($this->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') > -1
             && in_array($column->getType(), [static::PHINX_TYPE_GEOMETRY, static::PHINX_TYPE_POINT, static::PHINX_TYPE_LINESTRING, static::PHINX_TYPE_POLYGON])
             && !is_null($column->getSrid())
         ) {
