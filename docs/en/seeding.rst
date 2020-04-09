@@ -69,6 +69,12 @@ command. You should use this method to insert your test data.
     been run. This means database seeders can be run repeatedly. Keep this in
     mind when developing them.
 
+The Init Method
+~~~~~~~~~~~~~~~
+
+The ``init()`` method is run by Phinx before the run method if it exists. This
+can be used to initialize properties of the Seed class before using run.
+
 Foreign Key Dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -99,10 +105,10 @@ current seeder:
                 // `ShopItemSeeder` have been run.
             }
         }
-        
+
 .. note::
 
-    Dependencies are only considered when executing all seed classes (default behavior). 
+    Dependencies are only considered when executing all seed classes (default behavior).
     They won't be considered when running specific seed classes.
 
 Inserting Data

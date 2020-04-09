@@ -47,6 +47,13 @@ abstract class AbstractAdapter implements AdapterInterface
     protected $schemaTableName = 'phinxlog';
 
     /**
+     * @var array
+     */
+    protected $dataDomain = [];
+
+    /**
+     * Class Constructor.
+     *
      * @param array $options Options
      * @param \Symfony\Component\Console\Input\InputInterface|null $input Input Interface
      * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output Interface
@@ -71,6 +78,10 @@ abstract class AbstractAdapter implements AdapterInterface
 
         if (isset($options['default_migration_table'])) {
             $this->setSchemaTableName($options['default_migration_table']);
+        }
+
+        if (isset($options['data_domain'])) {
+            $this->setDataDomain($options['data_domain']);
         }
 
         return $this;
@@ -146,7 +157,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      *
      * @return array
      */
@@ -182,7 +193,103 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @inheritDoc
+     * Gets the data domain.
+     *
+     * @return array
+     */
+    public function getDataDomain()
+    {
+        return $this->dataDomain;
+    }
+
+    /**
+     * Sets the data domain.
+     *
+     * @param array $dataDomain Array for the data domain
+     * @return $this
+     */
+    public function setDataDomain(array $dataDomain)
+    {
+        $this->dataDomain = [];
+
+        // Iterate over data domain field definitions and perform initial and
+        // simple normalization. We make sure the definition as a base 'type'
+        // and it is compatible with the base Phinx types.
+        foreach ($dataDomain as $type => $options) {
+            if (!isset($options['type'])) {
+                throw new \InvalidArgumentException(sprintf(
+                    'You must specify a type for data domain type "%s".',
+                    $type
+                ));
+            }
+
+            // Replace type if it's the name of a Phinx constant
+            if (defined('static::' . $options['type'])) {
+                $options['type'] = constant('static::' . $options['type']);
+            }
+
+            if (!in_array($options['type'], $this->getColumnTypes())) {
+                throw new \InvalidArgumentException(sprintf(
+                    'An invalid column type "%s" was specified for data domain type "%s".',
+                    $options['type'],
+                    $type
+                ));
+            }
+
+            $internal_type = $options['type'];
+            unset($options['type']);
+
+            // Do a simple replacement for the 'length' / 'limit' option and
+            // detect hinting values for 'limit'.
+            if (isset($options['length'])) {
+                $options['limit'] = $options['length'];
+                unset($options['length']);
+            }
+
+            if (isset($options['limit']) && !is_numeric($options['limit'])) {
+                if (!defined('static::' . $options['limit'])) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'An invalid limit value "%s" was specified for data domain type "%s".',
+                        $options['limit'],
+                        $type
+                    ));
+                }
+
+                $options['limit'] = constant('static::' . $options['limit']);
+            }
+
+            // Save the data domain types in a more suitable format
+            $this->dataDomain[$type] = [
+                'type' => $internal_type,
+                'options' => $options,
+            ];
+        }
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getColumnForType($columnName, $type, array $options)
+    {
+        $column = new Column();
+        $column->setName($columnName);
+
+        if (array_key_exists($type, $this->getDataDomain())) {
+            $column->setType($this->dataDomain[$type]['type']);
+            $column->setOptions($this->dataDomain[$type]['options']);
+        } else {
+            $column->setType($type);
+        }
+
+        $column->setOptions($options);
+
+        return $column;
+    }
+
+    /**
+     * @inheritdoc
      */
     public function hasSchemaTable()
     {
@@ -190,7 +297,7 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      *
      * @throws \InvalidArgumentException
      *
@@ -243,6 +350,7 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     public function isDryRunEnabled()
     {
+        /** @var \Symfony\Component\Console\Input\InputInterface|null $input */
         $input = $this->getInput();
 
         return ($input && $input->hasOption('dry-run')) ? (bool)$input->getOption('dry-run') : false;

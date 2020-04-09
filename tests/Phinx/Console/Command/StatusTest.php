@@ -38,7 +38,7 @@ class StatusTest extends TestCase
      */
     const DEFAULT_TEST_ENVIRONMENT = 'development';
 
-    protected function setUp()
+    public function setUp(): void
     {
         $this->config = new Config([
             'paths' => [
@@ -46,7 +46,7 @@ class StatusTest extends TestCase
             ],
             'environments' => [
                 'default_migration_table' => 'phinxlog',
-                'default_database' => 'development',
+                'default_environment' => 'development',
                 'development' => [
                     'adapter' => 'pgsql',
                     'host' => 'fakehost',

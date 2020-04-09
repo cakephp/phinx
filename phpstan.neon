@@ -1,7 +1,7 @@
+includes:
+    - phpstan-baseline.neon
 parameters:
-	ignoreErrors:
-		- '#Variable \$lastException might not be defined#'
-		- '#Access to undefined constant PDO::SQLSRV_ATTR_ENCODING#'
-		- '#Call to an undefined method Phinx\\Migration\\MigrationInterface::change\(\)#'
-		- "#Casting to bool something that's already bool#"
-		- '#Method Phinx\\Console\\Command\\AbstractCommand::locateConfigFile\(\) should return string but returns array\|string#'
+    level: 5
+    ignoreErrors:
+        - '#Unsafe usage of new static\(\)\.#'
+        - '#Parameter \#2 \$callback of function array_filter expects callable\(mixed, mixed\): bool, .+ given.#'

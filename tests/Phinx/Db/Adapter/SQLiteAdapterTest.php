@@ -2,6 +2,8 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use BadMethodCallException;
+use InvalidArgumentException;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Table\Column;
 use Phinx\Util\Literal;
@@ -20,7 +22,7 @@ class SQLiteAdapterTest extends TestCase
      */
     private $adapter;
 
-    public function setUp()
+    public function setUp(): void
     {
         if (!TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED) {
             $this->markTestSkipped('SQLite tests disabled. See TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED constant.');
@@ -41,7 +43,7 @@ class SQLiteAdapterTest extends TestCase
         $this->adapter->disconnect();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->adapter);
     }
@@ -315,9 +317,6 @@ class SQLiteAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testAddMultipleColumnPrimaryKeyFails()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -326,18 +325,19 @@ class SQLiteAdapterTest extends TestCase
             ->addColumn('column2', 'integer')
             ->save();
 
+        $this->expectException(InvalidArgumentException::class);
+
         $table
             ->changePrimaryKey(['column1', 'column2'])
             ->save();
     }
 
-    /**
-     * @expectedException \BadMethodCallException
-     */
     public function testChangeCommentFails()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
+
+        $this->expectException(BadMethodCallException::class);
 
         $table
             ->changeComment('comment1')
@@ -360,7 +360,7 @@ class SQLiteAdapterTest extends TestCase
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
         $this->assertFalse($table->hasColumn('email'));
-        $table->addColumn('email', 'string')
+        $table->addColumn('email', 'string', ['null' => true])
             ->save();
         $this->assertTrue($table->hasColumn('email'));
 
@@ -405,7 +405,7 @@ class SQLiteAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
-        $table->addColumn('foo', 'double')
+        $table->addColumn('foo', 'double', ['null' => true])
             ->save();
         $rows = $this->adapter->fetchAll(sprintf('pragma table_info(%s)', 'table1'));
         $this->assertEquals('DOUBLE', $rows[1]['type']);
@@ -696,10 +696,6 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasTable($table->getName()));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessageRegExp /test/
-     */
     public function testFailingDropForeignKey()
     {
         $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
@@ -710,6 +706,9 @@ class SQLiteAdapterTest extends TestCase
             ->addColumn('ref_table_id', 'integer')
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
             ->save();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/test/');
 
         $this->adapter->dropForeignKey($table->getName(), ['ref_table_id', 'test']);
     }
@@ -792,7 +791,7 @@ class SQLiteAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
+            ->addColumn('column2', 'integer', ['null' => true])
             ->insert([
                 [
                     'column1' => 'value1',
@@ -832,7 +831,7 @@ class SQLiteAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
+            ->addColumn('column2', 'integer', ['null' => true])
             ->insert([
                 [
                     'column1' => 'value1',
@@ -942,10 +941,10 @@ class SQLiteAdapterTest extends TestCase
             ->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR NULL, `column2` INTEGER NULL, `column3` VARCHAR NOT NULL DEFAULT 'test');
+CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR NOT NULL, `column2` INTEGER NOT NULL, `column3` VARCHAR NOT NULL DEFAULT 'test');
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
     }
 
     /**
@@ -985,7 +984,7 @@ INSERT INTO `table1` (`int_col`) VALUES (23);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $actualOutput = preg_replace("/\r\n|\r/", "\n", $actualOutput); // normalize line endings for Windows
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the insert to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the insert to the output');
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
         self::assertTrue($countQuery->execute());
@@ -1026,7 +1025,7 @@ OUTPUT;
 INSERT INTO `table1` (`string_col`, `int_col`) VALUES ('test_data1', 23), (null, 42);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the bulkinsert to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the bulkinsert to the output');
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
         self::assertTrue($countQuery->execute());
@@ -1057,11 +1056,11 @@ OUTPUT;
         ])->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`column1` VARCHAR NULL, `column2` INTEGER NULL, PRIMARY KEY (`column1`));
+CREATE TABLE `table1` (`column1` VARCHAR NOT NULL, `column2` INTEGER NOT NULL, PRIMARY KEY (`column1`));
 INSERT INTO `table1` (`column1`, `column2`) VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertContains($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
+        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
     }
 
     /**
@@ -1116,11 +1115,31 @@ OUTPUT;
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
 
-        $table->addColumn('string_col', 'string');
-        $table->addColumn('string_col_2', 'string');
+        $table->addColumn('string_col', 'string', ['default' => '']);
+        $table->addColumn('string_col_2', 'string', ['null' => true]);
+        $table->addColumn('string_col_3', 'string');
+        $table->addTimestamps();
         $table->save();
-        $this->assertTrue($this->adapter->hasColumn('table1', 'string_col'));
-        $this->assertTrue($this->adapter->hasColumn('table1', 'string_col_2'));
+
+        $columns = $this->adapter->getColumns('table1');
+        $expected = [
+            ['name' => 'id', 'type' => 'integer', 'default' => null, 'null' => false],
+            ['name' => 'string_col', 'type' => 'string', 'default' => '', 'null' => false],
+            ['name' => 'string_col_2', 'type' => 'string', 'default' => null, 'null' => true],
+            ['name' => 'string_col_3', 'type' => 'string', 'default' => null, 'null' => false],
+            ['name' => 'created_at', 'type' => 'timestamp', 'default' => 'CURRENT_TIMESTAMP', 'null' => false],
+            ['name' => 'updated_at', 'type' => 'timestamp', 'default' => null, 'null' => true],
+        ];
+
+        $this->assertEquals(count($expected), count($columns));
+
+        $columnCount = count($columns);
+        for ($i = 0; $i < $columnCount; $i++) {
+            $this->assertSame($expected[$i]['name'], $columns[$i]->getName(), "Wrong name for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['type'], $columns[$i]->getType(), "Wrong type for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['default'], ($columns[$i]->getDefault() instanceof Literal) ? (string)$columns[$i]->getDefault() : $columns[$i]->getDefault(), "Wrong default for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['null'], $columns[$i]->getNull(), "Wrong null for {$expected[$i]['name']}");
+        }
     }
 
     public function testLiteralSupport()
@@ -1308,6 +1327,7 @@ INPUT;
     public function testHasNamedPrimaryKey()
     {
         $this->expectException(\InvalidArgumentException::class);
+
         $this->adapter->hasPrimaryKey('t', [], 'named_constraint');
     }
 
@@ -1357,16 +1377,19 @@ INPUT;
     public function testHasNamedForeignKey()
     {
         $this->expectException(\InvalidArgumentException::class);
+
         $this->adapter->hasForeignKey('t', [], 'named_constraint');
     }
 
-    /** @dataProvider providePhinxTypes
+    /**
+     * @dataProvider providePhinxTypes
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getSqlType
      */
     public function testGetSqlType($phinxType, $limit, $exp)
     {
         if ($exp instanceof \Exception) {
             $this->expectException(get_class($exp));
+
             $this->adapter->getSqlType($phinxType, $limit);
         } else {
             $exp = ['name' => $exp, 'limit' => $limit];

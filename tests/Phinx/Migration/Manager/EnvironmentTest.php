@@ -6,6 +6,7 @@ use Phinx\Db\Adapter\AdapterFactory;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Migration\MigrationInterface;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class PDOMock extends \PDO
 {
@@ -33,7 +34,7 @@ class EnvironmentTest extends TestCase
      */
     private $environment;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->environment = new Environment('test', []);
     }
@@ -57,21 +58,20 @@ class EnvironmentTest extends TestCase
         $this->assertArrayHasKey('foo', $this->environment->getOptions());
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Adapter "fakeadapter" has not been registered
-     */
     public function testInvalidAdapter()
     {
         $this->environment->setOptions(['adapter' => 'fakeadapter']);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Adapter "fakeadapter" has not been registered');
+
         $this->environment->getAdapter();
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testNoAdapter()
     {
+        $this->expectException(RuntimeException::class);
+
         $this->environment->getAdapter();
     }
 
@@ -94,20 +94,20 @@ class EnvironmentTest extends TestCase
         $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $options['connection']->getAttribute(\PDO::ATTR_ERRMODE));
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage The specified connection is not a PDO instance
-     */
     public function testGetAdapterWithBadExistingPdoInstance()
     {
         $this->environment->setOptions(['connection' => new \stdClass()]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The specified connection is not a PDO instance');
+
         $this->environment->getAdapter();
     }
 
     public function testTablePrefixAdapter()
     {
         $this->environment->setOptions(['table_prefix' => 'tbl_', 'adapter' => 'mysql']);
-        $this->assertInstanceOf('Phinx\Db\Adapter\TablePrefixAdapter', $this->environment->getAdapter());
+        $this->assertInstanceOf(\Phinx\Db\Adapter\TablePrefixAdapter::class, $this->environment->getAdapter());
 
         $tablePrefixAdapter = $this->environment->getAdapter();
         $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $tablePrefixAdapter->getAdapter()->getAdapter());
@@ -263,5 +263,52 @@ class EnvironmentTest extends TestCase
         $this->environment->setInput($mock);
         $inputObject = $this->environment->getInput();
         $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $inputObject);
+    }
+
+    public function testExecuteMigrationCallsInit()
+    {
+        // stub adapter
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $adapterStub->expects($this->once())
+                    ->method('migrated')
+                    ->will($this->returnArgument(0));
+
+        $this->environment->setAdapter($adapterStub);
+
+        // up
+        $upMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
+            ->setConstructorArgs(['mockenv', '20110301080000'])
+            ->setMethods(['up', 'init'])
+            ->getMock();
+        $upMigration->expects($this->once())
+                    ->method('up');
+        $upMigration->expects($this->once())
+                    ->method('init');
+
+        $this->environment->executeMigration($upMigration, MigrationInterface::UP);
+    }
+
+    public function testExecuteSeedInit()
+    {
+        // stub adapter
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+
+        $this->environment->setAdapter($adapterStub);
+
+        // up
+        $seed = $this->getMockBuilder('\Phinx\Seed\AbstractSeed')
+            ->setMethods(['run', 'init'])
+            ->getMock();
+
+        $seed->expects($this->once())
+                    ->method('run');
+        $seed->expects($this->once())
+                    ->method('init');
+
+        $this->environment->executeSeed($seed);
     }
 }

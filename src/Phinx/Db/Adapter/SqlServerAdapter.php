@@ -1288,8 +1288,8 @@ SQL;
      *
      * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @param string $direction Direction
-     * @param int $startTime Start Time
-     * @param int $endTime End Time
+     * @param string $startTime Start Time
+     * @param string $endTime End Time
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
@@ -1315,12 +1315,7 @@ SQL;
         ] + $options;
 
         $driver = new SqlServerDriver($options);
-
-        if (method_exists($driver, 'setConnection')) {
-            $driver->setConnection($this->connection);
-        } else {
-            $driver->connection($this->connection);
-        }
+        $driver->setConnection($this->connection);
 
         return new Connection(['driver' => $driver] + $options);
     }

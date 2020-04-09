@@ -198,16 +198,21 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             ));
         }
 
-        // if the user has configured a default database then use it,
-        // providing it actually exists!
+        // deprecated: to be removed 0.13
         if (isset($this->values['environments']['default_database'])) {
-            if ($this->getEnvironment($this->values['environments']['default_database'])) {
-                return $this->values['environments']['default_database'];
+            $this->values['environments']['default_environment'] = $this->values['environments']['default_database'];
+        }
+
+        // if the user has configured a default environment then use it,
+        // providing it actually exists!
+        if (isset($this->values['environments']['default_environment'])) {
+            if ($this->getEnvironment($this->values['environments']['default_environment'])) {
+                return $this->values['environments']['default_environment'];
             }
 
             throw new RuntimeException(sprintf(
                 'The environment configuration for \'%s\' is missing',
-                $this->values['environments']['default_database']
+                $this->values['environments']['default_environment']
             ));
         }
 
@@ -324,6 +329,18 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getDataDomain()
+    {
+        if (!isset($this->values['data_domain'])) {
+            return [];
+        }
+
+        return $this->values['data_domain'];
+    }
+
+    /**
      * Get the version order.
      *
      * @return string
@@ -430,8 +447,8 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     protected function parseAgnosticDsn(array $options)
     {
         if (isset($options['dsn']) && is_string($options['dsn'])) {
-            $regex = '#^(?P<adapter>[^\\:]+)\\://(?:(?P<user>[^\\:@]+)(?:\\:(?P<pass>[^@]*))?@)?'
-                   . '(?P<host>[^\\:@/]+)(?:\\:(?P<port>[1-9]\\d*))?/(?P<name>[^\?]+)(?:\?(?P<query>.*))?$#';
+            $regex = '#^(?P<adapter>[^\\:]+)\\://(?:(?P<user>[^\\:@]+)(?:\\:(?P<pass>[^@]*))?@)?' .
+                '(?P<host>[^\\:@/]+)(?:\\:(?P<port>[1-9]\\d*))?/(?P<name>[^\?]+)(?:\?(?P<query>.*))?$#';
             if (preg_match($regex, trim($options['dsn']), $parsedOptions)) {
                 $additionalOpts = [];
                 if (isset($parsedOptions['query'])) {

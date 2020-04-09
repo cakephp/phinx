@@ -29,7 +29,7 @@ El comando de creación se usa para crear un nuevo archivo de migración. Requie
 
     $ phinx create MyNewMigration
 
-Abre el nuevo archivo de migración en tu editor de texto  para agregar las transformaciones de tu base de datos. Phinx crea archivos de migracion usando direcciones especificas en tu archivo phinx.yml . Por favor mire :doc:`Configuration <configuration>` para mas información. 
+Abre el nuevo archivo de migración en tu editor de texto  para agregar las transformaciones de tu base de datos. Phinx crea archivos de migracion usando direcciones especificas en tu archivo phinx.yml . Por favor mire :doc:`Configuration <configuration>` para mas información.
 
 Usted puede sobreescribir el archivo modelo usado por Phinx suministrando una alternativa del modelo de archivo:
 
@@ -43,7 +43,7 @@ Tambien puedes suministrar un modelo de clase general. Esta clase deberá implem
 
     $ phinx create MyNewMigration --class="<class>"
 
-Además de proveer el modelo para la migracion, la clase tambien puede definir una "callback" que sera llamada una vez que el archivo de migración haya sido generado por el modelo. 
+Además de proveer el modelo para la migracion, la clase tambien puede definir una "callback" que sera llamada una vez que el archivo de migración haya sido generado por el modelo.
 
 No puede usar ``--template`` y ``--class`` juntos.
 
@@ -62,7 +62,7 @@ Para migrar a una version especifica se utiliza el parametro ``--targe`` o ``-t`
 
     $ phinx migrate -e development -t 20110103081132
 
-Use ``--dry-run`` para imprimir las consultas a la salida sin ejecutarlas 
+Use ``--dry-run`` para imprimir las consultas a la salida sin ejecutarlas
 
 .. code-block:: bash
 
@@ -72,7 +72,7 @@ Use ``--dry-run`` para imprimir las consultas a la salida sin ejecutarlas
 El comando para revertir
 ------------------------
 
-El comando para revertir se utiliza para deshacer las migraciones anteriores ejecutadas por Phinx. Es lo opuesto al comando Migrar.  
+El comando para revertir se utiliza para deshacer las migraciones anteriores ejecutadas por Phinx. Es lo opuesto al comando Migrar.
 
 Puede revertir a la migración anterior usando el comando rollback sin argumentos.
 
@@ -134,7 +134,7 @@ La salida de este comando es 0 si la base de datos está actualizada (es decir, 
 #: se ejecutó una migración y se registró en la base de datos, pero ahora falta
 el archivo de migración
 
-El comando de interrupción 
+El comando de interrupción
 ---------------------------
 
 El comando Punto de interrupción se usa para establecer puntos de interrupción, lo que le permite limitar los retrotracción. Puede alternar el punto de interrupción de la migración más reciente al no proporcionar ningún parámetro
@@ -196,7 +196,7 @@ Al ejecutar Phinx desde la línea de comandos, puede especificar un archivo de c
             ],
             "environments" => [
                 "default_migration_table" => "phinxlog",
-                "default_database" => "dev",
+                "default_environment" => "dev",
                 "dev" => [
                     "adapter" => "mysql",
                     "host" => $_ENV['DB_HOST'],
@@ -219,7 +219,7 @@ Al usar una matriz de PHP, puede proporcionar una clave de conexión con una ins
             ],
             "environments" => [
                 "default_migration_table" => "phinxlog",
-                "default_database" => "dev",
+                "default_environment" => "dev",
                 "dev" => [
                     "name" => "dev_db",
                     "connection" => $pdo_instance

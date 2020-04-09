@@ -232,7 +232,7 @@ configuration file may be the computed output of a PHP file as a PHP array:
                 ],
                 "environments" => [
                     "default_migration_table" => "phinxlog",
-                    "default_database" => "dev",
+                    "default_environment" => "dev",
                     "dev" => [
                         "adapter" => "mysql",
                         "host" => $_ENV['DB_HOST'],
@@ -259,7 +259,7 @@ the database name too, as Phinx requires this for certain methods such as ``hasT
                 ],
                 "environments" => [
                     "default_migration_table" => "phinxlog",
-                    "default_database" => "dev",
+                    "default_environment" => "dev",
                     "dev" => [
                         "name" => "dev_db",
                         "connection" => $pdo_instance

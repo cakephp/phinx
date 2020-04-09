@@ -1161,7 +1161,7 @@ class MysqlAdapter extends PdoAdapter
         $def .= $column->getEncoding() ? ' CHARACTER SET ' . $column->getEncoding() : '';
         $def .= $column->getCollation() ? ' COLLATE ' . $column->getCollation() : '';
         $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '';
-        $def .= ($column->isNull() == false) ? ' NOT NULL' : ' NULL';
+        $def .= $column->isNull() ? ' NULL' : ' NOT NULL';
         $def .= $column->isIdentity() ? ' AUTO_INCREMENT' : '';
         $def .= $this->getDefaultValueDefinition($column->getDefault(), $column->getType());
 
@@ -1303,11 +1303,7 @@ class MysqlAdapter extends PdoAdapter
         ] + $options;
 
         $driver = new MysqlDriver($options);
-        if (method_exists($driver, 'setConnection')) {
-            $driver->setConnection($this->connection);
-        } else {
-            $driver->connection($this->connection);
-        }
+        $driver->setConnection($this->connection);
 
         return new Connection(['driver' => $driver] + $options);
     }

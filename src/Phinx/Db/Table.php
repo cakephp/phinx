@@ -39,7 +39,7 @@ class Table
     protected $table;
 
     /**
-     * @var \Phinx\Db\Adapter\AdapterInterface
+     * @var \Phinx\Db\Adapter\AdapterInterface|null
      */
     protected $adapter;
 

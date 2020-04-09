@@ -24,7 +24,7 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
     /**
      * Pass vars to $_SERVER
      */
-    public function setUp()
+    public function setUp(): void
     {
         foreach (static::$server as $name => $value) {
             $_SERVER[$name] = $value;
@@ -34,7 +34,7 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
     /**
      * Clean-up
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         foreach (static::$server as $name => $value) {
              unset($_SERVER[$name]);
@@ -54,15 +54,15 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
             'some-var-4' => 123456,
         ]);
 
-        $this->assertContains(
+        $this->assertStringContainsString(
             static::$server['PHINX_TEST_VAR_1'] . '', // force convert to string
             $config->offsetGet('some-var-1')
         );
-        $this->assertNotContains(
+        $this->assertStringNotContainsString(
             static::$server['NON_PHINX_TEST_VAR_1'] . '', // force convert to string
             $config->offsetGet('some-var-2')
         );
-        $this->assertContains(
+        $this->assertStringContainsString(
             static::$server['PHINX_TEST_VAR_2'] . '', // force convert to string
             $config->offsetGet('some-var-3')
         );
@@ -85,15 +85,15 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
 
         $folding = $config->offsetGet('folding');
 
-        $this->assertContains(
+        $this->assertStringContainsString(
             static::$server['PHINX_TEST_VAR_1'] . '', // force convert to string
             $folding['some-var-1']
         );
-        $this->assertNotContains(
+        $this->assertStringNotContainsString(
             static::$server['NON_PHINX_TEST_VAR_1'] . '', // force convert to string
             $folding['some-var-2']
         );
-        $this->assertContains(
+        $this->assertStringContainsString(
             static::$server['PHINX_TEST_VAR_2'] . '', // force convert to string
             $folding['some-var-3']
         );

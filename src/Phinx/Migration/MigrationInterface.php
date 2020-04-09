@@ -34,6 +34,11 @@ interface MigrationInterface
     const DOWN = 'down';
 
     /**
+     * @var string
+     */
+    const INIT = 'init';
+
+    /**
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
@@ -98,7 +103,7 @@ interface MigrationInterface
     /**
      * Sets the migration version number.
      *
-     * @param float $version Version
+     * @param int $version Version
      *
      * @return \Phinx\Migration\MigrationInterface
      */
@@ -107,7 +112,7 @@ interface MigrationInterface
     /**
      * Gets the migration version number.
      *
-     * @return float
+     * @return int
      */
     public function getVersion();
 
