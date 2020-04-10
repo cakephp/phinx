@@ -201,6 +201,36 @@ class SQLiteAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasIndex('table1', ['tag_id', 'user_email']));
     }
 
+    /**
+     * @return void
+     */
+    public function testCreateTableWithPrimaryKeyAsUuid()
+    {
+        $options = [
+            'id' => false,
+            'primary_key' => 'id',
+        ];
+        $table = new \Phinx\Db\Table('ztable', $options, $this->adapter);
+        $table->addColumn('id', 'uuid')->save();
+        $this->assertTrue($this->adapter->hasColumn('ztable', 'id'));
+        $this->assertTrue($this->adapter->hasIndex('ztable', 'id'));
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateTableWithPrimaryKeyAsBinaryUuid()
+    {
+        $options = [
+            'id' => false,
+            'primary_key' => 'id',
+        ];
+        $table = new \Phinx\Db\Table('ztable', $options, $this->adapter);
+        $table->addColumn('id', 'binaryuuid')->save();
+        $this->assertTrue($this->adapter->hasColumn('ztable', 'id'));
+        $this->assertTrue($this->adapter->hasIndex('ztable', 'id'));
+    }
+
     public function testCreateTableWithMultipleIndexes()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -1649,6 +1679,7 @@ INPUT;
             SQLiteAdapter::PHINX_TYPE_TEXT,
             SQLiteAdapter::PHINX_TYPE_TIME,
             SQLiteAdapter::PHINX_TYPE_UUID,
+            SQLiteAdapter::PHINX_TYPE_BINARYUUID,
             SQLiteAdapter::PHINX_TYPE_TIMESTAMP,
             SQLiteAdapter::PHINX_TYPE_VARBINARY,
         ];
