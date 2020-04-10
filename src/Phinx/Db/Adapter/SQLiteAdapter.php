@@ -56,6 +56,7 @@ class SQLiteAdapter extends PdoAdapter
         self::PHINX_TYPE_TEXT => 'text',
         self::PHINX_TYPE_TIME => 'time_text',
         self::PHINX_TYPE_UUID => 'uuid_text',
+        self::PHINX_TYPE_BINARYUUID => 'binary_blob',
         self::PHINX_TYPE_TIMESTAMP => 'timestamp_text',
         self::PHINX_TYPE_VARBINARY => 'varbinary_blob',
     ];
