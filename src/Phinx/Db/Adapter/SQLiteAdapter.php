@@ -30,8 +30,12 @@ use RuntimeException;
  */
 class SQLiteAdapter extends PdoAdapter
 {
-    // list of supported Phinx column types with their SQL equivalents
-    // some types have an affinity appended to ensure they do not receive NUMERIC affinity
+    /**
+     * List of supported Phinx column types with their SQL equivalents
+     * some types have an affinity appended to ensure they do not receive NUMERIC affinity
+     *
+     * @var string[]
+     */
     protected static $supportedColumnTypes = [
         self::PHINX_TYPE_BIG_INTEGER => 'biginteger',
         self::PHINX_TYPE_BINARY => 'binary_blob',
@@ -54,7 +58,11 @@ class SQLiteAdapter extends PdoAdapter
         self::PHINX_TYPE_VARBINARY => 'varbinary_blob',
     ];
 
-    // list of aliases of supported column types
+    /**
+     * List of aliases of supported column types
+     *
+     * @var string[]
+     */
     protected static $supportedColumnTypeAliases = [
         'varchar' => self::PHINX_TYPE_STRING,
         'tinyint' => self::PHINX_TYPE_SMALL_INTEGER,
@@ -73,7 +81,11 @@ class SQLiteAdapter extends PdoAdapter
         'real' => self::PHINX_TYPE_FLOAT,
     ];
 
-    // list of known but unsupported Phinx column types
+    /**
+     * List of known but unsupported Phinx column types
+     *
+     * @var string[]
+     */
     protected static $unsupportedColumnTypes = [
         self::PHINX_TYPE_BIT,
         self::PHINX_TYPE_CIDR,
@@ -90,6 +102,9 @@ class SQLiteAdapter extends PdoAdapter
         self::PHINX_TYPE_SET,
     ];
 
+    /**
+     * @var string[]
+     */
     protected $definitionsWithLimits = [
         'CHAR',
         'CHARACTER',
@@ -557,7 +572,7 @@ PCRE_PATTERN;
         } elseif (preg_match('/^[+-]?\d+$/i', $vBare)) {
             $int = (int)$vBare;
             // integer literal
-            if ($t === self::PHINX_TYPE_BOOLEAN && ($int == 0 || $int == 1)) {
+            if ($t === self::PHINX_TYPE_BOOLEAN && ($int === 0 || $int === 1)) {
                 return (bool)$int;
             } else {
                 return $int;
@@ -784,7 +799,7 @@ PCRE_PATTERN;
      *
      * @throws \InvalidArgumentException
      *
-     * @return \Phinx\Db\Util\AlterInstructions
+     * @return array
      */
     protected function calculateNewTableColumns($tableName, $columnName, $newColumnName)
     {
@@ -798,7 +813,7 @@ PCRE_PATTERN;
             $selectName = $column['name'];
             $writeName = $selectName;
 
-            if ($selectName == $columnName) {
+            if ($selectName === $columnName) {
                 $writeName = $newColumnName;
                 $found = true;
                 $columnType = $column['type'];
@@ -1390,7 +1405,7 @@ PCRE_PATTERN;
             if (isset(self::$supportedColumnTypes[$typeLC])) {
                 // the type is an explicitly supported type
                 $name = $typeLC;
-            } elseif ($typeLC === 'tinyint' && $limit == 1) {
+            } elseif ($typeLC === 'tinyint' && $limit === 1) {
                 // the type is a MySQL-style boolean
                 $name = static::PHINX_TYPE_BOOLEAN;
                 $limit = null;
@@ -1463,7 +1478,7 @@ PCRE_PATTERN;
             $sqlType = $this->getSqlType($column->getType());
             $def = strtoupper($sqlType['name']);
 
-            $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits);
+            $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits, true);
             if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
                 $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
             }

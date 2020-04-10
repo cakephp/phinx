@@ -24,8 +24,8 @@ class PostgresAdapterTest extends TestCase
     {
         static $available;
 
-        if (is_null($available)) {
-            $available = in_array('pgsql', \PDO::getAvailableDrivers());
+        if ($available === null) {
+            $available = in_array('pgsql', \PDO::getAvailableDrivers(), true);
         }
 
         return $available;
@@ -482,7 +482,7 @@ class PostgresAdapterTest extends TestCase
               ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
-            if ($column->getName() == 'default_zero') {
+            if ($column->getName() === 'default_zero') {
                 $this->assertEquals("test", $column->getDefault());
             }
         }
@@ -496,7 +496,7 @@ class PostgresAdapterTest extends TestCase
               ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
-            if ($column->getName() == 'default_zero') {
+            if ($column->getName() === 'default_zero') {
                 $this->assertNotNull($column->getDefault());
                 $this->assertEquals('0', $column->getDefault());
             }
@@ -513,15 +513,15 @@ class PostgresAdapterTest extends TestCase
               ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
-            if ($column->getName() == 'default_true') {
+            if ($column->getName() === 'default_true') {
                 $this->assertNotNull($column->getDefault());
                 $this->assertEquals('true', $column->getDefault());
             }
-            if ($column->getName() == 'default_false') {
+            if ($column->getName() === 'default_false') {
                 $this->assertNotNull($column->getDefault());
                 $this->assertEquals('false', $column->getDefault());
             }
-            if ($column->getName() == 'default_null') {
+            if ($column->getName() === 'default_null') {
                 $this->assertNull($column->getDefault());
             }
         }
@@ -569,7 +569,7 @@ class PostgresAdapterTest extends TestCase
               ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
-            if ($column->getName() == 'default_ts') {
+            if ($column->getName() === 'default_ts') {
                 $this->assertNotNull($column->getDefault());
                 $this->assertEquals('now()', (string)$column->getDefault());
             }
@@ -638,12 +638,12 @@ class PostgresAdapterTest extends TestCase
             ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
-            if ($column->getName() == 'number') {
+            if ($column->getName() === 'number') {
                 $this->assertEquals("10", $column->getPrecision());
                 $this->assertEquals("2", $column->getScale());
             }
 
-            if ($column->getName() == 'number2') {
+            if ($column->getName() === 'number2') {
                 $this->assertEquals("12", $column->getPrecision());
                 $this->assertEquals("0", $column->getScale());
             }
@@ -660,15 +660,15 @@ class PostgresAdapterTest extends TestCase
             ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
-            if ($column->getName() == 'timestamp1') {
+            if ($column->getName() === 'timestamp1') {
                 $this->assertEquals("0", $column->getPrecision());
             }
 
-            if ($column->getName() == 'timestamp2') {
+            if ($column->getName() === 'timestamp2') {
                 $this->assertEquals("4", $column->getPrecision());
             }
 
-            if ($column->getName() == 'timestamp3') {
+            if ($column->getName() === 'timestamp3') {
                 $this->assertEquals("6", $column->getPrecision());
             }
         }

@@ -1132,7 +1132,7 @@ class PostgresAdapter extends PdoAdapter
     {
         $buffer = [];
         if ($column->isIdentity()) {
-            $buffer[] = $column->getType() == 'biginteger' ? 'BIGSERIAL' : 'SERIAL';
+            $buffer[] = $column->getType() === 'biginteger' ? 'BIGSERIAL' : 'SERIAL';
         } elseif ($column->getType() instanceof Literal) {
             $buffer[] = (string)$column->getType();
         } else {
@@ -1382,7 +1382,7 @@ class PostgresAdapter extends PdoAdapter
 
         $baseType = $matches[1];
 
-        return in_array($baseType, $this->getColumnTypes());
+        return in_array($baseType, $this->getColumnTypes(), true);
     }
 
     /**

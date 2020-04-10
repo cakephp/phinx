@@ -736,7 +736,7 @@ class SQLiteAdapterTest extends TestCase
         $rows = $this->adapter->fetchAll('select * from sqlite_master where `type` = \'table\'');
 
         foreach ($rows as $row) {
-            if ($row['tbl_name'] == 'table1') {
+            if ($row['tbl_name'] === 'table1') {
                 $sql = $row['sql'];
             }
         }
