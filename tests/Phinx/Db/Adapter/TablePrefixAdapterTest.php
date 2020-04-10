@@ -100,7 +100,7 @@ class TablePrefixAdapterTest extends TestCase
             ->method('createTable')
             ->with($this->callback(
                 function ($table) {
-                    return $table->getName() == 'pre_table_suf';
+                    return $table->getName() === 'pre_table_suf';
                 }
             ));
 
@@ -197,7 +197,7 @@ class TablePrefixAdapterTest extends TestCase
             ->method('addColumn')
             ->with($this->callback(
                 function ($table) {
-                    return $table->getName() == 'pre_table_suf';
+                    return $table->getName() === 'pre_table_suf';
                 },
                 $this->equalTo($column)
             ));
@@ -335,7 +335,7 @@ class TablePrefixAdapterTest extends TestCase
             ->method('addForeignKey')
             ->with($this->callback(
                 function ($table) {
-                    return $table->getName() == 'pre_table_suf';
+                    return $table->getName() === 'pre_table_suf';
                 },
                 $this->equalTo($foreignKey)
             ));
@@ -369,7 +369,7 @@ class TablePrefixAdapterTest extends TestCase
             ->method('bulkinsert')
             ->with($this->callback(
                 function ($table) {
-                    return $table->getName() == 'pre_table_suf';
+                    return $table->getName() === 'pre_table_suf';
                 },
                 $this->equalTo($row)
             ));

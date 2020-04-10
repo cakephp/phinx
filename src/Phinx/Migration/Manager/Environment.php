@@ -359,11 +359,15 @@ class Environment
                 ->getWrapper($options['wrapper'], $adapter);
         }
 
-        if ($this->getInput()) {
+        /** @var \Symfony\Component\Console\Input\InputInterface|null $input */
+        $input = $this->getInput();
+        if ($input) {
             $adapter->setInput($this->getInput());
         }
 
-        if ($this->getOutput()) {
+        /** @var \Symfony\Component\Console\Output\OutputInterface|null $output */
+        $output = $this->getOutput();
+        if ($output) {
             $adapter->setOutput($this->getOutput());
         }
 

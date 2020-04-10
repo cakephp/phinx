@@ -13,6 +13,7 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
 {
     /**
      * Data to be saved to $_SERVER and checked later
+     *
      * @var array
      */
     protected static $server = [

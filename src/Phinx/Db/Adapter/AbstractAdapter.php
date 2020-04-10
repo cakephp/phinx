@@ -340,7 +340,7 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     public function isValidColumnType(Column $column)
     {
-        return $column->getType() instanceof Literal || in_array($column->getType(), $this->getColumnTypes());
+        return $column->getType() instanceof Literal || in_array($column->getType(), $this->getColumnTypes(), true);
     }
 
     /**
@@ -410,6 +410,6 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     protected function hasCreatedTable($tableName)
     {
-        return in_array($tableName, $this->createdTables);
+        return in_array($tableName, $this->createdTables, true);
     }
 }
