@@ -37,6 +37,7 @@ interface AdapterInterface
     public const PHINX_TYPE_DATE = 'date';
     public const PHINX_TYPE_BINARY = 'binary';
     public const PHINX_TYPE_VARBINARY = 'varbinary';
+    public const PHINX_TYPE_BINARYUUID = 'binaryuuid';
     public const PHINX_TYPE_BLOB = 'blob';
     public const PHINX_TYPE_BOOLEAN = 'boolean';
     public const PHINX_TYPE_JSON = 'json';
