@@ -366,7 +366,7 @@ WHERE t.name='ntable'");
               ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
-            if ($column->getName() == 'default_zero') {
+            if ($column->getName() === 'default_zero') {
                 $this->assertEquals("test", $column->getDefault());
             }
         }
@@ -380,7 +380,7 @@ WHERE t.name='ntable'");
               ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
-            if ($column->getName() == 'default_zero') {
+            if ($column->getName() === 'default_zero') {
                 $this->assertNotNull($column->getDefault());
                 $this->assertEquals('0', $column->getDefault());
             }
@@ -395,7 +395,7 @@ WHERE t.name='ntable'");
             ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
-            if ($column->getName() == 'default_null') {
+            if ($column->getName() === 'default_null') {
                 $this->assertNull($column->getDefault());
             }
         }
@@ -411,10 +411,10 @@ WHERE t.name='ntable'");
             ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
-            if ($column->getName() == 'default_false') {
+            if ($column->getName() === 'default_false') {
                 $this->assertSame(0, $column->getDefault());
             }
-            if ($column->getName() == 'default_true') {
+            if ($column->getName() === 'default_true') {
                 $this->assertSame(1, $column->getDefault());
             }
         }
@@ -463,7 +463,7 @@ WHERE t.name='ntable'");
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
         $columns = $this->adapter->getColumns('t');
         foreach ($columns as $column) {
-            if ($column->getName() == 'column1') {
+            if ($column->getName() === 'column1') {
                 $this->assertEquals('string', $column->getType());
             }
         }
@@ -483,7 +483,7 @@ WHERE t.name='ntable'");
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
         $columns = $this->adapter->getColumns('t');
         foreach ($columns as $column) {
-            if ($column->getName() == 'column2') {
+            if ($column->getName() === 'column2') {
                 $this->assertTrue($column->isNull());
             }
         }

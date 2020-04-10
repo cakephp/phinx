@@ -5783,7 +5783,7 @@ class ManagerTest extends TestCase
         // ensure no other data has changed.
         foreach ($originalVersions as $originalVersionKey => $originalVersion) {
             foreach ($originalVersion as $column => $value) {
-                if (!is_numeric($column) && $column != 'breakpoint') {
+                if (!is_numeric($column) && $column !== 'breakpoint') {
                     $this->assertEquals($value, $firstToggle[$originalVersionKey][$column]);
                 }
             }
@@ -5803,7 +5803,7 @@ class ManagerTest extends TestCase
         // ensure no other data has changed.
         foreach ($originalVersions as $originalVersionKey => $originalVersion) {
             foreach ($originalVersion as $column => $value) {
-                if (!is_numeric($column) && $column != 'breakpoint') {
+                if (!is_numeric($column) && $column !== 'breakpoint') {
                     $this->assertEquals($value, $secondToggle[$originalVersionKey][$column]);
                 }
             }
@@ -5845,7 +5845,7 @@ class ManagerTest extends TestCase
         // ensure no other data has changed.
         foreach ($originalVersions as $originalVersionKey => $originalVersion) {
             foreach ($originalVersion as $column => $value) {
-                if (!is_numeric($column) && $column != 'breakpoint') {
+                if (!is_numeric($column) && $column !== 'breakpoint') {
                     $this->assertEquals($value, $setLastVersions[$originalVersionKey][$column]);
                 }
             }
@@ -5865,7 +5865,7 @@ class ManagerTest extends TestCase
         // ensure no other data has changed.
         foreach ($originalVersions as $originalVersionKey => $originalVersion) {
             foreach ($originalVersion as $column => $value) {
-                if (!is_numeric($column) && $column != 'breakpoint') {
+                if (!is_numeric($column) && $column !== 'breakpoint') {
                     $this->assertEquals($value, $resetVersions[$originalVersionKey][$column]);
                 }
             }
@@ -5885,7 +5885,7 @@ class ManagerTest extends TestCase
         // ensure no other data has changed.
         foreach ($originalVersions as $originalVersionKey => $originalVersion) {
             foreach ($originalVersion as $column => $value) {
-                if (!is_numeric($column) && $column != 'breakpoint') {
+                if (!is_numeric($column) && $column !== 'breakpoint') {
                     $this->assertEquals($value, $unsetLastVersions[$originalVersionKey][$column]);
                 }
             }

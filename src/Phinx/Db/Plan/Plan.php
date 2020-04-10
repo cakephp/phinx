@@ -214,7 +214,7 @@ class Plan
             // but it is a conflicting action. Luckily solving the conflict can be done by moving
             // the ChangeColumn action to another AlterTable
             ->unfold(new ActionSplitter(RenameColumn::class, ChangeColumn::class, function (RenameColumn $a, ChangeColumn $b) {
-                return $a->getNewName() == $b->getColumnName();
+                return $a->getNewName() === $b->getColumnName();
             }))
             ->toList();
 

@@ -473,7 +473,7 @@ class MysqlAdapter extends PdoAdapter
 
         foreach ($rows as $row) {
             if (strcasecmp($row['Field'], $columnName) === 0) {
-                $null = ($row['Null'] == 'NO') ? 'NOT NULL' : 'NULL';
+                $null = ($row['Null'] === 'NO') ? 'NOT NULL' : 'NULL';
                 $comment = isset($row['Comment']) ? ' COMMENT ' . '\'' . addslashes($row['Comment']) . '\'' : '';
                 $extra = ' ' . strtoupper($row['Extra']);
                 if (($row['Default'] !== null)) {
@@ -590,7 +590,7 @@ class MysqlAdapter extends PdoAdapter
     {
         $instructions = new AlterInstructions();
 
-        if ($index->getType() == Index::FULLTEXT) {
+        if ($index->getType() === Index::FULLTEXT) {
             // Must be executed separately
             // SQLSTATE[HY000]: General error: 1795 InnoDB presently supports one FULLTEXT index creation at a time
             $alter = sprintf(
@@ -1080,7 +1080,7 @@ class MysqlAdapter extends PdoAdapter
                 'scale' => $scale,
             ];
 
-            if ($type == static::PHINX_TYPE_ENUM || $type == static::PHINX_TYPE_SET) {
+            if ($type === static::PHINX_TYPE_ENUM || $type === static::PHINX_TYPE_SET) {
                 $phinxType['values'] = explode("','", trim($matches[6], "()'"));
             }
 
@@ -1188,11 +1188,11 @@ class MysqlAdapter extends PdoAdapter
         $def = '';
         $limit = '';
 
-        if ($index->getType() == Index::UNIQUE) {
+        if ($index->getType() === Index::UNIQUE) {
             $def .= ' UNIQUE';
         }
 
-        if ($index->getType() == Index::FULLTEXT) {
+        if ($index->getType() === Index::FULLTEXT) {
             $def .= ' FULLTEXT';
         }
 
