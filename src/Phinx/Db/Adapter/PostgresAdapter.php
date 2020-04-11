@@ -1173,13 +1173,15 @@ class PostgresAdapter extends PdoAdapter
                 if ($column->isTimezone()) {
                     $buffer[] = strtoupper('with time zone');
                 }
-            } elseif (!in_array($sqlType['name'], [
+            } elseif (
+                !in_array($sqlType['name'], [
                 self::PHINX_TYPE_INTEGER,
                 'smallint',
                 'bigint',
                 self::PHINX_TYPE_BOOLEAN,
                 self::PHINX_TYPE_TEXT,
-            ], true)) {
+                ], true)
+            ) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
                 }
