@@ -51,6 +51,7 @@
     },
     "suggest": {
         "ext-json": "Install if using JSON configuration format",
+        "ext-pdo": "PDO extension is needed",
         "symfony/yaml": "Install if using YAML configuration format"
     },
     "scripts": {
