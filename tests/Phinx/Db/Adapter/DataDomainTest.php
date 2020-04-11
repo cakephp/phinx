@@ -2,19 +2,12 @@
 
 namespace Test\Phinx\Db\Adapter;
 
-use Phinx\Db\Adapter\AbstractAdapter;
-use Phinx\Db\Adapter\AdapterFactory;
+use InvalidArgumentException;
 use Phinx\Db\Adapter\MysqlAdapter;
-use Phinx\Db\Adapter\PostgresAdapter;
 use PHPUnit\Framework\TestCase;
 
 class DataDomainTest extends TestCase
 {
-
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage You must specify a type for data domain type "phone_number".
-     */
     public function testThrowsIfNoTypeSpecified()
     {
         $data_domain = [
@@ -23,13 +16,12 @@ class DataDomainTest extends TestCase
             ],
         ];
 
-        $adapter = new MysqlAdapter(['data_domain' => $data_domain]);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('You must specify a type for data domain type "phone_number".');
+
+        new MysqlAdapter(['data_domain' => $data_domain]);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage An invalid column type "str" was specified for data domain type "phone_number".
-     */
     public function testThrowsIfInvalidBaseType()
     {
         $data_domain = [
@@ -39,12 +31,11 @@ class DataDomainTest extends TestCase
             ],
         ];
 
-        $adapter = new MysqlAdapter(['data_domain' => $data_domain]);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('An invalid column type "str" was specified for data domain type "phone_number".');
+        new MysqlAdapter(['data_domain' => $data_domain]);
     }
 
-    /**
-     *
-     */
     public function testConvertsToInternalType()
     {
         $data_domain = [
@@ -60,9 +51,6 @@ class DataDomainTest extends TestCase
         $this->assertEquals($data_domain['phone_number']['type'], $dd['phone_number']['type']);
     }
 
-    /**
-     *
-     */
     public function testReplacesLengthForLimit()
     {
         $data_domain = [
@@ -75,13 +63,10 @@ class DataDomainTest extends TestCase
         $mysql_adapter = new MysqlAdapter(['data_domain' => $data_domain]);
         $dd = $mysql_adapter->getDataDomain();
 
-        $this->assertInternalType('array', $dd['phone_number']['options']);
+        $this->assertIsArray($dd['phone_number']['options']);
         $this->assertEquals(19, $dd['phone_number']['options']['limit']);
     }
 
-    /**
-     *
-     */
     public function testConvertsToMysqlLimit()
     {
         $data_domain = [
@@ -97,9 +82,6 @@ class DataDomainTest extends TestCase
         $this->assertEquals(MysqlAdapter::INT_BIG, $dd['prime']['options']['limit']);
     }
 
-    /**
-     *
-     */
     public function testCreatesTypeFromPhinxConstant()
     {
         $data_domain = [
@@ -116,10 +98,6 @@ class DataDomainTest extends TestCase
         $this->assertEquals(MysqlAdapter::INT_BIG, $dd['prime']['options']['limit']);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage An invalid limit value "BIG_SUR" was specified for data domain type "prime".
-     */
     public function testThrowsErrorForInvalidMysqlLimit()
     {
         $data_domain = [
@@ -129,12 +107,11 @@ class DataDomainTest extends TestCase
             ],
         ];
 
-        $mysql_adapter = new MysqlAdapter(['data_domain' => $data_domain]);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('An invalid limit value "BIG_SUR" was specified for data domain type "prime".');
+        new MysqlAdapter(['data_domain' => $data_domain]);
     }
 
-    /**
-     *
-     */
     public function testCreatesColumnWithDataDomain()
     {
         $data_domain = [
@@ -151,9 +128,6 @@ class DataDomainTest extends TestCase
         $this->assertEquals(19, $column->getLimit());
     }
 
-    /**
-     *
-     */
     public function testLocalOptionsOverridesDataDomainOptions()
     {
         $data_domain = [
