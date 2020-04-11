@@ -213,7 +213,7 @@ class StatusTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $exitCode = $commandTester->execute(['command' => $command->getName(), '--format' => 'json'], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--format' => AbstractCommand::FORMAT_JSON], ['decorated' => false]);
         $this->assertEquals(AbstractCommand::CODE_SUCCESS, $exitCode);
         $this->assertRegExp('/using format json/', $commandTester->getDisplay());
     }

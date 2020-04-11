@@ -228,7 +228,7 @@ abstract class AbstractAdapter implements AdapterInterface
                 $options['type'] = constant('static::' . $options['type']);
             }
 
-            if (!in_array($options['type'], $this->getColumnTypes())) {
+            if (!in_array($options['type'], $this->getColumnTypes(), true)) {
                 throw new \InvalidArgumentException(sprintf(
                     'An invalid column type "%s" was specified for data domain type "%s".',
                     $options['type'],

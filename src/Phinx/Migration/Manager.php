@@ -12,6 +12,7 @@ use InvalidArgumentException;
 use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
 use Phinx\Config\NamespaceAwareInterface;
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Seed\AbstractSeed;
 use Phinx\Seed\SeedInterface;
@@ -217,7 +218,7 @@ class Manager
 
         if ($format !== null) {
             switch ($format) {
-                case 'json':
+                case AbstractCommand::FORMAT_JSON:
                     $output->setVerbosity($verbosity);
                     $output->writeln(json_encode(
                         [
