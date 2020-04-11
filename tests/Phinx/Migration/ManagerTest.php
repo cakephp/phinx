@@ -215,7 +215,7 @@ class ManagerTest extends TestCase
                 ));
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
-        $return = $this->manager->printStatus('mockenv', 'json');
+        $return = $this->manager->printStatus('mockenv', AbstractCommand::FORMAT_JSON);
         $this->assertSame(['hasMissingMigration' => false, 'hasDownMigration' => false], $return);
         rewind($this->manager->getOutput()->getStream());
         $outputStr = trim(stream_get_contents($this->manager->getOutput()->getStream()));

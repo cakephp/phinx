@@ -1158,14 +1158,14 @@ class PostgresAdapter extends PdoAdapter
                     $column->getPrecision() ?: $sqlType['precision'],
                     $column->getScale() ?: $sqlType['scale']
                 );
-            } elseif (in_array($sqlType['name'], ['geography'])) {
+            } elseif (in_array($sqlType['name'], [self::PHINX_TYPE_GEOMETRY], true)) {
                 // geography type must be written with geometry type and srid, like this: geography(POLYGON,4326)
                 $buffer[] = sprintf(
                     '(%s,%s)',
                     strtoupper($sqlType['type']),
                     $column->getSrid() ?: $sqlType['srid']
                 );
-            } elseif (in_array($sqlType['name'], ['time', 'timestamp'])) {
+            } elseif (in_array($sqlType['name'], [self::PHINX_TYPE_TIME, self::PHINX_TYPE_TIMESTAMP])) {
                 if (is_numeric($column->getPrecision())) {
                     $buffer[] = sprintf('(%s)', $column->getPrecision());
                 }
@@ -1173,7 +1173,13 @@ class PostgresAdapter extends PdoAdapter
                 if ($column->isTimezone()) {
                     $buffer[] = strtoupper('with time zone');
                 }
-            } elseif (!in_array($sqlType['name'], ['integer', 'smallint', 'bigint', 'boolean', 'text'])) {
+            } elseif (!in_array($sqlType['name'], [
+                self::PHINX_TYPE_INTEGER,
+                'smallint',
+                'bigint',
+                self::PHINX_TYPE_BOOLEAN,
+                self::PHINX_TYPE_TEXT,
+            ], true)) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
                 }

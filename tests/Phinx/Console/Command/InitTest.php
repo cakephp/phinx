@@ -3,6 +3,7 @@
 namespace Test\Phinx\Console\Command;
 
 use InvalidArgumentException;
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Init;
 use Phinx\Console\PhinxApplication;
 use PHPUnit\Framework\TestCase;
@@ -117,7 +118,7 @@ class InitTest extends TestCase
         $command = $application->find('init');
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--format' => 'yaml'], ['decorated' => false]);
+        $commandTester->execute(['command' => $command->getName(), '--format' => AbstractCommand::FORMAT_YML], ['decorated' => false]);
         $this->assertRegExp(
             "/created (.*)[\/\\\\]phinx.yaml\\n/",
             $commandTester->getDisplay(true)

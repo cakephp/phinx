@@ -27,6 +27,11 @@ use UnexpectedValueException;
  */
 abstract class AbstractCommand extends Command
 {
+    public const FORMAT_JSON = 'json';
+    public const FORMAT_YML_ALIAS = 'yaml';
+    public const FORMAT_YML = 'yml';
+    public const FORMAT_PHP = 'php';
+
     /**
      * The location of the default migration template.
      */
@@ -268,27 +273,28 @@ abstract class AbstractCommand extends Command
             $extension = pathinfo($configFilePath, PATHINFO_EXTENSION);
 
             switch (strtolower($extension)) {
-                case 'json':
-                    $parser = 'json';
+                case self::FORMAT_JSON:
+                    $parser = self::FORMAT_JSON;
                     break;
-                case 'php':
-                    $parser = 'php';
+                case self::FORMAT_PHP:
+                    $parser = self::FORMAT_PHP;
                     break;
-                case 'yaml':
-                case 'yml':
+                case self::FORMAT_YML_ALIAS:
+                case self::FORMAT_YML:
                 default:
-                    $parser = 'yaml';
+                    $parser = self::FORMAT_YML;
             }
         }
 
         switch (strtolower($parser)) {
-            case 'json':
+            case self::FORMAT_JSON:
                 $config = Config::fromJson($configFilePath);
                 break;
-            case 'php':
+            case self::FORMAT_PHP:
                 $config = Config::fromPhp($configFilePath);
                 break;
-            case 'yaml':
+            case self::FORMAT_YML_ALIAS:
+            case self::FORMAT_YML:
                 $config = Config::fromYaml($configFilePath);
                 break;
             default:
