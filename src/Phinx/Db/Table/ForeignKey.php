@@ -43,7 +43,7 @@ class ForeignKey
     protected $onUpdate;
 
     /**
-     * @var string|bool
+     * @var string|null
      */
     protected $constraint;
 
@@ -184,7 +184,7 @@ class ForeignKey
     /**
      * Gets constraint name for the foreign key.
      *
-     * @return string|bool
+     * @return string|null
      */
     public function getConstraint()
     {

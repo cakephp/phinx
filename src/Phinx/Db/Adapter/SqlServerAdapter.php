@@ -421,7 +421,7 @@ class SqlServerAdapter extends PdoAdapter
      * @param string $tableName Table name
      * @param string $columnName Column name
      *
-     * @return bool|string
+     * @return string|false
      */
     public function getColumnComment($tableName, $columnName)
     {
@@ -668,7 +668,10 @@ SQL;
     }
 
     /**
-     * @inheritDoc
+     * @param string $tableName Table name
+     * @param string|null $columnName Column name
+     *
+     * @return \Phinx\Db\Util\AlterInstructions
      */
     protected function getDropDefaultConstraint($tableName, $columnName)
     {
@@ -685,7 +688,7 @@ SQL;
      * @param string $tableName Table name
      * @param string $columnName Column name
      *
-     * @return bool|string
+     * @return string|false
      */
     protected function getDefaultConstraint($tableName, $columnName)
     {

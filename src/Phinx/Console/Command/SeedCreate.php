@@ -76,7 +76,7 @@ class SeedCreate extends AbstractCommand
      *
      * @throws \Exception
      *
-     * @return mixed
+     * @return string
      */
     protected function getSeedPath(InputInterface $input, OutputInterface $output)
     {
