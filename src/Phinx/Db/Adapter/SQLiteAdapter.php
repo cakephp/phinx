@@ -1369,7 +1369,7 @@ PCRE_PATTERN;
             $name = $type;
         } elseif (isset(self::$supportedColumnTypes[$typeLC])) {
             $name = self::$supportedColumnTypes[$typeLC];
-        } elseif (in_array($typeLC, self::$unsupportedColumnTypes)) {
+        } elseif (in_array($typeLC, self::$unsupportedColumnTypes, true)) {
             throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by SQLite.');
         } else {
             throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not known by SQLite.');
@@ -1412,7 +1412,7 @@ PCRE_PATTERN;
             } elseif (isset(self::$supportedColumnTypeAliases[$typeLC])) {
                 // the type is an alias for a supported type
                 $name = self::$supportedColumnTypeAliases[$typeLC];
-            } elseif (in_array($typeLC, self::$unsupportedColumnTypes)) {
+            } elseif (in_array($typeLC, self::$unsupportedColumnTypes, true)) {
                 // unsupported but known types are passed through lowercased, and without appended affinity
                 $name = Literal::from($typeLC);
             } else {

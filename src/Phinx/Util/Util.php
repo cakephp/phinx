@@ -138,7 +138,7 @@ class Util
     {
         $existingClassNames = static::getExistingMigrationClassNames($path);
 
-        return !(in_array($className, $existingClassNames));
+        return !(in_array($className, $existingClassNames, true));
     }
 
     /**
