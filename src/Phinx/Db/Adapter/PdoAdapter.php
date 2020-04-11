@@ -273,7 +273,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      *
      * @return mixed
      */
-    private function quoteValue($value)
+    protected function quoteValue($value)
     {
         if (is_numeric($value)) {
             return $value;

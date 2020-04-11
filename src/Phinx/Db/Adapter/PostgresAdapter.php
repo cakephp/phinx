@@ -1410,7 +1410,7 @@ class PostgresAdapter extends PdoAdapter
      *
      * @return array
      */
-    private function getSchemaName($tableName)
+    protected function getSchemaName($tableName)
     {
         $schema = $this->getGlobalSchemaName();
         $table = $tableName;
@@ -1429,7 +1429,7 @@ class PostgresAdapter extends PdoAdapter
      *
      * @return string
      */
-    private function getGlobalSchemaName()
+    protected function getGlobalSchemaName()
     {
         $options = $this->getOptions();
 
