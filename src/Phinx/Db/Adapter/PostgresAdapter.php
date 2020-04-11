@@ -32,6 +32,7 @@ class PostgresAdapter extends PdoAdapter
         self::PHINX_TYPE_INET,
         self::PHINX_TYPE_MACADDR,
         self::PHINX_TYPE_INTERVAL,
+        self::PHINX_TYPE_BINARYUUID,
     ];
 
     /**
@@ -979,6 +980,8 @@ class PostgresAdapter extends PdoAdapter
                 return ['name' => 'real'];
             case static::PHINX_TYPE_DATETIME:
                 return ['name' => 'timestamp'];
+            case static::PHINX_TYPE_BINARYUUID:
+                return ['name' => 'uuid'];
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
                 return ['name' => 'bytea'];

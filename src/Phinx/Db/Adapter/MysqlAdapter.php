@@ -34,6 +34,7 @@ class MysqlAdapter extends PdoAdapter
         self::PHINX_TYPE_SET,
         self::PHINX_TYPE_YEAR,
         self::PHINX_TYPE_JSON,
+        self::PHINX_TYPE_BINARYUUID,
     ];
 
     /**
@@ -930,6 +931,8 @@ class MysqlAdapter extends PdoAdapter
                 return ['name' => 'text'];
             case static::PHINX_TYPE_BINARY:
                 return ['name' => 'binary', 'limit' => $limit ?: 255];
+            case static::PHINX_TYPE_BINARYUUID:
+                return ['name' => 'binary', 'limit' => 16];
             case static::PHINX_TYPE_VARBINARY:
                 return ['name' => 'varbinary', 'limit' => $limit ?: 255];
             case static::PHINX_TYPE_BLOB:
@@ -1104,6 +1107,10 @@ class MysqlAdapter extends PdoAdapter
                 $type = static::PHINX_TYPE_TEXT;
                 $limit = static::TEXT_LONG;
                 break;
+            case 'binary':
+                if ($limit === 16) {
+                    $type = static::PHINX_TYPE_BINARYUUID;
+                }
         }
 
         try {
