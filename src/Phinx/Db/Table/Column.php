@@ -16,6 +16,42 @@ use UnexpectedValueException;
  */
 class Column
 {
+    public const BIGINTEGER = AdapterInterface::PHINX_TYPE_BIG_INTEGER;
+    public const SMALLINTEGER = AdapterInterface::PHINX_TYPE_SMALL_INTEGER;
+    public const BINARY = AdapterInterface::PHINX_TYPE_BINARY;
+    public const BOOLEAN = AdapterInterface::PHINX_TYPE_BOOLEAN;
+    public const CHAR = AdapterInterface::PHINX_TYPE_CHAR;
+    public const DATE = AdapterInterface::PHINX_TYPE_DATE;
+    public const DATETIME = AdapterInterface::PHINX_TYPE_DATETIME;
+    public const DECIMAL = AdapterInterface::PHINX_TYPE_DECIMAL;
+    public const FLOAT = AdapterInterface::PHINX_TYPE_FLOAT;
+    public const INTEGER = AdapterInterface::PHINX_TYPE_INTEGER;
+    public const STRING = AdapterInterface::PHINX_TYPE_STRING;
+    public const TEXT = AdapterInterface::PHINX_TYPE_TEXT;
+    public const TIME = AdapterInterface::PHINX_TYPE_TIME;
+    public const TIMESTAMP = AdapterInterface::PHINX_TYPE_TIMESTAMP;
+    public const UUID = AdapterInterface::PHINX_TYPE_UUID;
+    /** MySQL-only column type */
+    public const ENUM = AdapterInterface::PHINX_TYPE_ENUM;
+    /** MySQL-only column type */
+    public const SET = AdapterInterface::PHINX_TYPE_STRING;
+    /** MySQL-only column type */
+    public const BLOB = AdapterInterface::PHINX_TYPE_BLOB;
+    /** MySQL-only column type */
+    public const YEAR = AdapterInterface::PHINX_TYPE_YEAR;
+    /** MySQL/Postgres-only column type */
+    public const JSON = AdapterInterface::PHINX_TYPE_JSON;
+    /** Postgres-only column type */
+    public const JSONB = AdapterInterface::PHINX_TYPE_JSONB;
+    /** Postgres-only column type */
+    public const CIDR = AdapterInterface::PHINX_TYPE_CIDR;
+    /** Postgres-only column type */
+    public const INET = AdapterInterface::PHINX_TYPE_INET;
+    /** Postgres-only column type */
+    public const MACADDR = AdapterInterface::PHINX_TYPE_MACADDR;
+    /** Postgres-only column type */
+    public const INTERVAL = AdapterInterface::PHINX_TYPE_INTERVAL;
+
     /**
      * @var string
      */
@@ -610,7 +646,7 @@ class Column
             AdapterInterface::PHINX_TYPE_STRING,
             AdapterInterface::PHINX_TYPE_TEXT,
         ];
-        if (!in_array($this->getType(), $allowedTypes)) {
+        if (!in_array($this->getType(), $allowedTypes, true)) {
             throw new UnexpectedValueException('Collation may be set only for types: ' . implode(', ', $allowedTypes));
         }
 
@@ -645,7 +681,7 @@ class Column
             AdapterInterface::PHINX_TYPE_STRING,
             AdapterInterface::PHINX_TYPE_TEXT,
         ];
-        if (!in_array($this->getType(), $allowedTypes)) {
+        if (!in_array($this->getType(), $allowedTypes, true)) {
             throw new UnexpectedValueException('Character set may be set only for types: ' . implode(', ', $allowedTypes));
         }
 

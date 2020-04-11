@@ -1552,7 +1552,7 @@ PCRE_PATTERN;
      */
     public function getColumnTypes()
     {
-        return array_keys(self::$supportedColumnTypes);
+        return array_keys(static::$supportedColumnTypes);
     }
 
     /**

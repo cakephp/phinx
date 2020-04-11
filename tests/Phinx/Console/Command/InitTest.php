@@ -22,7 +22,7 @@ class InitTest extends TestCase
 
     protected function writeConfig($configName = '')
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Init());
         $command = $application->find("init");
         $commandTester = new CommandTester($command);
@@ -86,7 +86,7 @@ class InitTest extends TestCase
         $current_dir = getcwd();
         chdir(sys_get_temp_dir());
 
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Init());
 
         $command = $application->find('init');
@@ -111,7 +111,7 @@ class InitTest extends TestCase
         $current_dir = getcwd();
         chdir(sys_get_temp_dir());
 
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Init());
 
         $command = $application->find('init');
@@ -134,7 +134,7 @@ class InitTest extends TestCase
     public function testThrowsExceptionWhenConfigFilePresent()
     {
         touch(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.yml');
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Init());
 
         $command = $application->find('init');
@@ -154,7 +154,7 @@ class InitTest extends TestCase
 
     public function testThrowsExceptionWhenInvalidDir()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Init());
 
         $command = $application->find('init');
@@ -174,7 +174,7 @@ class InitTest extends TestCase
 
     public function testThrowsExceptionWhenInvalidFormat()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Init());
 
         $command = $application->find('init');

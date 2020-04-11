@@ -22,9 +22,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Manager
 {
-    const BREAKPOINT_TOGGLE = 1;
-    const BREAKPOINT_SET = 2;
-    const BREAKPOINT_UNSET = 3;
+    public const BREAKPOINT_TOGGLE = 1;
+    public const BREAKPOINT_SET = 2;
+    public const BREAKPOINT_UNSET = 3;
 
     /**
      * @var \Phinx\Config\ConfigInterface

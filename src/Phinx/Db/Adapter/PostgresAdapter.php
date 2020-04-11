@@ -23,6 +23,18 @@ use RuntimeException;
 class PostgresAdapter extends PdoAdapter
 {
     /**
+     * @var string[]
+     */
+    protected static $specificColumnTypes = [
+        self::PHINX_TYPE_JSON,
+        self::PHINX_TYPE_JSONB,
+        self::PHINX_TYPE_CIDR,
+        self::PHINX_TYPE_INET,
+        self::PHINX_TYPE_MACADDR,
+        self::PHINX_TYPE_INTERVAL,
+    ];
+
+    /**
      * Columns with comments
      *
      * @var array
@@ -1355,7 +1367,7 @@ class PostgresAdapter extends PdoAdapter
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), ['json', 'jsonb', 'cidr', 'inet', 'macaddr', 'interval']);
+        return array_merge(parent::getColumnTypes(), static::$specificColumnTypes);
     }
 
     /**
@@ -1395,7 +1407,7 @@ class PostgresAdapter extends PdoAdapter
         $schema = $this->getGlobalSchemaName();
         $table = $tableName;
         if (strpos($tableName, '.') !== false) {
-            list($schema, $table) = explode('.', $tableName);
+            [$schema, $table] = explode('.', $tableName);
         }
 
         return [

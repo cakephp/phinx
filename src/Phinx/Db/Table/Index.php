@@ -14,17 +14,17 @@ class Index
     /**
      * @var string
      */
-    const UNIQUE = 'unique';
+    public const UNIQUE = 'unique';
 
     /**
      * @var string
      */
-    const INDEX = 'index';
+    public const INDEX = 'index';
 
     /**
      * @var string
      */
-    const FULLTEXT = 'fulltext';
+    public const FULLTEXT = 'fulltext';
 
     /**
      * @var array

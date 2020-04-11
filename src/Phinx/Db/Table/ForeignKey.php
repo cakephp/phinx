@@ -12,13 +12,13 @@ use RuntimeException;
 
 class ForeignKey
 {
-    const CASCADE = 'CASCADE';
-    const RESTRICT = 'RESTRICT';
-    const SET_NULL = 'SET NULL';
-    const NO_ACTION = 'NO ACTION';
+    public const CASCADE = 'CASCADE';
+    public const RESTRICT = 'RESTRICT';
+    public const SET_NULL = 'SET NULL';
+    public const NO_ACTION = 'NO ACTION';
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $columns = [];
 
@@ -28,7 +28,7 @@ class ForeignKey
     protected $referencedTable;
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $referencedColumns = [];
 
@@ -50,7 +50,7 @@ class ForeignKey
     /**
      * Sets the foreign key columns.
      *
-     * @param array|string $columns
+     * @param string[]|string $columns
      *
      * @return $this
      */
@@ -64,7 +64,7 @@ class ForeignKey
     /**
      * Gets the foreign key columns.
      *
-     * @return array
+     * @return string[]
      */
     public function getColumns()
     {
@@ -98,7 +98,7 @@ class ForeignKey
     /**
      * Sets the foreign key referenced columns.
      *
-     * @param array $referencedColumns
+     * @param string[] $referencedColumns
      *
      * @return $this
      */
@@ -112,7 +112,7 @@ class ForeignKey
     /**
      * Gets the foreign key referenced columns.
      *
-     * @return array
+     * @return string[]
      */
     public function getReferencedColumns()
     {

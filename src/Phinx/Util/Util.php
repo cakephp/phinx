@@ -16,17 +16,17 @@ class Util
     /**
      * @var string
      */
-    const DATE_FORMAT = 'YmdHis';
+    public const DATE_FORMAT = 'YmdHis';
 
     /**
      * @var string
      */
-    const MIGRATION_FILE_NAME_PATTERN = '/^\d+_([\w_]+).php$/i';
+    public const MIGRATION_FILE_NAME_PATTERN = '/^\d+_([\w_]+).php$/i';
 
     /**
      * @var string
      */
-    const SEED_FILE_NAME_PATTERN = '/^([A-Z][a-z0-9]+).php$/i';
+    public const SEED_FILE_NAME_PATTERN = '/^([A-Z][a-z0-9]+).php$/i';
 
     /**
      * Gets the current timestamp string, in UTC.

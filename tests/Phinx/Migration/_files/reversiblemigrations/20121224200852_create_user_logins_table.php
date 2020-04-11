@@ -1,5 +1,6 @@
 <?php
 
+use Phinx\Db\Table\Column;
 use Phinx\Migration\AbstractMigration;
 
 class CreateUserLoginsTable extends AbstractMigration
@@ -11,8 +12,8 @@ class CreateUserLoginsTable extends AbstractMigration
     {
         // user logins table
         $table = $this->table('user_logins');
-        $table->addColumn('user_id', 'integer')
-              ->addColumn('created', 'datetime')
+        $table->addColumn('user_id', Column::INTEGER)
+              ->addColumn('created', Column::DATETIME)
               ->create();
 
         // add a foreign key back to the users table

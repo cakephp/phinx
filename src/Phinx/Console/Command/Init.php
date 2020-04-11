@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Init extends Command
 {
-    const FILE_NAME = 'phinx';
+    public const FILE_NAME = 'phinx';
 
     /**
      * @var string

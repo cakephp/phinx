@@ -29,9 +29,27 @@ use RuntimeException;
  */
 class SqlServerAdapter extends PdoAdapter
 {
+    /**
+     * @var string[]
+     */
+    protected static $specificColumnTypes = [
+        self::PHINX_TYPE_FILESTREAM,
+    ];
+
+    /**
+     * @var string
+     */
     protected $schema = 'dbo';
 
-    protected $signedColumnTypes = ['integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true];
+    /**
+     * @var bool[]
+     */
+    protected $signedColumnTypes = [
+        'integer' => true,
+        'biginteger' => true,
+        'float' => true,
+        'decimal' => true,
+    ];
 
     /**
      * {@inheritDoc}
@@ -847,14 +865,14 @@ ORDER BY T.[name], I.[index_id];";
 
         if ($constraint) {
             return ($primaryKey['constraint'] === $constraint);
-        } else {
-            if (is_string($columns)) {
-                $columns = [$columns]; // str to array
-            }
-            $missingColumns = array_diff($columns, $primaryKey['columns']);
-
-            return empty($missingColumns);
         }
+
+        if (is_string($columns)) {
+            $columns = [$columns]; // str to array
+        }
+        $missingColumns = array_diff($columns, $primaryKey['columns']);
+
+        return empty($missingColumns);
     }
 
     /**
@@ -905,16 +923,16 @@ ORDER BY T.[name], I.[index_id];";
             }
 
             return false;
-        } else {
-            foreach ($foreignKeys as $key) {
-                $a = array_diff($columns, $key['columns']);
-                if (empty($a)) {
-                    return true;
-                }
-            }
-
-            return false;
         }
+
+        foreach ($foreignKeys as $key) {
+            $a = array_diff($columns, $key['columns']);
+            if (empty($a)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -1280,7 +1298,7 @@ SQL;
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), ['filestream']);
+        return array_merge(parent::getColumnTypes(), static::$specificColumnTypes);
     }
 
     /**
