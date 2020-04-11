@@ -24,6 +24,7 @@ tests/log
 # ignore core development artifacts
 /db/
 /migrations/
+/phinx.yml
 
 # sphinx generates HTML files for the documentation here
 docs/_build

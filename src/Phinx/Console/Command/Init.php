@@ -139,10 +139,8 @@ class Init extends Command
         }
 
         // load the config template
-        if (is_dir(__DIR__ . '/../../../data/Phinx')) {
-            $contents = file_get_contents(__DIR__ . '/../../../data/Phinx/' . self::FILE_NAME . '.' . $format . '.dist');
-        } elseif ($format === 'yml' || $format === 'yaml') {
-            $contents = file_get_contents(__DIR__ . '/../../../../' . self::FILE_NAME . '.yml');
+        if (is_dir(__DIR__ . '/../../../../data')) {
+            $contents = file_get_contents(__DIR__ . '/../../../../data/' . self::FILE_NAME . '.' . $format . '.dist');
         } else {
             throw new RuntimeException(sprintf(
                 'Could not find template for format "%s".',
