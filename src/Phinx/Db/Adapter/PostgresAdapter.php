@@ -37,7 +37,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * Columns with comments
      *
-     * @var array
+     * @var \Phinx\Db\Table\Column[]
      */
     protected $columnsWithComments = [];
 
@@ -449,7 +449,7 @@ class PostgresAdapter extends PdoAdapter
                 $column->setLimit($columnInfo['character_maximum_length']);
             }
 
-            if (in_array($columnType, [static::PHINX_TYPE_TIME, static::PHINX_TYPE_DATETIME])) {
+            if (in_array($columnType, [static::PHINX_TYPE_TIME, static::PHINX_TYPE_DATETIME], true)) {
                 $column->setPrecision($columnInfo['datetime_precision']);
             } else {
                 $column->setPrecision($columnInfo['numeric_precision']);
@@ -1165,7 +1165,7 @@ class PostgresAdapter extends PdoAdapter
                     strtoupper($sqlType['type']),
                     $column->getSrid() ?: $sqlType['srid']
                 );
-            } elseif (in_array($sqlType['name'], [self::PHINX_TYPE_TIME, self::PHINX_TYPE_TIMESTAMP])) {
+            } elseif (in_array($sqlType['name'], [self::PHINX_TYPE_TIME, self::PHINX_TYPE_TIMESTAMP], true)) {
                 if (is_numeric($column->getPrecision())) {
                     $buffer[] = sprintf('(%s)', $column->getPrecision());
                 }
@@ -1175,11 +1175,11 @@ class PostgresAdapter extends PdoAdapter
                 }
             } elseif (
                 !in_array($sqlType['name'], [
-                self::PHINX_TYPE_INTEGER,
-                'smallint',
-                'bigint',
-                self::PHINX_TYPE_BOOLEAN,
-                self::PHINX_TYPE_TEXT,
+                    self::PHINX_TYPE_INTEGER,
+                    'smallint',
+                    'bigint',
+                    self::PHINX_TYPE_BOOLEAN,
+                    self::PHINX_TYPE_TEXT,
                 ], true)
             ) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {

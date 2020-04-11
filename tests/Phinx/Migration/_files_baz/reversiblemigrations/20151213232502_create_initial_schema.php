@@ -24,7 +24,7 @@ class CreateInitialSchema extends AbstractMigration
               ->addColumn('profile_image_url', Column::STRING, ['limit' => 120, 'null' => true, 'default' => null])
               ->addColumn('twitter', Column::STRING, ['limit' => 30, 'null' => true, 'default' => null])
               ->addColumn('role', Column::STRING, ['limit' => 20])
-              ->addColumn('confirmed', Column::BOOL, ['null' => true, 'default' => null])
+              ->addColumn('confirmed', Column::BOOLEAN, ['null' => true, 'default' => null])
               ->addColumn('confirmation_key', Column::STRING, ['limit' => 40])
               ->addColumn('created', Column::DATETIME)
               ->addColumn('updated', Column::DATETIME, ['default' => null])

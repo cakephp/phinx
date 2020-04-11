@@ -40,7 +40,7 @@ class AdapterFactory
     /**
      * Class map of database adapters, indexed by PDO::ATTR_DRIVER_NAME.
      *
-     * @var array
+     * @var string[]
      */
     protected $adapters = [
         'mysql' => 'Phinx\Db\Adapter\MysqlAdapter',
@@ -52,7 +52,7 @@ class AdapterFactory
     /**
      * Class map of adapters wrappers, indexed by name.
      *
-     * @var array
+     * @var string[]
      */
     protected $wrappers = [
         'prefix' => 'Phinx\Db\Adapter\TablePrefixAdapter',
