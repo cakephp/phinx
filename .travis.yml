@@ -1,7 +1,5 @@
 language: php
 
-dist: xenial
-
 addons:
   postgresql: "9.6"
 
