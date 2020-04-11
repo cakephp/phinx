@@ -36,8 +36,11 @@ class RollbackTest extends TestCase
     /**
      * Default Test Environment
      */
-    public const DEFAULT_TEST_ENVIRONMENT = 'development';
+    protected const DEFAULT_TEST_ENVIRONMENT = 'development';
 
+    /**
+     * @return void
+     */
     public function setUp(): void
     {
         $this->config = new Config([
@@ -46,11 +49,11 @@ class RollbackTest extends TestCase
             ],
             'environments' => [
                 'default_migration_table' => 'phinxlog',
-                'default_environment' => 'development',
-                'development' => [
+                'default_environment' => static::DEFAULT_TEST_ENVIRONMENT,
+                static::DEFAULT_TEST_ENVIRONMENT => [
                     'adapter' => 'mysql',
                     'host' => 'fakehost',
-                    'name' => 'development',
+                    'name' => static::DEFAULT_TEST_ENVIRONMENT,
                     'user' => '',
                     'pass' => '',
                     'port' => 3006,
