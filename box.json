@@ -5,10 +5,9 @@
         "Herrera\\Box\\Compactor\\Json",
         "Herrera\\Box\\Compactor\\Php"
     ],
-    "directories": ["src","app"],
+    "directories": ["src", "app", "data"],
     "files": [
-        "LICENSE",
-        "phinx.yml"
+        "LICENSE"
     ],
     "finder": [
         {
