@@ -3,6 +3,7 @@
 namespace Test\Phinx\Console\Command;
 
 use InvalidArgumentException;
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Init;
 use Phinx\Console\PhinxApplication;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +23,7 @@ class InitTest extends TestCase
 
     protected function writeConfig($configName = '')
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Init());
         $command = $application->find("init");
         $commandTester = new CommandTester($command);
@@ -86,7 +87,7 @@ class InitTest extends TestCase
         $current_dir = getcwd();
         chdir(sys_get_temp_dir());
 
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Init());
 
         $command = $application->find('init');
@@ -111,13 +112,13 @@ class InitTest extends TestCase
         $current_dir = getcwd();
         chdir(sys_get_temp_dir());
 
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Init());
 
         $command = $application->find('init');
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--format' => 'yaml'], ['decorated' => false]);
+        $commandTester->execute(['command' => $command->getName(), '--format' => AbstractCommand::FORMAT_YML_ALIAS], ['decorated' => false]);
         $this->assertRegExp(
             "/created (.*)[\/\\\\]phinx.yaml\\n/",
             $commandTester->getDisplay(true)
@@ -134,7 +135,7 @@ class InitTest extends TestCase
     public function testThrowsExceptionWhenConfigFilePresent()
     {
         touch(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.yml');
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Init());
 
         $command = $application->find('init');
@@ -154,7 +155,7 @@ class InitTest extends TestCase
 
     public function testThrowsExceptionWhenInvalidDir()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Init());
 
         $command = $application->find('init');
@@ -174,7 +175,7 @@ class InitTest extends TestCase
 
     public function testThrowsExceptionWhenInvalidFormat()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Init());
 
         $command = $application->find('init');
@@ -182,14 +183,14 @@ class InitTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid format "invalid". Format must be either yaml, yml, json, or php.');
+        $this->expectExceptionMessage('Invalid format "invalid". Format must be either json, yaml, yml, php.');
 
         $commandTester->execute([
             'command' => $command->getName(),
             'path' => sys_get_temp_dir() . DIRECTORY_SEPARATOR,
-            '--format' => 'invalid'
+            '--format' => 'invalid',
         ], [
-            'decorated' => false
+            'decorated' => false,
         ]);
     }
 }

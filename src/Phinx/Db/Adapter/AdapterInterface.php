@@ -21,44 +21,45 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 interface AdapterInterface
 {
-    const PHINX_TYPE_STRING = 'string';
-    const PHINX_TYPE_CHAR = 'char';
-    const PHINX_TYPE_TEXT = 'text';
-    const PHINX_TYPE_SMALL_INTEGER = 'smallinteger';
-    const PHINX_TYPE_INTEGER = 'integer';
-    const PHINX_TYPE_BIG_INTEGER = 'biginteger';
-    const PHINX_TYPE_BIT = 'bit';
-    const PHINX_TYPE_FLOAT = 'float';
-    const PHINX_TYPE_DECIMAL = 'decimal';
-    const PHINX_TYPE_DOUBLE = 'double';
-    const PHINX_TYPE_DATETIME = 'datetime';
-    const PHINX_TYPE_TIMESTAMP = 'timestamp';
-    const PHINX_TYPE_TIME = 'time';
-    const PHINX_TYPE_DATE = 'date';
-    const PHINX_TYPE_BINARY = 'binary';
-    const PHINX_TYPE_VARBINARY = 'varbinary';
-    const PHINX_TYPE_BLOB = 'blob';
-    const PHINX_TYPE_BOOLEAN = 'boolean';
-    const PHINX_TYPE_JSON = 'json';
-    const PHINX_TYPE_JSONB = 'jsonb';
-    const PHINX_TYPE_UUID = 'uuid';
-    const PHINX_TYPE_FILESTREAM = 'filestream';
+    public const PHINX_TYPE_STRING = 'string';
+    public const PHINX_TYPE_CHAR = 'char';
+    public const PHINX_TYPE_TEXT = 'text';
+    public const PHINX_TYPE_SMALL_INTEGER = 'smallinteger';
+    public const PHINX_TYPE_INTEGER = 'integer';
+    public const PHINX_TYPE_BIG_INTEGER = 'biginteger';
+    public const PHINX_TYPE_BIT = 'bit';
+    public const PHINX_TYPE_FLOAT = 'float';
+    public const PHINX_TYPE_DECIMAL = 'decimal';
+    public const PHINX_TYPE_DOUBLE = 'double';
+    public const PHINX_TYPE_DATETIME = 'datetime';
+    public const PHINX_TYPE_TIMESTAMP = 'timestamp';
+    public const PHINX_TYPE_TIME = 'time';
+    public const PHINX_TYPE_DATE = 'date';
+    public const PHINX_TYPE_BINARY = 'binary';
+    public const PHINX_TYPE_VARBINARY = 'varbinary';
+    public const PHINX_TYPE_BLOB = 'blob';
+    public const PHINX_TYPE_BOOLEAN = 'boolean';
+    public const PHINX_TYPE_JSON = 'json';
+    public const PHINX_TYPE_JSONB = 'jsonb';
+    public const PHINX_TYPE_UUID = 'uuid';
+    public const PHINX_TYPE_FILESTREAM = 'filestream';
 
     // Geospatial database types
-    const PHINX_TYPE_GEOMETRY = 'geometry';
-    const PHINX_TYPE_POINT = 'point';
-    const PHINX_TYPE_LINESTRING = 'linestring';
-    const PHINX_TYPE_POLYGON = 'polygon';
+    public const PHINX_TYPE_GEOMETRY = 'geometry';
+    public const PHINX_TYPE_POINT = 'point';
+    public const PHINX_TYPE_LINESTRING = 'linestring';
+    public const PHINX_TYPE_POLYGON = 'polygon';
 
     // only for mysql so far
-    const PHINX_TYPE_ENUM = 'enum';
-    const PHINX_TYPE_SET = 'set';
+    public const PHINX_TYPE_ENUM = 'enum';
+    public const PHINX_TYPE_SET = 'set';
+    public const PHINX_TYPE_YEAR = 'year';
 
     // only for postgresql so far
-    const PHINX_TYPE_CIDR = 'cidr';
-    const PHINX_TYPE_INET = 'inet';
-    const PHINX_TYPE_MACADDR = 'macaddr';
-    const PHINX_TYPE_INTERVAL = 'interval';
+    public const PHINX_TYPE_CIDR = 'cidr';
+    public const PHINX_TYPE_INET = 'inet';
+    public const PHINX_TYPE_MACADDR = 'macaddr';
+    public const PHINX_TYPE_INTERVAL = 'interval';
 
     /**
      * Get all migrated version numbers.
@@ -78,7 +79,7 @@ interface AdapterInterface
     /**
      * Set adapter configuration options.
      *
-     * @param array $options
+     * @param array $options Options
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
@@ -94,7 +95,7 @@ interface AdapterInterface
     /**
      * Check if an option has been set.
      *
-     * @param string $name
+     * @param string $name Name
      *
      * @return bool
      */
@@ -103,7 +104,7 @@ interface AdapterInterface
     /**
      * Get a single adapter option, or null if the option does not exist.
      *
-     * @param string $name
+     * @param string $name Name
      *
      * @return mixed
      */
@@ -166,7 +167,7 @@ interface AdapterInterface
     /**
      * Toggle a migration breakpoint.
      *
-     * @param \Phinx\Migration\MigrationInterface $migration
+     * @param \Phinx\Migration\MigrationInterface $migration Migration
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
@@ -321,7 +322,7 @@ interface AdapterInterface
      * Inserts data into a table.
      *
      * @param \Phinx\Db\Table\Table $table Table where to insert data
-     * @param array $row
+     * @param array $row Row
      *
      * @return void
      */
@@ -331,7 +332,7 @@ interface AdapterInterface
      * Inserts data into a table in a bulk.
      *
      * @param \Phinx\Db\Table\Table $table Table where to insert data
-     * @param array $rows
+     * @param array $rows Rows
      *
      * @return void
      */
@@ -340,7 +341,7 @@ interface AdapterInterface
     /**
      * Quotes a table name for use in a query.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return string
      */
@@ -349,7 +350,7 @@ interface AdapterInterface
     /**
      * Quotes a column name for use in a query.
      *
-     * @param string $columnName Table Name
+     * @param string $columnName Table name
      *
      * @return string
      */
@@ -358,7 +359,7 @@ interface AdapterInterface
     /**
      * Checks to see if a table exists.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return bool
      */
@@ -378,7 +379,7 @@ interface AdapterInterface
     /**
      * Truncates the specified table
      *
-     * @param string $tableName
+     * @param string $tableName Table name
      *
      * @return void
      */
@@ -387,7 +388,7 @@ interface AdapterInterface
     /**
      * Returns table columns
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return \Phinx\Db\Table\Column[]
      */
@@ -396,8 +397,8 @@ interface AdapterInterface
     /**
      * Checks to see if a column exists.
      *
-     * @param string $tableName Table Name
-     * @param string $columnName Column Name
+     * @param string $tableName Table name
+     * @param string $columnName Column name
      *
      * @return bool
      */
@@ -406,7 +407,7 @@ interface AdapterInterface
     /**
      * Checks to see if an index exists.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      * @param string|string[] $columns Column(s)
      *
      * @return bool
@@ -416,8 +417,8 @@ interface AdapterInterface
     /**
      * Checks to see if an index specified by name exists.
      *
-     * @param string $tableName Table Name
-     * @param string $indexName
+     * @param string $tableName Table name
+     * @param string $indexName Index name
      *
      * @return bool
      */
@@ -426,7 +427,7 @@ interface AdapterInterface
     /**
      * Checks to see if the specified primary key exists.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      * @param string|string[] $columns Column(s)
      * @param string|null $constraint Constraint name
      *
@@ -437,7 +438,7 @@ interface AdapterInterface
     /**
      * Checks to see if a foreign key exists.
      *
-     * @param string $tableName
+     * @param string $tableName Table name
      * @param string|string[] $columns Column(s)
      * @param string|null $constraint Constraint name
      *
@@ -448,14 +449,14 @@ interface AdapterInterface
     /**
      * Returns an array of the supported Phinx column types.
      *
-     * @return array
+     * @return string[]
      */
     public function getColumnTypes();
 
     /**
      * Checks that the given column is of a supported type.
      *
-     * @param \Phinx\Db\Table\Column $column
+     * @param \Phinx\Db\Table\Column $column Column
      *
      * @return bool
      */
@@ -464,8 +465,8 @@ interface AdapterInterface
     /**
      * Converts the Phinx logical type to the adapter's SQL type.
      *
-     * @param string $type
-     * @param int|null $limit
+     * @param string $type Type
+     * @param int|null $limit Limit
      *
      * @return array
      */

@@ -30,6 +30,8 @@ use RuntimeException;
  */
 class SQLiteAdapter extends PdoAdapter
 {
+    protected const MEMORY = ':memory:';
+
     /**
      * List of supported Phinx column types with their SQL equivalents
      * some types have an affinity appended to ensure they do not receive NUMERIC affinity
@@ -152,7 +154,7 @@ class SQLiteAdapter extends PdoAdapter
 
             // use a memory database if the option was specified
             if (!empty($options['memory'])) {
-                $dsn = 'sqlite::memory:';
+                $dsn = 'sqlite:' . static::MEMORY;
             } else {
                 $dsn = 'sqlite:' . $options['name'] . $this->suffix;
             }
@@ -386,7 +388,7 @@ class SQLiteAdapter extends PdoAdapter
             if (isset($options['primary_key']) && $column->getIdentity()) {
                 //remove column from the primary key array as it is already defined as an autoincrement
                 //primary id
-                $identityColumnIndex = array_search($column->getName(), $options['primary_key']);
+                $identityColumnIndex = array_search($column->getName(), $options['primary_key'], true);
                 if ($identityColumnIndex !== false) {
                     unset($options['primary_key'][$identityColumnIndex]);
 
@@ -693,7 +695,6 @@ PCRE_PATTERN;
         $instructions = $this->beginAlterByCopyTable($tableName);
 
         $instructions->addPostStep(function ($state) use ($column) {
-            $sql = $state['createSQL'];
             $sql = preg_replace(
                 "/\)$/",
                 sprintf(', %s %s$1)', $this->quoteColumnName($column->getName()), $this->getColumnSqlDefinition($column)),
@@ -965,7 +966,7 @@ PCRE_PATTERN;
     /**
      * Get an array of indexes from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -1130,7 +1131,7 @@ PCRE_PATTERN;
     /**
      * Get the primary key from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return string[]
      */
@@ -1178,7 +1179,7 @@ PCRE_PATTERN;
     /**
      * Get an array of foreign keys from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -1369,7 +1370,7 @@ PCRE_PATTERN;
             $name = $type;
         } elseif (isset(self::$supportedColumnTypes[$typeLC])) {
             $name = self::$supportedColumnTypes[$typeLC];
-        } elseif (in_array($typeLC, self::$unsupportedColumnTypes)) {
+        } elseif (in_array($typeLC, self::$unsupportedColumnTypes, true)) {
             throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by SQLite.');
         } else {
             throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not known by SQLite.');
@@ -1381,7 +1382,7 @@ PCRE_PATTERN;
     /**
      * Returns Phinx type by SQL type
      *
-     * @param string|null $sqlTypeDef SQL type
+     * @param string|null $sqlTypeDef SQL Type definition
      *
      * @return array
      */
@@ -1412,7 +1413,7 @@ PCRE_PATTERN;
             } elseif (isset(self::$supportedColumnTypeAliases[$typeLC])) {
                 // the type is an alias for a supported type
                 $name = self::$supportedColumnTypeAliases[$typeLC];
-            } elseif (in_array($typeLC, self::$unsupportedColumnTypes)) {
+            } elseif (in_array($typeLC, self::$unsupportedColumnTypes, true)) {
                 // unsupported but known types are passed through lowercased, and without appended affinity
                 $name = Literal::from($typeLC);
             } else {
@@ -1552,13 +1553,13 @@ PCRE_PATTERN;
      */
     public function getColumnTypes()
     {
-        return array_keys(self::$supportedColumnTypes);
+        return array_keys(static::$supportedColumnTypes);
     }
 
     /**
      * Gets the SQLite Foreign Key Definition for an ForeignKey object.
      *
-     * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign key
      *
      * @return string
      */
@@ -1596,7 +1597,6 @@ PCRE_PATTERN;
     {
         $options = $this->getOptions();
         $options['quoteIdentifiers'] = true;
-        $database = ':memory:';
 
         if (!empty($options['name'])) {
             $options['database'] = $options['name'];
@@ -1604,6 +1604,10 @@ PCRE_PATTERN;
             if (file_exists($options['name'] . $this->suffix)) {
                 $options['database'] = $options['name'] . $this->suffix;
             }
+        }
+
+        if ($this->connection === null) {
+            throw new RuntimeException('You need to connect first.');
         }
 
         $driver = new SqliteDriver($options);

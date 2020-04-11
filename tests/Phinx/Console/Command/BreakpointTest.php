@@ -10,7 +10,6 @@ use Phinx\Console\Command\Breakpoint;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
 use PHPUnit\Framework\TestCase;
-use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -37,8 +36,11 @@ class BreakpointTest extends TestCase
     /**
      * Default Test Environment
      */
-    const DEFAULT_TEST_ENVIRONMENT = 'development';
+    protected const DEFAULT_TEST_ENVIRONMENT = 'development';
 
+    /**
+     * @return void
+     */
     public function setUp(): void
     {
         @mkdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations', 0777, true);
@@ -82,14 +84,14 @@ class BreakpointTest extends TestCase
      */
     public function testExecute($testMethod, $commandLine, $version = null, $noVersionParameter = false)
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Breakpoint());
 
         /** @var Breakpoint $command */
         $command = $application->find('breakpoint');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -160,14 +162,14 @@ class BreakpointTest extends TestCase
 
     public function testRemoveAllAndTargetThrowsException()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Breakpoint());
 
         /** @var Breakpoint $command */
         $command = $application->find('breakpoint');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -197,14 +199,14 @@ class BreakpointTest extends TestCase
      */
     public function testRemoveAllSetUnsetCombinedThrowsException($commandLine)
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Breakpoint());
 
         /** @var Breakpoint $command */
         $command = $application->find('breakpoint');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -229,33 +231,33 @@ class BreakpointTest extends TestCase
                 [
                     '--remove-all' => true,
                     '--set' => true,
-                ]
+                ],
             ],
             'Remove with Unset' => [
                 [
                     '--remove-all' => true,
                     '--unset' => true,
-                ]
+                ],
             ],
             'Set with Unset' => [
                 [
                     '--set' => true,
                     '--unset' => true,
-                ]
+                ],
             ],
         ];
     }
 
     public function testExecuteWithEnvironmentOption()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Breakpoint());
 
         /** @var Breakpoint $command */
         $command = $application->find('breakpoint');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -276,14 +278,14 @@ class BreakpointTest extends TestCase
 
     public function testExecuteWithInvalidEnvironmentOption()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Breakpoint());
 
         /** @var Breakpoint $command */
         $command = $application->find('breakpoint');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();

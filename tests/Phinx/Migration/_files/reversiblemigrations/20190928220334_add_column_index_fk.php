@@ -1,5 +1,7 @@
 <?php
 
+use Phinx\Db\Table\Column;
+use Phinx\Db\Table\ForeignKey;
 use Phinx\Migration\AbstractMigration;
 
 class AddColumnIndexFk extends AbstractMigration
@@ -32,7 +34,7 @@ class AddColumnIndexFk extends AbstractMigration
     public function change()
     {
         $this->table('statuses')
-            ->addColumn('user_id', 'integer', [
+            ->addColumn('user_id', Column::INTEGER, [
                 'null' => true,
                 'limit' => 20,
             ])
@@ -42,8 +44,8 @@ class AddColumnIndexFk extends AbstractMigration
                 ])
             ->addForeignKey('user_id', 'users', 'id', [
                     'constraint' => 'statuses_users_id',
-                    'update' => 'RESTRICT',
-                    'delete' => 'RESTRICT',
+                    'update' => ForeignKey::RESTRICT,
+                    'delete' => ForeignKey::RESTRICT,
                 ])
             ->update();
     }

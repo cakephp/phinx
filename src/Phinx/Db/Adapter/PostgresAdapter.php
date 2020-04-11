@@ -23,9 +23,21 @@ use RuntimeException;
 class PostgresAdapter extends PdoAdapter
 {
     /**
+     * @var string[]
+     */
+    protected static $specificColumnTypes = [
+        self::PHINX_TYPE_JSON,
+        self::PHINX_TYPE_JSONB,
+        self::PHINX_TYPE_CIDR,
+        self::PHINX_TYPE_INET,
+        self::PHINX_TYPE_MACADDR,
+        self::PHINX_TYPE_INTERVAL,
+    ];
+
+    /**
      * Columns with comments
      *
-     * @var array
+     * @var \Phinx\Db\Table\Column[]
      */
     protected $columnsWithComments = [];
 
@@ -437,7 +449,7 @@ class PostgresAdapter extends PdoAdapter
                 $column->setLimit($columnInfo['character_maximum_length']);
             }
 
-            if (in_array($columnType, [static::PHINX_TYPE_TIME, static::PHINX_TYPE_DATETIME])) {
+            if (in_array($columnType, [static::PHINX_TYPE_TIME, static::PHINX_TYPE_DATETIME], true)) {
                 $column->setPrecision($columnInfo['datetime_precision']);
             } else {
                 $column->setPrecision($columnInfo['numeric_precision']);
@@ -605,7 +617,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * Get an array of indexes from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -765,7 +777,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * Get the primary key from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -828,7 +840,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * Get an array of foreign keys from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -1146,14 +1158,14 @@ class PostgresAdapter extends PdoAdapter
                     $column->getPrecision() ?: $sqlType['precision'],
                     $column->getScale() ?: $sqlType['scale']
                 );
-            } elseif (in_array($sqlType['name'], ['geography'])) {
+            } elseif ($sqlType['name'] === self::PHINX_TYPE_GEOMETRY) {
                 // geography type must be written with geometry type and srid, like this: geography(POLYGON,4326)
                 $buffer[] = sprintf(
                     '(%s,%s)',
                     strtoupper($sqlType['type']),
                     $column->getSrid() ?: $sqlType['srid']
                 );
-            } elseif (in_array($sqlType['name'], ['time', 'timestamp'])) {
+            } elseif (in_array($sqlType['name'], [self::PHINX_TYPE_TIME, self::PHINX_TYPE_TIMESTAMP], true)) {
                 if (is_numeric($column->getPrecision())) {
                     $buffer[] = sprintf('(%s)', $column->getPrecision());
                 }
@@ -1161,7 +1173,15 @@ class PostgresAdapter extends PdoAdapter
                 if ($column->isTimezone()) {
                     $buffer[] = strtoupper('with time zone');
                 }
-            } elseif (!in_array($sqlType['name'], ['integer', 'smallint', 'bigint', 'boolean', 'text'])) {
+            } elseif (
+                !in_array($sqlType['name'], [
+                    self::PHINX_TYPE_INTEGER,
+                    'smallint',
+                    'bigint',
+                    self::PHINX_TYPE_BOOLEAN,
+                    self::PHINX_TYPE_TEXT,
+                ], true)
+            ) {
                 if ($column->getLimit() || isset($sqlType['limit'])) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
                 }
@@ -1231,7 +1251,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * Gets the MySQL Foreign Key Definition for an ForeignKey object.
      *
-     * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign key
      * @param string $tableName Table name
      *
      * @return string
@@ -1355,7 +1375,7 @@ class PostgresAdapter extends PdoAdapter
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), ['json', 'jsonb', 'cidr', 'inet', 'macaddr', 'interval']);
+        return array_merge(parent::getColumnTypes(), static::$specificColumnTypes);
     }
 
     /**
@@ -1370,7 +1390,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * Check if the given column is an array of a valid type.
      *
-     * @param string $columnType
+     * @param string $columnType Column type
      *
      * @return bool
      */
@@ -1390,12 +1410,12 @@ class PostgresAdapter extends PdoAdapter
      *
      * @return array
      */
-    private function getSchemaName($tableName)
+    protected function getSchemaName($tableName)
     {
         $schema = $this->getGlobalSchemaName();
         $table = $tableName;
         if (strpos($tableName, '.') !== false) {
-            list($schema, $table) = explode('.', $tableName);
+            [$schema, $table] = explode('.', $tableName);
         }
 
         return [
@@ -1409,7 +1429,7 @@ class PostgresAdapter extends PdoAdapter
      *
      * @return string
      */
-    private function getGlobalSchemaName()
+    protected function getGlobalSchemaName()
     {
         $options = $this->getOptions();
 

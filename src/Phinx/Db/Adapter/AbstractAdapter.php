@@ -228,7 +228,7 @@ abstract class AbstractAdapter implements AdapterInterface
                 $options['type'] = constant('static::' . $options['type']);
             }
 
-            if (!in_array($options['type'], $this->getColumnTypes())) {
+            if (!in_array($options['type'], $this->getColumnTypes(), true)) {
                 throw new \InvalidArgumentException(sprintf(
                     'An invalid column type "%s" was specified for data domain type "%s".',
                     $options['type'],
@@ -380,7 +380,7 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     protected function updateCreatedTableName($tableName, $newTableName)
     {
-        $key = array_search($tableName, $this->createdTables);
+        $key = array_search($tableName, $this->createdTables, true);
         if ($key !== false) {
             $this->createdTables[$key] = $newTableName;
         }
@@ -395,7 +395,7 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     protected function removeCreatedTable($tableName)
     {
-        $key = array_search($tableName, $this->createdTables);
+        $key = array_search($tableName, $this->createdTables, true);
         if ($key !== false) {
             unset($this->createdTables[$key]);
         }

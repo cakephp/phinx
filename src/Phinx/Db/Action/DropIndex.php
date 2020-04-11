@@ -36,7 +36,7 @@ class DropIndex extends Action
      * arguments.
      *
      * @param \Phinx\Db\Table\Table $table The table where the index is
-     * @param array $columns the indexed columns
+     * @param string[] $columns the indexed columns
      *
      * @return \Phinx\Db\Action\DropIndex
      */
@@ -53,7 +53,7 @@ class DropIndex extends Action
      * is known.
      *
      * @param \Phinx\Db\Table\Table $table The table where the index is
-     * @param mixed $name The name of the index
+     * @param string $name The name of the index
      *
      * @return \Phinx\Db\Action\DropIndex
      */

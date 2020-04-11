@@ -10,7 +10,6 @@ use Phinx\Console\Command\Rollback;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
 use PHPUnit\Framework\TestCase;
-use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -37,8 +36,11 @@ class RollbackTest extends TestCase
     /**
      * Default Test Environment
      */
-    const DEFAULT_TEST_ENVIRONMENT = 'development';
+    protected const DEFAULT_TEST_ENVIRONMENT = 'development';
 
+    /**
+     * @return void
+     */
     public function setUp(): void
     {
         $this->config = new Config([
@@ -47,16 +49,16 @@ class RollbackTest extends TestCase
             ],
             'environments' => [
                 'default_migration_table' => 'phinxlog',
-                'default_environment' => 'development',
-                'development' => [
+                'default_environment' => static::DEFAULT_TEST_ENVIRONMENT,
+                static::DEFAULT_TEST_ENVIRONMENT => [
                     'adapter' => 'mysql',
                     'host' => 'fakehost',
-                    'name' => 'development',
+                    'name' => static::DEFAULT_TEST_ENVIRONMENT,
                     'user' => '',
                     'pass' => '',
                     'port' => 3006,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $this->input = new ArrayInput([]);
@@ -65,14 +67,14 @@ class RollbackTest extends TestCase
 
     public function testExecute()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Rollback());
 
         /** @var Rollback $command */
         $command = $application->find('rollback');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -96,14 +98,14 @@ class RollbackTest extends TestCase
 
     public function testExecuteWithEnvironmentOption()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Rollback());
 
         /** @var Rollback $command */
         $command = $application->find('rollback');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -123,14 +125,14 @@ class RollbackTest extends TestCase
 
     public function testExecuteWithInvalidEnvironmentOption()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Rollback());
 
         /** @var Rollback $command */
         $command = $application->find('rollback');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -150,14 +152,14 @@ class RollbackTest extends TestCase
 
     public function testDatabaseNameSpecified()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Rollback());
 
         /** @var Rollback $command */
         $command = $application->find('rollback');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -240,23 +242,23 @@ class RollbackTest extends TestCase
     {
         return [
             'Date with only year' => [
-                '2015', '20150101000000'
+                '2015', '20150101000000',
             ],
             'Date with year and month' => [
-                '201409', '20140901000000'
+                '201409', '20140901000000',
             ],
             'Date with year, month and day' => [
-                '20130517', '20130517000000'
+                '20130517', '20130517000000',
             ],
             'Date with year, month, day and hour' => [
-                '2013051406', '20130514060000'
+                '2013051406', '20130514060000',
             ],
             'Date with year, month, day, hour and minutes' => [
-                '201305140647', '20130514064700'
+                '201305140647', '20130514064700',
             ],
             'Date with year, month, day, hour, minutes and seconds' => [
-                '20130514064726', '20130514064726'
-            ]
+                '20130514064726', '20130514064726',
+            ],
         ];
     }
 
@@ -278,7 +280,7 @@ class RollbackTest extends TestCase
         return [
             ['20'],
             ['2015060522354698'],
-            ['invalid']
+            ['invalid'],
         ];
     }
 
@@ -311,14 +313,14 @@ class RollbackTest extends TestCase
 
     public function testFakeRollback()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Rollback());
 
         /** @var Rollback $command */
         $command = $application->find('rollback');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();

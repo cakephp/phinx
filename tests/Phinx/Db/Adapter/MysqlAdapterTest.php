@@ -31,7 +31,7 @@ class MysqlAdapterTest extends TestCase
             'name' => TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
             'user' => TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME,
             'pass' => TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD,
-            'port' => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT
+            'port' => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT,
         ];
         $this->adapter = new MysqlAdapter($options, new ArrayInput([]), new NullOutput());
 
@@ -78,7 +78,7 @@ class MysqlAdapterTest extends TestCase
             'name' => TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
             'port' => TESTS_PHINX_DB_ADAPTER_MYSQL_PORT,
             'user' => 'invaliduser',
-            'pass' => 'invalidpass'
+            'pass' => 'invalidpass',
         ];
 
         try {
@@ -238,7 +238,7 @@ class MysqlAdapterTest extends TestCase
     public function testCreateTableWithNoPrimaryKey()
     {
         $options = [
-            'id' => false
+            'id' => false,
         ];
         $table = new \Phinx\Db\Table('atable', $options, $this->adapter);
         $table->addColumn('user_id', 'integer')
@@ -297,7 +297,7 @@ class MysqlAdapterTest extends TestCase
     {
         $options = [
             'id' => false,
-            'primary_key' => ['user_id', 'tag_id']
+            'primary_key' => ['user_id', 'tag_id'],
         ];
         $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
         $table->addColumn('user_id', 'integer')
@@ -1065,7 +1065,7 @@ class MysqlAdapterTest extends TestCase
             ['column20', 'uuid', []],
             ['column21', 'set', ['values' => ['one', 'two']]],
             ['column22', 'enum', ['values' => ['three', 'four']]],
-            ['column23', 'bit', []]
+            ['column23', 'bit', []],
         ];
     }
 
@@ -1550,7 +1550,7 @@ class MysqlAdapterTest extends TestCase
             [
                 'column1' => 'value3',
                 'column2' => 3,
-            ]
+            ],
         ];
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
@@ -1585,7 +1585,7 @@ class MysqlAdapterTest extends TestCase
                 'column1' => 'value3',
                 'column2' => 3,
                 'column3' => 'foo',
-            ]
+            ],
         ];
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
@@ -1646,15 +1646,15 @@ OUTPUT;
         $this->adapter->setOutput($consoleOutput);
 
         $this->adapter->insert($table->getTable(), [
-            'string_col' => 'test data'
+            'string_col' => 'test data',
         ]);
 
         $this->adapter->insert($table->getTable(), [
-            'string_col' => null
+            'string_col' => null,
         ]);
 
         $this->adapter->insert($table->getTable(), [
-            'int_col' => 23
+            'int_col' => 23,
         ]);
 
         $expectedOutput = <<<'OUTPUT'
@@ -1729,7 +1729,7 @@ OUTPUT;
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->insert([
             'column1' => 'id1',
-            'column2' => 1
+            'column2' => 1,
         ])->save();
 
         $expectedOutput = <<<'OUTPUT'

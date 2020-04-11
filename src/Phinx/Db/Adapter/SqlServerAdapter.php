@@ -29,9 +29,27 @@ use RuntimeException;
  */
 class SqlServerAdapter extends PdoAdapter
 {
+    /**
+     * @var string[]
+     */
+    protected static $specificColumnTypes = [
+        self::PHINX_TYPE_FILESTREAM,
+    ];
+
+    /**
+     * @var string
+     */
     protected $schema = 'dbo';
 
-    protected $signedColumnTypes = ['integer' => true, 'biginteger' => true, 'float' => true, 'decimal' => true];
+    /**
+     * @var bool[]
+     */
+    protected $signedColumnTypes = [
+        self::PHINX_TYPE_INTEGER => true,
+        self::PHINX_TYPE_BIG_INTEGER => true,
+        self::PHINX_TYPE_FLOAT => true,
+        self::PHINX_TYPE_DECIMAL => true,
+    ];
 
     /**
      * {@inheritDoc}
@@ -399,6 +417,12 @@ class SqlServerAdapter extends PdoAdapter
         $this->execute($sql);
     }
 
+    /**
+     * @param string $tableName Table name
+     * @param string $columnName Column name
+     *
+     * @return string|false
+     */
     public function getColumnComment($tableName, $columnName)
     {
         $sql = sprintf("SELECT cast(extended_properties.[value] as nvarchar(4000)) comment
@@ -465,17 +489,22 @@ class SqlServerAdapter extends PdoAdapter
         return $columns;
     }
 
+    /**
+     * @param string $default Default
+     *
+     * @return int|string|null
+     */
     protected function parseDefault($default)
     {
-        $default = preg_replace(["/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"], '$1', $default);
+        $result = preg_replace(["/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"], '$1', $default);
 
-        if (strtoupper($default) === 'NULL') {
-            $default = null;
-        } elseif (is_numeric($default)) {
-            $default = (int)$default;
+        if (strtoupper($result) === 'NULL') {
+            $result = null;
+        } elseif (is_numeric($result)) {
+            $result = (int)$result;
         }
 
-        return $default;
+        return $result;
     }
 
     /**
@@ -639,7 +668,10 @@ SQL;
     }
 
     /**
-     * @inheritDoc
+     * @param string $tableName Table name
+     * @param string|null $columnName Column name
+     *
+     * @return \Phinx\Db\Util\AlterInstructions
      */
     protected function getDropDefaultConstraint($tableName, $columnName)
     {
@@ -652,6 +684,12 @@ SQL;
         return $this->getDropForeignKeyInstructions($tableName, $defaultConstraint);
     }
 
+    /**
+     * @param string $tableName Table name
+     * @param string $columnName Column name
+     *
+     * @return string|false
+     */
     protected function getDefaultConstraint($tableName, $columnName)
     {
         $sql = "SELECT
@@ -681,6 +719,12 @@ WHERE
         return empty($rows) ? false : $rows[0]['name'];
     }
 
+    /**
+     * @param int $tableId Table ID
+     * @param int $indexId Index ID
+     *
+     * @return array
+     */
     protected function getIndexColums($tableId, $indexId)
     {
         $sql = "SELECT AC.[name] AS [column_name]
@@ -701,7 +745,7 @@ ORDER BY IC.[key_ordinal];";
     /**
      * Get an array of indexes from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -847,20 +891,20 @@ ORDER BY T.[name], I.[index_id];";
 
         if ($constraint) {
             return ($primaryKey['constraint'] === $constraint);
-        } else {
-            if (is_string($columns)) {
-                $columns = [$columns]; // str to array
-            }
-            $missingColumns = array_diff($columns, $primaryKey['columns']);
-
-            return empty($missingColumns);
         }
+
+        if (is_string($columns)) {
+            $columns = [$columns]; // str to array
+        }
+        $missingColumns = array_diff($columns, $primaryKey['columns']);
+
+        return empty($missingColumns);
     }
 
     /**
      * Get the primary key from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -905,22 +949,22 @@ ORDER BY T.[name], I.[index_id];";
             }
 
             return false;
-        } else {
-            foreach ($foreignKeys as $key) {
-                $a = array_diff($columns, $key['columns']);
-                if (empty($a)) {
-                    return true;
-                }
-            }
-
-            return false;
         }
+
+        foreach ($foreignKeys as $key) {
+            $a = array_diff($columns, $key['columns']);
+            if (empty($a)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
      * Get an array of foreign keys from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -1280,7 +1324,7 @@ SQL;
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), ['filestream']);
+        return array_merge(parent::getColumnTypes(), static::$specificColumnTypes);
     }
 
     /**

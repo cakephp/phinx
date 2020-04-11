@@ -59,7 +59,7 @@ class SeedCreate extends AbstractCommand
     /**
      * Get the question that allows the user to select which seed path to use.
      *
-     * @param string[] $paths
+     * @param string[] $paths Paths
      *
      * @return \Symfony\Component\Console\Question\ChoiceQuestion
      */
@@ -71,12 +71,12 @@ class SeedCreate extends AbstractCommand
     /**
      * Returns the seed path to create the seeder in.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input Input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      *
      * @throws \Exception
      *
-     * @return mixed
+     * @return string
      */
     protected function getSeedPath(InputInterface $input, OutputInterface $output)
     {
@@ -119,8 +119,8 @@ class SeedCreate extends AbstractCommand
     /**
      * Create the new seeder.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input Input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException

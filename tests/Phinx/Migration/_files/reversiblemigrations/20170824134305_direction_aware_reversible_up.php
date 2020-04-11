@@ -1,5 +1,6 @@
 <?php
 
+use Phinx\Db\Table\Column;
 use Phinx\Migration\AbstractMigration;
 
 class DirectionAwareReversibleUp extends AbstractMigration
@@ -7,7 +8,7 @@ class DirectionAwareReversibleUp extends AbstractMigration
     public function change()
     {
         $this->table('change_direction_test')
-            ->addColumn('thing', 'string', [
+            ->addColumn('thing', Column::STRING, [
                 'limit' => 12,
             ])
             ->create();

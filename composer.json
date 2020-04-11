@@ -33,6 +33,7 @@
     },
     "require-dev": {
         "ext-json": "*",
+        "ext-pdo": "*",
         "phpunit/phpunit": "^8.5",
         "sebastian/comparator": ">=1.2.3",
         "cakephp/cakephp-codesniffer": "^3.0",
@@ -50,6 +51,7 @@
     },
     "suggest": {
         "ext-json": "Install if using JSON configuration format",
+        "ext-pdo": "PDO extension is needed",
         "symfony/yaml": "Install if using YAML configuration format"
     },
     "scripts": {
@@ -57,7 +59,7 @@
             "@test",
             "@cs-check"
         ],
-        "cs-check": "phpcs --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --ignore=/tests/Phinx/Config/_rootDirectories/,/tests/log/ src/ tests/ app/",
+        "cs-check": "phpcs --colors -p -n --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --ignore=/tests/Phinx/Config/_rootDirectories/,/tests/log/ src/ tests/ app/",
         "cs-fix": "phpcbf --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --ignore=/tests/Phinx/Config/_rootDirectories/,/tests/log/ src/ tests/ app/",
         "stan": "phpstan analyse src/",
         "stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^0.12 && mv composer.backup composer.json",

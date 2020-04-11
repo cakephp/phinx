@@ -22,21 +22,21 @@ class TextWrapper
     /**
      * @var \Phinx\Console\PhinxApplication
      */
-    private $app;
+    protected $app;
 
     /**
      * @var array
      */
-    private $options = [];
+    protected $options;
 
     /**
      * @var int
      */
-    private $exit_code;
+    protected $exitCode;
 
     /**
-     * @param \Phinx\Console\PhinxApplication $app
-     * @param array $options
+     * @param \Phinx\Console\PhinxApplication $app Application
+     * @param array $options Options
      */
     public function __construct(PhinxApplication $app, array $options = [])
     {
@@ -61,7 +61,7 @@ class TextWrapper
      */
     public function getExitCode()
     {
-        return $this->exit_code;
+        return $this->exitCode;
     }
 
     /**
@@ -120,9 +120,9 @@ class TextWrapper
     /**
      * Returns the output from running the "seed:run" command.
      *
-     * @param string|null $env environment name
-     * @param string|null $target target version
-     * @param array|string|null $seed array of seed names or seed name
+     * @param string|null $env Environment name
+     * @param string|null $target Target version
+     * @param string[]|string|null $seed Array of seed names or seed name
      *
      * @return string
      */
@@ -152,8 +152,8 @@ class TextWrapper
     /**
      * Returns the output from running the "rollback" command.
      *
-     * @param string|null $env environment name (optional)
-     * @param mixed $target target version, or 0 (zero) fully revert (optional)
+     * @param string|null $env Environment name (optional)
+     * @param mixed $target Target version, or 0 (zero) fully revert (optional)
      *
      * @return string
      */
@@ -181,7 +181,7 @@ class TextWrapper
     /**
      * Check option from options array
      *
-     * @param string $key
+     * @param string $key Key
      *
      * @return bool
      */
@@ -193,7 +193,7 @@ class TextWrapper
     /**
      * Get option from options array
      *
-     * @param string $key
+     * @param string $key Key
      *
      * @return string|null
      */
@@ -209,10 +209,10 @@ class TextWrapper
     /**
      * Set option in options array
      *
-     * @param string $key
-     * @param string $value
+     * @param string $key Key
+     * @param string $value Value
      *
-     * @return object
+     * @return $this
      */
     public function setOption($key, $value)
     {
@@ -224,7 +224,7 @@ class TextWrapper
     /**
      * Execute a command, capturing output and storing the exit code.
      *
-     * @param array $command
+     * @param array $command Command
      *
      * @return string
      */
@@ -236,7 +236,7 @@ class TextWrapper
 
         // Execute the command, capturing the output in the temporary stream
         // and storing the exit code for debugging purposes.
-        $this->exit_code = $this->app->doRun(new ArrayInput($command), new StreamOutput($stream));
+        $this->exitCode = $this->app->doRun(new ArrayInput($command), new StreamOutput($stream));
 
         // Get the output of the command and close the stream, which will
         // destroy the temporary file.

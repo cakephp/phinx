@@ -9,7 +9,6 @@ use Phinx\Console\Command\Status;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
 use PHPUnit\Framework\TestCase;
-use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -36,8 +35,11 @@ class StatusTest extends TestCase
     /**
      * Default Test Environment
      */
-    const DEFAULT_TEST_ENVIRONMENT = 'development';
+    protected const DEFAULT_TEST_ENVIRONMENT = 'development';
 
+    /**
+     * @return void
+     */
     public function setUp(): void
     {
         $this->config = new Config([
@@ -46,16 +48,16 @@ class StatusTest extends TestCase
             ],
             'environments' => [
                 'default_migration_table' => 'phinxlog',
-                'default_environment' => 'development',
-                'development' => [
+                'default_environment' => static::DEFAULT_TEST_ENVIRONMENT,
+                static::DEFAULT_TEST_ENVIRONMENT => [
                     'adapter' => 'pgsql',
                     'host' => 'fakehost',
-                    'name' => 'development',
+                    'name' => static::DEFAULT_TEST_ENVIRONMENT,
                     'user' => '',
                     'pass' => '',
                     'port' => 5433,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $this->input = new ArrayInput([]);
@@ -64,14 +66,14 @@ class StatusTest extends TestCase
 
     public function testExecute()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Status());
 
         /** @var Status $command */
         $command = $application->find('status');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -97,7 +99,7 @@ class StatusTest extends TestCase
 
     public function testExecuteWithDsn()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Status());
 
         /** @var Status $command */
@@ -117,7 +119,7 @@ class StatusTest extends TestCase
         ]);
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$config, $this->input, $this->output])
             ->getMock();
@@ -138,14 +140,14 @@ class StatusTest extends TestCase
 
     public function testExecuteWithEnvironmentOption()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Status());
 
         /** @var Status $command */
         $command = $application->find('status');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -166,14 +168,14 @@ class StatusTest extends TestCase
 
     public function testExecuteWithInvalidEnvironmentOption()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Status());
 
         /** @var Status $command */
         $command = $application->find('status');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -193,14 +195,14 @@ class StatusTest extends TestCase
 
     public function testFormatSpecified()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Status());
 
         /** @var Status $command */
         $command = $application->find('status');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -213,21 +215,21 @@ class StatusTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $exitCode = $commandTester->execute(['command' => $command->getName(), '--format' => 'json'], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--format' => AbstractCommand::FORMAT_JSON], ['decorated' => false]);
         $this->assertEquals(AbstractCommand::CODE_SUCCESS, $exitCode);
         $this->assertRegExp('/using format json/', $commandTester->getDisplay());
     }
 
     public function testExecuteVersionOrderByExecutionTime()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Status());
 
         /** @var Status $command */
         $command = $application->find('status');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -253,14 +255,14 @@ class StatusTest extends TestCase
 
     public function testExitCodeMissingMigrations()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Status());
 
         /** @var Status $command */
         $command = $application->find('status');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -282,14 +284,14 @@ class StatusTest extends TestCase
 
     public function testExitCodeDownMigrations()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Status());
 
         /** @var Status $command */
         $command = $application->find('status');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -311,14 +313,14 @@ class StatusTest extends TestCase
 
     public function testExitCodeMissingAndDownMigrations()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new Status());
 
         /** @var Status $command */
         $command = $application->find('status');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();

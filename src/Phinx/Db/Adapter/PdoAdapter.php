@@ -55,7 +55,8 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     protected function verboseLog($message)
     {
-        if (!$this->isDryRunEnabled() &&
+        if (
+            !$this->isDryRunEnabled() &&
              $this->getOutput()->getVerbosity() < OutputInterface::VERBOSITY_VERY_VERBOSE
         ) {
             return;
@@ -273,7 +274,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      *
      * @return mixed
      */
-    private function quoteValue($value)
+    protected function quoteValue($value)
     {
         if (is_numeric($value)) {
             return $value;
@@ -653,7 +654,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Returns the instructions to rename the specified column.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      * @param string $columnName Column Name
      * @param string $newColumnName New Column Name
      *
@@ -675,7 +676,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Returns the instructions to change a table column type.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      * @param string $columnName Column Name
      * @param \Phinx\Db\Table\Column $newColumn New Column
      *
@@ -697,7 +698,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Returns the instructions to drop the specified column.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      * @param string $columnName Column Name
      *
      * @return \Phinx\Db\Util\AlterInstructions
@@ -818,7 +819,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * Returns the instructions to drop the specified foreign key from a database table.
      *
      * @param string $tableName The table where the foreign key constraint is
-     * @param array $columns The list of column names
+     * @param string[] $columns The list of column names
      *
      * @return \Phinx\Db\Util\AlterInstructions
      */
@@ -838,7 +839,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Returns the instructions to drop the specified database table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return \Phinx\Db\Util\AlterInstructions
      */
@@ -858,7 +859,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Returns the instructions to rename the specified database table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      * @param string $newTableName New Name
      *
      * @return \Phinx\Db\Util\AlterInstructions
@@ -880,7 +881,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * Returns the instructions to change the primary key for the specified database table.
      *
      * @param \Phinx\Db\Table\Table $table Table
-     * @param string|array|null $newColumns Column name(s) to belong to the primary key, or null to drop the key
+     * @param string|string[]|null $newColumns Column name(s) to belong to the primary key, or null to drop the key
      *
      * @return \Phinx\Db\Util\AlterInstructions
      */

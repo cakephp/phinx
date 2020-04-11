@@ -26,17 +26,17 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * The value that identifies a version order by creation time.
      */
-    const VERSION_ORDER_CREATION_TIME = 'creation';
+    public const VERSION_ORDER_CREATION_TIME = 'creation';
 
     /**
      * The value that identifies a version order by execution time.
      */
-    const VERSION_ORDER_EXECUTION_TIME = 'execution';
+    public const VERSION_ORDER_EXECUTION_TIME = 'execution';
 
     /**
      * @var array
      */
-    private $values = [];
+    protected $values = [];
 
     /**
      * @var string
@@ -412,7 +412,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * Recurse an array for the specified tokens and replace them.
      *
      * @param array $arr Array to recurse
-     * @param array $tokens Array of tokens to search for
+     * @param string[] $tokens Array of tokens to search for
      *
      * @return array
      */

@@ -16,7 +16,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Init extends Command
 {
-    const FILE_NAME = 'phinx';
+    protected const FILE_NAME = 'phinx';
+
+    /**
+     * @var string[]
+     */
+    protected static $supportedFormats = [
+        AbstractCommand::FORMAT_JSON,
+        AbstractCommand::FORMAT_YML_ALIAS,
+        AbstractCommand::FORMAT_YML,
+        AbstractCommand::FORMAT_PHP,
+    ];
 
     /**
      * @var string
@@ -74,9 +84,9 @@ class Init extends Command
         // get the migration path from the config
         $path = (string)$input->getArgument('path');
 
-        if (!in_array($format, ['yaml', 'yml', 'json', 'php'])) {
+        if (!in_array($format, static::$supportedFormats, true)) {
             throw new InvalidArgumentException(sprintf(
-                'Invalid format "%s". Format must be either yaml, yml, json, or php.',
+                'Invalid format "%s". Format must be either ' . implode(', ', static::$supportedFormats) . '.',
                 $format
             ));
         }
@@ -123,7 +133,7 @@ class Init extends Command
      *
      * @return void
      */
-    protected function writeConfig($path, $format = 'yml')
+    protected function writeConfig($path, $format = AbstractCommand::FORMAT_YML)
     {
         // Check if dir is writable
         $dirname = dirname($path);
@@ -134,8 +144,8 @@ class Init extends Command
             ));
         }
 
-        if ($format === 'yaml') {
-            $format = 'yml';
+        if ($format === AbstractCommand::FORMAT_YML_ALIAS) {
+            $format = AbstractCommand::FORMAT_YML;
         }
 
         // load the config template

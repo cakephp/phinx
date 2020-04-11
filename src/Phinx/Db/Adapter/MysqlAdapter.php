@@ -26,38 +26,51 @@ use RuntimeException;
  */
 class MysqlAdapter extends PdoAdapter
 {
-    protected $signedColumnTypes = [
-        'integer' => true,
-        'smallinteger' => true,
-        'biginteger' => true,
-        'float' => true,
-        'decimal' => true,
-        'double' => true,
-        'boolean' => true,
+    /**
+     * @var string[]
+     */
+    protected static $specificColumnTypes = [
+        self::PHINX_TYPE_ENUM,
+        self::PHINX_TYPE_SET,
+        self::PHINX_TYPE_YEAR,
+        self::PHINX_TYPE_JSON,
     ];
 
-    const TEXT_TINY = 255;
-    const TEXT_SMALL = 255; /* deprecated, alias of TEXT_TINY */
-    const TEXT_REGULAR = 65535;
-    const TEXT_MEDIUM = 16777215;
-    const TEXT_LONG = 4294967295;
+    /**
+     * @var bool[]
+     */
+    protected $signedColumnTypes = [
+        self::PHINX_TYPE_INTEGER => true,
+        self::PHINX_TYPE_SMALL_INTEGER => true,
+        self::PHINX_TYPE_BIG_INTEGER => true,
+        self::PHINX_TYPE_FLOAT => true,
+        self::PHINX_TYPE_DECIMAL => true,
+        self::PHINX_TYPE_DOUBLE => true,
+        self::PHINX_TYPE_BOOLEAN => true,
+    ];
+
+    public const TEXT_TINY = 255;
+    public const TEXT_SMALL = 255; /* deprecated, alias of TEXT_TINY */
+    public const TEXT_REGULAR = 65535;
+    public const TEXT_MEDIUM = 16777215;
+    public const TEXT_LONG = 4294967295;
 
     // According to https://dev.mysql.com/doc/refman/5.0/en/blob.html BLOB sizes are the same as TEXT
-    const BLOB_TINY = 255;
-    const BLOB_SMALL = 255; /* deprecated, alias of BLOB_TINY */
-    const BLOB_REGULAR = 65535;
-    const BLOB_MEDIUM = 16777215;
-    const BLOB_LONG = 4294967295;
+    public const BLOB_TINY = 255;
+    public const BLOB_SMALL = 255; /* deprecated, alias of BLOB_TINY */
+    public const BLOB_REGULAR = 65535;
+    public const BLOB_MEDIUM = 16777215;
+    public const BLOB_LONG = 4294967295;
 
-    const INT_TINY = 255;
-    const INT_SMALL = 65535;
-    const INT_MEDIUM = 16777215;
-    const INT_REGULAR = 4294967295;
-    const INT_BIG = 18446744073709551615;
+    public const INT_TINY = 255;
+    public const INT_SMALL = 65535;
+    public const INT_MEDIUM = 16777215;
+    public const INT_REGULAR = 4294967295;
+    public const INT_BIG = 18446744073709551615;
 
-    const BIT = 64;
+    public const BIT = 64;
 
-    const TYPE_YEAR = 'year';
+    public const TYPE_YEAR = 'year';
 
     /**
      * {@inheritDoc}
@@ -193,7 +206,7 @@ class MysqlAdapter extends PdoAdapter
         }
 
         if (strpos($tableName, '.') !== false) {
-            list($schema, $table) = explode('.', $tableName);
+            [$schema, $table] = explode('.', $tableName);
             $exists = $this->hasTableWithSchema($schema, $table);
             // Only break here on success, because it is possible for table names to contain a dot.
             if ($exists) {
@@ -212,7 +225,7 @@ class MysqlAdapter extends PdoAdapter
      *
      * @return bool
      */
-    private function hasTableWithSchema($schema, $tableName)
+    protected function hasTableWithSchema($schema, $tableName)
     {
         $result = $this->fetchRow(sprintf(
             "SELECT TABLE_NAME
@@ -224,6 +237,7 @@ class MysqlAdapter extends PdoAdapter
 
         return !empty($result);
     }
+
     /**
      * {@inheritDoc}
      *
@@ -263,7 +277,7 @@ class MysqlAdapter extends PdoAdapter
             $options['primary_key'] = $options['id'];
         }
 
-        // TODO - process table options like collation etc
+        // open: process table options like collation etc
 
         // process table engine (default to InnoDB)
         $optionsStr = 'ENGINE = InnoDB';
@@ -547,7 +561,7 @@ class MysqlAdapter extends PdoAdapter
     /**
      * Get an array of indexes from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -710,7 +724,7 @@ class MysqlAdapter extends PdoAdapter
     /**
      * Get the primary key from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -754,28 +768,28 @@ class MysqlAdapter extends PdoAdapter
             }
 
             return false;
-        } else {
-            foreach ($foreignKeys as $key) {
-                if ($columns == $key['columns']) {
-                    return true;
-                }
-            }
-
-            return false;
         }
+
+        foreach ($foreignKeys as $key) {
+            if ($columns == $key['columns']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
      * Get an array of foreign keys from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
     protected function getForeignKeys($tableName)
     {
         if (strpos($tableName, '.') !== false) {
-            list($schema, $tableName) = explode('.', $tableName);
+            [$schema, $tableName] = explode('.', $tableName);
         }
 
         $foreignKeys = [];
@@ -975,7 +989,7 @@ class MysqlAdapter extends PdoAdapter
                 return ['name' => 'tinyint', 'limit' => 1];
             case static::PHINX_TYPE_UUID:
                 return ['name' => 'char', 'limit' => 36];
-            case static::TYPE_YEAR:
+            case static::PHINX_TYPE_YEAR:
                 if (!$limit || in_array($limit, [2, 4])) {
                     $limit = 4;
                 }
@@ -991,7 +1005,7 @@ class MysqlAdapter extends PdoAdapter
      *
      * @internal param string $sqlType SQL type
      *
-     * @param string $sqlTypeDef
+     * @param string $sqlTypeDef SQL Type definition
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      *
@@ -1002,114 +1016,114 @@ class MysqlAdapter extends PdoAdapter
         $matches = [];
         if (!preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*(.+)*$/', $sqlTypeDef, $matches)) {
             throw new UnsupportedColumnTypeException('Column type "' . $sqlTypeDef . '" is not supported by MySQL.');
-        } else {
-            $limit = null;
-            $scale = null;
-            $type = $matches[1];
-            if (count($matches) > 2) {
-                $limit = $matches[3] ? (int)$matches[3] : null;
-            }
-            if (count($matches) > 4) {
-                $scale = (int)$matches[5];
-            }
-            if ($type === 'tinyint' && $limit === 1) {
-                $type = static::PHINX_TYPE_BOOLEAN;
-                $limit = null;
-            }
-            switch ($type) {
-                case 'varchar':
-                    $type = static::PHINX_TYPE_STRING;
-                    if ($limit === 255) {
-                        $limit = null;
-                    }
-                    break;
-                case 'char':
-                    $type = static::PHINX_TYPE_CHAR;
-                    if ($limit === 255) {
-                        $limit = null;
-                    }
-                    if ($limit === 36) {
-                        $type = static::PHINX_TYPE_UUID;
-                    }
-                    break;
-                case 'tinyint':
-                    $type = static::PHINX_TYPE_INTEGER;
-                    $limit = static::INT_TINY;
-                    break;
-                case 'smallint':
-                    $type = static::PHINX_TYPE_SMALL_INTEGER;
-                    $limit = static::INT_SMALL;
-                    break;
-                case 'mediumint':
-                    $type = static::PHINX_TYPE_INTEGER;
-                    $limit = static::INT_MEDIUM;
-                    break;
-                case 'int':
-                    $type = static::PHINX_TYPE_INTEGER;
-                    if ($limit === 11) {
-                        $limit = null;
-                    }
-                    break;
-                case 'bigint':
-                    if ($limit === 20) {
-                        $limit = null;
-                    }
-                    $type = static::PHINX_TYPE_BIG_INTEGER;
-                    break;
-                case 'bit':
-                    $type = static::PHINX_TYPE_BIT;
-                    if ($limit === 64) {
-                        $limit = null;
-                    }
-                    break;
-                case 'blob':
-                    $type = static::PHINX_TYPE_BINARY;
-                    break;
-                case 'tinyblob':
-                    $type = static::PHINX_TYPE_BINARY;
-                    $limit = static::BLOB_TINY;
-                    break;
-                case 'mediumblob':
-                    $type = static::PHINX_TYPE_BINARY;
-                    $limit = static::BLOB_MEDIUM;
-                    break;
-                case 'longblob':
-                    $type = static::PHINX_TYPE_BINARY;
-                    $limit = static::BLOB_LONG;
-                    break;
-                case 'tinytext':
-                    $type = static::PHINX_TYPE_TEXT;
-                    $limit = static::TEXT_TINY;
-                    break;
-                case 'mediumtext':
-                    $type = static::PHINX_TYPE_TEXT;
-                    $limit = static::TEXT_MEDIUM;
-                    break;
-                case 'longtext':
-                    $type = static::PHINX_TYPE_TEXT;
-                    $limit = static::TEXT_LONG;
-                    break;
-            }
-
-            try {
-                // Call this to check if parsed type is supported.
-                $this->getSqlType($type, $limit);
-            } catch (UnsupportedColumnTypeException $e) {
-                $type = Literal::from($type);
-            }
-
-            $phinxType = [
-                'name' => $type,
-                'limit' => $limit,
-                'scale' => $scale,
-            ];
-
-            if ($type === static::PHINX_TYPE_ENUM || $type === static::PHINX_TYPE_SET) {
-                $phinxType['values'] = explode("','", trim($matches[6], "()'"));
-            }
-
-            return $phinxType;
         }
+
+        $limit = null;
+        $scale = null;
+        $type = $matches[1];
+        if (count($matches) > 2) {
+            $limit = $matches[3] ? (int)$matches[3] : null;
+        }
+        if (count($matches) > 4) {
+            $scale = (int)$matches[5];
+        }
+        if ($type === 'tinyint' && $limit === 1) {
+            $type = static::PHINX_TYPE_BOOLEAN;
+            $limit = null;
+        }
+        switch ($type) {
+            case 'varchar':
+                $type = static::PHINX_TYPE_STRING;
+                if ($limit === 255) {
+                    $limit = null;
+                }
+                break;
+            case 'char':
+                $type = static::PHINX_TYPE_CHAR;
+                if ($limit === 255) {
+                    $limit = null;
+                }
+                if ($limit === 36) {
+                    $type = static::PHINX_TYPE_UUID;
+                }
+                break;
+            case 'tinyint':
+                $type = static::PHINX_TYPE_INTEGER;
+                $limit = static::INT_TINY;
+                break;
+            case 'smallint':
+                $type = static::PHINX_TYPE_SMALL_INTEGER;
+                $limit = static::INT_SMALL;
+                break;
+            case 'mediumint':
+                $type = static::PHINX_TYPE_INTEGER;
+                $limit = static::INT_MEDIUM;
+                break;
+            case 'int':
+                $type = static::PHINX_TYPE_INTEGER;
+                if ($limit === 11) {
+                    $limit = null;
+                }
+                break;
+            case 'bigint':
+                if ($limit === 20) {
+                    $limit = null;
+                }
+                $type = static::PHINX_TYPE_BIG_INTEGER;
+                break;
+            case 'bit':
+                $type = static::PHINX_TYPE_BIT;
+                if ($limit === 64) {
+                    $limit = null;
+                }
+                break;
+            case 'blob':
+                $type = static::PHINX_TYPE_BINARY;
+                break;
+            case 'tinyblob':
+                $type = static::PHINX_TYPE_BINARY;
+                $limit = static::BLOB_TINY;
+                break;
+            case 'mediumblob':
+                $type = static::PHINX_TYPE_BINARY;
+                $limit = static::BLOB_MEDIUM;
+                break;
+            case 'longblob':
+                $type = static::PHINX_TYPE_BINARY;
+                $limit = static::BLOB_LONG;
+                break;
+            case 'tinytext':
+                $type = static::PHINX_TYPE_TEXT;
+                $limit = static::TEXT_TINY;
+                break;
+            case 'mediumtext':
+                $type = static::PHINX_TYPE_TEXT;
+                $limit = static::TEXT_MEDIUM;
+                break;
+            case 'longtext':
+                $type = static::PHINX_TYPE_TEXT;
+                $limit = static::TEXT_LONG;
+                break;
+        }
+
+        try {
+            // Call this to check if parsed type is supported.
+            $this->getSqlType($type, $limit);
+        } catch (UnsupportedColumnTypeException $e) {
+            $type = Literal::from($type);
+        }
+
+        $phinxType = [
+            'name' => $type,
+            'limit' => $limit,
+            'scale' => $scale,
+        ];
+
+        if ($type === static::PHINX_TYPE_ENUM || $type === static::PHINX_TYPE_SET) {
+            $phinxType['values'] = explode("','", trim($matches[6], "()'"));
+        }
+
+        return $phinxType;
     }
 
     /**
@@ -1249,7 +1263,7 @@ class MysqlAdapter extends PdoAdapter
     /**
      * Gets the MySQL Foreign Key Definition for an ForeignKey object.
      *
-     * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign key
      *
      * @return string
      */
@@ -1306,11 +1320,11 @@ class MysqlAdapter extends PdoAdapter
     /**
      * Returns MySQL column types (inherited and MySQL specified).
      *
-     * @return array
+     * @return string[]
      */
     public function getColumnTypes()
     {
-        return array_merge(parent::getColumnTypes(), ['enum', 'set', 'year', 'json']);
+        return array_merge(parent::getColumnTypes(), static::$specificColumnTypes);
     }
 
     /**

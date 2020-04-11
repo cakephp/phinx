@@ -311,11 +311,11 @@ class ConfigTest extends AbstractConfigTest
         return [
             'With Creation Time Version Order' =>
             [
-                \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME, true
+                \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME, true,
             ],
             'With Execution Time Version Order' =>
             [
-                \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, false
+                \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, false,
             ],
         ];
     }

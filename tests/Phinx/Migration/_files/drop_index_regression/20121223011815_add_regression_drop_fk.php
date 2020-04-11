@@ -12,7 +12,7 @@ class AddRegressionDropFk extends AbstractMigration
         $table = $this->table('my_table');
         $table
             ->addForeignKey('entity_id', 'my_other_table', 'id', [
-                'constraint' => 'my_other_table_foreign_key'
+                'constraint' => 'my_other_table_foreign_key',
             ])
             ->addIndex(['entity_id'], ['unique' => true])
             ->update();

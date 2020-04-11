@@ -14,20 +14,20 @@ class Index
     /**
      * @var string
      */
-    const UNIQUE = 'unique';
+    public const UNIQUE = 'unique';
 
     /**
      * @var string
      */
-    const INDEX = 'index';
+    public const INDEX = 'index';
 
     /**
      * @var string
      */
-    const FULLTEXT = 'fulltext';
+    public const FULLTEXT = 'fulltext';
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $columns;
 
@@ -49,7 +49,7 @@ class Index
     /**
      * Sets the index columns.
      *
-     * @param array $columns
+     * @param string[] $columns Columns
      *
      * @return $this
      */
@@ -63,7 +63,7 @@ class Index
     /**
      * Gets the index columns.
      *
-     * @return array
+     * @return string[]
      */
     public function getColumns()
     {
@@ -73,7 +73,7 @@ class Index
     /**
      * Sets the index type.
      *
-     * @param string $type
+     * @param string $type Type
      *
      * @return $this
      */
@@ -97,7 +97,7 @@ class Index
     /**
      * Sets the index name.
      *
-     * @param string $name
+     * @param string $name Name
      *
      * @return $this
      */

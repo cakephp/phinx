@@ -32,7 +32,7 @@ use Phinx\Migration\IrreversibleMigrationException;
 class ProxyAdapter extends AdapterWrapper
 {
     /**
-     * @var array
+     * @var \Phinx\Db\Action\Action[]
      */
     protected $commands = [];
 
@@ -75,39 +75,39 @@ class ProxyAdapter extends AdapterWrapper
     {
         $inverted = new Intent();
 
-        foreach (array_reverse($this->commands) as $com) {
+        foreach (array_reverse($this->commands) as $command) {
             switch (true) {
-                case $com instanceof CreateTable:
-                    $inverted->addAction(new DropTable($com->getTable()));
+                case $command instanceof CreateTable:
+                    $inverted->addAction(new DropTable($command->getTable()));
                     break;
 
-                case $com instanceof RenameTable:
-                    $inverted->addAction(new RenameTable(new Table($com->getNewName()), $com->getTable()->getName()));
+                case $command instanceof RenameTable:
+                    $inverted->addAction(new RenameTable(new Table($command->getNewName()), $command->getTable()->getName()));
                     break;
 
-                case $com instanceof AddColumn:
-                    $inverted->addAction(new RemoveColumn($com->getTable(), $com->getColumn()));
+                case $command instanceof AddColumn:
+                    $inverted->addAction(new RemoveColumn($command->getTable(), $command->getColumn()));
                     break;
 
-                case $com instanceof RenameColumn:
-                    $column = clone $com->getColumn();
+                case $command instanceof RenameColumn:
+                    $column = clone $command->getColumn();
                     $name = $column->getName();
-                    $column->setName($com->getNewName());
-                    $inverted->addAction(new RenameColumn($com->getTable(), $column, $name));
+                    $column->setName($command->getNewName());
+                    $inverted->addAction(new RenameColumn($command->getTable(), $column, $name));
                     break;
 
-                case $com instanceof AddIndex:
-                    $inverted->addAction(new DropIndex($com->getTable(), $com->getIndex()));
+                case $command instanceof AddIndex:
+                    $inverted->addAction(new DropIndex($command->getTable(), $command->getIndex()));
                     break;
 
-                case $com instanceof AddForeignKey:
-                    $inverted->addAction(new DropForeignKey($com->getTable(), $com->getForeignKey()));
+                case $command instanceof AddForeignKey:
+                    $inverted->addAction(new DropForeignKey($command->getTable(), $command->getForeignKey()));
                     break;
 
                 default:
                     throw new IrreversibleMigrationException(sprintf(
                         'Cannot reverse a "%s" command',
-                        get_class($com)
+                        get_class($command)
                     ));
             }
         }

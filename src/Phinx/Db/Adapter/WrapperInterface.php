@@ -17,14 +17,14 @@ interface WrapperInterface
     /**
      * Class constructor, must always wrap another adapter.
      *
-     * @param \Phinx\Db\Adapter\AdapterInterface $adapter
+     * @param \Phinx\Db\Adapter\AdapterInterface $adapter Adapter
      */
     public function __construct(AdapterInterface $adapter);
 
     /**
      * Sets the database adapter to proxy commands to.
      *
-     * @param \Phinx\Db\Adapter\AdapterInterface $adapter
+     * @param \Phinx\Db\Adapter\AdapterInterface $adapter Adapter
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */

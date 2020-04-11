@@ -16,6 +16,42 @@ use UnexpectedValueException;
  */
 class Column
 {
+    public const BIGINTEGER = AdapterInterface::PHINX_TYPE_BIG_INTEGER;
+    public const SMALLINTEGER = AdapterInterface::PHINX_TYPE_SMALL_INTEGER;
+    public const BINARY = AdapterInterface::PHINX_TYPE_BINARY;
+    public const BOOLEAN = AdapterInterface::PHINX_TYPE_BOOLEAN;
+    public const CHAR = AdapterInterface::PHINX_TYPE_CHAR;
+    public const DATE = AdapterInterface::PHINX_TYPE_DATE;
+    public const DATETIME = AdapterInterface::PHINX_TYPE_DATETIME;
+    public const DECIMAL = AdapterInterface::PHINX_TYPE_DECIMAL;
+    public const FLOAT = AdapterInterface::PHINX_TYPE_FLOAT;
+    public const INTEGER = AdapterInterface::PHINX_TYPE_INTEGER;
+    public const STRING = AdapterInterface::PHINX_TYPE_STRING;
+    public const TEXT = AdapterInterface::PHINX_TYPE_TEXT;
+    public const TIME = AdapterInterface::PHINX_TYPE_TIME;
+    public const TIMESTAMP = AdapterInterface::PHINX_TYPE_TIMESTAMP;
+    public const UUID = AdapterInterface::PHINX_TYPE_UUID;
+    /** MySQL-only column type */
+    public const ENUM = AdapterInterface::PHINX_TYPE_ENUM;
+    /** MySQL-only column type */
+    public const SET = AdapterInterface::PHINX_TYPE_STRING;
+    /** MySQL-only column type */
+    public const BLOB = AdapterInterface::PHINX_TYPE_BLOB;
+    /** MySQL-only column type */
+    public const YEAR = AdapterInterface::PHINX_TYPE_YEAR;
+    /** MySQL/Postgres-only column type */
+    public const JSON = AdapterInterface::PHINX_TYPE_JSON;
+    /** Postgres-only column type */
+    public const JSONB = AdapterInterface::PHINX_TYPE_JSONB;
+    /** Postgres-only column type */
+    public const CIDR = AdapterInterface::PHINX_TYPE_CIDR;
+    /** Postgres-only column type */
+    public const INET = AdapterInterface::PHINX_TYPE_INET;
+    /** Postgres-only column type */
+    public const MACADDR = AdapterInterface::PHINX_TYPE_MACADDR;
+    /** Postgres-only column type */
+    public const INTERVAL = AdapterInterface::PHINX_TYPE_INTERVAL;
+
     /**
      * @var string
      */
@@ -114,7 +150,7 @@ class Column
     /**
      * Sets the column name.
      *
-     * @param string $name
+     * @param string $name Name
      *
      * @return $this
      */
@@ -162,7 +198,7 @@ class Column
     /**
      * Sets the column limit.
      *
-     * @param int $limit
+     * @param int $limit Limit
      *
      * @return $this
      */
@@ -186,7 +222,7 @@ class Column
     /**
      * Sets whether the column allows nulls.
      *
-     * @param bool $null
+     * @param bool $null Null
      *
      * @return $this
      */
@@ -220,7 +256,7 @@ class Column
     /**
      * Sets the default column value.
      *
-     * @param mixed $default
+     * @param mixed $default Default
      *
      * @return $this
      */
@@ -244,7 +280,7 @@ class Column
     /**
      * Sets whether or not the column is an identity column.
      *
-     * @param bool $identity
+     * @param bool $identity Identity
      *
      * @return $this
      */
@@ -453,7 +489,7 @@ class Column
     /**
      * Sets the column comment.
      *
-     * @param string $comment
+     * @param string $comment Comment
      *
      * @return $this
      */
@@ -477,7 +513,7 @@ class Column
     /**
      * Sets whether field should be signed.
      *
-     * @param bool $signed
+     * @param bool $signed Signed
      *
      * @return $this
      */
@@ -512,7 +548,7 @@ class Column
      * Sets whether the field should have a timezone identifier.
      * Used for date/time columns only!
      *
-     * @param bool $timezone
+     * @param bool $timezone Timezone
      *
      * @return $this
      */
@@ -546,7 +582,7 @@ class Column
     /**
      * Sets field properties.
      *
-     * @param array $properties
+     * @param array $properties Properties
      *
      * @return $this
      */
@@ -570,7 +606,7 @@ class Column
     /**
      * Sets field values.
      *
-     * @param array|string $values
+     * @param string[]|string $values Value(s)
      *
      * @return $this
      */
@@ -597,7 +633,7 @@ class Column
     /**
      * Sets the column collation.
      *
-     * @param string $collation
+     * @param string $collation Collation
      *
      * @throws \UnexpectedValueException If collation not allowed for type
      *
@@ -610,7 +646,7 @@ class Column
             AdapterInterface::PHINX_TYPE_STRING,
             AdapterInterface::PHINX_TYPE_TEXT,
         ];
-        if (!in_array($this->getType(), $allowedTypes)) {
+        if (!in_array($this->getType(), $allowedTypes, true)) {
             throw new UnexpectedValueException('Collation may be set only for types: ' . implode(', ', $allowedTypes));
         }
 
@@ -632,7 +668,7 @@ class Column
     /**
      * Sets the column character set.
      *
-     * @param string $encoding
+     * @param string $encoding Encoding
      *
      * @throws \UnexpectedValueException If character set not allowed for type
      *
@@ -645,7 +681,7 @@ class Column
             AdapterInterface::PHINX_TYPE_STRING,
             AdapterInterface::PHINX_TYPE_TEXT,
         ];
-        if (!in_array($this->getType(), $allowedTypes)) {
+        if (!in_array($this->getType(), $allowedTypes, true)) {
             throw new UnexpectedValueException('Character set may be set only for types: ' . implode(', ', $allowedTypes));
         }
 

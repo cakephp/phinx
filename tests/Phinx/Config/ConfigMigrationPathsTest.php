@@ -35,8 +35,8 @@ class ConfigMigrationPathsTest extends AbstractConfigTest
     {
         $values = [
             'paths' => [
-                'migrations' => '/test'
-            ]
+                'migrations' => '/test',
+            ],
         ];
 
         $config = new Config($values);

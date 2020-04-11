@@ -10,20 +10,36 @@ use RuntimeException;
 
 class PDOMock extends \PDO
 {
-    public $attributes = [];
+    /**
+     * @var array
+     */
+    protected $attributes = [];
 
     public function __construct()
     {
     }
 
+    /**
+     * @param int $attribute Attribute
+     *
+     * @return string
+     */
     public function getAttribute($attribute)
     {
         return isset($this->attributes[$attribute]) ? $this->attributes[$attribute] : 'pdomock';
     }
 
+    /**
+     * @param int $attribute Attribute
+     * @param mixed $value Value
+     *
+     * @return bool
+     */
     public function setAttribute($attribute, $value)
     {
         $this->attributes[$attribute] = $value;
+
+        return true;
     }
 }
 
@@ -32,7 +48,7 @@ class EnvironmentTest extends TestCase
     /**
      * @var \Phinx\Migration\Manager\Environment
      */
-    private $environment;
+    protected $environment;
 
     public function setUp(): void
     {

@@ -145,14 +145,18 @@ class ConfigDsnTest extends AbstractConfigTest
         ];
     }
 
-    /** @dataProvider \Test\Phinx\Config\ConfigDsnTest::dataProviderValidDsn() */
+    /**
+     * @dataProvider \Test\Phinx\Config\ConfigDsnTest::dataProviderValidDsn()
+     */
     public function testValidDsn($dsn)
     {
         $cfg = new Config(['environments' => ['testenv' => ['dsn' => $dsn]]]);
         $this->assertArrayNotHasKey('dsn', $cfg->getEnvironment('testenv'));
     }
 
-    /** @dataProvider \Test\Phinx\Config\ConfigDsnTest::dataProviderInvalidDsn() */
+    /**
+     * @dataProvider \Test\Phinx\Config\ConfigDsnTest::dataProviderInvalidDsn()
+     */
     public function testInvalidDsn($dsn)
     {
         $cfg = new Config(['environments' => ['testenv' => ['dsn' => $dsn]]]);

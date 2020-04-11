@@ -34,15 +34,15 @@ abstract class AbstractConfigTest extends TestCase
                 'paths' => [
                     'migrations' => '%%PHINX_CONFIG_PATH%%/testmigrations2',
                     'seeds' => '%%PHINX_CONFIG_PATH%%/db/seeds',
-                ]
+                ],
             ],
             'paths' => [
                 'migrations' => $this->getMigrationPaths(),
-                'seeds' => $this->getSeedPaths()
+                'seeds' => $this->getSeedPaths(),
             ],
             'templates' => [
                 'file' => '%%PHINX_CONFIG_PATH%%/tpl/testtemplate.txt',
-                'class' => '%%PHINX_CONFIG_PATH%%/tpl/testtemplate.php'
+                'class' => '%%PHINX_CONFIG_PATH%%/tpl/testtemplate.php',
             ],
             'environments' => [
                 'default_migration_table' => 'phinxlog',

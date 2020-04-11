@@ -17,7 +17,7 @@ class PhinxApplicationTest extends TestCase
      */
     public function testRun($command, $result)
     {
-        $app = new PhinxApplication('testing');
+        $app = new PhinxApplication();
         $app->setAutoExit(false); // Set autoExit to false when testing
         $app->setCatchExceptions(false);
 
@@ -32,7 +32,7 @@ class PhinxApplicationTest extends TestCase
     public function provider()
     {
         return [
-            ['help', '/help \[options\] \[--\] \[<command_name>\]/']
+            ['help', '/help \[options\] \[--\] \[<command_name>\]/'],
         ];
     }
 }

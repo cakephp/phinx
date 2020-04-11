@@ -6,8 +6,8 @@ use BadMethodCallException;
 use InvalidArgumentException;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Table\Column;
-use Phinx\Util\Literal;
 use Phinx\Util\Expression;
+use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -1154,7 +1154,8 @@ INPUT;
         $this->assertEquals(Literal::from('decimal'), array_pop($columns)->getType());
     }
 
-    /** @dataProvider provideTableNamesForPresenceCheck
+    /**
+     * @dataProvider provideTableNamesForPresenceCheck
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::hasTable
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::resolveTable
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::quoteString
@@ -1205,7 +1206,8 @@ INPUT;
         ];
     }
 
-    /** @dataProvider provideIndexColumnsToCheck
+    /**
+     * @dataProvider provideIndexColumnsToCheck
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getTableInfo
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getIndexes
@@ -1240,7 +1242,8 @@ INPUT;
         ];
     }
 
-    /** @dataProvider provideIndexNamesToCheck
+    /**
+     * @dataProvider provideIndexNamesToCheck
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getTableInfo
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getIndexes
@@ -1267,7 +1270,8 @@ INPUT;
         ];
     }
 
-    /** @dataProvider providePrimaryKeysToCheck
+    /**
+     * @dataProvider providePrimaryKeysToCheck
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getTableInfo
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::hasPrimaryKey
@@ -1319,11 +1323,13 @@ INPUT;
             ['create table t("0" integer primary key)', ['0'], true],
             ['create table t("0" integer primary key)', ['0e0'], false],
             ['create table t("0e0" integer primary key)', ['0'], false],
-            ['create table not_t(a integer)', 'a', false] // test checks table t which does not exist
+            ['create table not_t(a integer)', 'a', false], // test checks table t which does not exist
         ];
     }
 
-    /** @covers \Phinx\Db\Adapter\SQLiteAdapter::hasPrimaryKey */
+    /**
+     * @covers \Phinx\Db\Adapter\SQLiteAdapter::hasPrimaryKey
+     */
     public function testHasNamedPrimaryKey()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -1331,7 +1337,8 @@ INPUT;
         $this->adapter->hasPrimaryKey('t', [], 'named_constraint');
     }
 
-    /** @dataProvider provideForeignKeysToCheck
+    /**
+     * @dataProvider provideForeignKeysToCheck
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getTableInfo
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::hasForeignKey
@@ -1440,7 +1447,8 @@ INPUT;
         ];
     }
 
-    /** @dataProvider provideSqlTypes
+    /**
+     * @dataProvider provideSqlTypes
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getPhinxType
      */
     public function testGetPhinxType($sqlType, $exp)
@@ -1448,6 +1456,9 @@ INPUT;
         $this->assertEquals($exp, $this->adapter->getPhinxType($sqlType));
     }
 
+    /**
+     * @return array
+     */
     public function provideSqlTypes()
     {
         return [
@@ -1644,7 +1655,8 @@ INPUT;
         $this->assertEquals($exp, $this->adapter->getColumnTypes());
     }
 
-    /** @dataProvider provideColumnTypesForValidation
+    /**
+     * @dataProvider provideColumnTypesForValidation
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::isValidColumnType
      */
     public function testIsValidColumnType($phinxType, $exp)
@@ -1693,7 +1705,8 @@ INPUT;
         ];
     }
 
-    /** @dataProvider provideDatabaseVersionStrings
+    /**
+     * @dataProvider provideDatabaseVersionStrings
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::databaseVersionAtLeast
      */
     public function testDatabaseVersionAtLeast($ver, $exp)
@@ -1714,7 +1727,8 @@ INPUT;
         ];
     }
 
-    /** @dataProvider provideColumnNamesToCheck
+    /**
+     * @dataProvider provideColumnNamesToCheck
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getSchemaName
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::getTableInfo
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::hasColumn
@@ -1774,7 +1788,8 @@ INPUT;
         }
     }
 
-    /** @dataProvider provideIdentityCandidates
+    /**
+     * @dataProvider provideIdentityCandidates
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::resolveIdentity
      */
     public function testGetColumnsForIdentity($tableDef, $exp)
@@ -1805,7 +1820,8 @@ INPUT;
         ];
     }
 
-    /** @dataProvider provideDefaultValues
+    /**
+     * @dataProvider provideDefaultValues
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::parseDefaultValue
      */
     public function testGetColumnsForDefaults($tableDef, $exp)
@@ -1878,7 +1894,8 @@ INPUT;
         ];
     }
 
-    /** @dataProvider provideBooleanDefaultValues
+    /**
+     * @dataProvider provideBooleanDefaultValues
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::parseDefaultValue
      */
     public function testGetColumnsForBooleanDefaults($tableDef, $exp)
@@ -1908,7 +1925,8 @@ INPUT;
         ];
     }
 
-    /** @dataProvider provideTablesForTruncation
+    /**
+     * @dataProvider provideTablesForTruncation
      * @covers \Phinx\Db\Adapter\SQLiteAdapter::truncateTable
      */
     public function testTruncateTable($tableDef, $tableName, $tableId)
@@ -1926,6 +1944,9 @@ INPUT;
         $this->assertEquals(1, $conn->query("select max(id) from $tableId")->fetchColumn(), 'Autoincrement was not reset');
     }
 
+    /**
+     * @return array
+     */
     public function provideTablesForTruncation()
     {
         return [

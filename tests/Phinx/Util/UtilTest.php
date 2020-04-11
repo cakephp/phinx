@@ -79,7 +79,7 @@ class UtilTest extends TestCase
             'CreateUserTable' => true,
             'UserSeeder' => true,
             'Test' => true,
-            'test' => false
+            'test' => false,
         ];
 
         foreach ($expectedResults as $input => $expectedResult) {
@@ -104,7 +104,7 @@ class UtilTest extends TestCase
     {
         $files = Util::globAll([
             __DIR__ . '/_files/migrations/*.php',
-            __DIR__ . '/_files/migrations/subdirectory/*.txt'
+            __DIR__ . '/_files/migrations/subdirectory/*.txt',
         ]);
 
         $this->assertCount(4, $files);
@@ -119,7 +119,7 @@ class UtilTest extends TestCase
         $files = Util::getFiles([
             __DIR__ . '/_files/migrations',
             __DIR__ . '/_files/migrations/subdirectory',
-            __DIR__ . '/_files/migrations/subdirectory'
+            __DIR__ . '/_files/migrations/subdirectory',
         ]);
 
         $this->assertCount(4, $files);

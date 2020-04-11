@@ -106,11 +106,11 @@ class PdoAdapterTest extends TestCase
         $mockRows = [
             [
                 'version' => '20120508120534',
-                'key' => 'value'
+                'key' => 'value',
             ],
             [
                 'version' => '20130508120534',
-                'key' => 'value'
+                'key' => 'value',
             ],
         ];
 
@@ -123,11 +123,11 @@ class PdoAdapterTest extends TestCase
         $expected = [
             '20120508120534' => [
                 'version' => '20120508120534',
-                'key' => 'value'
+                'key' => 'value',
             ],
             '20130508120534' => [
                 'version' => '20130508120534',
-                'key' => 'value'
+                'key' => 'value',
             ],
         ];
 
@@ -138,10 +138,10 @@ class PdoAdapterTest extends TestCase
     {
         return [
             'With Creation Time Version Order' => [
-                \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME, 'version ASC'
+                \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME, 'version ASC',
             ],
             'With Execution Time Version Order' => [
-                \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, 'start_time ASC, version ASC'
+                \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, 'start_time ASC, version ASC',
             ],
         ];
     }

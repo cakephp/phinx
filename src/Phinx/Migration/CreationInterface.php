@@ -18,20 +18,20 @@ use Symfony\Component\Console\Output\OutputInterface;
 interface CreationInterface
 {
     /**
-     * @param \Symfony\Component\Console\Input\InputInterface|null $input
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output
+     * @param \Symfony\Component\Console\Input\InputInterface|null $input Input
+     * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output
      */
     public function __construct(InputInterface $input = null, OutputInterface $output = null);
 
     /**
-     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Input\InputInterface $input Input
      *
      * @return \Phinx\Migration\CreationInterface
      */
     public function setInput(InputInterface $input);
 
     /**
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      *
      * @return \Phinx\Migration\CreationInterface
      */

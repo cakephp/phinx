@@ -210,7 +210,7 @@ class TableTest extends TestCase
             2 => [
                 'column1' => 'value1',
                 'column2' => 'value2',
-            ]
+            ],
         ];
         $table->insert($data);
         $expectedData = array_values($data);
@@ -343,7 +343,7 @@ class TableTest extends TestCase
         $adapterStub->expects($this->exactly(2))
             ->method('getColumns')
             ->willReturn([
-                $column1
+                $column1,
             ]);
 
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
@@ -379,16 +379,16 @@ class TableTest extends TestCase
         return [
             [
                 'indexA',
-                (new Index())->setColumns(['indexA'])
+                (new Index())->setColumns(['indexA']),
             ],
             [
                 ['indexB', 'indexC'],
-                (new Index())->setColumns(['indexB', 'indexC'])
+                (new Index())->setColumns(['indexB', 'indexC']),
             ],
             [
                 ['indexD'],
-                (new Index())->setColumns(['indexD'])
-            ]
+                (new Index())->setColumns(['indexD']),
+            ],
         ];
     }
 
