@@ -18,7 +18,7 @@ interface NamespaceAwareInterface
     /**
      * Get Migration Namespace associated with path.
      *
-     * @param string $path
+     * @param string $path Path
      *
      * @return string|null
      */
@@ -27,7 +27,7 @@ interface NamespaceAwareInterface
     /**
      * Get Seed Namespace associated with path.
      *
-     * @param string $path
+     * @param string $path Path
      *
      * @return string|null
      */

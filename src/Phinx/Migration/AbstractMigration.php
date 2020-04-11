@@ -67,8 +67,8 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @param string $environment Environment Detected
      * @param int $version Migration Version
-     * @param \Symfony\Component\Console\Input\InputInterface|null $input
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output
+     * @param \Symfony\Component\Console\Input\InputInterface|null $input Input
+     * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output
      */
     final public function __construct($environment, $version, InputInterface $input = null, OutputInterface $output = null)
     {
@@ -283,7 +283,7 @@ abstract class AbstractMigration implements MigrationInterface
      *
      * @deprecated since 0.10.0. Use $this->table($tableName)->drop()->save() instead.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return void
      */
@@ -300,14 +300,15 @@ abstract class AbstractMigration implements MigrationInterface
      * Right now, the only check is if there is both a `change()` and
      * an `up()` or a `down()` method.
      *
-     * @param string|null $direction
+     * @param string|null $direction Direction
      *
      * @return void
      */
     public function preFlightCheck($direction = null)
     {
         if (method_exists($this, MigrationInterface::CHANGE)) {
-            if (method_exists($this, MigrationInterface::UP) ||
+            if (
+                method_exists($this, MigrationInterface::UP) ||
                 method_exists($this, MigrationInterface::DOWN)
             ) {
                 $this->output->writeln(sprintf(

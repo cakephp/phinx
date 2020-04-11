@@ -31,7 +31,7 @@ class SqlServerAdapterTest extends TestCase
             'name' => TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE,
             'user' => TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME,
             'pass' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD,
-            'port' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT
+            'port' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT,
         ];
         $this->adapter = new SqlServerAdapter($options, new ArrayInput([]), new NullOutput());
 
@@ -81,7 +81,7 @@ class SqlServerAdapterTest extends TestCase
             'name' => TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE,
             'port' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT,
             'user' => 'invaliduser',
-            'pass' => 'invalidpass'
+            'pass' => 'invalidpass',
         ];
 
         $adapter = null;
@@ -156,6 +156,7 @@ class SqlServerAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
+
     public function testCreateTableIdentityColumn()
     {
         $table = new \Phinx\Db\Table('ntable', ['id' => false, 'primary_key' => 'id'], $this->adapter);
@@ -172,10 +173,11 @@ WHERE t.name='ntable'");
         $this->assertEquals($identity['seed_value'], '1');
         $this->assertEquals($identity['increment_value'], '10');
     }
+
     public function testCreateTableWithNoPrimaryKey()
     {
         $options = [
-            'id' => false
+            'id' => false,
         ];
         $table = new \Phinx\Db\Table('atable', $options, $this->adapter);
         $table->addColumn('user_id', 'integer')
@@ -234,7 +236,7 @@ WHERE t.name='ntable'");
     {
         $options = [
             'id' => false,
-            'primary_key' => ['user_id', 'tag_id']
+            'primary_key' => ['user_id', 'tag_id'],
         ];
         $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
         $table->addColumn('user_id', 'integer')
@@ -848,7 +850,7 @@ WHERE t.name='ntable'");
                   [
                       'column1' => 'value2',
                       'column2' => 2,
-                  ]
+                  ],
               ])
               ->insert(
                   [
@@ -882,7 +884,7 @@ WHERE t.name='ntable'");
                   [
                       'column1' => 'value2',
                       'column2' => 2,
-                  ]
+                  ],
               ])
               ->insert(
                   [
@@ -915,7 +917,7 @@ WHERE t.name='ntable'");
                   [
                       'column1' => 'value2',
                       'column2' => 2,
-                  ]
+                  ],
               ])
               ->save();
 
@@ -945,7 +947,7 @@ WHERE t.name='ntable'");
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->insert([
             'column1' => 'id1',
-            'column2' => 1
+            'column2' => 1,
         ])->save();
 
         $expectedOutput = <<<'OUTPUT'

@@ -14,7 +14,7 @@ class NullGenerator extends AbstractTemplateCreation
      */
     public function getMigrationTemplate()
     {
-        // TODO: Implement getMigrationTemplate() method.
+        // Implement getMigrationTemplate() method.
     }
 
     /**
@@ -30,6 +30,6 @@ class NullGenerator extends AbstractTemplateCreation
      */
     public function postMigrationCreation($migrationFilename, $className, $baseClassName)
     {
-        // TODO: Implement postMigrationCreation() method.
+        // Implement postMigrationCreation() method.
     }
 }

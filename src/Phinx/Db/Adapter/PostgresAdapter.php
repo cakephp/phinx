@@ -617,7 +617,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * Get an array of indexes from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -777,7 +777,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * Get the primary key from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -840,7 +840,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * Get an array of foreign keys from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -1158,7 +1158,7 @@ class PostgresAdapter extends PdoAdapter
                     $column->getPrecision() ?: $sqlType['precision'],
                     $column->getScale() ?: $sqlType['scale']
                 );
-            } elseif (in_array($sqlType['name'], [self::PHINX_TYPE_GEOMETRY], true)) {
+            } elseif ($sqlType['name'] === self::PHINX_TYPE_GEOMETRY) {
                 // geography type must be written with geometry type and srid, like this: geography(POLYGON,4326)
                 $buffer[] = sprintf(
                     '(%s,%s)',
@@ -1251,7 +1251,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * Gets the MySQL Foreign Key Definition for an ForeignKey object.
      *
-     * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign key
      * @param string $tableName Table name
      *
      * @return string
@@ -1390,7 +1390,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * Check if the given column is an array of a valid type.
      *
-     * @param string $columnType
+     * @param string $columnType Column type
      *
      * @return bool
      */

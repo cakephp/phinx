@@ -412,7 +412,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * Recurse an array for the specified tokens and replace them.
      *
      * @param array $arr Array to recurse
-     * @param array $tokens Array of tokens to search for
+     * @param string[] $tokens Array of tokens to search for
      *
      * @return array
      */

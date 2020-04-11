@@ -35,7 +35,7 @@ class AddColumn extends Action
      * Returns a new AddColumn object after assembling the given commands
      *
      * @param \Phinx\Db\Table\Table $table The table to add the column to
-     * @param mixed $columnName The column name
+     * @param string $columnName The column name
      * @param mixed $type The column type
      * @param mixed $options The column options
      *

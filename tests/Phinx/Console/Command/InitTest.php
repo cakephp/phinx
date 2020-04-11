@@ -188,9 +188,9 @@ class InitTest extends TestCase
         $commandTester->execute([
             'command' => $command->getName(),
             'path' => sys_get_temp_dir() . DIRECTORY_SEPARATOR,
-            '--format' => 'invalid'
+            '--format' => 'invalid',
         ], [
-            'decorated' => false
+            'decorated' => false,
         ]);
     }
 }

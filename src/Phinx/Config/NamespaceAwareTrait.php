@@ -32,8 +32,8 @@ trait NamespaceAwareTrait
     /**
      * Search $needle in $haystack and return key associate with him.
      *
-     * @param string $needle
-     * @param array $haystack
+     * @param string $needle Needle
+     * @param string[] $haystack Haystack
      *
      * @return string|null
      */
@@ -42,7 +42,7 @@ trait NamespaceAwareTrait
         $needle = realpath($needle);
         $haystack = array_map('realpath', $haystack);
 
-        $key = array_search($needle, $haystack);
+        $key = array_search($needle, $haystack, true);
 
         return is_string($key) ? trim($key, '\\') : null;
     }
@@ -50,7 +50,7 @@ trait NamespaceAwareTrait
     /**
      * Get Migration Namespace associated with path.
      *
-     * @param string $path
+     * @param string $path Path
      *
      * @return string|null
      */
@@ -64,7 +64,7 @@ trait NamespaceAwareTrait
     /**
      * Get Seed Namespace associated with path.
      *
-     * @param string $path
+     * @param string $path Path
      *
      * @return string|null
      */

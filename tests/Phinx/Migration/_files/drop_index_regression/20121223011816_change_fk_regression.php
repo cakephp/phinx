@@ -13,7 +13,7 @@ class ChangeFkRegression extends AbstractMigration
         $table
             ->dropForeignKey('entity_id')
             ->addForeignKey('entity_id', 'my_other_table', 'id', [
-                'constraint' => 'my_other_table_foreign_key'
+                'constraint' => 'my_other_table_foreign_key',
             ])
             ->update();
     }

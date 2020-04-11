@@ -386,7 +386,7 @@ class SQLiteAdapter extends PdoAdapter
             if (isset($options['primary_key']) && $column->getIdentity()) {
                 //remove column from the primary key array as it is already defined as an autoincrement
                 //primary id
-                $identityColumnIndex = array_search($column->getName(), $options['primary_key']);
+                $identityColumnIndex = array_search($column->getName(), $options['primary_key'], true);
                 if ($identityColumnIndex !== false) {
                     unset($options['primary_key'][$identityColumnIndex]);
 
@@ -965,7 +965,7 @@ PCRE_PATTERN;
     /**
      * Get an array of indexes from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -1130,7 +1130,7 @@ PCRE_PATTERN;
     /**
      * Get the primary key from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return string[]
      */
@@ -1178,7 +1178,7 @@ PCRE_PATTERN;
     /**
      * Get an array of foreign keys from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -1381,7 +1381,7 @@ PCRE_PATTERN;
     /**
      * Returns Phinx type by SQL type
      *
-     * @param string|null $sqlTypeDef SQL type
+     * @param string|null $sqlTypeDef SQL Type definition
      *
      * @return array
      */
@@ -1558,7 +1558,7 @@ PCRE_PATTERN;
     /**
      * Gets the SQLite Foreign Key Definition for an ForeignKey object.
      *
-     * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign key
      *
      * @return string
      */

@@ -150,7 +150,7 @@ class Column
     /**
      * Sets the column name.
      *
-     * @param string $name
+     * @param string $name Name
      *
      * @return $this
      */
@@ -198,7 +198,7 @@ class Column
     /**
      * Sets the column limit.
      *
-     * @param int $limit
+     * @param int $limit Limit
      *
      * @return $this
      */
@@ -222,7 +222,7 @@ class Column
     /**
      * Sets whether the column allows nulls.
      *
-     * @param bool $null
+     * @param bool $null Null
      *
      * @return $this
      */
@@ -256,7 +256,7 @@ class Column
     /**
      * Sets the default column value.
      *
-     * @param mixed $default
+     * @param mixed $default Default
      *
      * @return $this
      */
@@ -280,7 +280,7 @@ class Column
     /**
      * Sets whether or not the column is an identity column.
      *
-     * @param bool $identity
+     * @param bool $identity Identity
      *
      * @return $this
      */
@@ -489,7 +489,7 @@ class Column
     /**
      * Sets the column comment.
      *
-     * @param string $comment
+     * @param string $comment Comment
      *
      * @return $this
      */
@@ -513,7 +513,7 @@ class Column
     /**
      * Sets whether field should be signed.
      *
-     * @param bool $signed
+     * @param bool $signed Signed
      *
      * @return $this
      */
@@ -548,7 +548,7 @@ class Column
      * Sets whether the field should have a timezone identifier.
      * Used for date/time columns only!
      *
-     * @param bool $timezone
+     * @param bool $timezone Timezone
      *
      * @return $this
      */
@@ -582,7 +582,7 @@ class Column
     /**
      * Sets field properties.
      *
-     * @param array $properties
+     * @param array $properties Properties
      *
      * @return $this
      */
@@ -606,7 +606,7 @@ class Column
     /**
      * Sets field values.
      *
-     * @param array|string $values
+     * @param string[]|string $values Value(s)
      *
      * @return $this
      */
@@ -633,7 +633,7 @@ class Column
     /**
      * Sets the column collation.
      *
-     * @param string $collation
+     * @param string $collation Collation
      *
      * @throws \UnexpectedValueException If collation not allowed for type
      *
@@ -668,7 +668,7 @@ class Column
     /**
      * Sets the column character set.
      *
-     * @param string $encoding
+     * @param string $encoding Encoding
      *
      * @throws \UnexpectedValueException If character set not allowed for type
      *

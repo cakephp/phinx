@@ -79,7 +79,7 @@ interface AdapterInterface
     /**
      * Set adapter configuration options.
      *
-     * @param array $options
+     * @param array $options Options
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
@@ -95,7 +95,7 @@ interface AdapterInterface
     /**
      * Check if an option has been set.
      *
-     * @param string $name
+     * @param string $name Name
      *
      * @return bool
      */
@@ -104,7 +104,7 @@ interface AdapterInterface
     /**
      * Get a single adapter option, or null if the option does not exist.
      *
-     * @param string $name
+     * @param string $name Name
      *
      * @return mixed
      */
@@ -167,7 +167,7 @@ interface AdapterInterface
     /**
      * Toggle a migration breakpoint.
      *
-     * @param \Phinx\Migration\MigrationInterface $migration
+     * @param \Phinx\Migration\MigrationInterface $migration Migration
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
@@ -322,7 +322,7 @@ interface AdapterInterface
      * Inserts data into a table.
      *
      * @param \Phinx\Db\Table\Table $table Table where to insert data
-     * @param array $row
+     * @param array $row Row
      *
      * @return void
      */
@@ -332,7 +332,7 @@ interface AdapterInterface
      * Inserts data into a table in a bulk.
      *
      * @param \Phinx\Db\Table\Table $table Table where to insert data
-     * @param array $rows
+     * @param array $rows Rows
      *
      * @return void
      */
@@ -341,7 +341,7 @@ interface AdapterInterface
     /**
      * Quotes a table name for use in a query.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return string
      */
@@ -350,7 +350,7 @@ interface AdapterInterface
     /**
      * Quotes a column name for use in a query.
      *
-     * @param string $columnName Table Name
+     * @param string $columnName Table name
      *
      * @return string
      */
@@ -359,7 +359,7 @@ interface AdapterInterface
     /**
      * Checks to see if a table exists.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return bool
      */
@@ -379,7 +379,7 @@ interface AdapterInterface
     /**
      * Truncates the specified table
      *
-     * @param string $tableName
+     * @param string $tableName Table name
      *
      * @return void
      */
@@ -388,7 +388,7 @@ interface AdapterInterface
     /**
      * Returns table columns
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return \Phinx\Db\Table\Column[]
      */
@@ -397,8 +397,8 @@ interface AdapterInterface
     /**
      * Checks to see if a column exists.
      *
-     * @param string $tableName Table Name
-     * @param string $columnName Column Name
+     * @param string $tableName Table name
+     * @param string $columnName Column name
      *
      * @return bool
      */
@@ -407,7 +407,7 @@ interface AdapterInterface
     /**
      * Checks to see if an index exists.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      * @param string|string[] $columns Column(s)
      *
      * @return bool
@@ -417,8 +417,8 @@ interface AdapterInterface
     /**
      * Checks to see if an index specified by name exists.
      *
-     * @param string $tableName Table Name
-     * @param string $indexName
+     * @param string $tableName Table name
+     * @param string $indexName Index name
      *
      * @return bool
      */
@@ -427,7 +427,7 @@ interface AdapterInterface
     /**
      * Checks to see if the specified primary key exists.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      * @param string|string[] $columns Column(s)
      * @param string|null $constraint Constraint name
      *
@@ -438,7 +438,7 @@ interface AdapterInterface
     /**
      * Checks to see if a foreign key exists.
      *
-     * @param string $tableName
+     * @param string $tableName Table name
      * @param string|string[] $columns Column(s)
      * @param string|null $constraint Constraint name
      *
@@ -456,7 +456,7 @@ interface AdapterInterface
     /**
      * Checks that the given column is of a supported type.
      *
-     * @param \Phinx\Db\Table\Column $column
+     * @param \Phinx\Db\Table\Column $column Column
      *
      * @return bool
      */
@@ -465,8 +465,8 @@ interface AdapterInterface
     /**
      * Converts the Phinx logical type to the adapter's SQL type.
      *
-     * @param string $type
-     * @param int|null $limit
+     * @param string $type Type
+     * @param int|null $limit Limit
      *
      * @return array
      */

@@ -16,7 +16,7 @@ class GSeeder extends AbstractSeed
             [
                 'body' => 'bar',
                 'created' => date('Y-m-d H:i:s'),
-            ]
+            ],
         ];
 
         $posts = $this->table('posts');

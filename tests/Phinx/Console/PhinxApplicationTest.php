@@ -32,7 +32,7 @@ class PhinxApplicationTest extends TestCase
     public function provider()
     {
         return [
-            ['help', '/help \[options\] \[--\] \[<command_name>\]/']
+            ['help', '/help \[options\] \[--\] \[<command_name>\]/'],
         ];
     }
 }

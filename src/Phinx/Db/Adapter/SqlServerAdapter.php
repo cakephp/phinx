@@ -417,6 +417,12 @@ class SqlServerAdapter extends PdoAdapter
         $this->execute($sql);
     }
 
+    /**
+     * @param string $tableName Table name
+     * @param string $columnName Column name
+     *
+     * @return bool|string
+     */
     public function getColumnComment($tableName, $columnName)
     {
         $sql = sprintf("SELECT cast(extended_properties.[value] as nvarchar(4000)) comment
@@ -483,17 +489,22 @@ class SqlServerAdapter extends PdoAdapter
         return $columns;
     }
 
+    /**
+     * @param string $default Default
+     *
+     * @return int|string|null
+     */
     protected function parseDefault($default)
     {
-        $default = preg_replace(["/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"], '$1', $default);
+        $result = preg_replace(["/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"], '$1', $default);
 
-        if (strtoupper($default) === 'NULL') {
-            $default = null;
-        } elseif (is_numeric($default)) {
-            $default = (int)$default;
+        if (strtoupper($result) === 'NULL') {
+            $result = null;
+        } elseif (is_numeric($result)) {
+            $result = (int)$result;
         }
 
-        return $default;
+        return $result;
     }
 
     /**
@@ -670,6 +681,12 @@ SQL;
         return $this->getDropForeignKeyInstructions($tableName, $defaultConstraint);
     }
 
+    /**
+     * @param string $tableName Table name
+     * @param string $columnName Column name
+     *
+     * @return bool|string
+     */
     protected function getDefaultConstraint($tableName, $columnName)
     {
         $sql = "SELECT
@@ -699,6 +716,12 @@ WHERE
         return empty($rows) ? false : $rows[0]['name'];
     }
 
+    /**
+     * @param int $tableId Table ID
+     * @param int $indexId Index ID
+     *
+     * @return array
+     */
     protected function getIndexColums($tableId, $indexId)
     {
         $sql = "SELECT AC.[name] AS [column_name]
@@ -719,7 +742,7 @@ ORDER BY IC.[key_ordinal];";
     /**
      * Get an array of indexes from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -878,7 +901,7 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * Get the primary key from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -938,7 +961,7 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * Get an array of foreign keys from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */

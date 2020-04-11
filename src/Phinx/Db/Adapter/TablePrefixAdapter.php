@@ -418,7 +418,7 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * Applies the prefix and suffix to the table name.
      *
-     * @param string $tableName
+     * @param string $tableName Table name
      *
      * @return string
      */
