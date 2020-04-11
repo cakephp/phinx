@@ -183,7 +183,7 @@ class InitTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid format "invalid". Format must be either yaml, yml, json, or php.');
+        $this->expectExceptionMessage('Invalid format "invalid". Format must be either json, yaml, yml, php.');
 
         $commandTester->execute([
             'command' => $command->getName(),
