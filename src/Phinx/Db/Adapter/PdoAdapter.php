@@ -657,7 +657,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * @param string $columnName Column Name
      * @param string $newColumnName New Column Name
      *
-     * @return AlterInstructions:w
+     * @return \Phinx\Db\Util\AlterInstructions
      */
     abstract protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName);
 
