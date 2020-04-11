@@ -29,7 +29,7 @@ class Create extends AbstractCommand
     /**
      * The name of the interface that any external template creation class is required to implement.
      */
-    const CREATION_INTERFACE = 'Phinx\Migration\CreationInterface';
+    public const CREATION_INTERFACE = 'Phinx\Migration\CreationInterface';
 
     /**
      * {@inheritDoc}

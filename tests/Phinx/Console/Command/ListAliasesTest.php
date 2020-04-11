@@ -28,7 +28,7 @@ class ListAliasesTest extends TestCase
      */
     public function testListingAliases($file, $hasAliases)
     {
-        $command = (new PhinxApplication('testing'))->find('list:aliases');
+        $command = (new PhinxApplication())->find('list:aliases');
         $commandTester = new CommandTester($command);
         $commandTester->execute(
             [

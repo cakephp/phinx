@@ -21,44 +21,45 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 interface AdapterInterface
 {
-    const PHINX_TYPE_STRING = 'string';
-    const PHINX_TYPE_CHAR = 'char';
-    const PHINX_TYPE_TEXT = 'text';
-    const PHINX_TYPE_SMALL_INTEGER = 'smallinteger';
-    const PHINX_TYPE_INTEGER = 'integer';
-    const PHINX_TYPE_BIG_INTEGER = 'biginteger';
-    const PHINX_TYPE_BIT = 'bit';
-    const PHINX_TYPE_FLOAT = 'float';
-    const PHINX_TYPE_DECIMAL = 'decimal';
-    const PHINX_TYPE_DOUBLE = 'double';
-    const PHINX_TYPE_DATETIME = 'datetime';
-    const PHINX_TYPE_TIMESTAMP = 'timestamp';
-    const PHINX_TYPE_TIME = 'time';
-    const PHINX_TYPE_DATE = 'date';
-    const PHINX_TYPE_BINARY = 'binary';
-    const PHINX_TYPE_VARBINARY = 'varbinary';
-    const PHINX_TYPE_BLOB = 'blob';
-    const PHINX_TYPE_BOOLEAN = 'boolean';
-    const PHINX_TYPE_JSON = 'json';
-    const PHINX_TYPE_JSONB = 'jsonb';
-    const PHINX_TYPE_UUID = 'uuid';
-    const PHINX_TYPE_FILESTREAM = 'filestream';
+    public const PHINX_TYPE_STRING = 'string';
+    public const PHINX_TYPE_CHAR = 'char';
+    public const PHINX_TYPE_TEXT = 'text';
+    public const PHINX_TYPE_SMALL_INTEGER = 'smallinteger';
+    public const PHINX_TYPE_INTEGER = 'integer';
+    public const PHINX_TYPE_BIG_INTEGER = 'biginteger';
+    public const PHINX_TYPE_BIT = 'bit';
+    public const PHINX_TYPE_FLOAT = 'float';
+    public const PHINX_TYPE_DECIMAL = 'decimal';
+    public const PHINX_TYPE_DOUBLE = 'double';
+    public const PHINX_TYPE_DATETIME = 'datetime';
+    public const PHINX_TYPE_TIMESTAMP = 'timestamp';
+    public const PHINX_TYPE_TIME = 'time';
+    public const PHINX_TYPE_DATE = 'date';
+    public const PHINX_TYPE_BINARY = 'binary';
+    public const PHINX_TYPE_VARBINARY = 'varbinary';
+    public const PHINX_TYPE_BLOB = 'blob';
+    public const PHINX_TYPE_BOOLEAN = 'boolean';
+    public const PHINX_TYPE_JSON = 'json';
+    public const PHINX_TYPE_JSONB = 'jsonb';
+    public const PHINX_TYPE_UUID = 'uuid';
+    public const PHINX_TYPE_FILESTREAM = 'filestream';
 
     // Geospatial database types
-    const PHINX_TYPE_GEOMETRY = 'geometry';
-    const PHINX_TYPE_POINT = 'point';
-    const PHINX_TYPE_LINESTRING = 'linestring';
-    const PHINX_TYPE_POLYGON = 'polygon';
+    public const PHINX_TYPE_GEOMETRY = 'geometry';
+    public const PHINX_TYPE_POINT = 'point';
+    public const PHINX_TYPE_LINESTRING = 'linestring';
+    public const PHINX_TYPE_POLYGON = 'polygon';
 
     // only for mysql so far
-    const PHINX_TYPE_ENUM = 'enum';
-    const PHINX_TYPE_SET = 'set';
+    public const PHINX_TYPE_ENUM = 'enum';
+    public const PHINX_TYPE_SET = 'set';
+    public const PHINX_TYPE_YEAR = 'year';
 
     // only for postgresql so far
-    const PHINX_TYPE_CIDR = 'cidr';
-    const PHINX_TYPE_INET = 'inet';
-    const PHINX_TYPE_MACADDR = 'macaddr';
-    const PHINX_TYPE_INTERVAL = 'interval';
+    public const PHINX_TYPE_CIDR = 'cidr';
+    public const PHINX_TYPE_INET = 'inet';
+    public const PHINX_TYPE_MACADDR = 'macaddr';
+    public const PHINX_TYPE_INTERVAL = 'interval';
 
     /**
      * Get all migrated version numbers.
@@ -448,7 +449,7 @@ interface AdapterInterface
     /**
      * Returns an array of the supported Phinx column types.
      *
-     * @return array
+     * @return string[]
      */
     public function getColumnTypes();
 

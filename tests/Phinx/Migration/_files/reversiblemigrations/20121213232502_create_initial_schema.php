@@ -1,5 +1,6 @@
 <?php
 
+use Phinx\Db\Table\Column;
 use Phinx\Migration\AbstractMigration;
 
 class CreateInitialSchema extends AbstractMigration
@@ -11,26 +12,26 @@ class CreateInitialSchema extends AbstractMigration
     {
         // users table
         $users = $this->table('users');
-        $users->addColumn('username', 'string', ['limit' => 20])
-              ->addColumn('password', 'string', ['limit' => 40])
-              ->addColumn('password_salt', 'string', ['limit' => 40])
-              ->addColumn('email', 'string', ['limit' => 100])
-              ->addColumn('first_name', 'string', ['limit' => 30])
-              ->addColumn('last_name', 'string', ['limit' => 30])
-              ->addColumn('bio', 'string', ['limit' => 160, 'null' => true, 'default' => null])
-              ->addColumn('profile_image_url', 'string', ['limit' => 120, 'null' => true, 'default' => null])
-              ->addColumn('twitter', 'string', ['limit' => 30, 'null' => true, 'default' => null])
-              ->addColumn('role', 'string', ['limit' => 20])
-              ->addColumn('confirmed', 'boolean', ['null' => true, 'default' => null])
-              ->addColumn('confirmation_key', 'string', ['limit' => 40])
-              ->addColumn('created', 'datetime')
-              ->addColumn('updated', 'datetime', ['default' => null])
+        $users->addColumn('username', Column::STRING, ['limit' => 20])
+              ->addColumn('password', Column::STRING, ['limit' => 40])
+              ->addColumn('password_salt', Column::STRING, ['limit' => 40])
+              ->addColumn('email', Column::STRING, ['limit' => 100])
+              ->addColumn('first_name', Column::STRING, ['limit' => 30])
+              ->addColumn('last_name', Column::STRING, ['limit' => 30])
+              ->addColumn('bio', Column::STRING, ['limit' => 160, 'null' => true, 'default' => null])
+              ->addColumn('profile_image_url', Column::STRING, ['limit' => 120, 'null' => true, 'default' => null])
+              ->addColumn('twitter', Column::STRING, ['limit' => 30, 'null' => true, 'default' => null])
+              ->addColumn('role', Column::STRING, ['limit' => 20])
+              ->addColumn('confirmed', Column::BOOLEAN, ['null' => true, 'default' => null])
+              ->addColumn('confirmation_key', Column::STRING, ['limit' => 40])
+              ->addColumn('created', Column::DATETIME)
+              ->addColumn('updated', Column::DATETIME, ['default' => null])
               ->addIndex(['username', 'email'], ['unique' => true])
               ->create();
 
         // info table
         $info = $this->table('info');
-        $info->addColumn('username', 'string', ['limit' => 20])
+        $info->addColumn('username', Column::STRING, ['limit' => 20])
              ->create();
     }
 

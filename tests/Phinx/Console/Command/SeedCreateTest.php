@@ -9,7 +9,7 @@ use Phinx\Console\Command\SeedCreate;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
 use PHPUnit\Framework\TestCase;
-use PHPUnit_Framework_MockObject_MockObject;
+use \PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -64,14 +64,14 @@ class SeedCreateTest extends TestCase
             unlink(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'MyDuplicateSeeder.php');
         }
 
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new SeedCreate());
 
         /** @var SeedCreate $command */
         $command = $application->find('seed:create');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -90,14 +90,14 @@ class SeedCreateTest extends TestCase
 
     public function testExecuteWithInvalidClassName()
     {
-        $application = new PhinxApplication('testing');
+        $application = new PhinxApplication();
         $application->add(new SeedCreate());
 
         /** @var SeedCreate $command */
         $command = $application->find('seed:create');
 
         // mock the manager class
-        /** @var Manager|PHPUnit_Framework_MockObject_MockObject $managerStub */
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();

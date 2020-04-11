@@ -33,6 +33,7 @@
     },
     "require-dev": {
         "ext-json": "*",
+        "ext-pdo": "*",
         "phpunit/phpunit": "^8.5",
         "sebastian/comparator": ">=1.2.3",
         "cakephp/cakephp-codesniffer": "^3.0",

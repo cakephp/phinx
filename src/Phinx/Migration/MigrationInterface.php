@@ -21,22 +21,22 @@ interface MigrationInterface
     /**
      * @var string
      */
-    const CHANGE = 'change';
+    public const CHANGE = 'change';
 
     /**
      * @var string
      */
-    const UP = 'up';
+    public const UP = 'up';
 
     /**
      * @var string
      */
-    const DOWN = 'down';
+    public const DOWN = 'down';
 
     /**
      * @var string
      */
-    const INIT = 'init';
+    public const INIT = 'init';
 
     /**
      * Sets the database adapter.
