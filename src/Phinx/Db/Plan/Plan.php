@@ -369,7 +369,7 @@ class Plan
                         if (!$action instanceof RemoveColumn) {
                             return [$action, null];
                         }
-                        if (in_array($action->getColumn(), $columns, true)) {
+                        if (in_array($action->getColumn()->getName(), $columns, true)) {
                             return [null, $action];
                         }
 
