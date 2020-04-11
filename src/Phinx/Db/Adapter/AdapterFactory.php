@@ -63,8 +63,8 @@ class AdapterFactory
     /**
      * Add or replace an adapter with a fully qualified class name.
      *
-     * @param string $name
-     * @param string $class
+     * @param string $name Name
+     * @param string $class Class
      *
      * @throws \RuntimeException
      *
@@ -86,7 +86,7 @@ class AdapterFactory
     /**
      * Get an adapter class by name.
      *
-     * @param string $name
+     * @param string $name Name
      *
      * @throws \RuntimeException
      *
@@ -107,8 +107,8 @@ class AdapterFactory
     /**
      * Get an adapter instance by name.
      *
-     * @param string $name
-     * @param array $options
+     * @param string $name Name
+     * @param array $options Options
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
@@ -122,8 +122,8 @@ class AdapterFactory
     /**
      * Add or replace a wrapper with a fully qualified class name.
      *
-     * @param string $name
-     * @param string $class
+     * @param string $name Name
+     * @param string $class Class
      *
      * @throws \RuntimeException
      *
@@ -145,7 +145,7 @@ class AdapterFactory
     /**
      * Get a wrapper class by name.
      *
-     * @param string $name
+     * @param string $name Name
      *
      * @throws \RuntimeException
      *
@@ -166,8 +166,8 @@ class AdapterFactory
     /**
      * Get a wrapper instance by name.
      *
-     * @param string $name
-     * @param \Phinx\Db\Adapter\AdapterInterface $adapter
+     * @param string $name Name
+     * @param \Phinx\Db\Adapter\AdapterInterface $adapter Adapter
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */

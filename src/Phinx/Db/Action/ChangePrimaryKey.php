@@ -14,7 +14,7 @@ class ChangePrimaryKey extends Action
     /**
      * The new columns for the primary key
      *
-     * @var string|array|null
+     * @var string|string[]|null
      */
     protected $newColumns;
 
@@ -22,7 +22,7 @@ class ChangePrimaryKey extends Action
      * Constructor
      *
      * @param \Phinx\Db\Table\Table $table The table to be changed
-     * @param string|array|null $newColumns The new columns for the primary key
+     * @param string|string[]|null $newColumns The new columns for the primary key
      */
     public function __construct(Table $table, $newColumns)
     {
@@ -33,7 +33,7 @@ class ChangePrimaryKey extends Action
     /**
      * Return the new columns for the primary key
      *
-     * @return string|array|null
+     * @return string|string[]|null
      */
     public function getNewColumns()
     {

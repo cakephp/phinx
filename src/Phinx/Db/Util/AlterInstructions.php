@@ -19,15 +19,15 @@ class AlterInstructions
     protected $alterParts = [];
 
     /**
-     * @var mixed[] The SQL commands to be executed after the ALTER instruction
+     * @var (string|callable)[] The SQL commands to be executed after the ALTER instruction
      */
     protected $postSteps = [];
 
     /**
      * Constructor
      *
-     * @param array $alterParts SQL snippets to be added to a single ALTER instruction per table
-     * @param array $postSteps SQL commands to be executed after the ALTER instruction
+     * @param string[] $alterParts SQL snippets to be added to a single ALTER instruction per table
+     * @param (string|callable)[] $postSteps SQL commands to be executed after the ALTER instruction
      */
     public function __construct(array $alterParts = [], array $postSteps = [])
     {
@@ -77,7 +77,7 @@ class AlterInstructions
     /**
      * Returns the SQL commands to run after the ALTER instruction
      *
-     * @return mixed[]
+     * @return (string|callable)[]
      */
     public function getPostSteps()
     {

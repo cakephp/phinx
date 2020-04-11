@@ -21,7 +21,7 @@ interface DirectActionInterface
     /**
      * Renames the specified database table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      * @param string $newName New Name
      *
      * @return void
@@ -31,7 +31,7 @@ interface DirectActionInterface
     /**
      * Drops the specified database table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return void
      */
@@ -41,7 +41,7 @@ interface DirectActionInterface
      * Changes the primary key of the specified database table.
      *
      * @param \Phinx\Db\Table\Table $table Table
-     * @param string|array|null $newColumns Column name(s) to belong to the primary key, or null to drop the key
+     * @param string|string[]|null $newColumns Column name(s) to belong to the primary key, or null to drop the key
      *
      * @return void
      */
@@ -70,7 +70,7 @@ interface DirectActionInterface
     /**
      * Renames the specified column.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      * @param string $columnName Column Name
      * @param string $newColumnName New Column Name
      *
@@ -81,7 +81,7 @@ interface DirectActionInterface
     /**
      * Change a table column type.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      * @param string $columnName Column Name
      * @param \Phinx\Db\Table\Column $newColumn New Column
      *
@@ -92,7 +92,7 @@ interface DirectActionInterface
     /**
      * Drops the specified column.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      * @param string $columnName Column Name
      *
      * @return void

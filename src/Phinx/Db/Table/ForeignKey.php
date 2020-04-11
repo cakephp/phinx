@@ -50,7 +50,7 @@ class ForeignKey
     /**
      * Sets the foreign key columns.
      *
-     * @param string[]|string $columns
+     * @param string[]|string $columns Columns
      *
      * @return $this
      */
@@ -98,7 +98,7 @@ class ForeignKey
     /**
      * Sets the foreign key referenced columns.
      *
-     * @param string[] $referencedColumns
+     * @param string[] $referencedColumns Referenced columns
      *
      * @return $this
      */
@@ -122,7 +122,7 @@ class ForeignKey
     /**
      * Sets ON DELETE action for the foreign key.
      *
-     * @param string $onDelete
+     * @param string $onDelete On Delete
      *
      * @return $this
      */
@@ -156,7 +156,7 @@ class ForeignKey
     /**
      * Sets ON UPDATE action for the foreign key.
      *
-     * @param string $onUpdate
+     * @param string $onUpdate On Update
      *
      * @return $this
      */
@@ -170,7 +170,7 @@ class ForeignKey
     /**
      * Sets constraint for the foreign key.
      *
-     * @param string $constraint
+     * @param string $constraint Constraint
      *
      * @return $this
      */
@@ -226,7 +226,7 @@ class ForeignKey
     /**
      * From passed value checks if it's correct and fixes if needed
      *
-     * @param string $action
+     * @param string $action Action
      *
      * @throws \InvalidArgumentException
      *

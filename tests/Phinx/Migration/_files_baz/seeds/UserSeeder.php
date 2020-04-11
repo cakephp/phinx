@@ -16,7 +16,7 @@ class UserSeeder extends AbstractSeed
             [
                 'name' => 'bar',
                 'created' => date('Y-m-d H:i:s'),
-            ]
+            ],
         ];
 
         $users = $this->table('users');

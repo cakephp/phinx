@@ -43,7 +43,7 @@ class Manager
     protected $output;
 
     /**
-     * @var array
+     * @var \Phinx\Migration\Manager\Environment[]
      */
     protected $environments = [];
 
@@ -94,7 +94,7 @@ class Manager
             $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         }
         if (count($migrations)) {
-            // TODO - rewrite using Symfony Table Helper as we already have this library
+            // rewrite using Symfony Table Helper as we already have this library
             // included and it will fix formatting issues (e.g drawing the lines)
             $output->writeln('');
 
@@ -164,7 +164,8 @@ class Manager
                         } else {
                             if ($missingVersion['start_time'] > $version['start_time']) {
                                 break;
-                            } elseif ($missingVersion['start_time'] == $version['start_time'] &&
+                            } elseif (
+                                $missingVersion['start_time'] == $version['start_time'] &&
                                 $missingVersion['version'] > $version['version']
                             ) {
                                 break;
@@ -419,10 +420,10 @@ class Manager
      * Rollback an environment to the specified version.
      *
      * @param string $environment Environment
-     * @param int|string|null $target
-     * @param bool $force
-     * @param bool $targetMustMatchVersion
-     * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
+     * @param int|string|null $target Target
+     * @param bool $force Force
+     * @param bool $targetMustMatchVersion Target must match version
+     * @param bool $fake Flag that if true, we just record running the migration, but not actually do the migration
      *
      * @return void
      */
@@ -461,7 +462,7 @@ class Manager
             $migrationNames = array_map(function ($item) {
                 return $item['migration_name'];
             }, $executedVersions);
-            $found = array_search($target, $migrationNames);
+            $found = array_search($target, $migrationNames, true);
 
             // check on was found
             if ($found !== false) {
@@ -507,7 +508,8 @@ class Manager
                 $executedVersion = $executedVersions[$migration->getVersion()];
 
                 if (!$targetMustMatchVersion) {
-                    if (($this->getConfig()->isVersionOrderCreationTime() && $executedVersion['version'] <= $target) ||
+                    if (
+                        ($this->getConfig()->isVersionOrderCreationTime() && $executedVersion['version'] <= $target) ||
                         (!$this->getConfig()->isVersionOrderCreationTime() && $executedVersion['start_time'] <= $target)
                     ) {
                         break;
@@ -562,7 +564,7 @@ class Manager
     /**
      * Sets the environments.
      *
-     * @param array $environments Environments
+     * @param \Phinx\Migration\Manager\Environment[] $environments Environments
      *
      * @return $this
      */
@@ -949,8 +951,8 @@ class Manager
     /**
      * Toggles the breakpoint for a specific version.
      *
-     * @param string $environment
-     * @param int|null $version
+     * @param string $environment Environment name
+     * @param int|null $version Version
      *
      * @return void
      */

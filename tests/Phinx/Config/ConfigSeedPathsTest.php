@@ -35,8 +35,8 @@ class ConfigSeedPathsTest extends AbstractConfigTest
     {
         $values = [
             'paths' => [
-                'seeds' => '/test'
-            ]
+                'seeds' => '/test',
+            ],
         ];
 
         $config = new Config($values);

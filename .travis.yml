@@ -22,29 +22,26 @@ matrix:
     - php: 7.2
       env: PREFER_LOWEST=1
 
-    - php: 7.2
-      env: PHPCS=1 DEFAULT=0
-
-    - php: 7.2
-      env: PHPSTAN=1 DEFAULT=0
+    - php: 7.4
+      env: CHECKS=1 DEFAULT=0
 
 before_install:
-  - phpenv config-rm xdebug.ini
+  - if [[ $DEFAULT != 1 ]]; then phpenv config-rm xdebug.ini; fi
 
 before_script:
     - if [[ $PREFER_LOWEST != 1 ]]; then travis_retry composer update --no-interaction --prefer-stable; fi
     - if [[ $PREFER_LOWEST == 1 ]]; then travis_retry composer update --no-interaction --prefer-stable --prefer-lowest; fi
-    - if [[ $DEFAULT = 1 ]]; then mysql -e 'create database phinx_testing;'; fi
-    - if [[ $DEFAULT = 1 ]]; then psql -c 'create database phinx_testing;' -U postgres; fi
-    - if [[ $DEFAULT = 1 ]]; then psql -c 'create extension if not exists citext;' -U postgres; fi
 
-    - if [[ $PHPCS = 1 ]]; then composer require --dev squizlabs/php_codesniffer:^3.1.1; fi
-    - if [[ $PHPSTAN = 1 ]]; then composer require --dev phpstan/phpstan:^0.12; fi
+    - if [[ $DEFAULT == 1 ]]; then mysql -e 'create database phinx_testing;'; fi
+    - if [[ $DEFAULT == 1 ]]; then psql -c 'create database phinx_testing;' -U postgres; fi
+    - if [[ $DEFAULT == 1 ]]; then psql -c 'create extension if not exists citext;' -U postgres; fi
+
+    - if [[ $CHECKS == 1 ]]; then composer require --dev phpstan/phpstan:^0.12; fi
 
 script:
-    - if [[ $DEFAULT = 1 ]]; then vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover; fi
-    - if [[ $PHPSTAN = 1 ]]; then vendor/bin/phpstan analyse -c phpstan.neon src/; fi
-    - if [[ $PHPCS = 1 ]]; then vendor/bin/phpcs -p -s src/; fi
+    - if [[ $DEFAULT == 1 ]]; then vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover; fi
+    - if [[ $CHECKS == 1 ]]; then composer stan; fi
+    - if [[ $CHECKS == 1 ]]; then composer cs-check; fi
 
 after_success:
   - if [[ $DEFAULT = 1 ]]; then bash <(curl -s https://codecov.io/bash); fi

@@ -40,8 +40,8 @@ abstract class AbstractSeed implements SeedInterface
     protected $output;
 
     /**
-     * @param \Symfony\Component\Console\Input\InputInterface|null $input
-     * @param \Symfony\Component\Console\Output\OutputInterface|null $output
+     * @param \Symfony\Component\Console\Input\InputInterface|null $input Input
+     * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output
      */
     final public function __construct(InputInterface $input = null, OutputInterface $output = null)
     {

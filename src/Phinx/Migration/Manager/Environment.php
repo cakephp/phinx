@@ -84,7 +84,6 @@ class Environment
             $migration->init();
         }
 
-
         if (!$fake) {
             // begin the transaction if the adapter supports it
             if ($this->getAdapter()->hasTransactions()) {
@@ -126,7 +125,7 @@ class Environment
     /**
      * Executes the specified seeder on this environment.
      *
-     * @param \Phinx\Seed\SeedInterface $seed
+     * @param \Phinx\Seed\SeedInterface $seed Seed
      *
      * @return void
      */
@@ -205,7 +204,7 @@ class Environment
     /**
      * Sets the console input.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Input\InputInterface $input Input
      *
      * @return $this
      */
@@ -293,7 +292,7 @@ class Environment
     public function getCurrentVersion()
     {
         // We don't cache this code as the current version is pretty volatile.
-        // TODO - that means they're no point in a setter then?
+        // that means they're no point in a setter then?
         // maybe we should cache and call a reset() method every time a migration is run
         $versions = $this->getVersions();
         $version = 0;

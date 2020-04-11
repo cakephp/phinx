@@ -3,12 +3,12 @@ return [
     'paths' => [
         'migrations' => [
             'application/migrations',
-            'application2/migrations'
+            'application2/migrations',
         ],
         'seeds' => [
             'application/seeds',
-            'application2/seeds'
-        ]
+            'application2/seeds',
+        ],
     ],
     'environments' => [
         'default_migration_table' => 'phinxlog',
@@ -20,7 +20,7 @@ return [
             'name' => 'testing',
             'user' => 'root',
             'pass' => '',
-            'port' => 3306
-        ]
-    ]
+            'port' => 3306,
+        ],
+    ],
 ];

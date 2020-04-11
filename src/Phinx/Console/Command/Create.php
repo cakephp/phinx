@@ -73,7 +73,7 @@ class Create extends AbstractCommand
     /**
      * Get the question that allows the user to select which migration path to use.
      *
-     * @param string[] $paths
+     * @param string[] $paths Paths
      *
      * @return \Symfony\Component\Console\Question\ChoiceQuestion
      */
@@ -85,8 +85,8 @@ class Create extends AbstractCommand
     /**
      * Returns the migration path to create the migration in.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input Input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      *
      * @throws \Exception
      *
@@ -133,8 +133,8 @@ class Create extends AbstractCommand
     /**
      * Create the new migration.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input Input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException

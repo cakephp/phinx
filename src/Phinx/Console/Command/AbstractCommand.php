@@ -96,8 +96,8 @@ abstract class AbstractCommand extends Command
     /**
      * Bootstrap Phinx.
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input Input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      *
      * @return void
      */
@@ -141,7 +141,7 @@ abstract class AbstractCommand extends Command
     /**
      * Sets the config.
      *
-     * @param \Phinx\Config\ConfigInterface $config
+     * @param \Phinx\Config\ConfigInterface $config Config
      *
      * @return $this
      */
@@ -165,7 +165,7 @@ abstract class AbstractCommand extends Command
     /**
      * Sets the database adapter.
      *
-     * @param \Phinx\Db\Adapter\AdapterInterface $adapter
+     * @param \Phinx\Db\Adapter\AdapterInterface $adapter Adapter
      *
      * @return $this
      */
@@ -189,7 +189,7 @@ abstract class AbstractCommand extends Command
     /**
      * Sets the migration manager.
      *
-     * @param \Phinx\Migration\Manager $manager
+     * @param \Phinx\Migration\Manager $manager Manager
      *
      * @return $this
      */
@@ -213,7 +213,7 @@ abstract class AbstractCommand extends Command
     /**
      * Returns config file path
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Input\InputInterface $input Input
      *
      * @return string
      */
@@ -230,7 +230,7 @@ abstract class AbstractCommand extends Command
         $cwd = getcwd();
 
         // locate the phinx config file (default: phinx.yml)
-        // TODO - In future walk the tree in reverse (max 10 levels)
+        // In future walk the tree in reverse (max 10 levels)
         $locator = new FileLocator([
             $cwd . DIRECTORY_SEPARATOR,
         ]);
@@ -254,8 +254,8 @@ abstract class AbstractCommand extends Command
     /**
      * Parse the config file and load it into the config object
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input Input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      *
      * @throws \InvalidArgumentException
      *
@@ -309,8 +309,8 @@ abstract class AbstractCommand extends Command
     /**
      * Load the migrations manager and inject the config
      *
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param \Symfony\Component\Console\Input\InputInterface $input Input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      *
      * @return void
      */
@@ -329,7 +329,7 @@ abstract class AbstractCommand extends Command
     /**
      * Verify that the migration directory exists and is writable.
      *
-     * @param string $path
+     * @param string $path Path
      *
      * @throws \InvalidArgumentException
      *
@@ -355,7 +355,7 @@ abstract class AbstractCommand extends Command
     /**
      * Verify that the seed directory exists and is writable.
      *
-     * @param string $path
+     * @param string $path Path
      *
      * @throws \InvalidArgumentException
      *

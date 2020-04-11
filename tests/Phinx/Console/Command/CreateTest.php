@@ -264,7 +264,7 @@ class CreateTest extends TestCase
                 [],
                 [
                     'name' => 'Null2',
-                    '--class' => '\Test\Phinx\Console\Command\TemplateGenerators\NullGenerator'
+                    '--class' => '\Test\Phinx\Console\Command\TemplateGenerators\NullGenerator',
                 ],
             ],
             [
@@ -328,7 +328,7 @@ class CreateTest extends TestCase
                 [],
                 [
                     'name' => 'Simple2',
-                    '--class' => '\Test\Phinx\Console\Command\TemplateGenerators\SimpleGenerator'
+                    '--class' => '\Test\Phinx\Console\Command\TemplateGenerators\SimpleGenerator',
                 ],
             ],
             [

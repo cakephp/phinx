@@ -81,7 +81,7 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
                 'some-var-2' => 'includes/%%NON_PHINX_TEST_VAR_1%%',
                 'some-var-3' => 'includes/%%PHINX_TEST_VAR_2%%',
                 'some-var-4' => 123456,
-            ]
+            ],
         ]);
 
         $folding = $config->offsetGet('folding');

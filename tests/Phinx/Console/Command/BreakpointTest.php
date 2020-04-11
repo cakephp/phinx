@@ -10,7 +10,6 @@ use Phinx\Console\Command\Breakpoint;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
 use PHPUnit\Framework\TestCase;
-use \PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -232,19 +231,19 @@ class BreakpointTest extends TestCase
                 [
                     '--remove-all' => true,
                     '--set' => true,
-                ]
+                ],
             ],
             'Remove with Unset' => [
                 [
                     '--remove-all' => true,
                     '--unset' => true,
-                ]
+                ],
             ],
             'Set with Unset' => [
                 [
                     '--set' => true,
                     '--unset' => true,
-                ]
+                ],
             ],
         ];
     }

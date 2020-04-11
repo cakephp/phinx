@@ -177,7 +177,7 @@ class Table
     /**
      * Changes the primary key of the database table.
      *
-     * @param string|array|null $columns Column name(s) to belong to the primary key, or null to drop the key
+     * @param string|string[]|null $columns Column name(s) to belong to the primary key, or null to drop the key
      *
      * @return $this
      */
@@ -399,7 +399,7 @@ class Table
     /**
      * Removes the given index from a table.
      *
-     * @param string|array $columns Columns
+     * @param string|string[] $columns Columns
      *
      * @return $this
      */
@@ -429,7 +429,7 @@ class Table
     /**
      * Checks to see if an index exists.
      *
-     * @param string|array $columns Columns
+     * @param string|string[] $columns Columns
      *
      * @return bool
      */
@@ -441,7 +441,7 @@ class Table
     /**
      * Checks to see if an index specified by name exists.
      *
-     * @param string $indexName
+     * @param string $indexName Index name
      *
      * @return bool
      */
@@ -456,9 +456,9 @@ class Table
      * In $options you can specify on_delete|on_delete = cascade|no_action ..,
      * on_update, constraint = constraint name.
      *
-     * @param string|array $columns Columns
+     * @param string|string[] $columns Columns
      * @param string|\Phinx\Db\Table $referencedTable Referenced Table
-     * @param string|array $referencedColumns Referenced Columns
+     * @param string|string[] $referencedColumns Referenced Columns
      * @param array $options Options
      *
      * @return $this
@@ -478,9 +478,9 @@ class Table
      * on_update, constraint = constraint name.
      *
      * @param string $name The constraint name
-     * @param string|array $columns Columns
+     * @param string|string[] $columns Columns
      * @param string|\Phinx\Db\Table $referencedTable Referenced Table
-     * @param string|array $referencedColumns Referenced Columns
+     * @param string|string[] $referencedColumns Referenced Columns
      * @param array $options Options
      *
      * @return $this
@@ -503,7 +503,7 @@ class Table
     /**
      * Removes the given foreign key from the table.
      *
-     * @param string|array $columns Column(s)
+     * @param string|string[] $columns Column(s)
      * @param string|null $constraint Constraint names
      *
      * @return $this
@@ -519,7 +519,7 @@ class Table
     /**
      * Checks to see if a foreign key exists.
      *
-     * @param string|array $columns Column(s)
+     * @param string|string[] $columns Column(s)
      * @param string|null $constraint Constraint names
      *
      * @return bool

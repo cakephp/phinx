@@ -237,6 +237,7 @@ class MysqlAdapter extends PdoAdapter
 
         return !empty($result);
     }
+
     /**
      * {@inheritDoc}
      *
@@ -276,7 +277,7 @@ class MysqlAdapter extends PdoAdapter
             $options['primary_key'] = $options['id'];
         }
 
-        // TODO - process table options like collation etc
+        // open: process table options like collation etc
 
         // process table engine (default to InnoDB)
         $optionsStr = 'ENGINE = InnoDB';
@@ -560,7 +561,7 @@ class MysqlAdapter extends PdoAdapter
     /**
      * Get an array of indexes from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -723,7 +724,7 @@ class MysqlAdapter extends PdoAdapter
     /**
      * Get the primary key from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -781,7 +782,7 @@ class MysqlAdapter extends PdoAdapter
     /**
      * Get an array of foreign keys from a particular table.
      *
-     * @param string $tableName Table Name
+     * @param string $tableName Table name
      *
      * @return array
      */
@@ -1004,7 +1005,7 @@ class MysqlAdapter extends PdoAdapter
      *
      * @internal param string $sqlType SQL type
      *
-     * @param string $sqlTypeDef
+     * @param string $sqlTypeDef SQL Type definition
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      *
@@ -1262,7 +1263,7 @@ class MysqlAdapter extends PdoAdapter
     /**
      * Gets the MySQL Foreign Key Definition for an ForeignKey object.
      *
-     * @param \Phinx\Db\Table\ForeignKey $foreignKey
+     * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign key
      *
      * @return string
      */

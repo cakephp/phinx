@@ -6,8 +6,8 @@ use BadMethodCallException;
 use InvalidArgumentException;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Table\Column;
-use Phinx\Util\Literal;
 use Phinx\Util\Expression;
+use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -1323,7 +1323,7 @@ INPUT;
             ['create table t("0" integer primary key)', ['0'], true],
             ['create table t("0" integer primary key)', ['0e0'], false],
             ['create table t("0e0" integer primary key)', ['0'], false],
-            ['create table not_t(a integer)', 'a', false] // test checks table t which does not exist
+            ['create table not_t(a integer)', 'a', false], // test checks table t which does not exist
         ];
     }
 

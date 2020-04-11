@@ -9,7 +9,6 @@ use Phinx\Console\Command\Migrate;
 use Phinx\Console\PhinxApplication;
 use Phinx\Migration\Manager;
 use PHPUnit\Framework\TestCase;
-use \PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -49,8 +48,8 @@ class MigrateTest extends TestCase
                     'user' => '',
                     'pass' => '',
                     'port' => 3006,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $this->input = new ArrayInput([]);

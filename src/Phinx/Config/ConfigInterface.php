@@ -32,7 +32,7 @@ interface ConfigInterface extends ArrayAccess
      * This method returns <code>null</code> if the specified environment
      * doesn't exist.
      *
-     * @param string $name
+     * @param string $name Environment Name
      *
      * @return array|null
      */
@@ -59,7 +59,7 @@ interface ConfigInterface extends ArrayAccess
     /**
      * Get the aliased value from a supplied alias.
      *
-     * @param string $alias
+     * @param string $alias Alias
      *
      * @return string|null
      */
@@ -110,7 +110,7 @@ interface ConfigInterface extends ArrayAccess
     /**
      * Get the data domain array.
      *
-     * @return array[]
+     * @return array
      */
     public function getDataDomain();
 
