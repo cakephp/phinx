@@ -90,7 +90,7 @@ class Create extends AbstractCommand
      *
      * @throws \Exception
      *
-     * @return mixed
+     * @return string
      */
     protected function getMigrationPath(InputInterface $input, OutputInterface $output)
     {

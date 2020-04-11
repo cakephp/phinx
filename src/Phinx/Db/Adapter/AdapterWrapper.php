@@ -127,7 +127,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritDoc}
      *
-     * @return void
+     * @return \Phinx\Db\Table\Column
      */
     public function getColumnForType($columnName, $type, array $options)
     {
