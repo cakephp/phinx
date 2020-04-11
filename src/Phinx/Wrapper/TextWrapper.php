@@ -22,17 +22,17 @@ class TextWrapper
     /**
      * @var \Phinx\Console\PhinxApplication
      */
-    private $app;
+    protected $app;
 
     /**
      * @var array
      */
-    private $options = [];
+    protected $options;
 
     /**
      * @var int
      */
-    private $exit_code;
+    protected $exitCode;
 
     /**
      * @param \Phinx\Console\PhinxApplication $app
@@ -61,7 +61,7 @@ class TextWrapper
      */
     public function getExitCode()
     {
-        return $this->exit_code;
+        return $this->exitCode;
     }
 
     /**
@@ -236,7 +236,7 @@ class TextWrapper
 
         // Execute the command, capturing the output in the temporary stream
         // and storing the exit code for debugging purposes.
-        $this->exit_code = $this->app->doRun(new ArrayInput($command), new StreamOutput($stream));
+        $this->exitCode = $this->app->doRun(new ArrayInput($command), new StreamOutput($stream));
 
         // Get the output of the command and close the stream, which will
         // destroy the temporary file.

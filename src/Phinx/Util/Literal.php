@@ -12,7 +12,7 @@ class Literal
     /**
      * @var string The literal's value
      */
-    private $value;
+    protected $value;
 
     /**
      * @param string $value The literal's value

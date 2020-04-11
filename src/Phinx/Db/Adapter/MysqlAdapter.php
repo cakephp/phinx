@@ -225,7 +225,7 @@ class MysqlAdapter extends PdoAdapter
      *
      * @return bool
      */
-    private function hasTableWithSchema($schema, $tableName)
+    protected function hasTableWithSchema($schema, $tableName)
     {
         $result = $this->fetchRow(sprintf(
             "SELECT TABLE_NAME

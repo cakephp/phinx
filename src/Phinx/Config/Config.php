@@ -36,7 +36,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * @var array
      */
-    private $values = [];
+    protected $values = [];
 
     /**
      * @var string

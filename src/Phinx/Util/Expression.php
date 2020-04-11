@@ -12,7 +12,7 @@ class Expression
     /**
      * @var string The expression
      */
-    private $value;
+    protected $value;
 
     /**
      * @param string $value The expression

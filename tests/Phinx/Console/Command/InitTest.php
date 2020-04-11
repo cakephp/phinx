@@ -118,7 +118,7 @@ class InitTest extends TestCase
         $command = $application->find('init');
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--format' => AbstractCommand::FORMAT_YML], ['decorated' => false]);
+        $commandTester->execute(['command' => $command->getName(), '--format' => AbstractCommand::FORMAT_YML_ALIAS], ['decorated' => false]);
         $this->assertRegExp(
             "/created (.*)[\/\\\\]phinx.yaml\\n/",
             $commandTester->getDisplay(true)

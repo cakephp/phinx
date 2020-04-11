@@ -48,12 +48,12 @@ class Manager
     protected $environments = [];
 
     /**
-     * @var array|null
+     * @var \Phinx\Migration\AbstractMigration[]|null
      */
     protected $migrations;
 
     /**
-     * @var array|null
+     * @var \Phinx\Seed\AbstractSeed[]|null
      */
     protected $seeds;
 
@@ -248,7 +248,7 @@ class Manager
      *
      * @return void
      */
-    private function printMissingVersion($version, $maxNameLength)
+    protected function printMissingVersion($version, $maxNameLength)
     {
         $this->getOutput()->writeln(sprintf(
             '     <error>up</error>  %14.0f  %19s  %19s  <comment>%s</comment>  <error>** MISSING **</error>',
@@ -660,7 +660,7 @@ class Manager
     /**
      * Sets the database migrations.
      *
-     * @param array $migrations Migrations
+     * @param \Phinx\Migration\AbstractMigration[] $migrations Migrations
      *
      * @return $this
      */
@@ -792,7 +792,7 @@ class Manager
     /**
      * Sets the database seeders.
      *
-     * @param array $seeds Seeders
+     * @param \Phinx\Seed\AbstractSeed[] $seeds Seeders
      *
      * @return $this
      */
@@ -810,7 +810,7 @@ class Manager
      *
      * @return \Phinx\Seed\AbstractSeed[]
      */
-    private function getSeedDependenciesInstances(AbstractSeed $seed)
+    protected function getSeedDependenciesInstances(AbstractSeed $seed)
     {
         $dependenciesInstances = [];
         $dependencies = $seed->getDependencies();
@@ -834,7 +834,7 @@ class Manager
      *
      * @return \Phinx\Seed\AbstractSeed[]
      */
-    private function orderSeedsByDependencies(array $seeds)
+    protected function orderSeedsByDependencies(array $seeds)
     {
         $orderedSeeds = [];
         foreach ($seeds as $seed) {
