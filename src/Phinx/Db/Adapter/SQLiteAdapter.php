@@ -30,6 +30,8 @@ use RuntimeException;
  */
 class SQLiteAdapter extends PdoAdapter
 {
+    protected const MEMORY = ':memory:';
+
     /**
      * List of supported Phinx column types with their SQL equivalents
      * some types have an affinity appended to ensure they do not receive NUMERIC affinity
@@ -152,7 +154,7 @@ class SQLiteAdapter extends PdoAdapter
 
             // use a memory database if the option was specified
             if (!empty($options['memory'])) {
-                $dsn = 'sqlite::memory:';
+                $dsn = 'sqlite:' . static::MEMORY;
             } else {
                 $dsn = 'sqlite:' . $options['name'] . $this->suffix;
             }
@@ -693,7 +695,6 @@ PCRE_PATTERN;
         $instructions = $this->beginAlterByCopyTable($tableName);
 
         $instructions->addPostStep(function ($state) use ($column) {
-            $sql = $state['createSQL'];
             $sql = preg_replace(
                 "/\)$/",
                 sprintf(', %s %s$1)', $this->quoteColumnName($column->getName()), $this->getColumnSqlDefinition($column)),
@@ -1596,7 +1597,6 @@ PCRE_PATTERN;
     {
         $options = $this->getOptions();
         $options['quoteIdentifiers'] = true;
-        $database = ':memory:';
 
         if (!empty($options['name'])) {
             $options['database'] = $options['name'];
@@ -1604,6 +1604,10 @@ PCRE_PATTERN;
             if (file_exists($options['name'] . $this->suffix)) {
                 $options['database'] = $options['name'] . $this->suffix;
             }
+        }
+
+        if ($this->connection === null) {
+            throw new RuntimeException('You need to connect first.');
         }
 
         $driver = new SqliteDriver($options);
