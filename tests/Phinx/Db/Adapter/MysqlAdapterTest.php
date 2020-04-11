@@ -1872,7 +1872,7 @@ INPUT;
     {
         $this->adapter->connect();
         if (version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') === -1) {
-            $this->markTestSkipped('Cannot test datetime limit on versions less than 8.0.0');
+            $this->markTestSkipped('Cannot test geometry srid on versions less than 8.0.0');
         }
 
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -1897,7 +1897,7 @@ INPUT;
     {
         $this->adapter->connect();
         if (version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') === -1) {
-            $this->markTestSkipped('Cannot test datetime limit on versions less than 8.0.0');
+            $this->markTestSkipped('Cannot test geometry srid on versions less than 8.0.0');
         }
 
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);

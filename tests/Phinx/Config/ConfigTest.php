@@ -104,7 +104,7 @@ class ConfigTest extends AbstractConfigTest
     public function testGetDataDomainMethod()
     {
         $config = new Config($this->getConfigArray());
-        $this->assertInternalType('array', $config->getDataDomain());
+        $this->assertIsArray($config->getDataDomain());
     }
 
     /**
@@ -113,7 +113,7 @@ class ConfigTest extends AbstractConfigTest
     public function testReturnsEmptyArrayWithEmptyDataDomain()
     {
         $config = new Config([]);
-        $this->assertInternalType('array', $config->getDataDomain());
+        $this->assertIsArray($config->getDataDomain());
         $this->assertCount(0, $config->getDataDomain());
     }
 
