@@ -21,12 +21,17 @@ class Util
     /**
      * @var string
      */
-    protected const MIGRATION_FILE_NAME_PATTERN = '/^\d+_([\w_]+).php$/i';
+    protected const MIGRATION_FILE_NAME_PATTERN = '/^\d+_([a-z][a-z\d]*(?:_[a-z\d]+)*)\.php$/i';
 
     /**
      * @var string
      */
-    protected const SEED_FILE_NAME_PATTERN = '/^([A-Z][a-z0-9]+).php$/i';
+    protected const SEED_FILE_NAME_PATTERN = '/^([a-z][a-z\d]*)\.php$/i';
+
+    /**
+     * @var string
+     */
+    protected const CLASS_NAME_PATTERN = '/^(?:[A-Z][a-z\d]*)+$/';
 
     /**
      * Gets the current timestamp string, in UTC.
@@ -56,11 +61,12 @@ class Util
         }
 
         // filter the files to only get the ones that match our naming scheme
-        $phpFiles = glob($path . DIRECTORY_SEPARATOR . '*.php');
+        $phpFiles = static::getFiles($path);
 
         foreach ($phpFiles as $filePath) {
-            if (preg_match('/([0-9]+)_([_a-z0-9]*).php/', basename($filePath))) {
-                $classNames[] = static::mapFileNameToClassName(basename($filePath));
+            $fileName = basename($filePath);
+            if (preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName)) {
+                $classNames[] = static::mapFileNameToClassName($fileName);
             }
         }
 
@@ -93,9 +99,11 @@ class Util
      */
     public static function mapClassNameToFileName($className)
     {
-        $arr = preg_split('/(?=[A-Z])/', $className);
-        unset($arr[0]); // remove the first element ('')
-        $fileName = static::getCurrentTimestamp() . '_' . strtolower(implode('_', $arr)) . '.php';
+        $snake = function ($matches) {
+            return '_' . strtolower($matches[0]);
+        };
+        $fileName = preg_replace_callback('/\d+|[A-Z]/', $snake, $className);
+        $fileName = static::getCurrentTimestamp() . "$fileName.php";
 
         return $fileName;
     }
@@ -115,7 +123,9 @@ class Util
             $fileName = $matches[1];
         }
 
-        return str_replace(' ', '', ucwords(str_replace('_', ' ', $fileName)));
+        $className = str_replace('_', '', ucwords($fileName, '_'));
+
+        return $className;
     }
 
     /**
@@ -124,10 +134,9 @@ class Util
      *
      * This method takes a class name and a path to a migrations directory.
      *
-     * Migration class names must be in CamelCase format.
-     * e.g: CreateUserTable or AddIndexToPostsTable.
-     *
-     * Single words are not allowed on their own.
+     * Migration class names must be in PascalCase format but consecutive
+     * capitals are allowed.
+     * e.g: AddIndexToPostsTable or CustomHTMLTitle.
      *
      * @param string $className Class Name
      * @param string $path Path
@@ -138,7 +147,7 @@ class Util
     {
         $existingClassNames = static::getExistingMigrationClassNames($path);
 
-        return !(in_array($className, $existingClassNames, true));
+        return !in_array($className, $existingClassNames, true);
     }
 
     /**
@@ -155,7 +164,7 @@ class Util
      */
     public static function isValidPhinxClassName($className)
     {
-        return (bool)preg_match('/^([A-Z][a-z0-9]+)+$/', $className);
+        return (bool)preg_match(static::CLASS_NAME_PATTERN, $className);
     }
 
     /**
@@ -167,9 +176,7 @@ class Util
      */
     public static function isValidMigrationFileName($fileName)
     {
-        $matches = [];
-
-        return preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName, $matches);
+        return (bool)preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName);
     }
 
     /**
@@ -181,9 +188,7 @@ class Util
      */
     public static function isValidSeedFileName($fileName)
     {
-        $matches = [];
-
-        return preg_match(static::SEED_FILE_NAME_PATTERN, $fileName, $matches);
+        return (bool)preg_match(static::SEED_FILE_NAME_PATTERN, $fileName);
     }
 
     /**
@@ -251,7 +256,7 @@ class Util
     /**
      * Given an array of paths, return all unique PHP files that are in them
      *
-     * @param string[] $paths array of paths to get php files
+     * @param string|string[] $paths Path or array of paths to get .php files.
      *
      * @return string[]
      */
@@ -259,7 +264,7 @@ class Util
     {
         $files = static::globAll(array_map(function ($path) {
             return $path . DIRECTORY_SEPARATOR . "*.php";
-        }, $paths));
+        }, (array)$paths));
         // glob() can return the same file multiple times
         // This will cause the migration to fail with a
         // false assumption of duplicate migrations
