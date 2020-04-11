@@ -1851,4 +1851,62 @@ INPUT;
         $this->assertCount(1, $columns);
         $this->assertEquals(Literal::from('double'), array_pop($columns)->getType());
     }
+
+    public function geometryTypeProvider()
+    {
+        return [
+            [MysqlAdapter::PHINX_TYPE_GEOMETRY, 'POINT(0 0)'],
+            [MysqlAdapter::PHINX_TYPE_POINT, 'POINT(0 0)'],
+            [MysqlAdapter::PHINX_TYPE_LINESTRING, 'LINESTRING(30 10,10 30,40 40)'],
+            [MysqlAdapter::PHINX_TYPE_POLYGON, 'POLYGON((30 10,40 40,20 40,10 20,30 10))'],
+        ];
+    }
+
+    /**
+     * @dataProvider geometryTypeProvider
+     *
+     * @param string $type
+     * @param string $geom
+     */
+    public function testGeometrySridSupport($type, $geom)
+    {
+        $this->adapter->connect();
+        if (version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') === -1) {
+            $this->markTestSkipped('Cannot test datetime limit on versions less than 8.0.0');
+        }
+
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table
+            ->addColumn('geom', $type, ['srid' => 4326])
+            ->save();
+
+        $this->adapter->execute("INSERT INTO table1 (`geom`) VALUES (ST_GeomFromText('{$geom}', 4326))");
+        $rows = $this->adapter->fetchAll('SELECT ST_AsWKT(geom) as wkt, ST_SRID(geom) as srid FROM table1');
+        $this->assertSame(1, count($rows));
+        $this->assertSame($geom, $rows[0]['wkt']);
+        $this->assertSame('4326', $rows[0]['srid']);
+    }
+
+    /**
+     * @dataProvider geometryTypeProvider
+     *
+     * @param string $type
+     * @param string $geom
+     */
+    public function testGeometrySridThrowsInsertDifferentSrid($type, $geom)
+    {
+        $this->adapter->connect();
+        if (version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') === -1) {
+            $this->markTestSkipped('Cannot test datetime limit on versions less than 8.0.0');
+        }
+
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table
+            ->addColumn('geom', $type, ['srid' => 4326])
+            ->save();
+
+        $this->expectException(PDOException::class);
+        $this->expectExceptionMessage("SQLSTATE[HY000]: General error: 3643 The SRID of the geometry does not match the SRID of the column 'geom'. The SRID of the geometry is 4322, but the SRID of the column is 4326. Consider changing the SRID of the geometry or the SRID property of the column.");
+        $this->adapter->execute("INSERT INTO table1 (`geom`) VALUES (ST_GeomFromText('{$geom}', 4322))");
+    }
 }
