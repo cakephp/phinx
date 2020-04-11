@@ -31,6 +31,7 @@ class Column
     public const TIME = AdapterInterface::PHINX_TYPE_TIME;
     public const TIMESTAMP = AdapterInterface::PHINX_TYPE_TIMESTAMP;
     public const UUID = AdapterInterface::PHINX_TYPE_UUID;
+    public const BINARYUUID = AdapterInterface::PHINX_TYPE_BINARYUUID;
     /** MySQL-only column type */
     public const ENUM = AdapterInterface::PHINX_TYPE_ENUM;
     /** MySQL-only column type */
