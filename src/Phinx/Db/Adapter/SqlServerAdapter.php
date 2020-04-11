@@ -45,10 +45,10 @@ class SqlServerAdapter extends PdoAdapter
      * @var bool[]
      */
     protected $signedColumnTypes = [
-        'integer' => true,
-        'biginteger' => true,
-        'float' => true,
-        'decimal' => true,
+        self::PHINX_TYPE_INTEGER => true,
+        self::PHINX_TYPE_BIG_INTEGER => true,
+        self::PHINX_TYPE_FLOAT => true,
+        self::PHINX_TYPE_DECIMAL => true,
     ];
 
     /**

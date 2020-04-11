@@ -40,13 +40,13 @@ class MysqlAdapter extends PdoAdapter
      * @var bool[]
      */
     protected $signedColumnTypes = [
-        'integer' => true,
-        'smallinteger' => true,
-        'biginteger' => true,
-        'float' => true,
-        'decimal' => true,
-        'double' => true,
-        'boolean' => true,
+        self::PHINX_TYPE_INTEGER => true,
+        self::PHINX_TYPE_SMALL_INTEGER => true,
+        self::PHINX_TYPE_BIG_INTEGER => true,
+        self::PHINX_TYPE_FLOAT => true,
+        self::PHINX_TYPE_DECIMAL => true,
+        self::PHINX_TYPE_DOUBLE => true,
+        self::PHINX_TYPE_BOOLEAN => true,
     ];
 
     public const TEXT_TINY = 255;
