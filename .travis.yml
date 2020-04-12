@@ -50,3 +50,20 @@ cache:
 
 notifications:
   email: false
+
+before_deploy:
+  # have to move symfony/yaml from devDependency to dependency so box packs it
+  - composer require symfony/yaml
+  - composer global require humbug/box:^3.8
+  - ~/.composer/vendor/bin/box compile
+
+deploy:
+  provider: releases
+  api_key:
+    secure: <api_key>
+  file: phinx.phar
+  on:
+    repo: cakephp/phinx
+    tags: true
+    php: 7.2
+    condition: $DEFAULT = 1 && $PREFER_LOWEST != 1
