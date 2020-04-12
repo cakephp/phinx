@@ -60,7 +60,7 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-    secure: <api_key>
+    secure: bi+/Jfvxodb2WibSUaSSLMxQnK9wndJIw7N76/M7wAw04en1yJZQnJyaEYrklAtHPCBUaS7x691Ta4O0jN4hFkxs2vPgrXenS9Dzi436095Ga6tEAmTdDbHdmvXzDGDTaH9AbDzq5gGBF+xu4IBzDVO0pvDkzI+I5vJGbJXRws8=
   file: phinx.phar
   on:
     repo: cakephp/phinx
