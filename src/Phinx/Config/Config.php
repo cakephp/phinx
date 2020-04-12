@@ -301,6 +301,19 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
+     * Gets the base class name for seeders.
+     *
+     * @param bool $dropNamespace Return the base seeder class name without the namespace.
+     * @return string
+     */
+    public function getSeedBaseClassName($dropNamespace = true)
+    {
+        $className = !isset($this->values['seed_base_class']) ? 'Phinx\Seed\AbstractSeed' : $this->values['seed_base_class'];
+
+        return $dropNamespace ? substr(strrchr($className, '\\'), 1) : $className;
+    }
+
+    /**
      * Get the template file name.
      *
      * @return string|false
