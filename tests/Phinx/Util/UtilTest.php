@@ -50,9 +50,9 @@ class UtilTest extends TestCase
     public function testMapClassNameToFileName()
     {
         $expectedResults = [
-            'CamelCase87afterSomeBooze' => '/^\d{14}_camel_case87after_some_booze\.php$/',
+            'CamelCase87afterSomeBooze' => '/^\d{14}_camel_case_87after_some_booze\.php$/',
             'CreateUserTable' => '/^\d{14}_create_user_table\.php$/',
-            'LimitResourceNamesTo30Chars' => '/^\d{14}_limit_resource_names_to30_chars\.php$/',
+            'LimitResourceNamesTo30Chars' => '/^\d{14}_limit_resource_names_to_30_chars\.php$/',
         ];
 
         foreach ($expectedResults as $input => $expectedResult) {
@@ -65,6 +65,9 @@ class UtilTest extends TestCase
         $expectedResults = [
             '20150902094024_create_user_table.php' => 'CreateUserTable',
             '20150902102548_my_first_migration2.php' => 'MyFirstMigration2',
+            '20200412012035_camel_case_87after_some_booze.php' => 'CamelCase87afterSomeBooze',
+            '20200412012036_limit_resource_names_to_30_chars.php' => 'LimitResourceNamesTo30Chars',
+            '20200412012037_back_compat_names_to30_chars.php' => 'BackCompatNamesTo30Chars',
         ];
 
         foreach ($expectedResults as $input => $expectedResult) {
@@ -75,11 +78,16 @@ class UtilTest extends TestCase
     public function testisValidPhinxClassName()
     {
         $expectedResults = [
-            'CAmelCase' => false,
+            'camelCase' => false,
             'CreateUserTable' => true,
             'UserSeeder' => true,
             'Test' => true,
             'test' => false,
+            'Q' => true,
+            'XMLTriggers' => true,
+            'Form_Cards' => false,
+            'snake_high_scores' => false,
+            'Code2319Incidents' => true,
         ];
 
         foreach ($expectedResults as $input => $expectedResult) {
