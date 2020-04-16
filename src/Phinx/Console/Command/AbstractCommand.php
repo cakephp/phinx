@@ -237,7 +237,7 @@ abstract class AbstractCommand extends Command
 
         if (!$useDefault) {
             // Locate() throws an exception if the file does not exist
-            return $locator->locate($configFile, $cwd, $first = true);
+            return $locator->locate($configFile, $cwd, true);
         }
 
         $possibleConfigFiles = ['phinx.php', 'phinx.json', 'phinx.yaml', 'phinx.yml'];
