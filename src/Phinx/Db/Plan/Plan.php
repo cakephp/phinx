@@ -428,13 +428,13 @@ class Plan
      * Collects all alter table drop and renames from the given intent
      *
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
-     *
      * @return void
      */
     protected function gatherTableMoves($actions)
     {
         foreach ($actions as $action) {
-            if (!(
+            if (
+                !(
                 $action instanceof DropTable
                 || $action instanceof RenameTable
                 || $action instanceof ChangePrimaryKey
