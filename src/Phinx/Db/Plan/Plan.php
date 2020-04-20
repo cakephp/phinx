@@ -148,11 +148,11 @@ class Plan
             $executor->createTable($newTable->getTable(), $newTable->getColumns(), $newTable->getIndexes());
         }
 
-        collection($this->updatesSequence())
-            ->unfold()
-            ->each(function ($updates) use ($executor) {
-                $executor->executeActions($updates->getTable(), $updates->getActions());
-            });
+        foreach ($this->updatesSequence() as $updates) {
+            foreach ($updates as $update) {
+                $executor->executeActions($update->getTable(), $update->getActions());
+            }
+        }
     }
 
     /**
@@ -164,11 +164,11 @@ class Plan
      */
     public function executeInverse(AdapterInterface $executor)
     {
-        collection($this->inverseUpdatesSequence())
-            ->unfold()
-            ->each(function ($updates) use ($executor) {
-                $executor->executeActions($updates->getTable(), $updates->getActions());
-            });
+        foreach ($this->inverseUpdatesSequence() as $updates) {
+            foreach ($updates as $update) {
+                $executor->executeActions($update->getTable(), $update->getActions());
+            }
+        }
 
         foreach ($this->tableCreates as $newTable) {
             $executor->createTable($newTable->getTable(), $newTable->getColumns(), $newTable->getIndexes());
@@ -182,17 +182,14 @@ class Plan
      */
     protected function resolveConflicts()
     {
-        $moveActions = collection($this->tableMoves)
-            ->unfold(function ($move) {
-                return $move->getActions();
-            });
-
-        foreach ($moveActions as $action) {
-            if ($action instanceof DropTable) {
-                $this->tableUpdates = $this->forgetTable($action->getTable(), $this->tableUpdates);
-                $this->constraints = $this->forgetTable($action->getTable(), $this->constraints);
-                $this->indexes = $this->forgetTable($action->getTable(), $this->indexes);
-                $this->columnRemoves = $this->forgetTable($action->getTable(), $this->columnRemoves);
+        foreach ($this->tableMoves as $alterTable) {
+            foreach ($alterTable->getActions() as $action) {
+                if ($action instanceof DropTable) {
+                    $this->tableUpdates = $this->forgetTable($action->getTable(), $this->tableUpdates);
+                    $this->constraints = $this->forgetTable($action->getTable(), $this->constraints);
+                    $this->indexes = $this->forgetTable($action->getTable(), $this->indexes);
+                    $this->columnRemoves = $this->forgetTable($action->getTable(), $this->columnRemoves);
+                }
             }
         }
 
@@ -209,30 +206,32 @@ class Plan
             }
         }
 
-        $this->tableUpdates = collection($this->tableUpdates)
-            // Renaming a column and then changing the renamed column is something people do,
-            // but it is a conflicting action. Luckily solving the conflict can be done by moving
-            // the ChangeColumn action to another AlterTable
-            ->unfold(new ActionSplitter(RenameColumn::class, ChangeColumn::class, function (RenameColumn $a, ChangeColumn $b) {
+        $splitter = new ActionSplitter(
+            RenameColumn::class,
+            ChangeColumn::class,
+            function (RenameColumn $a, ChangeColumn $b) {
                 return $a->getNewName() === $b->getColumnName();
-            }))
-            ->toList();
+            }
+        );
+        $tableUpdates = [];
+        foreach ($this->tableUpdates as $tableUpdate) {
+            array_push($tableUpdates, ...$splitter->split($tableUpdate));
+        }
+        $this->tableUpdates = $tableUpdates;
 
-        $this->constraints = collection($this->constraints)
-            ->map(function (AlterTable $alter) {
-                // Dropping indexes used by foreign keys is a conflict, but one we can resolve
-                // if the foreign key is also scheduled to be dropped. If we can find such a a case,
-                // we force the execution of the index drop after the foreign key is dropped.
-                return $this->remapContraintAndIndexConflicts($alter);
-            })
-            // Changing constraint properties sometimes require dropping it and then
-            // creating it again with the new stuff. Unfortunately, we have already bundled
-            // everything together in as few AlterTable statements as we could, so we need to
-            // resolve this conflict manually
-            ->unfold(new ActionSplitter(DropForeignKey::class, AddForeignKey::class, function (DropForeignKey $a, AddForeignKey $b) {
+        $splitter = new ActionSplitter(
+            DropForeignKey::class,
+            AddForeignKey::class,
+            function (DropForeignKey $a, AddForeignKey $b) {
                 return $a->getForeignKey()->getColumns() === $b->getForeignKey()->getColumns();
-            }))
-            ->toList();
+            }
+        );
+        $constraints = [];
+        foreach ($this->constraints as $constraint) {
+            $constraint = $this->remapContraintAndIndexConflicts($constraint);
+            array_push($constraints, ...$splitter->split($constraint));
+        }
+        $this->constraints = $constraints;
     }
 
     /**
@@ -270,28 +269,20 @@ class Plan
     protected function remapContraintAndIndexConflicts(AlterTable $alter)
     {
         $newAlter = new AlterTable($alter->getTable());
-        collection($alter->getActions())
-            ->unfold(function ($action) {
-                if (!$action instanceof DropForeignKey) {
-                    return [$action];
-                }
 
+        foreach ($alter->getActions() as $action) {
+            $newAlter->addAction($action);
+            if ($action instanceof DropForeignKey) {
                 list($this->indexes, $dropIndexActions) = $this->forgetDropIndex(
                     $action->getTable(),
                     $action->getForeignKey()->getColumns(),
                     $this->indexes
                 );
-
-                $return = [$action];
-                if (!empty($dropIndexActions)) {
-                    $return = array_merge($return, $dropIndexActions);
+                foreach ($dropIndexActions as $dropIndexAction) {
+                    $newAlter->addAction($dropIndexAction);
                 }
-
-                return $return;
-            })
-            ->each(function ($action) use ($newAlter) {
-                $newAlter->addAction($action);
-            });
+            }
+        }
 
         return $newAlter;
     }
@@ -309,37 +300,22 @@ class Plan
     protected function forgetDropIndex(Table $table, array $columns, array $actions)
     {
         $dropIndexActions = new ArrayObject();
-        $indexes = collection($actions)
-            ->map(function ($alter) use ($table, $columns, $dropIndexActions) {
-                if ($alter->getTable()->getName() !== $table->getName()) {
-                    return $alter;
+        $indexes = array_map(function ($alter) use ($table, $columns, $dropIndexActions) {
+            if ($alter->getTable()->getName() !== $table->getName()) {
+                return $alter;
+            }
+
+            $newAlter = new AlterTable($table);
+            foreach ($alter->getActions() as $action) {
+                if ($action instanceof DropIndex && $action->getIndex()->getColumns() === $columns) {
+                    $dropIndexActions->append($action);
+                } else {
+                    $newAlter->addAction($action);
                 }
+            }
 
-                $newAlter = new AlterTable($table);
-                collection($alter->getActions())
-                    ->map(function ($action) use ($columns) {
-                        if (!$action instanceof DropIndex) {
-                            return [$action, null];
-                        }
-                        if ($action->getIndex()->getColumns() === $columns) {
-                            return [null, $action];
-                        }
-
-                        return [$action, null];
-                    })
-                    ->each(function ($tuple) use ($newAlter, $dropIndexActions) {
-                        list($action, $dropIndex) = $tuple;
-                        if ($action) {
-                            $newAlter->addAction($action);
-                        }
-                        if ($dropIndex) {
-                            $dropIndexActions->append($dropIndex);
-                        }
-                    });
-
-                return $newAlter;
-            })
-            ->toArray();
+            return $newAlter;
+        }, $actions);
 
         return [$indexes, $dropIndexActions->getArrayCopy()];
     }
@@ -357,37 +333,22 @@ class Plan
     protected function forgetRemoveColumn(Table $table, array $columns, array $actions)
     {
         $removeColumnActions = new ArrayObject();
-        $indexes = collection($actions)
-            ->map(function ($alter) use ($table, $columns, $removeColumnActions) {
-                if ($alter->getTable()->getName() !== $table->getName()) {
-                    return $alter;
+        $indexes = array_map(function ($alter) use ($table, $columns, $removeColumnActions) {
+            if ($alter->getTable()->getName() !== $table->getName()) {
+                return $alter;
+            }
+
+            $newAlter = new AlterTable($table);
+            foreach ($alter->getActions() as $action) {
+                if ($action instanceof RemoveColumn && in_array($action->getColumn()->getName(), $columns, true)) {
+                    $removeColumnActions->append($action);
+                } else {
+                    $newAlter->addAction($action);
                 }
+            }
 
-                $newAlter = new AlterTable($table);
-                collection($alter->getActions())
-                    ->map(function ($action) use ($columns) {
-                        if (!$action instanceof RemoveColumn) {
-                            return [$action, null];
-                        }
-                        if (in_array($action->getColumn()->getName(), $columns, true)) {
-                            return [null, $action];
-                        }
-
-                        return [$action, null];
-                    })
-                    ->each(function ($tuple) use ($newAlter, $removeColumnActions) {
-                        list($action, $removeColumn) = $tuple;
-                        if ($action) {
-                            $newAlter->addAction($action);
-                        }
-                        if ($removeColumn) {
-                            $removeColumnActions->append($removeColumn);
-                        }
-                    });
-
-                return $newAlter;
-            })
-            ->toArray();
+            return $newAlter;
+        }, $actions);
 
         return [$indexes, $removeColumnActions->getArrayCopy()];
     }
@@ -401,26 +362,17 @@ class Plan
      */
     protected function gatherCreates($actions)
     {
-        collection($actions)
-            ->filter(function ($action) {
-                return $action instanceof CreateTable;
-            })
-            ->map(function ($action) {
-                return [$action->getTable()->getName(), new NewTable($action->getTable())];
-            })
-            ->each(function ($step) {
-                $this->tableCreates[$step[0]] = $step[1];
-            });
+        foreach ($actions as $action) {
+            if ($action instanceof CreateTable) {
+                $this->tableCreates[$action->getTable()->getName()] = new NewTable($action->getTable());
+            }
+        }
 
-        collection($actions)
-            ->filter(function ($action) {
-                return $action instanceof AddColumn
-                    || $action instanceof AddIndex;
-            })
-            ->filter(function ($action) {
-                return isset($this->tableCreates[$action->getTable()->getName()]);
-            })
-            ->each(function ($action) {
+        foreach ($actions as $action) {
+            if (
+                ($action instanceof AddColumn || $action instanceof AddIndex)
+                && isset($this->tableCreates[$action->getTable()->getName()])
+            ) {
                 $table = $action->getTable();
 
                 if ($action instanceof AddColumn) {
@@ -430,7 +382,8 @@ class Plan
                 if ($action instanceof AddIndex) {
                     $this->tableCreates[$table->getName()]->addIndex($action->getIndex());
                 }
-            });
+            }
+        }
     }
 
     /**
@@ -442,33 +395,33 @@ class Plan
      */
     protected function gatherUpdates($actions)
     {
-        collection($actions)
-            ->filter(function ($action) {
-                return $action instanceof AddColumn
+        foreach ($actions as $action) {
+            if (
+                !(
+                    $action instanceof AddColumn
                     || $action instanceof ChangeColumn
                     || $action instanceof RemoveColumn
-                    || $action instanceof RenameColumn;
-            })
-            // We are only concerned with table changes
-            ->reject(function ($action) {
-                return isset($this->tableCreates[$action->getTable()->getName()]);
-            })
-            ->each(function ($action) {
-                $table = $action->getTable();
-                $name = $table->getName();
+                    || $action instanceof RenameColumn
+                )
+                || isset($this->tableCreates[$action->getTable()->getName()])
+            ) {
+                 continue;
+            }
+            $table = $action->getTable();
+            $name = $table->getName();
 
-                if ($action instanceof RemoveColumn) {
-                    if (!isset($this->columnRemoves[$name])) {
-                        $this->columnRemoves[$name] = new AlterTable($table);
-                    }
-                    $this->columnRemoves[$name]->addAction($action);
-                } else {
-                    if (!isset($this->tableUpdates[$name])) {
-                        $this->tableUpdates[$name] = new AlterTable($table);
-                    }
-                    $this->tableUpdates[$name]->addAction($action);
+            if ($action instanceof RemoveColumn) {
+                if (!isset($this->columnRemoves[$name])) {
+                    $this->columnRemoves[$name] = new AlterTable($table);
                 }
-            });
+                $this->columnRemoves[$name]->addAction($action);
+            } else {
+                if (!isset($this->tableUpdates[$name])) {
+                    $this->tableUpdates[$name] = new AlterTable($table);
+                }
+                $this->tableUpdates[$name]->addAction($action);
+            }
+        }
     }
 
     /**
@@ -480,23 +433,24 @@ class Plan
      */
     protected function gatherTableMoves($actions)
     {
-        collection($actions)
-            ->filter(function ($action) {
-                return $action instanceof DropTable
-                    || $action instanceof RenameTable
-                    || $action instanceof ChangePrimaryKey
-                    || $action instanceof ChangeComment;
-            })
-            ->each(function ($action) {
-                $table = $action->getTable();
-                $name = $table->getName();
+        foreach ($actions as $action) {
+            if (!(
+                $action instanceof DropTable
+                || $action instanceof RenameTable
+                || $action instanceof ChangePrimaryKey
+                || $action instanceof ChangeComment)
+            ) {
+                continue;
+            }
+            $table = $action->getTable();
+            $name = $table->getName();
 
-                if (!isset($this->tableMoves[$name])) {
-                    $this->tableMoves[$name] = new AlterTable($table);
-                }
+            if (!isset($this->tableMoves[$name])) {
+                $this->tableMoves[$name] = new AlterTable($table);
+            }
 
-                $this->tableMoves[$name]->addAction($action);
-            });
+            $this->tableMoves[$name]->addAction($action);
+        }
     }
 
     /**
@@ -508,26 +462,26 @@ class Plan
      */
     protected function gatherIndexes($actions)
     {
-        collection($actions)
-            ->filter(function ($action) {
-                return $action instanceof AddIndex
-                    || $action instanceof DropIndex;
-            })
-            ->reject(function ($action) {
-                // Indexes for new tables are created inline
-                // so we don't wan't them here too
-                return isset($this->tableCreates[$action->getTable()->getName()]);
-            })
-            ->each(function ($action) {
-                $table = $action->getTable();
-                $name = $table->getName();
+        foreach ($actions as $action) {
+            if (
+                !(
+                    $action instanceof AddIndex
+                    || $action instanceof DropIndex
+                )
+                || isset($this->tableCreates[$action->getTable()->getName()])
+            ) {
+                continue;
+            }
 
-                if (!isset($this->indexes[$name])) {
-                    $this->indexes[$name] = new AlterTable($table);
-                }
+            $table = $action->getTable();
+            $name = $table->getName();
 
-                $this->indexes[$name]->addAction($action);
-            });
+            if (!isset($this->indexes[$name])) {
+                $this->indexes[$name] = new AlterTable($table);
+            }
+
+            $this->indexes[$name]->addAction($action);
+        }
     }
 
     /**
@@ -539,20 +493,18 @@ class Plan
      */
     protected function gatherConstraints($actions)
     {
-        collection($actions)
-            ->filter(function ($action) {
-                return $action instanceof AddForeignKey
-                    || $action instanceof DropForeignKey;
-            })
-            ->each(function ($action) {
-                $table = $action->getTable();
-                $name = $table->getName();
+        foreach ($actions as $action) {
+            if (!($action instanceof AddForeignKey || $action instanceof DropForeignKey)) {
+                continue;
+            }
+            $table = $action->getTable();
+            $name = $table->getName();
 
-                if (!isset($this->constraints[$name])) {
-                    $this->constraints[$name] = new AlterTable($table);
-                }
+            if (!isset($this->constraints[$name])) {
+                $this->constraints[$name] = new AlterTable($table);
+            }
 
-                $this->constraints[$name]->addAction($action);
-            });
+            $this->constraints[$name]->addAction($action);
+        }
     }
 }
