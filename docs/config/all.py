@@ -21,7 +21,8 @@ project = 'Phinx'
 
 # Other versions that display in the version picker menu.
 version_list = [
-    {'name': '0.11', 'number': '/phinx/11', 'title': '0.11', 'current': True},
+    {'name': '0.12', 'number': '/phinx/12', 'title': '0.12', 'current': True}
+    {'name': '0.11', 'number': '/phinx/11', 'title': '0.11'},
 ]
 
 # Languages available.
@@ -32,7 +33,7 @@ languages = ['en', 'es', 'fr', 'ja']
 branch = 'master'
 
 # Current version being built
-version = '0.11'
+version = '0.12'
 
 show_root_link = True
 
