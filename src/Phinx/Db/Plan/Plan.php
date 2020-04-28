@@ -206,6 +206,9 @@ class Plan
             }
         }
 
+        // Renaming a column and then changing the renamed column is something people do,
+        // but it is a conflicting action. Luckily solving the conflict can be done by moving
+        // the ChangeColumn action to another AlterTable.
         $splitter = new ActionSplitter(
             RenameColumn::class,
             ChangeColumn::class,
@@ -219,6 +222,13 @@ class Plan
         }
         $this->tableUpdates = $tableUpdates;
 
+        // Dropping indexes used by foreign keys is a conflict, but one we can resolve
+        // if the foreign key is also scheduled to be dropped. If we can find such a a case,
+        // we force the execution of the index drop after the foreign key is dropped.
+        // Changing constraint properties sometimes require dropping it and then
+        // creating it again with the new stuff. Unfortunately, we have already bundled
+        // everything together in as few AlterTable statements as we could, so we need to
+        // resolve this conflict manually.
         $splitter = new ActionSplitter(
             DropForeignKey::class,
             AddForeignKey::class,
