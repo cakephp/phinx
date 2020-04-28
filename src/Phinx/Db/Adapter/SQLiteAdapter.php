@@ -1402,13 +1402,13 @@ PCRE_PATTERN;
             // possibly a known type
             $type = $match[1];
             $typeLC = strtolower($type);
-            $affinity = isset($match[2]) ? $match[2] : '';
+            $affinity = $match[2] ?? '';
             $limit = isset($match[3]) && strlen($match[3]) ? (int)$match[3] : null;
             $scale = isset($match[4]) && strlen($match[4]) ? (int)$match[4] : null;
             if (isset(self::$supportedColumnTypes[$typeLC])) {
                 // the type is an explicitly supported type
                 $name = $typeLC;
-            } elseif (in_array($typeLC, ['tinyint', 'tinyinteger'], true)  && $limit === 1) {
+            } elseif (in_array($typeLC, ['tinyint', 'tinyinteger'], true) && $limit === 1) {
                 // the type is a MySQL-style boolean
                 $name = static::PHINX_TYPE_BOOLEAN;
                 $limit = null;
