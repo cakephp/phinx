@@ -41,6 +41,7 @@ class SQLiteAdapter extends PdoAdapter
     protected static $supportedColumnTypes = [
         self::PHINX_TYPE_BIG_INTEGER => 'biginteger',
         self::PHINX_TYPE_BINARY => 'binary_blob',
+        self::PHINX_TYPE_BINARYUUID => 'binary_blob',
         self::PHINX_TYPE_BLOB => 'blob',
         self::PHINX_TYPE_BOOLEAN => 'boolean_integer',
         self::PHINX_TYPE_CHAR => 'char',
@@ -55,9 +56,9 @@ class SQLiteAdapter extends PdoAdapter
         self::PHINX_TYPE_STRING => 'varchar',
         self::PHINX_TYPE_TEXT => 'text',
         self::PHINX_TYPE_TIME => 'time_text',
-        self::PHINX_TYPE_UUID => 'uuid_text',
-        self::PHINX_TYPE_BINARYUUID => 'binary_blob',
         self::PHINX_TYPE_TIMESTAMP => 'timestamp_text',
+        self::PHINX_TYPE_TINY_INTEGER => 'tinyinteger',
+        self::PHINX_TYPE_UUID => 'uuid_text',
         self::PHINX_TYPE_VARBINARY => 'varbinary_blob',
     ];
 
@@ -68,8 +69,8 @@ class SQLiteAdapter extends PdoAdapter
      */
     protected static $supportedColumnTypeAliases = [
         'varchar' => self::PHINX_TYPE_STRING,
-        'tinyint' => self::PHINX_TYPE_SMALL_INTEGER,
-        'tinyinteger' => self::PHINX_TYPE_SMALL_INTEGER,
+        'tinyint' => self::PHINX_TYPE_TINY_INTEGER,
+        'tinyinteger' => self::PHINX_TYPE_TINY_INTEGER,
         'smallint' => self::PHINX_TYPE_SMALL_INTEGER,
         'int' => self::PHINX_TYPE_INTEGER,
         'mediumint' => self::PHINX_TYPE_INTEGER,
@@ -1407,7 +1408,7 @@ PCRE_PATTERN;
             if (isset(self::$supportedColumnTypes[$typeLC])) {
                 // the type is an explicitly supported type
                 $name = $typeLC;
-            } elseif ($typeLC === 'tinyint' && $limit === 1) {
+            } elseif (in_array($typeLC, ['tinyint', 'tinyinteger'], true)  && $limit === 1) {
                 // the type is a MySQL-style boolean
                 $name = static::PHINX_TYPE_BOOLEAN;
                 $limit = null;

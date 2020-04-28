@@ -1138,6 +1138,8 @@ ORDER BY T.[name], I.[index_id];";
             case 'numeric':
             case 'money':
                 return static::PHINX_TYPE_DECIMAL;
+            case 'tinyint':
+                return static::PHINX_TYPE_TINY_INTEGER;
             case 'smallint':
                 return static::PHINX_TYPE_SMALL_INTEGER;
             case 'bigint':

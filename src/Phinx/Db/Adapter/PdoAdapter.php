@@ -538,6 +538,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             'string',
             'char',
             'text',
+            'tinyinteger',
             'smallinteger',
             'integer',
             'biginteger',
