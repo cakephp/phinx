@@ -94,9 +94,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function disconnect()
     {
@@ -112,9 +110,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function beginTransaction()
     {
@@ -122,9 +118,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function commitTransaction()
     {
@@ -132,9 +126,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function rollbackTransaction()
     {
@@ -196,9 +188,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -379,9 +369,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function truncateTable($tableName)
     {
@@ -1084,9 +1072,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function createDatabase($name, $options = [])
     {
@@ -1106,9 +1092,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function dropDatabase($name)
     {
@@ -1281,9 +1265,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function createSchemaTable()
     {

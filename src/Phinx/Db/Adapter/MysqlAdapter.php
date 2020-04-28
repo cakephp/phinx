@@ -135,9 +135,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function disconnect()
     {
@@ -153,9 +151,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function beginTransaction()
     {
@@ -163,9 +159,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function commitTransaction()
     {
@@ -173,9 +167,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function rollbackTransaction()
     {
@@ -241,9 +233,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -417,9 +407,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function truncateTable($tableName)
     {
@@ -1138,9 +1126,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function createDatabase($name, $options = [])
     {
@@ -1175,9 +1161,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritdoc
      */
     public function dropDatabase($name)
     {
