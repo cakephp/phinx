@@ -946,7 +946,7 @@ class MysqlAdapter extends PdoAdapter
             case static::PHINX_TYPE_SMALL_INTEGER:
                 return ['name' => 'smallint', 'limit' => $limit ?: 6];
             case static::PHINX_TYPE_TINY_INTEGER:
-                return ['name' => 'tinyint', 'limit' => $limit ?: 3];
+                return ['name' => 'tinyint', 'limit' => $limit ?: 4];
             case static::PHINX_TYPE_INTEGER:
                 if ($limit && $limit >= static::INT_TINY) {
                     $sizes = [
@@ -958,7 +958,7 @@ class MysqlAdapter extends PdoAdapter
                         'tinyint' => static::INT_TINY,
                     ];
                     $limits = [
-                        'tinyint' => 3,
+                        'tinyint' => 4,
                         'smallint' => 6,
                         'int' => 11,
                         'bigint' => 20,
