@@ -94,7 +94,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function disconnect()
     {
@@ -110,7 +110,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function beginTransaction()
     {
@@ -118,7 +118,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function commitTransaction()
     {
@@ -126,7 +126,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function rollbackTransaction()
     {
@@ -188,7 +188,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -369,7 +369,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function truncateTable($tableName)
     {
@@ -1072,11 +1072,11 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createDatabase($name, $options = [])
     {
-        $charset = isset($options['charset']) ? $options['charset'] : 'utf8';
+        $charset = $options['charset'] ?? 'utf8';
         $this->execute(sprintf("CREATE DATABASE %s WITH ENCODING = '%s'", $name, $charset));
     }
 
@@ -1092,7 +1092,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function dropDatabase($name)
     {
@@ -1265,7 +1265,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createSchemaTable()
     {

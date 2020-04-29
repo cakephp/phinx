@@ -146,7 +146,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function disconnect()
     {
@@ -162,7 +162,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function beginTransaction()
     {
@@ -170,7 +170,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function commitTransaction()
     {
@@ -178,7 +178,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function rollbackTransaction()
     {
@@ -216,7 +216,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -393,7 +393,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function truncateTable($tableName)
     {
@@ -1158,7 +1158,7 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createDatabase($name, $options = [])
     {
@@ -1186,7 +1186,7 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function dropDatabase($name)
     {

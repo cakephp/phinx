@@ -194,7 +194,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function disconnect()
     {
@@ -210,7 +210,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function beginTransaction()
     {
@@ -218,7 +218,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function commitTransaction()
     {
@@ -226,7 +226,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function rollbackTransaction()
     {
@@ -352,7 +352,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -491,7 +491,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function truncateTable($tableName)
     {

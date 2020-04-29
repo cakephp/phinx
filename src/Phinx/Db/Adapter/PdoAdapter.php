@@ -153,14 +153,14 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function connect()
     {
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function disconnect()
     {
@@ -234,7 +234,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function insert(Table $table, $row)
     {
@@ -615,7 +615,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function addColumn(Table $table, Column $column)
     {
@@ -763,13 +763,12 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      *
      * @param \Phinx\Db\Table\Table $table The table to add the constraint to
      * @param \Phinx\Db\Table\ForeignKey $foreignKey The foreign key to add
-     *
      * @return \Phinx\Db\Util\AlterInstructions
      */
     abstract protected function getAddForeignKeyInstructions(Table $table, ForeignKey $foreignKey);
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function dropForeignKey($tableName, $columns, $constraint = null)
     {

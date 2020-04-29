@@ -54,7 +54,7 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -144,7 +144,7 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function truncateTable($tableName)
     {
@@ -368,7 +368,7 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function insert(Table $table, $row)
     {
@@ -378,7 +378,7 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function bulkinsert(Table $table, $rows)
     {

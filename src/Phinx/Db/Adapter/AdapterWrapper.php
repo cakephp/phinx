@@ -125,7 +125,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function getColumnForType($columnName, $type, array $options)
     {
@@ -133,7 +133,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function connect()
     {
@@ -141,7 +141,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function disconnect()
     {
@@ -165,7 +165,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function insert(Table $table, $row)
     {
@@ -173,7 +173,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function bulkinsert(Table $table, $rows)
     {
@@ -269,7 +269,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createSchemaTable()
     {
@@ -301,7 +301,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function beginTransaction()
     {
@@ -309,7 +309,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function commitTransaction()
     {
@@ -317,7 +317,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function rollbackTransaction()
     {
@@ -349,7 +349,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -413,7 +413,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createDatabase($name, $options = [])
     {
@@ -429,7 +429,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function dropDatabase($name)
     {
@@ -437,7 +437,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createSchema($schemaName = 'public')
     {
@@ -445,7 +445,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function dropSchema($schemaName)
     {
@@ -453,7 +453,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function truncateTable($tableName)
     {
@@ -477,7 +477,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function executeActions(Table $table, array $actions)
     {

@@ -135,7 +135,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function disconnect()
     {
@@ -151,7 +151,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function beginTransaction()
     {
@@ -159,7 +159,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function commitTransaction()
     {
@@ -167,7 +167,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function rollbackTransaction()
     {
@@ -233,7 +233,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -407,7 +407,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function truncateTable($tableName)
     {
@@ -1126,11 +1126,11 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function createDatabase($name, $options = [])
     {
-        $charset = isset($options['charset']) ? $options['charset'] : 'utf8';
+        $charset = $options['charset'] ?? 'utf8';
 
         if (isset($options['collation'])) {
             $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`', $name, $charset, $options['collation']));
@@ -1161,7 +1161,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function dropDatabase($name)
     {
