@@ -17,6 +17,7 @@ use Phinx\Migration\Manager\Environment;
 use Phinx\Seed\AbstractSeed;
 use Phinx\Seed\SeedInterface;
 use Phinx\Util\Util;
+use Psr\Container\ContainerInterface;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -56,6 +57,11 @@ class Manager
      * @var \Phinx\Seed\AbstractSeed[]|null
      */
     protected $seeds;
+
+    /**
+     * @var ContainerInterface
+     */
+    protected $container;
 
     /**
      * @param \Phinx\Config\ConfigInterface $config Configuration Object
@@ -612,6 +618,16 @@ class Manager
     }
 
     /**
+     * Sets the user defined PSR-11 container
+     *
+     * @param ContainerInterface $container
+     */
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
+    /**
      * Sets the console input.
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
@@ -891,7 +907,14 @@ class Manager
                     }
 
                     // instantiate it
-                    $seed = new $class($this->getInput(), $this->getOutput());
+                    /** @var AbstractSeed $seed */
+                    if ($this->container !== null) {
+                        $seed = $this->container->get($class);
+                    } else {
+                        $seed = new $class;
+                    }
+                    $seed->setInput($this->getInput());
+                    $seed->setOutput($this->getOutput());
 
                     if (!($seed instanceof AbstractSeed)) {
                         throw new InvalidArgumentException(sprintf(

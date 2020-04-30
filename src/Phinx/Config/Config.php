@@ -354,6 +354,18 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getContainer()
+    {
+        if (!isset($this->values['container'])) {
+            return null;
+        }
+
+        return $this->values['container'];
+    }
+
+    /**
      * Get the version order.
      *
      * @return string
