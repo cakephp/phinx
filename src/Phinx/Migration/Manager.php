@@ -913,8 +913,14 @@ class Manager
                     } else {
                         $seed = new $class();
                     }
-                    $seed->setInput($this->getInput());
-                    $seed->setOutput($this->getOutput());
+                    $input = $this->getInput();
+                    if ($input !== null) {
+                        $seed->setInput($input);
+                    }
+                    $output = $this->getOutput();
+                    if ($output !== null) {
+                        $seed->setOutput($output);
+                    }
 
                     if (!($seed instanceof AbstractSeed)) {
                         throw new InvalidArgumentException(sprintf(
