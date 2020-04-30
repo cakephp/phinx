@@ -94,9 +94,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function disconnect()
     {
@@ -112,9 +110,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function beginTransaction()
     {
@@ -122,9 +118,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function commitTransaction()
     {
@@ -132,9 +126,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function rollbackTransaction()
     {
@@ -196,9 +188,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -379,9 +369,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function truncateTable($tableName)
     {
@@ -964,6 +952,8 @@ class PostgresAdapter extends PdoAdapter
             case static::PHINX_TYPE_TIMESTAMP:
             case static::PHINX_TYPE_INTEGER:
                 return ['name' => $type];
+            case static::PHINX_TYPE_TINY_INTEGER:
+                return ['name' => 'smallint'];
             case static::PHINX_TYPE_SMALL_INTEGER:
                 return ['name' => 'smallint'];
             case static::PHINX_TYPE_DECIMAL:
@@ -1082,13 +1072,11 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createDatabase($name, $options = [])
     {
-        $charset = isset($options['charset']) ? $options['charset'] : 'utf8';
+        $charset = $options['charset'] ?? 'utf8';
         $this->execute(sprintf("CREATE DATABASE %s WITH ENCODING = '%s'", $name, $charset));
     }
 
@@ -1104,9 +1092,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function dropDatabase($name)
     {
@@ -1279,9 +1265,7 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createSchemaTable()
     {

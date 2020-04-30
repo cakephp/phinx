@@ -45,9 +45,7 @@ class ProxyAdapter extends AdapterWrapper
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -55,9 +53,7 @@ class ProxyAdapter extends AdapterWrapper
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function executeActions(Table $table, array $actions)
     {

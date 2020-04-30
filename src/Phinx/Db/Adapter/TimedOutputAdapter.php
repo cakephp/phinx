@@ -83,9 +83,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function insert(Table $table, $row)
     {
@@ -96,9 +94,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function bulkinsert(Table $table, $rows)
     {
@@ -109,9 +105,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -198,9 +192,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function truncateTable($tableName)
     {
@@ -389,9 +381,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createDatabase($name, $options = [])
     {
@@ -402,9 +392,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function dropDatabase($name)
     {
@@ -415,9 +403,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createSchema($name = 'public')
     {
@@ -428,9 +414,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function dropSchema($name)
     {
@@ -441,9 +425,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function executeActions(Table $table, array $actions)
     {

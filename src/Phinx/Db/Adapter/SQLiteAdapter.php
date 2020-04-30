@@ -41,6 +41,7 @@ class SQLiteAdapter extends PdoAdapter
     protected static $supportedColumnTypes = [
         self::PHINX_TYPE_BIG_INTEGER => 'biginteger',
         self::PHINX_TYPE_BINARY => 'binary_blob',
+        self::PHINX_TYPE_BINARYUUID => 'binary_blob',
         self::PHINX_TYPE_BLOB => 'blob',
         self::PHINX_TYPE_BOOLEAN => 'boolean_integer',
         self::PHINX_TYPE_CHAR => 'char',
@@ -55,9 +56,9 @@ class SQLiteAdapter extends PdoAdapter
         self::PHINX_TYPE_STRING => 'varchar',
         self::PHINX_TYPE_TEXT => 'text',
         self::PHINX_TYPE_TIME => 'time_text',
-        self::PHINX_TYPE_UUID => 'uuid_text',
-        self::PHINX_TYPE_BINARYUUID => 'binary_blob',
         self::PHINX_TYPE_TIMESTAMP => 'timestamp_text',
+        self::PHINX_TYPE_TINY_INTEGER => 'tinyinteger',
+        self::PHINX_TYPE_UUID => 'uuid_text',
         self::PHINX_TYPE_VARBINARY => 'varbinary_blob',
     ];
 
@@ -68,8 +69,8 @@ class SQLiteAdapter extends PdoAdapter
      */
     protected static $supportedColumnTypeAliases = [
         'varchar' => self::PHINX_TYPE_STRING,
-        'tinyint' => self::PHINX_TYPE_SMALL_INTEGER,
-        'tinyinteger' => self::PHINX_TYPE_SMALL_INTEGER,
+        'tinyint' => self::PHINX_TYPE_TINY_INTEGER,
+        'tinyinteger' => self::PHINX_TYPE_TINY_INTEGER,
         'smallint' => self::PHINX_TYPE_SMALL_INTEGER,
         'int' => self::PHINX_TYPE_INTEGER,
         'mediumint' => self::PHINX_TYPE_INTEGER,
@@ -193,9 +194,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function disconnect()
     {
@@ -211,9 +210,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function beginTransaction()
     {
@@ -221,9 +218,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function commitTransaction()
     {
@@ -231,9 +226,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function rollbackTransaction()
     {
@@ -359,9 +352,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -500,9 +491,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function truncateTable($tableName)
     {
@@ -1401,16 +1390,16 @@ PCRE_PATTERN;
             // possibly a known type
             $type = $match[1];
             $typeLC = strtolower($type);
-            $affinity = isset($match[2]) ? $match[2] : '';
+            $affinity = $match[2] ?? '';
             $limit = isset($match[3]) && strlen($match[3]) ? (int)$match[3] : null;
             $scale = isset($match[4]) && strlen($match[4]) ? (int)$match[4] : null;
-            if (isset(self::$supportedColumnTypes[$typeLC])) {
-                // the type is an explicitly supported type
-                $name = $typeLC;
-            } elseif ($typeLC === 'tinyint' && $limit === 1) {
+            if (in_array($typeLC, ['tinyint', 'tinyinteger'], true) && $limit === 1) {
                 // the type is a MySQL-style boolean
                 $name = static::PHINX_TYPE_BOOLEAN;
                 $limit = null;
+            } elseif (isset(self::$supportedColumnTypes[$typeLC])) {
+                // the type is an explicitly supported type
+                $name = $typeLC;
             } elseif (isset(self::$supportedColumnTypeAliases[$typeLC])) {
                 // the type is an alias for a supported type
                 $name = self::$supportedColumnTypeAliases[$typeLC];
@@ -1431,9 +1420,7 @@ PCRE_PATTERN;
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createDatabase($name, $options = [])
     {
@@ -1449,9 +1436,7 @@ PCRE_PATTERN;
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function dropDatabase($name)
     {

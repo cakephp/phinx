@@ -146,9 +146,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function disconnect()
     {
@@ -164,9 +162,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function beginTransaction()
     {
@@ -174,9 +170,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function commitTransaction()
     {
@@ -184,9 +178,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function rollbackTransaction()
     {
@@ -224,9 +216,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -403,9 +393,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function truncateTable($tableName)
     {
@@ -1138,6 +1126,8 @@ ORDER BY T.[name], I.[index_id];";
             case 'numeric':
             case 'money':
                 return static::PHINX_TYPE_DECIMAL;
+            case 'tinyint':
+                return static::PHINX_TYPE_TINY_INTEGER;
             case 'smallint':
                 return static::PHINX_TYPE_SMALL_INTEGER;
             case 'bigint':
@@ -1168,9 +1158,7 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createDatabase($name, $options = [])
     {
@@ -1198,9 +1186,7 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function dropDatabase($name)
     {

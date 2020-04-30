@@ -42,6 +42,7 @@ class MysqlAdapter extends PdoAdapter
      */
     protected $signedColumnTypes = [
         self::PHINX_TYPE_INTEGER => true,
+        self::PHINX_TYPE_TINY_INTEGER => true,
         self::PHINX_TYPE_SMALL_INTEGER => true,
         self::PHINX_TYPE_BIG_INTEGER => true,
         self::PHINX_TYPE_FLOAT => true,
@@ -134,9 +135,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function disconnect()
     {
@@ -152,9 +151,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function beginTransaction()
     {
@@ -162,9 +159,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function commitTransaction()
     {
@@ -172,9 +167,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function rollbackTransaction()
     {
@@ -240,9 +233,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -416,9 +407,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function truncateTable($tableName)
     {
@@ -956,6 +945,8 @@ class MysqlAdapter extends PdoAdapter
                 return ['name' => 'bit', 'limit' => $limit ?: 64];
             case static::PHINX_TYPE_SMALL_INTEGER:
                 return ['name' => 'smallint', 'limit' => $limit ?: 6];
+            case static::PHINX_TYPE_TINY_INTEGER:
+                return ['name' => 'tinyint', 'limit' => $limit ?: 4];
             case static::PHINX_TYPE_INTEGER:
                 if ($limit && $limit >= static::INT_TINY) {
                     $sizes = [
@@ -967,6 +958,7 @@ class MysqlAdapter extends PdoAdapter
                         'tinyint' => static::INT_TINY,
                     ];
                     $limits = [
+                        'tinyint' => 4,
                         'smallint' => 6,
                         'int' => 11,
                         'bigint' => 20,
@@ -1051,7 +1043,7 @@ class MysqlAdapter extends PdoAdapter
                 }
                 break;
             case 'tinyint':
-                $type = static::PHINX_TYPE_INTEGER;
+                $type = static::PHINX_TYPE_TINY_INTEGER;
                 $limit = static::INT_TINY;
                 break;
             case 'smallint':
@@ -1134,13 +1126,11 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createDatabase($name, $options = [])
     {
-        $charset = isset($options['charset']) ? $options['charset'] : 'utf8';
+        $charset = $options['charset'] ?? 'utf8';
 
         if (isset($options['collation'])) {
             $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`', $name, $charset, $options['collation']));
@@ -1171,9 +1161,7 @@ class MysqlAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function dropDatabase($name)
     {

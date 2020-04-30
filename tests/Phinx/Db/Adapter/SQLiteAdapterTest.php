@@ -1502,10 +1502,10 @@ INPUT;
             ['boolean_integer', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
             ['int', ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
             ['integer', ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
-            ['tinyint', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
+            ['tinyint', ['name' => SQLiteAdapter::PHINX_TYPE_TINY_INTEGER, 'limit' => null, 'scale' => null]],
             ['tinyint(1)', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
-            ['tinyinteger', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
-            ['tinyinteger(1)', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => 1, 'scale' => null]],
+            ['tinyinteger', ['name' => SQLiteAdapter::PHINX_TYPE_TINY_INTEGER, 'limit' => null, 'scale' => null]],
+            ['tinyinteger(1)', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
             ['smallint', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
             ['smallinteger', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
             ['mediumint', ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
@@ -1578,10 +1578,10 @@ INPUT;
             ['BOOLEAN_INTEGER', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
             ['INT', ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
             ['INTEGER', ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
-            ['TINYINT', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
+            ['TINYINT', ['name' => SQLiteAdapter::PHINX_TYPE_TINY_INTEGER, 'limit' => null, 'scale' => null]],
             ['TINYINT(1)', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
-            ['TINYINTEGER', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
-            ['TINYINTEGER(1)', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => 1, 'scale' => null]],
+            ['TINYINTEGER', ['name' => SQLiteAdapter::PHINX_TYPE_TINY_INTEGER, 'limit' => null, 'scale' => null]],
+            ['TINYINTEGER(1)', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
             ['SMALLINT', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
             ['SMALLINTEGER', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
             ['MEDIUMINT', ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
@@ -1661,7 +1661,8 @@ INPUT;
     /** @covers \Phinx\Db\Adapter\SQLiteAdapter::getColumnTypes */
     public function testGetColumnTypes()
     {
-        $exp = [
+        $columnTypes = $this->adapter->getColumnTypes();
+        $expected = [
             SQLiteAdapter::PHINX_TYPE_BIG_INTEGER,
             SQLiteAdapter::PHINX_TYPE_BINARY,
             SQLiteAdapter::PHINX_TYPE_BLOB,
@@ -1681,9 +1682,13 @@ INPUT;
             SQLiteAdapter::PHINX_TYPE_UUID,
             SQLiteAdapter::PHINX_TYPE_BINARYUUID,
             SQLiteAdapter::PHINX_TYPE_TIMESTAMP,
+            SQLiteAdapter::PHINX_TYPE_TINY_INTEGER,
             SQLiteAdapter::PHINX_TYPE_VARBINARY,
         ];
-        $this->assertEquals($exp, $this->adapter->getColumnTypes());
+        sort($columnTypes);
+        sort($expected);
+
+        $this->assertEquals($expected, $columnTypes);
     }
 
     /**

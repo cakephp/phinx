@@ -24,8 +24,9 @@ interface AdapterInterface
     public const PHINX_TYPE_STRING = 'string';
     public const PHINX_TYPE_CHAR = 'char';
     public const PHINX_TYPE_TEXT = 'text';
-    public const PHINX_TYPE_SMALL_INTEGER = 'smallinteger';
     public const PHINX_TYPE_INTEGER = 'integer';
+    public const PHINX_TYPE_TINY_INTEGER = 'tinyinteger';
+    public const PHINX_TYPE_SMALL_INTEGER = 'smallinteger';
     public const PHINX_TYPE_BIG_INTEGER = 'biginteger';
     public const PHINX_TYPE_BIT = 'bit';
     public const PHINX_TYPE_FLOAT = 'float';
