@@ -59,7 +59,7 @@ class Manager
     protected $seeds;
 
     /**
-     * @var ContainerInterface
+     * @var \Psr\Container\ContainerInterface
      */
     protected $container;
 
@@ -620,7 +620,7 @@ class Manager
     /**
      * Sets the user defined PSR-11 container
      *
-     * @param ContainerInterface $container
+     * @param \Psr\Container\ContainerInterface $container
      */
     public function setContainer(ContainerInterface $container)
     {
@@ -907,11 +907,11 @@ class Manager
                     }
 
                     // instantiate it
-                    /** @var AbstractSeed $seed */
+                    /** @var \Phinx\Seed\AbstractSeed $seed */
                     if ($this->container !== null) {
                         $seed = $this->container->get($class);
                     } else {
-                        $seed = new $class;
+                        $seed = new $class();
                     }
                     $seed->setInput($this->getInput());
                     $seed->setOutput($this->getOutput());

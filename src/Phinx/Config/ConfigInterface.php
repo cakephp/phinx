@@ -8,7 +8,6 @@
 namespace Phinx\Config;
 
 use ArrayAccess;
-use Psr\Container\ContainerInterface;
 
 /**
  * Phinx configuration interface.
@@ -111,7 +110,7 @@ interface ConfigInterface extends ArrayAccess
     /**
      * Get the user-provided container for instantiating seeds
      *
-     * @return ContainerInterface|null
+     * @return \Psr\Container\ContainerInterface|null
      */
     public function getContainer();
 

@@ -354,7 +354,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getContainer()
     {
