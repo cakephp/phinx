@@ -620,7 +620,7 @@ class Manager
     /**
      * Sets the user defined PSR-11 container
      *
-     * @param ContainerInterface $container
+     * @param ContainerInterface $container Container
      */
     public function setContainer(ContainerInterface $container)
     {
