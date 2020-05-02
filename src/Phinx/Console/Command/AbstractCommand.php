@@ -318,7 +318,7 @@ abstract class AbstractCommand extends Command
     {
         if ($this->getManager() === null) {
             $manager = new Manager($this->getConfig(), $input, $output);
-            $container = $this->config->getContainer();
+            $container = $this->getConfig()->getContainer();
             if ($container !== null) {
                 $manager->setContainer($container);
             }
