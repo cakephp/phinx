@@ -103,9 +103,7 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
     {
-        /** @var \Phinx\Config\ConfigInterface|null $config */
-        $config = $this->getConfig();
-        if (!$config) {
+        if (!$this->getConfig()) {
             $this->loadConfig($input, $output);
         }
 
