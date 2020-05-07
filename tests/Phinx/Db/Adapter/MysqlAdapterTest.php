@@ -48,7 +48,8 @@ class MysqlAdapterTest extends TestCase
         unset($this->adapter);
     }
 
-    private function usingMysql8(): bool {
+    private function usingMysql8(): bool
+    {
         return version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') > -1;
     }
 
@@ -680,24 +681,26 @@ class MysqlAdapterTest extends TestCase
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         // MariaDB returns current_timestamp()
-        $this->assertTrue('CURRENT_TIMESTAMP' === $rows[1]['Default'] || 'current_timestamp()' === $rows[1]['Default']);
+        $this->assertTrue($rows[1]['Default'] === 'CURRENT_TIMESTAMP' || $rows[1]['Default'] === 'current_timestamp()');
     }
 
-    public function integerDataProvider() {
+    public function integerDataProvider()
+    {
         return [
             ['integer', [], 'int', '11', ''],
             ['integer', ['signed' => false], 'int', '11', ' unsigned'],
             ['smallinteger', [], 'smallint', '6', ''],
             ['smallinteger', ['signed' => false], 'smallint', '6', ' unsigned'],
             ['biginteger', [], 'bigint', '20', ''],
-            ['biginteger', ['signed' => false], 'bigint', '20', ' unsigned']
+            ['biginteger', ['signed' => false], 'bigint', '20', ' unsigned'],
         ];
     }
 
     /**
      * @dataProvider integerDataProvider
      */
-    public function testIntegerColumnTypes($phinx_type, $options, $sql_type, $width, $extra) {
+    public function testIntegerColumnTypes($phinx_type, $options, $sql_type, $width, $extra)
+    {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
         $this->assertFalse($table->hasColumn('user_id'));
@@ -744,7 +747,7 @@ class MysqlAdapterTest extends TestCase
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
 
-        $type = ($this->usingMysql8()) ? 'tinyint' : 'tinyint(1)';
+        $type = $this->usingMysql8() ? 'tinyint' : 'tinyint(1)';
         $this->assertEquals($type . ' unsigned', $rows[1]['Type']);
     }
 
@@ -1103,7 +1106,8 @@ class MysqlAdapterTest extends TestCase
         }
     }
 
-    public function testGetColumnsInteger() {
+    public function testGetColumnsInteger()
+    {
         $colName = 'column15';
         $type = 'integer';
         $options = ['limit' => 10];
