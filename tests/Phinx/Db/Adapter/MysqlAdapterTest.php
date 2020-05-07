@@ -48,6 +48,10 @@ class MysqlAdapterTest extends TestCase
         unset($this->adapter);
     }
 
+    private function usingMysql8(): bool {
+        return version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') > -1;
+    }
+
     public function testConnection()
     {
         $this->assertInstanceOf('PDO', $this->adapter->getConnection());
@@ -151,8 +155,8 @@ class MysqlAdapterTest extends TestCase
 
     public function testHasTableRespectsDotInTableName()
     {
-        $sql = "CREATE TABLE `discouraged.naming.convention` 
-                (id INT(11) NOT NULL) 
+        $sql = "CREATE TABLE `discouraged.naming.convention`
+                (id INT(11) NOT NULL)
                 ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci";
         $this->adapter->execute($sql);
         $this->assertTrue($this->adapter->hasTable('discouraged.naming.convention'));
@@ -183,12 +187,12 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
 
         $rows = $this->adapter->fetchAll(sprintf(
-            "SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='%s' AND table_name='ntable'",
+            "SELECT TABLE_COMMENT FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='%s' AND table_name='ntable'",
             TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
         ));
         $comment = $rows[0];
 
-        $this->assertEquals($tableComment, $comment['table_comment'], 'Dont set table comment correctly');
+        $this->assertEquals($tableComment, $comment['TABLE_COMMENT'], 'Dont set table comment correctly');
     }
 
     public function testCreateTableWithForeignKeys()
@@ -542,7 +546,7 @@ class MysqlAdapterTest extends TestCase
 
         $rows = $this->adapter->fetchAll(
             sprintf(
-                "SELECT table_comment
+                "SELECT TABLE_COMMENT
                     FROM INFORMATION_SCHEMA.TABLES
                     WHERE table_schema='%s'
                         AND table_name='%s'",
@@ -550,7 +554,7 @@ class MysqlAdapterTest extends TestCase
                 'table1'
             )
         );
-        $this->assertEquals('comment1', $rows[0]['table_comment']);
+        $this->assertEquals('comment1', $rows[0]['TABLE_COMMENT']);
     }
 
     public function testChangeComment()
@@ -564,7 +568,7 @@ class MysqlAdapterTest extends TestCase
 
         $rows = $this->adapter->fetchAll(
             sprintf(
-                "SELECT table_comment
+                "SELECT TABLE_COMMENT
                     FROM INFORMATION_SCHEMA.TABLES
                     WHERE table_schema='%s'
                         AND table_name='%s'",
@@ -572,7 +576,7 @@ class MysqlAdapterTest extends TestCase
                 'table1'
             )
         );
-        $this->assertEquals('comment2', $rows[0]['table_comment']);
+        $this->assertEquals('comment2', $rows[0]['TABLE_COMMENT']);
     }
 
     public function testDropComment()
@@ -586,7 +590,7 @@ class MysqlAdapterTest extends TestCase
 
         $rows = $this->adapter->fetchAll(
             sprintf(
-                "SELECT table_comment
+                "SELECT TABLE_COMMENT
                     FROM INFORMATION_SCHEMA.TABLES
                     WHERE table_schema='%s'
                         AND table_name='%s'",
@@ -594,7 +598,7 @@ class MysqlAdapterTest extends TestCase
                 'table1'
             )
         );
-        $this->assertEquals('', $rows[0]['table_comment']);
+        $this->assertEquals('', $rows[0]['TABLE_COMMENT']);
     }
 
     public function testRenameTable()
@@ -679,70 +683,34 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue('CURRENT_TIMESTAMP' === $rows[1]['Default'] || 'current_timestamp()' === $rows[1]['Default']);
     }
 
-    public function testAddIntegerColumnWithDefaultSigned()
-    {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-        $table->save();
-        $this->assertFalse($table->hasColumn('user_id'));
-        $table->addColumn('user_id', 'integer')
-              ->save();
-        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertEquals('int(11)', $rows[1]['Type']);
+    public function integerDataProvider() {
+        return [
+            ['integer', [], 'int', '11', ''],
+            ['integer', ['signed' => false], 'int', '11', ' unsigned'],
+            ['smallinteger', [], 'smallint', '6', ''],
+            ['smallinteger', ['signed' => false], 'smallint', '6', ' unsigned'],
+            ['biginteger', [], 'bigint', '20', ''],
+            ['biginteger', ['signed' => false], 'bigint', '20', ' unsigned']
+        ];
     }
 
-    public function testAddIntegerColumnWithSignedEqualsFalse()
-    {
+    /**
+     * @dataProvider integerDataProvider
+     */
+    public function testIntegerColumnTypes($phinx_type, $options, $sql_type, $width, $extra) {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
         $this->assertFalse($table->hasColumn('user_id'));
-        $table->addColumn('user_id', 'integer', ['signed' => false])
+        $table->addColumn('user_id', $phinx_type, $options)
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertEquals('int(11) unsigned', $rows[1]['Type']);
-    }
 
-    public function testAddSmallIntegerColumnWithDefaultSigned()
-    {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-        $table->save();
-        $this->assertFalse($table->hasColumn('user_id'));
-        $table->addColumn('user_id', 'smallinteger')
-              ->save();
-        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertEquals('smallint(6)', $rows[1]['Type']);
-    }
-
-    public function testAddSmallIntegerColumnWithSignedEqualsFalse()
-    {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-        $table->save();
-        $this->assertFalse($table->hasColumn('user_id'));
-        $table->addColumn('user_id', 'smallinteger', ['signed' => false])
-              ->save();
-        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertEquals('smallint(6) unsigned', $rows[1]['Type']);
-    }
-
-    public function testAddBigIntegerColumnWithDefaultSigned()
-    {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-        $table->save();
-        $this->assertFalse($table->hasColumn('user_id'));
-        $table->addColumn('user_id', 'biginteger')
-              ->save();
-        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertEquals('bigint(20)', $rows[1]['Type']);
-    }
-
-    public function testAddBigIntegerColumnWithSignedEqualsFalse()
-    {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-        $table->save();
-        $this->assertFalse($table->hasColumn('user_id'));
-        $table->addColumn('user_id', 'biginteger', ['signed' => false])
-              ->save();
-        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertEquals('bigint(20) unsigned', $rows[1]['Type']);
+        $type = $sql_type;
+        if (!$this->usingMysql8()) {
+            $type .= '(' . $width . ')';
+        }
+        $type .= $extra;
+        $this->assertEquals($type, $rows[1]['Type']);
     }
 
     public function testAddDoubleColumnWithDefaultSigned()
@@ -775,7 +743,9 @@ class MysqlAdapterTest extends TestCase
         $table->addColumn('test_boolean', 'boolean', ['signed' => false])
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertEquals('tinyint(1) unsigned', $rows[1]['Type']);
+
+        $type = ($this->usingMysql8()) ? 'tinyint' : 'tinyint(1)';
+        $this->assertEquals($type . ' unsigned', $rows[1]['Type']);
     }
 
     public function testAddStringColumnWithSignedEqualsFalse()
@@ -989,7 +959,7 @@ class MysqlAdapterTest extends TestCase
               ->save();
         $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
-        $this->assertEquals($limit, $sqlType['limit']);
+        $this->assertEquals($this->usingMysql8() ? 11 : $limit, $sqlType['limit']);
     }
 
     public function testDatetimeColumn()
@@ -1091,7 +1061,6 @@ class MysqlAdapterTest extends TestCase
             ['column12', 'binary', []],
             ['column13', 'boolean', []],
             ['column14', 'string', ['limit' => 10]],
-            ['column15', 'integer', ['limit' => 10]],
             ['column16', 'geometry', []],
             ['column17', 'point', []],
             ['column18', 'linestring', []],
@@ -1132,6 +1101,21 @@ class MysqlAdapterTest extends TestCase
         if (isset($options['scale'])) {
             $this->assertEquals($options['scale'], $columns[1]->getScale());
         }
+    }
+
+    public function testGetColumnsInteger() {
+        $colName = 'column15';
+        $type = 'integer';
+        $options = ['limit' => 10];
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn($colName, $type, $options)->save();
+
+        $columns = $this->adapter->getColumns('t');
+        $this->assertCount(2, $columns);
+        $this->assertEquals($colName, $columns[1]->getName());
+        $this->assertEquals($type, $columns[1]->getType());
+
+        $this->assertEquals($this->usingMysql8() ? null : 10, $columns[1]->getLimit());
     }
 
     public function testDescribeTable()
@@ -1494,12 +1478,13 @@ class MysqlAdapterTest extends TestCase
               ->save();
 
         $rows = $this->adapter->fetchAll(sprintf(
-            "SELECT column_name, column_comment FROM information_schema.columns WHERE table_schema='%s' AND table_name='table1'",
+            "SELECT COLUMN_NAME, COLUMN_COMMENT FROM information_schema.columns WHERE table_schema='%s' AND table_name='table1'",
             TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
         ));
         $columnWithComment = $rows[1];
 
-        $this->assertEquals($comment, $columnWithComment['column_comment'], 'Dont set column comment correctly');
+        $this->assertSame('column1', $columnWithComment['COLUMN_NAME'], "Didn't set column name correctly");
+        $this->assertEquals($comment, $columnWithComment['COLUMN_COMMENT'], "Didn't set column comment correctly");
     }
 
     public function testAddGeoSpatialColumns()
@@ -1871,8 +1856,8 @@ INPUT;
     public function testGeometrySridSupport($type, $geom)
     {
         $this->adapter->connect();
-        if (version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') === -1) {
-            $this->markTestSkipped('Cannot test geometry srid on versions less than 8.0.0');
+        if (!$this->usingMysql8()) {
+            $this->markTestSkipped('Cannot test geometry srid on mysql versions less than 8');
         }
 
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -1896,8 +1881,8 @@ INPUT;
     public function testGeometrySridThrowsInsertDifferentSrid($type, $geom)
     {
         $this->adapter->connect();
-        if (version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') === -1) {
-            $this->markTestSkipped('Cannot test geometry srid on versions less than 8.0.0');
+        if (!$this->usingMysql8()) {
+            $this->markTestSkipped('Cannot test geometry srid on mysql versions less than 8');
         }
 
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
