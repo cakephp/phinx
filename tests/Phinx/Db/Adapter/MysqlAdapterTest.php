@@ -188,7 +188,7 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
 
         $rows = $this->adapter->fetchAll(sprintf(
-            "SELECT TABLE_COMMENT FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='%s' AND table_name='ntable'",
+            "SELECT TABLE_COMMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='ntable'",
             TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
         ));
         $comment = $rows[0];
