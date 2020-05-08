@@ -49,7 +49,7 @@ class MysqlAdapterTest extends TestCase
     }
 
     private function usingMysql8(): bool {
-        return version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') > -1;
+        return version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '8.0.0', '>=');
     }
 
     public function testConnection()
@@ -548,8 +548,8 @@ class MysqlAdapterTest extends TestCase
             sprintf(
                 "SELECT TABLE_COMMENT
                     FROM INFORMATION_SCHEMA.TABLES
-                    WHERE table_schema='%s'
-                        AND table_name='%s'",
+                    WHERE TABLE_SCHEMA='%s'
+                        AND TABLE_NAME='%s'",
                 TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
                 'table1'
             )
@@ -570,8 +570,8 @@ class MysqlAdapterTest extends TestCase
             sprintf(
                 "SELECT TABLE_COMMENT
                     FROM INFORMATION_SCHEMA.TABLES
-                    WHERE table_schema='%s'
-                        AND table_name='%s'",
+                    WHERE TABLE_SCHEMA='%s'
+                        AND TABLE_NAME='%s'",
                 TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
                 'table1'
             )
@@ -592,8 +592,8 @@ class MysqlAdapterTest extends TestCase
             sprintf(
                 "SELECT TABLE_COMMENT
                     FROM INFORMATION_SCHEMA.TABLES
-                    WHERE table_schema='%s'
-                        AND table_name='%s'",
+                    WHERE TABLE_SCHEMA='%s'
+                        AND TABLE_NAME='%s'",
                 TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE,
                 'table1'
             )
@@ -1478,7 +1478,7 @@ class MysqlAdapterTest extends TestCase
               ->save();
 
         $rows = $this->adapter->fetchAll(sprintf(
-            "SELECT COLUMN_NAME, COLUMN_COMMENT FROM information_schema.columns WHERE table_schema='%s' AND table_name='table1'",
+            "SELECT COLUMN_NAME, COLUMN_COMMENT FROM information_schema.columns WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='table1'",
             TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
         ));
         $columnWithComment = $rows[1];
