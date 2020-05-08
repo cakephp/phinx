@@ -1,0 +1,47 @@
+name: MySQL 8
+
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  testsuite:
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['7.4']
+    name: PHP ${{ matrix.php-version }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up PHP ${{ matrix.php-version }}
+      uses: shivammathur/setup-php@master
+      with:
+        php-version: ${{ matrix.php-version }}
+        overage: xdebug
+
+    - name: Setup MySQL
+      run: |
+        docker run --rm --name=mysqld --env MYSQL_DATABASE=phinx_testing --env MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 3306:3306 -d mysql:8 --default-authentication-plugin=mysql_native_password
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - name: Run PHPUnit
+      env:
+        TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED: "true"
+        TESTS_PHINX_DB_ADAPTER_MYSQL_HOST: "127.0.0.1"
+        TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME: "root"
+        TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD: ""
+        TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE: "phinx_testing"
+        TESTS_PHINX_DB_ADAPTER_MYSQL_PORT: "3306"
+      run: vendor/bin/phpunit --verbose --no-configuration --bootstrap tests/phpunit-bootstrap.php tests/

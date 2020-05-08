@@ -1482,7 +1482,10 @@ class MysqlAdapterTest extends TestCase
               ->save();
 
         $rows = $this->adapter->fetchAll(sprintf(
-            "SELECT COLUMN_NAME, COLUMN_COMMENT FROM information_schema.columns WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='table1'",
+            "SELECT COLUMN_NAME, COLUMN_COMMENT
+            FROM information_schema.columns
+            WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='table1'
+            ORDER BY ORDINAL_POSITION",
             TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE
         ));
         $columnWithComment = $rows[1];
