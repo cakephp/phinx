@@ -273,4 +273,55 @@ class Util
 
         return $files;
     }
+
+    /**
+     * Parses DSN string into db config array.
+     *
+     * @param string $dsn DSN string
+     * @return array
+     */
+    public static function parseDsn(string $dsn): array
+    {
+        $pattern = <<<'REGEXP'
+{
+    ^
+    (?:
+        (?P<adapter>[\w\\\\]+)://
+    )
+    (?:
+        (?P<user>.*?)
+        (?:
+            :(?P<pass>.*?)
+        )?
+        @
+    )?
+    (?:
+        (?P<host>[^?#/:@]+)
+        (?:
+            :(?P<port>\d+)
+        )?
+    )?
+    (?:
+        /(?P<name>[^?#]*)
+    )?
+    (?:
+        \?(?P<query>[^#]*)
+    )?
+    $
+}x
+REGEXP;
+
+        if (!preg_match($pattern, $dsn, $parsed)) {
+            return [];
+        }
+
+        // filter out everything except the matched groups
+        $config = array_intersect_key($parsed, array_flip(['adapter', 'user', 'pass', 'host', 'port', 'name']));
+        $config = array_filter($config);
+
+        parse_str($parsed['query'] ?? '', $query);
+        $config = array_merge($query, $config);
+
+        return $config;
+    }
 }

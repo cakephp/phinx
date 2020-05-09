@@ -117,17 +117,15 @@ class ConfigDsnTest extends AbstractConfigTest
             ['postgres://user:pass@host/name?'],
             ['mssql://user:@host:1234/name'],
             ['sqlite3://user@host:1234/name'],
+            ['sqlite3:///:memory:'],
             ['pdomock://host:1234/name'],
             ['pdomock://user:pass@host/name'],
             ['pdomock://host/name'],
-            // The RegEx that parses the DSN is purely to extract information
-            // from the string in the right order, it is not responsible for
-            // ensuring that the information is correct. Technically the
-            // following, whilst useless, is valid (validation will happen
-            // during connection):
-            ['£$%^&}{@>://$%*(*&^}{:?£}{@^>}"{$:1234/>@"}%{^>£}:/^'],
             ['pdomock://user:pass@host/:1234/name'],
             ['pdomock://user:pa:ss@host:1234/name'],
+            ['pdomock://user:pass@host:1234/ '],
+            ['pdomock://:pass@host:1234/name'],
+            ['pdomock://user:pass@host:01234/name'],
         ];
     }
 
@@ -135,13 +133,10 @@ class ConfigDsnTest extends AbstractConfigTest
     {
         return [
             ['pdomock://user:pass@host:/name'],
-            ['pdomock://user:pass@host:1234/ '],
             ['pdomock://user:pass@:1234/name'],
-            ['pdomock://:pass@host:1234/name'],
             ['://user:pass@host:1234/name'],
             ['pdomock:/user:p@ss@host:1234/name'],
             ['pdomock://user:pass@host:/1234name'],
-            ['pdomock://user:pass@host:01234/name'],
         ];
     }
 

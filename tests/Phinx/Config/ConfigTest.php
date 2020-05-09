@@ -14,32 +14,6 @@ use UnexpectedValueException;
 class ConfigTest extends AbstractConfigTest
 {
     /**
-     * @covers \Phinx\Config\Config::__construct
-     * @covers \Phinx\Config\Config::getConfigFilePath
-     */
-    public function testConstructEmptyArguments()
-    {
-        $config = new Config([]);
-        // this option is set to its default value when not being passed in the constructor, so we can ignore it
-        unset($config['version_order']);
-        $this->assertAttributeEmpty('values', $config);
-        $this->assertAttributeEmpty('configFilePath', $config);
-        $this->assertNull($config->getConfigFilePath());
-    }
-
-    /**
-     * @covers \Phinx\Config\Config::__construct
-     * @covers \Phinx\Config\Config::getConfigFilePath
-     */
-    public function testConstructByArray()
-    {
-        $config = new Config($this->getConfigArray());
-        $this->assertAttributeNotEmpty('values', $config);
-        $this->assertAttributeEmpty('configFilePath', $config);
-        $this->assertNull($config->getConfigFilePath());
-    }
-
-    /**
      * @covers \Phinx\Config\Config::getEnvironments
      */
     public function testGetEnvironmentsMethod()
