@@ -599,6 +599,10 @@ class PostgresAdapterTest extends TestCase
     public function providerIgnoresLimit(): array
     {
         return [
+            [AbstractAdapter::PHINX_TYPE_TINY_INTEGER, AbstractAdapter::PHINX_TYPE_SMALL_INTEGER],
+            [AbstractAdapter::PHINX_TYPE_SMALL_INTEGER],
+            [AbstractAdapter::PHINX_TYPE_INTEGER],
+            [AbstractAdapter::PHINX_TYPE_BIG_INTEGER],
             [AbstractAdapter::PHINX_TYPE_BOOLEAN],
             [AbstractAdapter::PHINX_TYPE_TEXT],
             [AbstractAdapter::PHINX_TYPE_BINARY],
@@ -608,7 +612,7 @@ class PostgresAdapterTest extends TestCase
     /**
      * @dataProvider providerIgnoresLimit
      */
-    public function testAddColumnIgnoresLimit($column_type)
+    public function testAddColumnIgnoresLimit(string $column_type, ?string $actual_type = null): void
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
@@ -619,7 +623,7 @@ class PostgresAdapterTest extends TestCase
         $this->assertCount(2, $columns);
         $column = $columns[1];
         $this->assertSame('column1', $column->getName());
-        $this->assertSame($column_type, $column->getType());
+        $this->assertSame($actual_type ?? $column_type, $column->getType());
         $this->assertNull($column->getLimit());
     }
 
