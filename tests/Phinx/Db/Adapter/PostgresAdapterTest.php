@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use Phinx\Db\Adapter\AbstractAdapter;
 use Phinx\Db\Adapter\PostgresAdapter;
 use Phinx\Db\Adapter\UnsupportedColumnTypeException;
 use Phinx\Db\Table\Column;
@@ -592,6 +593,33 @@ class PostgresAdapterTest extends TestCase
         $this->assertSame('limit_bool_false', $column->getName());
         $this->assertNotNull($column->getDefault());
         $this->assertSame('false', $column->getDefault());
+        $this->assertNull($column->getLimit());
+    }
+
+    public function providerIgnoresLimit(): array
+    {
+        return [
+            [AbstractAdapter::PHINX_TYPE_BOOLEAN],
+            [AbstractAdapter::PHINX_TYPE_TEXT],
+            [AbstractAdapter::PHINX_TYPE_BINARY],
+        ];
+    }
+
+    /**
+     * @dataProvider providerIgnoresLimit
+     */
+    public function testAddColumnIgnoresLimit($column_type)
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn('column1', $column_type, ['limit' => 1]);
+        $table->save();
+
+        $columns = $this->adapter->getColumns('table1');
+        $this->assertCount(2, $columns);
+        $column = $columns[1];
+        $this->assertSame('column1', $column->getName());
+        $this->assertSame($column_type, $column->getType());
         $this->assertNull($column->getLimit());
     }
 
