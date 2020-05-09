@@ -155,7 +155,7 @@ class SQLiteAdapter extends PdoAdapter
             $options = $this->getOptions();
 
             // use a memory database if the option was specified
-            if (!empty($options['memory'])) {
+            if (!empty($options['memory']) || $options['name'] === static::MEMORY) {
                 $dsn = 'sqlite:' . static::MEMORY;
             } else {
                 $dsn = 'sqlite:' . $options['name'] . $this->suffix;

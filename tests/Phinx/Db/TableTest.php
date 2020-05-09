@@ -16,14 +16,7 @@ class TableTest extends TestCase
     public function provideTimestampColumnNames()
     {
         $result = [];
-        $adapters = array_filter(
-            [
-                TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED ? new SqlServerAdapter([]) : false,
-                TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED ? new MysqlAdapter([]) : false,
-                TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED ? new PostgresAdapter([]) : false,
-                TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED ? new SQLiteAdapter([]) : false,
-            ]
-        );
+        $adapters = [new SqlServerAdapter([]), new MysqlAdapter([]), new PostgresAdapter([]), new SQLiteAdapter([])];
         foreach ($adapters as $adapter) {
             $result = array_merge(
                 $result,
