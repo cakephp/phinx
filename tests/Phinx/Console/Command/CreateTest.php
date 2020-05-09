@@ -15,6 +15,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Tester\CommandTester;
+use Test\Phinx\TestUtils;
 
 /**
  * Class CreateTest
@@ -40,6 +41,7 @@ class CreateTest extends TestCase
 
     public function setUp(): void
     {
+        TestUtils::recursiveRmdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations');
         @mkdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations', 0777, true);
         $this->config = new Config(
             [
@@ -69,6 +71,64 @@ class CreateTest extends TestCase
 
         $this->input = new ArrayInput([]);
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
+    }
+
+    public function testCreateMigrationDefault(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName()]);
+
+        $files = array_diff(scandir($this->config->getMigrationPaths()[0]), ['.', '..']);
+        $this->assertCount(1, $files);
+        $fileName = current($files);
+        $this->assertRegExp("/^[0-9]{14}.php/", $fileName);
+        $date = substr($fileName, 0, 14);
+        $this->assertFileExists($this->config->getMigrationPaths()[0]);
+        $prefix = "<?php\n\nuse Phinx\\Migration\\AbstractMigration;\n\nclass V{$date} extends AbstractMigration";
+        $this->assertStringStartsWith($prefix, file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName));
+    }
+
+    public function testCreateMigrationWithName(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyMigration']);
+
+        $files = array_diff(scandir($this->config->getMigrationPaths()[0]), ['.', '..']);
+        $this->assertCount(1, $files);
+        $fileName = current($files);
+        $this->assertRegExp("/^[0-9]{14}_my_migration.php/", $fileName);
+        $date = substr($fileName, 0, 14);
+        $this->assertFileExists($this->config->getMigrationPaths()[0]);
+        $prefix = "<?php\n\nuse Phinx\\Migration\\AbstractMigration;\n\nclass MyMigration extends AbstractMigration";
+        $this->assertStringStartsWith($prefix, file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName));
     }
 
     public function testExecuteWithDuplicateMigrationNames()

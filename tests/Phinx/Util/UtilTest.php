@@ -47,52 +47,66 @@ class UtilTest extends TestCase
         $this->assertLessThanOrEqual($expected + 2, $current);
     }
 
-    public function testMapClassNameToFileName()
+    public function providerMapClassNameToFileName(): array
     {
-        $expectedResults = [
-            'CamelCase87afterSomeBooze' => '/^\d{14}_camel_case_87after_some_booze\.php$/',
-            'CreateUserTable' => '/^\d{14}_create_user_table\.php$/',
-            'LimitResourceNamesTo30Chars' => '/^\d{14}_limit_resource_names_to_30_chars\.php$/',
+        return [
+            ['CamelCase87afterSomeBooze', '/^\d{14}_camel_case_87after_some_booze\.php$/'],
+            ['CreateUserTable', '/^\d{14}_create_user_table\.php$/'],
+            ['LimitResourceNamesTo30Chars', '/^\d{14}_limit_resource_names_to_30_chars\.php$/'],
         ];
-
-        foreach ($expectedResults as $input => $expectedResult) {
-            $this->assertRegExp($expectedResult, Util::mapClassNameToFileName($input));
-        }
     }
 
-    public function testMapFileNameToClassName()
+    /**
+     * @dataProvider providerMapClassNameToFileName
+     */
+    public function testMapClassNameToFileName(string $name, string $pattern): void
     {
-        $expectedResults = [
-            '20150902094024_create_user_table.php' => 'CreateUserTable',
-            '20150902102548_my_first_migration2.php' => 'MyFirstMigration2',
-            '20200412012035_camel_case_87after_some_booze.php' => 'CamelCase87afterSomeBooze',
-            '20200412012036_limit_resource_names_to_30_chars.php' => 'LimitResourceNamesTo30Chars',
-            '20200412012037_back_compat_names_to30_chars.php' => 'BackCompatNamesTo30Chars',
-        ];
-
-        foreach ($expectedResults as $input => $expectedResult) {
-            $this->assertEquals($expectedResult, Util::mapFileNameToClassName($input));
-        }
+        $this->assertRegExp($pattern, Util::mapClassNameToFileName($name));
     }
 
-    public function testisValidPhinxClassName()
+    public function providerMapFileName(): array
     {
-        $expectedResults = [
-            'camelCase' => false,
-            'CreateUserTable' => true,
-            'UserSeeder' => true,
-            'Test' => true,
-            'test' => false,
-            'Q' => true,
-            'XMLTriggers' => true,
-            'Form_Cards' => false,
-            'snake_high_scores' => false,
-            'Code2319Incidents' => true,
+        return [
+            ['20150902094024_create_user_table.php', 'CreateUserTable'],
+            ['20150902102548_my_first_migration2.php', 'MyFirstMigration2'],
+            ['20200412012035_camel_case_87after_some_booze.php', 'CamelCase87afterSomeBooze'],
+            ['20200412012036_limit_resource_names_to_30_chars.php', 'LimitResourceNamesTo30Chars'],
+            ['20200412012037_back_compat_names_to30_chars.php', 'BackCompatNamesTo30Chars'],
+            ['20200412012037.php', 'V20200412012037'],
         ];
+    }
 
-        foreach ($expectedResults as $input => $expectedResult) {
-            $this->assertEquals($expectedResult, Util::isValidPhinxClassName($input));
-        }
+    /**
+     * @dataProvider providerMapFileName
+     */
+    public function testMapFileNameToClassName(string $fileName, string $className)
+    {
+        $this->assertEquals($className, Util::mapFileNameToClassName($fileName));
+    }
+
+    public function providerValidClassName(): array
+    {
+        return [
+            ['camelCase', false],
+            ['CreateUserTable', true],
+            ['UserSeeder', true],
+            ['Test', true],
+            ['test', false],
+            ['Q', true],
+            ['XMLTriggers', true],
+            ['Form_Cards', false],
+            ['snake_high_scores', false],
+            ['Code2319Incidents', true],
+            ['V20200509232007', true],
+        ];
+    }
+
+    /**
+     * @dataProvider providerValidClassName
+     */
+    public function testIsValidPhinxClassName(string $className, bool $valid): void
+    {
+        $this->assertSame($valid, Util::isValidPhinxClassName($className));
     }
 
     public function testGlobPath()
