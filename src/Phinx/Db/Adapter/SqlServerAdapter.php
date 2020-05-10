@@ -329,7 +329,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      *
      * SqlServer does not implement this functionality, and so will always throw an exception if used.
      *

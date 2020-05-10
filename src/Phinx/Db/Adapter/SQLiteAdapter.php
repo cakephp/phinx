@@ -453,7 +453,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      *
      * SQLiteAdapter does not implement this functionality, and so will always throw an exception if used.
      *
@@ -1291,7 +1291,7 @@ PCRE_PATTERN;
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      *
      * SQLiteAdapter does not implement this functionality, and so will always throw an exception if used.
      *
