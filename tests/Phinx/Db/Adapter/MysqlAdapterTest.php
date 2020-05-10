@@ -1071,6 +1071,9 @@ class MysqlAdapterTest extends TestCase
             ['column20', 'uuid', []],
             ['column21', 'set', ['values' => ['one', 'two']]],
             ['column22', 'enum', ['values' => ['three', 'four']]],
+            ['enum_quotes', 'enum', ['values' => [
+                "'", '\'\n', '\\', ',', '', "\\\n", "\\n", "\n", "\r", "\r\n", '/', ',,', "\t",
+            ]]],
             ['column23', 'bit', []],
         ];
     }
@@ -1540,6 +1543,15 @@ class MysqlAdapterTest extends TestCase
         $enumColumn = end($columns);
         $this->assertEquals(AdapterInterface::PHINX_TYPE_ENUM, $enumColumn->getType());
         $this->assertEquals(['one', 'two'], $enumColumn->getValues());
+    }
+
+    public function testEnumColumnWithNullValue()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('enum_column', 'enum', ['values' => ['one', 'two', null]]);
+
+        $this->expectException(PDOException::class);
+        $table->save();
     }
 
     public function testHasColumn()

@@ -1119,7 +1119,51 @@ class MysqlAdapter extends PdoAdapter
         ];
 
         if ($type === static::PHINX_TYPE_ENUM || $type === static::PHINX_TYPE_SET) {
-            $phinxType['values'] = explode("','", trim($matches[6], "()'"));
+            $values = trim($matches[6], "()");
+            $phinxType['values'] = [];
+            $opened = false;
+            $escaped = false;
+            $wasEscaped = false;
+            $value = '';
+            $valuesLength = strlen($values);
+            for ($i = 0; $i < $valuesLength; $i++) {
+                $char = $values[$i];
+                if ($char === "'" && !$opened) {
+                    $opened = true;
+                } elseif (
+                    !$escaped
+                    && ($i + 1) < $valuesLength
+                    && (
+                        $char === "'" && $values[$i + 1] === "'"
+                        || $char === "\\" && $values[$i + 1] === "\\"
+                    )
+                ) {
+                    $escaped = true;
+                } elseif ($char === "'" && $opened && !$escaped) {
+                    $phinxType['values'][] = $value;
+                    $value = '';
+                    $opened = false;
+                } elseif (($char === "'" || $char === "\\") && $opened && $escaped) {
+                    $value .= $char;
+                    $escaped = false;
+                    $wasEscaped = true;
+                } elseif ($opened) {
+                    if ($values[$i - 1] === "\\" && !$wasEscaped) {
+                        if ($char === 'n') {
+                            $char = "\n";
+                        } elseif ($char === 'r') {
+                            $char = "\r";
+                        } elseif ($char === 't') {
+                            $char = "\t";
+                        }
+                        if ($values[$i] !== $char) {
+                            $value = substr($value, 0, strlen($value) - 1);
+                        }
+                    }
+                    $value .= $char;
+                    $wasEscaped = false;
+                }
+            }
         }
 
         return $phinxType;
@@ -1133,7 +1177,12 @@ class MysqlAdapter extends PdoAdapter
         $charset = $options['charset'] ?? 'utf8';
 
         if (isset($options['collation'])) {
-            $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`', $name, $charset, $options['collation']));
+            $this->execute(sprintf(
+                'CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`',
+                $name,
+                $charset,
+                $options['collation']
+            ));
         } else {
             $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s`', $name, $charset));
         }
@@ -1189,16 +1238,27 @@ class MysqlAdapter extends PdoAdapter
             $def .= '(' . $sqlType['limit'] . ')';
         }
         if (($values = $column->getValues()) && is_array($values)) {
-            $def .= "('" . implode("', '", $values) . "')";
+            $def .= "(" . implode(", ", array_map(function ($value) {
+                // we special case NULL as it's not actually allowed an enum value,
+                // and we want MySQL to issue an error on the create statement, but
+                // quote coerces it to an empty string, which will not error
+                return $value === null ? 'NULL' : $this->getConnection()->quote($value);
+            }, $values)) . ")";
         }
+
         $def .= $column->getEncoding() ? ' CHARACTER SET ' . $column->getEncoding() : '';
         $def .= $column->getCollation() ? ' COLLATE ' . $column->getCollation() : '';
-        $def .= (!$column->isSigned() && isset($this->signedColumnTypes[$column->getType()])) ? ' unsigned' : '';
+        $def .= !$column->isSigned() && isset($this->signedColumnTypes[$column->getType()]) ? ' unsigned' : '';
         $def .= $column->isNull() ? ' NULL' : ' NOT NULL';
 
         if (
             version_compare($this->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') > -1
-            && in_array($column->getType(), [static::PHINX_TYPE_GEOMETRY, static::PHINX_TYPE_POINT, static::PHINX_TYPE_LINESTRING, static::PHINX_TYPE_POLYGON])
+            && in_array($column->getType(), [
+                static::PHINX_TYPE_GEOMETRY,
+                static::PHINX_TYPE_POINT,
+                static::PHINX_TYPE_LINESTRING,
+                static::PHINX_TYPE_POLYGON,
+            ])
             && !is_null($column->getSrid())
         ) {
             $def .= " SRID {$column->getSrid()}";
