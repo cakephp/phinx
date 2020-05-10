@@ -214,9 +214,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     public function fetchRow($sql)
     {
-        $result = $this->query($sql);
-
-        return $result->fetch();
+        return $this->query($sql)->fetch();
     }
 
     /**
@@ -224,13 +222,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     public function fetchAll($sql)
     {
-        $rows = [];
-        $result = $this->query($sql);
-        while ($row = $result->fetch()) {
-            $rows[] = $row;
-        }
-
-        return $rows;
+        return $this->query($sql)->fetchAll();
     }
 
     /**
