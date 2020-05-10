@@ -26,8 +26,12 @@ tests/log
 /migrations/
 /phinx.yml
 
+# python artifacts
+*.pyc
+
 # sphinx generates HTML files for the documentation here
 docs/_build
+docs/*/_build/
 
 # composer installed dependencies
 vendor/
