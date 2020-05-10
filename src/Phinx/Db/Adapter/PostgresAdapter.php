@@ -393,7 +393,8 @@ class PostgresAdapter extends PdoAdapter
              column_default, character_maximum_length, numeric_precision, numeric_scale,
              datetime_precision
              FROM information_schema.columns
-             WHERE table_schema = %s AND table_name = %s',
+             WHERE table_schema = %s AND table_name = %s
+             ORDER BY ordinal_position',
             $this->getConnection()->quote($parts['schema']),
             $this->getConnection()->quote($parts['table'])
         );
