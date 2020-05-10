@@ -453,11 +453,11 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
+     *
+     * SQLiteAdapter does not implement this functionality, and so will always throw an exception if used.
      *
      * @throws \BadMethodCallException
-     *
-     * @return void
      */
     protected function getChangeCommentInstructions(Table $table, $newComment)
     {
@@ -1291,11 +1291,11 @@ PCRE_PATTERN;
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
+     *
+     * SQLiteAdapter does not implement this functionality, and so will always throw an exception if used.
      *
      * @throws \BadMethodCallException
-     *
-     * @return void
      */
     protected function getDropForeignKeyInstructions($tableName, $constraint)
     {
