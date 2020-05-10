@@ -26,6 +26,11 @@ class Util
     /**
      * @var string
      */
+    protected const MIGRATION_FILE_NAME_NO_NAME_PATTERN = '/^[0-9]{14}\.php$/';
+
+    /**
+     * @var string
+     */
     protected const SEED_FILE_NAME_PATTERN = '/^([a-z][a-z\d]*)\.php$/i';
 
     /**
@@ -116,11 +121,13 @@ class Util
      *
      * @return string
      */
-    public static function mapFileNameToClassName($fileName)
+    public static function mapFileNameToClassName(string $fileName): string
     {
         $matches = [];
         if (preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName, $matches)) {
             $fileName = $matches[1];
+        } elseif (preg_match(static::MIGRATION_FILE_NAME_NO_NAME_PATTERN, $fileName)) {
+            return "V" . substr($fileName, 0, strlen($fileName) - 4);
         }
 
         $className = str_replace('_', '', ucwords($fileName, '_'));
@@ -174,9 +181,12 @@ class Util
      *
      * @return bool
      */
-    public static function isValidMigrationFileName($fileName)
+    public static function isValidMigrationFileName(string $fileName): bool
     {
-        return (bool)preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName);
+        return (
+            (bool)preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName)
+            || (bool)preg_match(static::MIGRATION_FILE_NAME_NO_NAME_PATTERN, $fileName)
+        );
     }
 
     /**
