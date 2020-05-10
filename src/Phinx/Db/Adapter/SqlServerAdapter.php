@@ -331,13 +331,13 @@ class SqlServerAdapter extends PdoAdapter
     /**
      * {@inheritDoc}
      *
-     * @throws \BadMethodCallException
+     * SqlServer does not implement this functionality, and so will always throw an exception if used.
      *
-     * @return void
+     * @throws \BadMethodCallException
      */
     protected function getChangeCommentInstructions(Table $table, $newComment)
     {
-        throw new BadMethodCallException('SQLite does not have table comments');
+        throw new BadMethodCallException('SqlServer does not have table comments');
     }
 
     /**
