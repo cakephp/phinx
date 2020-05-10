@@ -401,4 +401,73 @@ abstract class AbstractCommand extends Command
     {
         return __DIR__ . self::DEFAULT_SEED_TEMPLATE;
     }
+
+    /**
+     * Gets environment to use for command.
+     *
+     * @return string|null name of environment, null if could not be found
+     */
+    protected function getEnvironment(InputInterface $input, OutputInterface $output): ?string
+    {
+        $environment = $input->getOption('environment');
+
+        if ($environment === null) {
+            $environment = $this->getConfig()->getDefaultEnvironment();
+            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
+        } else {
+            $output->writeln('<info>using environment</info> ' . $environment);
+        }
+
+        if (!$this->getConfig()->hasEnvironment($environment)) {
+            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
+
+            return null;
+        }
+
+        return $environment;
+    }
+
+    /**
+     * Prints out general runtime information about loaded environment.
+     *
+     * @param array|null $envOptions environment options
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @return bool
+     */
+    protected function checkEnvironmentOptions(?array $envOptions, OutputInterface $output): bool
+    {
+        if (isset($envOptions['adapter'])) {
+            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
+        }
+
+        if (isset($envOptions['wrapper'])) {
+            $output->writeln('<info>using wrapper</info> ' . $envOptions['wrapper']);
+        }
+
+        if (
+            isset($envOptions['adapter'])
+            && $envOptions['adapter'] === 'sqlite'
+            && isset($envOptions['memory'])
+            && $envOptions['memory'] === true
+        ) {
+            $output->writeln('<info>using :memory: database</info>');
+        } elseif (isset($envOptions['name'])) {
+            $output->writeln('<info>using database</info> ' . $envOptions['name']);
+        } else {
+            $output->writeln(
+                '<error>Could not determine database name! Please specify a database name in your config file.</error>'
+            );
+
+            return false;
+        }
+
+        if (isset($envOptions['table_prefix'])) {
+            $output->writeln('<info>using table prefix</info> ' . $envOptions['table_prefix']);
+        }
+        if (isset($envOptions['table_suffix'])) {
+            $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
+        }
+
+        return true;
+    }
 }

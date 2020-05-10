@@ -55,19 +55,10 @@ EOT
     {
         $this->bootstrap($input, $output);
 
-        $environment = $input->getOption('environment');
         $format = $input->getOption('format');
 
+        $environment = $this->getEnvironment($input, $output);
         if ($environment === null) {
-            $environment = $this->getConfig()->getDefaultEnvironment();
-            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
-        } else {
-            $output->writeln('<info>using environment</info> ' . $environment);
-        }
-
-        if (!$this->getConfig()->hasEnvironment($environment)) {
-            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
-
             return self::CODE_ERROR;
         }
 

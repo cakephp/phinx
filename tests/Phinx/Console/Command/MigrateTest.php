@@ -259,4 +259,45 @@ class MigrateTest extends TestCase
         $this->assertRegExp('/ordering by execution time/', $output);
         $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
+
+    public function testMigrateMemorySqlite()
+    {
+        $config = new Config([
+            'paths' => [
+                'migrations' => __FILE__,
+            ],
+            'environments' => [
+                'default_migration_table' => 'phinxlog',
+                'default_environment' => 'development',
+                'development' => [
+                    'adapter' => 'sqlite',
+                    'memory' => true,
+                ],
+            ],
+        ]);
+
+        $application = new PhinxApplication();
+        $application->add(new Migrate());
+
+        /** @var Migrate $command */
+        $command = $application->find('migrate');
+
+        // mock the manager class
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('migrate');
+
+        $command->setConfig($config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+
+        $eol = PHP_EOL;
+        $this->assertRegExp("/using environment development{$eol}using adapter sqlite{$eol}using :memory: database{$eol}ordering by creation time/", $commandTester->getDisplay());
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
+    }
 }

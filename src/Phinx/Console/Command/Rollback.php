@@ -70,38 +70,19 @@ EOT
     {
         $this->bootstrap($input, $output);
 
-        $environment = $input->getOption('environment');
         $version = $input->getOption('target');
         $date = $input->getOption('date');
         $force = (bool)$input->getOption('force');
         $fake = (bool)$input->getOption('fake');
 
-        $config = $this->getConfig();
-
+        $environment = $this->getEnvironment($input, $output);
         if ($environment === null) {
-            $environment = $config->getDefaultEnvironment();
-            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
-        } else {
-            $output->writeln('<info>using environment</info> ' . $environment);
-        }
-
-        if (!$this->getConfig()->hasEnvironment($environment)) {
-            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
-
             return self::CODE_ERROR;
         }
 
-        $envOptions = $config->getEnvironment($environment);
-        if (isset($envOptions['adapter'])) {
-            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
-        }
-
-        if (isset($envOptions['wrapper'])) {
-            $output->writeln('<info>using wrapper</info> ' . $envOptions['wrapper']);
-        }
-
-        if (isset($envOptions['name'])) {
-            $output->writeln('<info>using database</info> ' . $envOptions['name']);
+        $envOptions = $this->getConfig()->getEnvironment($environment);
+        if (!$this->checkEnvironmentOptions($envOptions, $output)) {
+            return self::CODE_ERROR;
         }
 
         $versionOrder = $this->getConfig()->getVersionOrder();

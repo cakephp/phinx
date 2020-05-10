@@ -57,43 +57,14 @@ EOT
         $this->bootstrap($input, $output);
 
         $seedSet = $input->getOption('seed');
-        $environment = $input->getOption('environment');
-
+        $environment = $this->getEnvironment($input, $output);
         if ($environment === null) {
-            $environment = $this->getConfig()->getDefaultEnvironment();
-            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
-        } else {
-            $output->writeln('<info>using environment</info> ' . $environment);
-        }
-
-        if (!$this->getConfig()->hasEnvironment($environment)) {
-            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
-
             return self::CODE_ERROR;
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
-        if (isset($envOptions['adapter'])) {
-            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
-        }
-
-        if (isset($envOptions['wrapper'])) {
-            $output->writeln('<info>using wrapper</info> ' . $envOptions['wrapper']);
-        }
-
-        if (isset($envOptions['name'])) {
-            $output->writeln('<info>using database</info> ' . $envOptions['name']);
-        } else {
-            $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
-
+        if (!$this->checkEnvironmentOptions($envOptions, $output)) {
             return self::CODE_ERROR;
-        }
-
-        if (isset($envOptions['table_prefix'])) {
-            $output->writeln('<info>using table prefix</info> ' . $envOptions['table_prefix']);
-        }
-        if (isset($envOptions['table_suffix'])) {
-            $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
         }
 
         $start = microtime(true);

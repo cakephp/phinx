@@ -183,9 +183,11 @@ class RollbackTest extends TestCase
         // setup dependencies
         $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
 
+        /** @var Rollback $command */
         $command = $application->find('rollback');
 
         // mock the manager class
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -212,9 +214,11 @@ class RollbackTest extends TestCase
         $application->add(new Rollback());
 
         // setup dependencies
+        /** @var Rollback $command */
         $command = $application->find('rollback');
 
         // mock the manager class
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -292,16 +296,18 @@ class RollbackTest extends TestCase
         // setup dependencies
         $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
 
+        /** @var Rollback $command */
         $command = $application->find('rollback');
 
         // mock the manager class
         $targetDate = '20150101';
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
         $managerStub->expects($this->once())
                     ->method('rollback')
-                    ->with(self::DEFAULT_TEST_ENVIRONMENT, '20150101000000', false, false);
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, '20150101000000', false, false, false);
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -326,7 +332,7 @@ class RollbackTest extends TestCase
             ->getMock();
         $managerStub->expects($this->once())
             ->method('rollback')
-            ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false, true);
+            ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false, true, true);
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -337,5 +343,47 @@ class RollbackTest extends TestCase
         $display = $commandTester->getDisplay();
 
         $this->assertRegExp('/warning performing fake rollback/', $display);
+    }
+
+    public function testRollbackMemorySqlite()
+    {
+        $config = new Config([
+            'paths' => [
+                'migrations' => __FILE__,
+            ],
+            'environments' => [
+                'default_migration_table' => 'phinxlog',
+                'default_environment' => 'development',
+                'development' => [
+                    'adapter' => 'sqlite',
+                    'memory' => true,
+                ],
+            ],
+        ]);
+
+        $application = new PhinxApplication();
+        $application->add(new Rollback());
+
+        /** @var Rollback $command */
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('rollback')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false, true, false);
+
+        $command->setConfig($config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+
+        $eol = PHP_EOL;
+        $this->assertRegExp("/using environment development{$eol}using adapter sqlite{$eol}using :memory: database{$eol}ordering by creation time/", $commandTester->getDisplay());
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 }
