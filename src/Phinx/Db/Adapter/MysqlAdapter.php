@@ -1177,7 +1177,12 @@ class MysqlAdapter extends PdoAdapter
         $charset = $options['charset'] ?? 'utf8';
 
         if (isset($options['collation'])) {
-            $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`', $name, $charset, $options['collation']));
+            $this->execute(sprintf(
+                'CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`',
+                $name,
+                $charset,
+                $options['collation']
+            ));
         } else {
             $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s`', $name, $charset));
         }
@@ -1248,7 +1253,12 @@ class MysqlAdapter extends PdoAdapter
 
         if (
             version_compare($this->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') > -1
-            && in_array($column->getType(), [static::PHINX_TYPE_GEOMETRY, static::PHINX_TYPE_POINT, static::PHINX_TYPE_LINESTRING, static::PHINX_TYPE_POLYGON])
+            && in_array($column->getType(), [
+                static::PHINX_TYPE_GEOMETRY,
+                static::PHINX_TYPE_POINT,
+                static::PHINX_TYPE_LINESTRING,
+                static::PHINX_TYPE_POLYGON,
+            ])
             && !is_null($column->getSrid())
         ) {
             $def .= " SRID {$column->getSrid()}";
