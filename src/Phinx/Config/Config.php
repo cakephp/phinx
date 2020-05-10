@@ -9,6 +9,7 @@ namespace Phinx\Config;
 
 use Closure;
 use InvalidArgumentException;
+use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Util\Util;
 use RuntimeException;
 use Symfony\Component\Yaml\Yaml;
@@ -165,6 +166,14 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             if (isset($this->values['environments']['default_migration_table'])) {
                 $environments[$name]['default_migration_table'] =
                     $this->values['environments']['default_migration_table'];
+            }
+
+            if (
+                isset($environments[$name]['adapter'])
+                && $environments[$name]['adapter'] === 'sqlite'
+                && !empty($environments[$name]['memory'])
+            ) {
+                $environments[$name]['name'] = SQLiteAdapter::MEMORY;
             }
 
             return $this->parseAgnosticDsn($environments[$name]);

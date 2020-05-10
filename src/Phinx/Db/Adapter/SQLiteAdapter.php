@@ -30,7 +30,7 @@ use RuntimeException;
  */
 class SQLiteAdapter extends PdoAdapter
 {
-    protected const MEMORY = ':memory:';
+    public const MEMORY = ':memory:';
 
     /**
      * List of supported Phinx column types with their SQL equivalents

@@ -323,4 +323,53 @@ class ConfigTest extends AbstractConfigTest
             unset($_ENV['PHINX_TEST_CONFIG_SUFFIX']);
         }
     }
+
+    public function testSqliteMemorySetsName()
+    {
+        $config = new \Phinx\Config\Config([
+            'environments' => [
+                'production' => [
+                    'adapter' => 'sqlite',
+                    'memory' => true,
+                ],
+            ],
+        ]);
+        $this->assertSame(
+            ['adapter' => 'sqlite', 'memory' => true, 'name' => ':memory:'],
+            $config->getEnvironment('production')
+        );
+    }
+
+    public function testSqliteMemoryOverridesName()
+    {
+        $config = new \Phinx\Config\Config([
+            'environments' => [
+                'production' => [
+                    'adapter' => 'sqlite',
+                    'memory' => true,
+                    'name' => 'blah',
+                ],
+            ],
+        ]);
+        $this->assertSame(
+            ['adapter' => 'sqlite', 'memory' => true, 'name' => ':memory:'],
+            $config->getEnvironment('production')
+        );
+    }
+
+    public function testSqliteNonBooleanMemory()
+    {
+        $config = new \Phinx\Config\Config([
+            'environments' => [
+                'production' => [
+                    'adapter' => 'sqlite',
+                    'memory' => "yes",
+                ],
+            ],
+        ]);
+        $this->assertSame(
+            ['adapter' => 'sqlite', 'memory' => "yes", 'name' => ':memory:'],
+            $config->getEnvironment('production')
+        );
+    }
 }

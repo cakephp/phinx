@@ -338,4 +338,50 @@ class RollbackTest extends TestCase
 
         $this->assertRegExp('/warning performing fake rollback/', $display);
     }
+
+    public function testRollbackMemorySqlite()
+    {
+        $config = new Config([
+            'paths' => [
+                'migrations' => __FILE__,
+            ],
+            'environments' => [
+                'default_migration_table' => 'phinxlog',
+                'default_environment' => 'development',
+                'development' => [
+                    'adapter' => 'sqlite',
+                    'memory' => true,
+                ],
+            ],
+        ]);
+
+        $application = new PhinxApplication();
+        $application->add(new Rollback());
+
+        /** @var Rollback $command */
+        $command = $application->find('rollback');
+
+        // mock the manager class
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('rollback')
+                    ->with(self::DEFAULT_TEST_ENVIRONMENT, null, false, true, false);
+
+        $command->setConfig($config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
+
+        $this->assertStringContainsString(implode(PHP_EOL, [
+            "using environment development",
+            "using adapter sqlite",
+            "using database :memory:",
+            "ordering by creation time",
+        ]) . PHP_EOL, $commandTester->getDisplay());
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
+    }
 }
