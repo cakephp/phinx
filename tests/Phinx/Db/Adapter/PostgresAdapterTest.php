@@ -39,26 +39,18 @@ class PostgresAdapterTest extends TestCase
 
     public function setUp(): void
     {
-        if (!TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED) {
-            $this->markTestSkipped('Postgres tests disabled.  See TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED constant.');
+        if (!defined('PGSQL_DB_CONFIG')) {
+            $this->markTestSkipped('Postgres tests disabled.');
         }
 
         if (!self::isPostgresAvailable()) {
             $this->markTestSkipped('Postgres is not available.  Please install php-pdo-pgsql or equivalent package.');
         }
 
-        $options = [
-            'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
-            'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
-            'user' => TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME,
-            'pass' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD,
-            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
-            'schema' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA,
-        ];
-        $this->adapter = new PostgresAdapter($options, new ArrayInput([]), new NullOutput());
+        $this->adapter = new PostgresAdapter(PGSQL_DB_CONFIG, new ArrayInput([]), new NullOutput());
 
         $this->adapter->dropAllSchemas();
-        $this->adapter->createSchema($options['schema']);
+        $this->adapter->createSchema('public');
 
         $citext = $this->adapter->fetchRow("SELECT COUNT(*) AS enabled FROM pg_extension WHERE extname = 'citext'");
         if (!$citext['enabled']) {
@@ -102,13 +94,7 @@ class PostgresAdapterTest extends TestCase
 
     public function testConnectionWithInvalidCredentials()
     {
-        $options = [
-            'host' => TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST,
-            'name' => TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE,
-            'port' => TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT,
-            'user' => 'invaliduser',
-            'pass' => 'invalidpass',
-        ];
+        $options = ['user' => 'invalidu', 'pass' => 'invalid'] + PGSQL_DB_CONFIG;
 
         try {
             $adapter = new PostgresAdapter($options, new ArrayInput([]), new NullOutput());
@@ -682,7 +668,7 @@ class PostgresAdapterTest extends TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
+            WHERE cols.table_catalog=\'' . PGSQL_DB_CONFIG['name'] . '\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'email\''
         );
@@ -1251,7 +1237,7 @@ class PostgresAdapterTest extends TestCase
     public function testHasDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
-        $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE));
+        $this->assertTrue($this->adapter->hasDatabase(PGSQL_DB_CONFIG['name']));
     }
 
     public function testDropDatabase()
@@ -1373,7 +1359,7 @@ class PostgresAdapterTest extends TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
+            WHERE cols.table_catalog=\'' . PGSQL_DB_CONFIG['name'] . '\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'field1\''
         );
@@ -1393,7 +1379,7 @@ class PostgresAdapterTest extends TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
+            WHERE cols.table_catalog=\'' . PGSQL_DB_CONFIG['name'] . '\'
             AND cols.table_name=\'user\'
             AND cols.column_name = \'index\''
         );
@@ -1426,7 +1412,7 @@ class PostgresAdapterTest extends TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
+            WHERE cols.table_catalog=\'' . PGSQL_DB_CONFIG['name'] . '\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'field1\''
         );
@@ -1452,7 +1438,7 @@ class PostgresAdapterTest extends TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
+            WHERE cols.table_catalog=\'' . PGSQL_DB_CONFIG['name'] . '\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'field1\''
         );
@@ -1480,7 +1466,7 @@ class PostgresAdapterTest extends TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
+            WHERE cols.table_catalog=\'' . PGSQL_DB_CONFIG['name'] . '\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'comment1\''
         );
@@ -1493,7 +1479,7 @@ class PostgresAdapterTest extends TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
+            WHERE cols.table_catalog=\'' . PGSQL_DB_CONFIG['name'] . '\'
             AND cols.table_name=\'table1\'
             AND cols.column_name = \'comment2\''
         );
@@ -1522,7 +1508,7 @@ class PostgresAdapterTest extends TestCase
             from pg_catalog.pg_class c
             where c.relname=cols.table_name ) as column_comment
             FROM information_schema.columns cols
-            WHERE cols.table_catalog=\'' . TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE . '\'
+            WHERE cols.table_catalog=\'' . PGSQL_DB_CONFIG['name'] . '\'
             AND cols.table_name=\'widgets\'
             AND cols.column_name = \'transport\''
         );

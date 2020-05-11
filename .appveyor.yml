@@ -4,12 +4,7 @@ clone_folder: C:\projects\phinx
 clone_depth: 10
 
 environment:
-  TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED: true
-  TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST: localhost
-  TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME: sa
-  TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD: Password12!
-  TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE: phinxtesting
-  TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT: 1433
+  SQLSRV_DSN: 'sqlsrv://sa:Password12!@localhost:1433/phinxtesting'
 
 services:
   - mssql2012sp1
