@@ -107,14 +107,7 @@ class ManagerTest extends TestCase
             'environments' => [
                 'default_migration_table' => 'phinxlog',
                 'default_environment' => 'production',
-                'production' => [
-                    'adapter' => 'mysql',
-                    'host' => 'localhost',
-                    'name' => 'name',
-                    'user' => 'user',
-                    'pass' => 'pass',
-                    'port' => 1234,
-                ],
+                'production' => defined('MYSQL_DB_CONFIG') ? MYSQL_DB_CONFIG : [],
             ],
             'data_domain' => [
                 'phone_number' => [
