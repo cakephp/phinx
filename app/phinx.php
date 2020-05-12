@@ -25,6 +25,10 @@
 
 $autoloader = require __DIR__ . '/../src/composer_autoloader.php';
 
+if (!ini_get('date.timezone')) {
+    date_default_timezone_set('UTC');
+}
+
 if (!$autoloader()) {
     die(
         'You need to set up the project dependencies using the following commands:' . PHP_EOL .
