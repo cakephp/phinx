@@ -150,4 +150,128 @@ class UtilTest extends TestCase
         $this->assertEquals('not_a_migration.php', basename($files[2]));
         $this->assertEquals('foobar.php', basename($files[3]));
     }
+
+    /**
+     * Returns array of dsn string and expected parsed array.
+     *
+     * @return array
+     */
+    public function providerDsnStrings()
+    {
+        return [
+            [
+                'mysql://user:pass@host:1234/name?charset=utf8&other_param=value!',
+                [
+                    'charset' => 'utf8',
+                    'other_param' => 'value!',
+                    'adapter' => 'mysql',
+                    'user' => 'user',
+                    'pass' => 'pass',
+                    'host' => 'host',
+                    'port' => '1234',
+                    'name' => 'name',
+                ],
+            ],
+            [
+                'pgsql://user:pass@host/name?',
+                [
+                    'adapter' => 'pgsql',
+                    'user' => 'user',
+                    'pass' => 'pass',
+                    'host' => 'host',
+                    'name' => 'name',
+                ],
+            ],
+            [
+                'sqlsrv://host:1234/name',
+                [
+                    'adapter' => 'sqlsrv',
+                    'host' => 'host',
+                    'port' => '1234',
+                    'name' => 'name',
+                ],
+            ],
+            [
+                'sqlite://user:pass@host/name',
+                [
+                    'adapter' => 'sqlite',
+                    'user' => 'user',
+                    'pass' => 'pass',
+                    'host' => 'host',
+                    'name' => 'name',
+                ],
+            ],
+            [
+                'pgsql://host/name',
+                [
+                    'adapter' => 'pgsql',
+                    'host' => 'host',
+                    'name' => 'name',
+                ],
+            ],
+            [
+                'pdomock://user:pass!@host/name',
+                [
+                    'adapter' => 'pdomock',
+                    'user' => 'user',
+                    'pass' => 'pass!',
+                    'host' => 'host',
+                    'name' => 'name',
+                ],
+            ],
+            [
+                'pdomock://user:pass@host/:1234/name',
+                [
+                    'adapter' => 'pdomock',
+                    'user' => 'user',
+                    'pass' => 'pass',
+                    'host' => 'host',
+                    'name' => ':1234/name',
+                ],
+            ],
+            [
+                'pdomock://user:pa:ss@host:1234/name',
+                [
+                    'adapter' => 'pdomock',
+                    'user' => 'user',
+                    'pass' => 'pa:ss',
+                    'host' => 'host',
+                    'port' => '1234',
+                    'name' => 'name',
+                ],
+            ],
+            [
+                'pdomock://:pass@host:1234/name',
+                [
+                    'adapter' => 'pdomock',
+                    'pass' => 'pass',
+                    'host' => 'host',
+                    'port' => '1234',
+                    'name' => 'name',
+                ],
+            ],
+            [
+                'sqlite:///:memory:',
+                [
+                    'adapter' => 'sqlite',
+                    'name' => ':memory:',
+                ],
+            ],
+            ['pdomock://user:pass@host:/name', []],
+            ['pdomock://user:pass@:1234/name', []],
+            ['://user:pass@host:1234/name', []],
+            ['pdomock:/user:p@ss@host:1234/name', []],
+        ];
+    }
+
+    /**
+     * Tests parsing dsn strings.
+     *
+     * @dataProvider providerDsnStrings
+     * @return void
+     */
+    public function testParseDsn($dsn, $expected)
+    {
+        $this->assertSame($expected, Util::parseDsn($dsn));
+    }
 }
