@@ -38,10 +38,5 @@ jobs:
 
     - name: Run PHPUnit
       env:
-        TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED: "true"
-        TESTS_PHINX_DB_ADAPTER_MYSQL_HOST: "127.0.0.1"
-        TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME: "root"
-        TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD: ""
-        TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE: "phinx_testing"
-        TESTS_PHINX_DB_ADAPTER_MYSQL_PORT: "3306"
+        MYSQL_DSN='mysql://root@127.0.0.1/phinx_testing'
       run: vendor/bin/phpunit --verbose --no-configuration --bootstrap tests/phpunit-bootstrap.php tests/

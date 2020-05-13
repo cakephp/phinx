@@ -24,20 +24,17 @@ class SQLiteAdapterTest extends TestCase
 
     public function setUp(): void
     {
-        if (!TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED) {
-            $this->markTestSkipped('SQLite tests disabled. See TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED constant.');
+        if (!defined('SQLITE_DB_CONFIG')) {
+            $this->markTestSkipped('SQLite tests disabled.');
         }
 
-        $options = [
-            'name' => TESTS_PHINX_DB_ADAPTER_SQLITE_DATABASE,
-            'suffix' => TESTS_PHINX_DB_ADAPTER_SQLITE_SUFFIX,
-            'memory' => TESTS_PHINX_DB_ADAPTER_SQLITE_MEMORY,
-        ];
-        $this->adapter = new SQLiteAdapter($options, new ArrayInput([]), new NullOutput());
+        $this->adapter = new SQLiteAdapter(SQLITE_DB_CONFIG, new ArrayInput([]), new NullOutput());
 
-        // ensure the database is empty for each test
-        $this->adapter->dropDatabase($options['name']);
-        $this->adapter->createDatabase($options['name']);
+        if (SQLITE_DB_CONFIG['name'] !== ':memory:') {
+            // ensure the database is empty for each test
+            $this->adapter->dropDatabase(SQLITE_DB_CONFIG['name']);
+            $this->adapter->createDatabase(SQLITE_DB_CONFIG['name']);
+        }
 
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
@@ -745,8 +742,11 @@ class SQLiteAdapterTest extends TestCase
 
     public function testHasDatabase()
     {
+        if (SQLITE_DB_CONFIG['name'] === ':memory:') {
+            $this->markTestSkipped('Skipping hasDatabase() when testing in-memory db.');
+        }
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
-        $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_SQLITE_DATABASE));
+        $this->assertTrue($this->adapter->hasDatabase(SQLITE_DB_CONFIG['name']));
     }
 
     public function testDropDatabase()
