@@ -2,7 +2,7 @@
 
 [![Build Status](https://img.shields.io/travis/com/cakephp/phinx?style=flat-square)](https://travis-ci.com/cakephp/phinx)
 [![Build status](https://ci.appveyor.com/api/projects/status/9vag4892hfq6effr)](https://ci.appveyor.com/project/robmorgan/phinx)
-[![Code Coverage](https://codecov.io/gh/cakephp/phinx/branch/master/graph/badge.svg)](https://codecov.io/gh/cakephp/phinx)
+[![Code Coverage](https://img.shields.io/coveralls/cakephp/phinx/master.svg?style=flat-square)](https://coveralls.io/r/cakephp/phinx?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/robmorgan/phinx/version.png)](https://packagist.org/packages/robmorgan/phinx)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.2-8892BF.svg)](https://php.net/)
 [![Total Downloads](https://poser.pugx.org/robmorgan/phinx/d/total.png)](https://packagist.org/packages/robmorgan/phinx)
