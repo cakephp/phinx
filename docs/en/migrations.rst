@@ -43,17 +43,10 @@ Phinx automatically creates a skeleton migration file with a single method:
              * Write your reversible migrations using this method.
              *
              * More information on writing migrations is available here:
-             * http://docs.phinx.org/en/latest/migrations.html#the-abstractmigration-class
+             * https://book.cakephp.org/phinx/0/en/migrations.html#the-change-method
              *
-             * The following commands can be used in this method and Phinx will
-             * automatically reverse them when rolling back:
-             *
-             *    createTable
-             *    renameTable
-             *    addColumn
-             *    renameColumn
-             *    addIndex
-             *    addForeignKey
+             * Remember to call "create()" or "update()" and NOT "save()" when working
+             * with the Table class.
              *
              */
             public function change()
@@ -83,14 +76,6 @@ down automatically for you. For example:
 
         class CreateUserLoginsTable extends AbstractMigration
         {
-            /**
-             * Change Method.
-             *
-             * More information on this method is available here:
-             * http://docs.phinx.org/en/latest/migrations.html#the-change-method
-             *
-             * Uncomment this method if you would like to use it.
-             */
             public function change()
             {
                 // create the table
@@ -98,22 +83,6 @@ down automatically for you. For example:
                 $table->addColumn('user_id', 'integer')
                       ->addColumn('created', 'datetime')
                       ->create();
-            }
-
-            /**
-             * Migrate Up.
-             */
-            public function up()
-            {
-
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
             }
         }
 
@@ -123,23 +92,50 @@ Please be aware that when a ``change`` method exists, Phinx will automatically
 ignore the ``up`` and ``down`` methods. If you need to use these methods it is
 recommended to create a separate migration file.
 
-..note
+.. note::
+
     When creating or updating tables inside a ``change()`` method you must use
     the Table ``create()`` and ``update()`` methods. Phinx cannot automatically
     determine whether a ``save()`` call is creating a new table or modifying an
     existing one.
 
-Phinx can only reverse the following commands:
+The following actions are reversible when done through the Table API in Phinx,
+and will be automatically reversed:
 
--  createTable
--  renameTable
--  addColumn
--  renameColumn
--  addIndex
--  addForeignKey
+- Creating a table
+- Renaming a table
+- Adding a column
+- Renaming a column
+- Adding an index
+- Adding a foreign key
 
 If a command cannot be reversed then Phinx will throw an
-``IrreversibleMigrationException`` when it's migrating down.
+``IrreversibleMigrationException`` when it's migrating down. If you wish to
+use a command that cannot be reversed in the change function, you can use an
+if statement with  ``$this->isMigratingUp()`` to only run things in the
+up or down direction. For example:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class CreateUserLoginsTable extends AbstractMigration
+        {
+            public function change()
+            {
+                // create the table
+                $table = $this->table('user_logins');
+                $table->addColumn('user_id', 'integer')
+                      ->addColumn('created', 'datetime')
+                      ->create();
+                if ($this->isMigratingUp()) {
+                    $table->insert([['user_id' => 1, 'created' => '2020-01-19 03:14:07']])
+                          ->save();
+                }
+            }
+        }
 
 The Up Method
 ~~~~~~~~~~~~~
