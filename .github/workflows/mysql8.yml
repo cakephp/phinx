@@ -38,5 +38,5 @@ jobs:
 
     - name: Run PHPUnit
       env:
-        MYSQL_DSN='mysql://root@127.0.0.1/phinx_testing'
+        MYSQL_DSN: 'mysql://root@127.0.0.1/phinx_testing'
       run: vendor/bin/phpunit --verbose --no-configuration --bootstrap tests/phpunit-bootstrap.php tests/
