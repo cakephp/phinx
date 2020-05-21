@@ -66,7 +66,9 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     public static function fromYaml($configFilePath)
     {
         if (!class_exists('Symfony\\Component\\Yaml\\Yaml', true)) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Missing yaml parser, symfony/yaml package is not installed.');
+            // @codeCoverageIgnoreEnd
         }
 
         $configFile = file_get_contents($configFilePath);
@@ -94,7 +96,9 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     public static function fromJson($configFilePath)
     {
         if (!function_exists('json_decode')) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException("Need to install JSON PHP extension to use JSON config");
+            // @codeCoverageIgnoreEnd
         }
 
         $configArray = json_decode(file_get_contents($configFilePath), true);
