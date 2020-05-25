@@ -21,8 +21,7 @@ project = 'Phinx'
 
 # Other versions that display in the version picker menu.
 version_list = [
-    {'name': '0.12', 'number': '/phinx/12', 'title': '0.12', 'current': True},
-    {'name': '0.11', 'number': '/phinx/11', 'title': '0.11'},
+    {'name': '0.12', 'number': '/phinx/0', 'title': '0.12', 'current': True},
 ]
 
 # Languages available.
