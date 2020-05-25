@@ -54,7 +54,7 @@ class InitTest extends TestCase
     public function testDefaultConfigIsWritten()
     {
         $this->writeConfig();
-        $this->assertFileExists(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.yml', 'Default format was not yaml');
+        $this->assertFileExists(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.php', 'Default format was not php');
     }
 
     public function formatDataProvider()
@@ -95,12 +95,12 @@ class InitTest extends TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
         $this->assertRegExp(
-            "/created (.*)[\/\\\\]phinx.yml\\n/",
+            "/created (.*)[\/\\\\]phinx\.php\\n/",
             $commandTester->getDisplay(true)
         );
 
         $this->assertFileExists(
-            'phinx.yml',
+            'phinx.php',
             'Phinx configuration not existent'
         );
 
@@ -134,7 +134,7 @@ class InitTest extends TestCase
 
     public function testThrowsExceptionWhenConfigFilePresent()
     {
-        touch(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.yml');
+        touch(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.php');
         $application = new PhinxApplication();
         $application->add(new Init());
 

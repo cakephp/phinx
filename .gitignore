@@ -25,6 +25,9 @@ tests/log
 /db/
 /migrations/
 /phinx.yml
+/phinx.yaml
+/phinx.php
+/phinx.json
 
 # python artifacts
 *.pyc

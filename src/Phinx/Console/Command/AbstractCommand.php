@@ -31,6 +31,7 @@ abstract class AbstractCommand extends Command
     public const FORMAT_YML_ALIAS = 'yaml';
     public const FORMAT_YML = 'yml';
     public const FORMAT_PHP = 'php';
+    public const FORMAT_DEFAULT = 'php';
 
     /**
      * The location of the default migration template.
@@ -229,7 +230,7 @@ abstract class AbstractCommand extends Command
 
         $cwd = getcwd();
 
-        // locate the phinx config file (default: phinx.yml)
+        // locate the phinx config file
         // In future walk the tree in reverse (max 10 levels)
         $locator = new FileLocator([
             $cwd . DIRECTORY_SEPARATOR,
@@ -276,13 +277,14 @@ abstract class AbstractCommand extends Command
                 case self::FORMAT_JSON:
                     $parser = self::FORMAT_JSON;
                     break;
-                case self::FORMAT_PHP:
-                    $parser = self::FORMAT_PHP;
-                    break;
                 case self::FORMAT_YML_ALIAS:
                 case self::FORMAT_YML:
-                default:
                     $parser = self::FORMAT_YML;
+                    break;
+                case self::FORMAT_PHP:
+                default:
+                    $parser = self::FORMAT_DEFAULT;
+                    break;
             }
         }
 
