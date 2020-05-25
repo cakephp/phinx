@@ -77,27 +77,30 @@ The Init Command
 ----------------
 
 The Init command (short for initialize) is used to prepare your project for
-Phinx. This command generates the ``phinx.yml`` file in the root of your
-project directory.
+Phinx. This command generates the phinx configuration file in the root of your
+project directory. By default, this file will be named ``phinx.php``.
 
 .. code-block:: bash
 
-        $ cd yourapp
         $ phinx init
 
 Optionally you can specify a custom location for Phinx's config file:
 
 .. code-block:: bash
 
-        $ cd yourapp
         $ phinx init ./custom/location/
 
 You can also specify a custom file name:
 
 .. code-block:: bash
 
-        $ cd yourapp
         $ phinx init custom-config.yml
+
+As well as a different format from php, yml, and json. For example, to create yml file:
+
+... code-block:: bash
+
+        $ phinx init --format yml
 
 Open this file in your text editor to setup your project configuration. Please
 see the :doc:`Configuration <configuration>` chapter for more information.

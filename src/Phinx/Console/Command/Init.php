@@ -41,7 +41,13 @@ class Init extends Command
     protected function configure()
     {
         $this->setDescription('Initialize the application for Phinx')
-            ->addOption('--format', '-f', InputArgument::OPTIONAL, 'What format should we use to initialize?', 'yml')
+            ->addOption(
+                '--format',
+                '-f',
+                InputArgument::OPTIONAL,
+                'What format should we use to initialize?',
+                AbstractCommand::FORMAT_DEFAULT
+            )
             ->addArgument('path', InputArgument::OPTIONAL, 'Which path should we initialize for Phinx?')
             ->setHelp(sprintf(
                 '%sInitializes the application for Phinx%s',
@@ -133,7 +139,7 @@ class Init extends Command
      *
      * @return void
      */
-    protected function writeConfig($path, $format = AbstractCommand::FORMAT_YML)
+    protected function writeConfig($path, $format = AbstractCommand::FORMAT_DEFAULT)
     {
         // Check if dir is writable
         $dirname = dirname($path);
