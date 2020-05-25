@@ -50,7 +50,7 @@ CamelCase format.
 
 Open the new migration file in your text editor to add your database
 transformations. Phinx creates migration files using the path specified in your
-``phinx.yml`` file. Please see the :doc:`Configuration <configuration>` chapter
+phinx configuration file. Please see the :doc:`Configuration <configuration>` chapter
 for more information.
 
 You are able to override the template file used by Phinx by supplying an
@@ -180,7 +180,7 @@ Use ``--dry-run`` to print the queries to standard output without executing them
 
         When rolling back, Phinx orders the executed migrations using
         the order specified in the ``version_order`` option of your
-        ``phinx.yml`` file.
+        phinx configuration file.
         Please see the :doc:`Configuration <configuration>` chapter for more information.
 
 The Status Command
@@ -212,7 +212,7 @@ in CamelCase format.
         $ phinx seed:create MyNewSeeder
 
 Open the new seed file in your text editor to add your database seed commands.
-Phinx creates seed files using the path specified in your ``phinx.yml`` file.
+Phinx creates seed files using the path specified in your configuration file.
 Please see the :doc:`Configuration <configuration>` chapter for more information.
 
 The Seed Run Command
@@ -336,7 +336,7 @@ Luckily, Symfony makes doing this sort of "meta" command straight-forward:
         $arguments = [
             'command'         => 'migrate',
             '--environment'   => 'production',
-            '--configuration' => '/path/to/config/phinx.yml'
+            '--configuration' => '/path/to/phinx/config/file'
         ];
 
         $input = new ArrayInput($arguments);
