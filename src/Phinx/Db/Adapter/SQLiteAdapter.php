@@ -1480,10 +1480,6 @@ PCRE_PATTERN;
         $def .= $this->getDefaultValueDefinition($default, $column->getType());
         $def .= $column->isIdentity() ? ' PRIMARY KEY AUTOINCREMENT' : '';
 
-        if ($column->getUpdate()) {
-            $def .= ' ON UPDATE ' . $column->getUpdate();
-        }
-
         $def .= $this->getCommentDefinition($column);
 
         return $def;
