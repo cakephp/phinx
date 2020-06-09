@@ -98,7 +98,7 @@ You can also specify a custom file name:
 
 As well as a different format from php, yml, and json. For example, to create yml file:
 
-... code-block:: bash
+.. code-block:: bash
 
         $ phinx init --format yml
 
