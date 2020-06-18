@@ -79,7 +79,7 @@ class PostgresAdapter extends PdoAdapter
 
             try {
                 if (isset($options['schema'])) {
-                    $db->exec('SET search_path TO ' . $options['schema']);
+                    $db->exec('SET search_path TO ' . $this->quoteSchemaName($options['schema']));
                 }
             } catch (PDOException $exception) {
                 throw new InvalidArgumentException(
@@ -1282,7 +1282,7 @@ class PostgresAdapter extends PdoAdapter
             $this->createSchema($this->getGlobalSchemaName());
         }
 
-        $this->fetchAll(sprintf('SET search_path TO %s', $this->getGlobalSchemaName()));
+        $this->fetchAll(sprintf('SET search_path TO %s', $this->quoteSchemaName($this->getGlobalSchemaName())));
 
         parent::createSchemaTable();
     }
@@ -1297,7 +1297,7 @@ class PostgresAdapter extends PdoAdapter
     public function createSchema($schemaName = 'public')
     {
         // from postgres 9.3 we can use "CREATE SCHEMA IF NOT EXISTS schema_name"
-        $sql = sprintf('CREATE SCHEMA %s', $this->quoteSchemaName($schemaName));
+        $sql = sprintf('CREATE SCHEMA IF NOT EXISTS %s', $this->quoteSchemaName($schemaName));
         $this->execute($sql);
     }
 
