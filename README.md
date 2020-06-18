@@ -119,6 +119,13 @@ Please read the [CONTRIBUTING](CONTRIBUTING.md) document.
 
 Follow [@CakePHP](https://twitter.com/cakephp) on Twitter to stay up to date.
 
+## Limitations
+
+### PostgreSQL
+
+- Not able to set a unique constraint on a table (<https://github.com/cakephp/phinx/issues/1026>).
+
+
 ## Misc
 
 ### Version History
