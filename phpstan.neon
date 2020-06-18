@@ -4,4 +4,3 @@ parameters:
     ignoreErrors:
         - '#Unsafe usage of new static\(\)\.#'
         - '#Parameter \#2 \$callback of function array_filter expects callable\(mixed, mixed\): bool, .+ given.#'
-        - '#Access to undefined constant PDO::SQLSRV_ATTR_ENCODING.#'
