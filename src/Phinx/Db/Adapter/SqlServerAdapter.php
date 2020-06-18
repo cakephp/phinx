@@ -70,13 +70,12 @@ class SqlServerAdapter extends PdoAdapter
 
             $options = $this->getOptions();
 
+            $dsn = 'sqlsrv:server=' . $options['host'];
             // if port is specified use it, otherwise use the SqlServer default
-            if (empty($options['port'])) {
-                $dsn = 'sqlsrv:server=' . $options['host'] . ';database=' . $options['name'];
-            } else {
-                $dsn = 'sqlsrv:server=' . $options['host'] . ',' . $options['port'] . ';database=' . $options['name'];
+            if (!empty($options['port'])) {
+                $dsn .= ',' . $options['port'];
             }
-            $dsn .= ';MultipleActiveResultSets=false';
+            $dsn .= ';database=' . $options['name'] . ';MultipleActiveResultSets=false';
 
             $driverOptions = [];
 
