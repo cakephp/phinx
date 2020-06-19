@@ -131,7 +131,7 @@ class TableTest extends TestCase
         $this->assertEquals($expectedUpdatedAtColumnName, $columns[1]->getName());
         $this->assertEquals('timestamp', $columns[1]->getType());
         $this->assertEquals($withTimezone, $columns[1]->getTimezone());
-        $this->assertEquals('', $columns[1]->getUpdate());
+        $this->assertEquals('CURRENT_TIMESTAMP', $columns[1]->getUpdate());
         $this->assertTrue($columns[1]->isNull());
         $this->assertNull($columns[1]->getDefault());
     }
@@ -167,7 +167,7 @@ class TableTest extends TestCase
         $this->assertEquals($expectedUpdatedAtColumnName, $columns[1]->getName());
         $this->assertEquals('timestamp', $columns[1]->getType());
         $this->assertEquals(true, $columns[1]->getTimezone());
-        $this->assertEquals('', $columns[1]->getUpdate());
+        $this->assertEquals('CURRENT_TIMESTAMP', $columns[1]->getUpdate());
         $this->assertTrue($columns[1]->isNull());
         $this->assertNull($columns[1]->getDefault());
     }
