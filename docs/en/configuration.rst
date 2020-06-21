@@ -186,6 +186,22 @@ file:
 
     export PHINX_ENVIRONMENT=dev-`whoami`-`hostname`
 
+Migration Table
+---------------
+
+To keep track of the migration statuses for an environment, phinx creates
+a table to store this information. You can customize where this table
+is created by configuring ``default_migration_table``:
+
+.. code-block:: yaml
+
+    environment:
+        default_migration_table: phinxlog
+
+If this field is omitted, then it will default to ``phinxlog``. For adapters
+that support it (e.g. Postgres), you can prefix the value with a schema if
+you to have the table in a different schema as the rest of the environment,
+for example ``phinx.log`` to create a table ``log`` in the ``phinx`` schema.
 
 Table Prefix and Suffix
 -----------------------
