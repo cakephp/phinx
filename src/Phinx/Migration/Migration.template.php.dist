@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 $namespaceDefinition
 use $useClassName;
 
-class $className extends $baseClassName
+final class $className extends $baseClassName
 {
     /**
      * Change Method.
@@ -15,7 +17,7 @@ class $className extends $baseClassName
      * Remember to call "create()" or "update()" and NOT "save()" when working
      * with the Table class.
      */
-    public function change()
+    public function change(): void
     {
 
     }
