@@ -98,7 +98,7 @@ class CreateTest extends TestCase
         $this->assertRegExp("/^[0-9]{14}.php/", $fileName);
         $date = substr($fileName, 0, 14);
         $this->assertFileExists($this->config->getMigrationPaths()[0]);
-        $prefix = "<?php\n\nuse Phinx\\Migration\\AbstractMigration;\n\nclass V{$date} extends AbstractMigration";
+        $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
         $this->assertStringStartsWith($prefix, file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName));
     }
 
@@ -125,9 +125,8 @@ class CreateTest extends TestCase
         $this->assertCount(1, $files);
         $fileName = current($files);
         $this->assertRegExp("/^[0-9]{14}_my_migration.php/", $fileName);
-        $date = substr($fileName, 0, 14);
         $this->assertFileExists($this->config->getMigrationPaths()[0]);
-        $prefix = "<?php\n\nuse Phinx\\Migration\\AbstractMigration;\n\nclass MyMigration extends AbstractMigration";
+        $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class MyMigration extends AbstractMigration\n";
         $this->assertStringStartsWith($prefix, file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName));
     }
 
