@@ -198,10 +198,11 @@ is created by configuring ``default_migration_table``:
     environment:
         default_migration_table: phinxlog
 
-For databases that support it, e.g. Postgres, the schema name can be
-prefixed with a period separator (``.``). For example, ``phinx.log`` will
-create the table log in the ``phinx`` schema instead of ``phinxlog`` in
-the ``public`` (default) schema.
+If this field is omitted, then it will default to ``phinxlog``. For
+databases that support it, e.g. Postgres, the schema name can be prefixed
+with a period separator (``.``). For example, ``phinx.log`` will create
+the table log in the ``phinx`` schema instead of ``phinxlog`` in the
+``public`` (default) schema.
 
 Table Prefix and Suffix
 -----------------------
