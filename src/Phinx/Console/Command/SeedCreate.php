@@ -151,7 +151,7 @@ class SeedCreate extends AbstractCommand
 
         if (!Util::isValidPhinxClassName($className)) {
             throw new InvalidArgumentException(sprintf(
-                'The seed class name "%s" is invalid. Please use CamelCase format',
+                'The seed class name "%s" is invalid. Please use PascalCase format',
                 $className
             ));
         }

@@ -107,7 +107,7 @@ class SeedCreateTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The seed class name "badseedname" is invalid. Please use CamelCase format');
+        $this->expectExceptionMessage('The seed class name "badseedname" is invalid. Please use PascalCase format');
 
         $commandTester->execute(['command' => $command->getName(), 'name' => 'badseedname'], ['decorated' => false]);
     }

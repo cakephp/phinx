@@ -23,7 +23,7 @@ Abre este archivo en tu editor de texto para configurar tu projecto. Por favot m
 Comando de creación.
 --------------------
 
-El comando de creación se usa para crear un nuevo archivo de migración. Requiere un argumento: el nombre de la migración. El nombre de la migracion debera especificarse en el formato CamelCase:
+El comando de creación se usa para crear un nuevo archivo de migración. Requiere un argumento: el nombre de la migración. El nombre de la migracion debera especificarse en el formato PascalCase:
 
 .. code-block:: bash
 
@@ -160,7 +160,7 @@ Los puntos de interrupción son visibles cuando ejecuta el comando de estado.
 "Database Seeding"
 ------------------
 
-El comando Crear semilla se puede usar para crear nuevas clases de base de datos. Requiere un argumento, el nombre de la clase. El nombre de la clase debe especificarse en formato CamelCase.
+El comando Crear semilla se puede usar para crear nuevas clases de base de datos. Requiere un argumento, el nombre de la clase. El nombre de la clase debe especificarse en formato PascalCase.
 
 .. code-block:: bash
 

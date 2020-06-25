@@ -42,7 +42,7 @@ The Create Command
 
 The Create command is used to create a new migration file. It requires one
 argument: the name of the migration. The migration name should be specified in
-CamelCase format.
+PascalCase format.
 
 .. code-block:: bash
 
@@ -208,7 +208,7 @@ The Seed Create Command
 
 The Seed Create command can be used to create new database seed classes. It
 requires one argument, the name of the class. The class name should be specified
-in CamelCase format.
+in PascalCase format.
 
 .. code-block:: bash
 
