@@ -34,6 +34,7 @@ class SqlServerAdapter extends PdoAdapter
      */
     protected static $specificColumnTypes = [
         self::PHINX_TYPE_FILESTREAM,
+        self::PHINX_TYPE_BINARYUUID,
     ];
 
     /**
@@ -1078,6 +1079,7 @@ ORDER BY T.[name], I.[index_id];";
                 return ['name' => 'varbinary'];
             case static::PHINX_TYPE_BOOLEAN:
                 return ['name' => 'bit'];
+            case static::PHINX_TYPE_BINARYUUID:
             case static::PHINX_TYPE_UUID:
                 return ['name' => 'uniqueidentifier'];
             case static::PHINX_TYPE_FILESTREAM:
