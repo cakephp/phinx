@@ -17,9 +17,9 @@ env:
   global:
     - CODECOVERAGE=1
   matrix:
-    - PGSQL_DSN='pgsql://postgres@127.0.0.1/phinx_testing'
-    - MYSQL_DSN='mysql://root@127.0.0.1/phinx_testing' MYSQL_UNIX_SOCKET='/var/run/mysqld/mysqld.sock'
-    - SQLITE_DSN='sqlite:///phinx_testing'
+    - PGSQL_DSN='pgsql://postgres@127.0.0.1/phinx'
+    - MYSQL_DSN='mysql://root@127.0.0.1/phinx' MYSQL_UNIX_SOCKET='/var/run/mysqld/mysqld.sock'
+    - SQLITE_DSN='sqlite:///phinx'
 
 matrix:
   include:
@@ -30,8 +30,8 @@ matrix:
       env: CHECKS=1 CODECOVERAGE=0
 
 before_install:
-  - if [[ $MYSQL_DSN ]]; then mysql -e 'create database phinx_testing;'; fi
-  - if [[ $PGSQL_DSN ]]; then psql -c 'create database phinx_testing;' -U postgres; fi
+  - if [[ $MYSQL_DSN ]]; then mysql -e 'create database phinx;'; fi
+  - if [[ $PGSQL_DSN ]]; then psql -c 'create database phinx;' -U postgres; fi
   - if [[ $PGSQL_DSN ]]; then psql -c 'create extension if not exists citext;' -U postgres; fi
 
   - |

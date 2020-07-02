@@ -460,7 +460,7 @@ class MysqlAdapterTest extends TestCase
 
     public function testCreateTableWithSchema()
     {
-        $table = new \Phinx\Db\Table('phinx_testing.ntable', [], $this->adapter);
+        $table = new \Phinx\Db\Table('phinx.ntable', [], $this->adapter);
         $table->addColumn('realname', 'string')
             ->addColumn('email', 'integer')
             ->save();
@@ -1436,8 +1436,8 @@ class MysqlAdapterTest extends TestCase
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
             ->save();
 
-        $this->assertTrue($this->adapter->hasForeignKey('phinx_testing.' . $table->getName(), ['ref_table_id']));
-        $this->assertFalse($this->adapter->hasForeignKey('phinx_testing.' . $table->getName(), ['ref_table_id2']));
+        $this->assertTrue($this->adapter->hasForeignKey('phinx.' . $table->getName(), ['ref_table_id']));
+        $this->assertFalse($this->adapter->hasForeignKey('phinx.' . $table->getName(), ['ref_table_id2']));
     }
 
     public function testHasDatabase()
