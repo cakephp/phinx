@@ -925,19 +925,29 @@ class MysqlAdapter extends PdoAdapter
 
                 return ['name' => 'text'];
             case static::PHINX_TYPE_BINARY:
-                if ($limit && $limit > 255) {
+                if (is_null($limit)) {
+                    $limit = 255;
+                }
+
+                if ($limit > 255) {
                     return $this->getSqlType(static::PHINX_TYPE_BLOB, $limit);
                 }
-                return ['name' => 'binary', 'limit' => $limit ?: 255];
+
+                return ['name' => 'binary', 'limit' => $limit];
             case static::PHINX_TYPE_BINARYUUID:
                 return ['name' => 'binary', 'limit' => 16];
             case static::PHINX_TYPE_VARBINARY:
-                if ($limit && $limit > 255) {
+                if (is_null($limit)) {
+                    $limit = 255;
+                }
+
+                if ($limit > 255) {
                     return $this->getSqlType(static::PHINX_TYPE_BLOB, $limit);
                 }
-                return ['name' => 'varbinary', 'limit' => $limit ?: 255];
+
+                return ['name' => 'varbinary', 'limit' => $limit];
             case static::PHINX_TYPE_BLOB:
-                if ($limit) {
+                if ($limit !== null) {
                     // Rework this part as the choosen types were always UNDER the required length
                     $sizes = [
                         'tinyblob' => static::BLOB_SMALL,
@@ -1126,7 +1136,11 @@ class MysqlAdapter extends PdoAdapter
                 $limit = static::TEXT_LONG;
                 break;
             case 'binary':
-                if ($limit && $limit > 255) {
+                if (is_null($limit)) {
+                    $limit = 255;
+                }
+
+                if ($limit > 255) {
                     $type = static::PHINX_TYPE_BLOB;
                     break;
                 }
