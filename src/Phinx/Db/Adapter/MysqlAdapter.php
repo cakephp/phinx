@@ -942,7 +942,7 @@ class MysqlAdapter extends PdoAdapter
                     $sizes = [
                         'tinyblob' => static::BLOB_SMALL,
                         'blob' => static::BLOB_REGULAR,
-                        'mediumblob' => static::BLOB_MEDIUM
+                        'mediumblob' => static::BLOB_MEDIUM,
                     ];
 
                     foreach ($sizes as $name => $length) {

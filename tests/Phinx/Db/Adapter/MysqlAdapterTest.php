@@ -1,9 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Db\Adapter;
 
-use PDOException;
 use Cake\Collection\Collection;
+use PDOException;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Util\Literal;
@@ -893,7 +894,7 @@ class MysqlAdapterTest extends TestCase
 
     public function binaryToBlobAutomaticConversionData()
     {
-        return array(
+        return [
           [null, 'binary', 255],
           [64, 'binary', 64],
           [MysqlAdapter::BLOB_REGULAR - 20, 'blob', MysqlAdapter::BLOB_REGULAR],
@@ -903,11 +904,11 @@ class MysqlAdapterTest extends TestCase
           [MysqlAdapter::BLOB_MEDIUM + 20, 'longblob', MysqlAdapter::BLOB_LONG],
           [MysqlAdapter::BLOB_LONG, 'longblob', MysqlAdapter::BLOB_LONG],
           [MysqlAdapter::BLOB_LONG + 20, 'longblob', MysqlAdapter::BLOB_LONG],
-        );
+        ];
     }
 
     /** @dataProvider binaryToBlobAutomaticConversionData */
-    public function testBinaryToBlobAutomaticConversion(int $limit = null, string $expectedType, int $expectedLimit)
+    public function testBinaryToBlobAutomaticConversion(?int $limit = null, string $expectedType, int $expectedLimit)
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'binary', ['limit' => $limit])
@@ -920,7 +921,7 @@ class MysqlAdapterTest extends TestCase
 
     public function varbinaryToBlobAutomaticConversionData()
     {
-        return array(
+        return [
           [null, 'varbinary', 255],
           [64, 'varbinary', 64],
           [MysqlAdapter::BLOB_REGULAR - 20, 'blob', MysqlAdapter::BLOB_REGULAR],
@@ -930,11 +931,11 @@ class MysqlAdapterTest extends TestCase
           [MysqlAdapter::BLOB_MEDIUM + 20, 'longblob', MysqlAdapter::BLOB_LONG],
           [MysqlAdapter::BLOB_LONG, 'longblob', MysqlAdapter::BLOB_LONG],
           [MysqlAdapter::BLOB_LONG + 20, 'longblob', MysqlAdapter::BLOB_LONG],
-        );
+        ];
     }
 
     /** @dataProvider varbinaryToBlobAutomaticConversionData */
-    public function testVarbinaryToBlobAutomaticConversion(int $limit = null, string $expectedType, int $expectedLimit)
+    public function testVarbinaryToBlobAutomaticConversion(?int $limit = null, string $expectedType, int $expectedLimit)
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'varbinary', ['limit' => $limit])
@@ -947,7 +948,7 @@ class MysqlAdapterTest extends TestCase
 
     public function blobColumnsData()
     {
-        return array(
+        return [
           // Tiny blobs
           ['tinyblob', 'tinyblob', null, MysqlAdapter::BLOB_TINY],
           ['tinyblob', 'tinyblob', MysqlAdapter::BLOB_TINY, MysqlAdapter::BLOB_TINY],
@@ -972,11 +973,11 @@ class MysqlAdapterTest extends TestCase
           ['longblob', 'mediumblob', MysqlAdapter::BLOB_MEDIUM, MysqlAdapter::BLOB_MEDIUM],
           ['longblob', 'longblob', null, MysqlAdapter::BLOB_LONG],
           ['longblob', 'longblob', MysqlAdapter::BLOB_LONG, MysqlAdapter::BLOB_LONG],
-        );
+        ];
     }
 
     /** @dataProvider blobColumnsData */
-    public function testblobColumns(string $type, string $expectedType, int $limit = null, int $expectedLimit)
+    public function testblobColumns(string $type, string $expectedType, ?int $limit = null, int $expectedLimit)
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', $type, ['limit' => $limit])
@@ -1776,8 +1777,8 @@ OUTPUT;
         $actualOutput = $consoleOutput->fetch();
 
         // Add this to be LF - CR/LF systems independent
-        $expectedOutput = preg_replace('~\R~u', "", $expectedOutput);
-        $actualOutput = preg_replace('~\R~u', "", $actualOutput);
+        $expectedOutput = preg_replace('~\R~u', '', $expectedOutput);
+        $actualOutput = preg_replace('~\R~u', '', $actualOutput);
 
         $this->assertStringContainsString($expectedOutput, trim($actualOutput), 'Passing the --dry-run option doesn\'t dump the insert to the output');
 
@@ -1854,8 +1855,8 @@ INSERT INTO `table1` (`column1`, `column2`) VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         // Add this to be LF - CR/LF systems independent
-        $expectedOutput = preg_replace('~\R~u', "", $expectedOutput);
-        $actualOutput = preg_replace('~\R~u', "", $actualOutput);
+        $expectedOutput = preg_replace('~\R~u', '', $expectedOutput);
+        $actualOutput = preg_replace('~\R~u', '', $actualOutput);
         $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
     }
 
@@ -1879,14 +1880,13 @@ OUTPUT;
 
         $actualOutput = $consoleOutput->fetch();
         // Add this to be LF - CR/LF systems independent
-        $actualOutput = preg_replace('~\R~u', "", $actualOutput);
-        $this->assertStringStartsWith("START TRANSACTION;", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
-        $this->assertStringEndsWith("COMMIT;ROLLBACK;", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
+        $actualOutput = preg_replace('~\R~u', '', $actualOutput);
+        $this->assertStringStartsWith('START TRANSACTION;', $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
+        $this->assertStringEndsWith('COMMIT;ROLLBACK;', $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
     }
 
     /**
      * Tests interaction with the query builder
-     *
      */
     public function testQueryBuilder()
     {
@@ -1999,6 +1999,7 @@ INPUT;
 
     /**
      * Small check to verify if specific Mysql constants are handled in AdapterInterface
+     *
      * @see https://github.com/cakephp/migrations/issues/359
      */
     public function testMysqlBlobsConstants()
