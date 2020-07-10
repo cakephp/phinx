@@ -47,6 +47,7 @@ class SQLiteAdapter extends PdoAdapter
         self::PHINX_TYPE_CHAR => 'char',
         self::PHINX_TYPE_DATE => 'date_text',
         self::PHINX_TYPE_DATETIME => 'datetime_text',
+        self::PHINX_TYPE_DECIMAL => 'decimal',
         self::PHINX_TYPE_DOUBLE => 'double',
         self::PHINX_TYPE_FLOAT => 'float',
         self::PHINX_TYPE_INTEGER => 'integer',
