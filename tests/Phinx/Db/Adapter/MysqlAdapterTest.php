@@ -1436,8 +1436,8 @@ class MysqlAdapterTest extends TestCase
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
             ->save();
 
-        $this->assertTrue($this->adapter->hasForeignKey('phinx.' . $table->getName(), ['ref_table_id']));
-        $this->assertFalse($this->adapter->hasForeignKey('phinx.' . $table->getName(), ['ref_table_id2']));
+        $this->assertTrue($this->adapter->hasForeignKey(MYSQL_DB_CONFIG['name'] . '.' . $table->getName(), ['ref_table_id']));
+        $this->assertFalse($this->adapter->hasForeignKey(MYSQL_DB_CONFIG['name'] . '.' . $table->getName(), ['ref_table_id2']));
     }
 
     public function testHasDatabase()
