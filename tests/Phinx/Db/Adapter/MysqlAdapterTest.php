@@ -915,8 +915,8 @@ class MysqlAdapterTest extends TestCase
               ->save();
         $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
-        $this->assertEquals($expectedType, $sqlType['name']);
-        $this->assertEquals($expectedLimit, $columns[1]->getLimit());
+        $this->assertSame($expectedType, $sqlType['name']);
+        $this->assertSame($expectedLimit, $columns[1]->getLimit());
     }
 
     public function varbinaryToBlobAutomaticConversionData()
@@ -942,8 +942,8 @@ class MysqlAdapterTest extends TestCase
               ->save();
         $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
-        $this->assertEquals($expectedType, $sqlType['name']);
-        $this->assertEquals($expectedLimit, $columns[1]->getLimit());
+        $this->assertSame($expectedType, $sqlType['name']);
+        $this->assertSame($expectedLimit, $columns[1]->getLimit());
     }
 
     public function blobColumnsData()
@@ -984,8 +984,8 @@ class MysqlAdapterTest extends TestCase
               ->save();
         $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
-        $this->assertEquals($expectedType, $sqlType['name']);
-        $this->assertEquals($expectedLimit, $columns[1]->getLimit());
+        $this->assertSame($expectedType, $sqlType['name']);
+        $this->assertSame($expectedLimit, $columns[1]->getLimit());
     }
 
     public function testBigIntegerColumn()
