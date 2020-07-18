@@ -925,7 +925,7 @@ class MysqlAdapter extends PdoAdapter
 
                 return ['name' => 'text'];
             case static::PHINX_TYPE_BINARY:
-                if (is_null($limit)) {
+                if ($limit === null) {
                     $limit = 255;
                 }
 
@@ -937,7 +937,7 @@ class MysqlAdapter extends PdoAdapter
             case static::PHINX_TYPE_BINARYUUID:
                 return ['name' => 'binary', 'limit' => 16];
             case static::PHINX_TYPE_VARBINARY:
-                if (is_null($limit)) {
+                if ($limit === null) {
                     $limit = 255;
                 }
 
@@ -1136,7 +1136,7 @@ class MysqlAdapter extends PdoAdapter
                 $limit = static::TEXT_LONG;
                 break;
             case 'binary':
-                if (is_null($limit)) {
+                if ($limit === null) {
                     $limit = 255;
                 }
 
