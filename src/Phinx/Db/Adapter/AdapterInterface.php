@@ -40,6 +40,9 @@ interface AdapterInterface
     public const PHINX_TYPE_VARBINARY = 'varbinary';
     public const PHINX_TYPE_BINARYUUID = 'binaryuuid';
     public const PHINX_TYPE_BLOB = 'blob';
+    public const PHINX_TYPE_TINYBLOB = 'tinyblob'; // Specific to Mysql.
+    public const PHINX_TYPE_MEDIUMBLOB = 'mediumblob'; // Specific to Mysql
+    public const PHINX_TYPE_LONGBLOB = 'longblob'; // Specific to Mysql
     public const PHINX_TYPE_BOOLEAN = 'boolean';
     public const PHINX_TYPE_JSON = 'json';
     public const PHINX_TYPE_JSONB = 'jsonb';

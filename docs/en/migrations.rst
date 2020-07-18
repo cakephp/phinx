@@ -534,11 +534,7 @@ Column types are specified as strings and can be one of:
 -  timestamp
 -  uuid
 
-In addition, the MySQL adapter supports ``enum``, ``set``, ``blob``, ``bit`` and ``json`` column types
-(``json`` in MySQL 5.7 and above).
-
-In addition, the Postgres adapter supports ``interval``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
-(PostgreSQL 9.3 and above).
+Mysql adapter and Postgres adapter supports many of their own types, see `Valid Column Types`_ for details.
 
 For valid options, see the `Valid Column Options`_ below.
 
@@ -799,8 +795,9 @@ Column types are specified as strings and can be one of:
 -  timestamp
 -  uuid
 
-In addition, the MySQL adapter supports ``enum``, ``set``, ``blob``, ``bit`` and ``json`` column types
-(``json`` in MySQL 5.7 and above).
+In addition, the MySQL adapter supports ``enum``, ``set``, ``blob``, ``tinyblob``, ``mediumblob``, ``longblob``, ``bit`` and ``json`` column types
+(``json`` in MySQL 5.7 and above). When providing a limit value and using ``binary``, ``varbinary`` or ``blob`` and its subtypes, the retained column
+type will be based on required length (see `Limit Option and MySQL`_ for details);
 
 In addition, the Postgres adapter supports ``interval``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
@@ -928,7 +925,7 @@ Limit Option and MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
 
 When using the MySQL adapter, additional hinting of database column type can be
-made for ``integer``, ``text`` and ``blob`` columns. Using ``limit`` with
+made for ``integer``, ``text``, ``blob``, ``tinyblob``, ``mediumblob``, ``longblob`` columns. Using ``limit`` with
 one the following options will modify the column type accordingly:
 
 ============ ==============
@@ -948,6 +945,8 @@ INT_MEDIUM   MEDIUMINT
 INT_REGULAR  INT
 INT_BIG      BIGINT
 ============ ==============
+
+For ``binary`` or ``varbinary`` types, if limit is set greater than allowed 255 bytes, the type will be changed to the best matching blob type given the length.
 
 .. code-block:: php
 

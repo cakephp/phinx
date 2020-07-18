@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Db\Adapter;
 
+use Cake\Collection\Collection;
 use PDOException;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
@@ -460,7 +462,7 @@ class MysqlAdapterTest extends TestCase
 
     public function testCreateTableWithSchema()
     {
-        $table = new \Phinx\Db\Table('phinx.ntable', [], $this->adapter);
+        $table = new \Phinx\Db\Table(MYSQL_DB_CONFIG['name'] . '.ntable', [], $this->adapter);
         $table->addColumn('realname', 'string')
             ->addColumn('email', 'integer')
             ->save();
@@ -888,6 +890,102 @@ class MysqlAdapterTest extends TestCase
         $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
         $this->assertEquals('tinytext', $sqlType['name']);
+    }
+
+    public function binaryToBlobAutomaticConversionData()
+    {
+        return [
+          [null, 'binary', 255],
+          [64, 'binary', 64],
+          [MysqlAdapter::BLOB_REGULAR - 20, 'blob', MysqlAdapter::BLOB_REGULAR],
+          [MysqlAdapter::BLOB_REGULAR, 'blob', MysqlAdapter::BLOB_REGULAR],
+          [MysqlAdapter::BLOB_REGULAR + 20, 'mediumblob', MysqlAdapter::BLOB_MEDIUM],
+          [MysqlAdapter::BLOB_MEDIUM, 'mediumblob', MysqlAdapter::BLOB_MEDIUM],
+          [MysqlAdapter::BLOB_MEDIUM + 20, 'longblob', MysqlAdapter::BLOB_LONG],
+          [MysqlAdapter::BLOB_LONG, 'longblob', MysqlAdapter::BLOB_LONG],
+          [MysqlAdapter::BLOB_LONG + 20, 'longblob', MysqlAdapter::BLOB_LONG],
+        ];
+    }
+
+    /** @dataProvider binaryToBlobAutomaticConversionData */
+    public function testBinaryToBlobAutomaticConversion(?int $limit = null, string $expectedType, int $expectedLimit)
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'binary', ['limit' => $limit])
+              ->save();
+        $columns = $table->getColumns();
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertSame($expectedType, $sqlType['name']);
+        $this->assertSame($expectedLimit, $columns[1]->getLimit());
+    }
+
+    public function varbinaryToBlobAutomaticConversionData()
+    {
+        return [
+          [null, 'varbinary', 255],
+          [64, 'varbinary', 64],
+          [MysqlAdapter::BLOB_REGULAR - 20, 'blob', MysqlAdapter::BLOB_REGULAR],
+          [MysqlAdapter::BLOB_REGULAR, 'blob', MysqlAdapter::BLOB_REGULAR],
+          [MysqlAdapter::BLOB_REGULAR + 20, 'mediumblob', MysqlAdapter::BLOB_MEDIUM],
+          [MysqlAdapter::BLOB_MEDIUM, 'mediumblob', MysqlAdapter::BLOB_MEDIUM],
+          [MysqlAdapter::BLOB_MEDIUM + 20, 'longblob', MysqlAdapter::BLOB_LONG],
+          [MysqlAdapter::BLOB_LONG, 'longblob', MysqlAdapter::BLOB_LONG],
+          [MysqlAdapter::BLOB_LONG + 20, 'longblob', MysqlAdapter::BLOB_LONG],
+        ];
+    }
+
+    /** @dataProvider varbinaryToBlobAutomaticConversionData */
+    public function testVarbinaryToBlobAutomaticConversion(?int $limit = null, string $expectedType, int $expectedLimit)
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'varbinary', ['limit' => $limit])
+              ->save();
+        $columns = $table->getColumns();
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertSame($expectedType, $sqlType['name']);
+        $this->assertSame($expectedLimit, $columns[1]->getLimit());
+    }
+
+    public function blobColumnsData()
+    {
+        return [
+          // Tiny blobs
+          ['tinyblob', 'tinyblob', null, MysqlAdapter::BLOB_TINY],
+          ['tinyblob', 'tinyblob', MysqlAdapter::BLOB_TINY, MysqlAdapter::BLOB_TINY],
+          ['tinyblob', 'blob', MysqlAdapter::BLOB_TINY + 20, MysqlAdapter::BLOB_REGULAR],
+          ['tinyblob', 'mediumblob', MysqlAdapter::BLOB_MEDIUM, MysqlAdapter::BLOB_MEDIUM],
+          ['tinyblob', 'longblob', MysqlAdapter::BLOB_LONG, MysqlAdapter::BLOB_LONG],
+          // Regular blobs
+          ['blob', 'tinyblob', MysqlAdapter::BLOB_TINY, MysqlAdapter::BLOB_TINY],
+          ['blob', 'blob', null, MysqlAdapter::BLOB_REGULAR],
+          ['blob', 'blob', MysqlAdapter::BLOB_REGULAR, MysqlAdapter::BLOB_REGULAR],
+          ['blob', 'mediumblob', MysqlAdapter::BLOB_MEDIUM, MysqlAdapter::BLOB_MEDIUM],
+          ['blob', 'longblob', MysqlAdapter::BLOB_LONG, MysqlAdapter::BLOB_LONG],
+          // medium blobs
+          ['mediumblob', 'tinyblob', MysqlAdapter::BLOB_TINY, MysqlAdapter::BLOB_TINY],
+          ['mediumblob', 'blob', MysqlAdapter::BLOB_REGULAR, MysqlAdapter::BLOB_REGULAR],
+          ['mediumblob', 'mediumblob', null, MysqlAdapter::BLOB_MEDIUM],
+          ['mediumblob', 'mediumblob', MysqlAdapter::BLOB_MEDIUM, MysqlAdapter::BLOB_MEDIUM],
+          ['mediumblob', 'longblob', MysqlAdapter::BLOB_LONG, MysqlAdapter::BLOB_LONG],
+          // long blobs
+          ['longblob', 'tinyblob', MysqlAdapter::BLOB_TINY, MysqlAdapter::BLOB_TINY],
+          ['longblob', 'blob', MysqlAdapter::BLOB_REGULAR, MysqlAdapter::BLOB_REGULAR],
+          ['longblob', 'mediumblob', MysqlAdapter::BLOB_MEDIUM, MysqlAdapter::BLOB_MEDIUM],
+          ['longblob', 'longblob', null, MysqlAdapter::BLOB_LONG],
+          ['longblob', 'longblob', MysqlAdapter::BLOB_LONG, MysqlAdapter::BLOB_LONG],
+        ];
+    }
+
+    /** @dataProvider blobColumnsData */
+    public function testblobColumns(string $type, string $expectedType, ?int $limit = null, int $expectedLimit)
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', $type, ['limit' => $limit])
+              ->save();
+        $columns = $table->getColumns();
+        $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
+        $this->assertSame($expectedType, $sqlType['name']);
+        $this->assertSame($expectedLimit, $columns[1]->getLimit());
     }
 
     public function testBigIntegerColumn()
@@ -1677,7 +1775,12 @@ INSERT INTO `table1` (`string_col`) VALUES (null);
 INSERT INTO `table1` (`int_col`) VALUES (23);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
-        $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the insert to the output');
+
+        // Add this to be LF - CR/LF systems independent
+        $expectedOutput = preg_replace('~\R~u', '', $expectedOutput);
+        $actualOutput = preg_replace('~\R~u', '', $actualOutput);
+
+        $this->assertStringContainsString($expectedOutput, trim($actualOutput), 'Passing the --dry-run option doesn\'t dump the insert to the output');
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
         self::assertTrue($countQuery->execute());
@@ -1751,6 +1854,9 @@ CREATE TABLE `table1` (`column1` VARCHAR(255) NOT NULL, `column2` INT(11) NOT NU
 INSERT INTO `table1` (`column1`, `column2`) VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
+        // Add this to be LF - CR/LF systems independent
+        $expectedOutput = preg_replace('~\R~u', '', $expectedOutput);
+        $actualOutput = preg_replace('~\R~u', '', $actualOutput);
         $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
     }
 
@@ -1773,13 +1879,14 @@ OUTPUT;
         $this->adapter->rollbackTransaction();
 
         $actualOutput = $consoleOutput->fetch();
-        $this->assertStringStartsWith("START TRANSACTION;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
-        $this->assertStringEndsWith("COMMIT;\nROLLBACK;\n", $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
+        // Add this to be LF - CR/LF systems independent
+        $actualOutput = preg_replace('~\R~u', '', $actualOutput);
+        $this->assertStringStartsWith('START TRANSACTION;', $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
+        $this->assertStringEndsWith('COMMIT;ROLLBACK;', $actualOutput, 'Passing the --dry-run doesn\'t dump the transaction to the output');
     }
 
     /**
      * Tests interaction with the query builder
-     *
      */
     public function testQueryBuilder()
     {
@@ -1888,5 +1995,25 @@ INPUT;
         $this->expectException(PDOException::class);
         $this->expectExceptionMessage("SQLSTATE[HY000]: General error: 3643 The SRID of the geometry does not match the SRID of the column 'geom'. The SRID of the geometry is 4322, but the SRID of the column is 4326. Consider changing the SRID of the geometry or the SRID property of the column.");
         $this->adapter->execute("INSERT INTO table1 (`geom`) VALUES (ST_GeomFromText('{$geom}', 4322))");
+    }
+
+    /**
+     * Small check to verify if specific Mysql constants are handled in AdapterInterface
+     *
+     * @see https://github.com/cakephp/migrations/issues/359
+     */
+    public function testMysqlBlobsConstants()
+    {
+        $reflector = new \ReflectionClass(AdapterInterface::class);
+        $collection = new Collection($reflector->getConstants());
+
+        $validTypes = $collection->filter(function ($value, $constant) {
+            return substr($constant, 0, strlen('PHINX_TYPE_')) === 'PHINX_TYPE_';
+        })->toArray();
+
+        $this->assertTrue(in_array('tinyblob', $validTypes, true));
+        $this->assertTrue(in_array('blob', $validTypes, true));
+        $this->assertTrue(in_array('mediumblob', $validTypes, true));
+        $this->assertTrue(in_array('longblob', $validTypes, true));
     }
 }
