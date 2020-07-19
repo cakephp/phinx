@@ -7,10 +7,9 @@ services:
   - mysql
 
 addons:
-  postgresql: "9.6"
+  postgresql: '9.6'
 
 php:
-  - 7.2
   - 7.4
 
 env:
@@ -25,9 +24,13 @@ matrix:
   include:
     - php: 7.2
       env: PREFER_LOWEST=1 CODECOVERAGE=0
+    - php: nightly
+      env: SQLITE_DSN='sqlite:///phinx' CODECOVERAGE=0
 
-    - php: 7.4
-      env: CHECKS=1 CODECOVERAGE=0
+  allow_failures:
+    - php: nightly
+
+  fast_finish: true
 
 before_install:
   - if [[ $MYSQL_DSN ]]; then mysql -e 'create database phinx;'; fi
@@ -36,24 +39,28 @@ before_install:
 
   - |
       if [[ $CODECOVERAGE == 1 ]]; then
+        phpenv config-rm xdebug.ini
         pecl channel-update pecl.php.net
         pecl install pcov
       fi
 
-  - phpenv config-rm xdebug.ini
-
 install:
-  - if [[ $PREFER_LOWEST != 1 ]]; then travis_retry composer update --no-interaction --prefer-stable; fi
-  - if [[ $PREFER_LOWEST == 1 ]]; then travis_retry composer update --no-interaction --prefer-stable --prefer-lowest; fi
-
-  - if [[ $CHECKS == 1 ]]; then composer require --dev phpstan/phpstan:^0.12; fi
+  - |
+      if [[ $PREFER_LOWEST == 1 ]]; then
+        composer update --no-interaction --prefer-stable --prefer-lowest
+      elif [[ $TRAVIS_PHP_VERSION == 'nightly' ]]; then
+        composer install --no-interaction --ignore-platform-reqs
+      else
+        composer update --no-interaction
+      fi
 
 script:
-  - if [[ $CODECOVERAGE == 1 ]]; then vendor/bin/phpunit --verbose --coverage-clover=clover.xml; fi
-  - if [[ $PREFER_LOWEST == 1 ]]; then vendor/bin/phpunit --verbose; fi
-
-  - if [[ $CHECKS == 1 ]]; then composer stan; fi
-  - if [[ $CHECKS == 1 ]]; then composer cs-check; fi
+  - |
+      if [[ $CODECOVERAGE == 1 ]]; then
+        vendor/bin/phpunit --verbose --coverage-clover=clover.xml
+      else
+        vendor/bin/phpunit --verbose
+      fi
 
 after_success:
   - |
