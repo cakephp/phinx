@@ -685,10 +685,22 @@ PCRE_PATTERN;
 
         $instructions = $this->beginAlterByCopyTable($tableName);
 
-        $instructions->addPostStep(function ($state) use ($column) {
+        $instructions->addPostStep(function ($state) use ($tableName, $column) {
+            // we use the final column to anchor our regex to insert the new column,
+            // as the alternative is unwinding all possible table constraints which
+            // gets messy quickly with CHECK constraints.
+            $columns = $this->getColumns($tableName);
+            $finalColumnName = end($columns)->getName();
             $sql = preg_replace(
-                "/\)$/",
-                sprintf(', %s %s$1)', $this->quoteColumnName($column->getName()), $this->getColumnSqlDefinition($column)),
+                sprintf(
+                    "/(%s(?:\/\*.*?\*\/|\([^)]+\)|'[^']*?'|[^,])+)([,)])/",
+                    $this->quoteColumnName($finalColumnName)
+                ),
+                sprintf(
+                    '$1, %s %s$2',
+                    $this->quoteColumnName($column->getName()),
+                    $this->getColumnSqlDefinition($column)
+                ),
                 $state['createSQL'],
                 1
             );
