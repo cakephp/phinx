@@ -731,7 +731,6 @@ PCRE_PATTERN;
      * Returns the original CREATE statement for the give index
      *
      * @param string $tableName The table name to get the create statement for
-     *
      * @return string
      */
     protected function getDeclaringIndexSql($tableName, $indexName)
