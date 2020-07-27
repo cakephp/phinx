@@ -197,17 +197,17 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
 
         $rows = $this->adapter->fetchAll(sprintf(
-            "SELECT table_name, column_name, referenced_table_name, referenced_column_name
+            "SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
              FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-             WHERE table_schema='%s' AND REFERENCED_TABLE_NAME='ntable_tag'",
+             WHERE TABLE_SCHEMA='%s' AND REFERENCED_TABLE_NAME='ntable_tag'",
             MYSQL_DB_CONFIG['name']
         ));
         $foreignKey = $rows[0];
 
-        $this->assertEquals($foreignKey['table_name'], 'ntable');
-        $this->assertEquals($foreignKey['column_name'], 'tag_id');
-        $this->assertEquals($foreignKey['referenced_table_name'], 'ntable_tag');
-        $this->assertEquals($foreignKey['referenced_column_name'], 'id');
+        $this->assertEquals($foreignKey['TABLE_NAME'], 'ntable');
+        $this->assertEquals($foreignKey['COLUMN_NAME'], 'tag_id');
+        $this->assertEquals($foreignKey['REFERENCED_TABLE_NAME'], 'ntable_tag');
+        $this->assertEquals($foreignKey['REFERENCED_COLUMN_NAME'], 'id');
     }
 
     public function testCreateTableCustomIdColumn()

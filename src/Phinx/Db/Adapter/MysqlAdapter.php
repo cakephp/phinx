@@ -726,14 +726,14 @@ class MysqlAdapter extends PdoAdapter
         $options = $this->getOptions();
         $rows = $this->fetchAll(sprintf(
             "SELECT
-                k.constraint_name,
-                k.column_name
-            FROM information_schema.table_constraints t
-            JOIN information_schema.key_column_usage k
-                USING(constraint_name,table_name)
-            WHERE t.constraint_type='PRIMARY KEY'
-                AND t.table_schema='%s'
-                AND t.table_name='%s'",
+                k.CONSTRAINT_NAME,
+                k.COLUMN_NAME
+            FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS t
+            JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE k
+                USING(CONSTRAINT_NAME,TABLE_NAME)
+            WHERE t.CONSTRAINT_TYPE='PRIMARY KEY'
+                AND t.TABLE_SCHEMA='%s'
+                AND t.TABLE_NAME='%s'",
             $options['name'],
             $tableName
         ));
@@ -742,8 +742,8 @@ class MysqlAdapter extends PdoAdapter
             'columns' => [],
         ];
         foreach ($rows as $row) {
-            $primaryKey['constraint'] = $row['constraint_name'];
-            $primaryKey['columns'][] = $row['column_name'];
+            $primaryKey['constraint'] = $row['CONSTRAINT_NAME'];
+            $primaryKey['columns'][] = $row['COLUMN_NAME'];
         }
 
         return $primaryKey;
