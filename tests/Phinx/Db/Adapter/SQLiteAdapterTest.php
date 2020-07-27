@@ -1143,7 +1143,7 @@ OUTPUT;
     public function testAlterTableColumnAdd()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-        $table->save();
+        $table->create();
 
         $table->addColumn('string_col', 'string', ['default' => '']);
         $table->addColumn('string_col_2', 'string', ['null' => true]);
@@ -1167,7 +1167,43 @@ OUTPUT;
         for ($i = 0; $i < $columnCount; $i++) {
             $this->assertSame($expected[$i]['name'], $columns[$i]->getName(), "Wrong name for {$expected[$i]['name']}");
             $this->assertSame($expected[$i]['type'], $columns[$i]->getType(), "Wrong type for {$expected[$i]['name']}");
-            $this->assertSame($expected[$i]['default'], ($columns[$i]->getDefault() instanceof Literal) ? (string)$columns[$i]->getDefault() : $columns[$i]->getDefault(), "Wrong default for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['default'], $columns[$i]->getDefault() instanceof Literal ? (string)$columns[$i]->getDefault() : $columns[$i]->getDefault(), "Wrong default for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['null'], $columns[$i]->getNull(), "Wrong null for {$expected[$i]['name']}");
+        }
+    }
+
+    public function testAlterTableWithConstraints()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->create();
+
+        $table2 = new \Phinx\Db\Table('table2', [], $this->adapter);
+        $table2->create();
+
+        $table
+            ->addColumn('table2_id', 'integer', ['null' => false])
+            ->addForeignKey('table2_id', 'table2', 'id', [
+                'delete' => 'SET NULL',
+            ]);
+        $table->update();
+
+        $table->addColumn('column3', 'string', ['default' => null, 'null' => true]);
+        $table->update();
+
+        $columns = $this->adapter->getColumns('table1');
+        $expected = [
+            ['name' => 'id', 'type' => 'integer', 'default' => null, 'null' => false],
+            ['name' => 'table2_id', 'type' => 'integer', 'default' => null, 'null' => false],
+            ['name' => 'column3', 'type' => 'string', 'default' => null, 'null' => true],
+        ];
+
+        $this->assertEquals(count($expected), count($columns));
+
+        $columnCount = count($columns);
+        for ($i = 0; $i < $columnCount; $i++) {
+            $this->assertSame($expected[$i]['name'], $columns[$i]->getName(), "Wrong name for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['type'], $columns[$i]->getType(), "Wrong type for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['default'], $columns[$i]->getDefault() instanceof Literal ? (string)$columns[$i]->getDefault() : $columns[$i]->getDefault(), "Wrong default for {$expected[$i]['name']}");
             $this->assertSame($expected[$i]['null'], $columns[$i]->getNull(), "Wrong null for {$expected[$i]['name']}");
         }
     }
