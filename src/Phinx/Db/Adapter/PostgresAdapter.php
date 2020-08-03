@@ -61,7 +61,11 @@ class PostgresAdapter extends PdoAdapter
 
             $options = $this->getOptions();
 
-            $dsn = $dsn = 'pgsql:host=' . $options['host'] . ';dbname=' . $options['name'];
+            $dsn = 'pgsql:dbname=' . $options['name'];
+
+            if (isset($options['host'])) {
+                $dsn .= ';host=' . $options['host'];
+            }
 
             // if custom port is specified use it
             if (isset($options['port'])) {

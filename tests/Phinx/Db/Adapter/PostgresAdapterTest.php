@@ -110,6 +110,20 @@ class PostgresAdapterTest extends TestCase
         }
     }
 
+    public function testConnectionWithSocketConnection()
+    {
+        if (!getenv('POSTGRES_SOCKET')) {
+            $this->markTestSkipped('Postgres socket connection skipped.');
+        }
+
+        $options = PGSQL_DB_CONFIG;
+        unset($options['host']);
+        $adapter = new PostgresAdapter(PGSQL_DB_CONFIG, new ArrayInput([]), new NullOutput());
+        $adapter->connect();
+
+        $this->assertInstanceOf('\PDO', $this->adapter->getConnection());
+    }
+
     public function testCreatingTheSchemaTableOnConnect()
     {
         $this->adapter->connect();
