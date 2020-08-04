@@ -409,15 +409,14 @@ class Plan
     {
         foreach ($actions as $action) {
             if (
-                !(
-                    $action instanceof AddColumn
-                    || $action instanceof ChangeColumn
-                    || $action instanceof RemoveColumn
-                    || $action instanceof RenameColumn
-                )
-                || isset($this->tableCreates[$action->getTable()->getName()])
+                !($action instanceof AddColumn)
+                && !($action instanceof ChangeColumn)
+                && !($action instanceof RemoveColumn)
+                && !($action instanceof RenameColumn)
             ) {
                  continue;
+            } elseif (isset($this->tableCreates[$action->getTable()->getName()])) {
+                continue;
             }
             $table = $action->getTable();
             $name = $table->getName();
@@ -446,11 +445,10 @@ class Plan
     {
         foreach ($actions as $action) {
             if (
-                !(
-                $action instanceof DropTable
-                || $action instanceof RenameTable
-                || $action instanceof ChangePrimaryKey
-                || $action instanceof ChangeComment)
+                !($action instanceof DropTable)
+                && !($action instanceof RenameTable)
+                && !($action instanceof ChangePrimaryKey)
+                && !($action instanceof ChangeComment)
             ) {
                 continue;
             }
@@ -475,13 +473,9 @@ class Plan
     protected function gatherIndexes($actions)
     {
         foreach ($actions as $action) {
-            if (
-                !(
-                    $action instanceof AddIndex
-                    || $action instanceof DropIndex
-                )
-                || isset($this->tableCreates[$action->getTable()->getName()])
-            ) {
+            if (!($action instanceof AddIndex) && !($action instanceof DropIndex)) {
+                continue;
+            } elseif (isset($this->tableCreates[$action->getTable()->getName()])) {
                 continue;
             }
 
