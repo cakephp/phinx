@@ -68,7 +68,7 @@ class ActionSplitter
      * @return \Phinx\Db\Plan\AlterTable[] A list of AlterTable that can be executed without
      * this type of conflict
      */
-    public function split(AlterTable $alter)
+    public function __invoke(AlterTable $alter)
     {
         $conflictActions = array_filter($alter->getActions(), function ($action) {
             return $action instanceof $this->conflictClass;

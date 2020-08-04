@@ -217,8 +217,8 @@ class Plan
             }
         );
         $tableUpdates = [];
-        foreach ($this->tableUpdates as $tableUpdate) {
-            array_push($tableUpdates, ...$splitter->split($tableUpdate));
+        foreach ($this->tableUpdates as $update) {
+            $tableUpdates = array_merge($tableUpdates, $splitter($update));
         }
         $this->tableUpdates = $tableUpdates;
 
@@ -238,8 +238,10 @@ class Plan
         );
         $constraints = [];
         foreach ($this->constraints as $constraint) {
-            $constraint = $this->remapContraintAndIndexConflicts($constraint);
-            array_push($constraints, ...$splitter->split($constraint));
+            $constraints = array_merge(
+                $constraints,
+                $splitter($this->remapContraintAndIndexConflicts($constraint))
+            );
         }
         $this->constraints = $constraints;
     }
