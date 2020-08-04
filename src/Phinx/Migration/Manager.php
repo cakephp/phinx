@@ -17,6 +17,7 @@ use Phinx\Migration\Manager\Environment;
 use Phinx\Seed\AbstractSeed;
 use Phinx\Seed\SeedInterface;
 use Phinx\Util\Util;
+use Psr\Container\ContainerInterface;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -56,6 +57,11 @@ class Manager
      * @var \Phinx\Seed\AbstractSeed[]|null
      */
     protected $seeds;
+
+    /**
+     * @var \Psr\Container\ContainerInterface
+     */
+    protected $container;
 
     /**
      * @param \Phinx\Config\ConfigInterface $config Configuration Object
@@ -612,6 +618,16 @@ class Manager
     }
 
     /**
+     * Sets the user defined PSR-11 container
+     *
+     * @param \Psr\Container\ContainerInterface $container Container
+     */
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
+    /**
      * Sets the console input.
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
@@ -891,7 +907,20 @@ class Manager
                     }
 
                     // instantiate it
-                    $seed = new $class($this->getInput(), $this->getOutput());
+                    /** @var \Phinx\Seed\AbstractSeed $seed */
+                    if ($this->container !== null) {
+                        $seed = $this->container->get($class);
+                    } else {
+                        $seed = new $class();
+                    }
+                    $input = $this->getInput();
+                    if ($input !== null) {
+                        $seed->setInput($input);
+                    }
+                    $output = $this->getOutput();
+                    if ($output !== null) {
+                        $seed->setOutput($output);
+                    }
 
                     if (!($seed instanceof AbstractSeed)) {
                         throw new InvalidArgumentException(sprintf(

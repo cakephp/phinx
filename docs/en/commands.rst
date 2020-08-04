@@ -50,7 +50,7 @@ CamelCase format.
 
 Open the new migration file in your text editor to add your database
 transformations. Phinx creates migration files using the path specified in your
-``phinx.yml`` file. Please see the :doc:`Configuration <configuration>` chapter
+phinx configuration file. Please see the :doc:`Configuration <configuration>` chapter
 for more information.
 
 You are able to override the template file used by Phinx by supplying an
@@ -77,27 +77,30 @@ The Init Command
 ----------------
 
 The Init command (short for initialize) is used to prepare your project for
-Phinx. This command generates the ``phinx.yml`` file in the root of your
-project directory.
+Phinx. This command generates the phinx configuration file in the root of your
+project directory. By default, this file will be named ``phinx.php``.
 
 .. code-block:: bash
 
-        $ cd yourapp
         $ phinx init
 
 Optionally you can specify a custom location for Phinx's config file:
 
 .. code-block:: bash
 
-        $ cd yourapp
         $ phinx init ./custom/location/
 
 You can also specify a custom file name:
 
 .. code-block:: bash
 
-        $ cd yourapp
         $ phinx init custom-config.yml
+
+As well as a different format from php, yml, and json. For example, to create yml file:
+
+.. code-block:: bash
+
+        $ phinx init --format yml
 
 Open this file in your text editor to setup your project configuration. Please
 see the :doc:`Configuration <configuration>` chapter for more information.
@@ -180,7 +183,7 @@ Use ``--dry-run`` to print the queries to standard output without executing them
 
         When rolling back, Phinx orders the executed migrations using
         the order specified in the ``version_order`` option of your
-        ``phinx.yml`` file.
+        phinx configuration file.
         Please see the :doc:`Configuration <configuration>` chapter for more information.
 
 The Status Command
@@ -212,7 +215,7 @@ in CamelCase format.
         $ phinx seed:create MyNewSeeder
 
 Open the new seed file in your text editor to add your database seed commands.
-Phinx creates seed files using the path specified in your ``phinx.yml`` file.
+Phinx creates seed files using the path specified in your configuration file.
 Please see the :doc:`Configuration <configuration>` chapter for more information.
 
 The Seed Run Command
@@ -336,7 +339,7 @@ Luckily, Symfony makes doing this sort of "meta" command straight-forward:
         $arguments = [
             'command'         => 'migrate',
             '--environment'   => 'production',
-            '--configuration' => '/path/to/config/phinx.yml'
+            '--configuration' => '/path/to/phinx/config/file'
         ];
 
         $input = new ArrayInput($arguments);

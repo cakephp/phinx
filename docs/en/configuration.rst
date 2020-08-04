@@ -57,10 +57,10 @@ The first option specifies the path to your migration directory. Phinx uses
 .. note::
 
     ``%%PHINX_CONFIG_DIR%%`` is a special token and is automatically replaced
-    with the root directory where your ``phinx.yml`` file is stored.
+    with the root directory where your phinx configuration file is stored.
 
 In order to overwrite the default ``%%PHINX_CONFIG_DIR%%/db/migrations``, you
-need to add the following to the yaml configuration.
+need to add the following to the configuration.
 
 .. code-block:: yaml
 
@@ -112,7 +112,7 @@ The second option specifies the path to your seed directory. Phinx uses
 .. note::
 
     ``%%PHINX_CONFIG_DIR%%`` is a special token and is automatically replaced
-    with the root directory where your ``phinx.yml`` file is stored.
+    with the root directory where your configuration file is stored.
 
 In order to overwrite the default ``%%PHINX_CONFIG_DIR%%/db/seeds``, you
 need to add the following to the yaml configuration.
@@ -186,6 +186,23 @@ file:
 
     export PHINX_ENVIRONMENT=dev-`whoami`-`hostname`
 
+Migration Table
+---------------
+
+To keep track of the migration statuses for an environment, phinx creates
+a table to store this information. You can customize where this table
+is created by configuring ``default_migration_table``:
+
+.. code-block:: yaml
+
+    environment:
+        default_migration_table: phinxlog
+
+If this field is omitted, then it will default to ``phinxlog``. For
+databases that support it, e.g. Postgres, the schema name can be prefixed
+with a period separator (``.``). For example, ``phinx.log`` will create
+the table ``log`` in the ``phinx`` schema instead of ``phinxlog`` in the
+``public`` (default) schema.
 
 Table Prefix and Suffix
 -----------------------

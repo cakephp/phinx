@@ -1,12 +1,12 @@
 # [Phinx](https://phinx.org): Simple PHP Database Migrations
 
-[![Build Status](https://travis-ci.org/cakephp/phinx.png?branch=master)](https://travis-ci.org/cakephp/phinx)
+[![Build Status](https://github.com/cakephp/phinx/workflows/Phinx%20CI/badge.svg?branch=master&event=push)](https://github.com/cakephp/phinx/actions?query=workflow%3A%22Phinx+CI%22+branch%3Amaster+event%3Apush)
+[![Build Status](https://img.shields.io/travis/com/cakephp/phinx?style=flat-square)](https://travis-ci.com/cakephp/phinx)
 [![Build status](https://ci.appveyor.com/api/projects/status/9vag4892hfq6effr)](https://ci.appveyor.com/project/robmorgan/phinx)
-[![Code Coverage](https://codecov.io/gh/cakephp/phinx/branch/master/graph/badge.svg)](https://codecov.io/gh/cakephp/phinx)
+[![Code Coverage](https://img.shields.io/coveralls/cakephp/phinx/master.svg?style=flat-square)](https://coveralls.io/r/cakephp/phinx?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/robmorgan/phinx/version.png)](https://packagist.org/packages/robmorgan/phinx)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.2-8892BF.svg)](https://php.net/)
 [![Total Downloads](https://poser.pugx.org/robmorgan/phinx/d/total.png)](https://packagist.org/packages/robmorgan/phinx)
-[![Join the chat at https://gitter.im/phinx-php/Lobby](https://badges.gitter.im/phinx-php/Lobby.svg)](https://gitter.im/phinx-php/Lobby)
 
 ## Intro
 
@@ -118,6 +118,13 @@ Please read the [CONTRIBUTING](CONTRIBUTING.md) document.
 ## News & Updates
 
 Follow [@CakePHP](https://twitter.com/cakephp) on Twitter to stay up to date.
+
+## Limitations
+
+### PostgreSQL
+
+- Not able to set a unique constraint on a table (<https://github.com/cakephp/phinx/issues/1026>).
+
 
 ## Misc
 

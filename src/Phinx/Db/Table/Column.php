@@ -18,6 +18,7 @@ class Column
 {
     public const BIGINTEGER = AdapterInterface::PHINX_TYPE_BIG_INTEGER;
     public const SMALLINTEGER = AdapterInterface::PHINX_TYPE_SMALL_INTEGER;
+    public const TINYINTEGER = AdapterInterface::PHINX_TYPE_TINY_INTEGER;
     public const BINARY = AdapterInterface::PHINX_TYPE_BINARY;
     public const BOOLEAN = AdapterInterface::PHINX_TYPE_BOOLEAN;
     public const CHAR = AdapterInterface::PHINX_TYPE_CHAR;

@@ -22,22 +22,15 @@ class SqlServerAdapterTest extends TestCase
 
     public function setUp(): void
     {
-        if (!TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED) {
-            $this->markTestSkipped('SqlServer tests disabled. See TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED constant.');
+        if (!defined('SQLSRV_DB_CONFIG')) {
+            $this->markTestSkipped('SqlServer tests disabled.');
         }
 
-        $options = [
-            'host' => TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST,
-            'name' => TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE,
-            'user' => TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME,
-            'pass' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD,
-            'port' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT,
-        ];
-        $this->adapter = new SqlServerAdapter($options, new ArrayInput([]), new NullOutput());
+        $this->adapter = new SqlServerAdapter(SQLSRV_DB_CONFIG, new ArrayInput([]), new NullOutput());
 
         // ensure the database is empty for each test
-        $this->adapter->dropDatabase($options['name']);
-        $this->adapter->createDatabase($options['name']);
+        $this->adapter->dropDatabase(SQLSRV_DB_CONFIG['name']);
+        $this->adapter->createDatabase(SQLSRV_DB_CONFIG['name']);
 
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
@@ -76,13 +69,7 @@ class SqlServerAdapterTest extends TestCase
 
     public function testConnectionWithInvalidCredentials()
     {
-        $options = [
-            'host' => TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST,
-            'name' => TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE,
-            'port' => TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT,
-            'user' => 'invaliduser',
-            'pass' => 'invalidpass',
-        ];
+        $options = ['user' => 'invalid', 'pass' => 'invalid'] + SQLSRV_DB_CONFIG;
 
         $adapter = null;
         try {
@@ -245,6 +232,34 @@ WHERE t.name='ntable'");
         $this->assertTrue($this->adapter->hasIndex('table1', ['user_id', 'tag_id']));
         $this->assertTrue($this->adapter->hasIndex('table1', ['tag_id', 'USER_ID']));
         $this->assertFalse($this->adapter->hasIndex('table1', ['tag_id', 'user_email']));
+    }
+
+    public function testCreateTableWithPrimaryKeyAsUuid()
+    {
+        $options = [
+            'id' => false,
+            'primary_key' => 'id',
+        ];
+        $table = new \Phinx\Db\Table('ztable', $options, $this->adapter);
+        $table->addColumn('id', 'uuid')->save();
+        $table->addColumn('user_id', 'integer')->save();
+        $this->assertTrue($this->adapter->hasColumn('ztable', 'id'));
+        $this->assertTrue($this->adapter->hasIndex('ztable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ztable', 'user_id'));
+    }
+
+    public function testCreateTableWithPrimaryKeyAsBinaryUuid()
+    {
+        $options = [
+            'id' => false,
+            'primary_key' => 'id',
+        ];
+        $table = new \Phinx\Db\Table('ztable', $options, $this->adapter);
+        $table->addColumn('id', 'binaryuuid')->save();
+        $table->addColumn('user_id', 'integer')->save();
+        $this->assertTrue($this->adapter->hasColumn('ztable', 'id'));
+        $this->assertTrue($this->adapter->hasIndex('ztable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ztable', 'user_id'));
     }
 
     public function testCreateTableWithMultipleIndexes()
@@ -724,7 +739,7 @@ WHERE t.name='ntable'");
     public function testHasDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
-        $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE));
+        $this->assertTrue($this->adapter->hasDatabase(SQLSRV_DB_CONFIG['name']));
     }
 
     public function testDropDatabase()

@@ -24,8 +24,9 @@ interface AdapterInterface
     public const PHINX_TYPE_STRING = 'string';
     public const PHINX_TYPE_CHAR = 'char';
     public const PHINX_TYPE_TEXT = 'text';
-    public const PHINX_TYPE_SMALL_INTEGER = 'smallinteger';
     public const PHINX_TYPE_INTEGER = 'integer';
+    public const PHINX_TYPE_TINY_INTEGER = 'tinyinteger';
+    public const PHINX_TYPE_SMALL_INTEGER = 'smallinteger';
     public const PHINX_TYPE_BIG_INTEGER = 'biginteger';
     public const PHINX_TYPE_BIT = 'bit';
     public const PHINX_TYPE_FLOAT = 'float';
@@ -39,6 +40,9 @@ interface AdapterInterface
     public const PHINX_TYPE_VARBINARY = 'varbinary';
     public const PHINX_TYPE_BINARYUUID = 'binaryuuid';
     public const PHINX_TYPE_BLOB = 'blob';
+    public const PHINX_TYPE_TINYBLOB = 'tinyblob'; // Specific to Mysql.
+    public const PHINX_TYPE_MEDIUMBLOB = 'mediumblob'; // Specific to Mysql
+    public const PHINX_TYPE_LONGBLOB = 'longblob'; // Specific to Mysql
     public const PHINX_TYPE_BOOLEAN = 'boolean';
     public const PHINX_TYPE_JSON = 'json';
     public const PHINX_TYPE_JSONB = 'jsonb';

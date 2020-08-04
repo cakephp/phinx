@@ -34,6 +34,7 @@ class SqlServerAdapter extends PdoAdapter
      */
     protected static $specificColumnTypes = [
         self::PHINX_TYPE_FILESTREAM,
+        self::PHINX_TYPE_BINARYUUID,
     ];
 
     /**
@@ -70,13 +71,12 @@ class SqlServerAdapter extends PdoAdapter
 
             $options = $this->getOptions();
 
+            $dsn = 'sqlsrv:server=' . $options['host'];
             // if port is specified use it, otherwise use the SqlServer default
-            if (empty($options['port'])) {
-                $dsn = 'sqlsrv:server=' . $options['host'] . ';database=' . $options['name'];
-            } else {
-                $dsn = 'sqlsrv:server=' . $options['host'] . ',' . $options['port'] . ';database=' . $options['name'];
+            if (!empty($options['port'])) {
+                $dsn .= ',' . $options['port'];
             }
-            $dsn .= ';MultipleActiveResultSets=false';
+            $dsn .= ';database=' . $options['name'] . ';MultipleActiveResultSets=false';
 
             $driverOptions = [];
 
@@ -146,9 +146,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function disconnect()
     {
@@ -164,9 +162,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function beginTransaction()
     {
@@ -174,9 +170,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function commitTransaction()
     {
@@ -184,9 +178,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function rollbackTransaction()
     {
@@ -224,9 +216,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createTable(Table $table, array $columns = [], array $indexes = [])
     {
@@ -339,15 +329,15 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
+     *
+     * SqlServer does not implement this functionality, and so will always throw an exception if used.
      *
      * @throws \BadMethodCallException
-     *
-     * @return void
      */
     protected function getChangeCommentInstructions(Table $table, $newComment)
     {
-        throw new BadMethodCallException('SQLite does not have table comments');
+        throw new BadMethodCallException('SqlServer does not have table comments');
     }
 
     /**
@@ -403,9 +393,7 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function truncateTable($tableName)
     {
@@ -1091,6 +1079,7 @@ ORDER BY T.[name], I.[index_id];";
                 return ['name' => 'varbinary'];
             case static::PHINX_TYPE_BOOLEAN:
                 return ['name' => 'bit'];
+            case static::PHINX_TYPE_BINARYUUID:
             case static::PHINX_TYPE_UUID:
                 return ['name' => 'uniqueidentifier'];
             case static::PHINX_TYPE_FILESTREAM:
@@ -1138,6 +1127,8 @@ ORDER BY T.[name], I.[index_id];";
             case 'numeric':
             case 'money':
                 return static::PHINX_TYPE_DECIMAL;
+            case 'tinyint':
+                return static::PHINX_TYPE_TINY_INTEGER;
             case 'smallint':
                 return static::PHINX_TYPE_SMALL_INTEGER;
             case 'bigint':
@@ -1168,9 +1159,7 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function createDatabase($name, $options = [])
     {
@@ -1198,9 +1187,7 @@ ORDER BY T.[name], I.[index_id];";
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return void
+     * @inheritDoc
      */
     public function dropDatabase($name)
     {

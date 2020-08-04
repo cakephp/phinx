@@ -14,32 +14,6 @@ use UnexpectedValueException;
 class ConfigTest extends AbstractConfigTest
 {
     /**
-     * @covers \Phinx\Config\Config::__construct
-     * @covers \Phinx\Config\Config::getConfigFilePath
-     */
-    public function testConstructEmptyArguments()
-    {
-        $config = new Config([]);
-        // this option is set to its default value when not being passed in the constructor, so we can ignore it
-        unset($config['version_order']);
-        $this->assertAttributeEmpty('values', $config);
-        $this->assertAttributeEmpty('configFilePath', $config);
-        $this->assertNull($config->getConfigFilePath());
-    }
-
-    /**
-     * @covers \Phinx\Config\Config::__construct
-     * @covers \Phinx\Config\Config::getConfigFilePath
-     */
-    public function testConstructByArray()
-    {
-        $config = new Config($this->getConfigArray());
-        $this->assertAttributeNotEmpty('values', $config);
-        $this->assertAttributeEmpty('configFilePath', $config);
-        $this->assertNull($config->getConfigFilePath());
-    }
-
-    /**
      * @covers \Phinx\Config\Config::getEnvironments
      */
     public function testGetEnvironmentsMethod()
@@ -348,5 +322,54 @@ class ConfigTest extends AbstractConfigTest
             unset($_ENV['PHINX_TEST_CONFIG_NAME']);
             unset($_ENV['PHINX_TEST_CONFIG_SUFFIX']);
         }
+    }
+
+    public function testSqliteMemorySetsName()
+    {
+        $config = new \Phinx\Config\Config([
+            'environments' => [
+                'production' => [
+                    'adapter' => 'sqlite',
+                    'memory' => true,
+                ],
+            ],
+        ]);
+        $this->assertSame(
+            ['adapter' => 'sqlite', 'memory' => true, 'name' => ':memory:'],
+            $config->getEnvironment('production')
+        );
+    }
+
+    public function testSqliteMemoryOverridesName()
+    {
+        $config = new \Phinx\Config\Config([
+            'environments' => [
+                'production' => [
+                    'adapter' => 'sqlite',
+                    'memory' => true,
+                    'name' => 'blah',
+                ],
+            ],
+        ]);
+        $this->assertSame(
+            ['adapter' => 'sqlite', 'memory' => true, 'name' => ':memory:'],
+            $config->getEnvironment('production')
+        );
+    }
+
+    public function testSqliteNonBooleanMemory()
+    {
+        $config = new \Phinx\Config\Config([
+            'environments' => [
+                'production' => [
+                    'adapter' => 'sqlite',
+                    'memory' => "yes",
+                ],
+            ],
+        ]);
+        $this->assertSame(
+            ['adapter' => 'sqlite', 'memory' => "yes", 'name' => ':memory:'],
+            $config->getEnvironment('production')
+        );
     }
 }

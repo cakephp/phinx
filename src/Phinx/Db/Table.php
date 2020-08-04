@@ -551,6 +551,7 @@ class Table
              ->addColumn($updatedAt, 'timestamp', [
                  'null' => true,
                  'default' => null,
+                 'update' => 'CURRENT_TIMESTAMP',
                  'timezone' => $withTimezone,
              ]);
 

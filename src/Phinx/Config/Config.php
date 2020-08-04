@@ -9,6 +9,8 @@ namespace Phinx\Config;
 
 use Closure;
 use InvalidArgumentException;
+use Phinx\Db\Adapter\SQLiteAdapter;
+use Phinx\Util\Util;
 use RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 use UnexpectedValueException;
@@ -64,7 +66,9 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     public static function fromYaml($configFilePath)
     {
         if (!class_exists('Symfony\\Component\\Yaml\\Yaml', true)) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Missing yaml parser, symfony/yaml package is not installed.');
+            // @codeCoverageIgnoreEnd
         }
 
         $configFile = file_get_contents($configFilePath);
@@ -92,7 +96,9 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     public static function fromJson($configFilePath)
     {
         if (!function_exists('json_decode')) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException("Need to install JSON PHP extension to use JSON config");
+            // @codeCoverageIgnoreEnd
         }
 
         $configArray = json_decode(file_get_contents($configFilePath), true);
@@ -164,6 +170,14 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             if (isset($this->values['environments']['default_migration_table'])) {
                 $environments[$name]['default_migration_table'] =
                     $this->values['environments']['default_migration_table'];
+            }
+
+            if (
+                isset($environments[$name]['adapter'])
+                && $environments[$name]['adapter'] === 'sqlite'
+                && !empty($environments[$name]['memory'])
+            ) {
+                $environments[$name]['name'] = SQLiteAdapter::MEMORY;
             }
 
             return $this->parseAgnosticDsn($environments[$name]);
@@ -354,6 +368,18 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getContainer()
+    {
+        if (!isset($this->values['container'])) {
+            return null;
+        }
+
+        return $this->values['container'];
+    }
+
+    /**
      * Get the version order.
      *
      * @return string
@@ -459,20 +485,12 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      */
     protected function parseAgnosticDsn(array $options)
     {
-        if (isset($options['dsn']) && is_string($options['dsn'])) {
-            $regex = '#^(?P<adapter>[^\\:]+)\\://(?:(?P<user>[^\\:@]+)(?:\\:(?P<pass>[^@]*))?@)?' .
-                '(?P<host>[^\\:@/]+)(?:\\:(?P<port>[1-9]\\d*))?/(?P<name>[^\?]+)(?:\?(?P<query>.*))?$#';
-            if (preg_match($regex, trim($options['dsn']), $parsedOptions)) {
-                $additionalOpts = [];
-                if (isset($parsedOptions['query'])) {
-                    parse_str($parsedOptions['query'], $additionalOpts);
-                }
-                $validOptions = ['adapter', 'user', 'pass', 'host', 'port', 'name'];
-                $parsedOptions = array_filter(array_intersect_key($parsedOptions, array_flip($validOptions)));
-                $options = array_merge($additionalOpts, $parsedOptions, $options);
-                unset($options['dsn']);
-            }
+        $parsed = Util::parseDsn($options['dsn'] ?? '');
+        if ($parsed) {
+            unset($options['dsn']);
         }
+
+        $options = array_merge($parsed, $options);
 
         return $options;
     }

@@ -232,4 +232,56 @@ class SeedRunTest extends TestCase
 
         $this->assertRegExp('/no environment specified/', $commandTester->getDisplay());
     }
+
+    public function testSeedRunMemorySqlite()
+    {
+        $config = new Config([
+            'paths' => [
+                'migrations' => __FILE__,
+                'seeds' => __FILE__,
+            ],
+            'environments' => [
+                'default_migration_table' => 'phinxlog',
+                'default_environment' => 'development',
+                'development' => [
+                    'adapter' => 'sqlite',
+                    'memory' => true,
+                ],
+            ],
+        ]);
+
+        $application = new PhinxApplication();
+        $application->add(new SeedRun());
+
+        /** @var SeedRun $command */
+        $command = $application->find('seed:run');
+
+        // mock the manager class
+        /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->once())
+                    ->method('seed')
+                    ->with('development', null);
+
+        $command->setConfig($config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(
+            [
+                'command' => $command->getName(),
+                '--environment' => 'development',
+            ],
+            ['decorated' => false]
+        );
+
+        $this->assertStringContainsString(implode(PHP_EOL, [
+            "using environment development",
+            "using adapter sqlite",
+            "using database :memory:",
+        ]) . PHP_EOL, $commandTester->getDisplay());
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
+    }
 }

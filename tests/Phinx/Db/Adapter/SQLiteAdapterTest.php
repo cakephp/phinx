@@ -24,20 +24,17 @@ class SQLiteAdapterTest extends TestCase
 
     public function setUp(): void
     {
-        if (!TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED) {
-            $this->markTestSkipped('SQLite tests disabled. See TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED constant.');
+        if (!defined('SQLITE_DB_CONFIG')) {
+            $this->markTestSkipped('SQLite tests disabled.');
         }
 
-        $options = [
-            'name' => TESTS_PHINX_DB_ADAPTER_SQLITE_DATABASE,
-            'suffix' => TESTS_PHINX_DB_ADAPTER_SQLITE_SUFFIX,
-            'memory' => TESTS_PHINX_DB_ADAPTER_SQLITE_MEMORY,
-        ];
-        $this->adapter = new SQLiteAdapter($options, new ArrayInput([]), new NullOutput());
+        $this->adapter = new SQLiteAdapter(SQLITE_DB_CONFIG, new ArrayInput([]), new NullOutput());
 
-        // ensure the database is empty for each test
-        $this->adapter->dropDatabase($options['name']);
-        $this->adapter->createDatabase($options['name']);
+        if (SQLITE_DB_CONFIG['name'] !== ':memory:') {
+            // ensure the database is empty for each test
+            $this->adapter->dropDatabase(SQLITE_DB_CONFIG['name']);
+            $this->adapter->createDatabase(SQLITE_DB_CONFIG['name']);
+        }
 
         // leave the adapter in a disconnected state for each test
         $this->adapter->disconnect();
@@ -745,8 +742,11 @@ class SQLiteAdapterTest extends TestCase
 
     public function testHasDatabase()
     {
+        if (SQLITE_DB_CONFIG['name'] === ':memory:') {
+            $this->markTestSkipped('Skipping hasDatabase() when testing in-memory db.');
+        }
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
-        $this->assertTrue($this->adapter->hasDatabase(TESTS_PHINX_DB_ADAPTER_SQLITE_DATABASE));
+        $this->assertTrue($this->adapter->hasDatabase(SQLITE_DB_CONFIG['name']));
     }
 
     public function testDropDatabase()
@@ -1143,7 +1143,7 @@ OUTPUT;
     public function testAlterTableColumnAdd()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-        $table->save();
+        $table->create();
 
         $table->addColumn('string_col', 'string', ['default' => '']);
         $table->addColumn('string_col_2', 'string', ['null' => true]);
@@ -1167,7 +1167,43 @@ OUTPUT;
         for ($i = 0; $i < $columnCount; $i++) {
             $this->assertSame($expected[$i]['name'], $columns[$i]->getName(), "Wrong name for {$expected[$i]['name']}");
             $this->assertSame($expected[$i]['type'], $columns[$i]->getType(), "Wrong type for {$expected[$i]['name']}");
-            $this->assertSame($expected[$i]['default'], ($columns[$i]->getDefault() instanceof Literal) ? (string)$columns[$i]->getDefault() : $columns[$i]->getDefault(), "Wrong default for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['default'], $columns[$i]->getDefault() instanceof Literal ? (string)$columns[$i]->getDefault() : $columns[$i]->getDefault(), "Wrong default for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['null'], $columns[$i]->getNull(), "Wrong null for {$expected[$i]['name']}");
+        }
+    }
+
+    public function testAlterTableWithConstraints()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->create();
+
+        $table2 = new \Phinx\Db\Table('table2', [], $this->adapter);
+        $table2->create();
+
+        $table
+            ->addColumn('table2_id', 'integer', ['null' => false])
+            ->addForeignKey('table2_id', 'table2', 'id', [
+                'delete' => 'SET NULL',
+            ]);
+        $table->update();
+
+        $table->addColumn('column3', 'string', ['default' => null, 'null' => true]);
+        $table->update();
+
+        $columns = $this->adapter->getColumns('table1');
+        $expected = [
+            ['name' => 'id', 'type' => 'integer', 'default' => null, 'null' => false],
+            ['name' => 'table2_id', 'type' => 'integer', 'default' => null, 'null' => false],
+            ['name' => 'column3', 'type' => 'string', 'default' => null, 'null' => true],
+        ];
+
+        $this->assertEquals(count($expected), count($columns));
+
+        $columnCount = count($columns);
+        for ($i = 0; $i < $columnCount; $i++) {
+            $this->assertSame($expected[$i]['name'], $columns[$i]->getName(), "Wrong name for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['type'], $columns[$i]->getType(), "Wrong type for {$expected[$i]['name']}");
+            $this->assertSame($expected[$i]['default'], $columns[$i]->getDefault() instanceof Literal ? (string)$columns[$i]->getDefault() : $columns[$i]->getDefault(), "Wrong default for {$expected[$i]['name']}");
             $this->assertSame($expected[$i]['null'], $columns[$i]->getNull(), "Wrong null for {$expected[$i]['name']}");
         }
     }
@@ -1448,7 +1484,7 @@ INPUT;
             [SQLiteAdapter::PHINX_TYPE_CIDR, null, $unsupported],
             [SQLiteAdapter::PHINX_TYPE_DATE, null, SQLiteAdapter::PHINX_TYPE_DATE . '_text'],
             [SQLiteAdapter::PHINX_TYPE_DATETIME, null, SQLiteAdapter::PHINX_TYPE_DATETIME . '_text'],
-            [SQLiteAdapter::PHINX_TYPE_DECIMAL, null, $unsupported],
+            [SQLiteAdapter::PHINX_TYPE_DECIMAL, null, SQLiteAdapter::PHINX_TYPE_DECIMAL],
             [SQLiteAdapter::PHINX_TYPE_DOUBLE, null, SQLiteAdapter::PHINX_TYPE_DOUBLE],
             [SQLiteAdapter::PHINX_TYPE_ENUM, null, $unsupported],
             [SQLiteAdapter::PHINX_TYPE_FILESTREAM, null, $unsupported],
@@ -1502,10 +1538,10 @@ INPUT;
             ['boolean_integer', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
             ['int', ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
             ['integer', ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
-            ['tinyint', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
+            ['tinyint', ['name' => SQLiteAdapter::PHINX_TYPE_TINY_INTEGER, 'limit' => null, 'scale' => null]],
             ['tinyint(1)', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
-            ['tinyinteger', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
-            ['tinyinteger(1)', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => 1, 'scale' => null]],
+            ['tinyinteger', ['name' => SQLiteAdapter::PHINX_TYPE_TINY_INTEGER, 'limit' => null, 'scale' => null]],
+            ['tinyinteger(1)', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
             ['smallint', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
             ['smallinteger', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
             ['mediumint', ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
@@ -1578,10 +1614,10 @@ INPUT;
             ['BOOLEAN_INTEGER', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
             ['INT', ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
             ['INTEGER', ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
-            ['TINYINT', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
+            ['TINYINT', ['name' => SQLiteAdapter::PHINX_TYPE_TINY_INTEGER, 'limit' => null, 'scale' => null]],
             ['TINYINT(1)', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
-            ['TINYINTEGER', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
-            ['TINYINTEGER(1)', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => 1, 'scale' => null]],
+            ['TINYINTEGER', ['name' => SQLiteAdapter::PHINX_TYPE_TINY_INTEGER, 'limit' => null, 'scale' => null]],
+            ['TINYINTEGER(1)', ['name' => SQLiteAdapter::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
             ['SMALLINT', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
             ['SMALLINTEGER', ['name' => SQLiteAdapter::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
             ['MEDIUMINT', ['name' => SQLiteAdapter::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
@@ -1661,7 +1697,8 @@ INPUT;
     /** @covers \Phinx\Db\Adapter\SQLiteAdapter::getColumnTypes */
     public function testGetColumnTypes()
     {
-        $exp = [
+        $columnTypes = $this->adapter->getColumnTypes();
+        $expected = [
             SQLiteAdapter::PHINX_TYPE_BIG_INTEGER,
             SQLiteAdapter::PHINX_TYPE_BINARY,
             SQLiteAdapter::PHINX_TYPE_BLOB,
@@ -1669,6 +1706,7 @@ INPUT;
             SQLiteAdapter::PHINX_TYPE_CHAR,
             SQLiteAdapter::PHINX_TYPE_DATE,
             SQLiteAdapter::PHINX_TYPE_DATETIME,
+            SQLiteAdapter::PHINX_TYPE_DECIMAL,
             SQLiteAdapter::PHINX_TYPE_DOUBLE,
             SQLiteAdapter::PHINX_TYPE_FLOAT,
             SQLiteAdapter::PHINX_TYPE_INTEGER,
@@ -1681,9 +1719,13 @@ INPUT;
             SQLiteAdapter::PHINX_TYPE_UUID,
             SQLiteAdapter::PHINX_TYPE_BINARYUUID,
             SQLiteAdapter::PHINX_TYPE_TIMESTAMP,
+            SQLiteAdapter::PHINX_TYPE_TINY_INTEGER,
             SQLiteAdapter::PHINX_TYPE_VARBINARY,
         ];
-        $this->assertEquals($exp, $this->adapter->getColumnTypes());
+        sort($columnTypes);
+        sort($expected);
+
+        $this->assertEquals($expected, $columnTypes);
     }
 
     /**
@@ -1720,7 +1762,7 @@ INPUT;
             [SQLiteAdapter::PHINX_TYPE_VARBINARY, true],
             [SQLiteAdapter::PHINX_TYPE_BIT, false],
             [SQLiteAdapter::PHINX_TYPE_CIDR, false],
-            [SQLiteAdapter::PHINX_TYPE_DECIMAL, false],
+            [SQLiteAdapter::PHINX_TYPE_DECIMAL, true],
             [SQLiteAdapter::PHINX_TYPE_ENUM, false],
             [SQLiteAdapter::PHINX_TYPE_FILESTREAM, false],
             [SQLiteAdapter::PHINX_TYPE_GEOMETRY, false],

@@ -1,48 +1,74 @@
 language: php
 
-addons:
-  postgresql: "9.6"
+dist: xenial
 
 services:
   - postgresql
   - mysql
 
+addons:
+  postgresql: '9.6'
+
 php:
-  - 7.2
   - 7.4
 
 env:
   global:
-    - DEFAULT=1
+    - CODECOVERAGE=1
+  matrix:
+    - PGSQL_DSN='pgsql://postgres@127.0.0.1/phinx' POSTGRES_TEST_SOCKETS=true
+    - MYSQL_DSN='mysql://root@127.0.0.1/phinx' MYSQL_UNIX_SOCKET='/var/run/mysqld/mysqld.sock'
+    - SQLITE_DSN='sqlite:///phinx'
 
 matrix:
   include:
     - php: 7.2
-      env: PREFER_LOWEST=1
+      env: PREFER_LOWEST=1 CODECOVERAGE=0
+    - php: nightly
+      env: SQLITE_DSN='sqlite:///phinx' CODECOVERAGE=0
 
-    - php: 7.4
-      env: CHECKS=1 DEFAULT=0
+  allow_failures:
+    - php: nightly
+
+  fast_finish: true
 
 before_install:
-  - if [[ $DEFAULT != 1 ]]; then phpenv config-rm xdebug.ini; fi
+  - if [[ $MYSQL_DSN ]]; then mysql -e 'create database phinx;'; fi
+  - if [[ $PGSQL_DSN ]]; then psql -c 'create database phinx;' -U postgres; fi
+  - if [[ $PGSQL_DSN ]]; then psql -c 'create extension if not exists citext;' -U postgres; fi
 
-before_script:
-    - if [[ $PREFER_LOWEST != 1 ]]; then travis_retry composer update --no-interaction --prefer-stable; fi
-    - if [[ $PREFER_LOWEST == 1 ]]; then travis_retry composer update --no-interaction --prefer-stable --prefer-lowest; fi
+  - |
+      if [[ $CODECOVERAGE == 1 ]]; then
+        phpenv config-rm xdebug.ini
+        pecl channel-update pecl.php.net
+        pecl install pcov
+      fi
 
-    - if [[ $DEFAULT == 1 ]]; then mysql -e 'create database phinx_testing;'; fi
-    - if [[ $DEFAULT == 1 ]]; then psql -c 'create database phinx_testing;' -U postgres; fi
-    - if [[ $DEFAULT == 1 ]]; then psql -c 'create extension if not exists citext;' -U postgres; fi
-
-    - if [[ $CHECKS == 1 ]]; then composer require --dev phpstan/phpstan:^0.12; fi
+install:
+  - |
+      if [[ $PREFER_LOWEST == 1 ]]; then
+        composer update --no-interaction --prefer-stable --prefer-lowest
+      elif [[ $TRAVIS_PHP_VERSION == 'nightly' ]]; then
+        composer install --no-interaction --ignore-platform-reqs
+      else
+        composer update --no-interaction
+      fi
 
 script:
-    - if [[ $DEFAULT == 1 ]]; then vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover; fi
-    - if [[ $CHECKS == 1 ]]; then composer stan; fi
-    - if [[ $CHECKS == 1 ]]; then composer cs-check; fi
+  - |
+      if [[ $CODECOVERAGE == 1 ]]; then
+        vendor/bin/phpunit --verbose --coverage-clover=clover.xml
+      else
+        vendor/bin/phpunit --verbose
+      fi
 
 after_success:
-  - if [[ $DEFAULT = 1 ]]; then bash <(curl -s https://codecov.io/bash); fi
+  - |
+      if [[ $CODECOVERAGE == 1 ]]; then
+        wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.1.0/php-coveralls.phar
+        chmod +x php-coveralls.phar
+        ./php-coveralls.phar
+      fi
 
 cache:
   directories:

@@ -43,17 +43,10 @@ Phinx automatically creates a skeleton migration file with a single method:
              * Write your reversible migrations using this method.
              *
              * More information on writing migrations is available here:
-             * http://docs.phinx.org/en/latest/migrations.html#the-abstractmigration-class
+             * https://book.cakephp.org/phinx/0/en/migrations.html#the-change-method
              *
-             * The following commands can be used in this method and Phinx will
-             * automatically reverse them when rolling back:
-             *
-             *    createTable
-             *    renameTable
-             *    addColumn
-             *    renameColumn
-             *    addIndex
-             *    addForeignKey
+             * Remember to call "create()" or "update()" and NOT "save()" when working
+             * with the Table class.
              *
              */
             public function change()
@@ -83,14 +76,6 @@ down automatically for you. For example:
 
         class CreateUserLoginsTable extends AbstractMigration
         {
-            /**
-             * Change Method.
-             *
-             * More information on this method is available here:
-             * http://docs.phinx.org/en/latest/migrations.html#the-change-method
-             *
-             * Uncomment this method if you would like to use it.
-             */
             public function change()
             {
                 // create the table
@@ -98,22 +83,6 @@ down automatically for you. For example:
                 $table->addColumn('user_id', 'integer')
                       ->addColumn('created', 'datetime')
                       ->create();
-            }
-
-            /**
-             * Migrate Up.
-             */
-            public function up()
-            {
-
-            }
-
-            /**
-             * Migrate Down.
-             */
-            public function down()
-            {
-
             }
         }
 
@@ -123,23 +92,50 @@ Please be aware that when a ``change`` method exists, Phinx will automatically
 ignore the ``up`` and ``down`` methods. If you need to use these methods it is
 recommended to create a separate migration file.
 
-..note
+.. note::
+
     When creating or updating tables inside a ``change()`` method you must use
     the Table ``create()`` and ``update()`` methods. Phinx cannot automatically
     determine whether a ``save()`` call is creating a new table or modifying an
     existing one.
 
-Phinx can only reverse the following commands:
+The following actions are reversible when done through the Table API in Phinx,
+and will be automatically reversed:
 
--  createTable
--  renameTable
--  addColumn
--  renameColumn
--  addIndex
--  addForeignKey
+- Creating a table
+- Renaming a table
+- Adding a column
+- Renaming a column
+- Adding an index
+- Adding a foreign key
 
 If a command cannot be reversed then Phinx will throw an
-``IrreversibleMigrationException`` when it's migrating down.
+``IrreversibleMigrationException`` when it's migrating down. If you wish to
+use a command that cannot be reversed in the change function, you can use an
+if statement with  ``$this->isMigratingUp()`` to only run things in the
+up or down direction. For example:
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class CreateUserLoginsTable extends AbstractMigration
+        {
+            public function change()
+            {
+                // create the table
+                $table = $this->table('user_logins');
+                $table->addColumn('user_id', 'integer')
+                      ->addColumn('created', 'datetime')
+                      ->create();
+                if ($this->isMigratingUp()) {
+                    $table->insert([['user_id' => 1, 'created' => '2020-01-19 03:14:07']])
+                          ->save();
+                }
+            }
+        }
 
 The Up Method
 ~~~~~~~~~~~~~
@@ -538,11 +534,7 @@ Column types are specified as strings and can be one of:
 -  timestamp
 -  uuid
 
-In addition, the MySQL adapter supports ``enum``, ``set``, ``blob``, ``bit`` and ``json`` column types
-(``json`` in MySQL 5.7 and above).
-
-In addition, the Postgres adapter supports ``interval``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
-(PostgreSQL 9.3 and above).
+Mysql adapter and Postgres adapter supports many of their own types, see `Valid Column Types`_ for details.
 
 For valid options, see the `Valid Column Options`_ below.
 
@@ -803,8 +795,9 @@ Column types are specified as strings and can be one of:
 -  timestamp
 -  uuid
 
-In addition, the MySQL adapter supports ``enum``, ``set``, ``blob``, ``bit`` and ``json`` column types
-(``json`` in MySQL 5.7 and above).
+In addition, the MySQL adapter supports ``enum``, ``set``, ``blob``, ``tinyblob``, ``mediumblob``, ``longblob``, ``bit`` and ``json`` column types
+(``json`` in MySQL 5.7 and above). When providing a limit value and using ``binary``, ``varbinary`` or ``blob`` and its subtypes, the retained column
+type will be based on required length (see `Limit Option and MySQL`_ for details);
 
 In addition, the Postgres adapter supports ``interval``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
@@ -860,14 +853,16 @@ For ``timestamp`` columns:
 Option   Description
 ======== ===========
 default  set default value (use with ``CURRENT_TIMESTAMP``)
-update   set an action to be triggered when the row is updated (use with ``CURRENT_TIMESTAMP``)
+update   set an action to be triggered when the row is updated (use with ``CURRENT_TIMESTAMP``) *(only applies to MySQL)*
 timezone enable or disable the ``with time zone`` option for ``time`` and ``timestamp`` columns *(only applies to Postgres)*
 ======== ===========
 
 You can add ``created_at`` and ``updated_at`` timestamps to a table using the ``addTimestamps()`` method. This method also
 allows you to supply alternative names. The optional third argument allows you to change the ``timezone`` option for the
 columns being added. Additionally, you can use the ``addTimestampsWithTimezone()`` method, which is an alias to
-``addTimestamps()`` that will always set the third argument to ``true`` (see examples below).
+``addTimestamps()`` that will always set the third argument to ``true`` (see examples below). The ``created_at`` column will
+have a default set to ``CURRENT_TIMESTAMP``. For MySQL only, ``update_at`` column will have update set to
+``CURRENT_TIMESTAMP``.
 
 .. code-block:: php
 
@@ -930,7 +925,7 @@ Limit Option and MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
 
 When using the MySQL adapter, additional hinting of database column type can be
-made for ``integer``, ``text`` and ``blob`` columns. Using ``limit`` with
+made for ``integer``, ``text``, ``blob``, ``tinyblob``, ``mediumblob``, ``longblob`` columns. Using ``limit`` with
 one the following options will modify the column type accordingly:
 
 ============ ==============
@@ -950,6 +945,8 @@ INT_MEDIUM   MEDIUMINT
 INT_REGULAR  INT
 INT_BIG      BIGINT
 ============ ==============
+
+For ``binary`` or ``varbinary`` types, if limit is set greater than allowed 255 bytes, the type will be changed to the best matching blob type given the length.
 
 .. code-block:: php
 

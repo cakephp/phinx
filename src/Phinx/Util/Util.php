@@ -26,6 +26,11 @@ class Util
     /**
      * @var string
      */
+    protected const MIGRATION_FILE_NAME_NO_NAME_PATTERN = '/^[0-9]{14}\.php$/';
+
+    /**
+     * @var string
+     */
     protected const SEED_FILE_NAME_PATTERN = '/^([a-z][a-z\d]*)\.php$/i';
 
     /**
@@ -116,11 +121,13 @@ class Util
      *
      * @return string
      */
-    public static function mapFileNameToClassName($fileName)
+    public static function mapFileNameToClassName(string $fileName): string
     {
         $matches = [];
         if (preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName, $matches)) {
             $fileName = $matches[1];
+        } elseif (preg_match(static::MIGRATION_FILE_NAME_NO_NAME_PATTERN, $fileName)) {
+            return "V" . substr($fileName, 0, strlen($fileName) - 4);
         }
 
         $className = str_replace('_', '', ucwords($fileName, '_'));
@@ -174,9 +181,12 @@ class Util
      *
      * @return bool
      */
-    public static function isValidMigrationFileName($fileName)
+    public static function isValidMigrationFileName(string $fileName): bool
     {
-        return (bool)preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName);
+        return (
+            (bool)preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName)
+            || (bool)preg_match(static::MIGRATION_FILE_NAME_NO_NAME_PATTERN, $fileName)
+        );
     }
 
     /**
@@ -272,5 +282,56 @@ class Util
         $files = array_unique($files);
 
         return $files;
+    }
+
+    /**
+     * Parses DSN string into db config array.
+     *
+     * @param string $dsn DSN string
+     * @return array
+     */
+    public static function parseDsn(string $dsn): array
+    {
+        $pattern = <<<'REGEXP'
+{
+    ^
+    (?:
+        (?P<adapter>[\w\\\\]+)://
+    )
+    (?:
+        (?P<user>.*?)
+        (?:
+            :(?P<pass>.*?)
+        )?
+        @
+    )?
+    (?:
+        (?P<host>[^?#/:@]+)
+        (?:
+            :(?P<port>\d+)
+        )?
+    )?
+    (?:
+        /(?P<name>[^?#]*)
+    )?
+    (?:
+        \?(?P<query>[^#]*)
+    )?
+    $
+}x
+REGEXP;
+
+        if (!preg_match($pattern, $dsn, $parsed)) {
+            return [];
+        }
+
+        // filter out everything except the matched groups
+        $config = array_intersect_key($parsed, array_flip(['adapter', 'user', 'pass', 'host', 'port', 'name']));
+        $config = array_filter($config);
+
+        parse_str($parsed['query'] ?? '', $query);
+        $config = array_merge($query, $config);
+
+        return $config;
     }
 }

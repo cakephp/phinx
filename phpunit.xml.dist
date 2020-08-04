@@ -15,33 +15,18 @@
     * repository.
     -->
     <php>
-        <!-- SqlServer -->
-        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_ENABLED" value="false"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST" value="localhost"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_USERNAME" value="vagrant"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_PASSWORD" value="vagrant"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_DATABASE" value="test"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_SQLSRV_PORT" value="1433"/>
-        <!-- MySQL -->
-        <env name="TESTS_PHINX_DB_ADAPTER_MYSQL_ENABLED" value="true"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_MYSQL_HOST" value="127.0.0.1"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_MYSQL_USERNAME" value="root"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_MYSQL_PASSWORD" value=""/>
-        <env name="TESTS_PHINX_DB_ADAPTER_MYSQL_DATABASE" value="phinx_testing"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_MYSQL_PORT" value="3306"/>
-        <!-- PostgreSQL -->
-        <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_ENABLED" value="true"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST" value="127.0.0.1"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_USERNAME" value="postgres"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_PASSWORD" value=""/>
-        <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE" value="phinx_testing"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_DATABASE_SCHEMA" value="public"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_POSTGRES_PORT" value="5432"/>
-        <!-- SQLite -->
-        <env name="TESTS_PHINX_DB_ADAPTER_SQLITE_ENABLED" value="true"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_SQLITE_DATABASE" value="phinx_testing"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_SQLITE_SUFFIX" value=".sqlite3"/>
-        <env name="TESTS_PHINX_DB_ADAPTER_SQLITE_MEMORY" value="false"/>
+        <!-- SqlServer
+        <env name="SQLSRV_DSN" value="sqlsrv://user:pass@localhost/test"/>
+        -->
+        <!-- MySQL
+        <env name="MYSQL_DSN" value="mysql://root@127.0.0.1/test"/>
+        -->
+        <!-- PostgreSQL
+        <env name="PGSQL_DSN" value="pgsql://postgres@127.0.0.1/test"/>
+        -->
+        <!-- SQLite
+        <env name="SQLITE_DSN" value="sqlite:///:memory:"/>
+        -->
     </php>
 
     <testsuite name="phinx">
