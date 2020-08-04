@@ -10,7 +10,7 @@ namespace Phinx\Db\Plan\Solver;
 use Phinx\Db\Plan\AlterTable;
 
 /**
- * A Plan takes an Intent and transforms int into a sequence of
+ * A Plan takes an Intent and transforms it into a sequence of
  * instructions that can be correctly executed by an AdapterInterface.
  *
  * The main focus of Plan is to arrange the actions in the most efficient
@@ -70,46 +70,34 @@ class ActionSplitter
      */
     public function __invoke(AlterTable $alter)
     {
-        $actions = collection($alter->getActions());
-        $conflictActions = $actions
-            ->filter(function ($action) {
-                return $action instanceof $this->conflictClass;
-            })
-            ->toList();
+        $conflictActions = array_filter($alter->getActions(), function ($action) {
+            return $action instanceof $this->conflictClass;
+        });
 
         $originalAlter = new AlterTable($alter->getTable());
         $newAlter = new AlterTable($alter->getTable());
 
-        $actions
-            ->map(function ($action) use ($conflictActions) {
-                if (!$action instanceof $this->conflictClassDual) {
-                    return [$action, null];
-                }
+        foreach ($alter->getActions() as $action) {
+            if (!$action instanceof $this->conflictClassDual) {
+                $originalAlter->addAction($action);
+                continue;
+            }
 
-                $found = false;
-                $matches = $this->conflictFilter;
-                foreach ($conflictActions as $ca) {
-                    if ($matches($ca, $action)) {
-                        $found = true;
-                        break;
-                    }
+            $found = false;
+            $matches = $this->conflictFilter;
+            foreach ($conflictActions as $ca) {
+                if ($matches($ca, $action)) {
+                    $found = true;
+                    break;
                 }
+            }
 
-                if ($found) {
-                    return [null, $action];
-                }
-
-                return [$action, null];
-            })
-            ->each(function ($pair) use ($originalAlter, $newAlter) {
-                list($original, $new) = $pair;
-                if ($original) {
-                    $originalAlter->addAction($original);
-                }
-                if ($new) {
-                    $newAlter->addAction($new);
-                }
-            });
+            if ($found) {
+                $newAlter->addAction($action);
+            } else {
+                $originalAlter->addAction($action);
+            }
+        }
 
         return [$originalAlter, $newAlter];
     }

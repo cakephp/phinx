@@ -2005,11 +2005,10 @@ INPUT;
     public function testMysqlBlobsConstants()
     {
         $reflector = new \ReflectionClass(AdapterInterface::class);
-        $collection = new Collection($reflector->getConstants());
 
-        $validTypes = $collection->filter(function ($value, $constant) {
+        $validTypes = array_filter($reflector->getConstants(), function ($constant) {
             return substr($constant, 0, strlen('PHINX_TYPE_')) === 'PHINX_TYPE_';
-        })->toArray();
+        }, ARRAY_FILTER_USE_KEY);
 
         $this->assertTrue(in_array('tinyblob', $validTypes, true));
         $this->assertTrue(in_array('blob', $validTypes, true));

@@ -703,14 +703,13 @@ class Table
         // Renaming a table is tricky, specially when running a reversible migration
         // down. We will just assume the table already exists if the user commands a
         // table rename.
-        $renamed = collection($this->actions->getActions())
-            ->filter(function ($action) {
-                return $action instanceof RenameTable;
-            })
-            ->first();
-
-        if ($renamed) {
-            $exists = true;
+        if (!$exists) {
+            foreach ($this->actions->getActions() as $action) {
+                if ($action instanceof RenameTable) {
+                    $exists = true;
+                    break;
+                }
+            }
         }
 
         // If the table does not exist, the last command in the chain needs to be
