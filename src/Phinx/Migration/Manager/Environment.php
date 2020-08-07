@@ -130,8 +130,7 @@ class Environment
     {
         $seed->setAdapter($this->getAdapter());
         if (method_exists($seed, SeedInterface::INIT)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $seed->init();
+            $seed->{SeedInterface::INIT}();
         }
 
         // begin the transaction if the adapter supports it
@@ -141,7 +140,7 @@ class Environment
 
         // Run the seeder
         if (method_exists($seed, SeedInterface::RUN)) {
-            $seed->run();
+            $seed->{SeedInterface::RUN}();
         }
 
         // commit the transaction if the adapter supports it
