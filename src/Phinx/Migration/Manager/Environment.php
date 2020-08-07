@@ -80,8 +80,7 @@ class Environment
         $startTime = time();
         $migration->setAdapter($this->getAdapter());
         if (method_exists($migration, MigrationInterface::INIT)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $migration->init();
+            $migration->{MigrationInterface::INIT}();
         }
 
         if (!$fake) {
@@ -100,13 +99,11 @@ class Environment
                     $proxyAdapter = AdapterFactory::instance()
                         ->getWrapper('proxy', $this->getAdapter());
                     $migration->setAdapter($proxyAdapter);
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $migration->change();
+                    $migration->{MigrationInterface::CHANGE}();
                     $proxyAdapter->executeInvertedCommands();
                     $migration->setAdapter($this->getAdapter());
                 } else {
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $migration->change();
+                    $migration->{MigrationInterface::CHANGE}();
                 }
             } else {
                 $migration->{$direction}();
