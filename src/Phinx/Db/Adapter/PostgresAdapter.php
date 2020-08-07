@@ -525,7 +525,7 @@ class PostgresAdapter extends PdoAdapter
         $instructions->addPostStep(
             sprintf(
                 'ALTER TABLE %s RENAME COLUMN %s TO %s',
-                $tableName,
+                $this->quoteTableName($tableName),
                 $this->quoteColumnName($columnName),
                 $this->quoteColumnName($newColumnName)
             )
