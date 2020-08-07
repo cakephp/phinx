@@ -2096,4 +2096,26 @@ OUTPUT;
 
         $this->assertEquals(1, $stm->rowCount());
     }
+
+    public function testRenameMixedCaseTableAndColumns()
+    {
+        $table = new \Phinx\Db\Table('OrganizationSettings', [], $this->adapter);
+        $table->addColumn('SettingType', 'string')
+            ->create();
+
+        $this->assertTrue($this->adapter->hasTable('OrganizationSettings'));
+        $this->assertTrue($this->adapter->hasColumn('OrganizationSettings', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('OrganizationSettings', 'SettingType'));
+        $this->assertFalse($this->adapter->hasColumn('OrganizationSettings', 'SettingTypeId'));
+
+        $table = new \Phinx\Db\Table('OrganizationSettings', [], $this->adapter);
+        $table
+            ->renameColumn('SettingType', 'SettingTypeId')
+            ->update();
+
+        $this->assertTrue($this->adapter->hasTable('OrganizationSettings'));
+        $this->assertTrue($this->adapter->hasColumn('OrganizationSettings', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('OrganizationSettings', 'SettingTypeId'));
+        $this->assertFalse($this->adapter->hasColumn('OrganizationSettings', 'SettingType'));
+    }
 }
