@@ -2110,7 +2110,7 @@ OUTPUT;
 
         $table = new \Phinx\Db\Table('OrganizationSettings', [], $this->adapter);
         $table
-        	->renameColumn('SettingType', 'SettingTypeId')
+            ->renameColumn('SettingType', 'SettingTypeId')
             ->update();
 
         $this->assertTrue($this->adapter->hasTable('OrganizationSettings'));
