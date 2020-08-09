@@ -1108,6 +1108,7 @@ class PostgresAdapter extends PdoAdapter
     {
         $this->disconnect();
         $this->execute(sprintf('DROP DATABASE IF EXISTS %s', $name));
+        $this->createdTables = [];
         $this->connect();
     }
 
@@ -1336,6 +1337,12 @@ class PostgresAdapter extends PdoAdapter
     {
         $sql = sprintf('DROP SCHEMA IF EXISTS %s CASCADE', $this->quoteSchemaName($schemaName));
         $this->execute($sql);
+
+        foreach ($this->createdTables as $idx => $createdTable) {
+            if ($this->getSchemaName($createdTable)['schema'] === $this->quoteSchemaName($schemaName)) {
+                unset($this->createdTables[$idx]);
+            }
+        }
     }
 
     /**

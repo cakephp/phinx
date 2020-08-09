@@ -1453,6 +1453,7 @@ PCRE_PATTERN;
      */
     public function dropDatabase($name)
     {
+        $this->createdTables = [];
         if ($this->getOption('memory')) {
             $this->disconnect();
             $this->connect();
