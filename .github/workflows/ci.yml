@@ -3,7 +3,7 @@ name: Phinx CI
 on:
   push:
     branches:
-      - master
+      - '*'
   pull_request:
     branches:
       - '*'
