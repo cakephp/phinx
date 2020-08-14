@@ -1722,9 +1722,9 @@ class PostgresAdapterTest extends TestCase
             ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertSame(true, $rows[0]['column1']);
-        $this->assertSame(false, $rows[1]['column1']);
-        $this->assertSame(null, $rows[2]['column1']);
+        $this->assertTrue($rows[0]['column1']);
+        $this->assertFalse($rows[1]['column1']);
+        $this->assertNull($rows[2]['column1']);
     }
 
     public function testInsertData()
@@ -1771,9 +1771,9 @@ class PostgresAdapterTest extends TestCase
             ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertSame(true, $rows[0]['column1']);
-        $this->assertSame(false, $rows[1]['column1']);
-        $this->assertSame(null, $rows[2]['column1']);
+        $this->assertTrue($rows[0]['column1']);
+        $this->assertFalse($rows[1]['column1']);
+        $this->assertNull($rows[2]['column1']);
     }
 
     public function testInsertDataWithSchema()
@@ -1848,10 +1848,10 @@ class PostgresAdapterTest extends TestCase
             ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM schema1.table1');
-        $this->assertEquals(2, count($rows));
+        $this->assertCount(2, $rows);
         $table->truncate();
         $rows = $this->adapter->fetchAll('SELECT * FROM schema1.table1');
-        $this->assertEquals(0, count($rows));
+        $this->assertCount(0, $rows);
 
         $this->adapter->dropSchema('schema1');
     }

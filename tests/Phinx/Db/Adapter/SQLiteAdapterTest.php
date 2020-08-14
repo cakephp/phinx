@@ -153,8 +153,8 @@ class SQLiteAdapterTest extends TestCase
         //ensure the primary key is not nullable
         /** @var \Phinx\Db\Table\Column $idColumn */
         $idColumn = $this->adapter->getColumns('ntable')[0];
-        $this->assertEquals(true, $idColumn->getIdentity());
-        $this->assertEquals(false, $idColumn->isNull());
+        $this->assertTrue($idColumn->getIdentity());
+        $this->assertFalse($idColumn->isNull());
     }
 
     public function testCreateTableIdentityIdColumn()
@@ -168,7 +168,7 @@ class SQLiteAdapterTest extends TestCase
 
         /** @var \Phinx\Db\Table\Column $idColumn */
         $idColumn = $this->adapter->getColumns('ntable')[0];
-        $this->assertEquals(true, $idColumn->getIdentity());
+        $this->assertTrue($idColumn->getIdentity());
     }
 
     public function testCreateTableWithNoPrimaryKey()
@@ -854,7 +854,7 @@ class SQLiteAdapterTest extends TestCase
         $this->assertEquals(1, $rows[0]['column2']);
         $this->assertEquals(2, $rows[1]['column2']);
         $this->assertEquals(3, $rows[2]['column2']);
-        $this->assertEquals(null, $rows[3]['column2']);
+        $this->assertNull($rows[3]['column2']);
     }
 
     public function testInsertData()
@@ -895,7 +895,7 @@ class SQLiteAdapterTest extends TestCase
         $this->assertEquals(1, $rows[0]['column2']);
         $this->assertEquals(2, $rows[1]['column2']);
         $this->assertEquals(3, $rows[2]['column2']);
-        $this->assertEquals(null, $rows[3]['column2']);
+        $this->assertNull($rows[3]['column2']);
     }
 
     public function testBulkInsertDataEnum()
@@ -912,7 +912,7 @@ class SQLiteAdapterTest extends TestCase
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
 
         $this->assertEquals('a', $rows[0]['column1']);
-        $this->assertEquals(null, $rows[0]['column2']);
+        $this->assertNull($rows[0]['column2']);
         $this->assertEquals('c', $rows[0]['column3']);
     }
 
@@ -939,19 +939,19 @@ class SQLiteAdapterTest extends TestCase
         $dd = $columns[4];
 
         $this->assertEquals("aa", $aa->getName());
-        $this->assertEquals(true, $aa->isNull());
-        $this->assertEquals(null, $aa->getDefault());
+        $this->assertTrue($aa->isNull());
+        $this->assertNull($aa->getDefault());
 
         $this->assertEquals("bb", $bb->getName());
-        $this->assertEquals(false, $bb->isNull());
-        $this->assertEquals(null, $bb->getDefault());
+        $this->assertFalse($bb->isNull());
+        $this->assertNull($bb->getDefault());
 
         $this->assertEquals("cc", $cc->getName());
-        $this->assertEquals(true, $cc->isNull());
+        $this->assertTrue($cc->isNull());
         $this->assertEquals("some1", $cc->getDefault());
 
         $this->assertEquals("dd", $dd->getName());
-        $this->assertEquals(false, $dd->isNull());
+        $this->assertFalse($dd->isNull());
         $this->assertEquals("some2", $dd->getDefault());
     }
 

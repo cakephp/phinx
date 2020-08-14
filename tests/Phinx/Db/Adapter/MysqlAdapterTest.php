@@ -1049,7 +1049,7 @@ class MysqlAdapterTest extends TestCase
         $table->addColumn('column1', 'datetime')->save();
         $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
-        $this->assertEquals(null, $sqlType['limit']);
+        $this->assertNull($sqlType['limit']);
     }
 
     public function testDatetimeColumnLimit()
@@ -1969,7 +1969,7 @@ INPUT;
 
         $this->adapter->execute("INSERT INTO table1 (`geom`) VALUES (ST_GeomFromText('{$geom}', 4326))");
         $rows = $this->adapter->fetchAll('SELECT ST_AsWKT(geom) as wkt, ST_SRID(geom) as srid FROM table1');
-        $this->assertSame(1, count($rows));
+        $this->assertCount(1, $rows);
         $this->assertSame($geom, $rows[0]['wkt']);
         $this->assertSame('4326', $rows[0]['srid']);
     }
