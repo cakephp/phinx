@@ -20,7 +20,7 @@ services:
             - 3306:3306
 
     postgres:
-        image: postgres:9.2
+        image: postgres:9.4
         environment:
             - POSTGRES_DB=phinx_testing
         ports:
