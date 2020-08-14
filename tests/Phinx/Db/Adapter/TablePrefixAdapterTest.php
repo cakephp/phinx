@@ -32,7 +32,7 @@ class TablePrefixAdapterTest extends TestCase
      */
     private $mock;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $options = [
             'table_prefix' => 'pre_',
@@ -69,7 +69,7 @@ class TablePrefixAdapterTest extends TestCase
         $this->adapter = new TablePrefixAdapter($this->mock);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($this->adapter);
         unset($this->mock);

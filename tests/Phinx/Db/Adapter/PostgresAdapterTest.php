@@ -37,7 +37,7 @@ class PostgresAdapterTest extends TestCase
      */
     private $adapter;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         if (!defined('PGSQL_DB_CONFIG')) {
             $this->markTestSkipped('Postgres tests disabled.');
@@ -61,7 +61,7 @@ class PostgresAdapterTest extends TestCase
         $this->adapter->disconnect();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         if ($this->adapter) {
             $this->adapter->dropAllSchemas();

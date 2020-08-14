@@ -39,7 +39,7 @@ class CreateTest extends TestCase
      */
     protected $output;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         TestUtils::recursiveRmdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations');
         @mkdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations', 0777, true);

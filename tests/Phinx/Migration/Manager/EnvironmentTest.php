@@ -50,7 +50,7 @@ class EnvironmentTest extends TestCase
      */
     protected $environment;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->environment = new Environment('test', []);
     }
