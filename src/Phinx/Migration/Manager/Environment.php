@@ -80,8 +80,7 @@ class Environment
         $startTime = time();
         $migration->setAdapter($this->getAdapter());
         if (method_exists($migration, MigrationInterface::INIT)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $migration->init();
+            $migration->{MigrationInterface::INIT}();
         }
 
         if (!$fake) {
@@ -100,13 +99,11 @@ class Environment
                     $proxyAdapter = AdapterFactory::instance()
                         ->getWrapper('proxy', $this->getAdapter());
                     $migration->setAdapter($proxyAdapter);
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $migration->change();
+                    $migration->{MigrationInterface::CHANGE}();
                     $proxyAdapter->executeInvertedCommands();
                     $migration->setAdapter($this->getAdapter());
                 } else {
-                    /** @noinspection PhpUndefinedMethodInspection */
-                    $migration->change();
+                    $migration->{MigrationInterface::CHANGE}();
                 }
             } else {
                 $migration->{$direction}();
@@ -133,8 +130,7 @@ class Environment
     {
         $seed->setAdapter($this->getAdapter());
         if (method_exists($seed, SeedInterface::INIT)) {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $seed->init();
+            $seed->{SeedInterface::INIT}();
         }
 
         // begin the transaction if the adapter supports it
@@ -144,7 +140,7 @@ class Environment
 
         // Run the seeder
         if (method_exists($seed, SeedInterface::RUN)) {
-            $seed->run();
+            $seed->{SeedInterface::RUN}();
         }
 
         // commit the transaction if the adapter supports it
