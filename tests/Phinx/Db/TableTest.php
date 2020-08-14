@@ -161,12 +161,12 @@ class TableTest extends TestCase
         $this->assertEquals($expectedCreatedAtColumnName, $columns[0]->getName());
         $this->assertEquals('timestamp', $columns[0]->getType());
         $this->assertEquals('CURRENT_TIMESTAMP', $columns[0]->getDefault());
-        $this->assertEquals(true, $columns[0]->getTimezone());
+        $this->assertTrue($columns[0]->getTimezone());
         $this->assertEquals('', $columns[0]->getUpdate());
 
         $this->assertEquals($expectedUpdatedAtColumnName, $columns[1]->getName());
         $this->assertEquals('timestamp', $columns[1]->getType());
-        $this->assertEquals(true, $columns[1]->getTimezone());
+        $this->assertTrue($columns[1]->getTimezone());
         $this->assertEquals('CURRENT_TIMESTAMP', $columns[1]->getUpdate());
         $this->assertTrue($columns[1]->isNull());
         $this->assertNull($columns[1]->getDefault());
@@ -309,7 +309,7 @@ class TableTest extends TestCase
         $columns = ["column1"];
         $data = [["value1"]];
         $table->insert($columns, $data);
-        $this->assertEquals(true, $table->hasPendingActions());
+        $this->assertTrue($table->hasPendingActions());
     }
 
     public function testPendingAfterAddingColumn()
@@ -322,7 +322,7 @@ class TableTest extends TestCase
             ->willReturn(true);
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
         $table->addColumn("column1", "integer", ['null' => true]);
-        $this->assertEquals(true, $table->hasPendingActions());
+        $this->assertTrue($table->hasPendingActions());
     }
 
     public function testGetColumn()
