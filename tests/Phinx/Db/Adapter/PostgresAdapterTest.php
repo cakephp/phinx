@@ -2010,12 +2010,9 @@ OUTPUT;
         $this->adapter->setOutput($consoleOutput);
 
         $table = new \Phinx\Db\Table('schema1.table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
-
         $table->addColumn('column1', 'string')
             ->addColumn('column2', 'integer')
             ->save();
-
-        $expectedOutput = 'C';
 
         $table = new \Phinx\Db\Table('schema1.table1', [], $this->adapter);
         $table->insert([

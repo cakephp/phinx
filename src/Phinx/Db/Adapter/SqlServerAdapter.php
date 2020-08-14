@@ -1198,6 +1198,7 @@ ALTER DATABASE [$name] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
 DROP DATABASE [$name];
 SQL;
         $this->execute($sql);
+        $this->createdTables = [];
     }
 
     /**
