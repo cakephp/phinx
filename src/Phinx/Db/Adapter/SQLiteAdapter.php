@@ -454,7 +454,7 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      *
      * SQLiteAdapter does not implement this functionality, and so will always throw an exception if used.
      *
@@ -733,6 +733,26 @@ PCRE_PATTERN;
         foreach ($rows as $table) {
             if ($table['tbl_name'] === $tableName) {
                 $sql = $table['sql'];
+            }
+        }
+
+        return $sql;
+    }
+
+    /**
+     * Returns the original CREATE statement for the give index
+     *
+     * @param string $tableName The table name to get the create statement for
+     * @return string
+     */
+    protected function getDeclaringIndexSql($tableName, $indexName)
+    {
+        $rows = $this->fetchAll("SELECT * FROM sqlite_master WHERE `type` = 'index'");
+
+        $sql = '';
+        foreach ($rows as $table) {
+            if ($table['tbl_name'] === $tableName && $table['name'] === $indexName) {
+                $sql = $table['sql'] . '; ';
             }
         }
 
@@ -1284,9 +1304,28 @@ PCRE_PATTERN;
         $instructions = $this->beginAlterByCopyTable($table->getName());
 
         $tableName = $table->getName();
-        $instructions->addPostStep(function ($state) use ($foreignKey) {
+        $instructions->addPostStep(function ($state) use ($foreignKey, $tableName) {
             $this->execute('pragma foreign_keys = ON');
-            $sql = substr($state['createSQL'], 0, -1) . ',' . $this->getForeignKeySqlDefinition($foreignKey) . ')';
+            $sql = substr($state['createSQL'], 0, -1) . ',' . $this->getForeignKeySqlDefinition($foreignKey) . '); ';
+
+            //Delete indexes from original table and recreate them in temporary table
+            $schema = $this->getSchemaName($tableName, true)['schema'];
+            $tmpTableName = $state['tmpTableName'];
+            $indexes = $this->getIndexes($tableName);
+            foreach (array_keys($indexes) as $indexName) {
+                $sql .= sprintf(
+                    'DROP INDEX %s%s; ',
+                    $schema,
+                    $this->quoteColumnName($indexName)
+                );
+                $createIndexSQL = $this->getDeclaringIndexSQL($tableName, $indexName);
+                $sql .= preg_replace(
+                    "/\b${tableName}\b/",
+                    $tmpTableName,
+                    $createIndexSQL
+                );
+            }
+
             $this->execute($sql);
 
             return $state;
@@ -1304,7 +1343,7 @@ PCRE_PATTERN;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      *
      * SQLiteAdapter does not implement this functionality, and so will always throw an exception if used.
      *
@@ -1564,23 +1603,22 @@ PCRE_PATTERN;
         $def = '';
         if ($foreignKey->getConstraint()) {
             $def .= ' CONSTRAINT ' . $this->quoteColumnName($foreignKey->getConstraint());
-        } else {
-            $columnNames = [];
-            foreach ($foreignKey->getColumns() as $column) {
-                $columnNames[] = $this->quoteColumnName($column);
-            }
-            $def .= ' FOREIGN KEY (' . implode(',', $columnNames) . ')';
-            $refColumnNames = [];
-            foreach ($foreignKey->getReferencedColumns() as $column) {
-                $refColumnNames[] = $this->quoteColumnName($column);
-            }
-            $def .= ' REFERENCES ' . $this->quoteTableName($foreignKey->getReferencedTable()->getName()) . ' (' . implode(',', $refColumnNames) . ')';
-            if ($foreignKey->getOnDelete()) {
-                $def .= ' ON DELETE ' . $foreignKey->getOnDelete();
-            }
-            if ($foreignKey->getOnUpdate()) {
-                $def .= ' ON UPDATE ' . $foreignKey->getOnUpdate();
-            }
+        }
+        $columnNames = [];
+        foreach ($foreignKey->getColumns() as $column) {
+            $columnNames[] = $this->quoteColumnName($column);
+        }
+        $def .= ' FOREIGN KEY (' . implode(',', $columnNames) . ')';
+        $refColumnNames = [];
+        foreach ($foreignKey->getReferencedColumns() as $column) {
+            $refColumnNames[] = $this->quoteColumnName($column);
+        }
+        $def .= ' REFERENCES ' . $this->quoteTableName($foreignKey->getReferencedTable()->getName()) . ' (' . implode(',', $refColumnNames) . ')';
+        if ($foreignKey->getOnDelete()) {
+            $def .= ' ON DELETE ' . $foreignKey->getOnDelete();
+        }
+        if ($foreignKey->getOnUpdate()) {
+            $def .= ' ON UPDATE ' . $foreignKey->getOnUpdate();
         }
 
         return $def;

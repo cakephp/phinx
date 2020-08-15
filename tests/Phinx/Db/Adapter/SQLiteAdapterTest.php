@@ -282,6 +282,39 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
     }
 
+    public function testCreateTableWithIndexesAndForeignKey()
+    {
+        $refTable = new \Phinx\Db\Table('tbl_master', [], $this->adapter);
+        $refTable->create();
+
+        $table = new \Phinx\Db\Table('tbl_child', [], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer')
+            ->addColumn('column2', 'integer')
+            ->addColumn('master_id', 'integer')
+            ->addIndex(['column2'])
+            ->addIndex(['column1', 'column2'], ['unique' => true, 'name' => 'uq_tbl_child_column1_column2_ndx'])
+            ->addForeignKey(
+                'master_id',
+                'tbl_master',
+                'id',
+                ['delete' => 'NO_ACTION', 'update' => 'NO_ACTION', 'constraint' => 'fk_master_id']
+            )
+            ->create();
+
+        $this->assertTrue($this->adapter->hasIndex('tbl_child', 'column2'));
+        $this->assertTrue($this->adapter->hasIndex('tbl_child', ['column1', 'column2']));
+        $this->assertTrue($this->adapter->hasForeignKey('tbl_child', ['master_id']));
+
+        $row = $this->adapter->fetchRow(
+            "SELECT * FROM sqlite_master WHERE `type` = 'table' AND `tbl_name` = 'tbl_child'"
+        );
+        $this->assertRegExp(
+            '/CONSTRAINT `fk_master_id` FOREIGN KEY \(`master_id`\) REFERENCES `tbl_master` \(`id`\) ON DELETE NO ACTION ON UPDATE NO ACTION/',
+            $row['sql']
+        );
+    }
+
     public function testAddPrimaryKey()
     {
         $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
