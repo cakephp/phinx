@@ -13,7 +13,7 @@ class ProxyAdapterTest extends TestCase
      */
     private $adapter;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $stub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
             ->setConstructorArgs([[]])
@@ -27,7 +27,7 @@ class ProxyAdapterTest extends TestCase
         $this->adapter = new ProxyAdapter($stub);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($this->adapter);
     }

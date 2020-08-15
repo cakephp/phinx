@@ -20,7 +20,7 @@ class SqlServerAdapterTest extends TestCase
      */
     private $adapter;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         if (!defined('SQLSRV_DB_CONFIG')) {
             $this->markTestSkipped('SqlServer tests disabled.');
@@ -36,7 +36,7 @@ class SqlServerAdapterTest extends TestCase
         $this->adapter->disconnect();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         if (!empty($this->adapter)) {
             $this->adapter->disconnect();

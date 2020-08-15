@@ -16,13 +16,13 @@ class ConfigFileTest extends TestCase
 
     private $baseDir;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->previousDir = getcwd();
         $this->baseDir = realpath(__DIR__ . '/_rootDirectories');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         chdir($this->previousDir);
     }

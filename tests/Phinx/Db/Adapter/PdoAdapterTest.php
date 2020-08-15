@@ -38,12 +38,12 @@ class PdoAdapterTest extends TestCase
 {
     private $adapter;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->adapter = $this->getMockForAbstractClass('\Phinx\Db\Adapter\PdoAdapter', [['foo' => 'bar']]);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($this->adapter);
     }

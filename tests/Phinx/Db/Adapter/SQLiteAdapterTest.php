@@ -22,7 +22,7 @@ class SQLiteAdapterTest extends TestCase
      */
     private $adapter;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         if (!defined('SQLITE_DB_CONFIG')) {
             $this->markTestSkipped('SQLite tests disabled.');
@@ -40,7 +40,7 @@ class SQLiteAdapterTest extends TestCase
         $this->adapter->disconnect();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($this->adapter);
     }
