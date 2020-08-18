@@ -1273,6 +1273,8 @@ class MysqlAdapter extends PdoAdapter
      */
     protected function getColumnSqlDefinition(Column $column)
     {
+        $limit = null;
+
         if ($column->getType() instanceof Literal) {
             $def = (string)$column->getType();
         } else {
@@ -1282,7 +1284,8 @@ class MysqlAdapter extends PdoAdapter
         if ($column->getPrecision() && $column->getScale()) {
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         } elseif (isset($sqlType['limit'])) {
-            $def .= '(' . $sqlType['limit'] . ')';
+            $limit = $sqlType['limit'];
+            $def  .= '(' . $limit . ')';
         }
         if (($values = $column->getValues()) && is_array($values)) {
             $def .= "(" . implode(", ", array_map(function ($value) {
@@ -1312,7 +1315,7 @@ class MysqlAdapter extends PdoAdapter
         }
 
         $def .= $column->isIdentity() ? ' AUTO_INCREMENT' : '';
-        $def .= $this->getDefaultValueDefinition($column->getDefault(), $column->getType());
+        $def .= $this->getDefaultValueDefinition($column->getDefault(), $column->getType(), $limit);
 
         if ($column->getComment()) {
             $def .= ' COMMENT ' . $this->getConnection()->quote($column->getComment());

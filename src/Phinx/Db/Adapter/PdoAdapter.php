@@ -576,13 +576,20 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      *
      * @param mixed $default Default value
      * @param string|null $columnType column type added
+     * @param int|null $precision datetime/timestamp column default value limit/precision
      *
      * @return string
      */
-    protected function getDefaultValueDefinition($default, $columnType = null)
+    protected function getDefaultValueDefinition($default, $columnType = null, $precision = null)
     {
-        if (is_string($default) && $default !== 'CURRENT_TIMESTAMP') {
-            $default = $this->getConnection()->quote($default);
+        if (is_string($default)) {
+            if (str_starts_with($default, 'CURRENT_TIMESTAMP')) {
+                if ($precision !== null) {
+                    $default .= '(' . $precision . ')';
+                }
+            } else {
+                $default = $this->getConnection()->quote($default);
+            }
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
         } elseif ($default !== null && $columnType === static::PHINX_TYPE_BOOLEAN) {
