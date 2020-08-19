@@ -288,18 +288,17 @@ class Util
      * Attempt to remove the current working directory from a path for output.
      *
      * @param string $path Path to remove cwd prefix from
-     *
      * @return string
      */
     public static function relativePath($path)
     {
         $realpath = realpath($path);
-        if (false !== $realpath) {
+        if ($realpath !== false) {
             $path = $realpath;
         }
 
         $cwd = getcwd();
-        if (false !== $cwd) {
+        if ($cwd !== false) {
             $cwd .= DIRECTORY_SEPARATOR;
             $cwdLen = strlen($cwd);
 
