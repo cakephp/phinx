@@ -1174,14 +1174,15 @@ PCRE_PATTERN;
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @throws \InvalidArgumentException
+     * @inheritDoc
      */
     public function hasForeignKey($tableName, $columns, $constraint = null)
     {
         if ($constraint !== null) {
-            throw new InvalidArgumentException('SQLite does not support named constraints.');
+            return preg_match(
+                "/,?\sCONSTRAINT\s" . preg_quote($this->quoteColumnName($constraint)) . " FOREIGN KEY/",
+                $this->getDeclaringSql($tableName)
+            ) === 1;
         }
 
         $columns = array_map('strtolower', (array)$columns);

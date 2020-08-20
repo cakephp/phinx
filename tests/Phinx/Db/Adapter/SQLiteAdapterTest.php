@@ -1482,9 +1482,39 @@ INPUT;
     /** @covers \Phinx\Db\Adapter\SQLiteAdapter::hasForeignKey */
     public function testHasNamedForeignKey()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $refTable = new \Phinx\Db\Table('tbl_parent_1', [], $this->adapter);
+        $refTable->addColumn('column', 'string')->create();
 
-        $this->adapter->hasForeignKey('t', [], 'named_constraint');
+        $refTable = new \Phinx\Db\Table('tbl_parent_2', [], $this->adapter);
+        $refTable->create();
+
+        $refTable = new \Phinx\Db\Table('tbl_parent_3', [
+            'id' => false,
+            'primary_key' => ['id', 'column'],
+        ], $this->adapter);
+        $refTable->addColumn('id', 'integer')->addColumn('column', 'string')->create();
+
+        // use raw sql instead of table builder so that we can have check constraints
+        $this->adapter->execute("
+        CREATE TABLE `tbl_child` (
+            `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            `column` VARCHAR NOT NULL, `parent_1_id` INTEGER NOT NULL,
+            `parent_2_id` INTEGER NOT NULL,
+            `parent_3_id` INTEGER NOT NULL,
+            CONSTRAINT `fk_parent_1_id` FOREIGN KEY (`parent_1_id`) REFERENCES `tbl_parent_1` (`id`),
+            FOREIGN KEY (`parent_2_id`) REFERENCES `tbl_parent_2` (`id`),
+            CONSTRAINT `check_constraint_1` CHECK (column<>'world'),
+            CONSTRAINT `fk_composite_key` FOREIGN KEY (`parent_3_id`,`column`) REFERENCES `tbl_parent_3` (`id`,`column`)
+            CONSTRAINT `check_constraint_2` CHECK (column<>'hello')
+        )");
+
+        $this->assertTrue($this->adapter->hasForeignKey('tbl_child', [], 'fk_parent_1_id'));
+        $this->assertTrue($this->adapter->hasForeignKey('tbl_child', ['parent_1_id']));
+        $this->assertTrue($this->adapter->hasForeignKey('tbl_child', ['parent_2_id']));
+        $this->assertTrue($this->adapter->hasForeignKey('tbl_child', [], 'fk_composite_key'));
+        $this->assertTrue($this->adapter->hasForeignKey('tbl_child', ['parent_3_id', 'column']));
+        $this->assertFalse($this->adapter->hasForeignKey('tbl_child', [], 'check_constraint_1'));
+        $this->assertFalse($this->adapter->hasForeignKey('tbl_child', [], 'check_constraint_2'));
     }
 
     /**
