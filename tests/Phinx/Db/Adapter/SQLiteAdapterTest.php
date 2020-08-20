@@ -488,17 +488,9 @@ class SQLiteAdapterTest extends TestCase
         $table->addColumn('column1', 'string')
             ->save();
 
-        try {
-            $this->adapter->renameColumn('t', 'column2', 'column1');
-            $this->fail('Expected the adapter to throw an exception');
-        } catch (\InvalidArgumentException $e) {
-            $this->assertInstanceOf(
-                'InvalidArgumentException',
-                $e,
-                'Expected exception of type InvalidArgumentException, got ' . get_class($e)
-            );
-            $this->assertEquals('The specified column doesn\'t exist: column2', $e->getMessage());
-        }
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("The specified column doesn't exist: column2");
+        $this->adapter->renameColumn('t', 'column2', 'column1');
     }
 
     public function testChangeColumn()
