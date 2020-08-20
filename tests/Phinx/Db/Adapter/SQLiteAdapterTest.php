@@ -963,21 +963,21 @@ class SQLiteAdapterTest extends TestCase
         $cc = $columns[3];
         $dd = $columns[4];
 
-        $this->assertEquals("aa", $aa->getName());
+        $this->assertEquals('aa', $aa->getName());
         $this->assertTrue($aa->isNull());
         $this->assertNull($aa->getDefault());
 
-        $this->assertEquals("bb", $bb->getName());
+        $this->assertEquals('bb', $bb->getName());
         $this->assertFalse($bb->isNull());
         $this->assertNull($bb->getDefault());
 
-        $this->assertEquals("cc", $cc->getName());
+        $this->assertEquals('cc', $cc->getName());
         $this->assertTrue($cc->isNull());
-        $this->assertEquals("some1", $cc->getDefault());
+        $this->assertEquals('some1', $cc->getDefault());
 
-        $this->assertEquals("dd", $dd->getName());
+        $this->assertEquals('dd', $dd->getName());
         $this->assertFalse($dd->isNull());
-        $this->assertEquals("some2", $dd->getDefault());
+        $this->assertEquals('some2', $dd->getDefault());
     }
 
     public function testDumpCreateTable()
