@@ -1180,7 +1180,7 @@ PCRE_PATTERN;
     {
         if ($constraint !== null) {
             return preg_match(
-                "/,?\sCONSTRAINT\s" . preg_quote($this->quoteColumnName($constraint)) . " FOREIGN KEY/",
+                "/,?\sCONSTRAINT\s" . preg_quote($this->quoteColumnName($constraint)) . ' FOREIGN KEY/',
                 $this->getDeclaringSql($tableName)
             ) === 1;
         }
