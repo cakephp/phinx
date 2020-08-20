@@ -1287,7 +1287,7 @@ class PostgresAdapter extends PdoAdapter
             $this->createSchema($this->getGlobalSchemaName());
         }
 
-        $this->execute(sprintf('SET search_path TO %s,"$user",public', $this->quoteSchemaName($this->getGlobalSchemaName())));
+        $this->setSearchPath();
 
         parent::createSchemaTable();
     }
@@ -1297,7 +1297,8 @@ class PostgresAdapter extends PdoAdapter
      */
     public function getVersions()
     {
-        $this->execute(sprintf('SET search_path TO %s,"$user",public', $this->quoteSchemaName($this->getGlobalSchemaName())));
+        $this->setSearchPath();
+
         return parent::getVersions();
     }
 
@@ -1306,7 +1307,7 @@ class PostgresAdapter extends PdoAdapter
      */
     public function getVersionLog()
     {
-        $this->execute(sprintf('SET search_path TO %s,"$user",public', $this->quoteSchemaName($this->getGlobalSchemaName())));
+        $this->setSearchPath();
 
         return parent::getVersionLog();
     }
@@ -1487,5 +1488,20 @@ class PostgresAdapter extends PdoAdapter
         $driver->setConnection($this->connection);
 
         return new Connection(['driver' => $driver] + $options);
+    }
+
+    /**
+     * Sets search path of schemas to look through for a table
+     *
+     * @return void
+     */
+    public function setSearchPath()
+    {
+        $this->execute(
+            sprintf(
+                'SET search_path TO %s,"$user",public',
+                $this->quoteSchemaName($this->getGlobalSchemaName())
+            )
+        );
     }
 }
