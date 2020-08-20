@@ -11,7 +11,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class InitTest extends TestCase
 {
-    public function setUp(): void
+    protected function setUp(): void
     {
         foreach (['.yaml', '.yml', '.json', '.php'] as $format) {
             $file = sys_get_temp_dir() . '/phinx' . $format;

@@ -16,7 +16,7 @@ env:
   global:
     - CODECOVERAGE=1
   matrix:
-    - PGSQL_DSN='pgsql://postgres@127.0.0.1/phinx'
+    - PGSQL_DSN='pgsql://postgres@127.0.0.1/phinx' POSTGRES_TEST_SOCKETS=true
     - MYSQL_DSN='mysql://root@127.0.0.1/phinx' MYSQL_UNIX_SOCKET='/var/run/mysqld/mysqld.sock'
     - SQLITE_DSN='sqlite:///phinx'
 

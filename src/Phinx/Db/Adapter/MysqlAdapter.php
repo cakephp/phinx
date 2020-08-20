@@ -1261,6 +1261,7 @@ class MysqlAdapter extends PdoAdapter
     public function dropDatabase($name)
     {
         $this->execute(sprintf('DROP DATABASE IF EXISTS `%s`', $name));
+        $this->createdTables = [];
     }
 
     /**

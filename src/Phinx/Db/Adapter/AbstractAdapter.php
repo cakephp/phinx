@@ -365,6 +365,7 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     protected function addCreatedTable($tableName)
     {
+        $tableName = $this->quoteTableName($tableName);
         if (substr_compare($tableName, 'phinxlog', -strlen('phinxlog')) !== 0) {
             $this->createdTables[] = $tableName;
         }
@@ -380,6 +381,8 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     protected function updateCreatedTableName($tableName, $newTableName)
     {
+        $tableName = $this->quoteTableName($tableName);
+        $newTableName = $this->quoteTableName($newTableName);
         $key = array_search($tableName, $this->createdTables, true);
         if ($key !== false) {
             $this->createdTables[$key] = $newTableName;
@@ -395,6 +398,7 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     protected function removeCreatedTable($tableName)
     {
+        $tableName = $this->quoteTableName($tableName);
         $key = array_search($tableName, $this->createdTables, true);
         if ($key !== false) {
             unset($this->createdTables[$key]);
@@ -410,6 +414,8 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     protected function hasCreatedTable($tableName)
     {
+        $tableName = $this->quoteTableName($tableName);
+
         return in_array($tableName, $this->createdTables, true);
     }
 }

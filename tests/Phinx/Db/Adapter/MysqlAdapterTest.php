@@ -22,7 +22,7 @@ class MysqlAdapterTest extends TestCase
      */
     private $adapter;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         if (!defined('MYSQL_DB_CONFIG')) {
             $this->markTestSkipped('Mysql tests disabled.');
@@ -38,7 +38,7 @@ class MysqlAdapterTest extends TestCase
         $this->adapter->disconnect();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($this->adapter);
     }
@@ -1049,7 +1049,7 @@ class MysqlAdapterTest extends TestCase
         $table->addColumn('column1', 'datetime')->save();
         $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
-        $this->assertEquals(null, $sqlType['limit']);
+        $this->assertNull($sqlType['limit']);
     }
 
     public function testDatetimeColumnLimit()
@@ -1783,7 +1783,7 @@ OUTPUT;
         $this->assertStringContainsString($expectedOutput, trim($actualOutput), 'Passing the --dry-run option doesn\'t dump the insert to the output');
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
-        self::assertTrue($countQuery->execute());
+        $this->assertTrue($countQuery->execute());
         $res = $countQuery->fetchAll();
         $this->assertEquals(0, $res[0]['COUNT(*)']);
     }
@@ -1824,7 +1824,7 @@ OUTPUT;
         $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option doesn\'t dump the bulkinsert to the output');
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
-        self::assertTrue($countQuery->execute());
+        $this->assertTrue($countQuery->execute());
         $res = $countQuery->fetchAll();
         $this->assertEquals(0, $res[0]['COUNT(*)']);
     }
@@ -1969,7 +1969,7 @@ INPUT;
 
         $this->adapter->execute("INSERT INTO table1 (`geom`) VALUES (ST_GeomFromText('{$geom}', 4326))");
         $rows = $this->adapter->fetchAll('SELECT ST_AsWKT(geom) as wkt, ST_SRID(geom) as srid FROM table1');
-        $this->assertSame(1, count($rows));
+        $this->assertCount(1, $rows);
         $this->assertSame($geom, $rows[0]['wkt']);
         $this->assertSame('4326', $rows[0]['srid']);
     }
@@ -2005,11 +2005,10 @@ INPUT;
     public function testMysqlBlobsConstants()
     {
         $reflector = new \ReflectionClass(AdapterInterface::class);
-        $collection = new Collection($reflector->getConstants());
 
-        $validTypes = $collection->filter(function ($value, $constant) {
+        $validTypes = array_filter($reflector->getConstants(), function ($constant) {
             return substr($constant, 0, strlen('PHINX_TYPE_')) === 'PHINX_TYPE_';
-        })->toArray();
+        }, ARRAY_FILTER_USE_KEY);
 
         $this->assertTrue(in_array('tinyblob', $validTypes, true));
         $this->assertTrue(in_array('blob', $validTypes, true));

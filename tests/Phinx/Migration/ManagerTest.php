@@ -33,7 +33,7 @@ class ManagerTest extends TestCase
      */
     private $manager;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->config = new Config($this->getConfigArray());
         $this->input = new ArrayInput([]);
@@ -82,7 +82,7 @@ class ManagerTest extends TestCase
         return $config;
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->manager = null;
     }

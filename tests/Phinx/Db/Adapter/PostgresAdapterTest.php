@@ -37,7 +37,7 @@ class PostgresAdapterTest extends TestCase
      */
     private $adapter;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         if (!defined('PGSQL_DB_CONFIG')) {
             $this->markTestSkipped('Postgres tests disabled.');
@@ -61,7 +61,7 @@ class PostgresAdapterTest extends TestCase
         $this->adapter->disconnect();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         if ($this->adapter) {
             $this->adapter->dropAllSchemas();
@@ -108,6 +108,20 @@ class PostgresAdapterTest extends TestCase
             );
             $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
         }
+    }
+
+    public function testConnectionWithSocketConnection()
+    {
+        if (!getenv('POSTGRES_TEST_SOCKETS')) {
+            $this->markTestSkipped('Postgres socket connection skipped.');
+        }
+
+        $options = PGSQL_DB_CONFIG;
+        unset($options['host']);
+        $adapter = new PostgresAdapter($options, new ArrayInput([]), new NullOutput());
+        $adapter->connect();
+
+        $this->assertInstanceOf('\PDO', $this->adapter->getConnection());
     }
 
     public function testCreatingTheSchemaTableOnConnect()
@@ -1708,9 +1722,9 @@ class PostgresAdapterTest extends TestCase
             ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertSame(true, $rows[0]['column1']);
-        $this->assertSame(false, $rows[1]['column1']);
-        $this->assertSame(null, $rows[2]['column1']);
+        $this->assertTrue($rows[0]['column1']);
+        $this->assertFalse($rows[1]['column1']);
+        $this->assertNull($rows[2]['column1']);
     }
 
     public function testInsertData()
@@ -1757,9 +1771,9 @@ class PostgresAdapterTest extends TestCase
             ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
-        $this->assertSame(true, $rows[0]['column1']);
-        $this->assertSame(false, $rows[1]['column1']);
-        $this->assertSame(null, $rows[2]['column1']);
+        $this->assertTrue($rows[0]['column1']);
+        $this->assertFalse($rows[1]['column1']);
+        $this->assertNull($rows[2]['column1']);
     }
 
     public function testInsertDataWithSchema()
@@ -1834,10 +1848,10 @@ class PostgresAdapterTest extends TestCase
             ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM schema1.table1');
-        $this->assertEquals(2, count($rows));
+        $this->assertCount(2, $rows);
         $table->truncate();
         $rows = $this->adapter->fetchAll('SELECT * FROM schema1.table1');
-        $this->assertEquals(0, count($rows));
+        $this->assertCount(0, $rows);
 
         $this->adapter->dropSchema('schema1');
     }
@@ -1937,7 +1951,7 @@ OUTPUT;
         );
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
-        self::assertTrue($countQuery->execute());
+        $this->assertTrue($countQuery->execute());
         $res = $countQuery->fetchAll();
         $this->assertEquals(0, $res[0]['count']);
     }
@@ -1982,7 +1996,7 @@ OUTPUT;
         );
 
         $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1');
-        self::assertTrue($countQuery->execute());
+        $this->assertTrue($countQuery->execute());
         $res = $countQuery->fetchAll();
         $this->assertEquals(0, $res[0]['count']);
     }
@@ -1996,12 +2010,9 @@ OUTPUT;
         $this->adapter->setOutput($consoleOutput);
 
         $table = new \Phinx\Db\Table('schema1.table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
-
         $table->addColumn('column1', 'string')
             ->addColumn('column2', 'integer')
             ->save();
-
-        $expectedOutput = 'C';
 
         $table = new \Phinx\Db\Table('schema1.table1', [], $this->adapter);
         $table->insert([
@@ -2081,5 +2092,27 @@ OUTPUT;
             ->execute();
 
         $this->assertEquals(1, $stm->rowCount());
+    }
+
+    public function testRenameMixedCaseTableAndColumns()
+    {
+        $table = new \Phinx\Db\Table('OrganizationSettings', [], $this->adapter);
+        $table->addColumn('SettingType', 'string')
+            ->create();
+
+        $this->assertTrue($this->adapter->hasTable('OrganizationSettings'));
+        $this->assertTrue($this->adapter->hasColumn('OrganizationSettings', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('OrganizationSettings', 'SettingType'));
+        $this->assertFalse($this->adapter->hasColumn('OrganizationSettings', 'SettingTypeId'));
+
+        $table = new \Phinx\Db\Table('OrganizationSettings', [], $this->adapter);
+        $table
+            ->renameColumn('SettingType', 'SettingTypeId')
+            ->update();
+
+        $this->assertTrue($this->adapter->hasTable('OrganizationSettings'));
+        $this->assertTrue($this->adapter->hasColumn('OrganizationSettings', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('OrganizationSettings', 'SettingTypeId'));
+        $this->assertFalse($this->adapter->hasColumn('OrganizationSettings', 'SettingType'));
     }
 }

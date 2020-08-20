@@ -61,7 +61,11 @@ class PostgresAdapter extends PdoAdapter
 
             $options = $this->getOptions();
 
-            $dsn = $dsn = 'pgsql:host=' . $options['host'] . ';dbname=' . $options['name'];
+            $dsn = 'pgsql:dbname=' . $options['name'];
+
+            if (isset($options['host'])) {
+                $dsn .= ';host=' . $options['host'];
+            }
 
             // if custom port is specified use it
             if (isset($options['port'])) {
@@ -521,7 +525,7 @@ class PostgresAdapter extends PdoAdapter
         $instructions->addPostStep(
             sprintf(
                 'ALTER TABLE %s RENAME COLUMN %s TO %s',
-                $tableName,
+                $this->quoteTableName($tableName),
                 $this->quoteColumnName($columnName),
                 $this->quoteColumnName($newColumnName)
             )
@@ -1104,6 +1108,7 @@ class PostgresAdapter extends PdoAdapter
     {
         $this->disconnect();
         $this->execute(sprintf('DROP DATABASE IF EXISTS %s', $name));
+        $this->createdTables = [];
         $this->connect();
     }
 
@@ -1282,9 +1287,29 @@ class PostgresAdapter extends PdoAdapter
             $this->createSchema($this->getGlobalSchemaName());
         }
 
-        $this->fetchAll(sprintf('SET search_path TO %s', $this->quoteSchemaName($this->getGlobalSchemaName())));
+        $this->setSearchPath();
 
         parent::createSchemaTable();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getVersions()
+    {
+        $this->setSearchPath();
+
+        return parent::getVersions();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getVersionLog()
+    {
+        $this->setSearchPath();
+
+        return parent::getVersionLog();
     }
 
     /**
@@ -1332,6 +1357,12 @@ class PostgresAdapter extends PdoAdapter
     {
         $sql = sprintf('DROP SCHEMA IF EXISTS %s CASCADE', $this->quoteSchemaName($schemaName));
         $this->execute($sql);
+
+        foreach ($this->createdTables as $idx => $createdTable) {
+            if ($this->getSchemaName($createdTable)['schema'] === $this->quoteSchemaName($schemaName)) {
+                unset($this->createdTables[$idx]);
+            }
+        }
     }
 
     /**
@@ -1457,5 +1488,20 @@ class PostgresAdapter extends PdoAdapter
         $driver->setConnection($this->connection);
 
         return new Connection(['driver' => $driver] + $options);
+    }
+
+    /**
+     * Sets search path of schemas to look through for a table
+     *
+     * @return void
+     */
+    public function setSearchPath()
+    {
+        $this->execute(
+            sprintf(
+                'SET search_path TO %s,"$user",public',
+                $this->quoteSchemaName($this->getGlobalSchemaName())
+            )
+        );
     }
 }

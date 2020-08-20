@@ -19,10 +19,10 @@
         <env name="SQLSRV_DSN" value="sqlsrv://user:pass@localhost/test"/>
         -->
         <!-- MySQL
-        <env name="MYSQL_DSN" value="mysql://root@127.0.0.1/test"/>
+        <env name="MYSQL_DSN" value="mysql://root:root@127.0.0.1/phinx"/>
         -->
         <!-- PostgreSQL
-        <env name="PGSQL_DSN" value="pgsql://postgres@127.0.0.1/test"/>
+        <env name="PGSQL_DSN" value="pgsql://postgres:postgres@127.0.0.1/phinx"/>
         -->
         <!-- SQLite
         <env name="SQLITE_DSN" value="sqlite:///:memory:"/>
