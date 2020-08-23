@@ -262,6 +262,22 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
+    public function createSchema($name)
+    {
+        $this->getAdapter()->createSchema($name);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function dropSchema($name)
+    {
+        $this->getAdapter()->dropSchema($name);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function hasTable($tableName)
     {
         return $this->getAdapter()->hasTable($tableName);
