@@ -130,7 +130,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             }
             if (!$table->hasColumn('breakpoint')) {
                 $table
-                    ->addColumn('breakpoint', 'boolean', ['default' => false])
+                    ->addColumn('breakpoint', 'boolean', ['default' => false, 'null' => false])
                     ->save();
             }
         }
