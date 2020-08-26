@@ -1867,12 +1867,12 @@ class PostgresAdapterTest extends TestCase
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
 
         $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
-            ->addColumn('column3', 'string', ['default' => 'test'])
+            ->addColumn('column2', 'integer', ['null' => true])
+            ->addColumn('column3', 'string', ['default' => 'test', 'null' => false])
             ->save();
 
         $expectedOutput = 'CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
-        'NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+        'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
         '"table1_pkey" PRIMARY KEY ("id"));';
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString(
@@ -1893,12 +1893,12 @@ class PostgresAdapterTest extends TestCase
         $table = new \Phinx\Db\Table('schema1.table1', [], $this->adapter);
 
         $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
-            ->addColumn('column3', 'string', ['default' => 'test'])
+            ->addColumn('column2', 'integer', ['null' => true])
+            ->addColumn('column3', 'string', ['default' => 'test', 'null' => false])
             ->save();
 
         $expectedOutput = 'CREATE TABLE "schema1"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
-        'NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+        'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
         '"table1_pkey" PRIMARY KEY ("id"));';
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString(
@@ -2010,7 +2010,7 @@ OUTPUT;
         $this->adapter->setOutput($consoleOutput);
 
         $table = new \Phinx\Db\Table('schema1.table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
-        $table->addColumn('column1', 'string')
+        $table->addColumn('column1', 'string', ['null' => false])
             ->addColumn('column2', 'integer')
             ->save();
 
@@ -2021,7 +2021,7 @@ OUTPUT;
         ])->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE "schema1"."table1" ("column1" CHARACTER VARYING (255) NOT NULL, "column2" INTEGER NOT NULL, CONSTRAINT "table1_pkey" PRIMARY KEY ("column1"));
+CREATE TABLE "schema1"."table1" ("column1" CHARACTER VARYING (255) NOT NULL, "column2" INTEGER NULL, CONSTRAINT "table1_pkey" PRIMARY KEY ("column1"));
 INSERT INTO "schema1"."table1" ("column1", "column2") VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();

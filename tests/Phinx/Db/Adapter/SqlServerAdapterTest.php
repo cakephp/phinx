@@ -489,7 +489,7 @@ WHERE t.name='ntable'");
     public function testChangeColumnNameAndNull()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
-        $table->addColumn('column1', 'string')
+        $table->addColumn('column1', 'string', ['null' => false])
             ->save();
         $newColumn2 = new \Phinx\Db\Table\Column();
         $newColumn2->setName('column2')
@@ -953,7 +953,7 @@ WHERE t.name='ntable'");
 
         $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
 
-        $table->addColumn('column1', 'string')
+        $table->addColumn('column1', 'string', ['null' => false])
             ->addColumn('column2', 'integer')
             ->save();
 
@@ -966,7 +966,7 @@ WHERE t.name='ntable'");
         ])->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE [table1] ([column1] NVARCHAR (255)   NOT NULL , [column2] INT   NOT NULL , CONSTRAINT PK_table1 PRIMARY KEY ([column1]));
+CREATE TABLE [table1] ([column1] NVARCHAR (255)   NOT NULL , [column2] INT   NULL , CONSTRAINT PK_table1 PRIMARY KEY ([column1]));
 INSERT INTO [table1] ([column1], [column2]) VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = str_replace("\r\n", "\n", $consoleOutput->fetch());
