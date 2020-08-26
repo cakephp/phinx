@@ -544,16 +544,17 @@ class Table
         $updatedAt = $updatedAt === null ? 'updated_at' : $updatedAt;
 
         $this->addColumn($createdAt, 'timestamp', [
-                   'default' => 'CURRENT_TIMESTAMP',
-                   'update' => '',
-                   'timezone' => $withTimezone,
-             ])
-             ->addColumn($updatedAt, 'timestamp', [
-                 'null' => true,
-                 'default' => null,
-                 'update' => 'CURRENT_TIMESTAMP',
-                 'timezone' => $withTimezone,
-             ]);
+                'null' => false,
+                'default' => 'CURRENT_TIMESTAMP',
+                'update' => '',
+                'timezone' => $withTimezone,
+            ])
+            ->addColumn($updatedAt, 'timestamp', [
+                'null' => true,
+                'default' => null,
+                'update' => 'CURRENT_TIMESTAMP',
+                'timezone' => $withTimezone,
+            ]);
 
         return $this;
     }

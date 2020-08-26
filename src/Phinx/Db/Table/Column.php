@@ -72,7 +72,7 @@ class Column
     /**
      * @var bool
      */
-    protected $null = false;
+    protected $null = true;
 
     /**
      * @var mixed|null
@@ -779,6 +779,10 @@ class Column
     {
         $validOptions = $this->getValidOptions();
         $aliasOptions = $this->getAliasedOptions();
+
+        if (isset($options['identity']) && $options['identity'] && !isset($options['null'])) {
+            $options['null'] = false;
+        }
 
         foreach ($options as $option => $value) {
             if (isset($aliasOptions[$option])) {

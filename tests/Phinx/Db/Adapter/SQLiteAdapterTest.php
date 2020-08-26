@@ -990,13 +990,13 @@ class SQLiteAdapterTest extends TestCase
 
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
 
-        $table->addColumn('column1', 'string')
+        $table->addColumn('column1', 'string', ['null' => false])
             ->addColumn('column2', 'integer')
             ->addColumn('column3', 'string', ['default' => 'test'])
             ->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR NOT NULL, `column2` INTEGER NOT NULL, `column3` VARCHAR NOT NULL DEFAULT 'test');
+CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR NOT NULL, `column2` INTEGER NULL, `column3` VARCHAR NULL DEFAULT 'test');
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
@@ -1098,7 +1098,7 @@ OUTPUT;
 
         $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
 
-        $table->addColumn('column1', 'string')
+        $table->addColumn('column1', 'string', ['null' => false])
             ->addColumn('column2', 'integer')
             ->save();
 
@@ -1111,7 +1111,7 @@ OUTPUT;
         ])->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`column1` VARCHAR NOT NULL, `column2` INTEGER NOT NULL, PRIMARY KEY (`column1`));
+CREATE TABLE `table1` (`column1` VARCHAR NOT NULL, `column2` INTEGER NULL, PRIMARY KEY (`column1`));
 INSERT INTO `table1` (`column1`, `column2`) VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
@@ -1172,14 +1172,14 @@ OUTPUT;
 
         $table->addColumn('string_col', 'string', ['default' => '']);
         $table->addColumn('string_col_2', 'string', ['null' => true]);
-        $table->addColumn('string_col_3', 'string');
+        $table->addColumn('string_col_3', 'string', ['null' => false]);
         $table->addTimestamps();
         $table->save();
 
         $columns = $this->adapter->getColumns('table1');
         $expected = [
             ['name' => 'id', 'type' => 'integer', 'default' => null, 'null' => false],
-            ['name' => 'string_col', 'type' => 'string', 'default' => '', 'null' => false],
+            ['name' => 'string_col', 'type' => 'string', 'default' => '', 'null' => true],
             ['name' => 'string_col_2', 'type' => 'string', 'default' => null, 'null' => true],
             ['name' => 'string_col_3', 'type' => 'string', 'default' => null, 'null' => false],
             ['name' => 'created_at', 'type' => 'timestamp', 'default' => 'CURRENT_TIMESTAMP', 'null' => false],
