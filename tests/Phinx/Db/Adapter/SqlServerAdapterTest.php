@@ -226,8 +226,8 @@ WHERE t.name='ntable'");
             'primary_key' => ['user_id', 'tag_id'],
         ];
         $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
-        $table->addColumn('user_id', 'integer')
-              ->addColumn('tag_id', 'integer')
+        $table->addColumn('user_id', 'integer', ['null' => false])
+              ->addColumn('tag_id', 'integer', ['null' => false])
               ->save();
         $this->assertTrue($this->adapter->hasIndex('table1', ['user_id', 'tag_id']));
         $this->assertTrue($this->adapter->hasIndex('table1', ['tag_id', 'USER_ID']));
@@ -241,7 +241,7 @@ WHERE t.name='ntable'");
             'primary_key' => 'id',
         ];
         $table = new \Phinx\Db\Table('ztable', $options, $this->adapter);
-        $table->addColumn('id', 'uuid')->save();
+        $table->addColumn('id', 'uuid', ['null' => false])->save();
         $table->addColumn('user_id', 'integer')->save();
         $this->assertTrue($this->adapter->hasColumn('ztable', 'id'));
         $this->assertTrue($this->adapter->hasIndex('ztable', 'id'));
@@ -255,7 +255,7 @@ WHERE t.name='ntable'");
             'primary_key' => 'id',
         ];
         $table = new \Phinx\Db\Table('ztable', $options, $this->adapter);
-        $table->addColumn('id', 'binaryuuid')->save();
+        $table->addColumn('id', 'binaryuuid', ['null' => false])->save();
         $table->addColumn('user_id', 'integer')->save();
         $this->assertTrue($this->adapter->hasColumn('ztable', 'id'));
         $this->assertTrue($this->adapter->hasIndex('ztable', 'id'));
@@ -301,7 +301,7 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
         $table
-            ->addColumn('column1', 'integer')
+            ->addColumn('column1', 'integer', ['null' => false])
             ->save();
 
         $table
@@ -315,9 +315,9 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
         $table
-            ->addColumn('column1', 'integer')
-            ->addColumn('column2', 'integer')
-            ->addColumn('column3', 'integer')
+            ->addColumn('column1', 'integer', ['null' => false])
+            ->addColumn('column2', 'integer', ['null' => false])
+            ->addColumn('column3', 'integer', ['null' => false])
             ->save();
 
         $table
@@ -332,7 +332,7 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
         $table
-            ->addColumn('column1', 'integer')
+            ->addColumn('column1', 'integer', ['null' => false])
             ->save();
 
         $table
@@ -966,7 +966,7 @@ WHERE t.name='ntable'");
         ])->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE [table1] ([column1] NVARCHAR (255)   NOT NULL , [column2] INT   NULL , CONSTRAINT PK_table1 PRIMARY KEY ([column1]));
+CREATE TABLE [table1] ([column1] NVARCHAR (255)   NOT NULL , [column2] INT   NULL  DEFAULT NULL, CONSTRAINT PK_table1 PRIMARY KEY ([column1]));
 INSERT INTO [table1] ([column1], [column2]) VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = str_replace("\r\n", "\n", $consoleOutput->fetch());
