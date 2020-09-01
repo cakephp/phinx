@@ -478,7 +478,7 @@ Option     Description
 comment    set a text comment on the table
 row_format set the table row format
 engine     define table engine *(defaults to ``InnoDB``)*
-collation  define table collation *(defaults to ``utf8_general_ci``)*
+collation  define table collation *(defaults to ``utf8mb4_unicode_ci``)*
 signed     whether the primary key is ``signed``  *(defaults to ``true``)*
 ========== ===========
 
@@ -924,7 +924,11 @@ third argument array.
 Limit Option and MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
 
-When using the MySQL adapter, additional hinting of database column type can be
+When using the MySQL adapter, there are a couple things to consider when working with limits:
+
+- When using a ``string`` primary key or index on MySQL 5.7 or below and the default charset of ``utf8mb4_unicode_ci``, you
+must specify a limit less than or equal to 191, or use a different charset.
+- Additional hinting of database column type can be
 made for ``integer``, ``text``, ``blob``, ``tinyblob``, ``mediumblob``, ``longblob`` columns. Using ``limit`` with
 one the following options will modify the column type accordingly:
 

@@ -141,7 +141,7 @@ class MysqlAdapterTest extends TestCase
     {
         $sql = "CREATE TABLE `discouraged.naming.convention`
                 (id INT(11) NOT NULL)
-                ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci";
+                ENGINE = InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
         $this->adapter->execute($sql);
         $this->assertTrue($this->adapter->hasTable('discouraged.naming.convention'));
     }
@@ -348,7 +348,7 @@ class MysqlAdapterTest extends TestCase
     public function testCreateTableWithUniqueIndexes()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-        $table->addColumn('email', 'string')
+        $table->addColumn('email', 'string', ['limit' => 191])
               ->addIndex('email', ['unique' => true])
               ->save();
         $this->assertTrue($this->adapter->hasIndex('table1', ['email']));
@@ -394,8 +394,8 @@ class MysqlAdapterTest extends TestCase
     public function testCreateTableAndInheritDefaultCollation()
     {
         $options = MYSQL_DB_CONFIG + [
-            'charset' => 'utf8',
-            'collation' => 'utf8_unicode_ci',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
         ];
         $adapter = new MysqlAdapter($options, new ArrayInput([]), new NullOutput());
 
@@ -409,7 +409,7 @@ class MysqlAdapterTest extends TestCase
               ->save();
         $this->assertTrue($adapter->hasTable('table_with_default_collation'));
         $row = $adapter->fetchRow(sprintf("SHOW TABLE STATUS WHERE Name = '%s'", 'table_with_default_collation'));
-        $this->assertEquals('utf8_unicode_ci', $row['Collation']);
+        $this->assertEquals('utf8mb4_unicode_ci', $row['Collation']);
     }
 
     public function testCreateTableWithLatin1Collate()
@@ -742,14 +742,14 @@ class MysqlAdapterTest extends TestCase
 
     public function testAddStringColumnWithCustomCollation()
     {
-        $table = new \Phinx\Db\Table('table_custom_collation', ['collation' => 'utf8_general_ci'], $this->adapter);
+        $table = new \Phinx\Db\Table('table_custom_collation', ['collation' => 'utf8mb4_unicode_ci'], $this->adapter);
         $table->save();
         $this->assertFalse($table->hasColumn('string_collation_default'));
         $this->assertFalse($table->hasColumn('string_collation_custom'));
         $table->addColumn('string_collation_default', 'string', [])->save();
         $table->addColumn('string_collation_custom', 'string', ['collation' => 'utf8mb4_unicode_ci'])->save();
         $rows = $this->adapter->fetchAll('SHOW FULL COLUMNS FROM table_custom_collation');
-        $this->assertEquals('utf8_general_ci', $rows[1]['Collation']);
+        $this->assertEquals('utf8mb4_unicode_ci', $rows[1]['Collation']);
         $this->assertEquals('utf8mb4_unicode_ci', $rows[2]['Collation']);
     }
 
@@ -1733,7 +1733,7 @@ class MysqlAdapterTest extends TestCase
             ->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`id` INT(11) NOT NULL AUTO_INCREMENT, `column1` VARCHAR(255) NOT NULL, `column2` INT(11) NOT NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test', PRIMARY KEY (`id`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE TABLE `table1` (`id` INT(11) NOT NULL AUTO_INCREMENT, `column1` VARCHAR(255) NOT NULL, `column2` INT(11) NOT NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test', PRIMARY KEY (`id`)) ENGINE = InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
@@ -1850,7 +1850,7 @@ OUTPUT;
         ])->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`column1` VARCHAR(255) NOT NULL, `column2` INT(11) NOT NULL, PRIMARY KEY (`column1`)) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE TABLE `table1` (`column1` VARCHAR(255) NOT NULL, `column2` INT(11) NOT NULL, PRIMARY KEY (`column1`)) ENGINE = InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 INSERT INTO `table1` (`column1`, `column2`) VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();

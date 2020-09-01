@@ -482,7 +482,7 @@ Option    Description
 ========= ===========
 comment   set a text comment on the table
 engine    define table engine *(defaults to `InnoDB`)*
-collation define table collation *(defaults to `utf8_general_ci`)*
+collation define table collation *(defaults to `utf8mb4_unicode_ci`)*
 signed    whether the primary key is ``signed``
 ========= ===========
 

@@ -157,8 +157,8 @@ Phinx の主な機能の1つは、複数のデータベース環境をサポー�
             user: root
             pass: ''
             port: 3306
-            charset: utf8
-            collation: utf8_unicode_ci
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
 
 上記は ``production`` と呼ばれる新しい環境を定義します。
 
