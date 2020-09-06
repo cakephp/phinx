@@ -204,15 +204,6 @@ interface AdapterInterface
     public function unsetBreakpoint(MigrationInterface $migration);
 
     /**
-     * Does the schema table exist?
-     *
-     * @deprecated use hasTable instead.
-     *
-     * @return bool
-     */
-    public function hasSchemaTable();
-
-    /**
      * Creates the schema table.
      *
      * @return void

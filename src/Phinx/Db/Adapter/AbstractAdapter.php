@@ -289,14 +289,6 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @inheritdoc
-     */
-    public function hasSchemaTable()
-    {
-        return $this->hasTable($this->getSchemaTableName());
-    }
-
-    /**
      * @inheritDoc
      *
      * @throws \InvalidArgumentException
