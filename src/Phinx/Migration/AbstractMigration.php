@@ -233,19 +233,6 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
-    public function insert($table, $data)
-    {
-        trigger_error('insert() is deprecated since 0.10.0. Use $this->table($tableName)->insert($data)->save() instead.', E_USER_DEPRECATED);
-        // convert to table object
-        if (is_string($table)) {
-            $table = new Table($table, [], $this->getAdapter());
-        }
-        $table->insert($data)->save();
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function createDatabase($name, $options)
     {
         $this->getAdapter()->createDatabase($name, $options);
