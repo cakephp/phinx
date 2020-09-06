@@ -187,18 +187,6 @@ interface MigrationInterface
     public function fetchAll($sql);
 
     /**
-     * Insert data into a table.
-     *
-     * @deprecated since 0.10.0. Use $this->table($tableName)->insert($data)->save() instead.
-     *
-     * @param string $tableName Table name
-     * @param array $data Data
-     *
-     * @return void
-     */
-    public function insert($tableName, $data);
-
-    /**
      * Create a new database.
      *
      * @param string $name Database Name
