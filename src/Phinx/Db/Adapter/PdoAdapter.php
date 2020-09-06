@@ -115,7 +115,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
         $this->connection = $connection;
 
         // Create the schema table if it doesn't already exist
-        if (!$this->hasSchemaTable()) {
+        if (!$this->hasTable($this->getSchemaTableName())) {
             $this->createSchemaTable();
         } else {
             $table = new DbTable($this->getSchemaTableName(), [], $this);

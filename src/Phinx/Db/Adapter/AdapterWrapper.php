@@ -263,14 +263,6 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * @inheritDoc
      */
-    public function hasSchemaTable()
-    {
-        return $this->getAdapter()->hasSchemaTable();
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function createSchemaTable()
     {
         $this->getAdapter()->createSchemaTable();
