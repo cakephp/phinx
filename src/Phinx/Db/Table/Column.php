@@ -637,21 +637,10 @@ class Column
      *
      * @param string $collation Collation
      *
-     * @throws \UnexpectedValueException If collation not allowed for type
-     *
      * @return $this
      */
     public function setCollation($collation)
     {
-        $allowedTypes = [
-            AdapterInterface::PHINX_TYPE_CHAR,
-            AdapterInterface::PHINX_TYPE_STRING,
-            AdapterInterface::PHINX_TYPE_TEXT,
-        ];
-        if (!in_array($this->getType(), $allowedTypes, true)) {
-            throw new UnexpectedValueException('Collation may be set only for types: ' . implode(', ', $allowedTypes));
-        }
-
         $this->collation = $collation;
 
         return $this;
@@ -672,21 +661,10 @@ class Column
      *
      * @param string $encoding Encoding
      *
-     * @throws \UnexpectedValueException If character set not allowed for type
-     *
      * @return $this
      */
     public function setEncoding($encoding)
     {
-        $allowedTypes = [
-            AdapterInterface::PHINX_TYPE_CHAR,
-            AdapterInterface::PHINX_TYPE_STRING,
-            AdapterInterface::PHINX_TYPE_TEXT,
-        ];
-        if (!in_array($this->getType(), $allowedTypes, true)) {
-            throw new UnexpectedValueException('Character set may be set only for types: ' . implode(', ', $allowedTypes));
-        }
-
         $this->encoding = $encoding;
 
         return $this;
