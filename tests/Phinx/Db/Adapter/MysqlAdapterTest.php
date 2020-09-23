@@ -2018,8 +2018,8 @@ INPUT;
 
     public function testCreateTableWithPrecisionCurrentTimestamp()
     {
-        $tableComment = 'Table comment';
-        $this->table('exampleCurrentTimestamp3', ['id' => false,])
+        $this->adapter->connect();
+        (new \Phinx\Db\Table('exampleCurrentTimestamp3', ['id' => false,], $this->adapter))
             ->addColumn('timestamp_3', 'timestamp', [
                 'null' => false,
                 'default' => 'CURRENT_TIMESTAMP(3)',
@@ -2032,6 +2032,6 @@ INPUT;
             MYSQL_DB_CONFIG['name']
         ));
         $colDef = $rows[0];
-        $this->assertEquals($tableComment, $colDef['COLUMN_DEFAULT'], 'CURRENT_TIMESTAMP(3)');
+        $this->assertEquals('CURRENT_TIMESTAMP(3)', $colDef['COLUMN_DEFAULT']);
     }
 }
