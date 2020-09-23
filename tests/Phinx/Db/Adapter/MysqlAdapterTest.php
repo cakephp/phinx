@@ -2019,7 +2019,7 @@ INPUT;
     public function testCreateTableWithPrecisionCurrentTimestamp()
     {
         $this->adapter->connect();
-        (new \Phinx\Db\Table('exampleCurrentTimestamp3', ['id' => false,], $this->adapter))
+        (new \Phinx\Db\Table('exampleCurrentTimestamp3', ['id' => false], $this->adapter))
             ->addColumn('timestamp_3', 'timestamp', [
                 'null' => false,
                 'default' => 'CURRENT_TIMESTAMP(3)',
