@@ -2015,4 +2015,23 @@ INPUT;
         $this->assertTrue(in_array('mediumblob', $validTypes, true));
         $this->assertTrue(in_array('longblob', $validTypes, true));
     }
+
+    public function testCreateTableWithPrecisionCurrentTimestamp()
+    {
+        $tableComment = 'Table comment';
+        $this->table('exampleCurrentTimestamp3', ['id' => false,])
+            ->addColumn('timestamp_3', 'timestamp', [
+                'null' => false,
+                'default' => 'CURRENT_TIMESTAMP(3)',
+                'limit' => 3
+            ])
+            ->create();
+
+        $rows = $this->adapter->fetchAll(sprintf(
+            "SELECT COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='exampleCurrentTimestamp3'",
+            MYSQL_DB_CONFIG['name']
+        ));
+        $colDef = $rows[0];
+        $this->assertEquals($tableComment, $colDef['COLUMN_DEFAULT'], 'CURRENT_TIMESTAMP(3)');
+    }
 }
