@@ -2023,7 +2023,7 @@ INPUT;
             ->addColumn('timestamp_3', 'timestamp', [
                 'null' => false,
                 'default' => 'CURRENT_TIMESTAMP(3)',
-                'limit' => 3
+                'limit' => 3,
             ])
             ->create();
 
