@@ -1267,19 +1267,22 @@ SQL;
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
     {
+            $columnNames = $index->getColumns();
         if (is_string($index->getName())) {
             $indexName = $index->getName();
         } else {
-            $columnNames = $index->getColumns();
             $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         }
-
+                        $order = $index->getOrder();
+                        foreach ($order as $key => $value) {
+                                $loc = array_search($key,$columnNames);
+                                $columnNames[$loc] = sprintf('[%s] %s',$key,$value);
+                        }
         return sprintf(
             'CREATE %s INDEX %s ON %s (%s);',
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
-            $this->quoteTableName($tableName),
-            '[' . implode('],[', $index->getColumns()) . ']'
+            $this->quoteTableName($tableName), implode(',', $index->getColumns())
         );
     }
 

@@ -153,8 +153,8 @@ class Index
      */
     public function setOptions($options)
     {
-        // Valid Options
-        $validOptions = ['type', 'unique', 'name', 'limit'];
+	// Valid Options
+        $validOptions = ['type', 'unique', 'name', 'limit', 'order'];
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions, true)) {
                 throw new RuntimeException(sprintf('"%s" is not a valid index option.', $option));

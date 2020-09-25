@@ -22,6 +22,11 @@ RUN docker-php-ext-install \
 # composer
 RUN curl -sS https://getcomposer.org/installer | php && \
 	  mv composer.phar /usr/local/bin/composer
+
+#xdebug
+RUN pecl install xdebug
+RUN echo zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20170718/xdebug.so >> `php --ini | grep "Scan for additional .ini files" | sed -e "s|.*:\s*||"`/ext-xdebug.ini
+
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 WORKDIR /src
