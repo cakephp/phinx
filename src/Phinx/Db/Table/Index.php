@@ -151,7 +151,7 @@ class Index
 	/**
 	 * Sets the index limit.
 	 *
-	 * @param string[] $order 
+	 * @param string[] $order column name sort order key value pair 
 	 * @return $this 
 	 */
 	public function setOrder($order)
