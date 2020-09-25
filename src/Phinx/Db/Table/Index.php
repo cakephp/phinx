@@ -151,7 +151,7 @@ class Index
 	/**
 	 * Sets the index limit.
 	 *
-	 * @param string[] $order key=>value
+	 * @param string[] $order 
 	 * @return \Phinx\Db\Table\Index
 	 */
 	public function setOrder($order)
