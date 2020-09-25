@@ -204,4 +204,4 @@ class Index
 
 		return $this;
 	}
-}
+
