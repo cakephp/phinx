@@ -152,7 +152,7 @@ class Index
 	 * Sets the index limit.
 	 *
 	 * @param string[] $order 
-	 * @return \Phinx\Db\Table\Index
+	 * @return $this 
 	 */
 	public function setOrder($order)
 	{
@@ -164,7 +164,7 @@ class Index
 	/**
 	 * Gets the index columns sort order.
 	 *
-	 * @return string []
+	 * @return string[]
 	 */
 	public function getOrder()
 	{
