@@ -46,6 +46,12 @@ class Index
 	 */
 	protected $limit;
 
+	        /**
+         * @var string[]
+         */
+        protected $order;
+
+
 	/**
 	 * Sets the index columns.
 	 *
@@ -145,7 +151,7 @@ class Index
 	/**
 	 * Sets the index limit.
 	 *
-	 * @param string|array $order order value or array of order value
+	 * @param string [] $column => $order. key => value
 	 * @return \Phinx\Db\Table\Index
 	 */
 	public function setOrder($order)
@@ -158,7 +164,7 @@ class Index
 	/**
 	 * Gets the index columns sort order.
 	 *
-	 * @return string|array
+	 * @return string []
 	 */
 	public function getOrder()
 	{
