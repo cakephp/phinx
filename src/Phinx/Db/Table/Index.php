@@ -46,10 +46,10 @@ class Index
 	 */
 	protected $limit;
 
-	        /**
-         * @var string[]
-         */
-        protected $order;
+	/**
+	 * @var string[]
+	 */
+	protected $order;
 
 
 	/**

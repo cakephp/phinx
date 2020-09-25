@@ -630,14 +630,14 @@ class SqlServerAdapterTest extends TestCase
 			WHERE   t.name = 'table1' AND c.name = 'email'");
 		$emailOrder = $rows[0];       
 		$this->assertEquals($emailOrder['sort_order'], 'DESC');
-		                $rows = $this->adapter->fetchAll("SELECT case when ic.is_descending_key = 1 then 'DESC' else 'ASC' end AS sort_order
-                        FROM   sys.indexes AS i
-                        INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
-                        INNER JOIN sys.tables AS t ON i.object_id=t.object_id
-                        INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
-                        WHERE   t.name = 'table1' AND c.name = 'username'");
-                $emailOrder = $rows[0];
-                $this->assertEquals($emailOrder['sort_order'], 'ASC');
+		$rows = $this->adapter->fetchAll("SELECT case when ic.is_descending_key = 1 then 'DESC' else 'ASC' end AS sort_order
+			FROM   sys.indexes AS i
+			INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+			INNER JOIN sys.tables AS t ON i.object_id=t.object_id
+			INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
+			WHERE   t.name = 'table1' AND c.name = 'username'");
+		$emailOrder = $rows[0];
+		$this->assertEquals($emailOrder['sort_order'], 'ASC');
 
 	}
 
