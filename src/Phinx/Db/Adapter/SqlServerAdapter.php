@@ -1244,7 +1244,7 @@ SQL;
 		} else {
 			$indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
 		}
-		$order = $index->getOrder()
+		$order = $index->getOrder();
 			if(!empty($order)){
 				foreach ($order as $key => $value) {
 					$loc = array_search($key, $columnNames);
