@@ -617,7 +617,7 @@ class SqlServerAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
-        $table->addColumn('username', 'string')
+        ->addColumn('username', 'string')
         ->save();
         $this->assertFalse($table->hasIndex('email'));
         $table->addIndex(['email', 'username'], ['order' => ['email' => 'DESC', 'username' => 'ASC']])
