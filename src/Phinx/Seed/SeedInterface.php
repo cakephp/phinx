@@ -100,11 +100,16 @@ interface SeedInterface
     public function execute($sql);
 
     /**
-     * Executes a SQL statement and returns the result as an array.
+     * Executes a SQL statement.
+     *
+     * The return type depends on the underlying adapter being used. To improve
+     * IDE auto-completion possibility, you can overwrite the query method
+     * phpDoc in your (typically custom abstract parent) seed class, where
+     * you can set the return type by the adapter in your current use.
      *
      * @param string $sql SQL
      *
-     * @return array
+     * @return mixed
      */
     public function query($sql);
 
