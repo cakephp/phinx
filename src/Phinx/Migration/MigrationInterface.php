@@ -206,6 +206,28 @@ interface MigrationInterface
     public function dropDatabase($name);
 
     /**
+     * Creates schema.
+     *
+     * This will thrown an error for adapters that do not support schemas.
+     *
+     * @param string $name Schema name
+     * @return void
+     * @throws \BadMethodCallException
+     */
+    public function createSchema($name);
+
+    /**
+     * Drops schema.
+     *
+     * This will thrown an error for adapters that do not support schemas.
+     *
+     * @param string $name Schema name
+     * @return void
+     * @throws \BadMethodCallException
+     */
+    public function dropSchema($name);
+
+    /**
      * Checks to see if a table exists.
      *
      * @param string $tableName Table name

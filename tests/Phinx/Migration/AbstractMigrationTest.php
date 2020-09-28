@@ -192,6 +192,40 @@ class AbstractMigrationTest extends TestCase
         $migrationStub->dropDatabase('testdb');
     }
 
+    public function testCreateSchema()
+    {
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
+
+        // stub adapter
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $adapterStub->expects($this->once())
+                    ->method('createSchema')
+                    ->with('testschema');
+
+        $migrationStub->setAdapter($adapterStub);
+        $migrationStub->createSchema('testschema');
+    }
+
+    public function testDropSchema()
+    {
+        // stub migration
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
+
+        // stub adapter
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $adapterStub->expects($this->once())
+                    ->method('dropSchema')
+                    ->with('testschema');
+
+        $migrationStub->setAdapter($adapterStub);
+        $migrationStub->dropSchema('testschema');
+    }
+
     public function testHasTable()
     {
         // stub migration
