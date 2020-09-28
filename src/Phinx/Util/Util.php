@@ -328,7 +328,6 @@ REGEXP;
         // filter out everything except the matched groups
         $config = array_intersect_key($parsed, array_flip(['adapter', 'user', 'pass', 'host', 'port', 'name']));
         $config = array_filter($config);
-
         parse_str($parsed['query'] ?? '', $query);
         $config = array_merge($query, $config);
 

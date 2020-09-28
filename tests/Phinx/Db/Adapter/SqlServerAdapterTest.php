@@ -620,7 +620,7 @@ class SqlServerAdapterTest extends TestCase
         ->addColumn('username', 'string')
         ->save();
         $this->assertFalse($table->hasIndex('email'));
-        $table->addIndex(['email', 'username'], ['order' => ['email' => 'DESC', 'username' => 'ASC']])
+        $table->addIndex(['email', 'username'], ['name' => 'table1_email_username','order' => ['email' => 'DESC', 'username' => 'ASC']])
         ->save();
         $this->assertTrue($table->hasIndex('email'));
         $rows = $this->adapter->fetchAll("SELECT case when ic.is_descending_key = 1 then 'DESC' else 'ASC' end AS sort_order
@@ -628,7 +628,7 @@ class SqlServerAdapterTest extends TestCase
 			INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
 			INNER JOIN sys.tables AS t ON i.object_id=t.object_id
 			INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
-			WHERE   t.name = 'table1' AND c.name = 'email'");
+			WHERE   t.name = 'table1' AND i.name = 'table1_email_username' AND c.name = 'email'");
         $emailOrder = $rows[0];
         $this->assertEquals($emailOrder['sort_order'], 'DESC');
         $rows = $this->adapter->fetchAll("SELECT case when ic.is_descending_key = 1 then 'DESC' else 'ASC' end AS sort_order
@@ -636,7 +636,7 @@ class SqlServerAdapterTest extends TestCase
 			INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
 			INNER JOIN sys.tables AS t ON i.object_id=t.object_id
 			INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
-			WHERE   t.name = 'table1' AND c.name = 'username'");
+			WHERE   t.name = 'table1' AND i.name = 'table1_email_username' AND c.name = 'username'");
         $emailOrder = $rows[0];
         $this->assertEquals($emailOrder['sort_order'], 'ASC');
     }

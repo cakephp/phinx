@@ -96,7 +96,6 @@ class SqlServerAdapter extends PdoAdapter
 					$driverOptions[constant('\PDO::' . strtoupper($key))] = $option;
 				}
 			}
-
 			$db = $this->createPdoConnection($dsn, $options['user'], $options['pass'], $driverOptions);
 
 			$this->setConnection($db);
@@ -276,7 +275,6 @@ class SqlServerAdapter extends PdoAdapter
 		foreach ($indexes as $index) {
 			$sql .= $this->getIndexSqlDefinition($index, $table->getName());
 		}
-
 		// execute the sql
 		$this->execute($sql);
 
@@ -1256,7 +1254,7 @@ SQL;
 			($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
 			$indexName,
 			$this->quoteTableName($tableName),
-			implode(',', $index->getColumns())
+			implode(',', $columnNames)
 		);
 	}
 
