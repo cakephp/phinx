@@ -122,8 +122,8 @@ class SqlServerAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('ntable', [], $this->adapter);
         $table->addColumn('realname', 'string')
-              ->addColumn('email', 'integer')
-              ->save();
+        ->addColumn('email', 'integer')
+        ->save();
         $this->assertTrue($this->adapter->hasTable('ntable'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
@@ -135,8 +135,8 @@ class SqlServerAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('ntable', ['id' => 'custom_id'], $this->adapter);
         $table->addColumn('realname', 'string')
-              ->addColumn('email', 'integer')
-              ->save();
+        ->addColumn('email', 'integer')
+        ->save();
         $this->assertTrue($this->adapter->hasTable('ntable'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'custom_id'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
@@ -148,14 +148,14 @@ class SqlServerAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('ntable', ['id' => false, 'primary_key' => 'id'], $this->adapter);
         $table->addColumn('id', 'integer', ['identity' => true, 'seed' => 1, 'increment' => 10 ])
-              ->save();
+        ->save();
         $this->assertTrue($this->adapter->hasTable('ntable'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
 
         $rows = $this->adapter->fetchAll("SELECT CAST(seed_value AS INT) seed_value, CAST(increment_value AS INT) increment_value
-FROM sys.columns c JOIN sys.tables t ON c.object_id=t.object_id
-JOIN sys.identity_columns ic ON c.object_id=ic.object_id AND c.column_id=ic.column_id
-WHERE t.name='ntable'");
+			FROM sys.columns c JOIN sys.tables t ON c.object_id=t.object_id
+			JOIN sys.identity_columns ic ON c.object_id=ic.object_id AND c.column_id=ic.column_id
+			WHERE t.name='ntable'");
         $identity = $rows[0];
         $this->assertEquals($identity['seed_value'], '1');
         $this->assertEquals($identity['increment_value'], '10');
@@ -168,7 +168,7 @@ WHERE t.name='ntable'");
         ];
         $table = new \Phinx\Db\Table('atable', $options, $this->adapter);
         $table->addColumn('user_id', 'integer')
-              ->save();
+        ->save();
         $this->assertFalse($this->adapter->hasColumn('atable', 'id'));
     }
 
@@ -227,8 +227,8 @@ WHERE t.name='ntable'");
         ];
         $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
         $table->addColumn('user_id', 'integer')
-              ->addColumn('tag_id', 'integer')
-              ->save();
+        ->addColumn('tag_id', 'integer')
+        ->save();
         $this->assertTrue($this->adapter->hasIndex('table1', ['user_id', 'tag_id']));
         $this->assertTrue($this->adapter->hasIndex('table1', ['tag_id', 'USER_ID']));
         $this->assertFalse($this->adapter->hasIndex('table1', ['tag_id', 'user_email']));
@@ -266,10 +266,10 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
-              ->addColumn('name', 'string')
-              ->addIndex('email')
-              ->addIndex('name')
-              ->save();
+        ->addColumn('name', 'string')
+        ->addIndex('email')
+        ->addIndex('name')
+        ->save();
         $this->assertTrue($this->adapter->hasIndex('table1', ['email']));
         $this->assertTrue($this->adapter->hasIndex('table1', ['name']));
         $this->assertFalse($this->adapter->hasIndex('table1', ['email', 'user_email']));
@@ -280,8 +280,8 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
-              ->addIndex('email', ['unique' => true])
-              ->save();
+        ->addIndex('email', ['unique' => true])
+        ->save();
         $this->assertTrue($this->adapter->hasIndex('table1', ['email']));
         $this->assertFalse($this->adapter->hasIndex('table1', ['email', 'user_email']));
     }
@@ -290,8 +290,8 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
-              ->addIndex('email', ['name' => 'myemailindex'])
-              ->save();
+        ->addIndex('email', ['name' => 'myemailindex'])
+        ->save();
         $this->assertTrue($this->adapter->hasIndex('table1', ['email']));
         $this->assertFalse($this->adapter->hasIndex('table1', ['email', 'user_email']));
         $this->assertTrue($this->adapter->hasIndexByName('table1', 'myemailindex'));
@@ -371,7 +371,7 @@ WHERE t.name='ntable'");
         $table->save();
         $this->assertFalse($table->hasColumn('email'));
         $table->addColumn('email', 'string')
-              ->save();
+        ->save();
         $this->assertTrue($table->hasColumn('email'));
     }
 
@@ -380,11 +380,11 @@ WHERE t.name='ntable'");
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
         $table->addColumn('default_zero', 'string', ['default' => 'test'])
-              ->save();
+        ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
             if ($column->getName() === 'default_zero') {
-                $this->assertEquals("test", $column->getDefault());
+                $this->assertEquals('test', $column->getDefault());
             }
         }
     }
@@ -394,7 +394,7 @@ WHERE t.name='ntable'");
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
         $table->addColumn('default_zero', 'integer', ['default' => 0])
-              ->save();
+        ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
             if ($column->getName() === 'default_zero') {
@@ -409,7 +409,7 @@ WHERE t.name='ntable'");
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
         $table->addColumn('default_null', 'string', ['null' => true, 'default' => null])
-            ->save();
+        ->save();
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
             if ($column->getName() === 'default_null') {
@@ -441,7 +441,7 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string')
-              ->save();
+        ->save();
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
         $this->assertFalse($this->adapter->hasColumn('t', 'column2'));
         $this->adapter->renameColumn('t', 'column1', 'column2');
@@ -453,7 +453,7 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string')
-              ->save();
+        ->save();
 
         try {
             $this->adapter->renameColumn('t', 'column2', 'column1');
@@ -472,7 +472,7 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string')
-              ->save();
+        ->save();
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
         $newColumn1 = new \Phinx\Db\Table\Column();
         $newColumn1->setType('string');
@@ -490,11 +490,11 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string')
-            ->save();
+        ->save();
         $newColumn2 = new \Phinx\Db\Table\Column();
         $newColumn2->setName('column2')
-            ->setType('string')
-            ->setNull(true);
+         ->setType('string')
+         ->setNull(true);
         $table->changeColumn('column1', $newColumn2)->save();
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
@@ -510,7 +510,7 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string', ['default' => 'test'])
-            ->save();
+        ->save();
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
 
         $columns = $this->adapter->getColumns('t');
@@ -531,7 +531,7 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string', ['null' => true, 'default' => 'test'])
-            ->save();
+        ->save();
         $newColumn1 = new \Phinx\Db\Table\Column();
         $newColumn1
             ->setType('string')
@@ -545,7 +545,7 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'integer')
-            ->save();
+        ->save();
         $newColumn1 = new \Phinx\Db\Table\Column();
         $newColumn1
             ->setType('string')
@@ -559,7 +559,7 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string')
-            ->save();
+        ->save();
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
         $this->adapter->dropColumn('t', 'column1');
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
@@ -606,11 +606,39 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
-              ->save();
+        ->save();
         $this->assertFalse($table->hasIndex('email'));
         $table->addIndex('email')
-              ->save();
+        ->save();
         $this->assertTrue($table->hasIndex('email'));
+    }
+
+    public function testAddIndexWithSort()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+        ->addColumn('username', 'string')
+        ->save();
+        $this->assertFalse($table->hasIndex('email'));
+        $table->addIndex(['email', 'username'], ['name' => 'table1_email_username','order' => ['email' => 'DESC', 'username' => 'ASC']])
+        ->save();
+        $this->assertTrue($table->hasIndex('email'));
+        $rows = $this->adapter->fetchAll("SELECT case when ic.is_descending_key = 1 then 'DESC' else 'ASC' end AS sort_order
+			FROM   sys.indexes AS i  
+			INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+			INNER JOIN sys.tables AS t ON i.object_id=t.object_id
+			INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
+			WHERE   t.name = 'table1' AND i.name = 'table1_email_username' AND c.name = 'email'");
+        $emailOrder = $rows[0];
+        $this->assertEquals($emailOrder['sort_order'], 'DESC');
+        $rows = $this->adapter->fetchAll("SELECT case when ic.is_descending_key = 1 then 'DESC' else 'ASC' end AS sort_order
+			FROM   sys.indexes AS i
+			INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+			INNER JOIN sys.tables AS t ON i.object_id=t.object_id
+			INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
+			WHERE   t.name = 'table1' AND i.name = 'table1_email_username' AND c.name = 'username'");
+        $emailOrder = $rows[0];
+        $this->assertEquals($emailOrder['sort_order'], 'ASC');
     }
 
     public function testGetIndexes()
@@ -618,10 +646,10 @@ WHERE t.name='ntable'");
         // single column index
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
-              ->addColumn('username', 'string')
-              ->addIndex('email')
-              ->addIndex(['email', 'username'], ['unique' => true, 'name' => 'email_username'])
-              ->save();
+        ->addColumn('username', 'string')
+        ->addIndex('email')
+        ->addIndex(['email', 'username'], ['unique' => true, 'name' => 'email_username'])
+        ->save();
 
         $indexes = $this->adapter->getIndexes('table1');
         $this->assertArrayHasKey('PK_table1', $indexes);
@@ -638,8 +666,8 @@ WHERE t.name='ntable'");
         // single column index
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
-              ->addIndex('email')
-              ->save();
+        ->addIndex('email')
+        ->save();
         $this->assertTrue($table->hasIndex('email'));
         $this->adapter->dropIndex($table->getName(), 'email');
         $this->assertFalse($table->hasIndex('email'));
@@ -647,9 +675,9 @@ WHERE t.name='ntable'");
         // multiple column index
         $table2 = new \Phinx\Db\Table('table2', [], $this->adapter);
         $table2->addColumn('fname', 'string')
-               ->addColumn('lname', 'string')
-               ->addIndex(['fname', 'lname'])
-               ->save();
+        ->addColumn('lname', 'string')
+        ->addIndex(['fname', 'lname'])
+        ->save();
         $this->assertTrue($table2->hasIndex(['fname', 'lname']));
         $this->adapter->dropIndex($table2->getName(), ['fname', 'lname']);
         $this->assertFalse($table2->hasIndex(['fname', 'lname']));
@@ -657,8 +685,8 @@ WHERE t.name='ntable'");
         // index with name specified, but dropping it by column name
         $table3 = new \Phinx\Db\Table('table3', [], $this->adapter);
         $table3->addColumn('email', 'string')
-               ->addIndex('email', ['name' => 'someindexname'])
-               ->save();
+        ->addIndex('email', ['name' => 'someindexname'])
+        ->save();
         $this->assertTrue($table3->hasIndex('email'));
         $this->adapter->dropIndex($table3->getName(), 'email');
         $this->assertFalse($table3->hasIndex('email'));
@@ -666,9 +694,9 @@ WHERE t.name='ntable'");
         // multiple column index with name specified
         $table4 = new \Phinx\Db\Table('table4', [], $this->adapter);
         $table4->addColumn('fname', 'string')
-               ->addColumn('lname', 'string')
-               ->addIndex(['fname', 'lname'], ['name' => 'multiname'])
-               ->save();
+        ->addColumn('lname', 'string')
+        ->addIndex(['fname', 'lname'], ['name' => 'multiname'])
+        ->save();
         $this->assertTrue($table4->hasIndex(['fname', 'lname']));
         $this->adapter->dropIndex($table4->getName(), ['fname', 'lname']);
         $this->assertFalse($table4->hasIndex(['fname', 'lname']));
@@ -679,8 +707,8 @@ WHERE t.name='ntable'");
         // single column index
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
-              ->addIndex('email', ['name' => 'myemailindex'])
-              ->save();
+        ->addIndex('email', ['name' => 'myemailindex'])
+        ->save();
         $this->assertTrue($table->hasIndex('email'));
         $this->adapter->dropIndexByName($table->getName(), 'myemailindex');
         $this->assertFalse($table->hasIndex('email'));
@@ -688,12 +716,12 @@ WHERE t.name='ntable'");
         // multiple column index
         $table2 = new \Phinx\Db\Table('table2', [], $this->adapter);
         $table2->addColumn('fname', 'string')
-               ->addColumn('lname', 'string')
-               ->addIndex(
-                   ['fname', 'lname'],
-                   ['name' => 'twocolumnuniqueindex', 'unique' => true]
-               )
-               ->save();
+        ->addColumn('lname', 'string')
+        ->addIndex(
+            ['fname', 'lname'],
+            ['name' => 'twocolumnuniqueindex', 'unique' => true]
+        )
+        ->save();
         $this->assertTrue($table2->hasIndex(['fname', 'lname']));
         $this->adapter->dropIndexByName($table2->getName(), 'twocolumnuniqueindex');
         $this->assertFalse($table2->hasIndex(['fname', 'lname']));
@@ -709,9 +737,9 @@ WHERE t.name='ntable'");
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable->getTable())
-           ->setColumns(['ref_table_id'])
-           ->setReferencedColumns(['id'])
-           ->setConstraint('fk1');
+        ->setColumns(['ref_table_id'])
+        ->setReferencedColumns(['id'])
+        ->setConstraint('fk1');
 
         $this->adapter->addForeignKey($table->getTable(), $fk);
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id'], 'fk1'));
@@ -727,8 +755,8 @@ WHERE t.name='ntable'");
 
         $fk = new \Phinx\Db\Table\ForeignKey();
         $fk->setReferencedTable($refTable)
-           ->setColumns(['ref_table_id'])
-           ->setReferencedColumns(['id']);
+        ->setColumns(['ref_table_id'])
+        ->setReferencedColumns(['id']);
 
         $this->adapter->addForeignKey($table, $fk);
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
@@ -791,7 +819,7 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('field1', 'string', ['comment' => $comment = 'Comments from column "field1"'])
-              ->save();
+        ->save();
 
         $resultComment = $this->adapter->getColumnComment('table1', 'field1');
 
@@ -805,10 +833,10 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('field1', 'string', ['comment' => 'Comments from column "field1"'])
-              ->save();
+        ->save();
 
         $table->changeColumn('field1', 'string', ['comment' => $comment = 'New Comments from column "field1"'])
-              ->save();
+        ->save();
 
         $resultComment = $this->adapter->getColumnComment('table1', 'field1');
 
@@ -822,10 +850,10 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('field1', 'string', ['comment' => 'Comments from column "field1"'])
-              ->save();
+        ->save();
 
         $table->changeColumn('field1', 'string', ['comment' => 'null'])
-              ->save();
+        ->save();
 
         $resultComment = $this->adapter->getColumnComment('table1', 'field1');
 
@@ -845,8 +873,8 @@ WHERE t.name='ntable'");
 
         $foreign = new \Phinx\Db\Table('sessions', ['id' => $sessionId], $this->adapter);
         $foreign->addColumn('user', 'integer')
-                ->addForeignKey('user', 'users', $userId)
-                ->create();
+        ->addForeignKey('user', 'users', $userId)
+        ->create();
 
         $this->assertTrue($foreign->hasForeignKey('user'));
     }
@@ -855,24 +883,24 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
-              ->addColumn('column2', 'integer')
-              ->save();
+        ->addColumn('column2', 'integer')
+        ->save();
         $table->insert([
-                  [
-                      'column1' => 'value1',
-                      'column2' => 1,
-                  ],
-                  [
-                      'column1' => 'value2',
-                      'column2' => 2,
-                  ],
-              ])
-              ->insert(
-                  [
-                      'column1' => 'value3',
-                      'column2' => 3,
-                  ]
-              );
+            [
+                'column1' => 'value1',
+                'column2' => 1,
+            ],
+            [
+                'column1' => 'value2',
+                'column2' => 2,
+            ],
+        ])
+        ->insert(
+            [
+            'column1' => 'value3',
+            'column2' => 3,
+            ]
+        );
         $this->adapter->bulkinsert($table->getTable(), $table->getData());
         $table->reset();
 
@@ -890,24 +918,24 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
-              ->addColumn('column2', 'integer')
-              ->insert([
-                  [
-                      'column1' => 'value1',
-                      'column2' => 1,
-                  ],
-                  [
-                      'column1' => 'value2',
-                      'column2' => 2,
-                  ],
-              ])
-              ->insert(
-                  [
-                      'column1' => 'value3',
-                      'column2' => 3,
-                  ]
-              )
-              ->save();
+        ->addColumn('column2', 'integer')
+        ->insert([
+        [
+            'column1' => 'value1',
+            'column2' => 1,
+        ],
+        [
+            'column1' => 'value2',
+            'column2' => 2,
+        ],
+        ])
+        ->insert(
+            [
+            'column1' => 'value3',
+            'column2' => 3,
+            ]
+        )
+        ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
 
@@ -923,18 +951,18 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
-              ->addColumn('column2', 'integer')
-              ->insert([
-                  [
-                      'column1' => 'value1',
-                      'column2' => 1,
-                  ],
-                  [
-                      'column1' => 'value2',
-                      'column2' => 2,
-                  ],
-              ])
-              ->save();
+        ->addColumn('column2', 'integer')
+        ->insert([
+        [
+            'column1' => 'value1',
+            'column2' => 1,
+        ],
+        [
+            'column1' => 'value2',
+            'column2' => 2,
+        ],
+        ])
+        ->save();
 
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
         $this->assertCount(2, $rows);
@@ -954,8 +982,8 @@ WHERE t.name='ntable'");
         $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
 
         $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
-            ->save();
+        ->addColumn('column2', 'integer')
+        ->save();
 
         $expectedOutput = 'C';
 
@@ -985,9 +1013,9 @@ OUTPUT;
         $table = new \Phinx\Db\Table('schema1.table1', [], $this->adapter);
 
         $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
-            ->addColumn('column3', 'string', ['default' => 'test'])
-            ->save();
+        ->addColumn('column2', 'integer')
+        ->addColumn('column3', 'string', ['default' => 'test'])
+        ->save();
         $this->adapter->commitTransaction();
         $this->adapter->rollbackTransaction();
 
@@ -998,14 +1026,13 @@ OUTPUT;
 
     /**
      * Tests interaction with the query builder
-     *
      */
     public function testQueryBuilder()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('string_col', 'string')
-            ->addColumn('int_col', 'integer')
-            ->save();
+        ->addColumn('int_col', 'integer')
+        ->save();
 
         $builder = $this->adapter->getQueryBuilder();
         $stm = $builder
