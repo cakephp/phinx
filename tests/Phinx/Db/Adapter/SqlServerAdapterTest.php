@@ -620,7 +620,7 @@ class SqlServerAdapterTest extends TestCase
         ->addColumn('username', 'string')
         ->save();
         $this->assertFalse($table->hasIndex('email'));
-        $table->addIndex(['email', 'username'], ['name' => 'table1_email_username','order' => ['email' => 'DESC', 'username' => 'ASC']])
+        $table->addIndex(['email', 'username'], ['name' => 'table1_email_username', 'order' => ['email' => 'DESC', 'username' => 'ASC']])
         ->save();
         $this->assertTrue($table->hasIndex('email'));
         $rows = $this->adapter->fetchAll("SELECT case when ic.is_descending_key = 1 then 'DESC' else 'ASC' end AS sort_order
