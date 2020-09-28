@@ -376,14 +376,12 @@ class Manager
             ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>' .
             ' <comment>' . ($direction === MigrationInterface::UP ? 'migrating' : 'reverting') . '</comment>'
         );
-        $migration->preFlightCheck($direction);
 
         // Execute the migration and log the time elapsed.
         $start = microtime(true);
         $this->getEnvironment($name)->executeMigration($migration, $direction, $fake);
         $end = microtime(true);
 
-        $migration->postFlightCheck($direction);
         $this->getOutput()->writeln(
             ' ==' .
             ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>' .

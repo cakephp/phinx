@@ -79,6 +79,9 @@ class Environment
 
         $startTime = time();
         $migration->setAdapter($this->getAdapter());
+
+        $migration->preFlightCheck($direction);
+
         if (method_exists($migration, MigrationInterface::INIT)) {
             $migration->{MigrationInterface::INIT}();
         }
@@ -114,6 +117,8 @@ class Environment
                 $this->getAdapter()->commitTransaction();
             }
         }
+
+        $migration->postFlightCheck($direction);
 
         // Record it in the database
         $this->getAdapter()->migrated($migration, $direction, date('Y-m-d H:i:s', $startTime), date('Y-m-d H:i:s', time()));
