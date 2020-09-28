@@ -17,4 +17,15 @@ class ColumnTest extends TestCase
 
         $column->setOptions(['identity']);
     }
+
+    public function testSetOptionsIdentity()
+    {
+        $column = new Column();
+        $this->assertTrue($column->isNull());
+        $this->assertFalse($column->isIdentity());
+
+        $column->setOptions(['identity' => true]);
+        $this->assertFalse($column->isNull());
+        $this->assertTrue($column->isIdentity());
+    }
 }
