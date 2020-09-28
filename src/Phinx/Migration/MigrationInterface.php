@@ -143,11 +143,12 @@ interface MigrationInterface
     public function execute($sql);
 
     /**
-     * Executes a SQL statement and returns the result as an array.
+     * Executes a SQL statement.
      *
-     * To improve IDE auto-completion possibility, you can overwrite the query method
-     * phpDoc in your (typically custom abstract parent) migration class, where you can set
-     * the return type by the adapter in your current use.
+     * The return type depends on the underlying adapter being used. To improve
+     * IDE auto-completion possibility, you can overwrite the query method
+     * phpDoc in your (typically custom abstract parent) migration class, where
+     * you can set the return type by the adapter in your current use.
      *
      * @param string $sql SQL
      *
