@@ -1262,26 +1262,25 @@ SQL;
      *
      * @param \Phinx\Db\Table\Index $index Index
      * @param string $tableName Table name
-     *
      * @return string
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
     {
-	$columnNames = $index->getColumns();
+        $columnNames = $index->getColumns();
         if (is_string($index->getName())) {
             $indexName = $index->getName();
         } else {
             $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         }
         $order = $index->getOrder();
-        if(!empty($order)){
-           foreach ($order as $key => $value) {
+        if (!empty($order)) {
+            foreach ($order as $key => $value) {
                     $loc = array_search($key, $columnNames);
                     $columnNames[$loc] = sprintf('[%s] %s', $key, $value);
-           }
+            }
         }
- 
-	return sprintf(
+
+        return sprintf(
             'CREATE %s INDEX %s ON %s (%s);',
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
