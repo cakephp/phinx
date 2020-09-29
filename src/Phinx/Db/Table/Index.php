@@ -147,6 +147,12 @@ class Index
         return $this->limit;
     }
 
+    /**
+     * Sets the index columns sort order.
+     *
+     * @param string[] $order column name sort order key value pair
+     * @return $this
+     */
     public function setOrder($order)
     {
         $this->order = $order;
