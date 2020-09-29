@@ -103,6 +103,20 @@ class ConfigTest extends AbstractConfigTest
     }
 
     /**
+     * @covers \Phinx\Config\Config::getDefaultEnvironment
+     */
+    public function testDeprecatedDefaultDatabase()
+    {
+        $configArray = $this->getConfigArray();
+        $configArray['environments']['default_database'] = 'production';
+        $config = new Config($configArray);
+
+        $this->expectDeprecation();
+        $this->expectExceptionMessage('default_database in the config has been deprecated since 0.12, use default_environment instead.');
+        $this->assertEquals('production', $config->getDefaultEnvironment());
+    }
+
+    /**
      * @covers \Phinx\Config\Config::offsetGet
      * @covers \Phinx\Config\Config::offsetSet
      * @covers \Phinx\Config\Config::offsetExists
