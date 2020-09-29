@@ -56,6 +56,7 @@ class SqlServerAdapter extends PdoAdapter
      * {@inheritDoc}
      *
      * @throws \InvalidArgumentException
+     *
      * @return void
      */
     public function connect()
@@ -110,6 +111,7 @@ class SqlServerAdapter extends PdoAdapter
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
+     *
      * @return void
      */
     protected function connectDblib()
@@ -229,8 +231,8 @@ class SqlServerAdapter extends PdoAdapter
             // Handle id => "field_name" to support AUTO_INCREMENT
             $column = new Column();
             $column->setName($options['id'])
-            ->setType('integer')
-            ->setIdentity(true);
+                   ->setType('integer')
+                   ->setIdentity(true);
 
             array_unshift($columns, $column);
             if (isset($options['primary_key']) && (array)$options['id'] !== (array)$options['primary_key']) {
@@ -330,6 +332,7 @@ class SqlServerAdapter extends PdoAdapter
      * @inheritDoc
      *
      * SqlServer does not implement this functionality, and so will always throw an exception if used.
+     *
      * @throws \BadMethodCallException
      */
     protected function getChangeCommentInstructions(Table $table, $newComment)
@@ -342,6 +345,7 @@ class SqlServerAdapter extends PdoAdapter
      *
      * @param \Phinx\Db\Table\Column $column Column
      * @param string $tableName Table name
+     *
      * @return string
      */
     protected function getColumnCommentSqlDefinition(Column $column, $tableName)
@@ -349,7 +353,7 @@ class SqlServerAdapter extends PdoAdapter
         // passing 'null' is to remove column comment
         $currentComment = $this->getColumnComment($tableName, $column->getName());
 
-        $comment = strcasecmp($column->getComment(), 'NULL') !== 0 ? $this->getConnection()->quote($column->getComment()) : '\'\'';
+        $comment = (strcasecmp($column->getComment(), 'NULL') !== 0) ? $this->getConnection()->quote($column->getComment()) : '\'\'';
         $command = $currentComment === false ? 'sp_addextendedproperty' : 'sp_updateextendedproperty';
 
         return sprintf(
@@ -404,21 +408,22 @@ class SqlServerAdapter extends PdoAdapter
     /**
      * @param string $tableName Table name
      * @param string $columnName Column name
+     *
      * @return string|false
      */
     public function getColumnComment($tableName, $columnName)
     {
         $sql = sprintf("SELECT cast(extended_properties.[value] as nvarchar(4000)) comment
-			FROM sys.schemas
-			INNER JOIN sys.tables
-			ON schemas.schema_id = tables.schema_id
-			INNER JOIN sys.columns
-			ON tables.object_id = columns.object_id
-			INNER JOIN sys.extended_properties
-			ON tables.object_id = extended_properties.major_id
-			AND columns.column_id = extended_properties.minor_id
-			AND extended_properties.name = 'MS_Description'
-			WHERE schemas.[name] = '%s' AND tables.[name] = '%s' AND columns.[name] = '%s'", $this->schema, $tableName, $columnName);
+  FROM sys.schemas
+ INNER JOIN sys.tables
+    ON schemas.schema_id = tables.schema_id
+ INNER JOIN sys.columns
+    ON tables.object_id = columns.object_id
+ INNER JOIN sys.extended_properties
+    ON tables.object_id = extended_properties.major_id
+   AND columns.column_id = extended_properties.minor_id
+   AND extended_properties.name = 'MS_Description'
+   WHERE schemas.[name] = '%s' AND tables.[name] = '%s' AND columns.[name] = '%s'", $this->schema, $tableName, $columnName);
         $row = $this->fetchRow($sql);
 
         if ($row) {
@@ -436,14 +441,16 @@ class SqlServerAdapter extends PdoAdapter
         $columns = [];
         $sql = sprintf(
             "SELECT DISTINCT TABLE_SCHEMA AS [schema], TABLE_NAME as [table_name], COLUMN_NAME AS [name], DATA_TYPE AS [type],
-			IS_NULLABLE AS [null], COLUMN_DEFAULT AS [default],
-			CHARACTER_MAXIMUM_LENGTH AS [char_length],
-			NUMERIC_PRECISION AS [precision],
-			NUMERIC_SCALE AS [scale], ORDINAL_POSITION AS [ordinal_position],
-			COLUMNPROPERTY(object_id(TABLE_NAME), COLUMN_NAME, 'IsIdentity') as [identity]
-			FROM INFORMATION_SCHEMA.COLUMNS
-			WHERE TABLE_NAME = '%s'
-			ORDER BY ordinal_position", $tableName);
+            IS_NULLABLE AS [null], COLUMN_DEFAULT AS [default],
+            CHARACTER_MAXIMUM_LENGTH AS [char_length],
+            NUMERIC_PRECISION AS [precision],
+            NUMERIC_SCALE AS [scale], ORDINAL_POSITION AS [ordinal_position],
+            COLUMNPROPERTY(object_id(TABLE_NAME), COLUMN_NAME, 'IsIdentity') as [identity]
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = '%s'
+        ORDER BY ordinal_position",
+            $tableName
+        );
         $rows = $this->fetchAll($sql);
         foreach ($rows as $columnInfo) {
             try {
@@ -454,11 +461,11 @@ class SqlServerAdapter extends PdoAdapter
 
             $column = new Column();
             $column->setName($columnInfo['name'])
-            ->setType($type)
-            ->setNull($columnInfo['null'] !== 'NO')
-            ->setDefault($this->parseDefault($columnInfo['default']))
-            ->setIdentity($columnInfo['identity'] === '1')
-            ->setComment($this->getColumnComment($columnInfo['table_name'], $columnInfo['name']));
+                   ->setType($type)
+                   ->setNull($columnInfo['null'] !== 'NO')
+                   ->setDefault($this->parseDefault($columnInfo['default']))
+                   ->setIdentity($columnInfo['identity'] === '1')
+                   ->setComment($this->getColumnComment($columnInfo['table_name'], $columnInfo['name']));
 
             if (!empty($columnInfo['char_length'])) {
                 $column->setLimit($columnInfo['char_length']);
@@ -472,6 +479,7 @@ class SqlServerAdapter extends PdoAdapter
 
     /**
      * @param string $default Default
+     *
      * @return int|string|null
      */
     protected function parseDefault($default)
@@ -494,8 +502,8 @@ class SqlServerAdapter extends PdoAdapter
     {
         $sql = sprintf(
             "SELECT count(*) as [count]
-			FROM information_schema.columns
-			WHERE table_name = '%s' AND column_name = '%s'",
+             FROM information_schema.columns
+             WHERE table_name = '%s' AND column_name = '%s'",
             $tableName,
             $columnName
         );
@@ -561,6 +569,7 @@ SQL;
      *
      * @param string $tableName The table where the column is
      * @param \Phinx\Db\Table\Column $newColumn The column to alter
+     *
      * @return \Phinx\Db\Util\AlterInstructions
      */
     protected function getChangeDefault($tableName, Column $newColumn)
@@ -649,6 +658,7 @@ SQL;
     /**
      * @param string $tableName Table name
      * @param string|null $columnName Column name
+     *
      * @return \Phinx\Db\Util\AlterInstructions
      */
     protected function getDropDefaultConstraint($tableName, $columnName)
@@ -665,31 +675,32 @@ SQL;
     /**
      * @param string $tableName Table name
      * @param string $columnName Column name
+     *
      * @return string|false
      */
     protected function getDefaultConstraint($tableName, $columnName)
     {
         $sql = "SELECT
-			default_constraints.name
+    default_constraints.name
 FROM
-sys.all_columns
+    sys.all_columns
 
-INNER JOIN
-sys.tables
-ON all_columns.object_id = tables.object_id
+        INNER JOIN
+    sys.tables
+        ON all_columns.object_id = tables.object_id
 
-INNER JOIN
-sys.schemas
-ON tables.schema_id = schemas.schema_id
+        INNER JOIN
+    sys.schemas
+        ON tables.schema_id = schemas.schema_id
 
-INNER JOIN
-sys.default_constraints
-ON all_columns.default_object_id = default_constraints.object_id
+        INNER JOIN
+    sys.default_constraints
+        ON all_columns.default_object_id = default_constraints.object_id
 
 WHERE
-schemas.name = 'dbo'
-AND tables.name = '{$tableName}'
-AND all_columns.name = '{$columnName}'";
+        schemas.name = 'dbo'
+    AND tables.name = '{$tableName}'
+    AND all_columns.name = '{$columnName}'";
 
         $rows = $this->fetchAll($sql);
 
@@ -699,15 +710,16 @@ AND all_columns.name = '{$columnName}'";
     /**
      * @param int $tableId Table ID
      * @param int $indexId Index ID
+     *
      * @return array
      */
     protected function getIndexColums($tableId, $indexId)
     {
         $sql = "SELECT AC.[name] AS [column_name]
-			FROM sys.[index_columns] IC
-			INNER JOIN sys.[all_columns] AC ON IC.[column_id] = AC.[column_id]
-			WHERE AC.[object_id] = {$tableId} AND IC.[index_id] = {$indexId}  AND IC.[object_id] = {$tableId}
-			ORDER BY IC.[key_ordinal];";
+FROM sys.[index_columns] IC
+  INNER JOIN sys.[all_columns] AC ON IC.[column_id] = AC.[column_id]
+WHERE AC.[object_id] = {$tableId} AND IC.[index_id] = {$indexId}  AND IC.[object_id] = {$tableId}
+ORDER BY IC.[key_ordinal];";
 
         $rows = $this->fetchAll($sql);
         $columns = [];
@@ -722,16 +734,17 @@ AND all_columns.name = '{$columnName}'";
      * Get an array of indexes from a particular table.
      *
      * @param string $tableName Table name
+     *
      * @return array
      */
     public function getIndexes($tableName)
     {
         $indexes = [];
         $sql = "SELECT I.[name] AS [index_name], I.[index_id] as [index_id], T.[object_id] as [table_id]
-			FROM sys.[tables] AS T
-			INNER JOIN sys.[indexes] I ON T.[object_id] = I.[object_id]
-			WHERE T.[is_ms_shipped] = 0 AND I.[type_desc] <> 'HEAP'  AND T.[name] = '{$tableName}'
-			ORDER BY T.[name], I.[index_id];";
+FROM sys.[tables] AS T
+  INNER JOIN sys.[indexes] I ON T.[object_id] = I.[object_id]
+WHERE T.[is_ms_shipped] = 0 AND I.[type_desc] <> 'HEAP'  AND T.[name] = '{$tableName}'
+ORDER BY T.[name], I.[index_id];";
 
         $rows = $this->fetchAll($sql);
         foreach ($rows as $row) {
@@ -774,7 +787,7 @@ AND all_columns.name = '{$columnName}'";
 
         foreach ($indexes as $name => $index) {
             if ($name === $indexName) {
-                return true;
+                 return true;
             }
         }
 
@@ -865,7 +878,7 @@ AND all_columns.name = '{$columnName}'";
         }
 
         if ($constraint) {
-            return $primaryKey['constraint'] === $constraint;
+            return ($primaryKey['constraint'] === $constraint);
         }
 
         if (is_string($columns)) {
@@ -880,20 +893,21 @@ AND all_columns.name = '{$columnName}'";
      * Get the primary key from a particular table.
      *
      * @param string $tableName Table name
+     *
      * @return array
      */
     public function getPrimaryKey($tableName)
     {
         $rows = $this->fetchAll(sprintf(
             "SELECT
-			tc.constraint_name,
-			kcu.column_name
-			FROM information_schema.table_constraints AS tc
-			JOIN information_schema.key_column_usage AS kcu
-			ON tc.constraint_name = kcu.constraint_name
-			WHERE constraint_type = 'PRIMARY KEY'
-			AND tc.table_name = '%s'
-			ORDER BY kcu.ordinal_position",
+                    tc.constraint_name,
+                    kcu.column_name
+                FROM information_schema.table_constraints AS tc
+                JOIN information_schema.key_column_usage AS kcu
+                    ON tc.constraint_name = kcu.constraint_name
+                WHERE constraint_type = 'PRIMARY KEY'
+                    AND tc.table_name = '%s'
+                ORDER BY kcu.ordinal_position",
             $tableName
         ));
 
@@ -939,6 +953,7 @@ AND all_columns.name = '{$columnName}'";
      * Get an array of foreign keys from a particular table.
      *
      * @param string $tableName Table name
+     *
      * @return array
      */
     protected function getForeignKeys($tableName)
@@ -946,16 +961,16 @@ AND all_columns.name = '{$columnName}'";
         $foreignKeys = [];
         $rows = $this->fetchAll(sprintf(
             "SELECT
-			tc.constraint_name,
-			tc.table_name, kcu.column_name,
-			ccu.table_name AS referenced_table_name,
-			ccu.column_name AS referenced_column_name
-			FROM
-			information_schema.table_constraints AS tc
-			JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
-			JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
-			WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s'
-			ORDER BY kcu.ordinal_position",
+                    tc.constraint_name,
+                    tc.table_name, kcu.column_name,
+                    ccu.table_name AS referenced_table_name,
+                    ccu.column_name AS referenced_column_name
+                FROM
+                    information_schema.table_constraints AS tc
+                    JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
+                    JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
+                WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s'
+                ORDER BY kcu.ordinal_position",
             $tableName
         ));
         foreach ($rows as $row) {
@@ -1008,16 +1023,16 @@ AND all_columns.name = '{$columnName}'";
         foreach ($columns as $column) {
             $rows = $this->fetchAll(sprintf(
                 "SELECT
-				tc.constraint_name,
-				tc.table_name, kcu.column_name,
-				ccu.table_name AS referenced_table_name,
-				ccu.column_name AS referenced_column_name
-				FROM
-				information_schema.table_constraints AS tc
-				JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
-				JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
-				WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s' and ccu.column_name='%s'
-				ORDER BY kcu.ordinal_position",
+                tc.constraint_name,
+                tc.table_name, kcu.column_name,
+                ccu.table_name AS referenced_table_name,
+                ccu.column_name AS referenced_column_name
+            FROM
+                information_schema.table_constraints AS tc
+                JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
+                JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
+            WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s' and ccu.column_name='%s'
+            ORDER BY kcu.ordinal_position",
                 $tableName,
                 $column
             ));
@@ -1086,8 +1101,11 @@ AND all_columns.name = '{$columnName}'";
      * Returns Phinx type by SQL type
      *
      * @internal param string $sqlType SQL type
+     *
      * @param string $sqlType SQL Type definition
+     *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
+     *
      * @return string Phinx type
      */
     public function getPhinxType($sqlType)
@@ -1188,6 +1206,7 @@ SQL;
      *
      * @param \Phinx\Db\Table\Column $column Column
      * @param bool $create Create column flag
+     *
      * @return string
      */
     protected function getColumnSqlDefinition(Column $column, $create = true)
@@ -1243,6 +1262,7 @@ SQL;
      *
      * @param \Phinx\Db\Table\Index $index Index
      * @param string $tableName Table name
+     *
      * @return string
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
@@ -1252,13 +1272,13 @@ SQL;
             $indexName = $index->getName();
         } else {
             $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
-        }
-        $order = $index->getOrder();
-        if (!empty($order)) {
-            foreach ($order as $key => $value) {
-                $loc = array_search($key, $columnNames);
-                $columnNames[$loc] = sprintf('[%s] %s', $key, $value);
-            }
+	}
+	$order = $index->getOrder();
+        if(!empty($order)){
+           foreach ($order as $key => $value) {
+                   $loc = array_search($key, $columnNames);
+                   $columnNames[$loc] = sprintf('[%s] %s', $key, $value);
+           }
         }
 
         return sprintf(
@@ -1266,7 +1286,7 @@ SQL;
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
             $this->quoteTableName($tableName),
-            implode(',', $columnNames)
+            implode(', ', $columnNames)
         );
     }
 
@@ -1275,6 +1295,7 @@ SQL;
      *
      * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign key
      * @param string $tableName Table name
+     *
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
@@ -1308,6 +1329,7 @@ SQL;
      * @param string $direction Direction
      * @param string $startTime Start Time
      * @param string $endTime End Time
+     *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime)
