@@ -97,7 +97,7 @@ class ConfigTest extends AbstractConfigTest
     public function testGetDefaultEnvironmentUsingDatabaseKey()
     {
         $configArray = $this->getConfigArray();
-        $configArray['environments']['default_database'] = 'production';
+        $configArray['environments']['default_environment'] = 'production';
         $config = new Config($configArray);
         $this->assertEquals('production', $config->getDefaultEnvironment());
     }
