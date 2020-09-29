@@ -443,9 +443,7 @@ class SqlServerAdapter extends PdoAdapter
 			COLUMNPROPERTY(object_id(TABLE_NAME), COLUMN_NAME, 'IsIdentity') as [identity]
 			FROM INFORMATION_SCHEMA.COLUMNS
 			WHERE TABLE_NAME = '%s'
-			ORDER BY ordinal_position",
-            $tableName
-        );
+			ORDER BY ordinal_position", $tableName);
         $rows = $this->fetchAll($sql);
         foreach ($rows as $columnInfo) {
             try {

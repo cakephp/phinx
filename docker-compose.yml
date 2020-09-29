@@ -7,14 +7,12 @@ services:
         links:
             - mysql
             - postgres
-            - sqlsrv  
         command: bash
         environment:
             - TESTS_PHINX_DB_ADAPTER_MYSQL_HOST=mysql
             - TESTS_PHINX_DB_ADAPTER_POSTGRES_HOST=postgres
-            - TESTS_PHINX_DB_ADAPTER_SQLSRV_HOST=sqlsrv
     mysql:
-        image: mysql:8.0
+        image: mysql:5.6
         environment:
             - MYSQL_DATABASE=phinx
             - MYSQL_ROOT_PASSWORD=root
@@ -22,17 +20,9 @@ services:
             - 3306:3306
 
     postgres:
-        image: postgres:12.4
+        image: postgres:9.4
         environment:
             - POSTGRES_DB=phinx
             - POSTGRES_PASSWORD=postgres
         ports:
             - 5432:5432
-    sqlsrv:
-        image: mcr.microsoft.com/mssql/server:2017-latest
-        environment:
-            - MSSQL_DATABASE=test
-            - ACCEPT_EULA=Y             
-            - SA_PASSWORD=Jko3va-D9821jhsvGD 
-        ports:
-            - 1433:1433               
