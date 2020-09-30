@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Test\Phinx\Db\Adapter;
 
-use Cake\Collection\Collection;
 use PDOException;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
