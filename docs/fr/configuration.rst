@@ -159,8 +159,8 @@ specified under the ``environments`` nested collection. For example:
             user: root
             pass: ''
             port: 3306
-            charset: utf8
-            collation: utf8_unicode_ci
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
 
 would define a new environment called ``production``.
 

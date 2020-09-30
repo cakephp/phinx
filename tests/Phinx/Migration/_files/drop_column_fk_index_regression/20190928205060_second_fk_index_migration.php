@@ -11,7 +11,7 @@ class SecondFkIndexMigration extends AbstractMigration
             'primary_key' => ['id'],
             'engine' => 'InnoDB',
             'encoding' => 'utf8',
-            'collation' => 'utf8_unicode_ci',
+            'collation' => 'utf8mb4_unicode_ci',
             'comment' => '',
             'row_format' => 'DYNAMIC',
         ])

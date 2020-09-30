@@ -474,7 +474,7 @@ username と email カラムの両方に一意なインデックスを作成し�
 ========== ===========
 comment    テーブルにテキストコメントを設定
 engine     テーブルエンジンの定義 *(デフォルトは `InnoDB`)*
-collation  テーブル照合順序の定義 *(デフォルトは `utf8_general_ci`)*
+collation  テーブル照合順序の定義 *(デフォルトは `utf8mb4_unicode_ci`)*
 signed     主キーが ``符号付き`` かどうか
 ========== ===========
 
