@@ -250,23 +250,19 @@ interface MigrationInterface
     public function table($tableName, $options);
 
     /**
-     * Perform checks on the migration, print a warning
+     * Perform checks on the migration, printing a warning
      * if there are potential problems.
-     *
-     * @param string|null $direction Direction
      *
      * @return void
      */
-    public function preFlightCheck($direction = null);
+    public function preFlightCheck();
 
     /**
      * Perform checks on the migration after completion
      *
      * Right now, the only check is whether all changes were committed
      *
-     * @param string|null $direction direction of migration
-     *
      * @return void
      */
-    public function postFlightCheck($direction = null);
+    public function postFlightCheck();
 }
