@@ -97,9 +97,41 @@ class ConfigTest extends AbstractConfigTest
     public function testGetDefaultEnvironmentUsingDatabaseKey()
     {
         $configArray = $this->getConfigArray();
-        $configArray['environments']['default_database'] = 'production';
+        $configArray['environments']['default_environment'] = 'production';
         $config = new Config($configArray);
         $this->assertEquals('production', $config->getDefaultEnvironment());
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::getDefaultEnvironment
+     */
+    public function testGetDefaultEnvironmentUsingDefaultDatabase()
+    {
+        $configArray = $this->getConfigArray();
+        $configArray['environments']['default_database'] = 'production';
+        $config = new Config($configArray);
+
+        $errorReporting = error_reporting();
+        try {
+            error_reporting(E_ALL ^ E_USER_DEPRECATED);
+            $this->assertEquals('production', $config->getDefaultEnvironment());
+        } finally {
+            error_reporting($errorReporting);
+        }
+    }
+
+    /**
+     * @covers \Phinx\Config\Config::getDefaultEnvironment
+     */
+    public function testDefaultDatabaseThrowsDeprecatedNotice()
+    {
+        $configArray = $this->getConfigArray();
+        $configArray['environments']['default_database'] = 'production';
+        $config = new Config($configArray);
+
+        $this->expectDeprecation();
+        $this->expectExceptionMessage('default_database in the config has been deprecated since 0.12, use default_environment instead.');
+        $config->getDefaultEnvironment();
     }
 
     /**
