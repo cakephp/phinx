@@ -288,7 +288,9 @@ interface AdapterInterface
     public function getQueryBuilder();
 
     /**
-     * Executes a SQL statement and returns the result as an array.
+     * Executes a SQL statement.
+     *
+     * The return type depends on the underlying adapter being used.
      *
      * @param string $sql SQL
      *
