@@ -581,7 +581,8 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     protected function getDefaultValueDefinition($default, $columnType = null)
     {
-        if (is_string($default) && $default !== 'CURRENT_TIMESTAMP') {
+        // Ensure a defaults of CURRENT_TIMESTAMP(3) is not quoted.
+        if (is_string($default) && strpos($default, 'CURRENT_TIMESTAMP') !== 0) {
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
