@@ -233,19 +233,6 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
-    public function insert($table, $data)
-    {
-        trigger_error('insert() is deprecated since 0.10.0. Use $this->table($tableName)->insert($data)->save() instead.', E_USER_DEPRECATED);
-        // convert to table object
-        if (is_string($table)) {
-            $table = new Table($table, [], $this->getAdapter());
-        }
-        $table->insert($data)->save();
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function createDatabase($name, $options)
     {
         $this->getAdapter()->createDatabase($name, $options);
@@ -257,6 +244,22 @@ abstract class AbstractMigration implements MigrationInterface
     public function dropDatabase($name)
     {
         $this->getAdapter()->dropDatabase($name);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function createSchema($name)
+    {
+        $this->getAdapter()->createSchema($name);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function dropSchema($name)
+    {
+        $this->getAdapter()->dropSchema($name);
     }
 
     /**
@@ -300,11 +303,9 @@ abstract class AbstractMigration implements MigrationInterface
      * Right now, the only check is if there is both a `change()` and
      * an `up()` or a `down()` method.
      *
-     * @param string|null $direction Direction
-     *
      * @return void
      */
-    public function preFlightCheck($direction = null)
+    public function preFlightCheck()
     {
         if (method_exists($this, MigrationInterface::CHANGE)) {
             if (
@@ -312,7 +313,7 @@ abstract class AbstractMigration implements MigrationInterface
                 method_exists($this, MigrationInterface::DOWN)
             ) {
                 $this->output->writeln(sprintf(
-                    '<comment>warning</comment> Migration contains both change() and/or up()/down() methods.  <options=bold>Ignoring up() and down()</>.'
+                    '<comment>warning</comment> Migration contains both change() and up()/down() methods.  <options=bold>Ignoring up() and down()</>.'
                 ));
             }
         }
@@ -323,13 +324,11 @@ abstract class AbstractMigration implements MigrationInterface
      *
      * Right now, the only check is whether all changes were committed
      *
-     * @param string|null $direction direction of migration
-     *
      * @throws \RuntimeException
      *
      * @return void
      */
-    public function postFlightCheck($direction = null)
+    public function postFlightCheck()
     {
         foreach ($this->tables as $table) {
             if ($table->hasPendingActions()) {

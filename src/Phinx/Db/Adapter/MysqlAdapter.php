@@ -262,8 +262,10 @@ class MysqlAdapter extends PdoAdapter
             $column = new Column();
             $column->setName($options['id'])
                    ->setType('integer')
-                   ->setSigned(isset($options['signed']) ? $options['signed'] : true)
-                   ->setIdentity(true);
+                   ->setOptions([
+                       'signed' => $options['signed'] ?? true,
+                       'identity' => true,
+                   ]);
 
             array_unshift($columns, $column);
             if (isset($options['primary_key']) && (array)$options['id'] !== (array)$options['primary_key']) {

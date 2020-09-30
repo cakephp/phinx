@@ -289,14 +289,6 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @inheritdoc
-     */
-    public function hasSchemaTable()
-    {
-        return $this->hasTable($this->getSchemaTableName());
-    }
-
-    /**
      * @inheritDoc
      *
      * @throws \InvalidArgumentException
@@ -312,7 +304,7 @@ abstract class AbstractAdapter implements AdapterInterface
             ];
 
             $table = new Table($this->getSchemaTableName(), $options, $this);
-            $table->addColumn('version', 'biginteger')
+            $table->addColumn('version', 'biginteger', ['null' => false])
                 ->addColumn('migration_name', 'string', ['limit' => 100, 'default' => null, 'null' => true])
                 ->addColumn('start_time', 'timestamp', ['default' => null, 'null' => true])
                 ->addColumn('end_time', 'timestamp', ['default' => null, 'null' => true])

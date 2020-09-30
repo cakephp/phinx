@@ -143,11 +143,12 @@ interface MigrationInterface
     public function execute($sql);
 
     /**
-     * Executes a SQL statement and returns the result as an array.
+     * Executes a SQL statement.
      *
-     * To improve IDE auto-completion possibility, you can overwrite the query method
-     * phpDoc in your (typically custom abstract parent) migration class, where you can set
-     * the return type by the adapter in your current use.
+     * The return type depends on the underlying adapter being used. To improve
+     * IDE auto-completion possibility, you can overwrite the query method
+     * phpDoc in your (typically custom abstract parent) migration class, where
+     * you can set the return type by the adapter in your current use.
      *
      * @param string $sql SQL
      *
@@ -187,18 +188,6 @@ interface MigrationInterface
     public function fetchAll($sql);
 
     /**
-     * Insert data into a table.
-     *
-     * @deprecated since 0.10.0. Use $this->table($tableName)->insert($data)->save() instead.
-     *
-     * @param string $tableName Table name
-     * @param array $data Data
-     *
-     * @return void
-     */
-    public function insert($tableName, $data);
-
-    /**
      * Create a new database.
      *
      * @param string $name Database Name
@@ -216,6 +205,28 @@ interface MigrationInterface
      * @return void
      */
     public function dropDatabase($name);
+
+    /**
+     * Creates schema.
+     *
+     * This will thrown an error for adapters that do not support schemas.
+     *
+     * @param string $name Schema name
+     * @return void
+     * @throws \BadMethodCallException
+     */
+    public function createSchema($name);
+
+    /**
+     * Drops schema.
+     *
+     * This will thrown an error for adapters that do not support schemas.
+     *
+     * @param string $name Schema name
+     * @return void
+     * @throws \BadMethodCallException
+     */
+    public function dropSchema($name);
 
     /**
      * Checks to see if a table exists.
@@ -239,23 +250,19 @@ interface MigrationInterface
     public function table($tableName, $options);
 
     /**
-     * Perform checks on the migration, print a warning
+     * Perform checks on the migration, printing a warning
      * if there are potential problems.
-     *
-     * @param string|null $direction Direction
      *
      * @return void
      */
-    public function preFlightCheck($direction = null);
+    public function preFlightCheck();
 
     /**
      * Perform checks on the migration after completion
      *
      * Right now, the only check is whether all changes were committed
      *
-     * @param string|null $direction direction of migration
-     *
      * @return void
      */
-    public function postFlightCheck($direction = null);
+    public function postFlightCheck();
 }

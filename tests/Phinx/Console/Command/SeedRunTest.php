@@ -97,7 +97,7 @@ class SeedRunTest extends TestCase
             ],
             'environments' => [
                 'default_migration_table' => 'phinxlog',
-                'default_database' => 'development',
+                'default_environment' => 'development',
                 'development' => [
                     'dsn' => 'mysql://fakehost:3006/development',
                 ],

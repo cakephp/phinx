@@ -214,6 +214,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
 
         // deprecated: to be removed 0.13
         if (isset($this->values['environments']['default_database'])) {
+            trigger_error('default_database in the config has been deprecated since 0.12, use default_environment instead.', E_USER_DEPRECATED);
             $this->values['environments']['default_environment'] = $this->values['environments']['default_database'];
         }
 
