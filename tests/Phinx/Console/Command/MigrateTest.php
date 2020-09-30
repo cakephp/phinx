@@ -3,15 +3,11 @@
 namespace Test\Phinx\Console\Command;
 
 use Phinx\Config\Config;
-use Phinx\Config\ConfigInterface;
 use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Migrate;
 use Phinx\Console\PhinxApplication;
-use Phinx\Migration\Manager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -174,7 +170,7 @@ class MigrateTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
 
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
-        $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
+        $this->assertStringEndsWith('The environment "fakeenv" does not exist', trim($commandTester->getDisplay()));
         $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
@@ -297,10 +293,10 @@ class MigrateTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
 
         $this->assertStringContainsString(implode(PHP_EOL, [
-            "using environment development",
-            "using adapter sqlite",
-            "using database :memory:",
-            "ordering by creation time",
+            'using environment development',
+            'using adapter sqlite',
+            'using database :memory:',
+            'ordering by creation time',
         ]) . PHP_EOL, $commandTester->getDisplay());
         $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }

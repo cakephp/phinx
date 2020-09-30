@@ -54,7 +54,6 @@ class Util
      * Gets an array of all the existing migration class names.
      *
      * @param string $path Path
-     *
      * @return string[]
      */
     public static function getExistingMigrationClassNames($path)
@@ -82,7 +81,6 @@ class Util
      * Get the version from the beginning of a file name.
      *
      * @param string $fileName File Name
-     *
      * @return string
      */
     public static function getVersionFromFileName($fileName)
@@ -99,7 +97,6 @@ class Util
      * '12345678901234_limit_resource_names_to_30_chars.php'.
      *
      * @param string $className Class Name
-     *
      * @return string
      */
     public static function mapClassNameToFileName($className)
@@ -118,7 +115,6 @@ class Util
      * names like 'CreateUserTable'.
      *
      * @param string $fileName File Name
-     *
      * @return string
      */
     public static function mapFileNameToClassName(string $fileName): string
@@ -127,7 +123,7 @@ class Util
         if (preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName, $matches)) {
             $fileName = $matches[1];
         } elseif (preg_match(static::MIGRATION_FILE_NAME_NO_NAME_PATTERN, $fileName)) {
-            return "V" . substr($fileName, 0, strlen($fileName) - 4);
+            return 'V' . substr($fileName, 0, strlen($fileName) - 4);
         }
 
         $className = str_replace('_', '', ucwords($fileName, '_'));
@@ -147,7 +143,6 @@ class Util
      *
      * @param string $className Class Name
      * @param string $path Path
-     *
      * @return bool
      */
     public static function isUniqueMigrationClassName($className, $path)
@@ -166,7 +161,6 @@ class Util
      * Single words are not allowed on their own.
      *
      * @param string $className Class Name
-     *
      * @return bool
      */
     public static function isValidPhinxClassName($className)
@@ -178,22 +172,18 @@ class Util
      * Check if a migration file name is valid.
      *
      * @param string $fileName File Name
-     *
      * @return bool
      */
     public static function isValidMigrationFileName(string $fileName): bool
     {
-        return (
-            (bool)preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName)
-            || (bool)preg_match(static::MIGRATION_FILE_NAME_NO_NAME_PATTERN, $fileName)
-        );
+        return (bool)preg_match(static::MIGRATION_FILE_NAME_PATTERN, $fileName)
+            || (bool)preg_match(static::MIGRATION_FILE_NAME_NO_NAME_PATTERN, $fileName);
     }
 
     /**
      * Check if a seed file name is valid.
      *
      * @param string $fileName File Name
-     *
      * @return bool
      */
     public static function isValidSeedFileName($fileName)
@@ -205,7 +195,6 @@ class Util
      * Expands a set of paths with curly braces (if supported by the OS).
      *
      * @param string[] $paths Paths
-     *
      * @return string[]
      */
     public static function globAll(array $paths)
@@ -223,7 +212,6 @@ class Util
      * Expands a path with curly braces (if supported by the OS).
      *
      * @param string $path Path
-     *
      * @return string[]
      */
     public static function glob($path)
@@ -235,9 +223,7 @@ class Util
      * Takes the path to a php file and attempts to include it if readable
      *
      * @param string $filename Filename
-     *
      * @throws \Exception
-     *
      * @return string
      */
     public static function loadPhpFile($filename)
@@ -267,13 +253,12 @@ class Util
      * Given an array of paths, return all unique PHP files that are in them
      *
      * @param string|string[] $paths Path or array of paths to get .php files.
-     *
      * @return string[]
      */
     public static function getFiles($paths)
     {
         $files = static::globAll(array_map(function ($path) {
-            return $path . DIRECTORY_SEPARATOR . "*.php";
+            return $path . DIRECTORY_SEPARATOR . '*.php';
         }, (array)$paths));
         // glob() can return the same file multiple times
         // This will cause the migration to fail with a

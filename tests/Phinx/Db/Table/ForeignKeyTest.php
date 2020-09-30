@@ -9,7 +9,6 @@ use RuntimeException;
 
 class ForeignKeyTest extends TestCase
 {
-
     /**
      * @var ForeignKey
      */

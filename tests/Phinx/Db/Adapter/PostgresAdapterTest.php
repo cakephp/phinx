@@ -5,7 +5,6 @@ namespace Test\Phinx\Db\Adapter;
 use Phinx\Db\Adapter\AbstractAdapter;
 use Phinx\Db\Adapter\PostgresAdapter;
 use Phinx\Db\Adapter\UnsupportedColumnTypeException;
-use Phinx\Db\Table\Column;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -518,7 +517,7 @@ class PostgresAdapterTest extends TestCase
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
             if ($column->getName() === 'default_zero') {
-                $this->assertEquals("test", $column->getDefault());
+                $this->assertEquals('test', $column->getDefault());
             }
         }
     }
@@ -651,7 +650,7 @@ class PostgresAdapterTest extends TestCase
 
         $this->assertTrue($this->adapter->hasColumn('citable', 'insensitive'));
 
-        /** @var $columns Column[] */
+        /** @var Column[] $columns */
         $columns = $this->adapter->getColumns('citable');
         foreach ($columns as $column) {
             if ($column->getName() === 'insensitive') {
@@ -705,13 +704,13 @@ class PostgresAdapterTest extends TestCase
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
             if ($column->getName() === 'number') {
-                $this->assertEquals("10", $column->getPrecision());
-                $this->assertEquals("2", $column->getScale());
+                $this->assertEquals('10', $column->getPrecision());
+                $this->assertEquals('2', $column->getScale());
             }
 
             if ($column->getName() === 'number2') {
-                $this->assertEquals("12", $column->getPrecision());
-                $this->assertEquals("0", $column->getScale());
+                $this->assertEquals('12', $column->getPrecision());
+                $this->assertEquals('0', $column->getScale());
             }
         }
     }
@@ -727,15 +726,15 @@ class PostgresAdapterTest extends TestCase
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
             if ($column->getName() === 'timestamp1') {
-                $this->assertEquals("0", $column->getPrecision());
+                $this->assertEquals('0', $column->getPrecision());
             }
 
             if ($column->getName() === 'timestamp2') {
-                $this->assertEquals("4", $column->getPrecision());
+                $this->assertEquals('4', $column->getPrecision());
             }
 
             if ($column->getName() === 'timestamp3') {
-                $this->assertEquals("6", $column->getPrecision());
+                $this->assertEquals('6', $column->getPrecision());
             }
         }
     }
@@ -1349,7 +1348,7 @@ class PostgresAdapterTest extends TestCase
 
         $rows = $this->adapter->fetchAll(
             sprintf(
-                "SELECT description FROM pg_description JOIN pg_class ON pg_description.objoid = " .
+                'SELECT description FROM pg_description JOIN pg_class ON pg_description.objoid = ' .
                 "pg_class.oid WHERE relname = '%s'",
                 'ntable'
             )
@@ -2053,7 +2052,6 @@ OUTPUT;
 
     /**
      * Tests interaction with the query builder
-     *
      */
     public function testQueryBuilder()
     {

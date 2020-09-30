@@ -6,8 +6,11 @@
     <file>src</file>
     <file>tests</file>
 
-    <arg name="colors"/>
-    <arg value="np"/>
+    <exclude-pattern>*/tests/*/_files*</exclude-pattern>
 
     <rule ref="CakePHP" />
+
+    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing">
+        <severity>0</severity>
+    </rule>
 </ruleset>

@@ -51,7 +51,6 @@ class ForeignKey
      * Sets the foreign key columns.
      *
      * @param string[]|string $columns Columns
-     *
      * @return $this
      */
     public function setColumns($columns)
@@ -75,7 +74,6 @@ class ForeignKey
      * Sets the foreign key referenced table.
      *
      * @param \Phinx\Db\Table\Table $table The table this KEY is pointing to
-     *
      * @return $this
      */
     public function setReferencedTable(Table $table)
@@ -99,7 +97,6 @@ class ForeignKey
      * Sets the foreign key referenced columns.
      *
      * @param string[] $referencedColumns Referenced columns
-     *
      * @return $this
      */
     public function setReferencedColumns(array $referencedColumns)
@@ -123,7 +120,6 @@ class ForeignKey
      * Sets ON DELETE action for the foreign key.
      *
      * @param string $onDelete On Delete
-     *
      * @return $this
      */
     public function setOnDelete($onDelete)
@@ -157,7 +153,6 @@ class ForeignKey
      * Sets ON UPDATE action for the foreign key.
      *
      * @param string $onUpdate On Update
-     *
      * @return $this
      */
     public function setOnUpdate($onUpdate)
@@ -171,7 +166,6 @@ class ForeignKey
      * Sets constraint for the foreign key.
      *
      * @param string $constraint Constraint
-     *
      * @return $this
      */
     public function setConstraint($constraint)
@@ -195,9 +189,7 @@ class ForeignKey
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
-     *
      * @throws \RuntimeException
-     *
      * @return $this
      */
     public function setOptions($options)
@@ -227,9 +219,7 @@ class ForeignKey
      * From passed value checks if it's correct and fixes if needed
      *
      * @param string $action Action
-     *
      * @throws \InvalidArgumentException
-     *
      * @return string
      */
     protected function normalizeAction($action)

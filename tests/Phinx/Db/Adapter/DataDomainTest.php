@@ -11,8 +11,8 @@ class DataDomainTest extends TestCase
     public function testThrowsIfNoTypeSpecified()
     {
         $data_domain = [
-            "phone_number" => [
-                "length" => 19,
+            'phone_number' => [
+                'length' => 19,
             ],
         ];
 

@@ -63,7 +63,6 @@ EOT
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     *
      * @return int integer 0 on success, or an error code.
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -134,9 +133,7 @@ EOT
      * Get Target from Date
      *
      * @param string $date The date to convert to a target.
-     *
      * @throws \InvalidArgumentException
-     *
      * @return string The target
      */
     public function getTargetFromDate($date)

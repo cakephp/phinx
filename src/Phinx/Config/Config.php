@@ -58,9 +58,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * Create a new instance of the config class using a Yaml file path.
      *
      * @param string $configFilePath Path to the Yaml File
-     *
      * @throws \RuntimeException
-     *
      * @return \Phinx\Config\Config
      */
     public static function fromYaml($configFilePath)
@@ -88,16 +86,14 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * Create a new instance of the config class using a JSON file path.
      *
      * @param string $configFilePath Path to the JSON File
-     *
      * @throws \RuntimeException
-     *
      * @return \Phinx\Config\Config
      */
     public static function fromJson($configFilePath)
     {
         if (!function_exists('json_decode')) {
             // @codeCoverageIgnoreStart
-            throw new RuntimeException("Need to install JSON PHP extension to use JSON config");
+            throw new RuntimeException('Need to install JSON PHP extension to use JSON config');
             // @codeCoverageIgnoreEnd
         }
 
@@ -116,16 +112,14 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * Create a new instance of the config class using a PHP file path.
      *
      * @param string $configFilePath Path to the PHP File
-     *
      * @throws \RuntimeException
-     *
      * @return \Phinx\Config\Config
      */
     public static function fromPhp($configFilePath)
     {
         ob_start();
         /** @noinspection PhpIncludeInspection */
-        $configArray = include($configFilePath);
+        $configArray = include $configFilePath;
 
         // Hide console output
         ob_end_clean();
@@ -191,7 +185,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      */
     public function hasEnvironment($name)
     {
-        return ($this->getEnvironment($name) !== null);
+        return $this->getEnvironment($name) !== null;
     }
 
     /**
@@ -266,7 +260,6 @@ class Config implements ConfigInterface, NamespaceAwareInterface
 
     /**
      * @inheritDoc
-     *
      * @throws \UnexpectedValueException
      */
     public function getMigrationPaths()
@@ -286,7 +279,6 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * Gets the base class name for migrations.
      *
      * @param bool $dropNamespace Return the base migration class name without the namespace.
-     *
      * @return string
      */
     public function getMigrationBaseClassName($dropNamespace = true)
@@ -298,7 +290,6 @@ class Config implements ConfigInterface, NamespaceAwareInterface
 
     /**
      * @inheritDoc
-     *
      * @throws \UnexpectedValueException
      */
     public function getSeedPaths()
@@ -423,7 +414,6 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * Replace tokens in the specified array.
      *
      * @param array $arr Array to replace
-     *
      * @return array
      */
     protected function replaceTokens(array $arr)
@@ -452,7 +442,6 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      *
      * @param array $arr Array to recurse
      * @param string[] $tokens Array of tokens to search for
-     *
      * @return array
      */
     protected function recurseArrayForTokens($arr, $tokens)
@@ -480,7 +469,6 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * Parse a database-agnostic DSN into individual options.
      *
      * @param array $options Options
-     *
      * @return array
      */
     protected function parseAgnosticDsn(array $options)
@@ -505,7 +493,6 @@ class Config implements ConfigInterface, NamespaceAwareInterface
 
     /**
      * @inheritDoc
-     *
      * @throws \InvalidArgumentException
      */
     public function offsetGet($id)

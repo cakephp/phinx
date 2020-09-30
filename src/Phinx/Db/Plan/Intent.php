@@ -25,7 +25,6 @@ class Intent
      * Adds a new action to the collection
      *
      * @param \Phinx\Db\Action\Action $action The action to add
-     *
      * @return void
      */
     public function addAction(Action $action)
@@ -47,7 +46,6 @@ class Intent
      * Merges another Intent object with this one
      *
      * @param \Phinx\Db\Plan\Intent $another The other intent to merge in
-     *
      * @return void
      */
     public function merge(Intent $another)

@@ -1,6 +1,6 @@
 linters:
   phpcs:
-    standard: CakePHP3
+    standard: CakePHP
     fixer: true
 
 files:

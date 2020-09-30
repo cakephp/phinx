@@ -4,15 +4,11 @@ namespace Test\Phinx\Console\Command;
 
 use InvalidArgumentException;
 use Phinx\Config\Config;
-use Phinx\Config\ConfigInterface;
 use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Breakpoint;
 use Phinx\Console\PhinxApplication;
-use Phinx\Migration\Manager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -79,7 +75,6 @@ class BreakpointTest extends TestCase
      * @param array $commandLine
      * @param int|null $version
      * @param bool $noVersionParameter
-     *
      * @dataProvider provideBreakpointTests
      */
     public function testExecute($testMethod, $commandLine, $version = null, $noVersionParameter = false)
@@ -194,7 +189,6 @@ class BreakpointTest extends TestCase
 
     /**
      * @param array $commandLine
-     *
      * @dataProvider provideCombinedParametersToCauseException
      */
     public function testRemoveAllSetUnsetCombinedThrowsException($commandLine)
@@ -300,7 +294,7 @@ class BreakpointTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
 
         $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
-        $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
+        $this->assertStringEndsWith('The environment "fakeenv" does not exist', trim($commandTester->getDisplay()));
         $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 }

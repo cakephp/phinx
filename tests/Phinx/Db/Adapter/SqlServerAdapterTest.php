@@ -384,7 +384,7 @@ WHERE t.name='ntable'");
         $columns = $this->adapter->getColumns('table1');
         foreach ($columns as $column) {
             if ($column->getName() === 'default_zero') {
-                $this->assertEquals("test", $column->getDefault());
+                $this->assertEquals('test', $column->getDefault());
             }
         }
     }
@@ -998,7 +998,6 @@ OUTPUT;
 
     /**
      * Tests interaction with the query builder
-     *
      */
     public function testQueryBuilder()
     {
