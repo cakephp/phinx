@@ -79,8 +79,8 @@ class MigrateTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
         $output = $commandTester->getDisplay();
-        $this->assertRegExp('/no environment specified/', $output);
-        $this->assertRegExp('/ordering by creation time/', $output);
+        $this->assertStringContainsString('no environment specified', $output);
+        $this->assertStringContainsString('ordering by creation time', $output);
         $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
@@ -120,8 +120,8 @@ class MigrateTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
         $output = $commandTester->getDisplay();
-        $this->assertRegExp('/no environment specified/', $output);
-        $this->assertRegExp('/ordering by creation time/', $output);
+        $this->assertStringContainsString('no environment specified', $output);
+        $this->assertStringContainsString('ordering by creation time', $output);
         $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
@@ -147,7 +147,7 @@ class MigrateTest extends TestCase
         $commandTester = new CommandTester($command);
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
 
-        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
+        $this->assertStringContainsString('using environment development', $commandTester->getDisplay());
         $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
@@ -173,7 +173,7 @@ class MigrateTest extends TestCase
         $commandTester = new CommandTester($command);
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
 
-        $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
+        $this->assertStringContainsString('using environment fakeenv', $commandTester->getDisplay());
         $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
         $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
@@ -200,7 +200,7 @@ class MigrateTest extends TestCase
         $commandTester = new CommandTester($command);
         $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
-        $this->assertRegExp('/using database development/', $commandTester->getDisplay());
+        $this->assertStringContainsString('using database development', $commandTester->getDisplay());
         $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
@@ -226,7 +226,7 @@ class MigrateTest extends TestCase
         $commandTester = new CommandTester($command);
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--fake' => true], ['decorated' => false]);
 
-        $this->assertRegExp('/warning performing fake migrations/', $commandTester->getDisplay());
+        $this->assertStringContainsString('warning performing fake migrations', $commandTester->getDisplay());
         $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
@@ -255,8 +255,8 @@ class MigrateTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
         $output = $commandTester->getDisplay();
-        $this->assertRegExp('/no environment specified/', $output);
-        $this->assertRegExp('/ordering by execution time/', $output);
+        $this->assertStringContainsString('no environment specified', $output);
+        $this->assertStringContainsString('ordering by execution time', $output);
         $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 

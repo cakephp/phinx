@@ -90,10 +90,10 @@ class RollbackTest extends TestCase
 
         $display = $commandTester->getDisplay();
 
-        $this->assertRegExp('/no environment specified/', $display);
+        $this->assertStringContainsString('no environment specified', $display);
 
         // note that the default order is by creation time
-        $this->assertRegExp('/ordering by creation time/', $display);
+        $this->assertStringContainsString('ordering by creation time', $display);
     }
 
     public function testExecuteWithEnvironmentOption()
@@ -119,7 +119,7 @@ class RollbackTest extends TestCase
         $commandTester = new CommandTester($command);
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'development'], ['decorated' => false]);
 
-        $this->assertRegExp('/using environment development/', $commandTester->getDisplay());
+        $this->assertStringContainsString('using environment development', $commandTester->getDisplay());
         $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
@@ -145,7 +145,7 @@ class RollbackTest extends TestCase
         $commandTester = new CommandTester($command);
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--environment' => 'fakeenv'], ['decorated' => false]);
 
-        $this->assertRegExp('/using environment fakeenv/', $commandTester->getDisplay());
+        $this->assertStringContainsString('using environment fakeenv', $commandTester->getDisplay());
         $this->assertStringEndsWith("The environment \"fakeenv\" does not exist", trim($commandTester->getDisplay()));
         $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
@@ -172,7 +172,7 @@ class RollbackTest extends TestCase
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
-        $this->assertRegExp('/using database development/', $commandTester->getDisplay());
+        $this->assertStringContainsString('using database development', $commandTester->getDisplay());
     }
 
     public function testStartTimeVersionOrder()
@@ -199,7 +199,7 @@ class RollbackTest extends TestCase
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
-        $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
+        $this->assertStringContainsString('ordering by execution time', $commandTester->getDisplay());
     }
 
     public function testWithDate()
@@ -308,7 +308,7 @@ class RollbackTest extends TestCase
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(['command' => $command->getName(), '-d' => $targetDate], ['decorated' => false]);
-        $this->assertRegExp('/ordering by execution time/', $commandTester->getDisplay());
+        $this->assertStringContainsString('ordering by execution time', $commandTester->getDisplay());
     }
 
     public function testFakeRollback()
@@ -336,7 +336,7 @@ class RollbackTest extends TestCase
 
         $display = $commandTester->getDisplay();
 
-        $this->assertRegExp('/warning performing fake rollback/', $display);
+        $this->assertStringContainsString('warning performing fake rollback', $display);
     }
 
     public function testRollbackMemorySqlite()

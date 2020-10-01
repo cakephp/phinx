@@ -47,7 +47,7 @@ class TableTest extends TestCase
                 $e,
                 'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
-            $this->assertRegExp('/^An invalid column type /', $e->getMessage());
+            $this->assertStringStartsWith('An invalid column type ', $e->getMessage());
         }
     }
 
