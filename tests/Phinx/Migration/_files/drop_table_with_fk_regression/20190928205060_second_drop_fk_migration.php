@@ -11,7 +11,7 @@ class SecondDropFkMigration extends AbstractMigration
             ->create();
 
         $this->table('orders')
-            ->addColumn('customer_id', 'integer')
+            ->addColumn('customer_id', 'integer', ['signed' => false])
             ->addForeignKey('customer_id', 'customers', 'id')
             ->update();
     }

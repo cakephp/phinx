@@ -37,6 +37,7 @@ class AddColumnIndexFk extends AbstractMigration
             ->addColumn('user_id', Column::INTEGER, [
                 'null' => true,
                 'limit' => 20,
+                'signed' => false,
             ])
             ->addIndex(['user_id'], [
                     'name' => 'statuses_users_id',

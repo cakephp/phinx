@@ -479,11 +479,11 @@ comment    set a text comment on the table
 row_format set the table row format
 engine     define table engine *(defaults to ``InnoDB``)*
 collation  define table collation *(defaults to ``utf8mb4_unicode_ci``)*
-signed     whether the primary key is ``signed``  *(defaults to ``true``)*
+signed     whether the primary key is ``signed``  *(defaults to ``false``)*
 ========== ===========
 
-By default the primary key is ``signed``.
-To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
+By default, the primary key is ``unsigned``.
+To simply set it to be signed just pass ``signed`` option with a ``true`` value:
 
 .. code-block:: php
 
