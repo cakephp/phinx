@@ -1233,21 +1233,31 @@ class PostgresAdapter extends PdoAdapter
     protected function getIndexSqlDefinition(Index $index, $tableName)
     {
         $parts = $this->getSchemaName($tableName);
+        $columnNames = $index->getColumns();
 
         if (is_string($index->getName())) {
             $indexName = $index->getName();
         } else {
-            $columnNames = $index->getColumns();
             $indexName = sprintf('%s_%s', $parts['table'], implode('_', $columnNames));
         }
+
+        $order = $index->getOrder() ?? [];
+        $columnNames = array_map(function ($columnName) use ($order) {
+            $ret = '"' . $columnName . '"';
+            if (isset($order[$columnName])) {
+                $ret .= ' ' . $order[$columnName];
+            }
+
+            return $ret;
+        }, $columnNames);	
 
         return sprintf(
             'CREATE %s INDEX %s ON %s (%s);',
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $this->quoteColumnName($indexName),
             $this->quoteTableName($tableName),
-            implode(',', array_map([$this, 'quoteColumnName'], $index->getColumns()))
-        );
+	    implode(',', $columnNames)
+        ); 
     }
 
     /**

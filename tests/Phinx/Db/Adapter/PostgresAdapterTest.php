@@ -979,6 +979,48 @@ class PostgresAdapterTest extends TestCase
         $this->assertTrue($table->hasIndex('email'));
     }
 
+    public function testAddIndexWithSort()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addColumn('username', 'string')
+              ->save();
+        $this->assertFalse($table->hasIndexByName('table1_email_username'));
+        $table->addIndex(['email', 'username'], ['name' => 'table1_email_username', 'order' => ['email' => 'DESC', 'username' => 'ASC']])
+	      ->save();
+        $this->assertTrue($table->hasIndexByName('table1_email_username'));
+	$rows = $this->adapter->fetchAll("SELECT CASE o.option & 1 WHEN 1 THEN 'DESC' ELSE 'ASC' END as sort_order
+                        FROM pg_index AS i
+                        JOIN pg_class AS trel ON trel.oid = i.indrelid
+                        JOIN pg_namespace AS tnsp ON trel.relnamespace = tnsp.oid
+                        JOIN pg_class AS irel ON irel.oid = i.indexrelid
+                        CROSS JOIN LATERAL unnest (i.indkey) WITH ORDINALITY AS c (colnum, ordinality)
+                        LEFT JOIN LATERAL unnest (i.indoption) WITH ORDINALITY AS o (option, ordinality)
+                        ON c.ordinality = o.ordinality
+                        JOIN pg_attribute AS a ON trel.oid = a.attrelid AND a.attnum = c.colnum
+                        WHERE trel.relname = 'table1' 
+                        AND irel.relname = 'table1_email_username' 	
+                        AND a.attname = 'email'
+                        GROUP BY o.option, tnsp.nspname, trel.relname, irel.relname");
+        $emailOrder = $rows[0];
+        $this->assertEquals($emailOrder['sort_order'], 'DESC');
+        $rows = $this->adapter->fetchAll("SELECT CASE o.option & 1 WHEN 1 THEN 'DESC' ELSE 'ASC' END as sort_order
+                        FROM pg_index AS i
+                        JOIN pg_class AS trel ON trel.oid = i.indrelid
+                        JOIN pg_namespace AS tnsp ON trel.relnamespace = tnsp.oid
+                        JOIN pg_class AS irel ON irel.oid = i.indexrelid
+                        CROSS JOIN LATERAL unnest (i.indkey) WITH ORDINALITY AS c (colnum, ordinality)
+                        LEFT JOIN LATERAL unnest (i.indoption) WITH ORDINALITY AS o (option, ordinality)
+                        ON c.ordinality = o.ordinality
+                        JOIN pg_attribute AS a ON trel.oid = a.attrelid AND a.attnum = c.colnum
+                        WHERE trel.relname = 'table1'
+                        AND irel.relname = 'table1_email_username'
+                        AND a.attname = 'username'
+                        GROUP BY o.option, tnsp.nspname, trel.relname, irel.relname");
+        $emailOrder = $rows[0];
+        $this->assertEquals($emailOrder['sort_order'], 'ASC');
+    }
+
     public function testAddIndexWithSchema()
     {
         $this->adapter->createSchema('schema1');
