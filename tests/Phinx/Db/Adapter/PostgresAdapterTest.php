@@ -987,9 +987,9 @@ class PostgresAdapterTest extends TestCase
               ->save();
         $this->assertFalse($table->hasIndexByName('table1_email_username'));
         $table->addIndex(['email', 'username'], ['name' => 'table1_email_username', 'order' => ['email' => 'DESC', 'username' => 'ASC']])
-	      ->save();
+          ->save();
         $this->assertTrue($table->hasIndexByName('table1_email_username'));
-	$rows = $this->adapter->fetchAll("SELECT CASE o.option & 1 WHEN 1 THEN 'DESC' ELSE 'ASC' END as sort_order
+        $rows = $this->adapter->fetchAll("SELECT CASE o.option & 1 WHEN 1 THEN 'DESC' ELSE 'ASC' END as sort_order
                         FROM pg_index AS i
                         JOIN pg_class AS trel ON trel.oid = i.indrelid
                         JOIN pg_namespace AS tnsp ON trel.relnamespace = tnsp.oid

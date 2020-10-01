@@ -1249,15 +1249,15 @@ class PostgresAdapter extends PdoAdapter
             }
 
             return $ret;
-        }, $columnNames);	
+        }, $columnNames);
 
         return sprintf(
             'CREATE %s INDEX %s ON %s (%s);',
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $this->quoteColumnName($indexName),
             $this->quoteTableName($tableName),
-	    implode(',', $columnNames)
-        ); 
+            implode(',', $columnNames)
+        );
     }
 
     /**
