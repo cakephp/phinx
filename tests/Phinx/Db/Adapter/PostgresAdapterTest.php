@@ -106,7 +106,7 @@ class PostgresAdapterTest extends TestCase
                 $e,
                 'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
-            $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
+            $this->assertStringContainsString('There was a problem connecting to the database', $e->getMessage());
         }
     }
 
@@ -851,7 +851,7 @@ class PostgresAdapterTest extends TestCase
         foreach ($columns as $column) {
             if ($column->getName() === 'column1') {
                 $this->assertTrue($column->isNull());
-                $this->assertRegExp('/Test/', $column->getDefault());
+                $this->assertStringContainsString('Test', $column->getDefault());
             }
         }
     }
@@ -865,7 +865,7 @@ class PostgresAdapterTest extends TestCase
         $columns = $this->adapter->getColumns('t');
         foreach ($columns as $column) {
             if ($column->getName() === 'column1') {
-                $this->assertRegExp('/Test/', $column->getDefault());
+                $this->assertStringContainsString('Test', $column->getDefault());
             }
         }
 

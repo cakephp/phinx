@@ -309,8 +309,8 @@ class SQLiteAdapterTest extends TestCase
         $row = $this->adapter->fetchRow(
             "SELECT * FROM sqlite_master WHERE `type` = 'table' AND `tbl_name` = 'tbl_child'"
         );
-        $this->assertRegExp(
-            '/CONSTRAINT `fk_master_id` FOREIGN KEY \(`master_id`\) REFERENCES `tbl_master` \(`id`\) ON DELETE NO ACTION ON UPDATE NO ACTION/',
+        $this->assertStringContainsString(
+            'CONSTRAINT `fk_master_id` FOREIGN KEY (`master_id`) REFERENCES `tbl_master` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION',
             $row['sql']
         );
     }
@@ -2122,7 +2122,7 @@ INPUT;
                 $sql = $row['sql'];
             }
         }
-        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+        $this->assertStringContainsString("REFERENCES `{$refTable->getName()}` (`id`)", $sql);
     }
 
     public function testForeignKeyReferenceCorrectAfterChangeColumn()
@@ -2149,7 +2149,7 @@ INPUT;
                 $sql = $row['sql'];
             }
         }
-        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+        $this->assertStringContainsString("REFERENCES `{$refTable->getName()}` (`id`)", $sql);
     }
 
     public function testForeignKeyReferenceCorrectAfterRemoveColumn()
@@ -2176,7 +2176,7 @@ INPUT;
                 $sql = $row['sql'];
             }
         }
-        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+        $this->assertStringContainsString("REFERENCES `{$refTable->getName()}` (`id`)", $sql);
     }
 
     public function testForeignKeyReferenceCorrectAfterChangePrimaryKey()
@@ -2203,7 +2203,7 @@ INPUT;
                 $sql = $row['sql'];
             }
         }
-        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+        $this->assertStringContainsString("REFERENCES `{$refTable->getName()}` (`id`)", $sql);
     }
 
     public function testForeignKeyReferenceCorrectAfterDropForeignKey()
@@ -2235,6 +2235,6 @@ INPUT;
                 $sql = $row['sql'];
             }
         }
-        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+        $this->assertStringContainsString("REFERENCES `{$refTable->getName()}` (`id`)", $sql);
     }
 }

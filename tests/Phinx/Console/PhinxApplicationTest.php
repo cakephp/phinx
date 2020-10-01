@@ -26,13 +26,13 @@ class PhinxApplicationTest extends TestCase
         $stream = $appTester->getOutput()->getStream();
         rewind($stream);
 
-        $this->assertRegExp($result, stream_get_contents($stream));
+        $this->assertStringContainsString($result, stream_get_contents($stream));
     }
 
     public function provider()
     {
         return [
-            ['help', '/help \[options\] \[--\] \[<command_name>\]/'],
+            ['help', 'help [options] [--] [<command_name>]'],
         ];
     }
 }

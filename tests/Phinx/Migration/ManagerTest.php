@@ -174,8 +174,8 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20120111235330  2012-01-11 23:53:36  2012-01-11 23:53:37  TestMigration/', $outputStr);
-        $this->assertRegExp('/up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2/', $outputStr);
+        $this->assertStringContainsString('up  20120111235330  2012-01-11 23:53:36  2012-01-11 23:53:37  TestMigration', $outputStr);
+        $this->assertStringContainsString('up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2', $outputStr);
     }
 
     public function testPrintStatusMethodJsonFormat()
@@ -252,8 +252,8 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20160111235330  2016-01-11 23:53:36  2016-01-11 23:53:37  Foo\\\\Bar\\\\TestMigration/', $outputStr);
-        $this->assertRegExp('/up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration2/', $outputStr);
+        $this->assertStringContainsString('up  20160111235330  2016-01-11 23:53:36  2016-01-11 23:53:37  Foo\\Bar\\TestMigration', $outputStr);
+        $this->assertStringContainsString('up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\Bar\\TestMigration2', $outputStr);
     }
 
     public function testPrintStatusMethodWithMixedNamespace()
@@ -325,12 +325,12 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20120111235330  2012-01-11 23:53:36  2012-01-11 23:53:37  TestMigration/', $outputStr);
-        $this->assertRegExp('/up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2/', $outputStr);
-        $this->assertRegExp('/up  20150111235330  2015-01-11 23:53:36  2015-01-11 23:53:37  Baz\\\\TestMigration/', $outputStr);
-        $this->assertRegExp('/up  20150116183504  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\\\TestMigration2/', $outputStr);
-        $this->assertRegExp('/up  20160111235330  2016-01-11 23:53:36  2016-01-11 23:53:37  Foo\\\\Bar\\\\TestMigration/', $outputStr);
-        $this->assertRegExp('/up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration2/', $outputStr);
+        $this->assertStringContainsString('up  20120111235330  2012-01-11 23:53:36  2012-01-11 23:53:37  TestMigration', $outputStr);
+        $this->assertStringContainsString('up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2', $outputStr);
+        $this->assertStringContainsString('up  20150111235330  2015-01-11 23:53:36  2015-01-11 23:53:37  Baz\\TestMigration', $outputStr);
+        $this->assertStringContainsString('up  20150116183504  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\TestMigration2', $outputStr);
+        $this->assertStringContainsString('up  20160111235330  2016-01-11 23:53:36  2016-01-11 23:53:37  Foo\\Bar\\TestMigration', $outputStr);
+        $this->assertStringContainsString('up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\Bar\\TestMigration2', $outputStr);
     }
 
     public function testPrintStatusMethodWithBreakpointSet()
@@ -369,7 +369,7 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/BREAKPOINT SET/', $outputStr);
+        $this->assertStringContainsString('BREAKPOINT SET', $outputStr);
     }
 
     public function testPrintStatusMethodWithNoMigrations()
@@ -392,7 +392,7 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/There are no available migrations. Try creating one using the create command./', $outputStr);
+        $this->assertStringContainsString('There are no available migrations. Try creating one using the create command.', $outputStr);
     }
 
     public function testPrintStatusMethodWithMissingMigrations()
@@ -764,7 +764,7 @@ class ManagerTest extends TestCase
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
         $this->assertRegExp('/up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*/', $outputStr);
-        $this->assertRegExp('/BREAKPOINT SET/', $outputStr);
+        $this->assertStringContainsString('BREAKPOINT SET', $outputStr);
         $this->assertRegExp('/up  20120815145812  2012-01-16 18:35:40  2012-01-16 18:35:41  Example   *\*\* MISSING \*\*/', $outputStr);
     }
 
@@ -792,8 +792,8 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration/', $outputStr);
-        $this->assertRegExp('/down  20120116183504                                            TestMigration2/', $outputStr);
+        $this->assertStringContainsString('up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration', $outputStr);
+        $this->assertStringContainsString('down  20120116183504                                            TestMigration2', $outputStr);
     }
 
     public function testPrintStatusMethodWithDownMigrationsWithNamespace()
@@ -821,8 +821,8 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration/', $outputStr);
-        $this->assertRegExp('/down  20160116183504                                            Foo\\\\Bar\\\\TestMigration2/', $outputStr);
+        $this->assertStringContainsString('up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\Bar\\TestMigration', $outputStr);
+        $this->assertStringContainsString('down  20160116183504                                            Foo\\Bar\\TestMigration2', $outputStr);
     }
 
     public function testPrintStatusMethodWithDownMigrationsWithMixedNamespace()
