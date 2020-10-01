@@ -1352,13 +1352,15 @@ class MysqlAdapter extends PdoAdapter
         }
 
 	$columnNames = $index->getColumns();
-	$order = $index->getOrder();
-	if(!empty($columnNames)){
-           foreach ($columnNames as $key => $value) {
-               $loc = array_search($key, $columnNames);
-               $columnNames[$key] = is_array($order) && array_key_exists($value, $order) ? sprintf('`%s` %s', $value, $order[$value]) :  sprintf('`%s`', $value);
-           }
-        }
+        $order = $index->getOrder() ?? [];
+        $columnNames = array_map(function ($columnName) {
+            $ret = '[' . $columnName . ']';
+            if (isset($order[$columnName])) {
+                $ret .= ' ' . $order[$columnName];
+            }
+
+            return $ret;
+        }, $columnNames);
 
         if (!is_array($index->getLimit())) {
             if ($index->getLimit()) {
@@ -1371,7 +1373,7 @@ class MysqlAdapter extends PdoAdapter
             $def .= ' (';
             foreach ($columns as $column) {
 		$limit = !isset($limits[$column]) || $limits[$column] <= 0 ? '' : '(' . $limits[$column] . ')';
-		$columnSort = is_array($order) && array_key_exists($column,$order) ? $order[$column] : '';
+		$columnSort = isset($order[$column]) ?? '';
                 $def .= '`' . $column . '`' . $limit . ' ' . $columnSort . ', ';
             }
             $def = rtrim($def, ', ');
