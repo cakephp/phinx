@@ -1272,13 +1272,14 @@ SQL;
         } else {
             $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         }
-        $order = $index->getOrder();
-        if (!empty($order)) {
-            foreach ($order as $key => $value) {
-                    $loc = array_search($key, $columnNames);
-                    $columnNames[$loc] = sprintf('[%s] %s', $key, $value);
+        $order = $index->getOrder() ?? [];
+        $columnNames = array_map(function($columnName) {
+            $ret = '[' . $columnName . ']';
+            if (isset($order[$columnName])) {
+                $ret .= ' ' . $order[$columnName];
             }
-        }
+            return $ret;
+        }, $columnNames);
 
         return sprintf(
             'CREATE %s INDEX %s ON %s (%s);',
