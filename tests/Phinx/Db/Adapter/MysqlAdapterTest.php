@@ -1233,6 +1233,10 @@ class MysqlAdapterTest extends TestCase
 
     public function testAddIndexWithSort()
     {
+        $this->adapter->connect();
+        if (!$this->usingMysql8()) {
+            $this->markTestSkipped('Cannot test index order on mysql versions less than 8');
+        }
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
               ->addColumn('username', 'string')
