@@ -1273,11 +1273,12 @@ SQL;
             $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         }
         $order = $index->getOrder() ?? [];
-        $columnNames = array_map(function($columnName) {
+        $columnNames = array_map(function ($columnName) {
             $ret = '[' . $columnName . ']';
             if (isset($order[$columnName])) {
                 $ret .= ' ' . $order[$columnName];
             }
+
             return $ret;
         }, $columnNames);
 
