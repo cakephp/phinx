@@ -1353,8 +1353,8 @@ class MysqlAdapter extends PdoAdapter
 
 	$columnNames = $index->getColumns();
         $order = $index->getOrder() ?? [];
-        $columnNames = array_map(function ($columnName) {
-            $ret = '[' . $columnName . ']';
+        $columnNames = array_map(function ($columnName) use ($order) {
+            $ret = '`' . $columnName . '`';
             if (isset($order[$columnName])) {
                 $ret .= ' ' . $order[$columnName];
             }
