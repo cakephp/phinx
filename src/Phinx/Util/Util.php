@@ -285,6 +285,32 @@ class Util
     }
 
     /**
+     * Attempt to remove the current working directory from a path for output.
+     *
+     * @param string $path Path to remove cwd prefix from
+     * @return string
+     */
+    public static function relativePath($path)
+    {
+        $realpath = realpath($path);
+        if ($realpath !== false) {
+            $path = $realpath;
+        }
+
+        $cwd = getcwd();
+        if ($cwd !== false) {
+            $cwd .= DIRECTORY_SEPARATOR;
+            $cwdLen = strlen($cwd);
+
+            if (substr($path, 0, $cwdLen) === $cwd) {
+                $path = substr($path, $cwdLen);
+            }
+        }
+
+        return $path;
+    }
+
+    /**
      * Parses DSN string into db config array.
      *
      * @param string $dsn DSN string

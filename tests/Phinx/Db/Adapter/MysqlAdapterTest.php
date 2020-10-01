@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Test\Phinx\Db\Adapter;
 
-use Cake\Collection\Collection;
 use PDOException;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
@@ -85,7 +84,7 @@ class MysqlAdapterTest extends TestCase
                 $e,
                 'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
-            $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
+            $this->assertStringContainsString('There was a problem connecting to the database', $e->getMessage());
         }
     }
 
@@ -2033,5 +2032,24 @@ INPUT;
         $this->assertTrue(in_array('blob', $validTypes, true));
         $this->assertTrue(in_array('mediumblob', $validTypes, true));
         $this->assertTrue(in_array('longblob', $validTypes, true));
+    }
+
+    public function testCreateTableWithPrecisionCurrentTimestamp()
+    {
+        $this->adapter->connect();
+        (new \Phinx\Db\Table('exampleCurrentTimestamp3', ['id' => false], $this->adapter))
+            ->addColumn('timestamp_3', 'timestamp', [
+                'null' => false,
+                'default' => 'CURRENT_TIMESTAMP(3)',
+                'limit' => 3,
+            ])
+            ->create();
+
+        $rows = $this->adapter->fetchAll(sprintf(
+            "SELECT COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='exampleCurrentTimestamp3'",
+            MYSQL_DB_CONFIG['name']
+        ));
+        $colDef = $rows[0];
+        $this->assertEquals('CURRENT_TIMESTAMP(3)', $colDef['COLUMN_DEFAULT']);
     }
 }
