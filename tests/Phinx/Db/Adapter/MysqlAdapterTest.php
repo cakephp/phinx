@@ -1232,6 +1232,25 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($table->hasIndex('email'));
     }
 
+    public function testAddIndexWithSort()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addColumn('username', 'string')
+              ->save();
+        $this->assertFalse($table->hasIndexByName('table1_email_username'));
+        $table->addIndex(['email', 'username'], ['name' => 'table1_email_username', 'order' => ['email' => 'DESC', 'username' => 'ASC']])
+              ->save();
+	$this->assertTrue($table->hasIndexByName('table1_email_username'));
+        $rows = $this->adapter->fetchAll("SHOW INDEXES FROM table1 WHERE Key_name = 'table1_email_username' AND Column_name = 'email'");
+	$emailOrder = $rows[0]['Collation'];
+        $this->assertEquals($emailOrder, 'D');
+	
+	$rows = $this->adapter->fetchAll("SHOW INDEXES FROM table1 WHERE Key_name = 'table1_email_username' AND Column_name = 'username'");
+        $emailOrder = $rows[0]['Collation'];
+        $this->assertEquals($emailOrder, 'A');
+    }
+
     public function testAddMultipleFulltextIndex()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
