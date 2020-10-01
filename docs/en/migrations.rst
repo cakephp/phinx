@@ -815,7 +815,7 @@ Option  Description
 limit   set maximum length for strings, also hints column types in adapters (see note below)
 length  alias for ``limit``
 default set default value or action
-null    allow ``NULL`` values, defaults to false (should not be used with primary keys!) (see note below)
+null    allow ``NULL`` values, defaults to false if `identity` option is set to true, else defaults to true
 after   specify the column that a new column should be placed after *(only applies to MySQL)*
 comment set a text comment on the column
 ======= ===========
