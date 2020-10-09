@@ -1282,13 +1282,15 @@ SQL;
             return $ret;
         }, $columnNames);
 
+	$includedColumns = $index->getInclude() ? sprintf(' INCLUDE ([%s])', implode('],[', $index->getInclude())) : '';
         return sprintf(
-            'CREATE %s INDEX %s ON %s (%s);',
+            'CREATE %s INDEX %s ON %s (%s) %s;',
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
             $this->quoteTableName($tableName),
-            implode(',', $columnNames)
-        );
+	    implode(',', $columnNames),
+	    $includedColumns
+        ); 
     }
 
     /**

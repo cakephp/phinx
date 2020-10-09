@@ -641,6 +641,43 @@ WHERE t.name='ntable'");
         $this->assertEquals($emailOrder['sort_order'], 'ASC');
     }
 
+    public function testAddIndexWithIncludeColumns()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addColumn('firstname', 'string')
+              ->addColumn('lastname', 'string')
+              ->save();
+        $this->assertFalse($table->hasIndex('email'));
+        $table->addIndex(['email'], ['include' => ['firstname', 'lastname']])
+              ->save();
+        $this->assertTrue($table->hasIndex('email'));
+        $rows = $this->adapter->fetchAll("SELECT ic.is_included_column AS included
+                        FROM   sys.indexes AS i
+                        INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+                        INNER JOIN sys.tables AS t ON i.object_id=t.object_id
+                        INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
+                        WHERE   t.name = 'table1' AND c.name = 'email'");
+        $emailOrder = $rows[0];
+        $this->assertEquals($emailOrder['included'], 0);
+        $rows = $this->adapter->fetchAll("SELECT ic.is_included_column AS included
+                        FROM   sys.indexes AS i
+                        INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+                        INNER JOIN sys.tables AS t ON i.object_id=t.object_id
+                        INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
+                        WHERE   t.name = 'table1' AND c.name = 'firstname'");
+        $emailOrder = $rows[0];
+	$this->assertEquals($emailOrder['included'], 1);
+        $rows = $this->adapter->fetchAll("SELECT ic.is_included_column AS included
+                        FROM   sys.indexes AS i
+                        INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+                        INNER JOIN sys.tables AS t ON i.object_id=t.object_id
+                        INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
+                        WHERE   t.name = 'table1' AND c.name = 'lastname'");
+        $emailOrder = $rows[0];
+        $this->assertEquals($emailOrder['included'], 1);
+    }
+
     public function testGetIndexes()
     {
         // single column index
