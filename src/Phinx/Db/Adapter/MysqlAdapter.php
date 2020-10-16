@@ -1351,18 +1351,30 @@ class MysqlAdapter extends PdoAdapter
             $def .= ' `' . $index->getName() . '`';
         }
 
+        $columnNames = $index->getColumns();
+        $order = $index->getOrder() ?? [];
+        $columnNames = array_map(function ($columnName) use ($order) {
+            $ret = '`' . $columnName . '`';
+            if (isset($order[$columnName])) {
+                $ret .= ' ' . $order[$columnName];
+            }
+
+            return $ret;
+        }, $columnNames);
+
         if (!is_array($index->getLimit())) {
             if ($index->getLimit()) {
                 $limit = '(' . $index->getLimit() . ')';
             }
-            $def .= ' (`' . implode('`,`', $index->getColumns()) . '`' . $limit . ')';
+            $def .= ' (' . implode(',', $columnNames) . $limit . ')';
         } else {
             $columns = $index->getColumns();
             $limits = $index->getLimit();
             $def .= ' (';
             foreach ($columns as $column) {
                 $limit = !isset($limits[$column]) || $limits[$column] <= 0 ? '' : '(' . $limits[$column] . ')';
-                $def .= '`' . $column . '`' . $limit . ', ';
+                $columnSort = isset($order[$column]) ?? '';
+                $def .= '`' . $column . '`' . $limit . ' ' . $columnSort . ', ';
             }
             $def = rtrim($def, ', ');
             $def .= ' )';
