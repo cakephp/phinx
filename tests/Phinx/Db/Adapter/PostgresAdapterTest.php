@@ -1026,8 +1026,8 @@ class PostgresAdapterTest extends TestCase
         if (!version_compare($this->adapter->fetchAll("SHOW server_version;")[0]['server_version'], '11.0.0', '>=')) {
             $this->markTestSkipped('Cannot test index include collumns (non-key columns) on postgresql versions less than 11');
         }
-	
-	$table = new \Phinx\Db\Table('table1', [], $this->adapter);
+
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
               ->addColumn('firstname', 'string')
               ->addColumn('lastname', 'string')
