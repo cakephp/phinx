@@ -334,7 +334,7 @@ For example, to set the above example options:
 
     $config = [
         "environments" => [
-            "developement" => [
+            "development" => [
                 "adapter" => "mysql",
                 # other adapter settings
                 "attr_case" => \PDO::ATTR_CASE,
