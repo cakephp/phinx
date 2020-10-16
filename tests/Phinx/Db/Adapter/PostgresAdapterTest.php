@@ -1020,7 +1020,7 @@ class PostgresAdapterTest extends TestCase
         $emailOrder = $rows[0];
         $this->assertEquals($emailOrder['sort_order'], 'ASC');
     }
-    
+
     public function testAddIndexWithIncludeColumns()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -1032,7 +1032,7 @@ class PostgresAdapterTest extends TestCase
         $table->addIndex(['email'], ['name' => 'table1_include_idx', 'include' => ['firstname', 'lastname']])
               ->save();
         $this->assertTrue($table->hasIndexByName('table1_include_idx'));
-	$rows = $this->adapter->fetchAll("SELECT CASE WHEN attnum <= indnkeyatts  THEN 'KEY' ELSE 'INCLUDED' END as index_column
+        $rows = $this->adapter->fetchAll("SELECT CASE WHEN attnum <= indnkeyatts  THEN 'KEY' ELSE 'INCLUDED' END as index_column
                         FROM pg_index ix 
                         JOIN pg_class t ON ix.indrelid = t.oid
                         JOIN pg_class i ON ix.indexrelid = i.oid
@@ -1042,9 +1042,9 @@ class PostgresAdapterTest extends TestCase
                         AND t.relkind = 'r'
                         AND t.relname = 'table1' 
                         AND a.attname = 'email'");
-	$indexColumn = $rows[0];
-	$this->assertEquals($indexColumn['index_column'], 'KEY');
-	        $rows = $this->adapter->fetchAll("SELECT CASE WHEN attnum <= indnkeyatts  THEN 'KEY' ELSE 'INCLUDED' END as index_column
+        $indexColumn = $rows[0];
+        $this->assertEquals($indexColumn['index_column'], 'KEY');
+            $rows = $this->adapter->fetchAll("SELECT CASE WHEN attnum <= indnkeyatts  THEN 'KEY' ELSE 'INCLUDED' END as index_column
                         FROM pg_index ix
                         JOIN pg_class t ON ix.indrelid = t.oid
                         JOIN pg_class i ON ix.indexrelid = i.oid
