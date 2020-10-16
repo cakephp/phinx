@@ -666,10 +666,13 @@ class MysqlAdapterTest extends TestCase
         return [
             ['integer', [], 'int', '11', ''],
             ['integer', ['signed' => false], 'int', '11', ' unsigned'],
+            ['integer', ['limit' => 8], 'int', '8', ''],
             ['smallinteger', [], 'smallint', '6', ''],
             ['smallinteger', ['signed' => false], 'smallint', '6', ' unsigned'],
+            ['smallinteger', ['limit' => 3], 'smallint', '3', ''],
             ['biginteger', [], 'bigint', '20', ''],
             ['biginteger', ['signed' => false], 'bigint', '20', ' unsigned'],
+            ['biginteger', ['limit' => 12], 'bigint', '12', ''],
         ];
     }
 

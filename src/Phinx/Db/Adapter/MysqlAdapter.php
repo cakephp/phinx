@@ -1014,7 +1014,7 @@ class MysqlAdapter extends PdoAdapter
 
                 return ['name' => 'int', 'limit' => $limit];
             case static::PHINX_TYPE_BIG_INTEGER:
-                return ['name' => 'bigint', 'limit' => 20];
+                return ['name' => 'bigint', 'limit' => $limit ?: 20];
             case static::PHINX_TYPE_BOOLEAN:
                 return ['name' => 'tinyint', 'limit' => 1];
             case static::PHINX_TYPE_UUID:
