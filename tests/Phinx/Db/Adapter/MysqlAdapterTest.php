@@ -2047,12 +2047,9 @@ INPUT;
      */
     public function testInvalidPdoAttribute($attribute)
     {
-        $adapter = new MysqlAdapter([
-            'host' => 'localhost',
-            'name' => 'phinx',
-            $attribute => true,
-        ]);
+        $adapter = new MysqlAdapter(MYSQL_DB_CONFIG + [$attribute => true]);
         $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid PDO attribute: ' . $attribute . ' (\PDO::' . strtoupper($attribute) . ')');
         $adapter->connect();
     }
 }

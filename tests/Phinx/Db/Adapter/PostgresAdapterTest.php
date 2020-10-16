@@ -2118,12 +2118,9 @@ OUTPUT;
 
     public function testInvalidPdoAttribute()
     {
-        $adapter = new PostgresAdapter([
-            'host' => 'localhost',
-            'name' => 'phinx',
-            'attr_invalid' => true,
-        ]);
+        $adapter = new PostgresAdapter(PGSQL_DB_CONFIG + ['attr_invalid' => true]);
         $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid PDO attribute: attr_invalid (\PDO::ATTR_INVALID)');
         $adapter->connect();
     }
 }

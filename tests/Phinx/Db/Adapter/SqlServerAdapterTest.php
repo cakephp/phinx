@@ -1066,12 +1066,9 @@ INPUT;
      */
     public function testInvalidPdoAttribute($attribute)
     {
-        $adapter = new SqlServerAdapter([
-            'host' => 'localhost',
-            'name' => 'phinx',
-            $attribute => true,
-        ]);
+        $adapter = new SqlServerAdapter(SQLSRV_DB_CONFIG + [$attribute => true]);
         $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid PDO attribute: ' . $attribute . ' (\PDO::' . strtoupper($attribute) . ')');
         $adapter->connect();
     }
 }
