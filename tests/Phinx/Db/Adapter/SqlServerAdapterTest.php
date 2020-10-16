@@ -1052,4 +1052,26 @@ INPUT;
         $this->assertCount(1, $columns);
         $this->assertEquals(Literal::from('smallmoney'), array_pop($columns)->getType());
     }
+
+    public function pdoAttributeProvider()
+    {
+        return [
+            ['sqlsrv_attr_invalid'],
+            ['attr_invalid'],
+        ];
+    }
+
+    /**
+     * @dataProvider pdoAttributeProvider
+     */
+    public function testInvalidPdoAttribute($attribute)
+    {
+        $adapter = new SqlServerAdapter([
+            'host' => 'localhost',
+            'name' => 'phinx',
+            $attribute => true,
+        ]);
+        $this->expectException(\UnexpectedValueException::class);
+        $adapter->connect();
+    }
 }

@@ -87,7 +87,11 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
 
             foreach ($adapterOptions as $key => $option) {
                 if (strpos($key, 'attr_') === 0) {
-                    $db->setAttribute(constant('\PDO::' . strtoupper($key)), $option);
+                    $pdoConstant = '\PDO::' . strtoupper($key);
+                    if (!defined($pdoConstant)) {
+                        throw new \UnexpectedValueException('Invalid PDO attribute: ' . $key . '(' . $pdoConstant . ')');
+                    }
+                    $db->setAttribute(constant($pdoConstant), $option);
                 }
             }
         } catch (PDOException $e) {

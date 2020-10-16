@@ -2115,4 +2115,15 @@ OUTPUT;
         $this->assertTrue($this->adapter->hasColumn('OrganizationSettings', 'SettingTypeId'));
         $this->assertFalse($this->adapter->hasColumn('OrganizationSettings', 'SettingType'));
     }
+
+    public function testInvalidPdoAttribute()
+    {
+        $adapter = new PostgresAdapter([
+            'host' => 'localhost',
+            'name' => 'phinx',
+            'attr_invalid' => true,
+        ]);
+        $this->expectException(\UnexpectedValueException::class);
+        $adapter->connect();
+    }
 }

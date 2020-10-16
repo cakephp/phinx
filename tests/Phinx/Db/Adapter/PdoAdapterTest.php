@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use PDOException;
+use Phinx\Db\Adapter\PdoAdapter;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 

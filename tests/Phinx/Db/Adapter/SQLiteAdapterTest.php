@@ -2237,4 +2237,15 @@ INPUT;
         }
         $this->assertStringContainsString("REFERENCES `{$refTable->getName()}` (`id`)", $sql);
     }
+
+    public function testInvalidPdoAttribute()
+    {
+        $adapter = new SQLiteAdapter([
+            'host' => 'localhost',
+            'name' => 'phinx',
+            'attr_invalid' => true,
+        ]);
+        $this->expectException(\UnexpectedValueException::class);
+        $adapter->connect();
+    }
 }
