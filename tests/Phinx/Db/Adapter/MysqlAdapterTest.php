@@ -661,6 +661,16 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($rows[1]['Default'] === 'CURRENT_TIMESTAMP' || $rows[1]['Default'] === 'current_timestamp()');
     }
 
+    public function testAddColumnFirst()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn('new_id', 'integer', ['after' => MysqlAdapter::FIRST])
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertSame('new_id', $rows[0]['Field']);
+    }
+
     public function integerDataProvider()
     {
         return [
