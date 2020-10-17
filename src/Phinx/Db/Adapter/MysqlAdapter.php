@@ -77,6 +77,8 @@ class MysqlAdapter extends PdoAdapter
 
     public const TYPE_YEAR = 'year';
 
+    public const FIRST = 'FIRST';
+
     /**
      * {@inheritDoc}
      *
@@ -481,11 +483,30 @@ class MysqlAdapter extends PdoAdapter
             $this->getColumnSqlDefinition($column)
         );
 
-        if ($column->getAfter()) {
-            $alter .= ' AFTER ' . $this->quoteColumnName($column->getAfter());
-        }
+        $alter .= $this->afterClause($column);
 
         return new AlterInstructions([$alter]);
+    }
+
+    /**
+     * Exposes the MySQL syntax to arrange a column `FIRST`.
+     *
+     * @param Column $column The column being altered.
+     *
+     * @return string The appropriate SQL fragment.
+     */
+    protected function afterClause(Column $column)
+    {
+        $after = $column->getAfter();
+        if (empty($after)) {
+            return '';
+        }
+
+        if ($after === self::FIRST) {
+            return ' FIRST';
+        }
+
+        return ' AFTER ' . $this->quoteColumnName($after);
     }
 
     /**
@@ -529,13 +550,12 @@ class MysqlAdapter extends PdoAdapter
      */
     protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn)
     {
-        $after = $newColumn->getAfter() ? ' AFTER ' . $this->quoteColumnName($newColumn->getAfter()) : '';
         $alter = sprintf(
             'CHANGE %s %s %s%s',
             $this->quoteColumnName($columnName),
             $this->quoteColumnName($newColumn->getName()),
             $this->getColumnSqlDefinition($newColumn),
-            $after
+            $this->afterClause($newColumn)
         );
 
         return new AlterInstructions([$alter]);
