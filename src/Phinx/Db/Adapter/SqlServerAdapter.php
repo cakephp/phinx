@@ -94,7 +94,11 @@ class SqlServerAdapter extends PdoAdapter
             // http://php.net/manual/en/ref.pdo-sqlsrv.php#pdo-sqlsrv.constants
             foreach ($options as $key => $option) {
                 if (strpos($key, 'sqlsrv_attr_') === 0) {
-                    $driverOptions[constant('\PDO::' . strtoupper($key))] = $option;
+                    $pdoConstant = '\PDO::' . strtoupper($key);
+                    if (!defined($pdoConstant)) {
+                        throw new \UnexpectedValueException('Invalid PDO attribute: ' . $key . ' (' . $pdoConstant . ')');
+                    }
+                    $driverOptions[constant($pdoConstant)] = $option;
                 }
             }
 

@@ -2069,4 +2069,23 @@ INPUT;
         $colDef = $rows[0];
         $this->assertEquals('CURRENT_TIMESTAMP(3)', $colDef['COLUMN_DEFAULT']);
     }
+
+    public function pdoAttributeProvider()
+    {
+        return [
+            ['mysql_attr_invalid'],
+            ['attr_invalid'],
+        ];
+    }
+
+    /**
+     * @dataProvider pdoAttributeProvider
+     */
+    public function testInvalidPdoAttribute($attribute)
+    {
+        $adapter = new MysqlAdapter(MYSQL_DB_CONFIG + [$attribute => true]);
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid PDO attribute: ' . $attribute . ' (\PDO::' . strtoupper($attribute) . ')');
+        $adapter->connect();
+    }
 }

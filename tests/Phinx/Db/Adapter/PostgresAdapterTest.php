@@ -2210,4 +2210,12 @@ OUTPUT;
         $this->assertTrue($this->adapter->hasColumn('OrganizationSettings', 'SettingTypeId'));
         $this->assertFalse($this->adapter->hasColumn('OrganizationSettings', 'SettingType'));
     }
+
+    public function testInvalidPdoAttribute()
+    {
+        $adapter = new PostgresAdapter(PGSQL_DB_CONFIG + ['attr_invalid' => true]);
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid PDO attribute: attr_invalid (\PDO::ATTR_INVALID)');
+        $adapter->connect();
+    }
 }

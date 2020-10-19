@@ -1120,4 +1120,23 @@ INPUT;
         $this->assertCount(1, $columns);
         $this->assertEquals(Literal::from('smallmoney'), array_pop($columns)->getType());
     }
+
+    public function pdoAttributeProvider()
+    {
+        return [
+            ['sqlsrv_attr_invalid'],
+            ['attr_invalid'],
+        ];
+    }
+
+    /**
+     * @dataProvider pdoAttributeProvider
+     */
+    public function testInvalidPdoAttribute($attribute)
+    {
+        $adapter = new SqlServerAdapter(SQLSRV_DB_CONFIG + [$attribute => true]);
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid PDO attribute: ' . $attribute . ' (\PDO::' . strtoupper($attribute) . ')');
+        $adapter->connect();
+    }
 }

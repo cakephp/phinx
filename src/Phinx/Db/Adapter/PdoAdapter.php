@@ -76,9 +76,22 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     protected function createPdoConnection($dsn, $username = null, $password = null, array $options = [])
     {
+        $adapterOptions = $this->getOptions() + [
+            'attr_errmode' => PDO::ERRMODE_EXCEPTION,
+        ];
+
         try {
             $db = new PDO($dsn, $username, $password, $options);
-            $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            foreach ($adapterOptions as $key => $option) {
+                if (strpos($key, 'attr_') === 0) {
+                    $pdoConstant = '\PDO::' . strtoupper($key);
+                    if (!defined($pdoConstant)) {
+                        throw new \UnexpectedValueException('Invalid PDO attribute: ' . $key . ' (' . $pdoConstant . ')');
+                    }
+                    $db->setAttribute(constant($pdoConstant), $option);
+                }
+            }
         } catch (PDOException $e) {
             throw new InvalidArgumentException(sprintf(
                 'There was a problem connecting to the database: %s',

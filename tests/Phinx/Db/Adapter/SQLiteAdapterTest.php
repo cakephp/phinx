@@ -2237,4 +2237,12 @@ INPUT;
         }
         $this->assertStringContainsString("REFERENCES `{$refTable->getName()}` (`id`)", $sql);
     }
+
+    public function testInvalidPdoAttribute()
+    {
+        $adapter = new SQLiteAdapter(SQLITE_DB_CONFIG + ['attr_invalid' => true]);
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid PDO attribute: attr_invalid (\PDO::ATTR_INVALID)');
+        $adapter->connect();
+    }
 }
