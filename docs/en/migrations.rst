@@ -511,69 +511,7 @@ Option    Description
 comment   set a text comment on the table
 ========= ===========
 
-.. _valid-column-types:
-
-Valid Column Types
-~~~~~~~~~~~~~~~~~~
-
-Column types are specified as strings and can be one of:
-
--  biginteger
--  binary
--  boolean
--  date
--  datetime
--  decimal
--  float
--  double
--  integer
--  smallinteger
--  string
--  text
--  time
--  timestamp
--  uuid
-
-Mysql adapter and Postgres adapter supports many of their own types, see `Valid Column Types`_ for details.
-
-For valid options, see the `Valid Column Options`_ below.
-
-Custom Column Types & Default Values
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Some DBMS systems provide additional column types and default values that are specific to them.
-If you don't want to keep your migrations DBMS-agnostic you can use those custom types in your migrations
-through the ``\Phinx\Util\Literal::from`` method, which takes a string as its only argument, and returns an
-instance of ``\Phinx\Util\Literal``. When Phinx encounters this value as a column's type it knows not to
-run any validation on it and to use it exactly as supplied without escaping. This also works for ``default``
-values.
-
-You can see an example below showing how to add a ``citext`` column as well as a column whose default value
-is a function, in PostgreSQL. This method of preventing the built-in escaping is supported in all adapters.
-
-.. code-block:: php
-
-        <?php
-
-        use Phinx\Migration\AbstractMigration;
-        use Phinx\Util\Literal;
-
-        class AddSomeColumns extends AbstractMigration
-        {
-            public function change()
-            {
-                $this->table('users')
-                      ->addColumn('username', Literal::from('citext'))
-                      ->addColumn('uniqid', 'uuid', [
-                          'default' => Literal::from('uuid_generate_v4()')
-                      ])
-                      ->addColumn('creation', 'timestamp', [
-                          'timezone' => true,
-                          'default' => Literal::from('now()')
-                      ])
-                      ->create();
-            }
-        }
+To view available column types and options, see `Valid Column Types`_ for details.
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -774,12 +712,13 @@ Pass in a string to set as the new table comment, or ``null`` to drop the existi
 Working With Columns
 --------------------
 
+.. _valid-column-types:
+
 Valid Column Types
 ~~~~~~~~~~~~~~~~~~
 
 Column types are specified as strings and can be one of:
 
--  biginteger
 -  binary
 -  boolean
 -  char
@@ -787,8 +726,10 @@ Column types are specified as strings and can be one of:
 -  datetime
 -  decimal
 -  float
--  integer
+-  double
 -  smallinteger
+-  integer
+-  biginteger
 -  string
 -  text
 -  time
@@ -962,6 +903,43 @@ For ``binary`` or ``varbinary`` types, if limit is set greater than allowed 255 
               ->addColumn('subtype_id', 'integer', ['limit' => MysqlAdapter::INT_SMALL])
               ->addColumn('quantity', 'integer', ['limit' => MysqlAdapter::INT_TINY])
               ->create();
+
+Custom Column Types & Default Values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some DBMS systems provide additional column types and default values that are specific to them.
+If you don't want to keep your migrations DBMS-agnostic you can use those custom types in your migrations
+through the ``\Phinx\Util\Literal::from`` method, which takes a string as its only argument, and returns an
+instance of ``\Phinx\Util\Literal``. When Phinx encounters this value as a column's type it knows not to
+run any validation on it and to use it exactly as supplied without escaping. This also works for ``default``
+values.
+
+You can see an example below showing how to add a ``citext`` column as well as a column whose default value
+is a function, in PostgreSQL. This method of preventing the built-in escaping is supported in all adapters.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+        use Phinx\Util\Literal;
+
+        class AddSomeColumns extends AbstractMigration
+        {
+            public function change()
+            {
+                $this->table('users')
+                      ->addColumn('username', Literal::from('citext'))
+                      ->addColumn('uniqid', 'uuid', [
+                          'default' => Literal::from('uuid_generate_v4()')
+                      ])
+                      ->addColumn('creation', 'timestamp', [
+                          'timezone' => true,
+                          'default' => Literal::from('now()')
+                      ])
+                      ->create();
+            }
+        }
 
 User Defined Types (Custom Data Domain)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
