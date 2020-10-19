@@ -1282,7 +1282,7 @@ SQL;
             return $ret;
         }, $columnNames);
 
-        $includedColumns = $index->getInclude() ? sprintf(' INCLUDE ([%s])', implode('],[', $index->getInclude())) : '';
+        $includedColumns = $index->getInclude() ? sprintf('INCLUDE ([%s])', implode('],[', $index->getInclude())) : '';
 
         return sprintf(
             'CREATE %s INDEX %s ON %s (%s) %s;',
