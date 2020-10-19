@@ -816,7 +816,7 @@ limit   set maximum length for strings, also hints column types in adapters (see
 length  alias for ``limit``
 default set default value or action
 null    allow ``NULL`` values, defaults to false (should not be used with primary keys!) (see note below)
-after   specify the column that a new column should be placed after *(only applies to MySQL)*
+after   specify the column that a new column should be placed after, or use ``\Phinx\Db\Adapter\MysqlAdapter::FIRST`` to place the column at the start of the table *(only applies to MySQL)*
 comment set a text comment on the column
 ======= ===========
 

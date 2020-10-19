@@ -1068,6 +1068,8 @@ ORDER BY T.[name], I.[index_id];";
                 return ['name' => 'ntext'];
             case static::PHINX_TYPE_INTEGER:
                 return ['name' => 'int'];
+            case static::PHINX_TYPE_TINY_INTEGER:
+                return ['name' => 'tinyint'];
             case static::PHINX_TYPE_SMALL_INTEGER:
                 return ['name' => 'smallint'];
             case static::PHINX_TYPE_BIG_INTEGER:
@@ -1222,6 +1224,7 @@ SQL;
                 'bigint',
                 'int',
                 'tinyint',
+                'smallint',
             ];
             if ($sqlType['name'] === static::PHINX_TYPE_DECIMAL && $column->getPrecision() && $column->getScale()) {
                 $buffer[] = sprintf(

@@ -580,6 +580,8 @@ WHERE t.name='ntable'");
             ['column10', 'datetime', []],
             ['column11', 'binary', []],
             ['column12', 'string', ['limit' => 10]],
+            ['column13', 'tinyinteger', ['default' => 5]],
+            ['column14', 'smallinteger', ['default' => 5]],
             ['decimal_precision_scale', 'decimal', ['precision' => 10, 'scale' => 2]],
             ['decimal_limit', 'decimal', ['limit' => 10]],
             ['decimal_precision', 'decimal', ['precision' => 10]],
@@ -828,6 +830,7 @@ WHERE t.name='ntable'");
         $this->assertEquals('integer', $this->adapter->getPhinxType('int'));
         $this->assertEquals('integer', $this->adapter->getPhinxType('integer'));
 
+        $this->assertEquals('tinyinteger', $this->adapter->getPhinxType('tinyint'));
         $this->assertEquals('smallinteger', $this->adapter->getPhinxType('smallint'));
         $this->assertEquals('biginteger', $this->adapter->getPhinxType('bigint'));
 
