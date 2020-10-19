@@ -1021,6 +1021,59 @@ class PostgresAdapterTest extends TestCase
         $this->assertEquals($emailOrder['sort_order'], 'ASC');
     }
 
+    public function testAddIndexWithIncludeColumns()
+    {
+        if (!version_compare($this->adapter->fetchAll("SHOW server_version;")[0]['server_version'], '11.0.0', '>=')) {
+            $this->markTestSkipped('Cannot test index include collumns (non-key columns) on postgresql versions less than 11');
+        }
+
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addColumn('firstname', 'string')
+              ->addColumn('lastname', 'string')
+              ->save();
+        $this->assertFalse($table->hasIndexByName('table1_include_idx'));
+        $table->addIndex(['email'], ['name' => 'table1_include_idx', 'include' => ['firstname', 'lastname']])
+              ->save();
+        $this->assertTrue($table->hasIndexByName('table1_include_idx'));
+        $rows = $this->adapter->fetchAll("SELECT CASE WHEN attnum <= indnkeyatts  THEN 'KEY' ELSE 'INCLUDED' END as index_column
+                        FROM pg_index ix 
+                        JOIN pg_class t ON ix.indrelid = t.oid
+                        JOIN pg_class i ON ix.indexrelid = i.oid
+                        JOIN pg_attribute a ON i.oid = a.attrelid 
+                        JOIN pg_namespace nsp ON t.relnamespace = nsp.oid
+                        WHERE nsp.nspname = 'public'
+                        AND t.relkind = 'r'
+                        AND t.relname = 'table1' 
+                        AND a.attname = 'email'");
+        $indexColumn = $rows[0];
+        $this->assertEquals($indexColumn['index_column'], 'KEY');
+            $rows = $this->adapter->fetchAll("SELECT CASE WHEN attnum <= indnkeyatts  THEN 'KEY' ELSE 'INCLUDED' END as index_column
+                        FROM pg_index ix
+                        JOIN pg_class t ON ix.indrelid = t.oid
+                        JOIN pg_class i ON ix.indexrelid = i.oid
+                        JOIN pg_attribute a ON i.oid = a.attrelid
+                        JOIN pg_namespace nsp ON t.relnamespace = nsp.oid
+                        WHERE nsp.nspname = 'public'
+                        AND t.relkind = 'r'
+                        AND t.relname = 'table1'
+                        AND a.attname = 'firstname'");
+        $indexColumn = $rows[0];
+        $this->assertEquals($indexColumn['index_column'], 'INCLUDED');
+        $rows = $this->adapter->fetchAll("SELECT CASE WHEN attnum <= indnkeyatts  THEN 'KEY' ELSE 'INCLUDED' END as index_column
+                        FROM pg_index ix
+                        JOIN pg_class t ON ix.indrelid = t.oid
+                        JOIN pg_class i ON ix.indexrelid = i.oid
+                        JOIN pg_attribute a ON i.oid = a.attrelid
+                        JOIN pg_namespace nsp ON t.relnamespace = nsp.oid
+                        WHERE nsp.nspname = 'public'
+                        AND t.relkind = 'r'
+                        AND t.relname = 'table1'
+                        AND a.attname = 'lastname'");
+        $indexColumn = $rows[0];
+        $this->assertEquals($indexColumn['index_column'], 'INCLUDED');
+    }
+
     public function testAddIndexWithSchema()
     {
         $this->adapter->createSchema('schema1');

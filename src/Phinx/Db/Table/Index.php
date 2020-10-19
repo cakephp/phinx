@@ -52,6 +52,11 @@ class Index
     protected $order;
 
     /**
+     * @var string[]
+     */
+    protected $includedColumns;
+
+    /**
      * Sets the index columns.
      *
      * @param string[] $columns Columns
@@ -171,6 +176,29 @@ class Index
     }
 
     /**
+     * Sets the index included columns.
+     *
+     * @param string[] $includedColumns Columns
+     * @return $this
+     */
+    public function setInclude($includedColumns)
+    {
+        $this->includedColumns = $includedColumns;
+
+        return $this;
+    }
+
+    /**
+     * Gets the index included columns.
+     *
+     * @return string[]
+     */
+    public function getInclude()
+    {
+        return $this->includedColumns;
+    }
+
+    /**
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
@@ -182,7 +210,7 @@ class Index
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = ['type', 'unique', 'name', 'limit', 'order'];
+        $validOptions = ['type', 'unique', 'name', 'limit', 'order', 'include'];
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions, true)) {
                 throw new RuntimeException(sprintf('"%s" is not a valid index option.', $option));
