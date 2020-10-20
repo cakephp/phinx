@@ -1272,7 +1272,8 @@ table object.
 By default Phinx instructs the database adapter to create a normal index. We
 can pass an additional parameter ``unique`` to the ``addIndex()`` method to
 specify a unique index. We can also explicitly specify a name for the index
-using the ``name`` parameter.
+using the ``name`` parameter, the index columns sort order can also be specified using
+the ``order`` parameter. The order parameter takes an array of column names and sort order key/value pairs. 
 
 .. code-block:: php
 
@@ -1289,9 +1290,12 @@ using the ``name`` parameter.
             {
                 $table = $this->table('users');
                 $table->addColumn('email', 'string')
-                      ->addIndex(['email'], [
+                      ->addColumn('username','string')
+                      ->addIndex(['email', 'username'], [
                             'unique' => true,
-                            'name' => 'idx_users_email'])
+                            'name' => 'idx_users_email',
+                            'order' => ['email' => 'DESC', 'username' => 'ASC']]
+                            )
                       ->save();
             }
 
@@ -1347,6 +1351,28 @@ The single column index can define its index length with or without defining col
                       ->create();
             }
         }
+
+The SQL Server and PostgreSQL adapters also supports ``include`` (non-key) columns on indexes. 
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->addColumn('email', 'string')
+                      ->addColumn('firstname','string')
+                      ->addColumn('lastname','string')
+                      ->addIndex(['email'], ['include' => ['firstname', 'lastname']])
+                      ->create();
+            }
+        }
+
 
 Removing indexes is as easy as calling the ``removeIndex()`` method. You must
 call this method for each index.
