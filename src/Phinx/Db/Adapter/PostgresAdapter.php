@@ -1144,7 +1144,13 @@ class PostgresAdapter extends PdoAdapter
     {
         $buffer = [];
         if ($column->isIdentity()) {
-            $buffer[] = $column->getType() === 'biginteger' ? 'BIGSERIAL' : 'SERIAL';
+            if ($column->getType() === 'smallinteger') {
+                $buffer[] = 'SMALLSERIAL';
+            } elseif ($column->getType() === 'biginteger') {
+                $buffer[] = 'BIGSERIAL';
+            } else {
+                $buffer[] = 'SERIAL';
+            }
         } elseif ($column->getType() instanceof Literal) {
             $buffer[] = (string)$column->getType();
         } else {
