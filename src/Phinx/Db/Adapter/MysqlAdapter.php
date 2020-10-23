@@ -263,7 +263,7 @@ class MysqlAdapter extends PdoAdapter
             $column->setName($options['id'])
                    ->setType('integer')
                    ->setOptions([
-                       'signed' => $options['signed'] ?? true,
+                       'signed' => $options['signed'] ?? false,
                        'identity' => true,
                    ]);
 

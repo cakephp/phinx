@@ -14,7 +14,7 @@ class CreateUserLoginsTable extends AbstractMigration
     {
         // user logins table
         $table = $this->table('user_logins_baz');
-        $table->addColumn('user_id', Column::INTEGER)
+        $table->addColumn('user_id', Column::INTEGER, ['signed' => false])
               ->addColumn('created', Column::DATETIME)
               ->create();
 

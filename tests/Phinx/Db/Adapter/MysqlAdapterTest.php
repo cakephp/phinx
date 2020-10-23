@@ -187,7 +187,7 @@ class MysqlAdapterTest extends TestCase
 
         $table = new \Phinx\Db\Table('ntable', [], $this->adapter);
         $table->addColumn('realname', 'string')
-              ->addColumn('tag_id', 'integer')
+              ->addColumn('tag_id', 'integer', ['signed' => false])
               ->addForeignKey('tag_id', 'ntable_tag', 'id', ['delete' => 'NO_ACTION', 'update' => 'NO_ACTION'])
               ->save();
 
@@ -1412,21 +1412,21 @@ class MysqlAdapterTest extends TestCase
 
         $table = new \Phinx\Db\Table('table', [], $this->adapter);
         $table
-            ->addColumn('ref_table_id', 'integer')
+            ->addColumn('ref_table_id', 'integer', ['signed' => false])
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
             ->save();
 
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
     }
 
-    public function testAddForeignKeyForTableWithUnsignedPK()
+    public function testAddForeignKeyForTableWithSignedPK()
     {
-        $refTable = new \Phinx\Db\Table('ref_table', ['signed' => false], $this->adapter);
+        $refTable = new \Phinx\Db\Table('ref_table', ['signed' => true], $this->adapter);
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('table', [], $this->adapter);
         $table
-            ->addColumn('ref_table_id', 'integer', ['signed' => false])
+            ->addColumn('ref_table_id', 'integer')
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
             ->save();
 
@@ -1440,7 +1440,7 @@ class MysqlAdapterTest extends TestCase
 
         $table = new \Phinx\Db\Table('table', [], $this->adapter);
         $table
-            ->addColumn('ref_table_id', 'integer')
+            ->addColumn('ref_table_id', 'integer', ['signed' => false])
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
             ->save();
 
@@ -1448,14 +1448,14 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
     }
 
-    public function testDropForeignKeyForTableWithUnsignedPK()
+    public function testDropForeignKeyForTableWithSignedPK()
     {
-        $refTable = new \Phinx\Db\Table('ref_table', ['signed' => false], $this->adapter);
+        $refTable = new \Phinx\Db\Table('ref_table', ['signed' => true], $this->adapter);
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('table', [], $this->adapter);
         $table
-            ->addColumn('ref_table_id', 'integer', ['signed' => false])
+            ->addColumn('ref_table_id', 'integer')
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
             ->save();
 
@@ -1470,7 +1470,7 @@ class MysqlAdapterTest extends TestCase
 
         $table = new \Phinx\Db\Table('table', [], $this->adapter);
         $table
-            ->addColumn('ref_table_id', 'integer')
+            ->addColumn('ref_table_id', 'integer', ['signed' => false])
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
             ->save();
 
@@ -1485,7 +1485,7 @@ class MysqlAdapterTest extends TestCase
 
         $table = new \Phinx\Db\Table('table', [], $this->adapter);
         $table
-            ->addColumn('ref_table_id', 'integer')
+            ->addColumn('ref_table_id', 'integer', ['signed' => false])
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
             ->save();
 
@@ -1500,7 +1500,7 @@ class MysqlAdapterTest extends TestCase
 
         $table = new \Phinx\Db\Table('table', [], $this->adapter);
         $table
-            ->addColumn('ref_table_id', 'integer')
+            ->addColumn('ref_table_id', 'integer', ['signed' => false])
             ->addForeignKeyWithName('my_constraint', ['ref_table_id'], 'ref_table', ['id'])
             ->save();
 
@@ -1508,14 +1508,14 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id'], 'my_constraint2'));
     }
 
-    public function testHasForeignKeyWithConstraintForTableWithUnsignedPK()
+    public function testHasForeignKeyWithConstraintForTableWithSignedPK()
     {
-        $refTable = new \Phinx\Db\Table('ref_table', ['signed' => false], $this->adapter);
+        $refTable = new \Phinx\Db\Table('ref_table', ['signed' => true], $this->adapter);
         $refTable->addColumn('field1', 'string')->save();
 
         $table = new \Phinx\Db\Table('table', [], $this->adapter);
         $table
-            ->addColumn('ref_table_id', 'integer', ['signed' => false])
+            ->addColumn('ref_table_id', 'integer')
             ->addForeignKeyWithName('my_constraint', ['ref_table_id'], 'ref_table', ['id'])
             ->save();
 
@@ -1530,7 +1530,7 @@ class MysqlAdapterTest extends TestCase
 
         $table = new \Phinx\Db\Table('table', [], $this->adapter);
         $table
-            ->addColumn('ref_table_id', 'integer')
+            ->addColumn('ref_table_id', 'integer', ['signed' => false])
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
             ->save();
 
@@ -1733,7 +1733,7 @@ class MysqlAdapterTest extends TestCase
             ->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`id` INT(11) NOT NULL AUTO_INCREMENT, `column1` VARCHAR(255) NOT NULL, `column2` INT(11) NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test', PRIMARY KEY (`id`)) ENGINE = InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE TABLE `table1` (`id` INT(11) unsigned NOT NULL AUTO_INCREMENT, `column1` VARCHAR(255) NOT NULL, `column2` INT(11) NULL, `column3` VARCHAR(255) NOT NULL DEFAULT 'test', PRIMARY KEY (`id`)) ENGINE = InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');

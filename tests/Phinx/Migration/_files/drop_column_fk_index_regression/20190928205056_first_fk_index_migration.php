@@ -18,7 +18,7 @@ class FirstFkIndexMigration extends AbstractMigration
             ->addColumn('id', 'integer', [
                 'null' => false,
                 'limit' => 20,
-                'identity' => 'enable',
+                'identity' => true,
             ])
             ->create();
 
@@ -34,7 +34,7 @@ class FirstFkIndexMigration extends AbstractMigration
             ->addColumn('id', 'integer', [
                 'null' => false,
                 'limit' => 20,
-                'identity' => 'enable',
+                'identity' => true,
             ])
             ->create();
 
@@ -50,7 +50,7 @@ class FirstFkIndexMigration extends AbstractMigration
             ->addColumn('id', 'integer', [
                 'null' => false,
                 'limit' => 20,
-                'identity' => 'enable',
+                'identity' => true,
             ])
             ->addColumn('table2_id', 'integer', [
                 'null' => true,
