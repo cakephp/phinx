@@ -838,7 +838,7 @@ Option    Description
 values    Can be a comma separated list or an array of values
 ========= ===========
 
-For ``integer`` and ``biginteger`` columns:
+For ``smallinteger``, ``integer`` and ``biginteger`` columns:
 
 ======== ===========
 Option   Description
@@ -846,6 +846,9 @@ Option   Description
 identity enable or disable automatic incrementing
 signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
 ======== ===========
+
+For Postgres, when using ``identity``, it will utilize the ``serial`` type appropriate for the integer size, so that
+``smallinteger`` will give you ``smallserial``, ``integer`` gives ``serial``, and ``biginteger`` gives ``bigserial``.
 
 For ``timestamp`` columns:
 
