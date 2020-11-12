@@ -2115,4 +2115,28 @@ OUTPUT;
         $this->assertTrue($this->adapter->hasColumn('OrganizationSettings', 'SettingTypeId'));
         $this->assertFalse($this->adapter->hasColumn('OrganizationSettings', 'SettingType'));
     }
+
+    public function serialProvider(): array
+    {
+        return [
+            [\Phinx\Db\Adapter\AdapterInterface::PHINX_TYPE_SMALL_INTEGER],
+            [\Phinx\Db\Adapter\AdapterInterface::PHINX_TYPE_INTEGER],
+            [\Phinx\Db\Adapter\AdapterInterface::PHINX_TYPE_BIG_INTEGER],
+        ];
+    }
+
+    /**
+     * @dataProvider serialProvider
+     */
+    public function testSerialAliases(string $columnType): void
+    {
+        $table = new \Phinx\Db\Table('test', ['id' => false], $this->adapter);
+        $table->addColumn('id', $columnType, ['identity' => true])->create();
+
+        $columns = $table->getColumns();
+        $this->assertCount(1, $columns);
+        $column = $columns[0];
+        $this->assertSame($columnType, $column->getType());
+        $this->assertSame("nextval('test_id_seq'::regclass)", (string)$column->getDefault());
+    }
 }
