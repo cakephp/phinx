@@ -173,7 +173,8 @@ abstract class AbstractSeed implements SeedInterface
      */
     public function hasData(string $tableName): bool
     {
-        $countQuery = $this->getAdapter()->query('SELECT COUNT(*) FROM ' . $tableName);
+        $table = $this->getAdapter()->quoteTableName($tableName);
+        $countQuery = $this->getAdapter()->query('SELECT COUNT(*) FROM ' . $table);
         $res = $countQuery->fetchAll();
 
         return $res[0]['count'] > 0;
