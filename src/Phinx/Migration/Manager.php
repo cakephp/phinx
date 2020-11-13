@@ -619,6 +619,8 @@ class Manager
      * Sets the user defined PSR-11 container
      *
      * @param \Psr\Container\ContainerInterface $container Container
+     *
+     * @return void
      */
     public function setContainer(ContainerInterface $container)
     {
