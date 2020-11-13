@@ -19,7 +19,7 @@ dist/
 composer.lock
 
 # this is the code coverage generated when running phpunit.
-tests/log
+/logs/
 
 # ignore core development artifacts
 /db/
