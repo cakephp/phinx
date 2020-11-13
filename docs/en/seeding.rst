@@ -138,7 +138,7 @@ within your seed class and then use the `insert()` method to insert data:
                     ],[
                         'body'    => 'bar',
                         'created' => date('Y-m-d H:i:s'),
-                    ]
+                    ],
                 ];
 
                 $posts = $this->table('posts');
@@ -192,6 +192,21 @@ Then use it in your seed classes:
                 $this->table('users')->insert($data)->saveData();
             }
         }
+
+Executing seeds only once
+-------------------------
+
+If you want to make sure your seed data doesn't get added multiple times, a
+basic check on if the table is empty or contains already some data can help.
+
+.. code-block:: php
+    public function run()
+    {
+        if ($this->hasData('posts')) {
+            return;
+        }
+        ...
+    }
 
 Truncating Tables
 -----------------
