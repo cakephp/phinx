@@ -167,7 +167,7 @@ abstract class AbstractSeed implements SeedInterface
     }
 
     /**
-     * @param string $tableName
+     * @param string $tableName Table name.
      *
      * @return bool
      */
