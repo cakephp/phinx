@@ -1,5 +1,5 @@
 # Auto-detect text files, ensure they use LF.
-*       text=auto eol=lf
+* text text=auto eol=lf
 
 # These files are always considered text and should use LF.
 # See core.whitespace @ http://git-scm.com/docs/git-config for whitespace flags.

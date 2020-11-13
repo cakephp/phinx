@@ -46,7 +46,8 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     protected $configFilePath;
 
     /**
-     * @inheritDoc
+     * @param array $configArray Config array
+     * @param string|null $configFilePath Config file path
      */
     public function __construct(array $configArray, $configFilePath = null)
     {
@@ -496,7 +497,12 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
+     * @param mixed $id
+     * @param mixed $value
+     *
+     * @return void
      */
     public function offsetSet($id, $value)
     {
@@ -504,9 +510,13 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
+     * @param mixed $id
      *
      * @throws \InvalidArgumentException
+     *
+     * @return mixed
      */
     public function offsetGet($id)
     {
@@ -518,7 +528,11 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
+     * @param mixed $id
+     *
+     * @return bool
      */
     public function offsetExists($id)
     {
@@ -526,7 +540,11 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
+     * @param mixed $id
+     *
+     * @return void
      */
     public function offsetUnset($id)
     {

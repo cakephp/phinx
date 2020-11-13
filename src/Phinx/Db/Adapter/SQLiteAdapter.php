@@ -120,6 +120,9 @@ class SQLiteAdapter extends PdoAdapter
         'NVARCHAR',
     ];
 
+    /**
+     * @var string
+     */
     protected $suffix = '.sqlite3';
 
     /**
@@ -743,6 +746,7 @@ PCRE_PATTERN;
      * Returns the original CREATE statement for the give index
      *
      * @param string $tableName The table name to get the create statement for
+     * @param string $indexName The table index
      * @return string
      */
     protected function getDeclaringIndexSql($tableName, $indexName)
