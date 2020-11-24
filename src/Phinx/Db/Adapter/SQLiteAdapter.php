@@ -693,6 +693,9 @@ PCRE_PATTERN;
             // as the alternative is unwinding all possible table constraints which
             // gets messy quickly with CHECK constraints.
             $columns = $this->getColumns($tableName);
+            if (!$columns) {
+                return $state;
+            }
             $finalColumnName = end($columns)->getName();
             $sql = preg_replace(
                 sprintf(
