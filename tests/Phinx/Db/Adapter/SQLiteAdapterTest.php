@@ -8,12 +8,12 @@ use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Table\Column;
 use Phinx\Util\Expression;
 use Phinx\Util\Literal;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
+use Test\Phinx\TestCase;
 
 class SQLiteAdapterTest extends TestCase
 {
@@ -796,7 +796,7 @@ class SQLiteAdapterTest extends TestCase
             }
         }
 
-        $this->assertRegExp('/\/\* Comments from "column1" \*\//', $sql);
+        $this->assertMatchesRegularExpression('/\/\* Comments from "column1" \*\//', $sql);
     }
 
     public function testPhinxTypeLiteral()

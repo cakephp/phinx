@@ -102,7 +102,7 @@ class SqlServerAdapter extends PdoAdapter
                 }
             }
 
-            $db = $this->createPdoConnection($dsn, $options['user'], $options['pass'], $driverOptions);
+            $db = $this->createPdoConnection($dsn, $options['user'] ?? null, $options['pass'] ?? null, $driverOptions);
 
             $this->setConnection($db);
         }

@@ -3,7 +3,7 @@
 namespace Test\Phinx\Util;
 
 use Phinx\Util\Util;
-use PHPUnit\Framework\TestCase;
+use Test\Phinx\TestCase;
 
 class UtilTest extends TestCase
 {
@@ -61,7 +61,7 @@ class UtilTest extends TestCase
      */
     public function testMapClassNameToFileName(string $name, string $pattern): void
     {
-        $this->assertRegExp($pattern, Util::mapClassNameToFileName($name));
+        $this->assertMatchesRegularExpression($pattern, Util::mapClassNameToFileName($name));
     }
 
     public function providerMapFileName(): array

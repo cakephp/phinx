@@ -6,8 +6,8 @@ use InvalidArgumentException;
 use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Init;
 use Phinx\Console\PhinxApplication;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Test\Phinx\TestCase;
 
 class InitTest extends TestCase
 {
@@ -94,7 +94,7 @@ class InitTest extends TestCase
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             "/created (.*)[\/\\\\]phinx\.php\\n/",
             $commandTester->getDisplay(true)
         );
@@ -119,7 +119,7 @@ class InitTest extends TestCase
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(['command' => $command->getName(), '--format' => AbstractCommand::FORMAT_YML_ALIAS], ['decorated' => false]);
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             "/created (.*)[\/\\\\]phinx.yaml\\n/",
             $commandTester->getDisplay(true)
         );

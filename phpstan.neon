@@ -1,8 +1,10 @@
 parameters:
-    level: 6
-    treatPhpDocTypesAsCertain: false
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
-    ignoreErrors:
-        - '#Unsafe usage of new static\(\)\.#'
-        - '#Parameter \#2 \$callback of function array_filter expects callable\(mixed, mixed\): bool, .+ given.#'
+	level: 6
+	treatPhpDocTypesAsCertain: false
+	checkMissingIterableValueType: false
+	checkGenericClassInNonGenericObjectType: false
+	paths:
+		- src/
+	ignoreErrors:
+		- '#Unsafe usage of new static\(\)\.#'
+		- '#Parameter \#2 \$callback of function array_filter expects callable\(mixed, mixed\): bool, .+ given.#'
