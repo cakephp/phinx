@@ -161,6 +161,9 @@ jobs:
         SQLSRV_DSN: 'sqlserver://(localdb)\MSSQLLocalDB/phinx'
       run: |
           vendor/bin/phpunit --verbose
+          
+    - name: Submit code coverage
+      uses: codecov/codecov-action@v1
 
   cs-stan:
     name: Coding Standard & Static Analysis
