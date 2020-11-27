@@ -2,12 +2,5 @@
 <ruleset name="Phinx">
     <config name="installed_paths" value="../../cakephp/cakephp-codesniffer"/>
 
-    <file>app/</file>
-    <file>src/</file>
-    <file>tests/</file>
-
-    <arg name="colors"/>
-    <arg value="np"/>
-
     <rule ref="CakePHP"/>
 </ruleset>

@@ -197,7 +197,7 @@ class AbstractMigrationTest extends TestCase
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
 
-        $this->expectException(\PHPUnit\Framework\Error\Deprecated::class);
+        $this->expectDeprecation();
 
         $migrationStub->insert('testdb', ['row' => 'value']);
     }
@@ -321,7 +321,7 @@ class AbstractMigrationTest extends TestCase
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
 
-        $this->expectException(\PHPUnit\Framework\Error\Deprecated::class);
+        $this->expectDeprecation();
 
         $migrationStub->dropTable('test_table');
     }
