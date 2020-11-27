@@ -221,7 +221,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         // if the user has configured a default environment then use it,
         // providing it actually exists!
         if (isset($this->values['environments']['default_environment'])) {
-            if ($this->getEnvironment($this->values['environments']['default_environment'])) {
+            if ($this->hasEnvironment($this->values['environments']['default_environment'])) {
                 return $this->values['environments']['default_environment'];
             }
 
@@ -294,7 +294,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     {
         $className = !isset($this->values['migration_base_class']) ? 'Phinx\Migration\AbstractMigration' : $this->values['migration_base_class'];
 
-        return $dropNamespace ? substr(strrchr($className, '\\'), 1) ?: $className : $className;
+        return $dropNamespace ? (substr(strrchr($className, '\\'), 1) ?: $className) : $className;
     }
 
     /**
