@@ -294,7 +294,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     {
         $className = !isset($this->values['migration_base_class']) ? 'Phinx\Migration\AbstractMigration' : $this->values['migration_base_class'];
 
-        return $dropNamespace ? substr(strrchr($className, '\\'), 1) ?: $className : $className;
+        return $dropNamespace ? (substr(strrchr($className, '\\'), 1) ?: $className) : $className;
     }
 
     /**
