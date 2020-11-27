@@ -221,7 +221,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         // if the user has configured a default environment then use it,
         // providing it actually exists!
         if (isset($this->values['environments']['default_environment'])) {
-            if ($this->getEnvironment($this->values['environments']['default_environment'])) {
+            if ($this->hasEnvironment($this->values['environments']['default_environment'])) {
                 return $this->values['environments']['default_environment'];
             }
 
