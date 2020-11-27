@@ -134,7 +134,7 @@ jobs:
         php-version: ${{ env.PHP_VERSION }}
         extensions: ${{ env.EXTENSIONS }}
         ini-values: apc.enable_cli = 1, extension = php_fileinfo.dll
-        coverage: none
+        coverage: pcov
 
     - name: Setup SQLServer
       run: |
