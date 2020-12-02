@@ -2245,4 +2245,11 @@ INPUT;
         $this->expectExceptionMessage('Invalid PDO attribute: attr_invalid (\PDO::ATTR_INVALID)');
         $adapter->connect();
     }
+
+    public function testPdoExceptionUpdateNonExistingTable()
+    {
+        $this->expectException(\PDOException::class);
+        $table = new \Phinx\Db\Table('non_existing_table', [], $this->adapter);
+        $table->addColumn('column', 'string')->update();
+    }
 }
