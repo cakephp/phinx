@@ -2245,7 +2245,7 @@ INPUT;
         $this->expectExceptionMessage('Invalid PDO attribute: attr_invalid (\PDO::ATTR_INVALID)');
         $adapter->connect();
     }
-    
+
     public function testPdoExceptionUpdateNonExistingTable()
     {
         $this->expectException(\PDOException::class);
