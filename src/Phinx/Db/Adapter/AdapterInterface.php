@@ -312,7 +312,7 @@ interface AdapterInterface
      *
      * @param string $sql SQL
      *
-     * @return array
+     * @return array|false
      */
     public function fetchRow($sql);
 
