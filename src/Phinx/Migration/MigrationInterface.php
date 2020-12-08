@@ -265,4 +265,15 @@ interface MigrationInterface
      * @return void
      */
     public function postFlightCheck();
+
+    /**
+     * Checks to see if the migration should be executed.
+     *
+     * Returns true by default.
+     *
+     * You can use this to prevent a migration from executing.
+     *
+     * @return bool
+     */
+    public function shouldExecute();
 }

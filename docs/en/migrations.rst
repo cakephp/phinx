@@ -158,6 +158,14 @@ The ``init()`` method is run by Phinx before the migration methods if it exists.
 This can be used for setting common class properties that are then used within
 the migration methods.
 
+The Should Execute Method
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``shouldExecute()`` method is run by Phinx before executing the migration.
+This can be used to prevent the migration from being executed at this time. It always
+returns true by default. You can override it in your custom ``AbstractMigration``
+implementation.
+
 Executing Queries
 -----------------
 
