@@ -833,6 +833,51 @@ class PostgresAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
     }
 
+    public function testChangeColumnFromTextToSmallInteger()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'text')
+            ->insert(['column1' => '123'])
+            ->save();
+
+        $table->changeColumn('column1', 'smallinteger')->save();
+        $columnType = $table->getColumn('column1')->getType();
+        $this->assertTrue($columnType === 'smallinteger');
+
+        $row = $this->adapter->fetchRow('SELECT * FROM t');
+        $this->assertEquals(123, $row['column1']);
+    }
+
+    public function testChangeColumnFromTextToInteger()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'text')
+            ->insert(['column1' => '123'])
+            ->save();
+
+        $table->changeColumn('column1', 'integer')->save();
+        $columnType = $table->getColumn('column1')->getType();
+        $this->assertTrue($columnType === 'integer');
+
+        $row = $this->adapter->fetchRow('SELECT * FROM t');
+        $this->assertEquals(123, $row['column1']);
+    }
+
+    public function testChangeColumnFromTextToBigInteger()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'text')
+            ->insert(['column1' => '123'])
+            ->save();
+
+        $table->changeColumn('column1', 'biginteger')->save();
+        $columnType = $table->getColumn('column1')->getType();
+        $this->assertTrue($columnType === 'biginteger');
+
+        $row = $this->adapter->fetchRow('SELECT * FROM t');
+        $this->assertEquals(123, $row['column1']);
+    }
+
     public function testChangeColumnWithDefault()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
