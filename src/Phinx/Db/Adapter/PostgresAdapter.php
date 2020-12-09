@@ -551,7 +551,8 @@ class PostgresAdapter extends PdoAdapter
             $sql .= sprintf(
                 ' USING (%s::bigint)',
                 $this->quoteColumnName($columnName)
-            );;
+            );
+            ;
         }
 
         //NULL and DEFAULT cannot be set while changing column type
