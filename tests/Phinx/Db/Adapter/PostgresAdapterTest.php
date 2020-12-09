@@ -837,7 +837,7 @@ class PostgresAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'text')
-            ->insert(['column1' => '123'])
+            ->insert(['column1' => '32767'])
             ->save();
 
         $table->changeColumn('column1', 'smallinteger')->save();
@@ -845,14 +845,14 @@ class PostgresAdapterTest extends TestCase
         $this->assertTrue($columnType === 'smallinteger');
 
         $row = $this->adapter->fetchRow('SELECT * FROM t');
-        $this->assertEquals(123, $row['column1']);
+        $this->assertEquals(32767, $row['column1']);
     }
 
     public function testChangeColumnFromTextToInteger()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'text')
-            ->insert(['column1' => '123'])
+            ->insert(['column1' => '2147483647'])
             ->save();
 
         $table->changeColumn('column1', 'integer')->save();
@@ -860,14 +860,14 @@ class PostgresAdapterTest extends TestCase
         $this->assertTrue($columnType === 'integer');
 
         $row = $this->adapter->fetchRow('SELECT * FROM t');
-        $this->assertEquals(123, $row['column1']);
+        $this->assertEquals(2147483647, $row['column1']);
     }
 
     public function testChangeColumnFromTextToBigInteger()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'text')
-            ->insert(['column1' => '123'])
+            ->insert(['column1' => '9223372036854775807'])
             ->save();
 
         $table->changeColumn('column1', 'biginteger')->save();
@@ -875,7 +875,7 @@ class PostgresAdapterTest extends TestCase
         $this->assertTrue($columnType === 'biginteger');
 
         $row = $this->adapter->fetchRow('SELECT * FROM t');
-        $this->assertEquals(123, $row['column1']);
+        $this->assertEquals(9223372036854775807, $row['column1']);
     }
 
     public function testChangeColumnWithDefault()
