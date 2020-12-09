@@ -547,7 +547,7 @@ class PostgresAdapter extends PdoAdapter
             $this->getColumnSqlDefinition($newColumn)
         );
 
-        if (in_array($newColumn->getType(), ['smallinteger', 'integer', 'biginteger'])) {
+        if (in_array($newColumn->getType(), ['smallinteger', 'integer', 'biginteger'], true)) {
             $sql .= sprintf(
                 ' USING (%s::bigint)',
                 $this->quoteColumnName($columnName)
