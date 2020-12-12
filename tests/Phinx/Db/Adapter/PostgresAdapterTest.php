@@ -833,6 +833,33 @@ class PostgresAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
     }
 
+    public function integersProvider()
+    {
+        return [
+            ['smallinteger', 32767],
+            ['integer', 2147483647],
+            ['biginteger', 9223372036854775807],
+        ];
+    }
+
+    /**
+     * @dataProvider integersProvider
+     */
+    public function testChangeColumnFromTextToInteger($type, $value)
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'text')
+            ->insert(['column1' => (string)$value])
+            ->save();
+
+        $table->changeColumn('column1', $type)->save();
+        $columnType = $table->getColumn('column1')->getType();
+        $this->assertSame($columnType, $type);
+
+        $row = $this->adapter->fetchRow('SELECT * FROM t');
+        $this->assertSame($value, $row['column1']);
+    }
+
     public function testChangeColumnWithDefault()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);

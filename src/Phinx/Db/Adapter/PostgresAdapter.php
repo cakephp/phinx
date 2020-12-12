@@ -546,6 +546,14 @@ class PostgresAdapter extends PdoAdapter
             $this->quoteColumnName($columnName),
             $this->getColumnSqlDefinition($newColumn)
         );
+
+        if (in_array($newColumn->getType(), ['smallinteger', 'integer', 'biginteger'], true)) {
+            $sql .= sprintf(
+                ' USING (%s::bigint)',
+                $this->quoteColumnName($columnName)
+            );
+        }
+
         //NULL and DEFAULT cannot be set while changing column type
         $sql = preg_replace('/ NOT NULL/', '', $sql);
         $sql = preg_replace('/ NULL/', '', $sql);
