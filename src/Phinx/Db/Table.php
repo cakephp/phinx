@@ -457,7 +457,7 @@ class Table
      * on_update, constraint = constraint name.
      *
      * @param string|string[] $columns Columns
-     * @param string|\Phinx\Db\Table $referencedTable Referenced Table
+     * @param string|\Phinx\Db\Table\Table $referencedTable Referenced Table
      * @param string|string[] $referencedColumns Referenced Columns
      * @param array $options Options
      *
@@ -479,7 +479,7 @@ class Table
      *
      * @param string $name The constraint name
      * @param string|string[] $columns Columns
-     * @param string|\Phinx\Db\Table $referencedTable Referenced Table
+     * @param string|\Phinx\Db\Table\Table $referencedTable Referenced Table
      * @param string|string[] $referencedColumns Referenced Columns
      * @param array $options Options
      *
