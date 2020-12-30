@@ -480,6 +480,7 @@ row_format set the table row format
 engine     define table engine *(defaults to ``InnoDB``)*
 collation  define table collation *(defaults to ``utf8_general_ci``)*
 signed     whether the primary key is ``signed``  *(defaults to ``true``)*
+limit      set the maximum length for the primary key
 ========== ===========
 
 By default the primary key is ``signed``.
@@ -1273,7 +1274,7 @@ By default Phinx instructs the database adapter to create a normal index. We
 can pass an additional parameter ``unique`` to the ``addIndex()`` method to
 specify a unique index. We can also explicitly specify a name for the index
 using the ``name`` parameter, the index columns sort order can also be specified using
-the ``order`` parameter. The order parameter takes an array of column names and sort order key/value pairs. 
+the ``order`` parameter. The order parameter takes an array of column names and sort order key/value pairs.
 
 .. code-block:: php
 
@@ -1352,7 +1353,7 @@ The single column index can define its index length with or without defining col
             }
         }
 
-The SQL Server and PostgreSQL adapters also supports ``include`` (non-key) columns on indexes. 
+The SQL Server and PostgreSQL adapters also supports ``include`` (non-key) columns on indexes.
 
 .. code-block:: php
 

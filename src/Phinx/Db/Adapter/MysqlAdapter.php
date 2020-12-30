@@ -271,6 +271,10 @@ class MysqlAdapter extends PdoAdapter
                    ->setSigned(isset($options['signed']) ? $options['signed'] : true)
                    ->setIdentity(true);
 
+            if (isset($options['limit'])) {
+                $column->setLimit($options['limit']);
+            }
+
             array_unshift($columns, $column);
             if (isset($options['primary_key']) && (array)$options['id'] !== (array)$options['primary_key']) {
                 throw new InvalidArgumentException('You cannot enable an auto incrementing ID field and a primary key');
