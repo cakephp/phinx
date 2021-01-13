@@ -140,7 +140,7 @@ class SeedCreateTest extends TestCase
         $this->assertFileExists($match['SeedFilename'], 'Failed to create seed file from template generator');
 
         // Does the migration match our expectation?
-        $expectedMigration = "useClassName Phinx\\Seed\\AbstractSeed / className {$commandLine['name']} / baseClassName AbstractSeed" . PHP_EOL;
+        $expectedMigration = "useClassName Phinx\\Seed\\AbstractSeed / className {$commandLine['name']} / baseClassName AbstractSeed\n";
         $this->assertStringEqualsFile($match['SeedFilename'], $expectedMigration, 'Failed to create seed file from template generator correctly.');
     }
 
