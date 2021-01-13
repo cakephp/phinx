@@ -111,4 +111,36 @@ class SeedCreateTest extends TestCase
 
         $commandTester->execute(['command' => $command->getName(), 'name' => 'badseedname'], ['decorated' => false]);
     }
+
+    public function testAlternativeTemplate()
+    {
+        $application = new PhinxApplication();
+        $application->add(new SeedCreate());
+
+        /** @var SeedCreate $command */
+        $command = $application->find('seed:create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+
+        $commandLine = ['command' => $command->getName(), 'name' => 'AltTemplate', '--template' => __DIR__ . '/Templates/SimpleSeeder.template.php.dist'];
+        $commandTester->execute($commandLine, ['decorated' => false]);
+
+        // Get output.
+        preg_match('`created (?P<SeedFilename>.*?)\s`', $commandTester->getDisplay(), $match);
+
+        // Was migration created?
+        $this->assertFileExists($match['SeedFilename'], 'Failed to create seed file from template generator');
+
+        // Does the migration match our expectation?
+        $expectedMigration = "useClassName Phinx\\Seed\\AbstractSeed / className {$commandLine['name']} / version {$match['Version']} / baseClassName AbstractSeed";
+        $this->assertStringEqualsFile($match['SeedFilename'], $expectedMigration, 'Failed to create seed file from template generator correctly.');
+    }
 }
