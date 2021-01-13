@@ -143,4 +143,32 @@ class SeedCreateTest extends TestCase
         $expectedMigration = "useClassName Phinx\\Seed\\AbstractSeed / className {$commandLine['name']} / baseClassName AbstractSeed" . PHP_EOL;
         $this->assertStringEqualsFile($match['SeedFilename'], $expectedMigration, 'Failed to create seed file from template generator correctly.');
     }
+
+    public function testAlternativeTemplateDoesntExist()
+    {
+        $application = new PhinxApplication();
+        $application->add(new SeedCreate());
+
+        /** @var SeedCreate $command */
+        $command = $application->find('seed:create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+
+        $commandLine = ['command' => $command->getName(), 'name' => 'AltTemplate', '--template' => __DIR__ . '/Templates/ThisDoesntExist.template.php.dist'];
+        $commandTester->execute($commandLine, ['decorated' => false]);
+
+        // Get output.
+        preg_match('`The alternative template file "(?P<AltTemplate>.*?)" does not exist\s`', $commandTester->getDisplay(), $match);
+
+        // Check reported file name
+        $this->assertEquals($match['AltTemplate'], $commandLine['--template']);
+    }
 }
