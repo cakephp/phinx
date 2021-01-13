@@ -162,7 +162,7 @@ class SeedCreateTest extends TestCase
 
         $commandTester = new CommandTester($command);
 
-        $commandLine = ['command' => $command->getName(), 'name' => 'AltTemplate', '--template' => __DIR__ . '/Templates/ThisDoesntExist.template.php.dist'];
+        $commandLine = ['command' => $command->getName(), 'name' => 'AltTemplateDoesntExist', '--template' => __DIR__ . '/Templates/ThisDoesntExist.template.php.dist'];
         $commandTester->execute($commandLine, ['decorated' => false]);
 
         // Get output.
