@@ -162,13 +162,12 @@ class SeedCreateTest extends TestCase
 
         $commandTester = new CommandTester($command);
 
-        $commandLine = ['command' => $command->getName(), 'name' => 'AltTemplateDoesntExist', '--template' => __DIR__ . '/Templates/ThisDoesntExist.template.php.dist'];
+        $template = __DIR__ . '/Templates/ThisDoesntExist.template.php.dist';
+        $commandLine = ['command' => $command->getName(), 'name' => 'AltTemplateDoesntExist', '--template' => $template];
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The alternative template file "' . $template . '" does not exist');
+
         $commandTester->execute($commandLine, ['decorated' => false]);
-
-        // Get output.
-        preg_match('`The alternative template file "(?P<AltTemplate>.*?)" does not exist\s`', $commandTester->getDisplay(), $match);
-
-        // Check reported file name
-        $this->assertEquals($match['AltTemplate'], $commandLine['--template']);
     }
 }
