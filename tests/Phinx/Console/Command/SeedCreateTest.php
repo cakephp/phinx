@@ -36,7 +36,7 @@ class SeedCreateTest extends TestCase
     protected function setUp(): void
     {
         TestUtils::recursiveRmdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'seeds');
-        @mkdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'seeds', 0777, true);
+        mkdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'seeds', 0777, true);
         $this->config = new Config([
             'paths' => [
                 'migrations' => sys_get_temp_dir(),
