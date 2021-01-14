@@ -14,6 +14,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Tester\CommandTester;
+use Test\Phinx\TestUtils;
 
 class SeedCreateTest extends TestCase
 {
@@ -34,10 +35,12 @@ class SeedCreateTest extends TestCase
 
     protected function setUp(): void
     {
+        TestUtils::recursiveRmdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'seeds');
+        @mkdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'seeds', 0777, true);
         $this->config = new Config([
             'paths' => [
                 'migrations' => sys_get_temp_dir(),
-                'seeds' => sys_get_temp_dir(),
+                'seeds' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'seeds',
             ],
             'environments' => [
                 'default_migration_table' => 'phinxlog',
@@ -71,7 +74,7 @@ class SeedCreateTest extends TestCase
 
         // mock the manager class
         /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
-        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+        $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
 
@@ -97,7 +100,7 @@ class SeedCreateTest extends TestCase
 
         // mock the manager class
         /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
-        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+        $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
 
@@ -121,7 +124,7 @@ class SeedCreateTest extends TestCase
         $command = $application->find('seed:create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+        $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
 
@@ -153,7 +156,7 @@ class SeedCreateTest extends TestCase
         $command = $application->find('seed:create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+        $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
 
@@ -166,7 +169,7 @@ class SeedCreateTest extends TestCase
         $commandLine = ['command' => $command->getName(), 'name' => 'AltTemplateDoesntExist', '--template' => $template];
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The alternative template file "' . $template . '" does not exist');
+        $this->expectExceptionMessage('The template file "' . $template . '" does not exist');
 
         $commandTester->execute($commandLine, ['decorated' => false]);
     }

@@ -175,7 +175,7 @@ class SeedCreate extends AbstractCommand
         // Verify the alternative template file's existence.
         if ($altTemplate && !is_file($altTemplate)) {
             throw new InvalidArgumentException(sprintf(
-                'The alternative template file "%s" does not exist',
+                'The template file "%s" does not exist',
                 $altTemplate
             ));
         }
