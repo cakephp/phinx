@@ -218,6 +218,13 @@ Open the new seed file in your text editor to add your database seed commands.
 Phinx creates seed files using the path specified in your configuration file.
 Please see the :doc:`Configuration <configuration>` chapter for more information.
 
+You are able to override the template file used by Phinx by supplying an
+alternative template filename.
+
+.. code-block:: bash
+
+        $ phinx seed:create MyNewSeeder --template="<file>"
+
 The Seed Run Command
 --------------------
 
