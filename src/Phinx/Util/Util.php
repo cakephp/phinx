@@ -10,6 +10,8 @@ namespace Phinx\Util;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Util
 {
@@ -235,12 +237,15 @@ class Util
      * Takes the path to a php file and attempts to include it if readable
      *
      * @param string $filename Filename
+     * @param \Symfony\Component\Console\Input\InputInterface|null $input Input
+     * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output
+     * @param \Phinx\Console\Command\AbstractCommand|mixed|null $context Context
      *
      * @throws \Exception
      *
      * @return string
      */
-    public static function loadPhpFile($filename)
+    public static function loadPhpFile($filename, ?InputInterface $input = null, ?OutputInterface $output = null, $context = null)
     {
         $filePath = realpath($filename);
         if (!file_exists($filePath)) {
@@ -257,6 +262,9 @@ class Util
         if (!$isReadable) {
             throw new Exception(sprintf("Cannot open file %s \n", $filename));
         }
+
+        // prevent this to be propagated to the included file
+        unset($isReadable);
 
         include_once $filePath;
 

@@ -114,7 +114,7 @@ abstract class AbstractCommand extends Command
 
         if ($bootstrap = $this->getConfig()->getBootstrapFile()) {
             $output->writeln('<info>using bootstrap</info> ' . Util::relativePath($bootstrap) . ' ');
-            Util::loadPhpFile($bootstrap);
+            Util::loadPhpFile($bootstrap, $input, $output, $this);
         }
 
         // report the paths
