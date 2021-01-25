@@ -1161,6 +1161,8 @@ class MysqlAdapterTest extends TestCase
                 "'", '\'\n', '\\', ',', '', "\\\n", "\\n", "\n", "\r", "\r\n", '/', ',,', "\t",
             ]]],
             ['column23', 'bit', []],
+            ['column24', 'tinyinteger', []],
+
         ];
     }
 

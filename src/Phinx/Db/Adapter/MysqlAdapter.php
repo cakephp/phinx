@@ -72,6 +72,7 @@ class MysqlAdapter extends PdoAdapter
     public const INT_MEDIUM = 16777215;
     public const INT_REGULAR = 4294967295;
     public const INT_BIG = 18446744073709551615;
+    public const INT_TINYINT_BOOLEAN = 1;
 
     public const BIT = 64;
 
@@ -1040,7 +1041,8 @@ class MysqlAdapter extends PdoAdapter
             case static::PHINX_TYPE_BIG_INTEGER:
                 return ['name' => 'bigint', 'limit' => $limit ?: 20];
             case static::PHINX_TYPE_BOOLEAN:
-                return ['name' => 'tinyint', 'limit' => 1];
+            case static::INT_TINYINT_BOOLEAN:
+            return ['name' => 'tinyint', 'limit' => 1];
             case static::PHINX_TYPE_UUID:
                 return ['name' => 'char', 'limit' => 36];
             case static::PHINX_TYPE_YEAR:
