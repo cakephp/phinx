@@ -168,8 +168,11 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         $environments = $this->getEnvironments();
 
         if (isset($environments[$name])) {
-            if (isset($this->values['environments']['default_migration_table'])) {
-                $environments[$name]['default_migration_table'] =
+            if (
+                isset($this->values['environments']['default_migration_table'])
+                && !isset($environments[$name]['migration_table'])
+            ) {
+                $environments[$name]['migration_table'] =
                     $this->values['environments']['default_migration_table'];
             }
 

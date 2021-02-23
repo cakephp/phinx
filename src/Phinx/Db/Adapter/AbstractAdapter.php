@@ -77,7 +77,14 @@ abstract class AbstractAdapter implements AdapterInterface
         $this->options = $options;
 
         if (isset($options['default_migration_table'])) {
-            $this->setSchemaTableName($options['default_migration_table']);
+            trigger_error('The default_migration_table setting for adapter has been deprecated since 0.13.0. Use `migration_table` instead.', E_USER_DEPRECATED);
+            if (!isset($options['migration_table'])) {
+                $options['migration_table'] = $options['default_migration_table'];
+            }
+        }
+
+        if (isset($options['migration_table'])) {
+            $this->setSchemaTableName($options['migration_table']);
         }
 
         if (isset($options['data_domain'])) {
