@@ -418,3 +418,15 @@ setting External Variables to modify the config will not work because the config
 
     paths:
         bootstrap: 'phinx-bootstrap.php'
+
+Within the bootstrap script, the following variables will be available:
+
+.. code-block:: php
+
+    /**
+     * @var string $filename The file name as provided by the configuration
+     * @var string $filePath The absolute, real path to the file
+     * @var \Symfony\Component\Console\Input\InputInterface $input The executing command's input object
+     * @var \Symfony\Component\Console\Output\OutputInterface $output The executing command's output object
+     * @var \Phinx\Console\Command\AbstractCommand $context the executing command object
+     */
