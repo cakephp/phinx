@@ -373,10 +373,6 @@ class SQLiteAdapter extends PdoAdapter
                    ->setType('integer')
                    ->setIdentity(true);
 
-            if (isset($options['limit'])) {
-                $column->setLimit($options['limit']);
-            }
-
             array_unshift($columns, $column);
         }
 
