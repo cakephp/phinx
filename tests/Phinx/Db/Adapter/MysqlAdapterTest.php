@@ -459,6 +459,16 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
 
+    public function testCreateTableWithLimitPK()
+    {
+        $table = new \Phinx\Db\Table('ntable', ['id' => 'id', 'limit' => 4], $this->adapter);
+        $table->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $column_definitions = $this->adapter->getColumns('ntable');
+        $this->assertSame($this->usingMysql8() ? null : 4, $column_definitions[0]->getLimit());
+    }
+
     public function testCreateTableWithSchema()
     {
         $table = new \Phinx\Db\Table(MYSQL_DB_CONFIG['name'] . '.ntable', [], $this->adapter);
