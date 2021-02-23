@@ -106,7 +106,7 @@ class PostgresAdapterTest extends TestCase
                 $e,
                 'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
-            $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
+            $this->assertStringContainsString('There was a problem connecting to the database', $e->getMessage());
         }
     }
 
@@ -833,6 +833,33 @@ class PostgresAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
     }
 
+    public function integersProvider()
+    {
+        return [
+            ['smallinteger', 32767],
+            ['integer', 2147483647],
+            ['biginteger', 9223372036854775807],
+        ];
+    }
+
+    /**
+     * @dataProvider integersProvider
+     */
+    public function testChangeColumnFromTextToInteger($type, $value)
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'text')
+            ->insert(['column1' => (string)$value])
+            ->save();
+
+        $table->changeColumn('column1', $type)->save();
+        $columnType = $table->getColumn('column1')->getType();
+        $this->assertSame($columnType, $type);
+
+        $row = $this->adapter->fetchRow('SELECT * FROM t');
+        $this->assertSame($value, $row['column1']);
+    }
+
     public function testChangeColumnWithDefault()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
@@ -851,7 +878,7 @@ class PostgresAdapterTest extends TestCase
         foreach ($columns as $column) {
             if ($column->getName() === 'column1') {
                 $this->assertTrue($column->isNull());
-                $this->assertRegExp('/Test/', $column->getDefault());
+                $this->assertStringContainsString('Test', $column->getDefault());
             }
         }
     }
@@ -865,7 +892,7 @@ class PostgresAdapterTest extends TestCase
         $columns = $this->adapter->getColumns('t');
         foreach ($columns as $column) {
             if ($column->getName() === 'column1') {
-                $this->assertRegExp('/Test/', $column->getDefault());
+                $this->assertStringContainsString('Test', $column->getDefault());
             }
         }
 
@@ -977,6 +1004,101 @@ class PostgresAdapterTest extends TestCase
         $table->addIndex('email')
               ->save();
         $this->assertTrue($table->hasIndex('email'));
+    }
+
+    public function testAddIndexWithSort()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addColumn('username', 'string')
+              ->save();
+        $this->assertFalse($table->hasIndexByName('table1_email_username'));
+        $table->addIndex(['email', 'username'], ['name' => 'table1_email_username', 'order' => ['email' => 'DESC', 'username' => 'ASC']])
+          ->save();
+        $this->assertTrue($table->hasIndexByName('table1_email_username'));
+        $rows = $this->adapter->fetchAll("SELECT CASE o.option & 1 WHEN 1 THEN 'DESC' ELSE 'ASC' END as sort_order
+                        FROM pg_index AS i
+                        JOIN pg_class AS trel ON trel.oid = i.indrelid
+                        JOIN pg_namespace AS tnsp ON trel.relnamespace = tnsp.oid
+                        JOIN pg_class AS irel ON irel.oid = i.indexrelid
+                        CROSS JOIN LATERAL unnest (i.indkey) WITH ORDINALITY AS c (colnum, ordinality)
+                        LEFT JOIN LATERAL unnest (i.indoption) WITH ORDINALITY AS o (option, ordinality)
+                        ON c.ordinality = o.ordinality
+                        JOIN pg_attribute AS a ON trel.oid = a.attrelid AND a.attnum = c.colnum
+                        WHERE trel.relname = 'table1'
+                        AND irel.relname = 'table1_email_username'
+                        AND a.attname = 'email'
+                        GROUP BY o.option, tnsp.nspname, trel.relname, irel.relname");
+        $emailOrder = $rows[0];
+        $this->assertEquals($emailOrder['sort_order'], 'DESC');
+        $rows = $this->adapter->fetchAll("SELECT CASE o.option & 1 WHEN 1 THEN 'DESC' ELSE 'ASC' END as sort_order
+                        FROM pg_index AS i
+                        JOIN pg_class AS trel ON trel.oid = i.indrelid
+                        JOIN pg_namespace AS tnsp ON trel.relnamespace = tnsp.oid
+                        JOIN pg_class AS irel ON irel.oid = i.indexrelid
+                        CROSS JOIN LATERAL unnest (i.indkey) WITH ORDINALITY AS c (colnum, ordinality)
+                        LEFT JOIN LATERAL unnest (i.indoption) WITH ORDINALITY AS o (option, ordinality)
+                        ON c.ordinality = o.ordinality
+                        JOIN pg_attribute AS a ON trel.oid = a.attrelid AND a.attnum = c.colnum
+                        WHERE trel.relname = 'table1'
+                        AND irel.relname = 'table1_email_username'
+                        AND a.attname = 'username'
+                        GROUP BY o.option, tnsp.nspname, trel.relname, irel.relname");
+        $emailOrder = $rows[0];
+        $this->assertEquals($emailOrder['sort_order'], 'ASC');
+    }
+
+    public function testAddIndexWithIncludeColumns()
+    {
+        if (!version_compare($this->adapter->fetchAll("SHOW server_version;")[0]['server_version'], '11.0.0', '>=')) {
+            $this->markTestSkipped('Cannot test index include collumns (non-key columns) on postgresql versions less than 11');
+        }
+
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addColumn('firstname', 'string')
+              ->addColumn('lastname', 'string')
+              ->save();
+        $this->assertFalse($table->hasIndexByName('table1_include_idx'));
+        $table->addIndex(['email'], ['name' => 'table1_include_idx', 'include' => ['firstname', 'lastname']])
+              ->save();
+        $this->assertTrue($table->hasIndexByName('table1_include_idx'));
+        $rows = $this->adapter->fetchAll("SELECT CASE WHEN attnum <= indnkeyatts  THEN 'KEY' ELSE 'INCLUDED' END as index_column
+                        FROM pg_index ix
+                        JOIN pg_class t ON ix.indrelid = t.oid
+                        JOIN pg_class i ON ix.indexrelid = i.oid
+                        JOIN pg_attribute a ON i.oid = a.attrelid
+                        JOIN pg_namespace nsp ON t.relnamespace = nsp.oid
+                        WHERE nsp.nspname = 'public'
+                        AND t.relkind = 'r'
+                        AND t.relname = 'table1'
+                        AND a.attname = 'email'");
+        $indexColumn = $rows[0];
+        $this->assertEquals($indexColumn['index_column'], 'KEY');
+            $rows = $this->adapter->fetchAll("SELECT CASE WHEN attnum <= indnkeyatts  THEN 'KEY' ELSE 'INCLUDED' END as index_column
+                        FROM pg_index ix
+                        JOIN pg_class t ON ix.indrelid = t.oid
+                        JOIN pg_class i ON ix.indexrelid = i.oid
+                        JOIN pg_attribute a ON i.oid = a.attrelid
+                        JOIN pg_namespace nsp ON t.relnamespace = nsp.oid
+                        WHERE nsp.nspname = 'public'
+                        AND t.relkind = 'r'
+                        AND t.relname = 'table1'
+                        AND a.attname = 'firstname'");
+        $indexColumn = $rows[0];
+        $this->assertEquals($indexColumn['index_column'], 'INCLUDED');
+        $rows = $this->adapter->fetchAll("SELECT CASE WHEN attnum <= indnkeyatts  THEN 'KEY' ELSE 'INCLUDED' END as index_column
+                        FROM pg_index ix
+                        JOIN pg_class t ON ix.indrelid = t.oid
+                        JOIN pg_class i ON ix.indexrelid = i.oid
+                        JOIN pg_attribute a ON i.oid = a.attrelid
+                        JOIN pg_namespace nsp ON t.relnamespace = nsp.oid
+                        WHERE nsp.nspname = 'public'
+                        AND t.relkind = 'r'
+                        AND t.relname = 'table1'
+                        AND a.attname = 'lastname'");
+        $indexColumn = $rows[0];
+        $this->assertEquals($indexColumn['index_column'], 'INCLUDED');
     }
 
     public function testAddIndexWithSchema()
@@ -2138,5 +2260,13 @@ OUTPUT;
         $column = $columns[0];
         $this->assertSame($columnType, $column->getType());
         $this->assertSame("nextval('test_id_seq'::regclass)", (string)$column->getDefault());
+    }
+
+    public function testInvalidPdoAttribute()
+    {
+        $adapter = new PostgresAdapter(PGSQL_DB_CONFIG + ['attr_invalid' => true]);
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid PDO attribute: attr_invalid (\PDO::ATTR_INVALID)');
+        $adapter->connect();
     }
 }

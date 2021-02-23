@@ -8,12 +8,12 @@ use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Table\Column;
 use Phinx\Util\Expression;
 use Phinx\Util\Literal;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
+use Test\Phinx\TestCase;
 
 class SQLiteAdapterTest extends TestCase
 {
@@ -309,8 +309,8 @@ class SQLiteAdapterTest extends TestCase
         $row = $this->adapter->fetchRow(
             "SELECT * FROM sqlite_master WHERE `type` = 'table' AND `tbl_name` = 'tbl_child'"
         );
-        $this->assertRegExp(
-            '/CONSTRAINT `fk_master_id` FOREIGN KEY \(`master_id`\) REFERENCES `tbl_master` \(`id`\) ON DELETE NO ACTION ON UPDATE NO ACTION/',
+        $this->assertStringContainsString(
+            'CONSTRAINT `fk_master_id` FOREIGN KEY (`master_id`) REFERENCES `tbl_master` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION',
             $row['sql']
         );
     }
@@ -796,7 +796,7 @@ class SQLiteAdapterTest extends TestCase
             }
         }
 
-        $this->assertRegExp('/\/\* Comments from "column1" \*\//', $sql);
+        $this->assertMatchesRegularExpression('/\/\* Comments from "column1" \*\//', $sql);
     }
 
     public function testPhinxTypeLiteral()
@@ -2122,7 +2122,7 @@ INPUT;
                 $sql = $row['sql'];
             }
         }
-        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+        $this->assertStringContainsString("REFERENCES `{$refTable->getName()}` (`id`)", $sql);
     }
 
     public function testForeignKeyReferenceCorrectAfterChangeColumn()
@@ -2149,7 +2149,7 @@ INPUT;
                 $sql = $row['sql'];
             }
         }
-        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+        $this->assertStringContainsString("REFERENCES `{$refTable->getName()}` (`id`)", $sql);
     }
 
     public function testForeignKeyReferenceCorrectAfterRemoveColumn()
@@ -2176,7 +2176,7 @@ INPUT;
                 $sql = $row['sql'];
             }
         }
-        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+        $this->assertStringContainsString("REFERENCES `{$refTable->getName()}` (`id`)", $sql);
     }
 
     public function testForeignKeyReferenceCorrectAfterChangePrimaryKey()
@@ -2203,7 +2203,7 @@ INPUT;
                 $sql = $row['sql'];
             }
         }
-        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+        $this->assertStringContainsString("REFERENCES `{$refTable->getName()}` (`id`)", $sql);
     }
 
     public function testForeignKeyReferenceCorrectAfterDropForeignKey()
@@ -2235,6 +2235,21 @@ INPUT;
                 $sql = $row['sql'];
             }
         }
-        $this->assertRegExp("/REFERENCES `{$refTable->getName()}` \(`id`\)/", $sql);
+        $this->assertStringContainsString("REFERENCES `{$refTable->getName()}` (`id`)", $sql);
+    }
+
+    public function testInvalidPdoAttribute()
+    {
+        $adapter = new SQLiteAdapter(SQLITE_DB_CONFIG + ['attr_invalid' => true]);
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid PDO attribute: attr_invalid (\PDO::ATTR_INVALID)');
+        $adapter->connect();
+    }
+
+    public function testPdoExceptionUpdateNonExistingTable()
+    {
+        $this->expectException(\PDOException::class);
+        $table = new \Phinx\Db\Table('non_existing_table', [], $this->adapter);
+        $table->addColumn('column', 'string')->update();
     }
 }

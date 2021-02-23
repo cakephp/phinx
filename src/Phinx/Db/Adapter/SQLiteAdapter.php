@@ -120,6 +120,9 @@ class SQLiteAdapter extends PdoAdapter
         'NVARCHAR',
     ];
 
+    /**
+     * @var string
+     */
     protected $suffix = '.sqlite3';
 
     /**
@@ -690,6 +693,9 @@ PCRE_PATTERN;
             // as the alternative is unwinding all possible table constraints which
             // gets messy quickly with CHECK constraints.
             $columns = $this->getColumns($tableName);
+            if (!$columns) {
+                return $state;
+            }
             $finalColumnName = end($columns)->getName();
             $sql = preg_replace(
                 sprintf(
@@ -743,6 +749,7 @@ PCRE_PATTERN;
      * Returns the original CREATE statement for the give index
      *
      * @param string $tableName The table name to get the create statement for
+     * @param string $indexName The table index
      * @return string
      */
     protected function getDeclaringIndexSql($tableName, $indexName)

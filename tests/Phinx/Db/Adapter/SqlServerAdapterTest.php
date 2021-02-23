@@ -82,7 +82,7 @@ class SqlServerAdapterTest extends TestCase
                 $e,
                 'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
-            $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
+            $this->assertStringContainsString('There was a problem connecting to the database', $e->getMessage());
         } finally {
             if (!empty($adapter)) {
                 $adapter->disconnect();
@@ -580,6 +580,8 @@ WHERE t.name='ntable'");
             ['column10', 'datetime', []],
             ['column11', 'binary', []],
             ['column12', 'string', ['limit' => 10]],
+            ['column13', 'tinyinteger', ['default' => 5]],
+            ['column14', 'smallinteger', ['default' => 5]],
             ['decimal_precision_scale', 'decimal', ['precision' => 10, 'scale' => 2]],
             ['decimal_limit', 'decimal', ['limit' => 10]],
             ['decimal_precision', 'decimal', ['precision' => 10]],
@@ -611,6 +613,71 @@ WHERE t.name='ntable'");
         $table->addIndex('email')
               ->save();
         $this->assertTrue($table->hasIndex('email'));
+    }
+
+    public function testAddIndexWithSort()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addColumn('username', 'string')
+              ->save();
+        $this->assertFalse($table->hasIndexByName('table1_email_username'));
+        $table->addIndex(['email', 'username'], ['name' => 'table1_email_username', 'order' => ['email' => 'DESC', 'username' => 'ASC']])
+              ->save();
+        $this->assertTrue($table->hasIndexByName('table1_email_username'));
+        $rows = $this->adapter->fetchAll("SELECT case when ic.is_descending_key = 1 then 'DESC' else 'ASC' end AS sort_order
+                        FROM   sys.indexes AS i
+                        INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+                        INNER JOIN sys.tables AS t ON i.object_id=t.object_id
+                        INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
+                        WHERE   t.name = 'table1' AND i.name = 'table1_email_username' AND c.name = 'email'");
+        $emailOrder = $rows[0];
+        $this->assertEquals($emailOrder['sort_order'], 'DESC');
+        $rows = $this->adapter->fetchAll("SELECT case when ic.is_descending_key = 1 then 'DESC' else 'ASC' end AS sort_order
+                        FROM   sys.indexes AS i
+                        INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+                        INNER JOIN sys.tables AS t ON i.object_id=t.object_id
+                        INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
+                        WHERE   t.name = 'table1' AND i.name = 'table1_email_username' AND c.name = 'username'");
+        $emailOrder = $rows[0];
+        $this->assertEquals($emailOrder['sort_order'], 'ASC');
+    }
+
+    public function testAddIndexWithIncludeColumns()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addColumn('firstname', 'string')
+              ->addColumn('lastname', 'string')
+              ->save();
+        $this->assertFalse($table->hasIndex('email'));
+        $table->addIndex(['email'], ['include' => ['firstname', 'lastname']])
+              ->save();
+        $this->assertTrue($table->hasIndex('email'));
+        $rows = $this->adapter->fetchAll("SELECT ic.is_included_column AS included
+                        FROM   sys.indexes AS i
+                        INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+                        INNER JOIN sys.tables AS t ON i.object_id=t.object_id
+                        INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
+                        WHERE   t.name = 'table1' AND c.name = 'email'");
+        $emailOrder = $rows[0];
+        $this->assertEquals($emailOrder['included'], 0);
+        $rows = $this->adapter->fetchAll("SELECT ic.is_included_column AS included
+                        FROM   sys.indexes AS i
+                        INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+                        INNER JOIN sys.tables AS t ON i.object_id=t.object_id
+                        INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
+                        WHERE   t.name = 'table1' AND c.name = 'firstname'");
+        $emailOrder = $rows[0];
+        $this->assertEquals($emailOrder['included'], 1);
+        $rows = $this->adapter->fetchAll("SELECT ic.is_included_column AS included
+                        FROM   sys.indexes AS i
+                        INNER JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+                        INNER JOIN sys.tables AS t ON i.object_id=t.object_id
+                        INNER JOIN sys.columns AS c on ic.column_id=c.column_id and ic.object_id=c.object_id
+                        WHERE   t.name = 'table1' AND c.name = 'lastname'");
+        $emailOrder = $rows[0];
+        $this->assertEquals($emailOrder['included'], 1);
     }
 
     public function testGetIndexes()
@@ -763,6 +830,7 @@ WHERE t.name='ntable'");
         $this->assertEquals('integer', $this->adapter->getPhinxType('int'));
         $this->assertEquals('integer', $this->adapter->getPhinxType('integer'));
 
+        $this->assertEquals('tinyinteger', $this->adapter->getPhinxType('tinyint'));
         $this->assertEquals('smallinteger', $this->adapter->getPhinxType('smallint'));
         $this->assertEquals('biginteger', $this->adapter->getPhinxType('bigint'));
 
@@ -1051,5 +1119,24 @@ INPUT;
         $columns = $table->getColumns();
         $this->assertCount(1, $columns);
         $this->assertEquals(Literal::from('smallmoney'), array_pop($columns)->getType());
+    }
+
+    public function pdoAttributeProvider()
+    {
+        return [
+            ['sqlsrv_attr_invalid'],
+            ['attr_invalid'],
+        ];
+    }
+
+    /**
+     * @dataProvider pdoAttributeProvider
+     */
+    public function testInvalidPdoAttribute($attribute)
+    {
+        $adapter = new SqlServerAdapter(SQLSRV_DB_CONFIG + [$attribute => true]);
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid PDO attribute: ' . $attribute . ' (\PDO::' . strtoupper($attribute) . ')');
+        $adapter->connect();
     }
 }

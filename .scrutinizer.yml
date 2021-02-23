@@ -1,5 +1,0 @@
-checks:
-  php: true
-
-filter:
-  paths: ['src/*']

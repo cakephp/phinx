@@ -310,7 +310,7 @@ class Create extends AbstractCommand
             $output->writeln('<info>using default template</info>');
         }
 
-        $output->writeln('<info>created</info> ' . str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $filePath));
+        $output->writeln('<info>created</info> ' . Util::relativePath($filePath));
 
         return self::CODE_SUCCESS;
     }

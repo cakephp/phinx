@@ -47,6 +47,16 @@ class Index
     protected $limit;
 
     /**
+     * @var string[]
+     */
+    protected $order;
+
+    /**
+     * @var string[]
+     */
+    protected $includedColumns;
+
+    /**
      * Sets the index columns.
      *
      * @param string[] $columns Columns
@@ -143,6 +153,52 @@ class Index
     }
 
     /**
+     * Sets the index columns sort order.
+     *
+     * @param string[] $order column name sort order key value pair
+     * @return $this
+     */
+    public function setOrder($order)
+    {
+        $this->order = $order;
+
+        return $this;
+    }
+
+    /**
+     * Gets the index columns sort order.
+     *
+     * @return string[]
+     */
+    public function getOrder()
+    {
+        return $this->order;
+    }
+
+    /**
+     * Sets the index included columns.
+     *
+     * @param string[] $includedColumns Columns
+     * @return $this
+     */
+    public function setInclude($includedColumns)
+    {
+        $this->includedColumns = $includedColumns;
+
+        return $this;
+    }
+
+    /**
+     * Gets the index included columns.
+     *
+     * @return string[]
+     */
+    public function getInclude()
+    {
+        return $this->includedColumns;
+    }
+
+    /**
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
@@ -154,7 +210,7 @@ class Index
     public function setOptions($options)
     {
         // Valid Options
-        $validOptions = ['type', 'unique', 'name', 'limit'];
+        $validOptions = ['type', 'unique', 'name', 'limit', 'order', 'include'];
         foreach ($options as $option => $value) {
             if (!in_array($option, $validOptions, true)) {
                 throw new RuntimeException(sprintf('"%s" is not a valid index option.', $option));

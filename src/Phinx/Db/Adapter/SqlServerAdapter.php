@@ -94,11 +94,15 @@ class SqlServerAdapter extends PdoAdapter
             // http://php.net/manual/en/ref.pdo-sqlsrv.php#pdo-sqlsrv.constants
             foreach ($options as $key => $option) {
                 if (strpos($key, 'sqlsrv_attr_') === 0) {
-                    $driverOptions[constant('\PDO::' . strtoupper($key))] = $option;
+                    $pdoConstant = '\PDO::' . strtoupper($key);
+                    if (!defined($pdoConstant)) {
+                        throw new \UnexpectedValueException('Invalid PDO attribute: ' . $key . ' (' . $pdoConstant . ')');
+                    }
+                    $driverOptions[constant($pdoConstant)] = $option;
                 }
             }
 
-            $db = $this->createPdoConnection($dsn, $options['user'], $options['pass'], $driverOptions);
+            $db = $this->createPdoConnection($dsn, $options['user'] ?? null, $options['pass'] ?? null, $driverOptions);
 
             $this->setConnection($db);
         }
@@ -1068,6 +1072,8 @@ ORDER BY T.[name], I.[index_id];";
                 return ['name' => 'ntext'];
             case static::PHINX_TYPE_INTEGER:
                 return ['name' => 'int'];
+            case static::PHINX_TYPE_TINY_INTEGER:
+                return ['name' => 'tinyint'];
             case static::PHINX_TYPE_SMALL_INTEGER:
                 return ['name' => 'smallint'];
             case static::PHINX_TYPE_BIG_INTEGER:
@@ -1222,6 +1228,7 @@ SQL;
                 'bigint',
                 'int',
                 'tinyint',
+                'smallint',
             ];
             if ($sqlType['name'] === static::PHINX_TYPE_DECIMAL && $column->getPrecision() && $column->getScale()) {
                 $buffer[] = sprintf(
@@ -1262,24 +1269,35 @@ SQL;
      *
      * @param \Phinx\Db\Table\Index $index Index
      * @param string $tableName Table name
-     *
      * @return string
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
     {
+        $columnNames = $index->getColumns();
         if (is_string($index->getName())) {
             $indexName = $index->getName();
         } else {
-            $columnNames = $index->getColumns();
             $indexName = sprintf('%s_%s', $tableName, implode('_', $columnNames));
         }
+        $order = $index->getOrder() ?? [];
+        $columnNames = array_map(function ($columnName) use ($order) {
+            $ret = '[' . $columnName . ']';
+            if (isset($order[$columnName])) {
+                $ret .= ' ' . $order[$columnName];
+            }
+
+            return $ret;
+        }, $columnNames);
+
+        $includedColumns = $index->getInclude() ? sprintf('INCLUDE ([%s])', implode('],[', $index->getInclude())) : '';
 
         return sprintf(
-            'CREATE %s INDEX %s ON %s (%s);',
+            'CREATE %s INDEX %s ON %s (%s) %s;',
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $indexName,
             $this->quoteTableName($tableName),
-            '[' . implode('],[', $index->getColumns()) . ']'
+            implode(',', $columnNames),
+            $includedColumns
         );
     }
 
@@ -1340,8 +1358,8 @@ SQL;
     {
         $options = $this->getOptions();
         $options = [
-            'username' => $options['user'],
-            'password' => $options['pass'],
+            'username' => $options['user'] ?? null,
+            'password' => $options['pass'] ?? null,
             'database' => $options['name'],
             'quoteIdentifiers' => true,
         ] + $options;

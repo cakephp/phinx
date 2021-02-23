@@ -7,6 +7,7 @@
 
 namespace Phinx\Console\Command;
 
+use Phinx\Util\Util;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -67,7 +68,7 @@ class ListAliases extends AbstractCommand
             $output->writeln(
                 sprintf(
                     '<error>No aliases defined in %s</error>',
-                    str_replace(getcwd(), '', realpath($this->config->getConfigFilePath()))
+                    Util::relativePath($this->config->getConfigFilePath())
                 )
             );
         }

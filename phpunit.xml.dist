@@ -40,8 +40,8 @@
     </filter>
 
     <logging>
-        <log type="coverage-html" target="tests/log/report"
+        <log type="coverage-html" target="logs/report"
             lowUpperBound="50" highLowerBound="80"/>
-        <log type="testdox-html" target="tests/log/testdox.html"/>
+        <log type="testdox-html" target="logs/testdox.html"/>
     </logging>
 </phpunit>

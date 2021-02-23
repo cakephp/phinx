@@ -43,6 +43,9 @@ class SeedCreate extends AbstractCommand
                 PHP_EOL,
                 PHP_EOL
             ));
+
+        // An alternative template.
+        $this->addOption('template', 't', InputOption::VALUE_REQUIRED, 'Use an alternative template');
     }
 
     /**
@@ -166,8 +169,20 @@ class SeedCreate extends AbstractCommand
             ));
         }
 
-        // inject the class names appropriate to this seeder
-        $contents = file_get_contents($this->getSeedTemplateFilename());
+        // Get the alternative template option from the command line.
+        $altTemplate = $input->getOption('template');
+
+        // Verify the alternative template file's existence.
+        if ($altTemplate && !is_file($altTemplate)) {
+            throw new InvalidArgumentException(sprintf(
+                'The template file "%s" does not exist',
+                $altTemplate
+            ));
+        }
+
+        // Determine the appropriate mechanism to get the template
+        // Load the alternative template if it is defined.
+        $contents = file_get_contents($altTemplate ?: $this->getSeedTemplateFilename());
 
         $config = $this->getConfig();
         $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath($path) : null;
@@ -188,7 +203,7 @@ class SeedCreate extends AbstractCommand
         }
 
         $output->writeln('<info>using seed base class</info> ' . $classes['$useClassName']);
-        $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
+        $output->writeln('<info>created</info> ' . Util::relativePath($filePath));
 
         return self::CODE_SUCCESS;
     }

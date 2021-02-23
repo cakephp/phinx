@@ -1,5 +1,5 @@
 # Auto-detect text files, ensure they use LF.
-*       text=auto eol=lf
+* text text=auto eol=lf
 
 # These files are always considered text and should use LF.
 # See core.whitespace @ http://git-scm.com/docs/git-config for whitespace flags.
@@ -8,13 +8,17 @@
 *.test  text eol=lf whitespace=blank-at-eol,blank-at-eof,space-before-tab,tab-in-indent,tabwidth=4
 *.yml   text eol=lf whitespace=blank-at-eol,blank-at-eof,space-before-tab,tab-in-indent,tabwidth=2
 
+.editorconfig export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
+.stickler export-ignore
+box.json export-ignore
+CONTRIBUTING.md export-ignore
+docker-compose.yml export-ignore
+Dockerfile export-ignore
+docs.Dockerfile export-ignore
+phpcs.xml export-ignore
+phpstan.neon export-ignore
+phpunit.xml.dist export-ignore
+/.github/ export-ignore
 /tests/ export-ignore
-/.* export-ignore
-/appveyor.yml export-ignore
-/box.json export-ignore
-/CONTRIBUTING.md export-ignore
-/docker-compose.yml export-ignore
-/Dockerfile export-ignore
-/phpcs.xml export-ignore
-/phpstan.neon export-ignore
-/phpunit.xml.dist export-ignore
