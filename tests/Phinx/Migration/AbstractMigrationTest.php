@@ -305,14 +305,4 @@ class AbstractMigrationTest extends TestCase
         // Dummy assert to prevent the test being marked as risky
         $this->assertTrue(true);
     }
-
-    public function testDropTableDeprecated()
-    {
-        // stub migration
-        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
-
-        $this->expectException(\PHPUnit\Framework\Error\Deprecated::class);
-
-        $migrationStub->dropTable('test_table');
-    }
 }
