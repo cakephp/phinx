@@ -6,12 +6,12 @@ use InvalidArgumentException;
 use Phinx\Config\Config;
 use Phinx\Console\Command\AbstractCommand;
 use Phinx\Migration\Manager;
-use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
+use Test\Phinx\TestCase;
 
 class ManagerTest extends TestCase
 {
@@ -174,8 +174,8 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20120111235330  2012-01-11 23:53:36  2012-01-11 23:53:37  TestMigration/', $outputStr);
-        $this->assertRegExp('/up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2/', $outputStr);
+        $this->assertStringContainsString('up  20120111235330  2012-01-11 23:53:36  2012-01-11 23:53:37  TestMigration', $outputStr);
+        $this->assertStringContainsString('up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2', $outputStr);
     }
 
     public function testPrintStatusMethodJsonFormat()
@@ -252,8 +252,8 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20160111235330  2016-01-11 23:53:36  2016-01-11 23:53:37  Foo\\\\Bar\\\\TestMigration/', $outputStr);
-        $this->assertRegExp('/up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration2/', $outputStr);
+        $this->assertStringContainsString('up  20160111235330  2016-01-11 23:53:36  2016-01-11 23:53:37  Foo\\Bar\\TestMigration', $outputStr);
+        $this->assertStringContainsString('up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\Bar\\TestMigration2', $outputStr);
     }
 
     public function testPrintStatusMethodWithMixedNamespace()
@@ -325,12 +325,12 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20120111235330  2012-01-11 23:53:36  2012-01-11 23:53:37  TestMigration/', $outputStr);
-        $this->assertRegExp('/up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2/', $outputStr);
-        $this->assertRegExp('/up  20150111235330  2015-01-11 23:53:36  2015-01-11 23:53:37  Baz\\\\TestMigration/', $outputStr);
-        $this->assertRegExp('/up  20150116183504  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\\\TestMigration2/', $outputStr);
-        $this->assertRegExp('/up  20160111235330  2016-01-11 23:53:36  2016-01-11 23:53:37  Foo\\\\Bar\\\\TestMigration/', $outputStr);
-        $this->assertRegExp('/up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration2/', $outputStr);
+        $this->assertStringContainsString('up  20120111235330  2012-01-11 23:53:36  2012-01-11 23:53:37  TestMigration', $outputStr);
+        $this->assertStringContainsString('up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2', $outputStr);
+        $this->assertStringContainsString('up  20150111235330  2015-01-11 23:53:36  2015-01-11 23:53:37  Baz\\TestMigration', $outputStr);
+        $this->assertStringContainsString('up  20150116183504  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\TestMigration2', $outputStr);
+        $this->assertStringContainsString('up  20160111235330  2016-01-11 23:53:36  2016-01-11 23:53:37  Foo\\Bar\\TestMigration', $outputStr);
+        $this->assertStringContainsString('up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\Bar\\TestMigration2', $outputStr);
     }
 
     public function testPrintStatusMethodWithBreakpointSet()
@@ -369,7 +369,7 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/BREAKPOINT SET/', $outputStr);
+        $this->assertStringContainsString('BREAKPOINT SET', $outputStr);
     }
 
     public function testPrintStatusMethodWithNoMigrations()
@@ -392,7 +392,7 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/There are no available migrations. Try creating one using the create command./', $outputStr);
+        $this->assertStringContainsString('There are no available migrations. Try creating one using the create command.', $outputStr);
     }
 
     public function testPrintStatusMethodWithMissingMigrations()
@@ -433,8 +433,8 @@ class ManagerTest extends TestCase
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
 
         // note that the order is important: missing migrations should appear before down migrations
-        $this->assertRegExp('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*' . PHP_EOL .
-            '\s*up  20120815145812  2012-01-16 18:35:40  2012-01-16 18:35:41  Example   *\*\* MISSING \*\*' . PHP_EOL .
+        $this->assertMatchesRegularExpression('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING MIGRATION FILE \*\*' . PHP_EOL .
+            '\s*up  20120815145812  2012-01-16 18:35:40  2012-01-16 18:35:41  Example   *\*\* MISSING MIGRATION FILE \*\*' . PHP_EOL .
             '\s*down  20120111235330                                            TestMigration' . PHP_EOL .
             '\s*down  20120116183504                                            TestMigration2/', $outputStr);
     }
@@ -478,8 +478,8 @@ class ManagerTest extends TestCase
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
 
         // note that the order is important: missing migrations should appear before down migrations
-        $this->assertRegExp('/\s*up  20160103083300  2016-01-11 23:53:36  2016-01-11 23:53:37  *\*\* MISSING \*\*' . PHP_EOL .
-            '\s*up  20160815145812  2016-01-16 18:35:40  2016-01-16 18:35:41  Example   *\*\* MISSING \*\*' . PHP_EOL .
+        $this->assertMatchesRegularExpression('/\s*up  20160103083300  2016-01-11 23:53:36  2016-01-11 23:53:37  *\*\* MISSING MIGRATION FILE \*\*' . PHP_EOL .
+            '\s*up  20160815145812  2016-01-16 18:35:40  2016-01-16 18:35:41  Example   *\*\* MISSING MIGRATION FILE \*\*' . PHP_EOL .
             '\s*down  20160111235330                                            Foo\\\\Bar\\\\TestMigration' . PHP_EOL .
             '\s*down  20160116183504                                            Foo\\\\Bar\\\\TestMigration2/', $outputStr);
     }
@@ -523,8 +523,8 @@ class ManagerTest extends TestCase
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
 
         // note that the order is important: missing migrations should appear before down migrations
-        $this->assertRegExp('/\s*up  20160103083300  2016-01-11 23:53:36  2016-01-11 23:53:37  *\*\* MISSING \*\*' . PHP_EOL .
-            '\s*up  20160815145812  2016-01-16 18:35:40  2016-01-16 18:35:41  Example   *\*\* MISSING \*\*' . PHP_EOL .
+        $this->assertMatchesRegularExpression('/\s*up  20160103083300  2016-01-11 23:53:36  2016-01-11 23:53:37  *\*\* MISSING MIGRATION FILE \*\*' . PHP_EOL .
+            '\s*up  20160815145812  2016-01-16 18:35:40  2016-01-16 18:35:41  Example   *\*\* MISSING MIGRATION FILE \*\*' . PHP_EOL .
             '\s*down  20120111235330                                            TestMigration' . PHP_EOL .
             '\s*down  20120116183504                                            TestMigration2' . PHP_EOL .
             '\s*down  20150111235330                                            Baz\\\\TestMigration' . PHP_EOL .
@@ -579,9 +579,9 @@ class ManagerTest extends TestCase
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
 
         // note that the order is important: missing migrations should appear before down migrations
-        $this->assertRegExp('/\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration' . PHP_EOL .
+        $this->assertMatchesRegularExpression('/\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration' . PHP_EOL .
             '\s*up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2' . PHP_EOL .
-            '\s*up  20120120145114  2012-01-20 14:51:14  2012-01-20 14:51:14  Example   *\*\* MISSING \*\*/', $outputStr);
+            '\s*up  20120120145114  2012-01-20 14:51:14  2012-01-20 14:51:14  Example   *\*\* MISSING MIGRATION FILE \*\*/', $outputStr);
     }
 
     public function testPrintStatusMethodWithMissingLastMigrationWithNamespace()
@@ -631,9 +631,9 @@ class ManagerTest extends TestCase
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
 
         // note that the order is important: missing migrations should appear before down migrations
-        $this->assertRegExp('/\s*up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration' . PHP_EOL .
+        $this->assertMatchesRegularExpression('/\s*up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration' . PHP_EOL .
             '\s*up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration2' . PHP_EOL .
-            '\s*up  20160120145114  2016-01-20 14:51:14  2016-01-20 14:51:14  Example   *\*\* MISSING \*\*/', $outputStr);
+            '\s*up  20160120145114  2016-01-20 14:51:14  2016-01-20 14:51:14  Example   *\*\* MISSING MIGRATION FILE \*\*/', $outputStr);
     }
 
     public function testPrintStatusMethodWithMissingLastMigrationWithMixedNamespace()
@@ -715,14 +715,14 @@ class ManagerTest extends TestCase
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
 
         // note that the order is important: missing migrations should appear before down migrations
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration' . PHP_EOL .
             '\s*up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2' . PHP_EOL .
             '\s*up  20150111235330  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\\\TestMigration' . PHP_EOL .
             '\s*up  20150116183504  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\\\TestMigration2' . PHP_EOL .
             '\s*up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration' . PHP_EOL .
             '\s*up  20160116183504  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration2' . PHP_EOL .
-            '\s*up  20170120145114  2017-01-20 14:51:14  2017-01-20 14:51:14  Example   *\*\* MISSING \*\*/',
+            '\s*up  20170120145114  2017-01-20 14:51:14  2017-01-20 14:51:14  Example   *\*\* MISSING MIGRATION FILE \*\*/',
             $outputStr
         );
     }
@@ -763,9 +763,9 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*/', $outputStr);
-        $this->assertRegExp('/BREAKPOINT SET/', $outputStr);
-        $this->assertRegExp('/up  20120815145812  2012-01-16 18:35:40  2012-01-16 18:35:41  Example   *\*\* MISSING \*\*/', $outputStr);
+        $this->assertMatchesRegularExpression('/up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING MIGRATION FILE \*\*/', $outputStr);
+        $this->assertStringContainsString('BREAKPOINT SET', $outputStr);
+        $this->assertMatchesRegularExpression('/up  20120815145812  2012-01-16 18:35:40  2012-01-16 18:35:41  Example   *\*\* MISSING MIGRATION FILE \*\*/', $outputStr);
     }
 
     public function testPrintStatusMethodWithDownMigrations()
@@ -792,8 +792,8 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration/', $outputStr);
-        $this->assertRegExp('/down  20120116183504                                            TestMigration2/', $outputStr);
+        $this->assertStringContainsString('up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration', $outputStr);
+        $this->assertStringContainsString('down  20120116183504                                            TestMigration2', $outputStr);
     }
 
     public function testPrintStatusMethodWithDownMigrationsWithNamespace()
@@ -821,8 +821,8 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp('/up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration/', $outputStr);
-        $this->assertRegExp('/down  20160116183504                                            Foo\\\\Bar\\\\TestMigration2/', $outputStr);
+        $this->assertStringContainsString('up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\Bar\\TestMigration', $outputStr);
+        $this->assertStringContainsString('down  20160116183504                                            Foo\\Bar\\TestMigration2', $outputStr);
     }
 
     public function testPrintStatusMethodWithDownMigrationsWithMixedNamespace()
@@ -870,13 +870,13 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration' . PHP_EOL .
             '\s*up  20120116183504  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration2' . PHP_EOL .
             '\s*up  20150111235330  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\\\TestMigration/',
             $outputStr
         );
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '/\s*down  20150116183504                                            Baz\\\\TestMigration2' . PHP_EOL .
             '\s*down  20160111235330                                            Foo\\\\Bar\\\\TestMigration' . PHP_EOL .
             '\s*down  20160116183504                                            Foo\\\\Bar\\\\TestMigration2/',
@@ -928,7 +928,7 @@ class ManagerTest extends TestCase
 
         // note that the order is important: missing migrations should appear before down migrations (and in the right
         // place with regard to other up non-missing migrations)
-        $this->assertRegExp('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*' . PHP_EOL .
+        $this->assertMatchesRegularExpression('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING MIGRATION FILE \*\*' . PHP_EOL .
             '\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration' . PHP_EOL .
             '\s*down  20120116183504                                            TestMigration2/', $outputStr);
     }
@@ -970,7 +970,7 @@ class ManagerTest extends TestCase
 
         // note that the order is important: missing migrations should appear before down migrations (and in the right
         // place with regard to other up non-missing migrations)
-        $this->assertRegExp('/\s*up  20160103083300  2016-01-11 23:53:36  2016-01-11 23:53:37  *\*\* MISSING \*\*' . PHP_EOL .
+        $this->assertMatchesRegularExpression('/\s*up  20160103083300  2016-01-11 23:53:36  2016-01-11 23:53:37  *\*\* MISSING MIGRATION FILE \*\*' . PHP_EOL .
             '\s*up  20160111235330  2016-01-16 18:35:40  2016-01-16 18:35:41  Foo\\\\Bar\\\\TestMigration' . PHP_EOL .
             '\s*down  20160116183504                                            Foo\\\\Bar\\\\TestMigration2/', $outputStr);
     }
@@ -1029,7 +1029,7 @@ class ManagerTest extends TestCase
 
         // note that the order is important: missing migrations should appear before down migrations (and in the right
         // place with regard to other up non-missing migrations)
-        $this->assertRegExp('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING \*\*' . PHP_EOL .
+        $this->assertMatchesRegularExpression('/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING MIGRATION FILE \*\*' . PHP_EOL .
             '\s*up  20120111235330  2012-01-16 18:35:40  2012-01-16 18:35:41  TestMigration' . PHP_EOL .
             '\s*up  20120116183504  2012-01-16 18:35:43  2012-01-16 18:35:44  TestMigration2' . PHP_EOL .
             '\s*up  20150111235330  2015-01-16 18:35:40  2015-01-16 18:35:41  Baz\\\\TestMigration' . PHP_EOL .

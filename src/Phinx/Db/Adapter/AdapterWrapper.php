@@ -461,7 +461,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
-     * @inheritDoc
+     * @return \PDO
      */
     public function getConnection()
     {

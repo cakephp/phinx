@@ -258,7 +258,7 @@ class Manager
     protected function printMissingVersion($version, $maxNameLength)
     {
         $this->getOutput()->writeln(sprintf(
-            '     <error>up</error>  %14.0f  %19s  %19s  <comment>%s</comment>  <error>** MISSING **</error>',
+            '     <error>up</error>  %14.0f  %19s  %19s  <comment>%s</comment>  <error>** MISSING MIGRATION FILE **</error>',
             $version['version'],
             $version['start_time'],
             $version['end_time'],
@@ -619,6 +619,8 @@ class Manager
      * Sets the user defined PSR-11 container
      *
      * @param \Psr\Container\ContainerInterface $container Container
+     *
+     * @return void
      */
     public function setContainer(ContainerInterface $container)
     {

@@ -113,8 +113,8 @@ abstract class AbstractCommand extends Command
         $this->loadManager($input, $output);
 
         if ($bootstrap = $this->getConfig()->getBootstrapFile()) {
-            $output->writeln('<info>using bootstrap</info> .' . str_replace(getcwd(), '', realpath($bootstrap)) . ' ');
-            Util::loadPhpFile($bootstrap);
+            $output->writeln('<info>using bootstrap</info> ' . Util::relativePath($bootstrap) . ' ');
+            Util::loadPhpFile($bootstrap, $input, $output, $this);
         }
 
         // report the paths
@@ -265,7 +265,7 @@ abstract class AbstractCommand extends Command
     protected function loadConfig(InputInterface $input, OutputInterface $output)
     {
         $configFilePath = $this->locateConfigFile($input);
-        $output->writeln('<info>using config file</info> .' . str_replace(getcwd(), '', realpath($configFilePath)));
+        $output->writeln('<info>using config file</info> ' . Util::relativePath($configFilePath));
 
         $parser = $input->getOption('parser');
 

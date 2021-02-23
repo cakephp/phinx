@@ -1,0 +1,51 @@
+name: Upload Release PHAR
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Upload Release PHAR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist
+
+      - run: composer global require humbug/box:^3.8
+
+      # We need to set symfony/yaml as regular dependency so box packs it
+      - run: composer require symfony/yaml
+
+      - name: Compile PHAR
+        run: ~/.composer/vendor/bin/box compile
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./phinx.phar
+          asset_name: phinx.phar
+          asset_content_type: application/octet-stream

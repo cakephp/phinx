@@ -480,6 +480,7 @@ row_format set the table row format
 engine     define table engine *(defaults to ``InnoDB``)*
 collation  define table collation *(defaults to ``utf8mb4_unicode_ci``)*
 signed     whether the primary key is ``signed``  *(defaults to ``false``)*
+limit      set the maximum length for the primary key
 ========== ===========
 
 By default, the primary key is ``unsigned``.
@@ -511,69 +512,7 @@ Option    Description
 comment   set a text comment on the table
 ========= ===========
 
-.. _valid-column-types:
-
-Valid Column Types
-~~~~~~~~~~~~~~~~~~
-
-Column types are specified as strings and can be one of:
-
--  biginteger
--  binary
--  boolean
--  date
--  datetime
--  decimal
--  float
--  double
--  integer
--  smallinteger
--  string
--  text
--  time
--  timestamp
--  uuid
-
-Mysql adapter and Postgres adapter supports many of their own types, see `Valid Column Types`_ for details.
-
-For valid options, see the `Valid Column Options`_ below.
-
-Custom Column Types & Default Values
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Some DBMS systems provide additional column types and default values that are specific to them.
-If you don't want to keep your migrations DBMS-agnostic you can use those custom types in your migrations
-through the ``\Phinx\Util\Literal::from`` method, which takes a string as its only argument, and returns an
-instance of ``\Phinx\Util\Literal``. When Phinx encounters this value as a column's type it knows not to
-run any validation on it and to use it exactly as supplied without escaping. This also works for ``default``
-values.
-
-You can see an example below showing how to add a ``citext`` column as well as a column whose default value
-is a function, in PostgreSQL. This method of preventing the built-in escaping is supported in all adapters.
-
-.. code-block:: php
-
-        <?php
-
-        use Phinx\Migration\AbstractMigration;
-        use Phinx\Util\Literal;
-
-        class AddSomeColumns extends AbstractMigration
-        {
-            public function change()
-            {
-                $this->table('users')
-                      ->addColumn('username', Literal::from('citext'))
-                      ->addColumn('uniqid', 'uuid', [
-                          'default' => Literal::from('uuid_generate_v4()')
-                      ])
-                      ->addColumn('creation', 'timestamp', [
-                          'timezone' => true,
-                          'default' => Literal::from('now()')
-                      ])
-                      ->create();
-            }
-        }
+To view available column types and options, see `Valid Column Types`_ for details.
 
 Determining Whether a Table Exists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -774,12 +713,13 @@ Pass in a string to set as the new table comment, or ``null`` to drop the existi
 Working With Columns
 --------------------
 
+.. _valid-column-types:
+
 Valid Column Types
 ~~~~~~~~~~~~~~~~~~
 
 Column types are specified as strings and can be one of:
 
--  biginteger
 -  binary
 -  boolean
 -  char
@@ -787,8 +727,10 @@ Column types are specified as strings and can be one of:
 -  datetime
 -  decimal
 -  float
--  integer
+-  double
 -  smallinteger
+-  integer
+-  biginteger
 -  string
 -  text
 -  time
@@ -816,7 +758,7 @@ limit   set maximum length for strings, also hints column types in adapters (see
 length  alias for ``limit``
 default set default value or action
 null    allow ``NULL`` values, defaults to false if `identity` option is set to true, else defaults to true
-after   specify the column that a new column should be placed after *(only applies to MySQL)*
+after   specify the column that a new column should be placed after, or use ``\Phinx\Db\Adapter\MysqlAdapter::FIRST`` to place the column at the start of the table *(only applies to MySQL)*
 comment set a text comment on the column
 ======= ===========
 
@@ -969,6 +911,43 @@ For ``binary`` or ``varbinary`` types, if limit is set greater than allowed 255 
               ->addColumn('subtype_id', 'integer', ['limit' => MysqlAdapter::INT_SMALL])
               ->addColumn('quantity', 'integer', ['limit' => MysqlAdapter::INT_TINY])
               ->create();
+
+Custom Column Types & Default Values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some DBMS systems provide additional column types and default values that are specific to them.
+If you don't want to keep your migrations DBMS-agnostic you can use those custom types in your migrations
+through the ``\Phinx\Util\Literal::from`` method, which takes a string as its only argument, and returns an
+instance of ``\Phinx\Util\Literal``. When Phinx encounters this value as a column's type it knows not to
+run any validation on it and to use it exactly as supplied without escaping. This also works for ``default``
+values.
+
+You can see an example below showing how to add a ``citext`` column as well as a column whose default value
+is a function, in PostgreSQL. This method of preventing the built-in escaping is supported in all adapters.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+        use Phinx\Util\Literal;
+
+        class AddSomeColumns extends AbstractMigration
+        {
+            public function change()
+            {
+                $this->table('users')
+                      ->addColumn('username', Literal::from('citext'))
+                      ->addColumn('uniqid', 'uuid', [
+                          'default' => Literal::from('uuid_generate_v4()')
+                      ])
+                      ->addColumn('creation', 'timestamp', [
+                          'timezone' => true,
+                          'default' => Literal::from('now()')
+                      ])
+                      ->create();
+            }
+        }
 
 User Defined Types (Custom Data Domain)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1301,7 +1280,8 @@ table object.
 By default Phinx instructs the database adapter to create a normal index. We
 can pass an additional parameter ``unique`` to the ``addIndex()`` method to
 specify a unique index. We can also explicitly specify a name for the index
-using the ``name`` parameter.
+using the ``name`` parameter, the index columns sort order can also be specified using
+the ``order`` parameter. The order parameter takes an array of column names and sort order key/value pairs.
 
 .. code-block:: php
 
@@ -1318,9 +1298,12 @@ using the ``name`` parameter.
             {
                 $table = $this->table('users');
                 $table->addColumn('email', 'string')
-                      ->addIndex(['email'], [
+                      ->addColumn('username','string')
+                      ->addIndex(['email', 'username'], [
                             'unique' => true,
-                            'name' => 'idx_users_email'])
+                            'name' => 'idx_users_email',
+                            'order' => ['email' => 'DESC', 'username' => 'ASC']]
+                            )
                       ->save();
             }
 
@@ -1376,6 +1359,28 @@ The single column index can define its index length with or without defining col
                       ->create();
             }
         }
+
+The SQL Server and PostgreSQL adapters also supports ``include`` (non-key) columns on indexes.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->addColumn('email', 'string')
+                      ->addColumn('firstname','string')
+                      ->addColumn('lastname','string')
+                      ->addIndex(['email'], ['include' => ['firstname', 'lastname']])
+                      ->create();
+            }
+        }
+
 
 Removing indexes is as easy as calling the ``removeIndex()`` method. You must
 call this method for each index.

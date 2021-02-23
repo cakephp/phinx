@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Test\Phinx\Db\Adapter;
 
-use Cake\Collection\Collection;
 use PDOException;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
@@ -85,7 +84,7 @@ class MysqlAdapterTest extends TestCase
                 $e,
                 'Expected exception of type InvalidArgumentException, got ' . get_class($e)
             );
-            $this->assertRegExp('/There was a problem connecting to the database/', $e->getMessage());
+            $this->assertStringContainsString('There was a problem connecting to the database', $e->getMessage());
         }
     }
 
@@ -460,6 +459,16 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
     }
 
+    public function testCreateTableWithLimitPK()
+    {
+        $table = new \Phinx\Db\Table('ntable', ['id' => 'id', 'limit' => 4], $this->adapter);
+        $table->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $column_definitions = $this->adapter->getColumns('ntable');
+        $this->assertSame($this->usingMysql8() ? null : 4, $column_definitions[0]->getLimit());
+    }
+
     public function testCreateTableWithSchema()
     {
         $table = new \Phinx\Db\Table(MYSQL_DB_CONFIG['name'] . '.ntable', [], $this->adapter);
@@ -662,15 +671,28 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($rows[1]['Default'] === 'CURRENT_TIMESTAMP' || $rows[1]['Default'] === 'current_timestamp()');
     }
 
+    public function testAddColumnFirst()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn('new_id', 'integer', ['after' => MysqlAdapter::FIRST])
+              ->save();
+        $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
+        $this->assertSame('new_id', $rows[0]['Field']);
+    }
+
     public function integerDataProvider()
     {
         return [
             ['integer', [], 'int', '11', ''],
             ['integer', ['signed' => false], 'int', '11', ' unsigned'],
+            ['integer', ['limit' => 8], 'int', '8', ''],
             ['smallinteger', [], 'smallint', '6', ''],
             ['smallinteger', ['signed' => false], 'smallint', '6', ' unsigned'],
+            ['smallinteger', ['limit' => 3], 'smallint', '3', ''],
             ['biginteger', [], 'bigint', '20', ''],
             ['biginteger', ['signed' => false], 'bigint', '20', ' unsigned'],
+            ['biginteger', ['limit' => 12], 'bigint', '12', ''],
         ];
     }
 
@@ -1230,6 +1252,29 @@ class MysqlAdapterTest extends TestCase
         $table->addIndex('email')
               ->save();
         $this->assertTrue($table->hasIndex('email'));
+    }
+
+    public function testAddIndexWithSort()
+    {
+        $this->adapter->connect();
+        if (!$this->usingMysql8()) {
+            $this->markTestSkipped('Cannot test index order on mysql versions less than 8');
+        }
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('email', 'string')
+              ->addColumn('username', 'string')
+              ->save();
+        $this->assertFalse($table->hasIndexByName('table1_email_username'));
+        $table->addIndex(['email', 'username'], ['name' => 'table1_email_username', 'order' => ['email' => 'DESC', 'username' => 'ASC']])
+              ->save();
+        $this->assertTrue($table->hasIndexByName('table1_email_username'));
+        $rows = $this->adapter->fetchAll("SHOW INDEXES FROM table1 WHERE Key_name = 'table1_email_username' AND Column_name = 'email'");
+        $emailOrder = $rows[0]['Collation'];
+        $this->assertEquals($emailOrder, 'D');
+
+        $rows = $this->adapter->fetchAll("SHOW INDEXES FROM table1 WHERE Key_name = 'table1_email_username' AND Column_name = 'username'");
+        $emailOrder = $rows[0]['Collation'];
+        $this->assertEquals($emailOrder, 'A');
     }
 
     public function testAddMultipleFulltextIndex()
@@ -2014,5 +2059,43 @@ INPUT;
         $this->assertTrue(in_array('blob', $validTypes, true));
         $this->assertTrue(in_array('mediumblob', $validTypes, true));
         $this->assertTrue(in_array('longblob', $validTypes, true));
+    }
+
+    public function testCreateTableWithPrecisionCurrentTimestamp()
+    {
+        $this->adapter->connect();
+        (new \Phinx\Db\Table('exampleCurrentTimestamp3', ['id' => false], $this->adapter))
+            ->addColumn('timestamp_3', 'timestamp', [
+                'null' => false,
+                'default' => 'CURRENT_TIMESTAMP(3)',
+                'limit' => 3,
+            ])
+            ->create();
+
+        $rows = $this->adapter->fetchAll(sprintf(
+            "SELECT COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='exampleCurrentTimestamp3'",
+            MYSQL_DB_CONFIG['name']
+        ));
+        $colDef = $rows[0];
+        $this->assertEquals('CURRENT_TIMESTAMP(3)', $colDef['COLUMN_DEFAULT']);
+    }
+
+    public function pdoAttributeProvider()
+    {
+        return [
+            ['mysql_attr_invalid'],
+            ['attr_invalid'],
+        ];
+    }
+
+    /**
+     * @dataProvider pdoAttributeProvider
+     */
+    public function testInvalidPdoAttribute($attribute)
+    {
+        $adapter = new MysqlAdapter(MYSQL_DB_CONFIG + [$attribute => true]);
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Invalid PDO attribute: ' . $attribute . ' (\PDO::' . strtoupper($attribute) . ')');
+        $adapter->connect();
     }
 }
