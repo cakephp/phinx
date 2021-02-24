@@ -193,6 +193,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
 
         $stmt = $this->getConnection()->prepare($sql);
         $result = $stmt->execute($params);
+
         return $result ? $stmt->rowCount() : $result;
     }
 
