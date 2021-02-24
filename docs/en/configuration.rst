@@ -191,7 +191,8 @@ Migration Table
 
 To keep track of the migration statuses for an environment, phinx creates
 a table to store this information. You can customize where this table
-is created by configuring ``default_migration_table``:
+is created by configuring ``default_migration_table`` to be used as default
+for all environments:
 
 .. code-block:: yaml
 
@@ -203,6 +204,24 @@ databases that support it, e.g. Postgres, the schema name can be prefixed
 with a period separator (``.``). For example, ``phinx.log`` will create
 the table ``log`` in the ``phinx`` schema instead of ``phinxlog`` in the
 ``public`` (default) schema.
+
+You may also specify the ``migration_table`` on a per environment basis.
+Any environment that does not have a ``migration_table`` specified will
+fallback to using the ``default_migration_table`` that is defined at the
+top level. An example of how you might use this is as follows:
+
+.. code-block:: yaml
+
+    environment:
+        default_migration_table: phinxlog
+        development:
+            migration_table: phinxlog_dev
+            # rest of the development settings
+        production:
+            # rest of the production settings
+
+In the above example, ``development`` will look to the ``phinxlog_dev``
+table for migration statues while ``production`` will use ``phinxlog``.
 
 Table Prefix and Suffix
 -----------------------
