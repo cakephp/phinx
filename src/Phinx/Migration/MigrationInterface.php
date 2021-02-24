@@ -137,10 +137,11 @@ interface MigrationInterface
      * Executes a SQL statement and returns the number of affected rows.
      *
      * @param string $sql SQL
+     * @param array $params parameters to use for prepared query
      *
      * @return int
      */
-    public function execute($sql);
+    public function execute($sql, array $params = []);
 
     /**
      * Executes a SQL statement.
@@ -151,10 +152,11 @@ interface MigrationInterface
      * you can set the return type by the adapter in your current use.
      *
      * @param string $sql SQL
+     * @param array $params parameters to use for prepared query
      *
      * @return mixed
      */
-    public function query($sql);
+    public function query($sql, array $params = []);
 
     /**
      * Returns a new Query object that can be used to build complex SELECT, UPDATE, INSERT or DELETE

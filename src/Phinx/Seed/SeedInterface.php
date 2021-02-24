@@ -94,10 +94,11 @@ interface SeedInterface
      * Executes a SQL statement and returns the number of affected rows.
      *
      * @param string $sql SQL
+     * @param array $params parameters to use for prepared query
      *
      * @return int
      */
-    public function execute($sql);
+    public function execute($sql, array $params = []);
 
     /**
      * Executes a SQL statement.
@@ -108,10 +109,11 @@ interface SeedInterface
      * you can set the return type by the adapter in your current use.
      *
      * @param string $sql SQL
+     * @param array $params parameters to use for prepared query
      *
      * @return mixed
      */
-    public function query($sql);
+    public function query($sql, array $params = []);
 
     /**
      * Executes a query and returns only one row as an array.
