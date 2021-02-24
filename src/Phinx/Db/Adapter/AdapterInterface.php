@@ -265,10 +265,11 @@ interface AdapterInterface
      * Executes a SQL statement and returns the number of affected rows.
      *
      * @param string $sql SQL
+     * @param array $params parameters to use for prepared query
      *
      * @return int
      */
-    public function execute($sql);
+    public function execute($sql, array $params = []);
 
     /**
      * Executes a list of migration actions for the given table
@@ -293,10 +294,11 @@ interface AdapterInterface
      * The return type depends on the underlying adapter being used.
      *
      * @param string $sql SQL
+     * @param array $params parameters to use for prepared query
      *
      * @return mixed
      */
-    public function query($sql);
+    public function query($sql, array $params = []);
 
     /**
      * Executes a query and returns only one row as an array.

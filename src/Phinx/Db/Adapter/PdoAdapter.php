@@ -182,7 +182,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * @inheritDoc
      */
-    public function execute($sql)
+    public function execute($sql, array $params = [])
     {
         $sql = rtrim($sql, "; \t\n\r\0\x0B") . ';';
         $this->verboseLog($sql);
@@ -191,7 +191,9 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             return 0;
         }
 
-        return $this->getConnection()->exec($sql);
+        $stmt = $this->getConnection()->prepare($sql);
+        $result = $stmt->execute($params);
+        return $result ? $stmt->rowCount() : $result;
     }
 
     /**
@@ -215,11 +217,13 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      *
      * @param string $sql SQL
      *
-     * @return \PDOStatement
+     * @return \PDOStatement|false
      */
-    public function query($sql)
+    public function query($sql, array $params = [])
     {
-        return $this->getConnection()->query($sql);
+        $stmt = $this->getConnection()->prepare($sql);
+        $result = $stmt->execute($params);
+        return $result ? $stmt : false;
     }
 
     /**
