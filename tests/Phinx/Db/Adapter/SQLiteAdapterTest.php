@@ -1181,15 +1181,15 @@ OUTPUT;
             'int_col' => 23,
         ]);
 
-        $countQuery = $this->adapter->query('SELECT COUNT(*) FROM table1 WHERE int_col > ?', [5]);
+        $countQuery = $this->adapter->query('SELECT COUNT(*) as c FROM table1 WHERE int_col > ?', [5]);
         $res = $countQuery->fetchAll();
-        $this->assertEquals(2, $res[0]['COUNT(*)']);
+        $this->assertEquals(2, $res[0]['c']);
 
         $this->adapter->execute('UPDATE table1 SET int_col = ? WHERE int_col IS NULL', [12]);
 
         $countQuery->execute([1]);
         $res = $countQuery->fetchAll();
-        $this->assertEquals(3, $res[0]['COUNT(*)']);
+        $this->assertEquals(3, $res[0]['c']);
     }
 
     /**
