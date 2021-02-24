@@ -134,6 +134,16 @@ class ConfigTest extends AbstractConfigTest
         $config->getDefaultEnvironment();
     }
 
+    public function testEnvironmentHasMigrationTable()
+    {
+        $configArray = $this->getConfigArray();
+        $configArray['environments']['production']['migration_table'] = 'test_table';
+        $config = new Config($configArray);
+
+        $this->assertSame('phinxlog', $config->getEnvironment('testing')['migration_table']);
+        $this->assertSame('test_table', $config->getEnvironment('production')['migration_table']);
+    }
+
     /**
      * @covers \Phinx\Config\Config::offsetGet
      * @covers \Phinx\Config\Config::offsetSet
