@@ -315,6 +315,33 @@ class SQLiteAdapterTest extends TestCase
         );
     }
 
+    public function testCreateTableWithoutAutoIncrementingPrimaryKeyAndWithForeignKey()
+    {
+        $refTable = (new \Phinx\Db\Table('tbl_master', ['id' => false, 'primary_key' => 'id'], $this->adapter))
+            ->addColumn('id', 'text');
+        $refTable->create();
+
+        $table = (new \Phinx\Db\Table('tbl_child', ['id' => false, 'primary_key' => 'master_id'], $this->adapter))
+            ->addColumn('master_id', 'text')
+            ->addForeignKey(
+                'master_id',
+                'tbl_master',
+                'id',
+                ['delete' => 'NO_ACTION', 'update' => 'NO_ACTION', 'constraint' => 'fk_master_id']
+            );
+        $table->create();
+
+        $this->assertTrue($this->adapter->hasForeignKey('tbl_child', ['master_id']));
+
+        $row = $this->adapter->fetchRow(
+            "SELECT * FROM sqlite_master WHERE `type` = 'table' AND `tbl_name` = 'tbl_child'"
+        );
+        $this->assertStringContainsString(
+            'CONSTRAINT `fk_master_id` FOREIGN KEY (`master_id`) REFERENCES `tbl_master` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION',
+            $row['sql']
+        );
+    }
+
     public function testAddPrimaryKey()
     {
         $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
