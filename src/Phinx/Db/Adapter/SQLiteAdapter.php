@@ -1321,17 +1321,19 @@ PCRE_PATTERN;
             $tmpTableName = $state['tmpTableName'];
             $indexes = $this->getIndexes($tableName);
             foreach (array_keys($indexes) as $indexName) {
-                $sql .= sprintf(
-                    'DROP INDEX %s%s; ',
-                    $schema,
-                    $this->quoteColumnName($indexName)
-                );
-                $createIndexSQL = $this->getDeclaringIndexSQL($tableName, $indexName);
-                $sql .= preg_replace(
-                    "/\b${tableName}\b/",
-                    $tmpTableName,
-                    $createIndexSQL
-                );
+                if (strpos($indexName, 'sqlite_autoindex_') !== 0) {
+                    $sql .= sprintf(
+                        'DROP INDEX %s%s; ',
+                        $schema,
+                        $this->quoteColumnName($indexName)
+                    );
+                    $createIndexSQL = $this->getDeclaringIndexSQL($tableName, $indexName);
+                    $sql .= preg_replace(
+                        "/\b${tableName}\b/",
+                        $tmpTableName,
+                        $createIndexSQL
+                    );
+                }
             }
 
             $this->execute($sql);
