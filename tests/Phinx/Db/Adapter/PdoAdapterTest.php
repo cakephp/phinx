@@ -40,6 +40,7 @@ class PdoAdapterTestPDOMockWithExecChecks extends PdoAdapterTestPDOMock
     public function prepare($sql, $options = [])
     {
         $this->sql = $sql;
+
         return new MockPdoStatement();
     }
 
