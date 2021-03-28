@@ -14,8 +14,21 @@ class PdoAdapterTestPDOMock extends \PDO
     }
 }
 
+class MockPdoStatement extends \PDOStatement
+{
+    public function execute()
+    {
+        return true;
+    }
+
+    public function rowCount()
+    {
+        return 1;
+    }
+}
+
 /**
- * A mock PDO that stores its last exec()'d SQL that can be retrieved for queries.
+ * A mock PDO that stores its last prepare()'d SQL that can be retrieved for queries.
  *
  * This exists as $this->getMockForAbstractClass('\PDO') fails under PHP5.4 and
  * an older PHPUnit; a PDO instance cannot be serialised.
@@ -24,9 +37,10 @@ class PdoAdapterTestPDOMockWithExecChecks extends PdoAdapterTestPDOMock
 {
     private $sql;
 
-    public function exec($sql)
+    public function prepare($sql, $options = [])
     {
         $this->sql = $sql;
+        return new MockPdoStatement();
     }
 
     public function getExecutedSqlForTest()
