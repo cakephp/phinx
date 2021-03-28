@@ -346,6 +346,16 @@ For example, to set the above example options:
 By default, the only attribute that Phinx sets is ``\PDO::ATTR_ERRMODE`` to ``PDO::ERRMODE_EXCEPTION``. It is
 not recommended to override this.
 
+MySQL
+`````````````````
+
+The MySQL adapter has an unfortunate limitation in that it certain actions causes an
+`implicit commit <https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html>`_ regardless of transaction
+state. Notably this list includes ``CREATE TABLE``, ``ALTER TABLE``, and ``DROP TABLE``, which are the most
+common operations that Phinx will run. This means that unlike other adapters which will attempt to gracefully
+rollback a transaction on a failed migration, if a migration fails for MySQL, it may leave your DB in a partially
+migrated state.
+
 SQLite
 `````````````````
 
