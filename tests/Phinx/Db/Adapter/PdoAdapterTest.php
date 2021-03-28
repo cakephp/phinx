@@ -14,7 +14,7 @@ class PdoAdapterTestPDOMock extends \PDO
     }
 }
 
-class MockPdoStatement extends \PDOStatement
+class MockPdoStatement
 {
     public function execute()
     {
