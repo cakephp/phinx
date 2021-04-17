@@ -555,7 +555,12 @@ class PostgresAdapter extends PdoAdapter
                 $this->quoteColumnName($columnName)
             );
         }
-
+        if ($newColumn->getType() === 'uuid') {
+            $sql .= sprintf(
+                ' USING (%s::uuid)',
+                $this->quoteColumnName($columnName)
+            );
+        }
         //NULL and DEFAULT cannot be set while changing column type
         $sql = preg_replace('/ NOT NULL/', '', $sql);
         $sql = preg_replace('/ NULL/', '', $sql);
