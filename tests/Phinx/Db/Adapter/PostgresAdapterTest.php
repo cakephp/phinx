@@ -879,7 +879,7 @@ class PostgresAdapterTest extends TestCase
     public function testChangeColumnCharToUuid()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
-        $table->addColumn('column1', 'char', ['default' => null,'limit'=>36])
+        $table->addColumn('column1', 'char', ['default' => null, 'limit' => 36])
               ->save();
         $table->changeColumn('column1', 'uuid', ['default' => null, 'null' => true])
         ->save();
