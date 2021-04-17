@@ -860,6 +860,21 @@ class PostgresAdapterTest extends TestCase
         $this->assertSame($value, $row['column1']);
     }
 
+    public function testChangeColumnFromIntegerToBoolean()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table->addColumn('column1', 'integer', ['default'=>0])
+              ->save();
+        $table->changeColumn('column1', 'boolean', ['default'=>'t', 'null'=>true])
+        ->save();
+        $columns = $this->adapter->getColumns('t');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'column1') {
+                $this->assertTrue($column->isNull());
+                $this->assertStringContainsString("true", $column->getDefault());
+            }
+        }
+    }
     public function testChangeColumnWithDefault()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);

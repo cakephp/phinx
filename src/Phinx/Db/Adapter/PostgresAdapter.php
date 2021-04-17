@@ -540,13 +540,15 @@ class PostgresAdapter extends PdoAdapter
     protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn)
     {
         $instructions = new AlterInstructions();
-
+        if ($newColumn->getType()==='boolean') {
+            $sql = sprintf('ALTER COLUMN %s DROP DEFAULT', $this->quoteColumnName($columnName));
+            $instructions->addAlter($sql);
+        }
         $sql = sprintf(
             'ALTER COLUMN %s TYPE %s',
             $this->quoteColumnName($columnName),
             $this->getColumnSqlDefinition($newColumn)
         );
-
         if (in_array($newColumn->getType(), ['smallinteger', 'integer', 'biginteger'], true)) {
             $sql .= sprintf(
                 ' USING (%s::bigint)',
@@ -559,7 +561,12 @@ class PostgresAdapter extends PdoAdapter
         $sql = preg_replace('/ NULL/', '', $sql);
         //If it is set, DEFAULT is the last definition
         $sql = preg_replace('/DEFAULT .*/', '', $sql);
-
+        if ($newColumn->getType()==='boolean') {
+            $sql .= sprintf(
+                ' USING (CASE WHEN %s=0 THEN FALSE ELSE TRUE END)',
+                $this->quoteColumnName($columnName)
+            );
+        }
         $instructions->addAlter($sql);
 
         // process null
