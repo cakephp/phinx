@@ -540,7 +540,7 @@ class PostgresAdapter extends PdoAdapter
     protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn)
     {
         $instructions = new AlterInstructions();
-        if ($newColumn->getType()==='boolean') {
+        if ($newColumn->getType() === 'boolean') {
             $sql = sprintf('ALTER COLUMN %s DROP DEFAULT', $this->quoteColumnName($columnName));
             $instructions->addAlter($sql);
         }
@@ -561,7 +561,7 @@ class PostgresAdapter extends PdoAdapter
         $sql = preg_replace('/ NULL/', '', $sql);
         //If it is set, DEFAULT is the last definition
         $sql = preg_replace('/DEFAULT .*/', '', $sql);
-        if ($newColumn->getType()==='boolean') {
+        if ($newColumn->getType() === 'boolean') {
             $sql .= sprintf(
                 ' USING (CASE WHEN %s=0 THEN FALSE ELSE TRUE END)',
                 $this->quoteColumnName($columnName)

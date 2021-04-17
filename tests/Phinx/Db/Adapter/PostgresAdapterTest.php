@@ -863,9 +863,9 @@ class PostgresAdapterTest extends TestCase
     public function testChangeColumnFromIntegerToBoolean()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
-        $table->addColumn('column1', 'integer', ['default'=>0])
+        $table->addColumn('column1', 'integer', ['default' => 0])
               ->save();
-        $table->changeColumn('column1', 'boolean', ['default'=>'t', 'null'=>true])
+        $table->changeColumn('column1', 'boolean', ['default' => 't', 'null' => true])
         ->save();
         $columns = $this->adapter->getColumns('t');
         foreach ($columns as $column) {
