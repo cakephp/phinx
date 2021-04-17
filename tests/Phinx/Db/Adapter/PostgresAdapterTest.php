@@ -875,6 +875,7 @@ class PostgresAdapterTest extends TestCase
             }
         }
     }
+
     public function testChangeColumnWithDefault()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
