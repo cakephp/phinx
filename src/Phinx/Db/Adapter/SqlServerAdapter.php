@@ -609,9 +609,6 @@ SQL;
     protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn)
     {
         $columns = $this->getColumns($tableName);
-        $changeDefault =
-            $newColumn->getDefault() !== $columns[$columnName]->getDefault() ||
-            $newColumn->getType() !== $columns[$columnName]->getType();
 
         $instructions = new AlterInstructions();
 
@@ -621,9 +618,7 @@ SQL;
             );
         }
 
-        if ($changeDefault) {
-            $instructions->merge($this->getDropDefaultConstraint($tableName, $newColumn->getName()));
-        }
+        $instructions->merge($this->getDropDefaultConstraint($tableName, $newColumn->getName()));
 
         $instructions->addPostStep(sprintf(
             'ALTER TABLE %s ALTER COLUMN %s %s',
@@ -636,9 +631,7 @@ SQL;
             $instructions->addPostStep($this->getColumnCommentSqlDefinition($newColumn, $tableName));
         }
 
-        if ($changeDefault) {
-            $instructions->merge($this->getChangeDefault($tableName, $newColumn));
-        }
+        $instructions->merge($this->getChangeDefault($tableName, $newColumn));
 
         return $instructions;
     }
