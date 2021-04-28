@@ -458,7 +458,7 @@ class SqlServerAdapter extends PdoAdapter
         $rows = $this->fetchAll($sql);
         foreach ($rows as $columnInfo) {
             try {
-                $type = $this->getPhinxType($columnInfo['type']);
+                $type = $this->getPhinxType($columnInfo['type'], $columnInfo['char_length']);
             } catch (UnsupportedColumnTypeException $e) {
                 $type = Literal::from($columnInfo['type']);
             }
@@ -471,7 +471,8 @@ class SqlServerAdapter extends PdoAdapter
                    ->setIdentity($columnInfo['identity'] === '1')
                    ->setComment($this->getColumnComment($columnInfo['table_name'], $columnInfo['name']));
 
-            if (!empty($columnInfo['char_length'])) {
+            if ($type != self::PHINX_TYPE_TEXT && !empty($columnInfo['char_length'])) {
+                // Do not set a limit for text, as that is handled elsewhere.
                 $column->setLimit($columnInfo['char_length']);
             }
 
@@ -1062,7 +1063,7 @@ ORDER BY T.[name], I.[index_id];";
             case static::PHINX_TYPE_CHAR:
                 return ['name' => 'nchar', 'limit' => 255];
             case static::PHINX_TYPE_TEXT:
-                return ['name' => 'ntext'];
+                return ['name' => 'nvarchar', 'limit' => 'max'];
             case static::PHINX_TYPE_INTEGER:
                 return ['name' => 'int'];
             case static::PHINX_TYPE_TINY_INTEGER:
@@ -1102,17 +1103,23 @@ ORDER BY T.[name], I.[index_id];";
      * @internal param string $sqlType SQL type
      *
      * @param string $sqlType SQL Type definition
+     * @param int|null $char_length Column length value
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      *
      * @return string Phinx type
      */
-    public function getPhinxType($sqlType)
+    public function getPhinxType($sqlType, $char_length = null)
     {
         switch ($sqlType) {
             case 'nvarchar':
             case 'varchar':
-                return static::PHINX_TYPE_STRING;
+                if ($char_length == -1) {
+                    // max char length
+                    return static::PHINX_TYPE_TEXT;
+                } else {
+                    return static::PHINX_TYPE_STRING;
+                }
             case 'char':
             case 'nchar':
                 return static::PHINX_TYPE_CHAR;
