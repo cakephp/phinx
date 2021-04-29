@@ -1117,9 +1117,9 @@ ORDER BY T.[name], I.[index_id];";
                 if ($char_length == -1) {
                     // max char length
                     return static::PHINX_TYPE_TEXT;
-                } else {
-                    return static::PHINX_TYPE_STRING;
                 }
+                
+                return static::PHINX_TYPE_STRING;
             case 'char':
             case 'nchar':
                 return static::PHINX_TYPE_CHAR;
