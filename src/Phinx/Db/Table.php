@@ -189,6 +189,19 @@ class Table
     }
 
     /**
+     * Checks to see if a primary key exists.
+     *
+     * @param string|string[] $columns Column(s)
+     * @param string|null $constraint Constraint names
+     *
+     * @return bool
+     */
+    public function hasPrimaryKey($columns, $constraint = null)
+    {
+        return $this->getAdapter()->hasPrimaryKey($this->getName(), $columns, $constraint);
+    }
+
+    /**
      * Changes the comment of the database table.
      *
      * @param string|null $comment New comment string, or null to drop the comment
