@@ -540,26 +540,38 @@ class PostgresAdapter extends PdoAdapter
     protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn)
     {
         $instructions = new AlterInstructions();
-
+        if ($newColumn->getType() === 'boolean') {
+            $sql = sprintf('ALTER COLUMN %s DROP DEFAULT', $this->quoteColumnName($columnName));
+            $instructions->addAlter($sql);
+        }
         $sql = sprintf(
             'ALTER COLUMN %s TYPE %s',
             $this->quoteColumnName($columnName),
             $this->getColumnSqlDefinition($newColumn)
         );
-
         if (in_array($newColumn->getType(), ['smallinteger', 'integer', 'biginteger'], true)) {
             $sql .= sprintf(
                 ' USING (%s::bigint)',
                 $this->quoteColumnName($columnName)
             );
         }
-
+        if ($newColumn->getType() === 'uuid') {
+            $sql .= sprintf(
+                ' USING (%s::uuid)',
+                $this->quoteColumnName($columnName)
+            );
+        }
         //NULL and DEFAULT cannot be set while changing column type
         $sql = preg_replace('/ NOT NULL/', '', $sql);
         $sql = preg_replace('/ NULL/', '', $sql);
         //If it is set, DEFAULT is the last definition
         $sql = preg_replace('/DEFAULT .*/', '', $sql);
-
+        if ($newColumn->getType() === 'boolean') {
+            $sql .= sprintf(
+                ' USING (CASE WHEN %s=0 THEN FALSE ELSE TRUE END)',
+                $this->quoteColumnName($columnName)
+            );
+        }
         $instructions->addAlter($sql);
 
         // process null
