@@ -70,7 +70,7 @@ abstract class AbstractMigration implements MigrationInterface
      * @param \Symfony\Component\Console\Input\InputInterface|null $input Input
      * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output
      */
-    final public function __construct($environment, $version, InputInterface $input = null, OutputInterface $output = null)
+    final public function __construct($environment, $version, ?InputInterface $input = null, ?OutputInterface $output = null)
     {
         $this->environment = $environment;
         $this->version = $version;
@@ -282,9 +282,7 @@ abstract class AbstractMigration implements MigrationInterface
      * A short-hand method to drop the given database table.
      *
      * @deprecated since 0.10.0. Use $this->table($tableName)->drop()->save() instead.
-     *
      * @param string $tableName Table name
-     *
      * @return void
      */
     public function dropTable($tableName)
@@ -301,7 +299,6 @@ abstract class AbstractMigration implements MigrationInterface
      * an `up()` or a `down()` method.
      *
      * @param string|null $direction Direction
-     *
      * @return void
      */
     public function preFlightCheck($direction = null)
@@ -324,9 +321,7 @@ abstract class AbstractMigration implements MigrationInterface
      * Right now, the only check is whether all changes were committed
      *
      * @param string|null $direction direction of migration
-     *
      * @throws \RuntimeException
-     *
      * @return void
      */
     public function postFlightCheck($direction = null)

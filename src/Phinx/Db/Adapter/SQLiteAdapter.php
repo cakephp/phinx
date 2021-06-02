@@ -129,7 +129,6 @@ class SQLiteAdapter extends PdoAdapter
      * Indicates whether the database library version is at least the specified version
      *
      * @param string $ver The version to check against e.g. '3.28.0'
-     *
      * @return bool
      */
     public function databaseVersionAtLeast($ver)
@@ -144,7 +143,6 @@ class SQLiteAdapter extends PdoAdapter
      *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     *
      * @return void
      */
     public function connect()
@@ -256,7 +254,6 @@ class SQLiteAdapter extends PdoAdapter
     /**
      * @param string $tableName Table name
      * @param bool $quoted Whether to return the schema name and table name escaped and quoted. If quoted, the schema (if any) will also be appended with a dot
-     *
      * @return array
      */
     protected function getSchemaName($tableName, $quoted = false)
@@ -282,7 +279,6 @@ class SQLiteAdapter extends PdoAdapter
      *
      * @param string $tableName The table to query
      * @param string $pragma The pragma to query
-     *
      * @return array
      */
     protected function getTableInfo($tableName, $pragma = 'table_info')
@@ -298,7 +294,6 @@ class SQLiteAdapter extends PdoAdapter
      * If no schema was specified and the table does not exist the "main" schema is returned
      *
      * @param string $tableName The name of the table to find
-     *
      * @return array
      */
     protected function resolveTable($tableName)
@@ -524,7 +519,6 @@ class SQLiteAdapter extends PdoAdapter
      *
      * @param mixed $v The default-value expression to interpret
      * @param string $t The Phinx type of the column
-     *
      * @return mixed
      */
     protected function parseDefaultValue($v, $t)
@@ -597,7 +591,6 @@ PCRE_PATTERN;
      * The process of finding an identity column is somewhat convoluted as SQLite has no direct way of querying whether a given column is an alias for the table's row ID
      *
      * @param string $tableName The name of the table
-     *
      * @return string|null
      */
     protected function resolveIdentity($tableName)
@@ -728,7 +721,6 @@ PCRE_PATTERN;
      * Returns the original CREATE statement for the give table
      *
      * @param string $tableName The table name to get the create statement for
-     *
      * @return string
      */
     protected function getDeclaringSql($tableName)
@@ -773,7 +765,6 @@ PCRE_PATTERN;
      * @param string $tmpTableName The tmp table name where the data is stored
      * @param string[] $writeColumns The list of columns in the target table
      * @param string[] $selectColumns The list of columns in the tmp table
-     *
      * @return void
      */
     protected function copyDataToNewTable($tableName, $tmpTableName, $writeColumns, $selectColumns)
@@ -794,7 +785,6 @@ PCRE_PATTERN;
      *
      * @param \Phinx\Db\Util\AlterInstructions $instructions The instructions to modify
      * @param string $tableName The table name to copy the data to
-     *
      * @return \Phinx\Db\Util\AlterInstructions
      */
     protected function copyAndDropTmpTable($instructions, $tableName)
@@ -827,9 +817,7 @@ PCRE_PATTERN;
      * @param string $tableName The table to modify
      * @param string|false $columnName The column name that is about to change
      * @param string|false $newColumnName Optionally the new name for the column
-     *
      * @throws \InvalidArgumentException
-     *
      * @return array
      */
     protected function calculateNewTableColumns($tableName, $columnName, $newColumnName)
@@ -874,7 +862,6 @@ PCRE_PATTERN;
      * create-copy-drop strategy
      *
      * @param string $tableName The table to modify
-     *
      * @return \Phinx\Db\Util\AlterInstructions
      */
     protected function beginAlterByCopyTable($tableName)
@@ -997,7 +984,6 @@ PCRE_PATTERN;
      * Get an array of indexes from a particular table.
      *
      * @param string $tableName Table name
-     *
      * @return array
      */
     protected function getIndexes($tableName)
@@ -1023,7 +1009,6 @@ PCRE_PATTERN;
      *
      * @param string $tableName The table to which the index belongs
      * @param string|string[] $columns The columns of the index
-     *
      * @return array
      */
     protected function resolveIndex($tableName, $columns)
@@ -1162,7 +1147,6 @@ PCRE_PATTERN;
      * Get the primary key from a particular table.
      *
      * @param string $tableName Table name
-     *
      * @return string[]
      */
     protected function getPrimaryKey($tableName)
@@ -1211,7 +1195,6 @@ PCRE_PATTERN;
      * Get an array of foreign keys from a particular table.
      *
      * @param string $tableName Table name
-     *
      * @return array
      */
     protected function getForeignKeys($tableName)
@@ -1233,7 +1216,6 @@ PCRE_PATTERN;
     /**
      * @param \Phinx\Db\Table\Table $table The Table
      * @param string $column Column Name
-     *
      * @return \Phinx\Db\Util\AlterInstructions
      */
     protected function getAddPrimaryKeyInstructions(Table $table, $column)
@@ -1277,7 +1259,6 @@ PCRE_PATTERN;
     /**
      * @param \Phinx\Db\Table\Table $table Table
      * @param string $column Column Name
-     *
      * @return \Phinx\Db\Util\AlterInstructions
      */
     protected function getDropPrimaryKeyInstructions($table, $column)
@@ -1435,7 +1416,6 @@ PCRE_PATTERN;
      * Returns Phinx type by SQL type
      *
      * @param string|null $sqlTypeDef SQL Type definition
-     *
      * @return array
      */
     public function getPhinxType($sqlTypeDef)
@@ -1516,7 +1496,6 @@ PCRE_PATTERN;
      * Gets the SQLite Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
-     *
      * @return string
      */
     protected function getColumnSqlDefinition(Column $column)
@@ -1552,7 +1531,6 @@ PCRE_PATTERN;
      * Gets the comment Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
-     *
      * @return string
      */
     protected function getCommentDefinition(Column $column)
@@ -1569,7 +1547,6 @@ PCRE_PATTERN;
      *
      * @param \Phinx\Db\Table\Table $table Table
      * @param \Phinx\Db\Table\Index $index Index
-     *
      * @return string
      */
     protected function getIndexSqlDefinition(Table $table, Index $index)
@@ -1605,7 +1582,6 @@ PCRE_PATTERN;
      * Gets the SQLite Foreign Key Definition for an ForeignKey object.
      *
      * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign key
-     *
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey)

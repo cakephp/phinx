@@ -68,7 +68,6 @@ class TextWrapper
      * Returns the output from running the "status" command.
      *
      * @param string|null $env environment name (optional)
-     *
      * @return string
      */
     public function getStatus($env = null)
@@ -95,7 +94,6 @@ class TextWrapper
      *
      * @param string|null $env environment name (optional)
      * @param string|null $target target version (optional)
-     *
      * @return string
      */
     public function getMigrate($env = null, $target = null)
@@ -123,7 +121,6 @@ class TextWrapper
      * @param string|null $env Environment name
      * @param string|null $target Target version
      * @param string[]|string|null $seed Array of seed names or seed name
-     *
      * @return string
      */
     public function getSeed($env = null, $target = null, $seed = null)
@@ -154,7 +151,6 @@ class TextWrapper
      *
      * @param string|null $env Environment name (optional)
      * @param mixed $target Target version, or 0 (zero) fully revert (optional)
-     *
      * @return string
      */
     public function getRollback($env = null, $target = null)
@@ -182,7 +178,6 @@ class TextWrapper
      * Check option from options array
      *
      * @param string $key Key
-     *
      * @return bool
      */
     protected function hasOption($key)
@@ -194,7 +189,6 @@ class TextWrapper
      * Get option from options array
      *
      * @param string $key Key
-     *
      * @return string|null
      */
     protected function getOption($key)
@@ -211,7 +205,6 @@ class TextWrapper
      *
      * @param string $key Key
      * @param string $value Value
-     *
      * @return $this
      */
     public function setOption($key, $value)
@@ -225,7 +218,6 @@ class TextWrapper
      * Execute a command, capturing output and storing the exit code.
      *
      * @param array $command Command
-     *
      * @return string
      */
     protected function executeRun(array $command)

@@ -90,7 +90,6 @@ class Plan
      * Parses the given Intent and creates the separate steps to execute
      *
      * @param \Phinx\Db\Action\Action[] $actions The actions to use for the plan
-     *
      * @return void
      */
     protected function createPlan($actions)
@@ -139,7 +138,6 @@ class Plan
      * Executes this plan using the given AdapterInterface
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $executor The executor object for the plan
-     *
      * @return void
      */
     public function execute(AdapterInterface $executor)
@@ -159,7 +157,6 @@ class Plan
      * Executes the inverse plan (rollback the actions) with the given AdapterInterface:w
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $executor The executor object for the plan
-     *
      * @return void
      */
     public function executeInverse(AdapterInterface $executor)
@@ -197,7 +194,7 @@ class Plan
         foreach ($this->columnRemoves as $columnRemove) {
             foreach ($columnRemove->getActions() as $action) {
                 if ($action instanceof RemoveColumn) {
-                    list($this->indexes) = $this->forgetDropIndex(
+                    [$this->indexes] = $this->forgetDropIndex(
                         $action->getTable(),
                         [$action->getColumn()->getName()],
                         $this->indexes
@@ -252,7 +249,6 @@ class Plan
      *
      * @param \Phinx\Db\Table\Table $table The table to find in the list of actions
      * @param \Phinx\Db\Plan\AlterTable[] $actions The actions to transform
-     *
      * @return \Phinx\Db\Plan\AlterTable[] The list of actions without actions for the given table
      */
     protected function forgetTable(Table $table, $actions)
@@ -274,7 +270,6 @@ class Plan
      * given AlterTable.
      *
      * @param \Phinx\Db\Plan\AlterTable $alter The collection of actions to inspect
-     *
      * @return \Phinx\Db\Plan\AlterTable The updated AlterTable object. This function
      * has the side effect of changing the `$this->indexes` property.
      */
@@ -285,7 +280,7 @@ class Plan
         foreach ($alter->getActions() as $action) {
             $newAlter->addAction($action);
             if ($action instanceof DropForeignKey) {
-                list($this->indexes, $dropIndexActions) = $this->forgetDropIndex(
+                [$this->indexes, $dropIndexActions] = $this->forgetDropIndex(
                     $action->getTable(),
                     $action->getForeignKey()->getColumns(),
                     $this->indexes
@@ -305,7 +300,6 @@ class Plan
      * @param \Phinx\Db\Table\Table $table The table to find in the list of actions
      * @param string[] $columns The column names to match
      * @param \Phinx\Db\Plan\AlterTable[] $actions The actions to transform
-     *
      * @return array A tuple containing the list of actions without actions for dropping the index
      * and a list of drop index actions that were removed.
      */
@@ -338,7 +332,6 @@ class Plan
      * @param \Phinx\Db\Table\Table $table The table to find in the list of actions
      * @param string[] $columns The column names to match
      * @param \Phinx\Db\Plan\AlterTable[] $actions The actions to transform
-     *
      * @return array A tuple containing the list of actions without actions for removing the column
      * and a list of remove column actions that were removed.
      */
@@ -369,7 +362,6 @@ class Plan
      * Collects all table creation actions from the given intent
      *
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
-     *
      * @return void
      */
     protected function gatherCreates($actions)
@@ -402,7 +394,6 @@ class Plan
      * Collects all alter table actions from the given intent
      *
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
-     *
      * @return void
      */
     protected function gatherUpdates($actions)
@@ -467,7 +458,6 @@ class Plan
      * Collects all index creation and drops from the given intent
      *
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
-     *
      * @return void
      */
     protected function gatherIndexes($actions)
@@ -494,7 +484,6 @@ class Plan
      * Collects all foreign key creation and drops from the given intent
      *
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
-     *
      * @return void
      */
     protected function gatherConstraints($actions)

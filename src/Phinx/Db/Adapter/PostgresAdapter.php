@@ -47,7 +47,6 @@ class PostgresAdapter extends PdoAdapter
      *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     *
      * @return void
      */
     public function connect()
@@ -141,7 +140,6 @@ class PostgresAdapter extends PdoAdapter
      * Quotes a schema name for use in a query.
      *
      * @param string $schemaName Schema Name
-     *
      * @return string
      */
     public function quoteSchemaName($schemaName)
@@ -333,7 +331,7 @@ class PostgresAdapter extends PdoAdapter
         $instructions = new AlterInstructions();
 
         // passing 'null' is to remove table comment
-        $newComment = ($newComment !== null)
+        $newComment = $newComment !== null
             ? $this->getConnection()->quote($newComment)
             : 'NULL';
         $sql = sprintf(
@@ -637,7 +635,6 @@ class PostgresAdapter extends PdoAdapter
      * Get an array of indexes from a particular table.
      *
      * @param string $tableName Table name
-     *
      * @return array
      */
     protected function getIndexes($tableName)
@@ -782,7 +779,7 @@ class PostgresAdapter extends PdoAdapter
         }
 
         if ($constraint) {
-            return ($primaryKey['constraint'] === $constraint);
+            return $primaryKey['constraint'] === $constraint;
         } else {
             if (is_string($columns)) {
                 $columns = [$columns]; // str to array
@@ -797,7 +794,6 @@ class PostgresAdapter extends PdoAdapter
      * Get the primary key from a particular table.
      *
      * @param string $tableName Table name
-     *
      * @return array
      */
     public function getPrimaryKey($tableName)
@@ -860,7 +856,6 @@ class PostgresAdapter extends PdoAdapter
      * Get an array of foreign keys from a particular table.
      *
      * @param string $tableName Table name
-     *
      * @return array
      */
     protected function getForeignKeys($tableName)
@@ -1032,9 +1027,7 @@ class PostgresAdapter extends PdoAdapter
      * Returns Phinx type by SQL type
      *
      * @param string $sqlType SQL type
-     *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
-     *
      * @return string Phinx type
      */
     public function getPhinxType($sqlType)
@@ -1137,7 +1130,6 @@ class PostgresAdapter extends PdoAdapter
      *
      * @param mixed $default default value
      * @param string|null $columnType column type added
-     *
      * @return string
      */
     protected function getDefaultValueDefinition($default, $columnType = null)
@@ -1157,7 +1149,6 @@ class PostgresAdapter extends PdoAdapter
      * Gets the PostgreSQL Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
-     *
      * @return string
      */
     protected function getColumnSqlDefinition(Column $column)
@@ -1224,13 +1215,12 @@ class PostgresAdapter extends PdoAdapter
      *
      * @param \Phinx\Db\Table\Column $column Column
      * @param string $tableName Table name
-     *
      * @return string
      */
     protected function getColumnCommentSqlDefinition(Column $column, $tableName)
     {
         // passing 'null' is to remove column comment
-        $comment = (strcasecmp($column->getComment(), 'NULL') !== 0)
+        $comment = strcasecmp($column->getComment(), 'NULL') !== 0
                  ? $this->getConnection()->quote($column->getComment())
                  : 'NULL';
 
@@ -1247,7 +1237,6 @@ class PostgresAdapter extends PdoAdapter
      *
      * @param \Phinx\Db\Table\Index $index Index
      * @param string $tableName Table name
-     *
      * @return string
      */
     protected function getIndexSqlDefinition(Index $index, $tableName)
@@ -1288,7 +1277,6 @@ class PostgresAdapter extends PdoAdapter
      *
      * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign key
      * @param string $tableName Table name
-     *
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
@@ -1349,7 +1337,6 @@ class PostgresAdapter extends PdoAdapter
      * Creates the specified schema.
      *
      * @param string $schemaName Schema Name
-     *
      * @return void
      */
     public function createSchema($schemaName = 'public')
@@ -1363,7 +1350,6 @@ class PostgresAdapter extends PdoAdapter
      * Checks to see if a schema exists.
      *
      * @param string $schemaName Schema Name
-     *
      * @return bool
      */
     public function hasSchema($schemaName)
@@ -1383,7 +1369,6 @@ class PostgresAdapter extends PdoAdapter
      * Drops the specified schema table.
      *
      * @param string $schemaName Schema name
-     *
      * @return void
      */
     public function dropSchema($schemaName)
@@ -1443,14 +1428,13 @@ class PostgresAdapter extends PdoAdapter
     public function isValidColumnType(Column $column)
     {
         // If not a standard column type, maybe it is array type?
-        return (parent::isValidColumnType($column) || $this->isArrayType($column->getType()));
+        return parent::isValidColumnType($column) || $this->isArrayType($column->getType());
     }
 
     /**
      * Check if the given column is an array of a valid type.
      *
      * @param string $columnType Column type
-     *
      * @return bool
      */
     protected function isArrayType($columnType)
@@ -1466,7 +1450,6 @@ class PostgresAdapter extends PdoAdapter
 
     /**
      * @param string $tableName Table name
-     *
      * @return array
      */
     protected function getSchemaName($tableName)

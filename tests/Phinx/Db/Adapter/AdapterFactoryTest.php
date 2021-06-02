@@ -43,7 +43,7 @@ class AdapterFactoryTest extends TestCase
 
     public function testRegisterAdapterFailure()
     {
-        $adapter = get_class($this);
+        $adapter = static::class;
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Adapter class "Test\Phinx\Db\Adapter\AdapterFactoryTest" must implement Phinx\Db\Adapter\AdapterInterface');
@@ -81,7 +81,7 @@ class AdapterFactoryTest extends TestCase
 
     public function testRegisterWrapperFailure()
     {
-        $wrapper = get_class($this);
+        $wrapper = static::class;
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Wrapper class "Test\Phinx\Db\Adapter\AdapterFactoryTest" must be implement Phinx\Db\Adapter\WrapperInterface');

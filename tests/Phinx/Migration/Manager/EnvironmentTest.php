@@ -7,41 +7,7 @@ use Phinx\Migration\Manager\Environment;
 use Phinx\Migration\MigrationInterface;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-
-class PDOMock extends \PDO
-{
-    /**
-     * @var array
-     */
-    protected $attributes = [];
-
-    public function __construct()
-    {
-    }
-
-    /**
-     * @param int $attribute Attribute
-     *
-     * @return string
-     */
-    public function getAttribute($attribute)
-    {
-        return isset($this->attributes[$attribute]) ? $this->attributes[$attribute] : 'pdomock';
-    }
-
-    /**
-     * @param int $attribute Attribute
-     * @param mixed $value Value
-     *
-     * @return bool
-     */
-    public function setAttribute($attribute, $value)
-    {
-        $this->attributes[$attribute] = $value;
-
-        return true;
-    }
-}
+use Test\Phinx\Migration\Manager\Mock\PDOMock;
 
 class EnvironmentTest extends TestCase
 {

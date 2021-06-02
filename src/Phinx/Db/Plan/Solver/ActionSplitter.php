@@ -64,7 +64,6 @@ class ActionSplitter
      * based on the constructor parameters.
      *
      * @param \Phinx\Db\Plan\AlterTable $alter The collection of actions to inspect
-     *
      * @return \Phinx\Db\Plan\AlterTable[] A list of AlterTable that can be executed without
      * this type of conflict
      */
