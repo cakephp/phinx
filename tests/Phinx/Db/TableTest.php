@@ -158,13 +158,13 @@ class TableTest extends TestCase
             $columns[] = $action->getColumn();
         }
 
-        $this->assertEquals(1, count($columns));
+        $this->assertCount(1, $columns);
 
-        $this->assertEquals('created_at', $columns[0]->getName());
-        $this->assertEquals('timestamp', $columns[0]->getType());
-        $this->assertEquals('CURRENT_TIMESTAMP', $columns[0]->getDefault());
-        $this->assertEquals(false, $columns[0]->getTimezone());
-        $this->assertEquals('', $columns[0]->getUpdate());
+        $this->assertSame('created_at', $columns[0]->getName());
+        $this->assertSame('timestamp', $columns[0]->getType());
+        $this->assertSame('CURRENT_TIMESTAMP', $columns[0]->getDefault());
+        $this->assertFalse($columns[0]->getTimezone());
+        $this->assertSame('', $columns[0]->getUpdate());
     }
 
     /**
@@ -184,12 +184,12 @@ class TableTest extends TestCase
             $columns[] = $action->getColumn();
         }
 
-        $this->assertEquals(1, count($columns));
+        $this->assertCount(1, $columns);
 
-        $this->assertEquals('updated_at', $columns[0]->getName());
-        $this->assertEquals('timestamp', $columns[0]->getType());
-        $this->assertEquals(false, $columns[0]->getTimezone());
-        $this->assertEquals('CURRENT_TIMESTAMP', $columns[0]->getUpdate());
+        $this->assertSame('updated_at', $columns[0]->getName());
+        $this->assertSame('timestamp', $columns[0]->getType());
+        $this->assertFalse($columns[0]->getTimezone());
+        $this->assertSame('CURRENT_TIMESTAMP', $columns[0]->getUpdate());
         $this->assertTrue($columns[0]->isNull());
         $this->assertNull($columns[0]->getDefault());
     }
