@@ -75,6 +75,14 @@ The Init Method
 The ``init()`` method is run by Phinx before the run method if it exists. This
 can be used to initialize properties of the Seed class before using run.
 
+The Should Execute Method
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``shouldExecute()`` method is run by Phinx before executing the seed.
+This can be used to prevent the seed from being executed at this time. It always
+returns true by default. You can override it in your custom ``AbstractSeed``
+implementation.
+
 Foreign Key Dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

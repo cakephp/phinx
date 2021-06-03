@@ -371,22 +371,25 @@ class Manager
     public function executeMigration($name, MigrationInterface $migration, $direction = MigrationInterface::UP, $fake = false)
     {
         $this->getOutput()->writeln('');
-        $this->getOutput()->writeln(
-            ' ==' .
-            ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>' .
-            ' <comment>' . ($direction === MigrationInterface::UP ? 'migrating' : 'reverting') . '</comment>'
-        );
+
+        // Skip the migration if it should not be executed
+        if (!$migration->shouldExecute()) {
+            $this->printMigrationStatus($migration, 'skipped');
+
+            return;
+        }
+
+        $this->printMigrationStatus($migration, ($direction === MigrationInterface::UP ? 'migrating' : 'reverting'));
 
         // Execute the migration and log the time elapsed.
         $start = microtime(true);
         $this->getEnvironment($name)->executeMigration($migration, $direction, $fake);
         $end = microtime(true);
 
-        $this->getOutput()->writeln(
-            ' ==' .
-            ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>' .
-            ' <comment>' . ($direction === MigrationInterface::UP ? 'migrated' : 'reverted') .
-            ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
+        $this->printMigrationStatus(
+            $migration,
+            ($direction === MigrationInterface::UP ? 'migrated' : 'reverted'),
+            sprintf('%.4fs', $end - $start)
         );
     }
 
@@ -395,28 +398,81 @@ class Manager
      *
      * @param string $name Environment Name
      * @param \Phinx\Seed\SeedInterface $seed Seed
-     *
      * @return void
      */
     public function executeSeed($name, SeedInterface $seed)
     {
         $this->getOutput()->writeln('');
-        $this->getOutput()->writeln(
-            ' ==' .
-            ' <info>' . $seed->getName() . ':</info>' .
-            ' <comment>seeding</comment>'
-        );
+
+        // Skip the seed if it should not be executed
+        if (!$seed->shouldExecute()) {
+            $this->printSeedStatus($seed, 'skipped');
+
+            return;
+        }
+
+        $this->printSeedStatus($seed, 'seeding');
 
         // Execute the seeder and log the time elapsed.
         $start = microtime(true);
         $this->getEnvironment($name)->executeSeed($seed);
         $end = microtime(true);
 
+        $this->printSeedStatus(
+            $seed,
+            'seeded',
+            sprintf('%.4fs', $end - $start)
+        );
+    }
+
+    /**
+     * Print Migration Status
+     *
+     * @param \Phinx\Migration\MigrationInterface $migration Migration
+     * @param string $status Status of the migration
+     * @param string|null $duration Duration the migration took the be executed
+     * @return void
+     */
+    protected function printMigrationStatus(MigrationInterface $migration, $status, $duration = null)
+    {
+        $this->printStatusOutput(
+            $migration->getVersion() . ' ' . $migration->getName(),
+            $status,
+            $duration
+        );
+    }
+
+    /**
+     * Print Seed Status
+     *
+     * @param \Phinx\Seed\SeedInterface $seed Seed
+     * @param string $status Status of the seed
+     * @param string|null $duration Duration the seed took the be executed
+     * @return void
+     */
+    protected function printSeedStatus(SeedInterface $seed, $status, $duration = null)
+    {
+        $this->printStatusOutput(
+            $seed->getName(),
+            $status,
+            $duration
+        );
+    }
+
+    /**
+     * Print Status in Output
+     *
+     * @param string $name Name of the migration or seed
+     * @param string $status Status of the migration or seed
+     * @param string|null $duration Duration the migration or seed took the be executed
+     * @return void
+     */
+    protected function printStatusOutput($name, $status, $duration = null)
+    {
         $this->getOutput()->writeln(
             ' ==' .
-            ' <info>' . $seed->getName() . ':</info>' .
-            ' <comment>seeded' .
-            ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
+            ' <info>' . $name . ':</info>' .
+            ' <comment>' . $status . ' ' . $duration . '</comment>'
         );
     }
 

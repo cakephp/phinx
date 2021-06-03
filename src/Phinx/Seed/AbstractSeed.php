@@ -184,4 +184,18 @@ abstract class AbstractSeed implements SeedInterface
     {
         return new Table($tableName, $options, $this->getAdapter());
     }
+
+    /**
+     * Checks to see if the seed should be executed.
+     *
+     * Returns true by default.
+     *
+     * You can use this to prevent a seed from executing.
+     *
+     * @return bool
+     */
+    public function shouldExecute()
+    {
+        return true;
+    }
 }
