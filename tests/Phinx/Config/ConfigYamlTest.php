@@ -8,6 +8,7 @@ use RuntimeException;
 
 /**
  * Class ConfigYamlTest
+ *
  * @package Test\Phinx\Config
  * @group config
  */

@@ -25,7 +25,7 @@ class InitTest extends TestCase
     {
         $application = new PhinxApplication();
         $application->add(new Init());
-        $command = $application->find("init");
+        $command = $application->find('init');
         $commandTester = new CommandTester($command);
         $fullPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $configName;
 
@@ -64,7 +64,6 @@ class InitTest extends TestCase
 
     /**
      * @dataProvider formatDataProvider
-     *
      * @param string $format format to use for file
      */
     public function testConfigIsWritten($format)
@@ -74,7 +73,6 @@ class InitTest extends TestCase
 
     /**
      * @dataProvider formatDataProvider
-     *
      * @param string $format format to use for file
      */
     public function testCustomNameConfigIsWritten($format)

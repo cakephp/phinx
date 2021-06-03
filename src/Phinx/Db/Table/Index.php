@@ -60,7 +60,6 @@ class Index
      * Sets the index columns.
      *
      * @param string[] $columns Columns
-     *
      * @return $this
      */
     public function setColumns($columns)
@@ -84,7 +83,6 @@ class Index
      * Sets the index type.
      *
      * @param string $type Type
-     *
      * @return $this
      */
     public function setType($type)
@@ -108,7 +106,6 @@ class Index
      * Sets the index name.
      *
      * @param string $name Name
-     *
      * @return $this
      */
     public function setName($name)
@@ -132,7 +129,6 @@ class Index
      * Sets the index limit.
      *
      * @param int|array $limit limit value or array of limit value
-     *
      * @return $this
      */
     public function setLimit($limit)
@@ -202,9 +198,7 @@ class Index
      * Utility method that maps an array of index options to this objects methods.
      *
      * @param array $options Options
-     *
      * @throws \RuntimeException
-     *
      * @return $this
      */
     public function setOptions($options)

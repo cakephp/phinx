@@ -5,13 +5,9 @@ namespace Test\Phinx\Console\Command;
 use Exception;
 use InvalidArgumentException;
 use Phinx\Config\Config;
-use Phinx\Config\ConfigInterface;
 use Phinx\Console\Command\Create;
 use Phinx\Console\PhinxApplication;
-use Phinx\Migration\Manager;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 use Test\Phinx\TestCase;
@@ -19,6 +15,7 @@ use Test\Phinx\TestUtils;
 
 /**
  * Class CreateTest
+ *
  * @package Test\Phinx\Console\Command
  * @group create
  */
@@ -95,7 +92,7 @@ class CreateTest extends TestCase
         $files = array_diff(scandir($this->config->getMigrationPaths()[0]), ['.', '..']);
         $this->assertCount(1, $files);
         $fileName = current($files);
-        $this->assertMatchesRegularExpression("/^[0-9]{14}.php/", $fileName);
+        $this->assertMatchesRegularExpression('/^[0-9]{14}.php/', $fileName);
         $date = substr($fileName, 0, 14);
         $this->assertFileExists($this->config->getMigrationPaths()[0]);
         $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
@@ -124,7 +121,7 @@ class CreateTest extends TestCase
         $files = array_diff(scandir($this->config->getMigrationPaths()[0]), ['.', '..']);
         $this->assertCount(1, $files);
         $fileName = current($files);
-        $this->assertMatchesRegularExpression("/^[0-9]{14}_my_migration.php/", $fileName);
+        $this->assertMatchesRegularExpression('/^[0-9]{14}_my_migration.php/', $fileName);
         $this->assertFileExists($this->config->getMigrationPaths()[0]);
         $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class MyMigration extends AbstractMigration\n";
         $this->assertStringStartsWith($prefix, file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName));

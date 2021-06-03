@@ -102,13 +102,12 @@ class TableTest extends TestCase
 
     /**
      * @dataProvider provideTimestampColumnNames
-     *
      * @param AdapterInterface $adapter
      * @param string|null      $createdAtColumnName
      * @param string|null      $updatedAtColumnName
      * @param string           $expectedCreatedAtColumnName
      * @param string           $expectedUpdatedAtColumnName
-     * @param boolean          $withTimezone
+     * @param bool $withTimezone
      */
     public function testAddTimestamps(AdapterInterface $adapter, $createdAtColumnName, $updatedAtColumnName, $expectedCreatedAtColumnName, $expectedUpdatedAtColumnName, $withTimezone)
     {
@@ -138,13 +137,12 @@ class TableTest extends TestCase
 
     /**
      * @dataProvider provideTimestampColumnNames
-     *
      * @param AdapterInterface $adapter
      * @param string|null      $createdAtColumnName
      * @param string|null      $updatedAtColumnName
      * @param string           $expectedCreatedAtColumnName
      * @param string           $expectedUpdatedAtColumnName
-     * @param boolean          $withTimezone
+     * @param bool $withTimezone
      */
     public function testAddTimestampsWithTimezone(AdapterInterface $adapter, $createdAtColumnName, $updatedAtColumnName, $expectedCreatedAtColumnName, $expectedUpdatedAtColumnName, $withTimezone)
     {
@@ -294,8 +292,8 @@ class TableTest extends TestCase
             ->setConstructorArgs([[]])
             ->getMock();
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
-        $columns = ["column1"];
-        $data = [["value1"]];
+        $columns = ['column1'];
+        $data = [['value1']];
         $table->insert($columns, $data)->save();
         $this->assertEquals([], $table->getData());
     }
@@ -306,8 +304,8 @@ class TableTest extends TestCase
             ->setConstructorArgs([[]])
             ->getMock();
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
-        $columns = ["column1"];
-        $data = [["value1"]];
+        $columns = ['column1'];
+        $data = [['value1']];
         $table->insert($columns, $data);
         $this->assertTrue($table->hasPendingActions());
     }
@@ -321,7 +319,7 @@ class TableTest extends TestCase
             ->method('isValidColumnType')
             ->willReturn(true);
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
-        $table->addColumn("column1", "integer", ['null' => true]);
+        $table->addColumn('column1', 'integer', ['null' => true]);
         $this->assertTrue($table->hasPendingActions());
     }
 
@@ -347,7 +345,6 @@ class TableTest extends TestCase
 
     /**
      * @dataProvider removeIndexDataprovider
-     *
      * @param string $indexIdentifier
      * @param Index $index
      */

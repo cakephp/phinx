@@ -39,7 +39,6 @@ class AlterInstructions
      * Adds another part to the single ALTER instruction
      *
      * @param string $part The SQL snipped to add as part of the ALTER instruction
-     *
      * @return void
      */
     public function addAlter($part)
@@ -56,7 +55,6 @@ class AlterInstructions
      * This allows to keep a single state across callbacks.
      *
      * @param string|callable $sql The SQL to run after, or a callable to execute
-     *
      * @return void
      */
     public function addPostStep($sql)
@@ -88,7 +86,6 @@ class AlterInstructions
      * Merges another AlterInstructions object to this one
      *
      * @param \Phinx\Db\Util\AlterInstructions $other The other collection of instructions to merge in
-     *
      * @return void
      */
     public function merge(AlterInstructions $other)
@@ -102,7 +99,6 @@ class AlterInstructions
      *
      * @param string $alterTemplate The template for the alter instruction
      * @param callable $executor The function to be used to execute all instructions
-     *
      * @return void
      */
     public function execute($alterTemplate, callable $executor)

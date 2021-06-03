@@ -34,7 +34,6 @@ trait NamespaceAwareTrait
      *
      * @param string $needle Needle
      * @param string[] $haystack Haystack
-     *
      * @return string|null
      */
     protected function searchNamespace($needle, $haystack)
@@ -51,7 +50,6 @@ trait NamespaceAwareTrait
      * Get Migration Namespace associated with path.
      *
      * @param string $path Path
-     *
      * @return string|null
      */
     public function getMigrationNamespaceByPath($path)
@@ -65,7 +63,6 @@ trait NamespaceAwareTrait
      * Get Seed Namespace associated with path.
      *
      * @param string $path Path
-     *
      * @return string|null
      */
     public function getSeedNamespaceByPath($path)

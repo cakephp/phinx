@@ -41,7 +41,6 @@ class AddForeignKey extends Action
      * @param string|string[] $referencedColumns The columns in the referenced table
      * @param array $options Extra options for the foreign key
      * @param string|null $name The name of the foreign key
-     *
      * @return \Phinx\Db\Action\AddForeignKey
      */
     public static function build(Table $table, $columns, $referencedTable, $referencedColumns = ['id'], array $options = [], $name = null)

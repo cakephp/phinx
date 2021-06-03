@@ -74,7 +74,6 @@ class Create extends AbstractCommand
      * Get the question that allows the user to select which migration path to use.
      *
      * @param string[] $paths Paths
-     *
      * @return \Symfony\Component\Console\Question\ChoiceQuestion
      */
     protected function getSelectMigrationPathQuestion(array $paths)
@@ -87,9 +86,7 @@ class Create extends AbstractCommand
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     *
      * @throws \Exception
-     *
      * @return string
      */
     protected function getMigrationPath(InputInterface $input, OutputInterface $output)
@@ -135,10 +132,8 @@ class Create extends AbstractCommand
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     *
      * @return int 0 on success
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -167,7 +162,7 @@ class Create extends AbstractCommand
         $className = $input->getArgument('name');
         if ($className === null) {
             $currentTimestamp = Util::getCurrentTimestamp();
-            $className = "V" . $currentTimestamp;
+            $className = 'V' . $currentTimestamp;
             $fileName = $currentTimestamp . '.php';
         } else {
             if (!Util::isValidPhinxClassName($className)) {
@@ -184,7 +179,7 @@ class Create extends AbstractCommand
         if (!Util::isUniqueMigrationClassName($className, $path)) {
             throw new InvalidArgumentException(sprintf(
                 'The migration class name "%s%s" already exists',
-                $namespace ? ($namespace . '\\') : '',
+                $namespace ? $namespace . '\\' : '',
                 $className
             ));
         }

@@ -60,18 +60,21 @@ abstract class AbstractCommand extends Command
 
     /**
      * Exit code for when command executes successfully
+     *
      * @var int
      */
     public const CODE_SUCCESS = 0;
 
     /**
      * Exit code for when command hits a non-recoverable error during execution
+     *
      * @var int
      */
     public const CODE_ERROR = 1;
 
     /**
      * Exit code for when status command is run and there are missing migrations
+     *
      * @var int
      */
     public const CODE_STATUS_MISSING = 2;
@@ -79,6 +82,7 @@ abstract class AbstractCommand extends Command
     /**
      * Exit code for when status command is run and there are no missing migations,
      * but does have down migrations
+     *
      * @var int
      */
     public const CODE_STATUS_DOWN = 3;
@@ -99,7 +103,6 @@ abstract class AbstractCommand extends Command
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     *
      * @return void
      */
     public function bootstrap(InputInterface $input, OutputInterface $output)
@@ -112,7 +115,8 @@ abstract class AbstractCommand extends Command
 
         $this->loadManager($input, $output);
 
-        if ($bootstrap = $this->getConfig()->getBootstrapFile()) {
+        $bootstrap = $this->getConfig()->getBootstrapFile();
+        if ($bootstrap) {
             $output->writeln('<info>using bootstrap</info> ' . Util::relativePath($bootstrap) . ' ');
             Util::loadPhpFile($bootstrap, $input, $output, $this);
         }
@@ -143,7 +147,6 @@ abstract class AbstractCommand extends Command
      * Sets the config.
      *
      * @param \Phinx\Config\ConfigInterface $config Config
-     *
      * @return $this
      */
     public function setConfig(ConfigInterface $config)
@@ -167,7 +170,6 @@ abstract class AbstractCommand extends Command
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Adapter
-     *
      * @return $this
      */
     public function setAdapter(AdapterInterface $adapter)
@@ -191,7 +193,6 @@ abstract class AbstractCommand extends Command
      * Sets the migration manager.
      *
      * @param \Phinx\Migration\Manager $manager Manager
-     *
      * @return $this
      */
     public function setManager(Manager $manager)
@@ -215,7 +216,6 @@ abstract class AbstractCommand extends Command
      * Returns config file path
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     *
      * @return string
      */
     protected function locateConfigFile(InputInterface $input)
@@ -257,9 +257,7 @@ abstract class AbstractCommand extends Command
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     *
      * @throws \InvalidArgumentException
-     *
      * @return void
      */
     protected function loadConfig(InputInterface $input, OutputInterface $output)
@@ -313,7 +311,6 @@ abstract class AbstractCommand extends Command
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     *
      * @return void
      */
     protected function loadManager(InputInterface $input, OutputInterface $output)
@@ -336,9 +333,7 @@ abstract class AbstractCommand extends Command
      * Verify that the migration directory exists and is writable.
      *
      * @param string $path Path
-     *
      * @throws \InvalidArgumentException
-     *
      * @return void
      */
     protected function verifyMigrationDirectory($path)
@@ -362,9 +357,7 @@ abstract class AbstractCommand extends Command
      * Verify that the seed directory exists and is writable.
      *
      * @param string $path Path
-     *
      * @throws \InvalidArgumentException
-     *
      * @return void
      */
     protected function verifySeedDirectory($path)

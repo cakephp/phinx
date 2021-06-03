@@ -32,7 +32,6 @@ class Literal
 
     /**
      * @param string $value The literal's value
-     *
      * @return self
      */
     public static function from($value)

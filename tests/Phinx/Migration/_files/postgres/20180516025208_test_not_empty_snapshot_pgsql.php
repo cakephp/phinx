@@ -1,4 +1,5 @@
 <?php
+
 use Phinx\Migration\AbstractMigration;
 
 class TestNotEmptySnapshotPgsql extends AbstractMigration

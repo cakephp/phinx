@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class AbstractConfigTest
+ *
  * @package Test\Phinx\Config
  * @group config
  * @coversNothing
@@ -73,7 +74,7 @@ abstract class AbstractConfigTest extends TestCase
      */
     protected function getMigrationPaths()
     {
-        if (null === $this->migrationPath) {
+        if ($this->migrationPath === null) {
             $this->migrationPath = uniqid('phinx', true);
         }
 
@@ -87,7 +88,7 @@ abstract class AbstractConfigTest extends TestCase
      */
     protected function getSeedPaths()
     {
-        if (null === $this->seedPath) {
+        if ($this->seedPath === null) {
             $this->seedPath = uniqid('phinx', true);
         }
 

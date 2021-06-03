@@ -84,7 +84,6 @@ class MysqlAdapter extends PdoAdapter
      *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     *
      * @return void
      */
     public function connect()
@@ -225,7 +224,6 @@ class MysqlAdapter extends PdoAdapter
     /**
      * @param string $schema The table schema
      * @param string $tableName The table name
-     *
      * @return bool
      */
     protected function hasTableWithSchema($schema, $tableName)
@@ -268,7 +266,7 @@ class MysqlAdapter extends PdoAdapter
             $column = new Column();
             $column->setName($options['id'])
                    ->setType('integer')
-                   ->setSigned(isset($options['signed']) ? $options['signed'] : true)
+                   ->setSigned($options['signed'] ?? true)
                    ->setIdentity(true);
 
             if (isset($options['limit'])) {
@@ -384,9 +382,7 @@ class MysqlAdapter extends PdoAdapter
         $instructions = new AlterInstructions();
 
         // passing 'null' is to remove table comment
-        $newComment = ($newComment !== null)
-            ? $newComment
-            : '';
+        $newComment = $newComment ?? '';
         $sql = sprintf(' COMMENT=%s ', $this->getConnection()->quote($newComment));
         $instructions->addAlter($sql);
 
@@ -499,8 +495,7 @@ class MysqlAdapter extends PdoAdapter
     /**
      * Exposes the MySQL syntax to arrange a column `FIRST`.
      *
-     * @param Column $column The column being altered.
-     *
+     * @param \Phinx\Db\Table\Column $column The column being altered.
      * @return string The appropriate SQL fragment.
      */
     protected function afterClause(Column $column)
@@ -528,7 +523,7 @@ class MysqlAdapter extends PdoAdapter
 
         foreach ($rows as $row) {
             if (strcasecmp($row['Field'], $columnName) === 0) {
-                $null = ($row['Null'] === 'NO') ? 'NOT NULL' : 'NULL';
+                $null = $row['Null'] === 'NO' ? 'NOT NULL' : 'NULL';
                 $comment = isset($row['Comment']) ? ' COMMENT ' . '\'' . addslashes($row['Comment']) . '\'' : '';
                 $extra = ' ' . strtoupper($row['Extra']);
                 if (($row['Default'] !== null)) {
@@ -583,7 +578,6 @@ class MysqlAdapter extends PdoAdapter
      * Get an array of indexes from a particular table.
      *
      * @param string $tableName Table name
-     *
      * @return array
      */
     protected function getIndexes($tableName)
@@ -731,7 +725,7 @@ class MysqlAdapter extends PdoAdapter
         }
 
         if ($constraint) {
-            return ($primaryKey['constraint'] === $constraint);
+            return $primaryKey['constraint'] === $constraint;
         } else {
             if (is_string($columns)) {
                 $columns = [$columns]; // str to array
@@ -746,7 +740,6 @@ class MysqlAdapter extends PdoAdapter
      * Get the primary key from a particular table.
      *
      * @param string $tableName Table name
-     *
      * @return array
      */
     public function getPrimaryKey($tableName)
@@ -807,7 +800,6 @@ class MysqlAdapter extends PdoAdapter
      * Get an array of foreign keys from a particular table.
      *
      * @param string $tableName Table name
-     *
      * @return array
      */
     protected function getForeignKeys($tableName)
@@ -1062,11 +1054,8 @@ class MysqlAdapter extends PdoAdapter
      * Returns Phinx type by SQL type
      *
      * @internal param string $sqlType SQL type
-     *
      * @param string $sqlTypeDef SQL Type definition
-     *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
-     *
      * @return array Phinx type
      */
     public function getPhinxType($sqlTypeDef)
@@ -1193,7 +1182,7 @@ class MysqlAdapter extends PdoAdapter
         ];
 
         if ($type === static::PHINX_TYPE_ENUM || $type === static::PHINX_TYPE_SET) {
-            $values = trim($matches[6], "()");
+            $values = trim($matches[6], '()');
             $phinxType['values'] = [];
             $opened = false;
             $escaped = false;
@@ -1209,7 +1198,7 @@ class MysqlAdapter extends PdoAdapter
                     && ($i + 1) < $valuesLength
                     && (
                         $char === "'" && $values[$i + 1] === "'"
-                        || $char === "\\" && $values[$i + 1] === "\\"
+                        || $char === '\\' && $values[$i + 1] === '\\'
                     )
                 ) {
                     $escaped = true;
@@ -1217,12 +1206,12 @@ class MysqlAdapter extends PdoAdapter
                     $phinxType['values'][] = $value;
                     $value = '';
                     $opened = false;
-                } elseif (($char === "'" || $char === "\\") && $opened && $escaped) {
+                } elseif (($char === "'" || $char === '\\') && $opened && $escaped) {
                     $value .= $char;
                     $escaped = false;
                     $wasEscaped = true;
                 } elseif ($opened) {
-                    if ($values[$i - 1] === "\\" && !$wasEscaped) {
+                    if ($values[$i - 1] === '\\' && !$wasEscaped) {
                         if ($char === 'n') {
                             $char = "\n";
                         } elseif ($char === 'r') {
@@ -1296,7 +1285,6 @@ class MysqlAdapter extends PdoAdapter
      * Gets the MySQL Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
-     *
      * @return string
      */
     protected function getColumnSqlDefinition(Column $column)
@@ -1312,13 +1300,15 @@ class MysqlAdapter extends PdoAdapter
         } elseif (isset($sqlType['limit'])) {
             $def .= '(' . $sqlType['limit'] . ')';
         }
-        if (($values = $column->getValues()) && is_array($values)) {
-            $def .= "(" . implode(", ", array_map(function ($value) {
+
+        $values = $column->getValues();
+        if ($values && is_array($values)) {
+            $def .= '(' . implode(', ', array_map(function ($value) {
                 // we special case NULL as it's not actually allowed an enum value,
                 // and we want MySQL to issue an error on the create statement, but
                 // quote coerces it to an empty string, which will not error
                 return $value === null ? 'NULL' : $this->getConnection()->quote($value);
-            }, $values)) . ")";
+            }, $values)) . ')';
         }
 
         $def .= $column->getEncoding() ? ' CHARACTER SET ' . $column->getEncoding() : '';
@@ -1357,7 +1347,6 @@ class MysqlAdapter extends PdoAdapter
      * Gets the MySQL Index Definition for an Index object.
      *
      * @param \Phinx\Db\Table\Index $index Index
-     *
      * @return string
      */
     protected function getIndexSqlDefinition(Index $index)
@@ -1415,7 +1404,6 @@ class MysqlAdapter extends PdoAdapter
      * Gets the MySQL Foreign Key Definition for an ForeignKey object.
      *
      * @param \Phinx\Db\Table\ForeignKey $foreignKey Foreign key
-     *
      * @return string
      */
     protected function getForeignKeySqlDefinition(ForeignKey $foreignKey)
@@ -1448,7 +1436,6 @@ class MysqlAdapter extends PdoAdapter
      * Describes a database table. This is a MySQL adapter specific method.
      *
      * @param string $tableName Table name
-     *
      * @return array
      */
     public function describeTable($tableName)
