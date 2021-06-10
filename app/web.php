@@ -63,8 +63,8 @@ if (!isset($routes[$command])) {
 }
 
 // Get the environment and target version parameters.
-$env = isset($_GET['e']) ? $_GET['e'] : null;
-$target = isset($_GET['t']) ? $_GET['t'] : null;
+$env = $_GET['e'] ?? null;
+$target = $_GET['t'] ?? null;
 
 // Check if debugging is enabled.
 $debug = !empty($_GET['debug']) && filter_var($_GET['debug'], FILTER_VALIDATE_BOOLEAN);

@@ -6,6 +6,7 @@ use Phinx\Config\Config;
 
 /**
  * Class ConfigDsnTest
+ *
  * @package Test\Phinx\Config
  * @group config
  * @covers \Phinx\Config\Config::getEnvironment

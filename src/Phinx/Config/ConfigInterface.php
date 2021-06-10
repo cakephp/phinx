@@ -33,7 +33,6 @@ interface ConfigInterface extends ArrayAccess
      * doesn't exist.
      *
      * @param string $name Environment Name
-     *
      * @return array|null
      */
     public function getEnvironment($name);
@@ -42,7 +41,6 @@ interface ConfigInterface extends ArrayAccess
      * Does the specified environment exist in the configuration file?
      *
      * @param string $name Environment Name
-     *
      * @return bool
      */
     public function hasEnvironment($name);
@@ -51,7 +49,6 @@ interface ConfigInterface extends ArrayAccess
      * Gets the default environment name.
      *
      * @throws \RuntimeException
-     *
      * @return string
      */
     public function getDefaultEnvironment();
@@ -60,7 +57,6 @@ interface ConfigInterface extends ArrayAccess
      * Get the aliased value from a supplied alias.
      *
      * @param string $alias Alias
-     *
      * @return string|null
      */
     public function getAlias($alias);
@@ -146,7 +142,6 @@ interface ConfigInterface extends ArrayAccess
      * Gets the base class name for migrations.
      *
      * @param bool $dropNamespace Return the base migration class name without the namespace.
-     *
      * @return string
      */
     public function getMigrationBaseClassName($dropNamespace = true);

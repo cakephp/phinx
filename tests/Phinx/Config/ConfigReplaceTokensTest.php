@@ -6,6 +6,7 @@ use Phinx\Config\Config;
 
 /**
  * Class ConfigReplaceTokensTest
+ *
  * @package Test\Phinx\Config
  * @group config
  */

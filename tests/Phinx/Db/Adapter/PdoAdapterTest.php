@@ -3,40 +3,16 @@
 namespace Test\Phinx\Db\Adapter;
 
 use PDOException;
-use Phinx\Db\Adapter\PdoAdapter;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-
-class PdoAdapterTestPDOMock extends \PDO
-{
-    public function __construct()
-    {
-    }
-}
-
-/**
- * A mock PDO that stores its last exec()'d SQL that can be retrieved for queries.
- *
- * This exists as $this->getMockForAbstractClass('\PDO') fails under PHP5.4 and
- * an older PHPUnit; a PDO instance cannot be serialised.
- */
-class PdoAdapterTestPDOMockWithExecChecks extends PdoAdapterTestPDOMock
-{
-    private $sql;
-
-    public function exec($sql)
-    {
-        $this->sql = $sql;
-    }
-
-    public function getExecutedSqlForTest()
-    {
-        return $this->sql;
-    }
-}
+use Test\Phinx\Db\Mock\PdoAdapterTestPDOMock;
+use Test\Phinx\Db\Mock\PdoAdapterTestPDOMockWithExecChecks;
 
 class PdoAdapterTest extends TestCase
 {
+    /**
+     * @var \Phinx\Db\Adapter\PdoAdapter|\PHPUnit\Framework\MockObject\MockObject
+     */
     private $adapter;
 
     protected function setUp(): void

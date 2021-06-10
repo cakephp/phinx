@@ -23,7 +23,6 @@ class ListAliasesTest extends TestCase
     /**
      * @param string $file
      * @param bool $hasAliases
-     *
      * @dataProvider provideConfigurations
      */
     public function testListingAliases($file, $hasAliases)
