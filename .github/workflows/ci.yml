@@ -71,11 +71,22 @@ jobs:
       if: matrix.php-version == '7.4' && matrix.db-type == 'mysql'
       run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
-    - name: Run PHPUnit
+    - name: Setup Database
       run: |
-        if [[ ${{ matrix.db-type }} == 'mysql' ]]; then mysql -h 127.0.0.1 -u root -proot -e 'CREATE DATABASE phinx;'; fi
+        if [[ ${{ matrix.db-type }} == 'mysql' ]]; then
+          n=0
+          until [ "$n" -ge 5 ]
+          do
+            mysql -h 127.0.0.1 -u root -proot -e 'CREATE DATABASE phinx;' && break || :
+            n=$((n+1))
+            sleep 2
+          done
+          mysql -h 127.0.0.1 -u root -proot -D phinx -e 'SELECT 1;'
+        fi
         if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then psql -c 'CREATE DATABASE phinx;' postgresql://postgres:postgres@127.0.0.1; fi
 
+    - name: Run PHPUnit
+      run: |
         if [[ ${{ matrix.db-type }} == 'sqlite' ]]; then export SQLITE_DSN='sqlite:///phinx'; fi
         if [[ ${{ matrix.db-type }} == 'mysql' ]]; then export MYSQL_DSN='mysql://root:root@127.0.0.1/phinx'; fi
         if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then export PGSQL_DSN='pgsql://postgres:postgres@127.0.0.1/phinx'; fi
