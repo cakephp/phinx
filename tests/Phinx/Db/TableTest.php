@@ -142,7 +142,6 @@ class TableTest extends TestCase
 
     /**
      * @dataProvider provideAdapters
-     *
      * @param AdapterInterface $adapter
      */
     public function testAddTimestampsNoUpdated(AdapterInterface $adapter)
@@ -168,7 +167,6 @@ class TableTest extends TestCase
 
     /**
      * @dataProvider provideAdapters
-     *
      * @param AdapterInterface $adapter
      */
     public function testAddTimestampsNoCreated(AdapterInterface $adapter)
@@ -195,7 +193,6 @@ class TableTest extends TestCase
 
     /**
      * @dataProvider provideAdapters
-     *
      * @param AdapterInterface $adapter
      */
     public function testAddTimestampsThrowsOnBothFalse(AdapterInterface $adapter)
