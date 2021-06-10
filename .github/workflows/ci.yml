@@ -77,7 +77,7 @@ jobs:
           n=0
           until [ "$n" -ge 5 ]
           do
-            mysql -h 127.0.0.1 -u root -proot -e 'CREATE DATABASE phinx;'; && break || :
+            mysql -h 127.0.0.1 -u root -proot -e 'CREATE DATABASE phinx;' && break || :
             n=$((n+1))
             sleep 2
           done
