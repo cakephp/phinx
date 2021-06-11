@@ -522,8 +522,8 @@ class Table
     /**
      * Add timestamp columns created_at and updated_at to the table.
      *
-     * @param string|null $createdAt Alternate name for the created_at column
-     * @param string|null $updatedAt Alternate name for the updated_at column
+     * @param string|false|null $createdAt Alternate name for the created_at column
+     * @param string|false|null $updatedAt Alternate name for the updated_at column
      * @param bool $withTimezone Whether to set the timezone option on the added columns
      * @return $this
      */
@@ -532,17 +532,25 @@ class Table
         $createdAt = $createdAt ?? 'created_at';
         $updatedAt = $updatedAt ?? 'updated_at';
 
-        $this->addColumn($createdAt, 'timestamp', [
-                   'default' => 'CURRENT_TIMESTAMP',
-                   'update' => '',
-                   'timezone' => $withTimezone,
-             ])
-             ->addColumn($updatedAt, 'timestamp', [
-                 'null' => true,
-                 'default' => null,
-                 'update' => 'CURRENT_TIMESTAMP',
-                 'timezone' => $withTimezone,
-             ]);
+        if (!$createdAt && !$updatedAt) {
+            throw new \RuntimeException('Cannot set both created_at and updated_at columns to false');
+        }
+
+        if ($createdAt) {
+            $this->addColumn($createdAt, 'timestamp', [
+                'default' => 'CURRENT_TIMESTAMP',
+                'update' => '',
+                'timezone' => $withTimezone,
+            ]);
+        }
+        if ($updatedAt) {
+            $this->addColumn($updatedAt, 'timestamp', [
+                'null' => true,
+                'default' => null,
+                'update' => 'CURRENT_TIMESTAMP',
+                'timezone' => $withTimezone,
+            ]);
+        }
 
         return $this;
     }

@@ -13,19 +13,24 @@ use PHPUnit\Framework\TestCase;
 
 class TableTest extends TestCase
 {
+    public function provideAdapters()
+    {
+        return [[new SqlServerAdapter([])], [new MysqlAdapter([])], [new PostgresAdapter([])], [new SQLiteAdapter([])]];
+    }
+
     public function provideTimestampColumnNames()
     {
         $result = [];
-        $adapters = [new SqlServerAdapter([]), new MysqlAdapter([]), new PostgresAdapter([]), new SQLiteAdapter([])];
+        $adapters = $this->provideAdapters();
         foreach ($adapters as $adapter) {
             $result = array_merge(
                 $result,
                 [
-                    [$adapter, null, null, 'created_at', 'updated_at', false],
-                    [$adapter, 'created_at', 'updated_at', 'created_at', 'updated_at', true],
-                    [$adapter, 'created', 'updated', 'created', 'updated', false],
-                    [$adapter, null, 'amendment_date', 'created_at', 'amendment_date', true],
-                    [$adapter, 'insertion_date', null, 'insertion_date', 'updated_at', true],
+                    [$adapter[0], null, null, 'created_at', 'updated_at', false],
+                    [$adapter[0], 'created_at', 'updated_at', 'created_at', 'updated_at', true],
+                    [$adapter[0], 'created', 'updated', 'created', 'updated', false],
+                    [$adapter[0], null, 'amendment_date', 'created_at', 'amendment_date', true],
+                    [$adapter[0], 'insertion_date', null, 'insertion_date', 'updated_at', true],
                 ]
             );
         }
@@ -133,6 +138,69 @@ class TableTest extends TestCase
         $this->assertEquals('CURRENT_TIMESTAMP', $columns[1]->getUpdate());
         $this->assertTrue($columns[1]->isNull());
         $this->assertNull($columns[1]->getDefault());
+    }
+
+    /**
+     * @dataProvider provideAdapters
+     * @param AdapterInterface $adapter
+     */
+    public function testAddTimestampsNoUpdated(AdapterInterface $adapter)
+    {
+        $table = new \Phinx\Db\Table('ntable', [], $adapter);
+        $table->addTimestamps(null, false);
+        $actions = $this->getPendingActions($table);
+
+        $columns = [];
+
+        foreach ($actions as $action) {
+            $columns[] = $action->getColumn();
+        }
+
+        $this->assertCount(1, $columns);
+
+        $this->assertSame('created_at', $columns[0]->getName());
+        $this->assertSame('timestamp', $columns[0]->getType());
+        $this->assertSame('CURRENT_TIMESTAMP', $columns[0]->getDefault());
+        $this->assertFalse($columns[0]->getTimezone());
+        $this->assertSame('', $columns[0]->getUpdate());
+    }
+
+    /**
+     * @dataProvider provideAdapters
+     * @param AdapterInterface $adapter
+     */
+    public function testAddTimestampsNoCreated(AdapterInterface $adapter)
+    {
+        $table = new \Phinx\Db\Table('ntable', [], $adapter);
+        $table->addTimestamps(false, null);
+        $actions = $this->getPendingActions($table);
+
+        $columns = [];
+
+        foreach ($actions as $action) {
+            $columns[] = $action->getColumn();
+        }
+
+        $this->assertCount(1, $columns);
+
+        $this->assertSame('updated_at', $columns[0]->getName());
+        $this->assertSame('timestamp', $columns[0]->getType());
+        $this->assertFalse($columns[0]->getTimezone());
+        $this->assertSame('CURRENT_TIMESTAMP', $columns[0]->getUpdate());
+        $this->assertTrue($columns[0]->isNull());
+        $this->assertNull($columns[0]->getDefault());
+    }
+
+    /**
+     * @dataProvider provideAdapters
+     * @param AdapterInterface $adapter
+     */
+    public function testAddTimestampsThrowsOnBothFalse(AdapterInterface $adapter)
+    {
+        $table = new \Phinx\Db\Table('ntable', [], $adapter);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Cannot set both created_at and updated_at columns to false');
+        $table->addTimestamps(false, false);
     }
 
     /**
