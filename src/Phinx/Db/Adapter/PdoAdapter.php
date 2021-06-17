@@ -219,7 +219,6 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * Executes a query and returns PDOStatement.
      *
      * @param string $sql SQL
-     *
      * @return \PDOStatement|false
      */
     public function query($sql, array $params = [])

@@ -2,7 +2,7 @@
 
 namespace Test\Phinx\Db\Mock;
 
-class MockPdoStatement
+class PdoStatementMock
 {
     public function execute()
     {

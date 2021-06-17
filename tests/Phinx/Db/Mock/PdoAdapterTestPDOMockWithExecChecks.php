@@ -21,7 +21,7 @@ class PdoAdapterTestPDOMockWithExecChecks extends PdoAdapterTestPDOMock
     {
         $this->sql = $sql;
 
-        return new MockPdoStatement();
+        return new PdoStatementMock();
     }
 
     public function getExecutedSqlForTest()
