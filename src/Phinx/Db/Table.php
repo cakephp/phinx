@@ -538,6 +538,7 @@ class Table
 
         if ($createdAt) {
             $this->addColumn($createdAt, 'timestamp', [
+                'null' => false,
                 'default' => 'CURRENT_TIMESTAMP',
                 'update' => '',
                 'timezone' => $withTimezone,
