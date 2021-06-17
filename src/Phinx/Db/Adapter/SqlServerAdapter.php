@@ -1091,13 +1091,16 @@ ORDER BY T.[name], I.[index_id];";
             case static::PHINX_TYPE_FILESTREAM:
                 return ['name' => 'varbinary', 'limit' => 'max'];
             // Geospatial database types
-            case static::PHINX_TYPE_GEOMETRY:
+            case static::PHINX_TYPE_GEOGRAPHY:
             case static::PHINX_TYPE_POINT:
             case static::PHINX_TYPE_LINESTRING:
             case static::PHINX_TYPE_POLYGON:
                 // SQL Server stores all spatial data using a single data type.
                 // Specific types (point, polygon, etc) are set at insert time.
                 return ['name' => 'geography'];
+            // Geometry specific type
+            case static::PHINX_TYPE_GEOMETRY:
+                return ['name' => 'geometry'];
             default:
                 throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by SqlServer.');
         }

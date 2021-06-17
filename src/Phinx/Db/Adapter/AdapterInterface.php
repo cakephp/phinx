@@ -51,6 +51,7 @@ interface AdapterInterface
 
     // Geospatial database types
     public const PHINX_TYPE_GEOMETRY = 'geometry';
+    public const PHINX_TYPE_GEOGRAPHY = 'geography';
     public const PHINX_TYPE_POINT = 'point';
     public const PHINX_TYPE_LINESTRING = 'linestring';
     public const PHINX_TYPE_POLYGON = 'polygon';

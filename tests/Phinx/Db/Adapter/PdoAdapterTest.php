@@ -84,6 +84,16 @@ class PdoAdapterTest extends TestCase
     public function testOptionsSetSchemaTableName()
     {
         $this->assertEquals('phinxlog', $this->adapter->getSchemaTableName());
+        $this->adapter->setOptions(['migration_table' => 'schema_table_test']);
+        $this->assertEquals('schema_table_test', $this->adapter->getSchemaTableName());
+    }
+
+    public function testOptionsSetDefaultMigrationTableThrowsDeprecation()
+    {
+        $this->assertEquals('phinxlog', $this->adapter->getSchemaTableName());
+
+        $this->expectDeprecation();
+        $this->expectExceptionMessage('The default_migration_table setting for adapter has been deprecated since 0.13.0. Use `migration_table` instead.');
         $this->adapter->setOptions(['default_migration_table' => 'schema_table_test']);
         $this->assertEquals('schema_table_test', $this->adapter->getSchemaTableName());
     }

@@ -163,4 +163,15 @@ interface SeedInterface
      * @return \Phinx\Db\Table
      */
     public function table($tableName, $options);
+
+    /**
+     * Checks to see if the seed should be executed.
+     *
+     * Returns true by default.
+     *
+     * You can use this to prevent a seed from executing.
+     *
+     * @return bool
+     */
+    public function shouldExecute();
 }
