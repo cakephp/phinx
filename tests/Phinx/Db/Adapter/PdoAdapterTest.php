@@ -37,6 +37,11 @@ class PdoAdapterTestPDOMockWithExecChecks extends PdoAdapterTestPDOMock
 {
     private $sql;
 
+    public function exec($sql)
+    {
+        $this->sql = $sql;
+    }
+
     public function prepare($sql, $options = [])
     {
         $this->sql = $sql;
