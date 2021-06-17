@@ -31,7 +31,7 @@ class SeedCreate extends AbstractCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -54,7 +54,7 @@ class SeedCreate extends AbstractCommand
      *
      * @return \Symfony\Component\Console\Question\ConfirmationQuestion
      */
-    protected function getCreateSeedDirectoryQuestion()
+    protected function getCreateSeedDirectoryQuestion(): ConfirmationQuestion
     {
         return new ConfirmationQuestion('Create seeds directory? [y]/n ', true);
     }
@@ -65,7 +65,7 @@ class SeedCreate extends AbstractCommand
      * @param string[] $paths Paths
      * @return \Symfony\Component\Console\Question\ChoiceQuestion
      */
-    protected function getSelectSeedPathQuestion(array $paths)
+    protected function getSelectSeedPathQuestion(array $paths): ChoiceQuestion
     {
         return new ChoiceQuestion('Which seeds path would you like to use?', $paths, 0);
     }
@@ -78,7 +78,7 @@ class SeedCreate extends AbstractCommand
      * @throws \Exception
      * @return string
      */
-    protected function getSeedPath(InputInterface $input, OutputInterface $output)
+    protected function getSeedPath(InputInterface $input, OutputInterface $output): string
     {
         // First, try the non-interactive option:
         $path = $input->getOption('path');
@@ -125,7 +125,7 @@ class SeedCreate extends AbstractCommand
      * @throws \InvalidArgumentException
      * @return int 0 on success
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
 

@@ -39,7 +39,7 @@ class DropIndex extends Action
      * @param string[] $columns the indexed columns
      * @return \Phinx\Db\Action\DropIndex
      */
-    public static function build(Table $table, array $columns = [])
+    public static function build(Table $table, array $columns = []): DropIndex
     {
         $index = new Index();
         $index->setColumns($columns);
@@ -55,7 +55,7 @@ class DropIndex extends Action
      * @param string $name The name of the index
      * @return \Phinx\Db\Action\DropIndex
      */
-    public static function buildFromName(Table $table, $name)
+    public static function buildFromName(Table $table, string $name): DropIndex
     {
         $index = new Index();
         $index->setName($name);
@@ -68,7 +68,7 @@ class DropIndex extends Action
      *
      * @return \Phinx\Db\Table\Index
      */
-    public function getIndex()
+    public function getIndex(): Index
     {
         return $this->index;
     }

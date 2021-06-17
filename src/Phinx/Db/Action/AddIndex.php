@@ -40,7 +40,7 @@ class AddIndex extends Action
      * @param array $options Additional options for the index creation
      * @return \Phinx\Db\Action\AddIndex
      */
-    public static function build(Table $table, $columns, array $options = [])
+    public static function build(Table $table, $columns, array $options = []): AddIndex
     {
         // create a new index object if strings or an array of strings were supplied
         $index = $columns;
@@ -64,7 +64,7 @@ class AddIndex extends Action
      *
      * @return \Phinx\Db\Table\Index
      */
-    public function getIndex()
+    public function getIndex(): Index
     {
         return $this->index;
     }

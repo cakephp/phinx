@@ -36,7 +36,7 @@ class Create extends AbstractCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -65,7 +65,7 @@ class Create extends AbstractCommand
      *
      * @return \Symfony\Component\Console\Question\ConfirmationQuestion
      */
-    protected function getCreateMigrationDirectoryQuestion()
+    protected function getCreateMigrationDirectoryQuestion(): ConfirmationQuestion
     {
         return new ConfirmationQuestion('Create migrations directory? [y]/n ', true);
     }
@@ -76,7 +76,7 @@ class Create extends AbstractCommand
      * @param string[] $paths Paths
      * @return \Symfony\Component\Console\Question\ChoiceQuestion
      */
-    protected function getSelectMigrationPathQuestion(array $paths)
+    protected function getSelectMigrationPathQuestion(array $paths): ChoiceQuestion
     {
         return new ChoiceQuestion('Which migrations path would you like to use?', $paths, 0);
     }
@@ -89,7 +89,7 @@ class Create extends AbstractCommand
      * @throws \Exception
      * @return string
      */
-    protected function getMigrationPath(InputInterface $input, OutputInterface $output)
+    protected function getMigrationPath(InputInterface $input, OutputInterface $output): string
     {
         // First, try the non-interactive option:
         $path = $input->getOption('path');
@@ -136,7 +136,7 @@ class Create extends AbstractCommand
      * @throws \InvalidArgumentException
      * @return int 0 on success
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
 

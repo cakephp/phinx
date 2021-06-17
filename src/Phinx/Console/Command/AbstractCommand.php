@@ -92,7 +92,7 @@ abstract class AbstractCommand extends Command
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addOption('--configuration', '-c', InputOption::VALUE_REQUIRED, 'The configuration file to load');
         $this->addOption('--parser', '-p', InputOption::VALUE_REQUIRED, 'Parser used to read the config file. Defaults to YAML');
@@ -105,7 +105,7 @@ abstract class AbstractCommand extends Command
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      * @return void
      */
-    public function bootstrap(InputInterface $input, OutputInterface $output)
+    public function bootstrap(InputInterface $input, OutputInterface $output): void
     {
         /** @var \Phinx\Config\ConfigInterface|null $config */
         $config = $this->getConfig();
@@ -149,7 +149,7 @@ abstract class AbstractCommand extends Command
      * @param \Phinx\Config\ConfigInterface $config Config
      * @return $this
      */
-    public function setConfig(ConfigInterface $config)
+    public function setConfig(ConfigInterface $config): AbstractCommand
     {
         $this->config = $config;
 
@@ -161,7 +161,7 @@ abstract class AbstractCommand extends Command
      *
      * @return \Phinx\Config\ConfigInterface
      */
-    public function getConfig()
+    public function getConfig(): ConfigInterface
     {
         return $this->config;
     }
@@ -172,7 +172,7 @@ abstract class AbstractCommand extends Command
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Adapter
      * @return $this
      */
-    public function setAdapter(AdapterInterface $adapter)
+    public function setAdapter(AdapterInterface $adapter): AbstractCommand
     {
         $this->adapter = $adapter;
 
@@ -184,7 +184,7 @@ abstract class AbstractCommand extends Command
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
-    public function getAdapter()
+    public function getAdapter(): AdapterInterface
     {
         return $this->adapter;
     }
@@ -195,7 +195,7 @@ abstract class AbstractCommand extends Command
      * @param \Phinx\Migration\Manager $manager Manager
      * @return $this
      */
-    public function setManager(Manager $manager)
+    public function setManager(Manager $manager): AbstractCommand
     {
         $this->manager = $manager;
 
@@ -207,7 +207,7 @@ abstract class AbstractCommand extends Command
      *
      * @return \Phinx\Migration\Manager|null
      */
-    public function getManager()
+    public function getManager(): ?Manager
     {
         return $this->manager;
     }
@@ -218,7 +218,7 @@ abstract class AbstractCommand extends Command
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
      * @return string
      */
-    protected function locateConfigFile(InputInterface $input)
+    protected function locateConfigFile(InputInterface $input): string
     {
         $configFile = $input->getOption('configuration');
 
@@ -260,7 +260,7 @@ abstract class AbstractCommand extends Command
      * @throws \InvalidArgumentException
      * @return void
      */
-    protected function loadConfig(InputInterface $input, OutputInterface $output)
+    protected function loadConfig(InputInterface $input, OutputInterface $output): void
     {
         $configFilePath = $this->locateConfigFile($input);
         $output->writeln('<info>using config file</info> ' . Util::relativePath($configFilePath));
@@ -313,7 +313,7 @@ abstract class AbstractCommand extends Command
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      * @return void
      */
-    protected function loadManager(InputInterface $input, OutputInterface $output)
+    protected function loadManager(InputInterface $input, OutputInterface $output): void
     {
         if ($this->getManager() === null) {
             $manager = new Manager($this->getConfig(), $input, $output);
@@ -336,7 +336,7 @@ abstract class AbstractCommand extends Command
      * @throws \InvalidArgumentException
      * @return void
      */
-    protected function verifyMigrationDirectory($path)
+    protected function verifyMigrationDirectory(string $path): void
     {
         if (!is_dir($path)) {
             throw new InvalidArgumentException(sprintf(
@@ -360,7 +360,7 @@ abstract class AbstractCommand extends Command
      * @throws \InvalidArgumentException
      * @return void
      */
-    protected function verifySeedDirectory($path)
+    protected function verifySeedDirectory(string $path): void
     {
         if (!is_dir($path)) {
             throw new InvalidArgumentException(sprintf(
@@ -382,7 +382,7 @@ abstract class AbstractCommand extends Command
      *
      * @return string
      */
-    protected function getMigrationTemplateFilename()
+    protected function getMigrationTemplateFilename(): string
     {
         return __DIR__ . self::DEFAULT_MIGRATION_TEMPLATE;
     }
@@ -392,7 +392,7 @@ abstract class AbstractCommand extends Command
      *
      * @return string
      */
-    protected function getSeedTemplateFilename()
+    protected function getSeedTemplateFilename(): string
     {
         return __DIR__ . self::DEFAULT_SEED_TEMPLATE;
     }

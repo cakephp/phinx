@@ -40,7 +40,7 @@ class DropForeignKey extends Action
      * @param string|null $constraint The constraint name
      * @return \Phinx\Db\Action\DropForeignKey
      */
-    public static function build(Table $table, $columns, $constraint = null)
+    public static function build(Table $table, $columns, ?string $constraint = null): DropForeignKey
     {
         if (is_string($columns)) {
             $columns = [$columns];
@@ -61,7 +61,7 @@ class DropForeignKey extends Action
      *
      * @return \Phinx\Db\Table\ForeignKey
      */
-    public function getForeignKey()
+    public function getForeignKey(): ForeignKey
     {
         return $this->foreignKey;
     }
