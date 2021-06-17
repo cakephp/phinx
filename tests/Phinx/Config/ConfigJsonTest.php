@@ -8,6 +8,7 @@ use RuntimeException;
 
 /**
  * Class ConfigJsonTest
+ *
  * @package Test\Phinx\Config
  * @group config
  */

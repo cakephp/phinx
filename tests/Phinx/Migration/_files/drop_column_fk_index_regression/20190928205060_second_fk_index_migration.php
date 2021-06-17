@@ -16,7 +16,7 @@ class SecondFkIndexMigration extends AbstractMigration
             'row_format' => 'DYNAMIC',
         ])
         ->removeColumn('table3_id')
-        ->removeIndexByName("table1_table3_id")
+        ->removeIndexByName('table1_table3_id')
         ->dropForeignKey('table3_id', 'table1_table3_id')
         ->update();
     }

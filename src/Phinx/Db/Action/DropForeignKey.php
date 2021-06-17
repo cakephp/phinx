@@ -38,7 +38,6 @@ class DropForeignKey extends Action
      * @param \Phinx\Db\Table\Table $table The table to delete the foreign key from
      * @param string|string[] $columns The columns participating in the foreign key
      * @param string|null $constraint The constraint name
-     *
      * @return \Phinx\Db\Action\DropForeignKey
      */
     public static function build(Table $table, $columns, $constraint = null)

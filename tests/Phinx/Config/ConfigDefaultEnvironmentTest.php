@@ -7,6 +7,7 @@ use RuntimeException;
 
 /**
  * Class ConfigDefaultEnvironmentTest
+ *
  * @package Test\Phinx\Config
  * @group config
  * @covers \Phinx\Config\Config::getDefaultEnvironment

@@ -43,7 +43,6 @@ class AlterTable
      * Adds another action to the collection
      *
      * @param \Phinx\Db\Action\Action $action The action to add
-     *
      * @return void
      */
     public function addAction(Action $action)
