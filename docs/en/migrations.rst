@@ -172,7 +172,9 @@ Executing Queries
 Queries can be executed with the ``execute()`` and ``query()`` methods. The
 ``execute()`` method returns the number of affected rows whereas the
 ``query()`` method returns the result as a
-`PDOStatement <http://php.net/manual/en/class.pdostatement.php>`_
+`PDOStatement <http://php.net/manual/en/class.pdostatement.php>`_. Both methods
+accept an optional second parameter ``$params`` which is an array of elements,
+and if used will cause the underlying connection to use a prepared statement.
 
 .. code-block:: php
 
@@ -193,6 +195,11 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
                 // query()
                 $stmt = $this->query('SELECT * FROM users'); // returns PDOStatement
                 $rows = $stmt->fetchAll(); // returns the result as an array
+
+                // using prepared queries
+                $count = $this->execute('DELETE FROM users WHERE id = ?', [5]);
+                $stmt = $this->query('SELECT * FROM users WHERE id > 5'); // returns PDOStatement
+                $rows = $stmt->fetchAll();
             }
 
             /**
@@ -212,6 +219,12 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
     the ``execute()`` command. This is especially important when using
     DELIMITERs during insertion of stored procedures or triggers which
     don't support DELIMITERs.
+
+.. note::
+
+    If you wish to execute multiple queries at once, you may not also use the prepared
+    variant of these functions. When using prepared queries, PDO can only execute
+    them one at a time.
 
 .. warning::
 
