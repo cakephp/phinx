@@ -92,7 +92,7 @@ class Plan
      * @param \Phinx\Db\Action\Action[] $actions The actions to use for the plan
      * @return void
      */
-    protected function createPlan($actions)
+    protected function createPlan(array $actions): void
     {
         $this->gatherCreates($actions);
         $this->gatherUpdates($actions);
@@ -107,7 +107,7 @@ class Plan
      *
      * @return \Phinx\Db\Plan\AlterTable[][]
      */
-    protected function updatesSequence()
+    protected function updatesSequence(): array
     {
         return [
             $this->tableUpdates,
@@ -123,7 +123,7 @@ class Plan
      *
      * @return \Phinx\Db\Plan\AlterTable[][]
      */
-    protected function inverseUpdatesSequence()
+    protected function inverseUpdatesSequence(): array
     {
         return [
             $this->constraints,
@@ -140,7 +140,7 @@ class Plan
      * @param \Phinx\Db\Adapter\AdapterInterface $executor The executor object for the plan
      * @return void
      */
-    public function execute(AdapterInterface $executor)
+    public function execute(AdapterInterface $executor): void
     {
         foreach ($this->tableCreates as $newTable) {
             $executor->createTable($newTable->getTable(), $newTable->getColumns(), $newTable->getIndexes());
@@ -159,7 +159,7 @@ class Plan
      * @param \Phinx\Db\Adapter\AdapterInterface $executor The executor object for the plan
      * @return void
      */
-    public function executeInverse(AdapterInterface $executor)
+    public function executeInverse(AdapterInterface $executor): void
     {
         foreach ($this->inverseUpdatesSequence() as $updates) {
             foreach ($updates as $update) {
@@ -177,7 +177,7 @@ class Plan
      *
      * @return void
      */
-    protected function resolveConflicts()
+    protected function resolveConflicts(): void
     {
         foreach ($this->tableMoves as $alterTable) {
             foreach ($alterTable->getActions() as $action) {
@@ -251,7 +251,7 @@ class Plan
      * @param \Phinx\Db\Plan\AlterTable[] $actions The actions to transform
      * @return \Phinx\Db\Plan\AlterTable[] The list of actions without actions for the given table
      */
-    protected function forgetTable(Table $table, $actions)
+    protected function forgetTable(Table $table, array $actions): array
     {
         $result = [];
         foreach ($actions as $action) {
@@ -273,7 +273,7 @@ class Plan
      * @return \Phinx\Db\Plan\AlterTable The updated AlterTable object. This function
      * has the side effect of changing the `$this->indexes` property.
      */
-    protected function remapContraintAndIndexConflicts(AlterTable $alter)
+    protected function remapContraintAndIndexConflicts(AlterTable $alter): AlterTable
     {
         $newAlter = new AlterTable($alter->getTable());
 
@@ -303,7 +303,7 @@ class Plan
      * @return array A tuple containing the list of actions without actions for dropping the index
      * and a list of drop index actions that were removed.
      */
-    protected function forgetDropIndex(Table $table, array $columns, array $actions)
+    protected function forgetDropIndex(Table $table, array $columns, array $actions): array
     {
         $dropIndexActions = new ArrayObject();
         $indexes = array_map(function ($alter) use ($table, $columns, $dropIndexActions) {
@@ -335,7 +335,7 @@ class Plan
      * @return array A tuple containing the list of actions without actions for removing the column
      * and a list of remove column actions that were removed.
      */
-    protected function forgetRemoveColumn(Table $table, array $columns, array $actions)
+    protected function forgetRemoveColumn(Table $table, array $columns, array $actions): array
     {
         $removeColumnActions = new ArrayObject();
         $indexes = array_map(function ($alter) use ($table, $columns, $removeColumnActions) {
@@ -364,7 +364,7 @@ class Plan
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
      * @return void
      */
-    protected function gatherCreates($actions)
+    protected function gatherCreates(array $actions): void
     {
         foreach ($actions as $action) {
             if ($action instanceof CreateTable) {
@@ -396,7 +396,7 @@ class Plan
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
      * @return void
      */
-    protected function gatherUpdates($actions)
+    protected function gatherUpdates(array $actions): void
     {
         foreach ($actions as $action) {
             if (
@@ -432,7 +432,7 @@ class Plan
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
      * @return void
      */
-    protected function gatherTableMoves($actions)
+    protected function gatherTableMoves(array $actions): void
     {
         foreach ($actions as $action) {
             if (
@@ -460,7 +460,7 @@ class Plan
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
      * @return void
      */
-    protected function gatherIndexes($actions)
+    protected function gatherIndexes(array $actions): void
     {
         foreach ($actions as $action) {
             if (!($action instanceof AddIndex) && !($action instanceof DropIndex)) {
@@ -486,7 +486,7 @@ class Plan
      * @param \Phinx\Db\Action\Action[] $actions The actions to parse
      * @return void
      */
-    protected function gatherConstraints($actions)
+    protected function gatherConstraints(array $actions): void
     {
         foreach ($actions as $action) {
             if (!($action instanceof AddForeignKey || $action instanceof DropForeignKey)) {

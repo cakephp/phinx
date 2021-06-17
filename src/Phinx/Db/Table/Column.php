@@ -154,7 +154,7 @@ class Column
      * @param string $name Name
      * @return $this
      */
-    public function setName($name)
+    public function setName(string $name): Column
     {
         $this->name = $name;
 
@@ -166,7 +166,7 @@ class Column
      *
      * @return string|null
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -177,7 +177,7 @@ class Column
      * @param string|\Phinx\Util\Literal $type Column type
      * @return $this
      */
-    public function setType($type)
+    public function setType($type): Column
     {
         $this->type = $type;
 
@@ -200,7 +200,7 @@ class Column
      * @param int $limit Limit
      * @return $this
      */
-    public function setLimit($limit)
+    public function setLimit(int $limit): Column
     {
         $this->limit = $limit;
 
@@ -212,7 +212,7 @@ class Column
      *
      * @return int
      */
-    public function getLimit()
+    public function getLimit(): int
     {
         return $this->limit;
     }
@@ -223,7 +223,7 @@ class Column
      * @param bool $null Null
      * @return $this
      */
-    public function setNull($null)
+    public function setNull(bool $null): Column
     {
         $this->null = (bool)$null;
 
@@ -235,7 +235,7 @@ class Column
      *
      * @return bool
      */
-    public function getNull()
+    public function getNull(): bool
     {
         return $this->null;
     }
@@ -245,7 +245,7 @@ class Column
      *
      * @return bool
      */
-    public function isNull()
+    public function isNull(): bool
     {
         return $this->getNull();
     }
@@ -256,7 +256,7 @@ class Column
      * @param mixed $default Default
      * @return $this
      */
-    public function setDefault($default)
+    public function setDefault($default): Column
     {
         $this->default = $default;
 
@@ -279,7 +279,7 @@ class Column
      * @param bool $identity Identity
      * @return $this
      */
-    public function setIdentity($identity)
+    public function setIdentity(bool $identity): Column
     {
         $this->identity = $identity;
 
@@ -291,7 +291,7 @@ class Column
      *
      * @return bool
      */
-    public function getIdentity()
+    public function getIdentity(): bool
     {
         return $this->identity;
     }
@@ -301,7 +301,7 @@ class Column
      *
      * @return bool
      */
-    public function isIdentity()
+    public function isIdentity(): bool
     {
         return $this->getIdentity();
     }
@@ -312,7 +312,7 @@ class Column
      * @param string $after After
      * @return $this
      */
-    public function setAfter($after)
+    public function setAfter(string $after): Column
     {
         $this->after = $after;
 
@@ -324,7 +324,7 @@ class Column
      *
      * @return string
      */
-    public function getAfter()
+    public function getAfter(): string
     {
         return $this->after;
     }
@@ -335,7 +335,7 @@ class Column
      * @param string $update On Update function
      * @return $this
      */
-    public function setUpdate($update)
+    public function setUpdate(string $update): Column
     {
         $this->update = $update;
 
@@ -347,7 +347,7 @@ class Column
      *
      * @return string
      */
-    public function getUpdate()
+    public function getUpdate(): string
     {
         return $this->update;
     }
@@ -361,7 +361,7 @@ class Column
      * @param int $precision Number precision
      * @return $this
      */
-    public function setPrecision($precision)
+    public function setPrecision(int $precision): Column
     {
         $this->setLimit($precision);
 
@@ -376,7 +376,7 @@ class Column
      *
      * @return int
      */
-    public function getPrecision()
+    public function getPrecision(): int
     {
         return $this->limit;
     }
@@ -386,7 +386,7 @@ class Column
      *
      * @return int
      */
-    public function getSeed()
+    public function getSeed(): int
     {
         return $this->seed;
     }
@@ -396,7 +396,7 @@ class Column
      *
      * @return int
      */
-    public function getIncrement()
+    public function getIncrement(): int
     {
         return $this->increment;
     }
@@ -407,7 +407,7 @@ class Column
      * @param int $seed Number seed
      * @return $this
      */
-    public function setSeed($seed)
+    public function setSeed(int $seed): Column
     {
         $this->seed = $seed;
 
@@ -420,7 +420,7 @@ class Column
      * @param int $increment Number increment
      * @return $this
      */
-    public function setIncrement($increment)
+    public function setIncrement(int $increment): Column
     {
         $this->increment = $increment;
 
@@ -436,7 +436,7 @@ class Column
      * @param int $scale Number scale
      * @return $this
      */
-    public function setScale($scale)
+    public function setScale(int $scale): Column
     {
         $this->scale = $scale;
 
@@ -451,7 +451,7 @@ class Column
      *
      * @return int
      */
-    public function getScale()
+    public function getScale(): int
     {
         return $this->scale;
     }
@@ -466,7 +466,7 @@ class Column
      * @param int $scale Number scale
      * @return $this
      */
-    public function setPrecisionAndScale($precision, $scale)
+    public function setPrecisionAndScale(int $precision, int $scale): Column
     {
         $this->setLimit($precision);
         $this->scale = $scale;
@@ -480,7 +480,7 @@ class Column
      * @param string $comment Comment
      * @return $this
      */
-    public function setComment($comment)
+    public function setComment(string $comment): Column
     {
         $this->comment = $comment;
 
@@ -492,7 +492,7 @@ class Column
      *
      * @return string
      */
-    public function getComment()
+    public function getComment(): string
     {
         return $this->comment;
     }
@@ -503,7 +503,7 @@ class Column
      * @param bool $signed Signed
      * @return $this
      */
-    public function setSigned($signed)
+    public function setSigned(bool $signed): Column
     {
         $this->signed = (bool)$signed;
 
@@ -515,7 +515,7 @@ class Column
      *
      * @return bool
      */
-    public function getSigned()
+    public function getSigned(): bool
     {
         return $this->signed;
     }
@@ -525,7 +525,7 @@ class Column
      *
      * @return bool
      */
-    public function isSigned()
+    public function isSigned(): bool
     {
         return $this->getSigned();
     }
@@ -537,7 +537,7 @@ class Column
      * @param bool $timezone Timezone
      * @return $this
      */
-    public function setTimezone($timezone)
+    public function setTimezone(bool $timezone): Column
     {
         $this->timezone = (bool)$timezone;
 
@@ -549,7 +549,7 @@ class Column
      *
      * @return bool
      */
-    public function getTimezone()
+    public function getTimezone(): bool
     {
         return $this->timezone;
     }
@@ -559,7 +559,7 @@ class Column
      *
      * @return bool
      */
-    public function isTimezone()
+    public function isTimezone(): bool
     {
         return $this->getTimezone();
     }
@@ -570,7 +570,7 @@ class Column
      * @param array $properties Properties
      * @return $this
      */
-    public function setProperties($properties)
+    public function setProperties(array $properties): Column
     {
         $this->properties = $properties;
 
@@ -582,7 +582,7 @@ class Column
      *
      * @return array
      */
-    public function getProperties()
+    public function getProperties(): array
     {
         return $this->properties;
     }
@@ -593,7 +593,7 @@ class Column
      * @param string[]|string $values Value(s)
      * @return $this
      */
-    public function setValues($values)
+    public function setValues($values): Column
     {
         if (!is_array($values)) {
             $values = preg_split('/,\s*/', $values);
@@ -608,7 +608,7 @@ class Column
      *
      * @return array
      */
-    public function getValues()
+    public function getValues(): array
     {
         return $this->values;
     }
@@ -619,7 +619,7 @@ class Column
      * @param string $collation Collation
      * @return $this
      */
-    public function setCollation($collation)
+    public function setCollation(string $collation): Column
     {
         $this->collation = $collation;
 
@@ -631,7 +631,7 @@ class Column
      *
      * @return string
      */
-    public function getCollation()
+    public function getCollation(): string
     {
         return $this->collation;
     }
@@ -642,7 +642,7 @@ class Column
      * @param string $encoding Encoding
      * @return $this
      */
-    public function setEncoding($encoding)
+    public function setEncoding(string $encoding): Column
     {
         $this->encoding = $encoding;
 
@@ -654,7 +654,7 @@ class Column
      *
      * @return string
      */
-    public function getEncoding()
+    public function getEncoding(): string
     {
         return $this->encoding;
     }
@@ -663,9 +663,9 @@ class Column
      * Sets the column SRID.
      *
      * @param int $srid SRID
-     * @return \Phinx\Db\Table\Column
+     * @return $this
      */
-    public function setSrid($srid)
+    public function setSrid(int $srid): Column
     {
         $this->srid = $srid;
 
@@ -677,7 +677,7 @@ class Column
      *
      * @return int|null
      */
-    public function getSrid()
+    public function getSrid(): ?int
     {
         return $this->srid;
     }
@@ -687,7 +687,7 @@ class Column
      *
      * @return array
      */
-    protected function getValidOptions()
+    protected function getValidOptions(): array
     {
         return [
             'limit',
@@ -715,7 +715,7 @@ class Column
      *
      * @return array
      */
-    protected function getAliasedOptions()
+    protected function getAliasedOptions(): array
     {
         return [
             'length' => 'limit',
@@ -730,7 +730,7 @@ class Column
      * @throws \RuntimeException
      * @return $this
      */
-    public function setOptions($options)
+    public function setOptions(array $options): Column
     {
         $validOptions = $this->getValidOptions();
         $aliasOptions = $this->getAliasedOptions();

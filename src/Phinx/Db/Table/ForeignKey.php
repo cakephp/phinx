@@ -53,7 +53,7 @@ class ForeignKey
      * @param string[]|string $columns Columns
      * @return $this
      */
-    public function setColumns($columns)
+    public function setColumns($columns): ForeignKey
     {
         $this->columns = is_string($columns) ? [$columns] : $columns;
 
@@ -65,7 +65,7 @@ class ForeignKey
      *
      * @return string[]
      */
-    public function getColumns()
+    public function getColumns(): array
     {
         return $this->columns;
     }
@@ -76,7 +76,7 @@ class ForeignKey
      * @param \Phinx\Db\Table\Table $table The table this KEY is pointing to
      * @return $this
      */
-    public function setReferencedTable(Table $table)
+    public function setReferencedTable(Table $table): ForeignKey
     {
         $this->referencedTable = $table;
 
@@ -88,7 +88,7 @@ class ForeignKey
      *
      * @return \Phinx\Db\Table\Table
      */
-    public function getReferencedTable()
+    public function getReferencedTable(): Table
     {
         return $this->referencedTable;
     }
@@ -99,7 +99,7 @@ class ForeignKey
      * @param string[] $referencedColumns Referenced columns
      * @return $this
      */
-    public function setReferencedColumns(array $referencedColumns)
+    public function setReferencedColumns(array $referencedColumns): ForeignKey
     {
         $this->referencedColumns = $referencedColumns;
 
@@ -111,7 +111,7 @@ class ForeignKey
      *
      * @return string[]
      */
-    public function getReferencedColumns()
+    public function getReferencedColumns(): array
     {
         return $this->referencedColumns;
     }
@@ -122,7 +122,7 @@ class ForeignKey
      * @param string $onDelete On Delete
      * @return $this
      */
-    public function setOnDelete($onDelete)
+    public function setOnDelete(string $onDelete): ForeignKey
     {
         $this->onDelete = $this->normalizeAction($onDelete);
 
@@ -134,7 +134,7 @@ class ForeignKey
      *
      * @return string
      */
-    public function getOnDelete()
+    public function getOnDelete(): string
     {
         return $this->onDelete;
     }
@@ -144,7 +144,7 @@ class ForeignKey
      *
      * @return string
      */
-    public function getOnUpdate()
+    public function getOnUpdate(): string
     {
         return $this->onUpdate;
     }
@@ -155,7 +155,7 @@ class ForeignKey
      * @param string $onUpdate On Update
      * @return $this
      */
-    public function setOnUpdate($onUpdate)
+    public function setOnUpdate(string $onUpdate): ForeignKey
     {
         $this->onUpdate = $this->normalizeAction($onUpdate);
 
@@ -168,7 +168,7 @@ class ForeignKey
      * @param string $constraint Constraint
      * @return $this
      */
-    public function setConstraint($constraint)
+    public function setConstraint(string $constraint): ForeignKey
     {
         $this->constraint = $constraint;
 
@@ -180,7 +180,7 @@ class ForeignKey
      *
      * @return string|null
      */
-    public function getConstraint()
+    public function getConstraint(): ?string
     {
         return $this->constraint;
     }
@@ -192,7 +192,7 @@ class ForeignKey
      * @throws \RuntimeException
      * @return $this
      */
-    public function setOptions($options)
+    public function setOptions(array $options): ForeignKey
     {
         // Valid Options
         $validOptions = ['delete', 'update', 'constraint'];
@@ -222,7 +222,7 @@ class ForeignKey
      * @throws \InvalidArgumentException
      * @return string
      */
-    protected function normalizeAction($action)
+    protected function normalizeAction(string $action): string
     {
         $constantName = 'static::' . str_replace(' ', '_', strtoupper(trim($action)));
         if (!defined($constantName)) {

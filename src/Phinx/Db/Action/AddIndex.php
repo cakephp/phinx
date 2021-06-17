@@ -48,10 +48,6 @@ class AddIndex extends Action
         if (!$columns instanceof Index) {
             $index = new Index();
 
-            if (is_string($columns)) {
-                $columns = [$columns]; // str to array
-            }
-
             $index->setColumns($columns);
             $index->setOptions($options);
         }

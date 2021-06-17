@@ -59,12 +59,12 @@ class Index
     /**
      * Sets the index columns.
      *
-     * @param string[] $columns Columns
+     * @param string|string[] $columns Columns
      * @return $this
      */
-    public function setColumns($columns)
+    public function setColumns($columns): Index
     {
-        $this->columns = $columns;
+        $this->columns = is_string($columns) ? [$columns] : $columns;
 
         return $this;
     }
@@ -74,7 +74,7 @@ class Index
      *
      * @return string[]
      */
-    public function getColumns()
+    public function getColumns(): array
     {
         return $this->columns;
     }
@@ -85,7 +85,7 @@ class Index
      * @param string $type Type
      * @return $this
      */
-    public function setType($type)
+    public function setType(string $type): Index
     {
         $this->type = $type;
 
@@ -97,7 +97,7 @@ class Index
      *
      * @return string
      */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
@@ -108,7 +108,7 @@ class Index
      * @param string $name Name
      * @return $this
      */
-    public function setName($name)
+    public function setName(string $name): Index
     {
         $this->name = $name;
 
@@ -120,7 +120,7 @@ class Index
      *
      * @return string|null
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -131,7 +131,7 @@ class Index
      * @param int|array $limit limit value or array of limit value
      * @return $this
      */
-    public function setLimit($limit)
+    public function setLimit($limit): Index
     {
         $this->limit = $limit;
 
@@ -154,7 +154,7 @@ class Index
      * @param string[] $order column name sort order key value pair
      * @return $this
      */
-    public function setOrder($order)
+    public function setOrder(array $order): Index
     {
         $this->order = $order;
 
@@ -166,7 +166,7 @@ class Index
      *
      * @return string[]
      */
-    public function getOrder()
+    public function getOrder(): array
     {
         return $this->order;
     }
@@ -177,7 +177,7 @@ class Index
      * @param string[] $includedColumns Columns
      * @return $this
      */
-    public function setInclude($includedColumns)
+    public function setInclude(array $includedColumns): Index
     {
         $this->includedColumns = $includedColumns;
 
@@ -189,7 +189,7 @@ class Index
      *
      * @return string[]
      */
-    public function getInclude()
+    public function getInclude(): array
     {
         return $this->includedColumns;
     }
@@ -201,7 +201,7 @@ class Index
      * @throws \RuntimeException
      * @return $this
      */
-    public function setOptions($options)
+    public function setOptions(array $options): Index
     {
         // Valid Options
         $validOptions = ['type', 'unique', 'name', 'limit', 'order', 'include'];

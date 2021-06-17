@@ -49,7 +49,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function run()
+    public function run(): void
     {
     }
 
@@ -58,7 +58,7 @@ abstract class AbstractSeed implements SeedInterface
      *
      * @return array
      */
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [];
     }
@@ -66,7 +66,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function setAdapter(AdapterInterface $adapter)
+    public function setAdapter(AdapterInterface $adapter): SeedInterface
     {
         $this->adapter = $adapter;
 
@@ -76,7 +76,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function getAdapter()
+    public function getAdapter(): AdapterInterface
     {
         return $this->adapter;
     }
@@ -84,7 +84,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function setInput(InputInterface $input)
+    public function setInput(InputInterface $input): SeedInterface
     {
         $this->input = $input;
 
@@ -94,7 +94,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function getInput()
+    public function getInput(): InputInterface
     {
         return $this->input;
     }
@@ -102,7 +102,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function setOutput(OutputInterface $output)
+    public function setOutput(OutputInterface $output): SeedInterface
     {
         $this->output = $output;
 
@@ -112,7 +112,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function getOutput()
+    public function getOutput(): OutputInterface
     {
         return $this->output;
     }
@@ -120,7 +120,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function getName()
+    public function getName(): string
     {
         return static::class;
     }
@@ -128,7 +128,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function execute($sql, array $params = [])
+    public function execute(string $sql, array $params = [])
     {
         return $this->getAdapter()->execute($sql, $params);
     }
@@ -136,7 +136,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function query($sql, array $params = [])
+    public function query(string $sql, array $params = [])
     {
         return $this->getAdapter()->query($sql, $params);
     }
@@ -144,7 +144,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function fetchRow($sql)
+    public function fetchRow(string $sql)
     {
         return $this->getAdapter()->fetchRow($sql);
     }
@@ -152,7 +152,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function fetchAll($sql)
+    public function fetchAll(string $sql): array
     {
         return $this->getAdapter()->fetchAll($sql);
     }
@@ -160,7 +160,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function insert($table, $data)
+    public function insert(string $table, array $data): void
     {
         // convert to table object
         if (is_string($table)) {
@@ -172,7 +172,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function hasTable($tableName)
+    public function hasTable(string $tableName): bool
     {
         return $this->getAdapter()->hasTable($tableName);
     }
@@ -180,7 +180,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function table($tableName, $options = [])
+    public function table(string $tableName, array $options = []): Table
     {
         return new Table($tableName, $options, $this->getAdapter());
     }
@@ -194,7 +194,7 @@ abstract class AbstractSeed implements SeedInterface
      *
      * @return bool
      */
-    public function shouldExecute()
+    public function shouldExecute(): bool
     {
         return true;
     }

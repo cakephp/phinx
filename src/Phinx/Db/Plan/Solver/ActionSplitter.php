@@ -52,7 +52,7 @@ class ActionSplitter
      * which is the dual of $conflictClass. For example `AddColumn` and `DropColumn` are duals.
      * @param callable $conflictFilter The collection of actions to inspect
      */
-    public function __construct($conflictClass, $conflictClassDual, callable $conflictFilter)
+    public function __construct(string $conflictClass, string $conflictClassDual, callable $conflictFilter)
     {
         $this->conflictClass = $conflictClass;
         $this->conflictClassDual = $conflictClassDual;
@@ -67,7 +67,7 @@ class ActionSplitter
      * @return \Phinx\Db\Plan\AlterTable[] A list of AlterTable that can be executed without
      * this type of conflict
      */
-    public function __invoke(AlterTable $alter)
+    public function __invoke(AlterTable $alter): array
     {
         $conflictActions = array_filter($alter->getActions(), function ($action) {
             return $action instanceof $this->conflictClass;
