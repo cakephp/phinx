@@ -32,7 +32,6 @@ class Expression
 
     /**
      * @param string $value The expression
-     *
      * @return self
      */
     public static function from($value)

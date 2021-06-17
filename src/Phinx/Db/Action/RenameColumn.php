@@ -47,7 +47,6 @@ class RenameColumn extends Action
      * @param \Phinx\Db\Table\Table $table The table where the column is
      * @param mixed $columnName The name of the column to be changed
      * @param mixed $newName The new name for the column
-     *
      * @return \Phinx\Db\Action\RenameColumn
      */
     public static function build(Table $table, $columnName, $newName)

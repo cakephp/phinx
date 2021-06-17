@@ -58,7 +58,7 @@ class Table
      * @param array $options Options
      * @param \Phinx\Db\Adapter\AdapterInterface|null $adapter Database Adapter
      */
-    public function __construct($name, $options = [], AdapterInterface $adapter = null)
+    public function __construct($name, $options = [], ?AdapterInterface $adapter = null)
     {
         $this->table = new TableValue($name, $options);
         $this->actions = new Intent();
@@ -102,7 +102,6 @@ class Table
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
-     *
      * @return $this
      */
     public function setAdapter(AdapterInterface $adapter)
@@ -116,7 +115,6 @@ class Table
      * Gets the database adapter.
      *
      * @throws \RuntimeException
-     *
      * @return \Phinx\Db\Adapter\AdapterInterface|null
      */
     public function getAdapter()
@@ -164,7 +162,6 @@ class Table
      * Renames the database table.
      *
      * @param string $newTableName New Table Name
-     *
      * @return $this
      */
     public function rename($newTableName)
@@ -178,7 +175,6 @@ class Table
      * Changes the primary key of the database table.
      *
      * @param string|string[]|null $columns Column name(s) to belong to the primary key, or null to drop the key
-     *
      * @return $this
      */
     public function changePrimaryKey($columns)
@@ -189,10 +185,21 @@ class Table
     }
 
     /**
+     * Checks to see if a primary key exists.
+     *
+     * @param string|string[] $columns Column(s)
+     * @param string|null $constraint Constraint names
+     * @return bool
+     */
+    public function hasPrimaryKey($columns, $constraint = null)
+    {
+        return $this->getAdapter()->hasPrimaryKey($this->getName(), $columns, $constraint);
+    }
+
+    /**
      * Changes the comment of the database table.
      *
      * @param string|null $comment New comment string, or null to drop the comment
-     *
      * @return $this
      */
     public function changeComment($comment)
@@ -216,7 +223,6 @@ class Table
      * Gets a table column if it exists.
      *
      * @param string $name Column name
-     *
      * @return \Phinx\Db\Table\Column|null
      */
     public function getColumn($name)
@@ -235,7 +241,6 @@ class Table
      * Sets an array of data to be inserted.
      *
      * @param array $data Data
-     *
      * @return $this
      */
     public function setData($data)
@@ -287,9 +292,7 @@ class Table
      * @param string|\Phinx\Db\Table\Column $columnName Column Name
      * @param string|\Phinx\Util\Literal|null $type Column Type
      * @param array $options Column Options
-     *
      * @throws \InvalidArgumentException
-     *
      * @return $this
      */
     public function addColumn($columnName, $type = null, $options = [])
@@ -318,7 +321,6 @@ class Table
      * Remove a table column.
      *
      * @param string $columnName Column Name
-     *
      * @return $this
      */
     public function removeColumn($columnName)
@@ -334,7 +336,6 @@ class Table
      *
      * @param string $oldName Old Column Name
      * @param string $newName New Column Name
-     *
      * @return $this
      */
     public function renameColumn($oldName, $newName)
@@ -351,7 +352,6 @@ class Table
      * @param string $columnName Column Name
      * @param string|\Phinx\Db\Table\Column|\Phinx\Util\Literal $newColumnType New Column Type
      * @param array $options Options
-     *
      * @return $this
      */
     public function changeColumn($columnName, $newColumnType, array $options = [])
@@ -370,7 +370,6 @@ class Table
      * Checks to see if a column exists.
      *
      * @param string $columnName Column Name
-     *
      * @return bool
      */
     public function hasColumn($columnName)
@@ -385,7 +384,6 @@ class Table
      *
      * @param string|array|\Phinx\Db\Table\Index $columns Table Column(s)
      * @param array $options Index Options
-     *
      * @return $this
      */
     public function addIndex($columns, array $options = [])
@@ -400,7 +398,6 @@ class Table
      * Removes the given index from a table.
      *
      * @param string|string[] $columns Columns
-     *
      * @return $this
      */
     public function removeIndex($columns)
@@ -415,7 +412,6 @@ class Table
      * Removes the given index identified by its name from a table.
      *
      * @param string $name Index name
-     *
      * @return $this
      */
     public function removeIndexByName($name)
@@ -430,7 +426,6 @@ class Table
      * Checks to see if an index exists.
      *
      * @param string|string[] $columns Columns
-     *
      * @return bool
      */
     public function hasIndex($columns)
@@ -442,7 +437,6 @@ class Table
      * Checks to see if an index specified by name exists.
      *
      * @param string $indexName Index name
-     *
      * @return bool
      */
     public function hasIndexByName($indexName)
@@ -460,7 +454,6 @@ class Table
      * @param string|\Phinx\Db\Table\Table $referencedTable Referenced Table
      * @param string|string[] $referencedColumns Referenced Columns
      * @param array $options Options
-     *
      * @return $this
      */
     public function addForeignKey($columns, $referencedTable, $referencedColumns = ['id'], $options = [])
@@ -482,7 +475,6 @@ class Table
      * @param string|\Phinx\Db\Table\Table $referencedTable Referenced Table
      * @param string|string[] $referencedColumns Referenced Columns
      * @param array $options Options
-     *
      * @return $this
      */
     public function addForeignKeyWithName($name, $columns, $referencedTable, $referencedColumns = ['id'], $options = [])
@@ -505,7 +497,6 @@ class Table
      *
      * @param string|string[] $columns Column(s)
      * @param string|null $constraint Constraint names
-     *
      * @return $this
      */
     public function dropForeignKey($columns, $constraint = null)
@@ -521,7 +512,6 @@ class Table
      *
      * @param string|string[] $columns Column(s)
      * @param string|null $constraint Constraint names
-     *
      * @return bool
      */
     public function hasForeignKey($columns, $constraint = null)
@@ -532,29 +522,36 @@ class Table
     /**
      * Add timestamp columns created_at and updated_at to the table.
      *
-     * @param string|null $createdAt Alternate name for the created_at column
-     * @param string|null $updatedAt Alternate name for the updated_at column
+     * @param string|false|null $createdAt Alternate name for the created_at column
+     * @param string|false|null $updatedAt Alternate name for the updated_at column
      * @param bool $withTimezone Whether to set the timezone option on the added columns
-     *
      * @return $this
      */
     public function addTimestamps($createdAt = 'created_at', $updatedAt = 'updated_at', $withTimezone = false)
     {
-        $createdAt = $createdAt === null ? 'created_at' : $createdAt;
-        $updatedAt = $updatedAt === null ? 'updated_at' : $updatedAt;
+        $createdAt = $createdAt ?? 'created_at';
+        $updatedAt = $updatedAt ?? 'updated_at';
 
-        $this->addColumn($createdAt, 'timestamp', [
+        if (!$createdAt && !$updatedAt) {
+            throw new \RuntimeException('Cannot set both created_at and updated_at columns to false');
+        }
+
+        if ($createdAt) {
+            $this->addColumn($createdAt, 'timestamp', [
                 'null' => false,
                 'default' => 'CURRENT_TIMESTAMP',
                 'update' => '',
                 'timezone' => $withTimezone,
-            ])
-            ->addColumn($updatedAt, 'timestamp', [
+            ]);
+        }
+        if ($updatedAt) {
+            $this->addColumn($updatedAt, 'timestamp', [
                 'null' => true,
                 'default' => null,
                 'update' => 'CURRENT_TIMESTAMP',
                 'timezone' => $withTimezone,
             ]);
+        }
 
         return $this;
     }
@@ -563,10 +560,8 @@ class Table
      * Alias that always sets $withTimezone to true
      *
      * @see addTimestamps
-     *
      * @param string|null $createdAt Alternate name for the created_at column
      * @param string|null $updatedAt Alternate name for the updated_at column
-     *
      * @return $this
      */
     public function addTimestampsWithTimezone($createdAt = null, $updatedAt = null)
@@ -585,7 +580,6 @@ class Table
      *                  array("col2" => "value2", "col2" => "anotherValue2"),
      *              )
      *              or array("col1" => "value1", "col2" => "anotherValue1")
-     *
      * @return $this
      */
     public function insert($data)
@@ -696,7 +690,6 @@ class Table
      * Executes all the pending actions for this table
      *
      * @param bool $exists Whether or not the table existed prior to executing this method
-     *
      * @return void
      */
     protected function executeActions($exists)

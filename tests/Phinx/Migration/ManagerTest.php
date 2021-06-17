@@ -8,23 +8,24 @@ use Phinx\Console\Command\AbstractCommand;
 use Phinx\Migration\Manager;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
+use Test\Phinx\Console\Output\RawBufferedOutput;
 use Test\Phinx\TestCase;
 
 class ManagerTest extends TestCase
 {
-    /** @var Config */
+    /**
+     * @var \Phinx\Config\Config
+     */
     protected $config;
 
     /**
-     * @var InputInterface $input
+     * @var \Symfony\Component\Console\Input\InputInterface $input
      */
     protected $input;
 
     /**
-     * @var OutputInterface $output
+     * @var \Symfony\Component\Console\Output\OutputInterface $output
      */
     protected $output;
 
@@ -127,9 +128,6 @@ class ManagerTest extends TestCase
         );
     }
 
-    /**
-     *
-     */
     public function testEnvironmentInheritsDataDomainOptions()
     {
         foreach ($this->config->getEnvironments() as $name => $opts) {
@@ -1042,7 +1040,6 @@ class ManagerTest extends TestCase
      * Test that ensures the status header is correctly printed with regards to the version order
      *
      * @dataProvider statusVersionOrderProvider
-     *
      * @param Config $config Config to use for the test
      * @param string $expectedStatusHeader expected header string
      */
@@ -1234,7 +1231,6 @@ class ManagerTest extends TestCase
      * migration to point to.
      *
      * @dataProvider migrateDateDataProvider
-     *
      * @param string[] $availableMigrations
      * @param string $dateString
      * @param string $expectedMigration
@@ -1286,7 +1282,7 @@ class ManagerTest extends TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
+            $this->assertEquals('No migrations to rollback' . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1320,7 +1316,7 @@ class ManagerTest extends TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
+            $this->assertEquals('No migrations to rollback' . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1354,7 +1350,7 @@ class ManagerTest extends TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
+            $this->assertEquals('No migrations to rollback' . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1387,7 +1383,7 @@ class ManagerTest extends TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
+            $this->assertEquals('No migrations to rollback' . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1421,7 +1417,7 @@ class ManagerTest extends TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
+            $this->assertEquals('No migrations to rollback' . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1455,7 +1451,7 @@ class ManagerTest extends TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
+            $this->assertEquals('No migrations to rollback' . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1536,7 +1532,7 @@ class ManagerTest extends TestCase
 
         $this->manager = new Manager($config, $this->input, $this->output);
         $this->manager->setEnvironments(['mockenv' => $envStub]);
-        $this->manager->rollback('mockenv', isset($availableRollbacks[$version]['migration_name']) ? $availableRollbacks[$version]['migration_name'] : $version);
+        $this->manager->rollback('mockenv', $availableRollbacks[$version]['migration_name'] ?? $version);
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
 
@@ -1626,7 +1622,7 @@ class ManagerTest extends TestCase
         $output = stream_get_contents($this->manager->getOutput()->getStream());
 
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
+            $this->assertEquals('No migrations to rollback' . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1668,7 +1664,7 @@ class ManagerTest extends TestCase
         $output = stream_get_contents($this->manager->getOutput()->getStream());
 
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
+            $this->assertEquals('No migrations to rollback' . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1838,7 +1834,7 @@ class ManagerTest extends TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
+            $this->assertEquals('No migrations to rollback' . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1877,7 +1873,7 @@ class ManagerTest extends TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
+            $this->assertEquals('No migrations to rollback' . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -1916,7 +1912,7 @@ class ManagerTest extends TestCase
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedOutput)) {
-            $this->assertEquals("No migrations to rollback" . PHP_EOL, $output);
+            $this->assertEquals('No migrations to rollback' . PHP_EOL, $output);
         } else {
             if (is_string($expectedOutput)) {
                 $expectedOutput = [$expectedOutput];
@@ -6078,7 +6074,7 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertEquals("warning 20120133235330 is not a valid version", trim($outputStr));
+        $this->assertEquals('warning 20120133235330 is not a valid version', trim($outputStr));
     }
 
     public function testMigrationWillNotBeExecuted()
@@ -6108,17 +6104,5 @@ class ManagerTest extends TestCase
         $this->manager->migrate('production', '20201207205057');
 
         $this->assertTrue($adapter->hasTable('info'));
-    }
-}
-
-/**
- * RawBufferedOutput is a specialized BufferedOutput that outputs raw "writeln" calls (ie. it doesn't replace the
- * tags like <info>message</info>.
- */
-class RawBufferedOutput extends \Symfony\Component\Console\Output\BufferedOutput
-{
-    public function writeln($messages, $options = self::OUTPUT_RAW)
-    {
-        $this->write($messages, true, $options);
     }
 }

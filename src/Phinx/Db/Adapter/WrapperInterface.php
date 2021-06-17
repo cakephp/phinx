@@ -25,7 +25,6 @@ interface WrapperInterface
      * Sets the database adapter to proxy commands to.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Adapter
-     *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function setAdapter(AdapterInterface $adapter);
@@ -34,7 +33,6 @@ interface WrapperInterface
      * Gets the database adapter.
      *
      * @throws \RuntimeException if the adapter has not been set
-     *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getAdapter();

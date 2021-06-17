@@ -48,7 +48,6 @@ EOT
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     *
      * @return int 0 if all migrations are up, or an error code
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -75,7 +74,7 @@ EOT
             $output->writeln('<info>using format</info> ' . $format);
         }
 
-        $output->writeln('<info>ordering by </info>' . $this->getConfig()->getVersionOrder() . " time");
+        $output->writeln('<info>ordering by </info>' . $this->getConfig()->getVersionOrder() . ' time');
 
         // print the status
         $result = $this->getManager()->printStatus($environment, $format);

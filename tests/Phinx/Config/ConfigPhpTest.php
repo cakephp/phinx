@@ -8,6 +8,7 @@ use RuntimeException;
 
 /**
  * Class ConfigPhpTest
+ *
  * @package Test\Phinx\Config
  * @group config
  */

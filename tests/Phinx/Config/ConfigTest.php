@@ -8,6 +8,7 @@ use UnexpectedValueException;
 
 /**
  * Class ConfigTest
+ *
  * @package Test\Phinx\Config
  * @group config
  */
@@ -405,12 +406,12 @@ class ConfigTest extends AbstractConfigTest
             'environments' => [
                 'production' => [
                     'adapter' => 'sqlite',
-                    'memory' => "yes",
+                    'memory' => 'yes',
                 ],
             ],
         ]);
         $this->assertSame(
-            ['adapter' => 'sqlite', 'memory' => "yes", 'name' => ':memory:'],
+            ['adapter' => 'sqlite', 'memory' => 'yes', 'name' => ':memory:'],
             $config->getEnvironment('production')
         );
     }

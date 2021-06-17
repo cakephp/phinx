@@ -49,7 +49,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      *
      * @param string $command Command Name
      * @param array $args Command Args
-     *
      * @return void
      */
     public function writeCommand($command, $args = [])
@@ -119,7 +118,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * {@inheritDoc}
      *
      * @throws \BadMethodCallException
-     *
      * @return void
      */
     public function changePrimaryKey(Table $table, $newColumns)
@@ -138,7 +136,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * {@inheritDoc}
      *
      * @throws \BadMethodCallException
-     *
      * @return void
      */
     public function changeComment(Table $table, $newComment)
@@ -157,7 +154,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * {@inheritDoc}
      *
      * @throws \BadMethodCallException
-     *
      * @return void
      */
     public function renameTable($tableName, $newTableName)
@@ -176,7 +172,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * {@inheritDoc}
      *
      * @throws \BadMethodCallException
-     *
      * @return void
      */
     public function dropTable($tableName)
@@ -206,7 +201,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * {@inheritDoc}
      *
      * @throws \BadMethodCallException
-     *
      * @return void
      */
     public function addColumn(Table $table, Column $column)
@@ -232,7 +226,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * {@inheritDoc}
      *
      * @throws \BadMethodCallException
-     *
      * @return void
      */
     public function renameColumn($tableName, $columnName, $newColumnName)
@@ -251,7 +244,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * {@inheritDoc}
      *
      * @throws \BadMethodCallException
-     *
      * @return void
      */
     public function changeColumn($tableName, $columnName, Column $newColumn)
@@ -270,7 +262,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * {@inheritDoc}
      *
      * @throws \BadMethodCallException
-     *
      * @return void
      */
     public function dropColumn($tableName, $columnName)
@@ -289,7 +280,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * {@inheritDoc}
      *
      * @throws \BadMethodCallException
-     *
      * @return void
      */
     public function addIndex(Table $table, Index $index)
@@ -308,7 +298,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * {@inheritDoc}
      *
      * @throws \BadMethodCallException
-     *
      * @return void
      */
     public function dropIndex($tableName, $columns)
@@ -327,7 +316,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * {@inheritDoc}
      *
      * @throws \BadMethodCallException
-     *
      * @return void
      */
     public function dropIndexByName($tableName, $indexName)
@@ -346,7 +334,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * {@inheritDoc}
      *
      * @throws \BadMethodCallException
-     *
      * @return void
      */
     public function addForeignKey(Table $table, ForeignKey $foreignKey)
@@ -365,7 +352,6 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * {@inheritDoc}
      *
      * @throws \BadMethodCallException
-     *
      * @return void
      */
     public function dropForeignKey($tableName, $columns, $constraint = null)
