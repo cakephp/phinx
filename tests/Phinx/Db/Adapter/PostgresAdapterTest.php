@@ -2248,6 +2248,37 @@ OUTPUT;
         $this->assertEquals(1, $stm->rowCount());
     }
 
+    public function testQueryWithParams()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('string_col', 'string')
+            ->addColumn('int_col', 'integer')
+            ->save();
+
+        $this->adapter->insert($table->getTable(), [
+            'string_col' => 'test data',
+            'int_col' => 10,
+        ]);
+
+        $this->adapter->insert($table->getTable(), [
+            'string_col' => null,
+        ]);
+
+        $this->adapter->insert($table->getTable(), [
+            'int_col' => 23,
+        ]);
+
+        $countQuery = $this->adapter->query('SELECT COUNT(*) AS c FROM table1 WHERE int_col > ?', [5]);
+        $res = $countQuery->fetchAll();
+        $this->assertEquals(2, $res[0]['c']);
+
+        $this->adapter->execute('UPDATE table1 SET int_col = ? WHERE int_col IS NULL', [12]);
+
+        $countQuery->execute([1]);
+        $res = $countQuery->fetchAll();
+        $this->assertEquals(3, $res[0]['c']);
+    }
+
     public function testRenameMixedCaseTableAndColumns()
     {
         $table = new \Phinx\Db\Table('OrganizationSettings', [], $this->adapter);
