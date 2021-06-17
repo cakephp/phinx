@@ -2,7 +2,6 @@
 
 namespace Test\Phinx\Migration;
 
-use Phinx\Db\Table;
 use PHPUnit\Framework\TestCase;
 
 class AbstractMigrationTest extends TestCase
@@ -275,7 +274,7 @@ class AbstractMigrationTest extends TestCase
         $migrationStub->setAdapter($adapterStub);
 
         $table = $migrationStub->table('test_table');
-        $table->addColumn("column1", "integer", ['null' => true]);
+        $table->addColumn('column1', 'integer', ['null' => true]);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Migration has pending actions after execution!');
@@ -298,7 +297,7 @@ class AbstractMigrationTest extends TestCase
         $migrationStub->setAdapter($adapterStub);
 
         $table = $migrationStub->table('test_table');
-        $table->addColumn("column1", "integer", ['null' => true])->create();
+        $table->addColumn('column1', 'integer', ['null' => true])->create();
 
         $migrationStub->postFlightCheck();
 

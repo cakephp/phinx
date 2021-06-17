@@ -19,7 +19,6 @@ interface NamespaceAwareInterface
      * Get Migration Namespace associated with path.
      *
      * @param string $path Path
-     *
      * @return string|null
      */
     public function getMigrationNamespaceByPath($path);
@@ -28,7 +27,6 @@ interface NamespaceAwareInterface
      * Get Seed Namespace associated with path.
      *
      * @param string $path Path
-     *
      * @return string|null
      */
     public function getSeedNamespaceByPath($path);

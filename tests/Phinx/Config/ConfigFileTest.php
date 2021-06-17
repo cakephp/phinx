@@ -3,12 +3,11 @@
 namespace Test\Phinx\Config;
 
 use InvalidArgumentException;
-use Phinx\Console\Command\AbstractCommand;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputDefinition;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Test\Phinx\Config\Command\VoidCommand;
 
 class ConfigFileTest extends TestCase
 {
@@ -31,7 +30,6 @@ class ConfigFileTest extends TestCase
      * Test workingContext
      *
      * @dataProvider workingProvider
-     *
      * @param $input
      * @param $dir
      * @param $expectedFile
@@ -48,7 +46,6 @@ class ConfigFileTest extends TestCase
      * Test workingContext
      *
      * @dataProvider notWorkingProvider
-     *
      * @param $input
      * @param $dir
      */
@@ -80,7 +77,6 @@ class ConfigFileTest extends TestCase
 
     /**
      * Working cases
-     *
      *
      * @return array
      */
@@ -117,18 +113,5 @@ class ConfigFileTest extends TestCase
             ['phinx.json', 'OnlyYaml'],
             ['phinx.php', 'OnlyYaml'],
         ];
-    }
-}
-
-/**
- * Class VoidCommand : used to expose locateConfigFile To testing
- *
- * @package Test\Phinx\Config
- */
-class VoidCommand extends AbstractCommand
-{
-    public function locateConfigFile(InputInterface $input)
-    {
-        return parent::locateConfigFile($input);
     }
 }

@@ -70,7 +70,7 @@ abstract class AbstractMigration implements MigrationInterface
      * @param \Symfony\Component\Console\Input\InputInterface|null $input Input
      * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output
      */
-    final public function __construct($environment, $version, InputInterface $input = null, OutputInterface $output = null)
+    final public function __construct($environment, $version, ?InputInterface $input = null, ?OutputInterface $output = null)
     {
         $this->environment = $environment;
         $this->version = $version;
@@ -310,7 +310,6 @@ abstract class AbstractMigration implements MigrationInterface
      * Right now, the only check is whether all changes were committed
      *
      * @throws \RuntimeException
-     *
      * @return void
      */
     public function postFlightCheck()

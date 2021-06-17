@@ -65,9 +65,7 @@ class AdapterFactory
      *
      * @param string $name Name
      * @param string $class Class
-     *
      * @throws \RuntimeException
-     *
      * @return $this
      */
     public function registerAdapter($name, $class)
@@ -87,9 +85,7 @@ class AdapterFactory
      * Get an adapter class by name.
      *
      * @param string $name Name
-     *
      * @throws \RuntimeException
-     *
      * @return string
      */
     protected function getClass($name)
@@ -109,7 +105,6 @@ class AdapterFactory
      *
      * @param string $name Name
      * @param array $options Options
-     *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getAdapter($name, array $options)
@@ -124,9 +119,7 @@ class AdapterFactory
      *
      * @param string $name Name
      * @param string $class Class
-     *
      * @throws \RuntimeException
-     *
      * @return $this
      */
     public function registerWrapper($name, $class)
@@ -146,9 +139,7 @@ class AdapterFactory
      * Get a wrapper class by name.
      *
      * @param string $name Name
-     *
      * @throws \RuntimeException
-     *
      * @return string
      */
     protected function getWrapperClass($name)
@@ -168,7 +159,6 @@ class AdapterFactory
      *
      * @param string $name Name
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Adapter
-     *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getWrapper($name, AdapterInterface $adapter)

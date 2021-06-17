@@ -64,7 +64,6 @@ class ProxyAdapter extends AdapterWrapper
      * Gets an array of the recorded commands in reverse.
      *
      * @throws \Phinx\Migration\IrreversibleMigrationException if a command cannot be reversed.
-     *
      * @return \Phinx\Db\Plan\Intent
      */
     public function getInvertedCommands()

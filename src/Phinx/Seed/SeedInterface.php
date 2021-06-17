@@ -39,7 +39,6 @@ interface SeedInterface
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
-     *
      * @return \Phinx\Seed\SeedInterface
      */
     public function setAdapter(AdapterInterface $adapter);
@@ -55,7 +54,6 @@ interface SeedInterface
      * Sets the input object to be used in migration object
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     *
      * @return \Phinx\Seed\SeedInterface
      */
     public function setInput(InputInterface $input);
@@ -71,7 +69,6 @@ interface SeedInterface
      * Sets the output object to be used in migration object
      *
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     *
      * @return \Phinx\Seed\SeedInterface
      */
     public function setOutput(OutputInterface $output);
@@ -95,7 +92,6 @@ interface SeedInterface
      *
      * @param string $sql SQL
      * @param array $params parameters to use for prepared query
-     *
      * @return int
      */
     public function execute($sql, array $params = []);
@@ -110,7 +106,6 @@ interface SeedInterface
      *
      * @param string $sql SQL
      * @param array $params parameters to use for prepared query
-     *
      * @return mixed
      */
     public function query($sql, array $params = []);
@@ -119,7 +114,6 @@ interface SeedInterface
      * Executes a query and returns only one row as an array.
      *
      * @param string $sql SQL
-     *
      * @return array|false
      */
     public function fetchRow($sql);
@@ -128,7 +122,6 @@ interface SeedInterface
      * Executes a query and returns an array of rows.
      *
      * @param string $sql SQL
-     *
      * @return array
      */
     public function fetchAll($sql);
@@ -138,7 +131,6 @@ interface SeedInterface
      *
      * @param string $tableName Table name
      * @param array $data Data
-     *
      * @return void
      */
     public function insert($tableName, $data);
@@ -147,7 +139,6 @@ interface SeedInterface
      * Checks to see if a table exists.
      *
      * @param string $tableName Table name
-     *
      * @return bool
      */
     public function hasTable($tableName);
@@ -159,7 +150,6 @@ interface SeedInterface
      *
      * @param string $tableName Table name
      * @param array $options Options
-     *
      * @return \Phinx\Db\Table
      */
     public function table($tableName, $options);

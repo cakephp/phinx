@@ -3,4 +3,10 @@
     <config name="installed_paths" value="../../cakephp/cakephp-codesniffer"/>
 
     <rule ref="CakePHP"/>
+
+    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
+        <severity>0</severity>
+    </rule>
+
+    <exclude-pattern>*_files*</exclude-pattern>
 </ruleset>

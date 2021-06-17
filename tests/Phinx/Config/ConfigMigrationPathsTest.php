@@ -7,6 +7,7 @@ use UnexpectedValueException;
 
 /**
  * Class ConfigMigrationPathsTest
+ *
  * @package Test\Phinx\Config
  * @group config
  * @covers \Phinx\Config\Config::getMigrationPaths

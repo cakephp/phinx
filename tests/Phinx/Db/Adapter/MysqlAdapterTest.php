@@ -622,7 +622,7 @@ class MysqlAdapterTest extends TestCase
         $table->addColumn('default_zero', 'string', ['default' => 'test'])
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
-        $this->assertEquals("test", $rows[1]['Default']);
+        $this->assertEquals('test', $rows[1]['Default']);
     }
 
     public function testAddColumnWithDefaultZero()
@@ -633,7 +633,7 @@ class MysqlAdapterTest extends TestCase
               ->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         $this->assertNotNull($rows[1]['Default']);
-        $this->assertEquals("0", $rows[1]['Default']);
+        $this->assertEquals('0', $rows[1]['Default']);
     }
 
     public function testAddColumnWithDefaultEmptyString()
@@ -854,7 +854,7 @@ class MysqlAdapterTest extends TestCase
         $table->changeColumn('column1', $newColumn1)->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM t');
         $this->assertNotNull($rows[1]['Default']);
-        $this->assertEquals("test1", $rows[1]['Default']);
+        $this->assertEquals('test1', $rows[1]['Default']);
     }
 
     public function testChangeColumnDefaultToZero()
@@ -868,7 +868,7 @@ class MysqlAdapterTest extends TestCase
         $table->changeColumn('column1', $newColumn1)->save();
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM t');
         $this->assertNotNull($rows[1]['Default']);
-        $this->assertEquals("0", $rows[1]['Default']);
+        $this->assertEquals('0', $rows[1]['Default']);
     }
 
     public function testChangeColumnDefaultToNull()
@@ -1168,14 +1168,13 @@ class MysqlAdapterTest extends TestCase
             ['column21', 'set', ['values' => ['one', 'two']]],
             ['column22', 'enum', ['values' => ['three', 'four']]],
             ['enum_quotes', 'enum', ['values' => [
-                "'", '\'\n', '\\', ',', '', "\\\n", "\\n", "\n", "\r", "\r\n", '/', ',,', "\t",
+                "'", '\'\n', '\\', ',', '', "\\\n", '\\n', "\n", "\r", "\r\n", '/', ',,', "\t",
             ]]],
             ['column23', 'bit', []],
         ];
     }
 
     /**
-     *
      * @dataProvider columnsProvider
      */
     public function testGetColumns($colName, $type, $options)
@@ -2027,7 +2026,6 @@ INPUT;
 
     /**
      * @dataProvider geometryTypeProvider
-     *
      * @param string $type
      * @param string $geom
      */
@@ -2052,7 +2050,6 @@ INPUT;
 
     /**
      * @dataProvider geometryTypeProvider
-     *
      * @param string $type
      * @param string $geom
      */

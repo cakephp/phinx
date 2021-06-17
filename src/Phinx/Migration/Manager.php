@@ -80,9 +80,7 @@ class Manager
      *
      * @param string $environment environment to print status of
      * @param string|null $format format to print status in (either text, json, or null)
-     *
      * @throws \RuntimeException
-     *
      * @return array array indicating if there are any missing or down migrations
      */
     public function printStatus($environment, $format = null)
@@ -106,10 +104,10 @@ class Manager
 
             switch ($this->getConfig()->getVersionOrder()) {
                 case Config::VERSION_ORDER_CREATION_TIME:
-                    $migrationIdAndStartedHeader = "<info>[Migration ID]</info>  Started            ";
+                    $migrationIdAndStartedHeader = '<info>[Migration ID]</info>  Started            ';
                     break;
                 case Config::VERSION_ORDER_EXECUTION_TIME:
-                    $migrationIdAndStartedHeader = "Migration ID    <info>[Started          ]</info>";
+                    $migrationIdAndStartedHeader = 'Migration ID    <info>[Started          ]</info>';
                     break;
                 default:
                     throw new RuntimeException('Invalid version_order configuration option');
@@ -252,7 +250,6 @@ class Manager
      *
      * @param array $version The missing version to print (in the format returned by Environment.getVersionLog).
      * @param int $maxNameLength The maximum migration name length.
-     *
      * @return void
      */
     protected function printMissingVersion($version, $maxNameLength)
@@ -277,7 +274,6 @@ class Manager
      * @param \DateTime $dateTime Date to migrate to
      * @param bool $fake flag that if true, we just record running the migration, but not actually do the
      *                               migration
-     *
      * @return void
      */
     public function migrateToDateTime($environment, DateTime $dateTime, $fake = false)
@@ -302,7 +298,6 @@ class Manager
      * @param string $environment Environment
      * @param int|null $version version to migrate to
      * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
-     *
      * @return void
      */
     public function migrate($environment, $version = null, $fake = false)
@@ -365,7 +360,6 @@ class Manager
      * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @param string $direction Direction
      * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
-     *
      * @return void
      */
     public function executeMigration($name, MigrationInterface $migration, $direction = MigrationInterface::UP, $fake = false)
@@ -484,7 +478,6 @@ class Manager
      * @param bool $force Force
      * @param bool $targetMustMatchVersion Target must match version
      * @param bool $fake Flag that if true, we just record running the migration, but not actually do the migration
-     *
      * @return void
      */
     public function rollback($environment, $target = null, $force = false, $targetMustMatchVersion = true, $fake = false)
@@ -595,9 +588,7 @@ class Manager
      *
      * @param string $environment Environment
      * @param string|null $seed Seeder
-     *
      * @throws \InvalidArgumentException
-     *
      * @return void
      */
     public function seed($environment, $seed = null)
@@ -625,7 +616,6 @@ class Manager
      * Sets the environments.
      *
      * @param \Phinx\Migration\Manager\Environment[] $environments Environments
-     *
      * @return $this
      */
     public function setEnvironments($environments = [])
@@ -639,9 +629,7 @@ class Manager
      * Gets the manager class for the given environment.
      *
      * @param string $name Environment Name
-     *
      * @throws \InvalidArgumentException
-     *
      * @return \Phinx\Migration\Manager\Environment
      */
     public function getEnvironment($name)
@@ -675,7 +663,6 @@ class Manager
      * Sets the user defined PSR-11 container
      *
      * @param \Psr\Container\ContainerInterface $container Container
-     *
      * @return void
      */
     public function setContainer(ContainerInterface $container)
@@ -687,7 +674,6 @@ class Manager
      * Sets the console input.
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     *
      * @return $this
      */
     public function setInput(InputInterface $input)
@@ -711,7 +697,6 @@ class Manager
      * Sets the console output.
      *
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     *
      * @return $this
      */
     public function setOutput(OutputInterface $output)
@@ -735,7 +720,6 @@ class Manager
      * Sets the database migrations.
      *
      * @param \Phinx\Migration\AbstractMigration[] $migrations Migrations
-     *
      * @return $this
      */
     public function setMigrations(array $migrations)
@@ -750,9 +734,7 @@ class Manager
      * order
      *
      * @param string $environment Environment
-     *
      * @throws \InvalidArgumentException
-     *
      * @return \Phinx\Migration\AbstractMigration[]
      */
     public function getMigrations($environment)
@@ -867,7 +849,6 @@ class Manager
      * Sets the database seeders.
      *
      * @param \Phinx\Seed\AbstractSeed[] $seeds Seeders
-     *
      * @return $this
      */
     public function setSeeds(array $seeds)
@@ -881,7 +862,6 @@ class Manager
      * Get seed dependencies instances from seed dependency array
      *
      * @param \Phinx\Seed\AbstractSeed $seed Seed
-     *
      * @return \Phinx\Seed\AbstractSeed[]
      */
     protected function getSeedDependenciesInstances(AbstractSeed $seed)
@@ -905,7 +885,6 @@ class Manager
      * Order seeds by dependencies
      *
      * @param \Phinx\Seed\AbstractSeed[] $seeds Seeds
-     *
      * @return \Phinx\Seed\AbstractSeed[]
      */
     protected function orderSeedsByDependencies(array $seeds)
@@ -929,7 +908,6 @@ class Manager
      * Gets an array of database seeders.
      *
      * @throws \InvalidArgumentException
-     *
      * @return \Phinx\Seed\AbstractSeed[]
      */
     public function getSeeds()
@@ -1013,7 +991,6 @@ class Manager
      * Sets the config.
      *
      * @param \Phinx\Config\ConfigInterface $config Configuration Object
-     *
      * @return $this
      */
     public function setConfig(ConfigInterface $config)
@@ -1038,7 +1015,6 @@ class Manager
      *
      * @param string $environment Environment name
      * @param int|null $version Version
-     *
      * @return void
      */
     public function toggleBreakpoint($environment, $version)
@@ -1052,7 +1028,6 @@ class Manager
      * @param string $environment The required environment
      * @param int|null $version The version of the target migration
      * @param int $mark The state of the breakpoint as defined by self::BREAKPOINT_xxxx constants.
-     *
      * @return void
      */
     protected function markBreakpoint($environment, $version, $mark)
@@ -1109,7 +1084,6 @@ class Manager
      * Remove all breakpoints
      *
      * @param string $environment The required environment
-     *
      * @return void
      */
     public function removeBreakpoints($environment)
@@ -1125,7 +1099,6 @@ class Manager
      *
      * @param string $environment The required environment
      * @param int|null $version The version of the target migration
-     *
      * @return void
      */
     public function setBreakpoint($environment, $version)
@@ -1138,7 +1111,6 @@ class Manager
      *
      * @param string $environment The required environment
      * @param int|null $version The version of the target migration
-     *
      * @return void
      */
     public function unsetBreakpoint($environment, $version)

@@ -13,19 +13,24 @@ use PHPUnit\Framework\TestCase;
 
 class TableTest extends TestCase
 {
+    public function provideAdapters()
+    {
+        return [[new SqlServerAdapter([])], [new MysqlAdapter([])], [new PostgresAdapter([])], [new SQLiteAdapter([])]];
+    }
+
     public function provideTimestampColumnNames()
     {
         $result = [];
-        $adapters = [new SqlServerAdapter([]), new MysqlAdapter([]), new PostgresAdapter([]), new SQLiteAdapter([])];
+        $adapters = $this->provideAdapters();
         foreach ($adapters as $adapter) {
             $result = array_merge(
                 $result,
                 [
-                    [$adapter, null, null, 'created_at', 'updated_at', false],
-                    [$adapter, 'created_at', 'updated_at', 'created_at', 'updated_at', true],
-                    [$adapter, 'created', 'updated', 'created', 'updated', false],
-                    [$adapter, null, 'amendment_date', 'created_at', 'amendment_date', true],
-                    [$adapter, 'insertion_date', null, 'insertion_date', 'updated_at', true],
+                    [$adapter[0], null, null, 'created_at', 'updated_at', false],
+                    [$adapter[0], 'created_at', 'updated_at', 'created_at', 'updated_at', true],
+                    [$adapter[0], 'created', 'updated', 'created', 'updated', false],
+                    [$adapter[0], null, 'amendment_date', 'created_at', 'amendment_date', true],
+                    [$adapter[0], 'insertion_date', null, 'insertion_date', 'updated_at', true],
                 ]
             );
         }
@@ -102,13 +107,12 @@ class TableTest extends TestCase
 
     /**
      * @dataProvider provideTimestampColumnNames
-     *
      * @param AdapterInterface $adapter
      * @param string|null      $createdAtColumnName
      * @param string|null      $updatedAtColumnName
      * @param string           $expectedCreatedAtColumnName
      * @param string           $expectedUpdatedAtColumnName
-     * @param boolean          $withTimezone
+     * @param bool $withTimezone
      */
     public function testAddTimestamps(AdapterInterface $adapter, $createdAtColumnName, $updatedAtColumnName, $expectedCreatedAtColumnName, $expectedUpdatedAtColumnName, $withTimezone)
     {
@@ -137,14 +141,76 @@ class TableTest extends TestCase
     }
 
     /**
+     * @dataProvider provideAdapters
+     * @param AdapterInterface $adapter
+     */
+    public function testAddTimestampsNoUpdated(AdapterInterface $adapter)
+    {
+        $table = new \Phinx\Db\Table('ntable', [], $adapter);
+        $table->addTimestamps(null, false);
+        $actions = $this->getPendingActions($table);
+
+        $columns = [];
+
+        foreach ($actions as $action) {
+            $columns[] = $action->getColumn();
+        }
+
+        $this->assertCount(1, $columns);
+
+        $this->assertSame('created_at', $columns[0]->getName());
+        $this->assertSame('timestamp', $columns[0]->getType());
+        $this->assertSame('CURRENT_TIMESTAMP', $columns[0]->getDefault());
+        $this->assertFalse($columns[0]->getTimezone());
+        $this->assertSame('', $columns[0]->getUpdate());
+    }
+
+    /**
+     * @dataProvider provideAdapters
+     * @param AdapterInterface $adapter
+     */
+    public function testAddTimestampsNoCreated(AdapterInterface $adapter)
+    {
+        $table = new \Phinx\Db\Table('ntable', [], $adapter);
+        $table->addTimestamps(false, null);
+        $actions = $this->getPendingActions($table);
+
+        $columns = [];
+
+        foreach ($actions as $action) {
+            $columns[] = $action->getColumn();
+        }
+
+        $this->assertCount(1, $columns);
+
+        $this->assertSame('updated_at', $columns[0]->getName());
+        $this->assertSame('timestamp', $columns[0]->getType());
+        $this->assertFalse($columns[0]->getTimezone());
+        $this->assertSame('CURRENT_TIMESTAMP', $columns[0]->getUpdate());
+        $this->assertTrue($columns[0]->isNull());
+        $this->assertNull($columns[0]->getDefault());
+    }
+
+    /**
+     * @dataProvider provideAdapters
+     * @param AdapterInterface $adapter
+     */
+    public function testAddTimestampsThrowsOnBothFalse(AdapterInterface $adapter)
+    {
+        $table = new \Phinx\Db\Table('ntable', [], $adapter);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Cannot set both created_at and updated_at columns to false');
+        $table->addTimestamps(false, false);
+    }
+
+    /**
      * @dataProvider provideTimestampColumnNames
-     *
      * @param AdapterInterface $adapter
      * @param string|null      $createdAtColumnName
      * @param string|null      $updatedAtColumnName
      * @param string           $expectedCreatedAtColumnName
      * @param string           $expectedUpdatedAtColumnName
-     * @param boolean          $withTimezone
+     * @param bool $withTimezone
      */
     public function testAddTimestampsWithTimezone(AdapterInterface $adapter, $createdAtColumnName, $updatedAtColumnName, $expectedCreatedAtColumnName, $expectedUpdatedAtColumnName, $withTimezone)
     {
@@ -294,8 +360,8 @@ class TableTest extends TestCase
             ->setConstructorArgs([[]])
             ->getMock();
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
-        $columns = ["column1"];
-        $data = [["value1"]];
+        $columns = ['column1'];
+        $data = [['value1']];
         $table->insert($columns, $data)->save();
         $this->assertEquals([], $table->getData());
     }
@@ -306,8 +372,8 @@ class TableTest extends TestCase
             ->setConstructorArgs([[]])
             ->getMock();
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
-        $columns = ["column1"];
-        $data = [["value1"]];
+        $columns = ['column1'];
+        $data = [['value1']];
         $table->insert($columns, $data);
         $this->assertTrue($table->hasPendingActions());
     }
@@ -321,7 +387,7 @@ class TableTest extends TestCase
             ->method('isValidColumnType')
             ->willReturn(true);
         $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
-        $table->addColumn("column1", "integer", ['null' => true]);
+        $table->addColumn('column1', 'integer', ['null' => true]);
         $this->assertTrue($table->hasPendingActions());
     }
 
@@ -347,7 +413,6 @@ class TableTest extends TestCase
 
     /**
      * @dataProvider removeIndexDataprovider
-     *
      * @param string $indexIdentifier
      * @param Index $index
      */

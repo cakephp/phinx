@@ -53,9 +53,7 @@ EOT
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     *
      * @throws \InvalidArgumentException
-     *
      * @return int 0 on success
      */
     protected function execute(InputInterface $input, OutputInterface $output)

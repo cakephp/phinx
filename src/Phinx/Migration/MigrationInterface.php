@@ -42,7 +42,6 @@ interface MigrationInterface
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
-     *
      * @return \Phinx\Migration\MigrationInterface
      */
     public function setAdapter(AdapterInterface $adapter);
@@ -58,7 +57,6 @@ interface MigrationInterface
      * Sets the input object to be used in migration object
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     *
      * @return \Phinx\Migration\MigrationInterface
      */
     public function setInput(InputInterface $input);
@@ -74,7 +72,6 @@ interface MigrationInterface
      * Sets the output object to be used in migration object
      *
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     *
      * @return \Phinx\Migration\MigrationInterface
      */
     public function setOutput(OutputInterface $output);
@@ -104,7 +101,6 @@ interface MigrationInterface
      * Sets the migration version number.
      *
      * @param int $version Version
-     *
      * @return \Phinx\Migration\MigrationInterface
      */
     public function setVersion($version);
@@ -120,7 +116,6 @@ interface MigrationInterface
      * Sets whether this migration is being applied or reverted
      *
      * @param bool $isMigratingUp True if the migration is being applied
-     *
      * @return \Phinx\Migration\MigrationInterface
      */
     public function setMigratingUp($isMigratingUp);
@@ -138,7 +133,6 @@ interface MigrationInterface
      *
      * @param string $sql SQL
      * @param array $params parameters to use for prepared query
-     *
      * @return int
      */
     public function execute($sql, array $params = []);
@@ -153,7 +147,6 @@ interface MigrationInterface
      *
      * @param string $sql SQL
      * @param array $params parameters to use for prepared query
-     *
      * @return mixed
      */
     public function query($sql, array $params = []);
@@ -166,7 +159,6 @@ interface MigrationInterface
      * the dry-run settings.
      *
      * @see https://api.cakephp.org/3.6/class-Cake.Database.Query.html
-     *
      * @return \Cake\Database\Query
      */
     public function getQueryBuilder();
@@ -175,7 +167,6 @@ interface MigrationInterface
      * Executes a query and returns only one row as an array.
      *
      * @param string $sql SQL
-     *
      * @return array|false
      */
     public function fetchRow($sql);
@@ -184,7 +175,6 @@ interface MigrationInterface
      * Executes a query and returns an array of rows.
      *
      * @param string $sql SQL
-     *
      * @return array
      */
     public function fetchAll($sql);
@@ -194,7 +184,6 @@ interface MigrationInterface
      *
      * @param string $name Database Name
      * @param array $options Options
-     *
      * @return void
      */
     public function createDatabase($name, $options);
@@ -203,7 +192,6 @@ interface MigrationInterface
      * Drop a database.
      *
      * @param string $name Database Name
-     *
      * @return void
      */
     public function dropDatabase($name);
@@ -234,7 +222,6 @@ interface MigrationInterface
      * Checks to see if a table exists.
      *
      * @param string $tableName Table name
-     *
      * @return bool
      */
     public function hasTable($tableName);
@@ -246,7 +233,6 @@ interface MigrationInterface
      *
      * @param string $tableName Table name
      * @param array $options Options
-     *
      * @return \Phinx\Db\Table
      */
     public function table($tableName, $options);

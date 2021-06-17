@@ -66,7 +66,7 @@ class SQLiteAdapterTest extends TestCase
 
         $this->assertTrue(
             $this->adapter->getConnection()->inTransaction(),
-            "Underlying PDO instance did not detect new transaction"
+            'Underlying PDO instance did not detect new transaction'
         );
     }
 
@@ -79,7 +79,7 @@ class SQLiteAdapterTest extends TestCase
 
         $this->assertFalse(
             $this->adapter->getConnection()->inTransaction(),
-            "Underlying PDO instance did not detect rolled back transaction"
+            'Underlying PDO instance did not detect rolled back transaction'
         );
     }
 
@@ -315,6 +315,33 @@ class SQLiteAdapterTest extends TestCase
         );
     }
 
+    public function testCreateTableWithoutAutoIncrementingPrimaryKeyAndWithForeignKey()
+    {
+        $refTable = (new \Phinx\Db\Table('tbl_master', ['id' => false, 'primary_key' => 'id'], $this->adapter))
+            ->addColumn('id', 'text');
+        $refTable->create();
+
+        $table = (new \Phinx\Db\Table('tbl_child', ['id' => false, 'primary_key' => 'master_id'], $this->adapter))
+            ->addColumn('master_id', 'text')
+            ->addForeignKey(
+                'master_id',
+                'tbl_master',
+                'id',
+                ['delete' => 'NO_ACTION', 'update' => 'NO_ACTION', 'constraint' => 'fk_master_id']
+            );
+        $table->create();
+
+        $this->assertTrue($this->adapter->hasForeignKey('tbl_child', ['master_id']));
+
+        $row = $this->adapter->fetchRow(
+            "SELECT * FROM sqlite_master WHERE `type` = 'table' AND `tbl_name` = 'tbl_child'"
+        );
+        $this->assertStringContainsString(
+            'CONSTRAINT `fk_master_id` FOREIGN KEY (`master_id`) REFERENCES `tbl_master` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION',
+            $row['sql']
+        );
+    }
+
     public function testAddPrimaryKey()
     {
         $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
@@ -448,7 +475,7 @@ class SQLiteAdapterTest extends TestCase
             ->save();
         $rows = $this->adapter->fetchAll(sprintf('pragma table_info(%s)', 'table1'));
         $this->assertNotNull($rows[1]['dflt_value']);
-        $this->assertEquals("0", $rows[1]['dflt_value']);
+        $this->assertEquals('0', $rows[1]['dflt_value']);
     }
 
     public function testAddColumnWithDefaultEmptyString()
@@ -556,7 +583,7 @@ class SQLiteAdapterTest extends TestCase
             ->setType('integer');
         $table->changeColumn('column1', $newColumn1)->save();
         $rows = $this->adapter->fetchAll('pragma table_info(t)');
-        $this->assertEquals("0", $rows[1]['dflt_value']);
+        $this->assertEquals('0', $rows[1]['dflt_value']);
     }
 
     public function testChangeColumnDefaultToNull()
@@ -947,14 +974,14 @@ class SQLiteAdapterTest extends TestCase
 
         // construct table with default/null combinations
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
-        $table->addColumn("aa", "string", ["null" => true]) // no default value
-        ->addColumn("bb", "string", ["null" => false]) // no default value
-        ->addColumn("cc", "string", ["null" => true, "default" => "some1"])
-            ->addColumn("dd", "string", ["null" => false, "default" => "some2"])
+        $table->addColumn('aa', 'string', ['null' => true]) // no default value
+        ->addColumn('bb', 'string', ['null' => false]) // no default value
+        ->addColumn('cc', 'string', ['null' => true, 'default' => 'some1'])
+            ->addColumn('dd', 'string', ['null' => false, 'default' => 'some2'])
             ->save();
 
         // load table info
-        $columns = $this->adapter->getColumns("table1");
+        $columns = $this->adapter->getColumns('table1');
 
         $this->assertCount(5, $columns);
 
@@ -1120,7 +1147,6 @@ OUTPUT;
 
     /**
      * Tests interaction with the query builder
-     *
      */
     public function testQueryBuilder()
     {
@@ -1876,13 +1902,13 @@ INPUT;
     public function provideDatabaseVersionStrings()
     {
         return [
-            ["2", true],
-            ["3", true],
-            ["4", false],
-            ["3.0", true],
-            ["3.0.0.0.0.0", true],
-            ["3.0.0.0.0.99999", true],
-            ["3.9999", false],
+            ['2', true],
+            ['3', true],
+            ['4', false],
+            ['3.0', true],
+            ['3.0.0.0.0.0', true],
+            ['3.0.0.0.0.99999', true],
+            ['3.9999', false],
         ];
     }
 
@@ -2003,19 +2029,19 @@ INPUT;
             'Explicit null UC' => ['create table t(a integer default NULL)', null],
             'Explicit null MC' => ['create table t(a integer default nuLL)', null],
             'Extra parentheses' => ['create table t(a integer default ( ( null ) ))', null],
-            'Comment 1' => ["create table t(a integer default ( /* this is perfectly fine */ null ))", null],
+            'Comment 1' => ['create table t(a integer default ( /* this is perfectly fine */ null ))', null],
             'Comment 2' => ["create table t(a integer default ( /* this\nis\nperfectly\nfine */ null ))", null],
             'Line comment 1' => ["create table t(a integer default ( -- this is perfectly fine, too\n null ))", null],
             'Line comment 2' => ["create table t(a integer default ( -- this is perfectly fine, too\r\n null ))", null],
-            'Current date LC' => ['create table t(a date default current_date)', "CURRENT_DATE"],
-            'Current date UC' => ['create table t(a date default CURRENT_DATE)', "CURRENT_DATE"],
-            'Current date MC' => ['create table t(a date default CURRENT_date)', "CURRENT_DATE"],
-            'Current time LC' => ['create table t(a time default current_time)', "CURRENT_TIME"],
-            'Current time UC' => ['create table t(a time default CURRENT_TIME)', "CURRENT_TIME"],
-            'Current time MC' => ['create table t(a time default CURRENT_time)', "CURRENT_TIME"],
-            'Current timestamp LC' => ['create table t(a datetime default current_timestamp)', "CURRENT_TIMESTAMP"],
-            'Current timestamp UC' => ['create table t(a datetime default CURRENT_TIMESTAMP)', "CURRENT_TIMESTAMP"],
-            'Current timestamp MC' => ['create table t(a datetime default CURRENT_timestamp)', "CURRENT_TIMESTAMP"],
+            'Current date LC' => ['create table t(a date default current_date)', 'CURRENT_DATE'],
+            'Current date UC' => ['create table t(a date default CURRENT_DATE)', 'CURRENT_DATE'],
+            'Current date MC' => ['create table t(a date default CURRENT_date)', 'CURRENT_DATE'],
+            'Current time LC' => ['create table t(a time default current_time)', 'CURRENT_TIME'],
+            'Current time UC' => ['create table t(a time default CURRENT_TIME)', 'CURRENT_TIME'],
+            'Current time MC' => ['create table t(a time default CURRENT_time)', 'CURRENT_TIME'],
+            'Current timestamp LC' => ['create table t(a datetime default current_timestamp)', 'CURRENT_TIMESTAMP'],
+            'Current timestamp UC' => ['create table t(a datetime default CURRENT_TIMESTAMP)', 'CURRENT_TIMESTAMP'],
+            'Current timestamp MC' => ['create table t(a datetime default CURRENT_timestamp)', 'CURRENT_TIMESTAMP'],
             'String 1' => ['create table t(a text default \'\')', Literal::from('')],
             'String 2' => ['create table t(a text default \'value!\')', Literal::from('value!')],
             'String 3' => ['create table t(a text default \'O\'\'Brien\')', Literal::from('O\'Brien')],

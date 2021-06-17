@@ -38,7 +38,6 @@ class AddIndex extends Action
      * @param \Phinx\Db\Table\Table $table The table to add the index to
      * @param mixed $columns The columns to index
      * @param array $options Additional options for the index creation
-     *
      * @return \Phinx\Db\Action\AddIndex
      */
     public static function build(Table $table, $columns, array $options = [])
