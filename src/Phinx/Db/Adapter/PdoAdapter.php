@@ -191,6 +191,10 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             return 0;
         }
 
+        if (empty($params)) {
+            return $this->getConnection()->exec($sql);
+        }
+
         $stmt = $this->getConnection()->prepare($sql);
         $result = $stmt->execute($params);
 
@@ -222,6 +226,9 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     public function query($sql, array $params = [])
     {
+        if (empty($params)) {
+            return $this->getConnection()->query($sql);
+        }
         $stmt = $this->getConnection()->prepare($sql);
         $result = $stmt->execute($params);
 
