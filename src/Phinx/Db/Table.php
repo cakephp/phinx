@@ -529,8 +529,8 @@ class Table
      */
     public function addTimestamps($createdAt = 'created_at', $updatedAt = 'updated_at', $withTimezone = false)
     {
-        $createdAt = $createdAt === null ? 'created_at' : $createdAt;
-        $updatedAt = $updatedAt === null ? 'updated_at' : $updatedAt;
+        $createdAt = $createdAt ?? 'created_at';
+        $updatedAt = $updatedAt ?? 'updated_at';
 
         if (!$createdAt && !$updatedAt) {
             throw new \RuntimeException('Cannot set both created_at and updated_at columns to false');

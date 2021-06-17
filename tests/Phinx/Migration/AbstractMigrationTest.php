@@ -2,7 +2,6 @@
 
 namespace Test\Phinx\Migration;
 
-use Phinx\Db\Table;
 use PHPUnit\Framework\TestCase;
 
 class AbstractMigrationTest extends TestCase

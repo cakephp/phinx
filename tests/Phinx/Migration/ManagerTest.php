@@ -6074,7 +6074,7 @@ class ManagerTest extends TestCase
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
-        $this->assertEquals("warning 20120133235330 is not a valid version", trim($outputStr));
+        $this->assertEquals('warning 20120133235330 is not a valid version', trim($outputStr));
     }
 
     public function testMigrationWillNotBeExecuted()
