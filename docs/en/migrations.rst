@@ -198,7 +198,7 @@ and if used will cause the underlying connection to use a prepared statement.
 
                 // using prepared queries
                 $count = $this->execute('DELETE FROM users WHERE id = ?', [5]);
-                $stmt = $this->query('SELECT * FROM users WHERE id > 5'); // returns PDOStatement
+                $stmt = $this->query('SELECT * FROM users WHERE id > ?', [5]); // returns PDOStatement
                 $rows = $stmt->fetchAll();
             }
 
