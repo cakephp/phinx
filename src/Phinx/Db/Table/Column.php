@@ -64,7 +64,7 @@ class Column
     protected $type;
 
     /**
-     * @var int|null
+     * @var float|null
      */
     protected $limit = null;
 
@@ -197,10 +197,10 @@ class Column
     /**
      * Sets the column limit.
      *
-     * @param int|null $limit Limit
+     * @param float|null $limit Limit
      * @return $this
      */
-    public function setLimit(?int $limit)
+    public function setLimit(?float $limit)
     {
         $this->limit = $limit;
 
@@ -210,9 +210,9 @@ class Column
     /**
      * Gets the column limit.
      *
-     * @return int|null
+     * @return float|null
      */
-    public function getLimit(): ?int
+    public function getLimit(): ?float
     {
         return $this->limit;
     }
@@ -358,10 +358,10 @@ class Column
      * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
      * and the column could store value from -999.99 to 999.99.
      *
-     * @param int|null $precision Number precision
+     * @param float|null $precision Number precision
      * @return $this
      */
-    public function setPrecision(?int $precision)
+    public function setPrecision(?float $precision)
     {
         $this->setLimit($precision);
 
@@ -374,9 +374,9 @@ class Column
      * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
      * and the column could store value from -999.99 to 999.99.
      *
-     * @return int
+     * @return float
      */
-    public function getPrecision(): ?int
+    public function getPrecision(): ?float
     {
         return $this->limit;
     }
