@@ -76,7 +76,7 @@ class Column
     /**
      * @var mixed|null
      */
-    protected $default;
+    protected $default = null;
 
     /**
      * @var bool
@@ -84,29 +84,29 @@ class Column
     protected $identity = false;
 
     /**
-     * @var int
+     * @var int|null
      */
-    protected $seed;
+    protected $seed = null;
 
     /**
-     * @var int
+     * @var int|null
      */
-    protected $increment;
+    protected $increment = null;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $scale = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $after;
+    protected $after = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $update;
+    protected $update = null;
 
     /**
      * @var string|null
@@ -129,19 +129,19 @@ class Column
     protected $properties = [];
 
     /**
-     * @var string|string
+     * @var string|null
      */
-    protected $collation;
+    protected $collation = null;
 
     /**
-     * @var string|string
+     * @var string|null
      */
     protected $encoding = null;
 
     /**
      * @var int|null
      */
-    protected $srid;
+    protected $srid = null;
 
     /**
      * @var array|null
@@ -197,10 +197,10 @@ class Column
     /**
      * Sets the column limit.
      *
-     * @param int|null $limit Limit
+     * @param int $limit Limit
      * @return $this
      */
-    public function setLimit(?int $limit)
+    public function setLimit(int $limit)
     {
         $this->limit = $limit;
 
@@ -210,7 +210,7 @@ class Column
     /**
      * Gets the column limit.
      *
-     * @return int
+     * @return int|null
      */
     public function getLimit(): ?int
     {
@@ -266,7 +266,7 @@ class Column
     /**
      * Gets the default column value.
      *
-     * @return mixed
+     * @return mixed|null
      */
     public function getDefault()
     {
@@ -322,9 +322,9 @@ class Column
     /**
      * Returns the name of the column to add this column after.
      *
-     * @return string
+     * @return string|null
      */
-    public function getAfter(): string
+    public function getAfter(): ?string
     {
         return $this->after;
     }
@@ -345,9 +345,9 @@ class Column
     /**
      * Returns the value of the ON UPDATE column function.
      *
-     * @return string
+     * @return string|null
      */
-    public function getUpdate(): string
+    public function getUpdate(): ?string
     {
         return $this->update;
     }
@@ -358,10 +358,10 @@ class Column
      * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
      * and the column could store value from -999.99 to 999.99.
      *
-     * @param int|null $precision Number precision
+     * @param int $precision Number precision
      * @return $this
      */
-    public function setPrecision(?int $precision)
+    public function setPrecision(int $precision)
     {
         $this->setLimit($precision);
 
@@ -382,21 +382,24 @@ class Column
     }
 
     /**
-     * Gets the column identity seed.
+     * Sets the column identity increment.
      *
-     * @return int
+     * @param int $increment Number increment
+     * @return $this
      */
-    public function getSeed(): int
+    public function setIncrement(int $increment)
     {
-        return $this->seed;
+        $this->increment = $increment;
+
+        return $this;
     }
 
     /**
      * Gets the column identity increment.
      *
-     * @return int
+     * @return int|null
      */
-    public function getIncrement(): int
+    public function getIncrement(): ?int
     {
         return $this->increment;
     }
@@ -415,16 +418,13 @@ class Column
     }
 
     /**
-     * Sets the column identity increment.
+     * Gets the column identity seed.
      *
-     * @param int $increment Number increment
-     * @return $this
+     * @return int
      */
-    public function setIncrement(int $increment)
+    public function getSeed(): ?int
     {
-        $this->increment = $increment;
-
-        return $this;
+        return $this->seed;
     }
 
     /**
@@ -436,7 +436,7 @@ class Column
      * @param int|null $scale Number scale
      * @return $this
      */
-    public function setScale(?int $scale)
+    public function setScale(int $scale)
     {
         $this->scale = $scale;
 
