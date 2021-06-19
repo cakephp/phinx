@@ -74,7 +74,7 @@ class Column
     protected $null = true;
 
     /**
-     * @var mixed|null
+     * @var mixed
      */
     protected $default = null;
 
@@ -266,7 +266,7 @@ class Column
     /**
      * Gets the default column value.
      *
-     * @return mixed|null
+     * @return mixed
      */
     public function getDefault()
     {

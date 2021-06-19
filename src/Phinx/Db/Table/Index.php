@@ -39,22 +39,22 @@ class Index
     /**
      * @var string|null
      */
-    protected $name;
+    protected $name = null;
 
     /**
      * @var int|array|null
      */
-    protected $limit;
+    protected $limit = null;
 
     /**
-     * @var string[]
+     * @var string[]|null
      */
-    protected $order;
+    protected $order = null;
 
     /**
-     * @var string[]
+     * @var string[]|null
      */
-    protected $includedColumns;
+    protected $includedColumns = null;
 
     /**
      * Sets the index columns.
@@ -141,7 +141,7 @@ class Index
     /**
      * Gets the index limit.
      *
-     * @return int|array
+     * @return int|array|null
      */
     public function getLimit()
     {
@@ -164,9 +164,9 @@ class Index
     /**
      * Gets the index columns sort order.
      *
-     * @return string[]
+     * @return string[]|null
      */
-    public function getOrder(): array
+    public function getOrder(): ?array
     {
         return $this->order;
     }
@@ -187,9 +187,9 @@ class Index
     /**
      * Gets the index included columns.
      *
-     * @return string[]
+     * @return string[]|null
      */
-    public function getInclude(): array
+    public function getInclude(): ?array
     {
         return $this->includedColumns;
     }
