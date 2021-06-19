@@ -50,8 +50,8 @@ class ChangeColumn extends Action
      * out of the provided arguments
      *
      * @param \Phinx\Db\Table\Table $table The table to alter
-     * @param mixed $columnName The name of the column to change
-     * @param mixed $type The type of the column
+     * @param string $columnName The name of the column to change
+     * @param string|\Phinx\Db\Table\Column|\Phinx\Util\Literal $type The type of the column
      * @param array $options Additional options for the column
      * @return self
      */

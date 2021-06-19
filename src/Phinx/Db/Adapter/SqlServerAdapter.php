@@ -354,7 +354,7 @@ class SqlServerAdapter extends PdoAdapter
         $currentComment = $this->getColumnComment($tableName, $column->getName());
 
         $comment = strcasecmp($column->getComment(), 'NULL') !== 0 ? $this->getConnection()->quote($column->getComment()) : '\'\'';
-        $command = $currentComment === false ? 'sp_addextendedproperty' : 'sp_updateextendedproperty';
+        $command = $currentComment === null ? 'sp_addextendedproperty' : 'sp_updateextendedproperty';
 
         return sprintf(
             "EXECUTE %s N'MS_Description', N%s, N'SCHEMA', N'%s', N'TABLE', N'%s', N'COLUMN', N'%s';",
@@ -1042,7 +1042,7 @@ ORDER BY T.[name], I.[index_id];";
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
-    public function getSqlType(string $type, ?int $limit = null): array
+    public function getSqlType($type, ?int $limit = null): array
     {
         switch ($type) {
             case static::PHINX_TYPE_FLOAT:

@@ -472,7 +472,9 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     public function setBreakpoint(MigrationInterface $migration): AdapterInterface
     {
-        return $this->markBreakpoint($migration, true);
+        $this->markBreakpoint($migration, true);
+
+        return $this;
     }
 
     /**
@@ -480,7 +482,9 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     public function unsetBreakpoint(MigrationInterface $migration): AdapterInterface
     {
-        return $this->markBreakpoint($migration, false);
+        $this->markBreakpoint($migration, false);
+
+        return $this;
     }
 
     /**

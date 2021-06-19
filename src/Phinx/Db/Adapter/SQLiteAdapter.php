@@ -518,7 +518,7 @@ class SQLiteAdapter extends PdoAdapter
      * a string value, a string representing an expression, or some other scalar
      *
      * @param mixed $default The default-value expression to interpret
-     * @param string $t The Phinx type of the column
+     * @param string $columnType The Phinx type of the column
      * @return mixed
      */
     protected function parseDefaultValue($default, string $columnType)
@@ -1394,8 +1394,6 @@ PCRE_PATTERN;
     /**
      * {@inheritDoc}
      *
-     * @param string|\Phinx\Db\Literal $type Type
-     * @param int|null $limit Limit
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
     public function getSqlType($type, ?int $limit = null): array

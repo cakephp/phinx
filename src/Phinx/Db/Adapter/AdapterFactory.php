@@ -40,7 +40,7 @@ class AdapterFactory
     /**
      * Class map of database adapters, indexed by PDO::ATTR_DRIVER_NAME.
      *
-     * @var string[]
+     * @var (object|string)[]
      */
     protected $adapters = [
         'mysql' => 'Phinx\Db\Adapter\MysqlAdapter',
@@ -52,7 +52,7 @@ class AdapterFactory
     /**
      * Class map of adapters wrappers, indexed by name.
      *
-     * @var string[]
+     * @var (string|object)[]
      */
     protected $wrappers = [
         'prefix' => 'Phinx\Db\Adapter\TablePrefixAdapter',
@@ -64,7 +64,7 @@ class AdapterFactory
      * Add or replace an adapter with a fully qualified class name.
      *
      * @param string $name Name
-     * @param object $class Class
+     * @param string|object $class Class
      * @throws \RuntimeException
      * @return $this
      */
@@ -73,7 +73,7 @@ class AdapterFactory
         if (!is_subclass_of($class, 'Phinx\Db\Adapter\AdapterInterface')) {
             throw new RuntimeException(sprintf(
                 'Adapter class "%s" must implement Phinx\\Db\\Adapter\\AdapterInterface',
-                $class
+                is_string($class) ? $class : get_class($class)
             ));
         }
         $this->adapters[$name] = $class;
@@ -118,16 +118,16 @@ class AdapterFactory
      * Add or replace a wrapper with a fully qualified class name.
      *
      * @param string $name Name
-     * @param string $class Class
+     * @param string|object $class Class
      * @throws \RuntimeException
      * @return $this
      */
-    public function registerWrapper(string $name, string $class)
+    public function registerWrapper(string $name, $class)
     {
         if (!is_subclass_of($class, 'Phinx\Db\Adapter\WrapperInterface')) {
             throw new RuntimeException(sprintf(
                 'Wrapper class "%s" must be implement Phinx\\Db\\Adapter\\WrapperInterface',
-                $class
+                is_string($class) ? $class : get_class($class)
             ));
         }
         $this->wrappers[$name] = $class;
@@ -140,9 +140,9 @@ class AdapterFactory
      *
      * @param string $name Name
      * @throws \RuntimeException
-     * @return string
+     * @return string|object
      */
-    protected function getWrapperClass(string $name): string
+    protected function getWrapperClass(string $name)
     {
         if (empty($this->wrappers[$name])) {
             throw new RuntimeException(sprintf(
