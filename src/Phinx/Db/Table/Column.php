@@ -129,14 +129,14 @@ class Column
     protected $properties = [];
 
     /**
-     * @var string
+     * @var string|string
      */
     protected $collation;
 
     /**
-     * @var string
+     * @var string|string
      */
-    protected $encoding;
+    protected $encoding = null;
 
     /**
      * @var int|null
@@ -629,9 +629,9 @@ class Column
     /**
      * Gets the column collation.
      *
-     * @return string
+     * @return string|null
      */
-    public function getCollation(): string
+    public function getCollation(): ?string
     {
         return $this->collation;
     }
@@ -652,9 +652,9 @@ class Column
     /**
      * Gets the column character set.
      *
-     * @return string
+     * @return string|null
      */
-    public function getEncoding(): string
+    public function getEncoding(): ?string
     {
         return $this->encoding;
     }
