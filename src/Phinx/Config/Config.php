@@ -41,7 +41,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     protected $values = [];
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $configFilePath;
 
@@ -258,7 +258,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * @inheritDoc
      */
-    public function getConfigFilePath(): string
+    public function getConfigFilePath(): ?string
     {
         return $this->configFilePath;
     }

@@ -73,7 +73,7 @@ interface ConfigInterface extends ArrayAccess
      *
      * @return string
      */
-    public function getConfigFilePath(): string;
+    public function getConfigFilePath(): ?string;
 
     /**
      * Gets the paths to search for migration files.
