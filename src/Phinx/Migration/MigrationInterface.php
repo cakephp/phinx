@@ -49,9 +49,9 @@ interface MigrationInterface
     /**
      * Gets the database adapter.
      *
-     * @return \Phinx\Db\Adapter\AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface|null
      */
-    public function getAdapter(): AdapterInterface;
+    public function getAdapter(): ?AdapterInterface;
 
     /**
      * Sets the input object to be used in migration object
@@ -64,9 +64,9 @@ interface MigrationInterface
     /**
      * Gets the input object to be used in migration object
      *
-     * @return \Symfony\Component\Console\Input\InputInterface
+     * @return \Symfony\Component\Console\Input\InputInterface|null
      */
-    public function getInput(): InputInterface;
+    public function getInput(): ?InputInterface;
 
     /**
      * Sets the output object to be used in migration object
@@ -79,9 +79,9 @@ interface MigrationInterface
     /**
      * Gets the output object to be used in migration object
      *
-     * @return \Symfony\Component\Console\Output\OutputInterface
+     * @return \Symfony\Component\Console\Output\OutputInterface|null
      */
-    public function getOutput(): OutputInterface;
+    public function getOutput(): ?OutputInterface;
 
     /**
      * Gets the name.

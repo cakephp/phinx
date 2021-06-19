@@ -29,14 +29,14 @@ class Environment
     protected $options;
 
     /**
-     * @var \Symfony\Component\Console\Input\InputInterface
+     * @var \Symfony\Component\Console\Input\InputInterface|null
      */
-    protected $input;
+    protected $input = null;
 
     /**
-     * @var \Symfony\Component\Console\Output\OutputInterface
+     * @var \Symfony\Component\Console\Output\OutputInterface|null
      */
-    protected $output;
+    protected $output = null;
 
     /**
      * @var int
@@ -214,9 +214,9 @@ class Environment
     /**
      * Gets the console input.
      *
-     * @return \Symfony\Component\Console\Input\InputInterface
+     * @return \Symfony\Component\Console\Input\InputInterface|null
      */
-    public function getInput(): InputInterface
+    public function getInput(): ?InputInterface
     {
         return $this->input;
     }
@@ -237,9 +237,9 @@ class Environment
     /**
      * Gets the console output.
      *
-     * @return \Symfony\Component\Console\Output\OutputInterface
+     * @return \Symfony\Component\Console\Output\OutputInterface|null
      */
-    public function getOutput(): OutputInterface
+    public function getOutput(): ?OutputInterface
     {
         return $this->output;
     }

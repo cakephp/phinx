@@ -27,9 +27,9 @@ abstract class AbstractAdapter implements AdapterInterface
     protected $options = [];
 
     /**
-     * @var \Symfony\Component\Console\Input\InputInterface
+     * @var \Symfony\Component\Console\Input\InputInterface|null
      */
-    protected $input;
+    protected $input = null;
 
     /**
      * @var \Symfony\Component\Console\Output\OutputInterface
@@ -135,7 +135,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritDoc
      */
-    public function getInput(): InputInterface
+    public function getInput(): ?InputInterface
     {
         return $this->input;
     }

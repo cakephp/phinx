@@ -124,9 +124,9 @@ interface AdapterInterface
     /**
      * Gets the console input.
      *
-     * @return \Symfony\Component\Console\Input\InputInterface
+     * @return \Symfony\Component\Console\Input\InputInterface|null
      */
-    public function getInput(): InputInterface;
+    public function getInput(): ?InputInterface;
 
     /**
      * Sets the console output.

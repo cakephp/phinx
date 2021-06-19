@@ -51,12 +51,12 @@ class Manager
     /**
      * @var \Phinx\Migration\MigrationInterface[]
      */
-    protected $migrations = [];
+    protected $migrations;
 
     /**
      * @var \Phinx\Seed\SeedInterface[]
      */
-    protected $seeds = [];
+    protected $seeds;
 
     /**
      * @var \Psr\Container\ContainerInterface
@@ -1035,7 +1035,6 @@ class Manager
     protected function markBreakpoint(string $environment, ?int $version, int $mark): void
     {
         $migrations = $this->getMigrations($environment);
-        $this->getMigrations($environment);
         $env = $this->getEnvironment($environment);
         $versions = $env->getVersionLog();
 

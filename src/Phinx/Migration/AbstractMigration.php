@@ -36,19 +36,19 @@ abstract class AbstractMigration implements MigrationInterface
     protected $version;
 
     /**
-     * @var \Phinx\Db\Adapter\AdapterInterface
+     * @var \Phinx\Db\Adapter\AdapterInterface|null
      */
-    protected $adapter;
+    protected $adapter = null;
 
     /**
-     * @var \Symfony\Component\Console\Output\OutputInterface
+     * @var \Symfony\Component\Console\Output\OutputInterface|null
      */
-    protected $output;
+    protected $output = null;
 
     /**
-     * @var \Symfony\Component\Console\Input\InputInterface
+     * @var \Symfony\Component\Console\Input\InputInterface|null
      */
-    protected $input;
+    protected $input = null;
 
     /**
      * Whether this migration is being applied or reverted
@@ -97,7 +97,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
-    public function getAdapter(): AdapterInterface
+    public function getAdapter(): ?AdapterInterface
     {
         return $this->adapter;
     }
@@ -115,7 +115,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
-    public function getInput(): InputInterface
+    public function getInput(): ?InputInterface
     {
         return $this->input;
     }
@@ -133,7 +133,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
-    public function getOutput(): OutputInterface
+    public function getOutput(): ?OutputInterface
     {
         return $this->output;
     }

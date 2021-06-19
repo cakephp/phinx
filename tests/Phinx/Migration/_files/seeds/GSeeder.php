@@ -4,7 +4,7 @@ use Phinx\Seed\AbstractSeed;
 
 class GSeeder extends AbstractSeed
 {
-    public function run()
+    public function run(): void
     {
         $data = [
             [

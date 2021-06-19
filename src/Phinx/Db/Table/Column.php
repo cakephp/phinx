@@ -64,9 +64,9 @@ class Column
     protected $type;
 
     /**
-     * @var int
+     * @var int|null
      */
-    protected $limit;
+    protected $limit = null;
 
     /**
      * @var bool
@@ -96,7 +96,7 @@ class Column
     /**
      * @var int
      */
-    protected $scale;
+    protected $scale = null;
 
     /**
      * @var string
@@ -109,9 +109,9 @@ class Column
     protected $update;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $comment;
+    protected $comment = null;
 
     /**
      * @var bool
@@ -197,10 +197,10 @@ class Column
     /**
      * Sets the column limit.
      *
-     * @param int $limit Limit
+     * @param int|null $limit Limit
      * @return $this
      */
-    public function setLimit(int $limit)
+    public function setLimit(?int $limit)
     {
         $this->limit = $limit;
 
@@ -212,7 +212,7 @@ class Column
      *
      * @return int
      */
-    public function getLimit(): int
+    public function getLimit(): ?int
     {
         return $this->limit;
     }
@@ -358,10 +358,10 @@ class Column
      * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
      * and the column could store value from -999.99 to 999.99.
      *
-     * @param int $precision Number precision
+     * @param int|null $precision Number precision
      * @return $this
      */
-    public function setPrecision(int $precision)
+    public function setPrecision(?int $precision)
     {
         $this->setLimit($precision);
 
@@ -376,7 +376,7 @@ class Column
      *
      * @return int
      */
-    public function getPrecision(): int
+    public function getPrecision(): ?int
     {
         return $this->limit;
     }
@@ -433,10 +433,10 @@ class Column
      * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
      * and the column could store value from -999.99 to 999.99.
      *
-     * @param int $scale Number scale
+     * @param int|null $scale Number scale
      * @return $this
      */
-    public function setScale(int $scale)
+    public function setScale(?int $scale)
     {
         $this->scale = $scale;
 
@@ -451,7 +451,7 @@ class Column
      *
      * @return int
      */
-    public function getScale(): int
+    public function getScale(): ?int
     {
         return $this->scale;
     }
@@ -477,10 +477,10 @@ class Column
     /**
      * Sets the column comment.
      *
-     * @param string $comment Comment
+     * @param string|null $comment Comment
      * @return $this
      */
-    public function setComment(string $comment)
+    public function setComment(?string $comment)
     {
         $this->comment = $comment;
 
@@ -492,7 +492,7 @@ class Column
      *
      * @return string
      */
-    public function getComment(): string
+    public function getComment(): ?string
     {
         return $this->comment;
     }

@@ -64,11 +64,11 @@ class AdapterFactory
      * Add or replace an adapter with a fully qualified class name.
      *
      * @param string $name Name
-     * @param string $class Class
+     * @param object $class Class
      * @throws \RuntimeException
      * @return $this
      */
-    public function registerAdapter(string $name, string $class)
+    public function registerAdapter(string $name, $class)
     {
         if (!is_subclass_of($class, 'Phinx\Db\Adapter\AdapterInterface')) {
             throw new RuntimeException(sprintf(
@@ -86,9 +86,9 @@ class AdapterFactory
      *
      * @param string $name Name
      * @throws \RuntimeException
-     * @return string
+     * @return object
      */
-    protected function getClass(string $name): string
+    protected function getClass(string $name)
     {
         if (empty($this->adapters[$name])) {
             throw new RuntimeException(sprintf(

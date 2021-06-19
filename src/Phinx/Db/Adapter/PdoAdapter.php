@@ -166,16 +166,12 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * @inheritDoc
      */
-    public function connect(): void
-    {
-    }
+    abstract public function connect(): void;
 
     /**
      * @inheritDoc
      */
-    public function disconnect(): void
-    {
-    }
+    abstract public function disconnect(): void;
 
     /**
      * @inheritDoc

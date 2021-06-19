@@ -33,19 +33,19 @@ class ForeignKey
     protected $referencedColumns = [];
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $onDelete;
-
-    /**
-     * @var string
-     */
-    protected $onUpdate;
+    protected $onDelete = null;
 
     /**
      * @var string|null
      */
-    protected $constraint;
+    protected $onUpdate = null;
+
+    /**
+     * @var string|null
+     */
+    protected $constraint = null;
 
     /**
      * Sets the foreign key columns.
@@ -132,9 +132,9 @@ class ForeignKey
     /**
      * Gets ON DELETE action for the foreign key.
      *
-     * @return string
+     * @return string|null
      */
-    public function getOnDelete(): string
+    public function getOnDelete(): ?string
     {
         return $this->onDelete;
     }
@@ -142,9 +142,9 @@ class ForeignKey
     /**
      * Gets ON UPDATE action for the foreign key.
      *
-     * @return string
+     * @return string|null
      */
-    public function getOnUpdate(): string
+    public function getOnUpdate(): ?string
     {
         return $this->onUpdate;
     }

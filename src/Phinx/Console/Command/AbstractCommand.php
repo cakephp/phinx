@@ -44,7 +44,7 @@ abstract class AbstractCommand extends Command
     protected const DEFAULT_SEED_TEMPLATE = '/../../Seed/Seed.template.php.dist';
 
     /**
-     * @var \Phinx\Config\ConfigInterface
+     * @var \Phinx\Config\ConfigInterface|null
      */
     protected $config;
 
@@ -107,7 +107,6 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(InputInterface $input, OutputInterface $output): void
     {
-        /** @var \Phinx\Config\ConfigInterface|null $config */
         $config = $this->getConfig();
         if (!$config) {
             $this->loadConfig($input, $output);
@@ -159,9 +158,9 @@ abstract class AbstractCommand extends Command
     /**
      * Gets the config.
      *
-     * @return \Phinx\Config\ConfigInterface
+     * @return \Phinx\Config\ConfigInterface|null
      */
-    public function getConfig(): ConfigInterface
+    public function getConfig(): ?ConfigInterface
     {
         return $this->config;
     }

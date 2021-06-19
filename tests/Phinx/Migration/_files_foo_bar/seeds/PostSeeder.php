@@ -6,7 +6,7 @@ use Phinx\Seed\AbstractSeed;
 
 class PostSeeder extends AbstractSeed
 {
-    public function run()
+    public function run(): void
     {
         $data = [
             [
