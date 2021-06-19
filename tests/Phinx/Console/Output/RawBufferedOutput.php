@@ -13,7 +13,7 @@ class RawBufferedOutput extends \Symfony\Component\Console\Output\BufferedOutput
      * @param int $options
      * @return void
      */
-    public function writeln($messages, $options = self::OUTPUT_RAW)
+    public function writeln($messages, int $options = self::OUTPUT_RAW): void
     {
         $this->write($messages, true, $options);
     }
