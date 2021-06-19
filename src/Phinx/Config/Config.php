@@ -60,9 +60,9 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      *
      * @param string $configFilePath Path to the Yaml File
      * @throws \RuntimeException
-     * @return self
+     * @return \Phinx\Config\ConfigInterface
      */
-    public static function fromYaml(string $configFilePath): self
+    public static function fromYaml(string $configFilePath): ConfigInterface
     {
         if (!class_exists('Symfony\\Component\\Yaml\\Yaml', true)) {
             // @codeCoverageIgnoreStart
@@ -88,9 +88,9 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      *
      * @param string $configFilePath Path to the JSON File
      * @throws \RuntimeException
-     * @return self
+     * @return \Phinx\Config\ConfigInterface
      */
-    public static function fromJson(string $configFilePath): self
+    public static function fromJson(string $configFilePath): ConfigInterface
     {
         if (!function_exists('json_decode')) {
             // @codeCoverageIgnoreStart
@@ -114,9 +114,9 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      *
      * @param string $configFilePath Path to the PHP File
      * @throws \RuntimeException
-     * @return self
+     * @return \Phinx\Config\ConfigInterface
      */
-    public static function fromPhp(string $configFilePath): self
+    public static function fromPhp(string $configFilePath): ConfigInterface
     {
         ob_start();
         /** @noinspection PhpIncludeInspection */
