@@ -25,25 +25,25 @@ interface CreationInterface
 
     /**
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     * @return \Phinx\Migration\CreationInterface
+     * @return $this
      */
-    public function setInput(InputInterface $input);
+    public function setInput(InputInterface $input): CreationInterface;
 
     /**
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     * @return \Phinx\Migration\CreationInterface
+     * @return $this
      */
-    public function setOutput(OutputInterface $output);
+    public function setOutput(OutputInterface $output): CreationInterface;
 
     /**
      * @return \Symfony\Component\Console\Input\InputInterface
      */
-    public function getInput();
+    public function getInput(): InputInterface;
 
     /**
      * @return \Symfony\Component\Console\Output\OutputInterface
      */
-    public function getOutput();
+    public function getOutput(): OutputInterface;
 
     /**
      * Get the migration template.
@@ -52,7 +52,7 @@ interface CreationInterface
      *
      * @return string The content of the template for Phinx to amend.
      */
-    public function getMigrationTemplate();
+    public function getMigrationTemplate(): string;
 
     /**
      * Post Migration Creation.
@@ -65,5 +65,5 @@ interface CreationInterface
      * @param string $baseClassName The name of the base class.
      * @return void
      */
-    public function postMigrationCreation($migrationFilename, $className, $baseClassName);
+    public function postMigrationCreation(string $migrationFilename, string $className, string $baseClassName): void;
 }

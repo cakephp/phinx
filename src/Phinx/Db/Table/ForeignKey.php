@@ -53,7 +53,7 @@ class ForeignKey
      * @param string[]|string $columns Columns
      * @return $this
      */
-    public function setColumns($columns): ForeignKey
+    public function setColumns($columns)
     {
         $this->columns = is_string($columns) ? [$columns] : $columns;
 
@@ -76,7 +76,7 @@ class ForeignKey
      * @param \Phinx\Db\Table\Table $table The table this KEY is pointing to
      * @return $this
      */
-    public function setReferencedTable(Table $table): ForeignKey
+    public function setReferencedTable(Table $table)
     {
         $this->referencedTable = $table;
 
@@ -99,7 +99,7 @@ class ForeignKey
      * @param string[] $referencedColumns Referenced columns
      * @return $this
      */
-    public function setReferencedColumns(array $referencedColumns): ForeignKey
+    public function setReferencedColumns(array $referencedColumns)
     {
         $this->referencedColumns = $referencedColumns;
 
@@ -122,7 +122,7 @@ class ForeignKey
      * @param string $onDelete On Delete
      * @return $this
      */
-    public function setOnDelete(string $onDelete): ForeignKey
+    public function setOnDelete(string $onDelete)
     {
         $this->onDelete = $this->normalizeAction($onDelete);
 
@@ -155,7 +155,7 @@ class ForeignKey
      * @param string $onUpdate On Update
      * @return $this
      */
-    public function setOnUpdate(string $onUpdate): ForeignKey
+    public function setOnUpdate(string $onUpdate)
     {
         $this->onUpdate = $this->normalizeAction($onUpdate);
 
@@ -168,7 +168,7 @@ class ForeignKey
      * @param string $constraint Constraint
      * @return $this
      */
-    public function setConstraint(string $constraint): ForeignKey
+    public function setConstraint(string $constraint)
     {
         $this->constraint = $constraint;
 
@@ -192,7 +192,7 @@ class ForeignKey
      * @throws \RuntimeException
      * @return $this
      */
-    public function setOptions(array $options): ForeignKey
+    public function setOptions(array $options)
     {
         // Valid Options
         $validOptions = ['delete', 'update', 'constraint'];

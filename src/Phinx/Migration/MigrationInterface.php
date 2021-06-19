@@ -42,83 +42,83 @@ interface MigrationInterface
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
-     * @return \Phinx\Migration\MigrationInterface
+     * @return $this
      */
-    public function setAdapter(AdapterInterface $adapter);
+    public function setAdapter(AdapterInterface $adapter): MigrationInterface;
 
     /**
      * Gets the database adapter.
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
-    public function getAdapter();
+    public function getAdapter(): AdapterInterface;
 
     /**
      * Sets the input object to be used in migration object
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     * @return \Phinx\Migration\MigrationInterface
+     * @return $this
      */
-    public function setInput(InputInterface $input);
+    public function setInput(InputInterface $input): MigrationInterface;
 
     /**
      * Gets the input object to be used in migration object
      *
      * @return \Symfony\Component\Console\Input\InputInterface
      */
-    public function getInput();
+    public function getInput(): InputInterface;
 
     /**
      * Sets the output object to be used in migration object
      *
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     * @return \Phinx\Migration\MigrationInterface
+     * @return $this
      */
-    public function setOutput(OutputInterface $output);
+    public function setOutput(OutputInterface $output): MigrationInterface;
 
     /**
      * Gets the output object to be used in migration object
      *
      * @return \Symfony\Component\Console\Output\OutputInterface
      */
-    public function getOutput();
+    public function getOutput(): OutputInterface;
 
     /**
      * Gets the name.
      *
      * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * Gets the detected environment
      *
      * @return string
      */
-    public function getEnvironment();
+    public function getEnvironment(): string;
 
     /**
      * Sets the migration version number.
      *
      * @param int $version Version
-     * @return \Phinx\Migration\MigrationInterface
+     * @return $this
      */
-    public function setVersion($version);
+    public function setVersion(int $version);
 
     /**
      * Gets the migration version number.
      *
      * @return int
      */
-    public function getVersion();
+    public function getVersion(): int;
 
     /**
      * Sets whether this migration is being applied or reverted
      *
      * @param bool $isMigratingUp True if the migration is being applied
-     * @return \Phinx\Migration\MigrationInterface
+     * @return $this
      */
-    public function setMigratingUp($isMigratingUp);
+    public function setMigratingUp(bool $isMigratingUp): MigrationInterface;
 
     /**
      * Gets whether this migration is being applied or reverted.
@@ -126,7 +126,7 @@ interface MigrationInterface
      *
      * @return bool
      */
-    public function isMigratingUp();
+    public function isMigratingUp(): bool;
 
     /**
      * Executes a SQL statement and returns the number of affected rows.
@@ -135,7 +135,7 @@ interface MigrationInterface
      * @param array $params parameters to use for prepared query
      * @return int
      */
-    public function execute($sql, array $params = []);
+    public function execute(string $sql, array $params = []): int;
 
     /**
      * Executes a SQL statement.
@@ -149,7 +149,7 @@ interface MigrationInterface
      * @param array $params parameters to use for prepared query
      * @return mixed
      */
-    public function query($sql, array $params = []);
+    public function query(string $sql, array $params = []);
 
     /**
      * Returns a new Query object that can be used to build complex SELECT, UPDATE, INSERT or DELETE
@@ -161,7 +161,7 @@ interface MigrationInterface
      * @see https://api.cakephp.org/3.6/class-Cake.Database.Query.html
      * @return \Cake\Database\Query
      */
-    public function getQueryBuilder();
+    public function getQueryBuilder(): \Cake\Database\Query;
 
     /**
      * Executes a query and returns only one row as an array.
@@ -169,7 +169,7 @@ interface MigrationInterface
      * @param string $sql SQL
      * @return array|false
      */
-    public function fetchRow($sql);
+    public function fetchRow(string $sql);
 
     /**
      * Executes a query and returns an array of rows.
@@ -177,7 +177,7 @@ interface MigrationInterface
      * @param string $sql SQL
      * @return array
      */
-    public function fetchAll($sql);
+    public function fetchAll(string $sql): array;
 
     /**
      * Create a new database.
@@ -186,7 +186,7 @@ interface MigrationInterface
      * @param array $options Options
      * @return void
      */
-    public function createDatabase($name, $options);
+    public function createDatabase(string $name, array $options): void;
 
     /**
      * Drop a database.
@@ -194,7 +194,7 @@ interface MigrationInterface
      * @param string $name Database Name
      * @return void
      */
-    public function dropDatabase($name);
+    public function dropDatabase(string $name): void;
 
     /**
      * Creates schema.
@@ -205,7 +205,7 @@ interface MigrationInterface
      * @return void
      * @throws \BadMethodCallException
      */
-    public function createSchema($name);
+    public function createSchema(string $name): void;
 
     /**
      * Drops schema.
@@ -216,7 +216,7 @@ interface MigrationInterface
      * @return void
      * @throws \BadMethodCallException
      */
-    public function dropSchema($name);
+    public function dropSchema(string $name): void;
 
     /**
      * Checks to see if a table exists.
@@ -224,7 +224,7 @@ interface MigrationInterface
      * @param string $tableName Table name
      * @return bool
      */
-    public function hasTable($tableName);
+    public function hasTable(string $tableName): bool;
 
     /**
      * Returns an instance of the <code>\Table</code> class.
@@ -235,7 +235,7 @@ interface MigrationInterface
      * @param array $options Options
      * @return \Phinx\Db\Table
      */
-    public function table($tableName, $options);
+    public function table(string $tableName, array $options);
 
     /**
      * Perform checks on the migration, printing a warning
@@ -243,7 +243,7 @@ interface MigrationInterface
      *
      * @return void
      */
-    public function preFlightCheck();
+    public function preFlightCheck(): void;
 
     /**
      * Perform checks on the migration after completion
@@ -252,7 +252,7 @@ interface MigrationInterface
      *
      * @return void
      */
-    public function postFlightCheck();
+    public function postFlightCheck(): void;
 
     /**
      * Checks to see if the migration should be executed.
@@ -263,5 +263,5 @@ interface MigrationInterface
      *
      * @return bool
      */
-    public function shouldExecute();
+    public function shouldExecute(): bool;
 }

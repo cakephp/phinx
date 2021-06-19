@@ -36,10 +36,17 @@ interface SeedInterface
     public function run(): void;
 
     /**
+     * Return seeds dependencies.
+     *
+     * @return array
+     */
+    public function getDependencies(): array;
+
+    /**
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
-     * @return \Phinx\Seed\SeedInterface
+     * @return $this
      */
     public function setAdapter(AdapterInterface $adapter): SeedInterface;
 
@@ -54,7 +61,7 @@ interface SeedInterface
      * Sets the input object to be used in migration object
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     * @return \Phinx\Seed\SeedInterface
+     * @return $this
      */
     public function setInput(InputInterface $input): SeedInterface;
 
@@ -69,7 +76,7 @@ interface SeedInterface
      * Sets the output object to be used in migration object
      *
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     * @return \Phinx\Seed\SeedInterface
+     * @return $this
      */
     public function setOutput(OutputInterface $output): SeedInterface;
 

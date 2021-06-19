@@ -207,7 +207,7 @@ class TextWrapper
      * @param string $value Value
      * @return $this
      */
-    public function setOption(string $key, string $value): TextWrapper
+    public function setOption(string $key, string $value)
     {
         $this->options[$key] = $value;
 

@@ -149,7 +149,7 @@ abstract class AbstractCommand extends Command
      * @param \Phinx\Config\ConfigInterface $config Config
      * @return $this
      */
-    public function setConfig(ConfigInterface $config): AbstractCommand
+    public function setConfig(ConfigInterface $config)
     {
         $this->config = $config;
 
@@ -172,7 +172,7 @@ abstract class AbstractCommand extends Command
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Adapter
      * @return $this
      */
-    public function setAdapter(AdapterInterface $adapter): AbstractCommand
+    public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
 
@@ -195,7 +195,7 @@ abstract class AbstractCommand extends Command
      * @param \Phinx\Migration\Manager $manager Manager
      * @return $this
      */
-    public function setManager(Manager $manager): AbstractCommand
+    public function setManager(Manager $manager)
     {
         $this->manager = $manager;
 

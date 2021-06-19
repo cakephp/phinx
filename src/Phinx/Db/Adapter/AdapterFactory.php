@@ -26,9 +26,9 @@ class AdapterFactory
     /**
      * Get the factory singleton instance.
      *
-     * @return \Phinx\Db\Adapter\AdapterFactory
+     * @return self
      */
-    public static function instance()
+    public static function instance(): AdapterFactory
     {
         if (!static::$instance) {
             static::$instance = new static();
@@ -68,7 +68,7 @@ class AdapterFactory
      * @throws \RuntimeException
      * @return $this
      */
-    public function registerAdapter($name, $class)
+    public function registerAdapter(string $name, string $class)
     {
         if (!is_subclass_of($class, 'Phinx\Db\Adapter\AdapterInterface')) {
             throw new RuntimeException(sprintf(
@@ -88,7 +88,7 @@ class AdapterFactory
      * @throws \RuntimeException
      * @return string
      */
-    protected function getClass($name)
+    protected function getClass(string $name): string
     {
         if (empty($this->adapters[$name])) {
             throw new RuntimeException(sprintf(
@@ -107,7 +107,7 @@ class AdapterFactory
      * @param array $options Options
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
-    public function getAdapter($name, array $options)
+    public function getAdapter(string $name, array $options): AdapterInterface
     {
         $class = $this->getClass($name);
 
@@ -122,7 +122,7 @@ class AdapterFactory
      * @throws \RuntimeException
      * @return $this
      */
-    public function registerWrapper($name, $class)
+    public function registerWrapper(string $name, string $class)
     {
         if (!is_subclass_of($class, 'Phinx\Db\Adapter\WrapperInterface')) {
             throw new RuntimeException(sprintf(
@@ -142,7 +142,7 @@ class AdapterFactory
      * @throws \RuntimeException
      * @return string
      */
-    protected function getWrapperClass($name)
+    protected function getWrapperClass(string $name): string
     {
         if (empty($this->wrappers[$name])) {
             throw new RuntimeException(sprintf(
@@ -161,7 +161,7 @@ class AdapterFactory
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Adapter
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
-    public function getWrapper($name, AdapterInterface $adapter)
+    public function getWrapper(string $name, AdapterInterface $adapter): AdapterInterface
     {
         $class = $this->getWrapperClass($name);
 

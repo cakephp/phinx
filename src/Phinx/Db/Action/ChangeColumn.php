@@ -53,7 +53,7 @@ class ChangeColumn extends Action
      * @param mixed $columnName The name of the column to change
      * @param mixed $type The type of the column
      * @param mixed $options Additional options for the column
-     * @return \Phinx\Db\Action\ChangeColumn
+     * @return self
      */
     public static function build(Table $table, string $columnName, $type = null, $options = []): ChangeColumn
     {

@@ -37,7 +37,7 @@ class RemoveColumn extends Action
      *
      * @param \Phinx\Db\Table\Table $table The table where the column is
      * @param string $columnName The name of the column to drop
-     * @return \Phinx\Db\Action\RemoveColumn
+     * @return self
      */
     public static function build(Table $table, string $columnName): RemoveColumn
     {

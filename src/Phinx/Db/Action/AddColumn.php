@@ -38,7 +38,7 @@ class AddColumn extends Action
      * @param string $columnName The column name
      * @param mixed $type The column type
      * @param mixed $options The column options
-     * @return \Phinx\Db\Action\AddColumn
+     * @return self
      */
     public static function build(Table $table, string $columnName, $type = null, $options = []): AddColumn
     {

@@ -42,7 +42,7 @@ class Table
      * @param string $name The name of the table
      * @return $this
      */
-    public function setName(string $name): Table
+    public function setName(string $name)
     {
         $this->name = $name;
 
@@ -75,7 +75,7 @@ class Table
      * @param array $options The options for the table creation
      * @return $this
      */
-    public function setOptions(array $options): Table
+    public function setOptions(array $options)
     {
         $this->options = $options;
 

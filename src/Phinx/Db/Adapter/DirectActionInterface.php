@@ -25,7 +25,7 @@ interface DirectActionInterface
      * @param string $newName New Name
      * @return void
      */
-    public function renameTable($tableName, $newName);
+    public function renameTable(string $tableName, string $newName): void;
 
     /**
      * Drops the specified database table.
@@ -33,7 +33,7 @@ interface DirectActionInterface
      * @param string $tableName Table name
      * @return void
      */
-    public function dropTable($tableName);
+    public function dropTable(string $tableName): void;
 
     /**
      * Changes the primary key of the specified database table.
@@ -42,7 +42,7 @@ interface DirectActionInterface
      * @param string|string[]|null $newColumns Column name(s) to belong to the primary key, or null to drop the key
      * @return void
      */
-    public function changePrimaryKey(Table $table, $newColumns);
+    public function changePrimaryKey(Table $table, $newColumns): void;
 
     /**
      * Changes the comment of the specified database table.
@@ -51,7 +51,7 @@ interface DirectActionInterface
      * @param string|null $newComment New comment string, or null to drop the comment
      * @return void
      */
-    public function changeComment(Table $table, $newComment);
+    public function changeComment(Table $table, ?string $newComment): void;
 
     /**
      * Adds the specified column to a database table.
@@ -60,7 +60,7 @@ interface DirectActionInterface
      * @param \Phinx\Db\Table\Column $column Column
      * @return void
      */
-    public function addColumn(Table $table, Column $column);
+    public function addColumn(Table $table, Column $column): void;
 
     /**
      * Renames the specified column.
@@ -70,7 +70,7 @@ interface DirectActionInterface
      * @param string $newColumnName New Column Name
      * @return void
      */
-    public function renameColumn($tableName, $columnName, $newColumnName);
+    public function renameColumn(string $tableName, string $columnName, string $newColumnName): void;
 
     /**
      * Change a table column type.
@@ -80,7 +80,7 @@ interface DirectActionInterface
      * @param \Phinx\Db\Table\Column $newColumn New Column
      * @return void
      */
-    public function changeColumn($tableName, $columnName, Column $newColumn);
+    public function changeColumn(string $tableName, string $columnName, Column $newColumn): void;
 
     /**
      * Drops the specified column.
@@ -89,7 +89,7 @@ interface DirectActionInterface
      * @param string $columnName Column Name
      * @return void
      */
-    public function dropColumn($tableName, $columnName);
+    public function dropColumn(string $tableName, string $columnName): void;
 
     /**
      * Adds the specified index to a database table.
@@ -98,16 +98,16 @@ interface DirectActionInterface
      * @param \Phinx\Db\Table\Index $index Index
      * @return void
      */
-    public function addIndex(Table $table, Index $index);
+    public function addIndex(Table $table, Index $index): void;
 
     /**
      * Drops the specified index from a database table.
      *
      * @param string $tableName the name of the table
-     * @param mixed $columns Column(s)
+     * @param string|string[] $columns Column(s)
      * @return void
      */
-    public function dropIndex($tableName, $columns);
+    public function dropIndex(string $tableName, $columns): void;
 
     /**
      * Drops the index specified by name from a database table.
@@ -116,7 +116,7 @@ interface DirectActionInterface
      * @param string $indexName The name of the index
      * @return void
      */
-    public function dropIndexByName($tableName, $indexName);
+    public function dropIndexByName(string $tableName, string $indexName): void;
 
     /**
      * Adds the specified foreign key to a database table.
@@ -125,7 +125,7 @@ interface DirectActionInterface
      * @param \Phinx\Db\Table\ForeignKey $foreignKey The foreign key to add
      * @return void
      */
-    public function addForeignKey(Table $table, ForeignKey $foreignKey);
+    public function addForeignKey(Table $table, ForeignKey $foreignKey): void;
 
     /**
      * Drops the specified foreign key from a database table.
@@ -135,5 +135,5 @@ interface DirectActionInterface
      * @param string|null $constraint Constraint name
      * @return void
      */
-    public function dropForeignKey($tableName, $columns, $constraint = null);
+    public function dropForeignKey(string $tableName, array $columns, ?string $constraint = null): void;
 }

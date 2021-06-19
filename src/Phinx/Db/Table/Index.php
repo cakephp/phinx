@@ -62,7 +62,7 @@ class Index
      * @param string|string[] $columns Columns
      * @return $this
      */
-    public function setColumns($columns): Index
+    public function setColumns($columns)
     {
         $this->columns = is_string($columns) ? [$columns] : $columns;
 
@@ -85,7 +85,7 @@ class Index
      * @param string $type Type
      * @return $this
      */
-    public function setType(string $type): Index
+    public function setType(string $type)
     {
         $this->type = $type;
 
@@ -108,7 +108,7 @@ class Index
      * @param string $name Name
      * @return $this
      */
-    public function setName(string $name): Index
+    public function setName(string $name)
     {
         $this->name = $name;
 
@@ -131,7 +131,7 @@ class Index
      * @param int|array $limit limit value or array of limit value
      * @return $this
      */
-    public function setLimit($limit): Index
+    public function setLimit($limit)
     {
         $this->limit = $limit;
 
@@ -154,7 +154,7 @@ class Index
      * @param string[] $order column name sort order key value pair
      * @return $this
      */
-    public function setOrder(array $order): Index
+    public function setOrder(array $order)
     {
         $this->order = $order;
 
@@ -177,7 +177,7 @@ class Index
      * @param string[] $includedColumns Columns
      * @return $this
      */
-    public function setInclude(array $includedColumns): Index
+    public function setInclude(array $includedColumns)
     {
         $this->includedColumns = $includedColumns;
 
@@ -201,7 +201,7 @@ class Index
      * @throws \RuntimeException
      * @return $this
      */
-    public function setOptions(array $options): Index
+    public function setOptions(array $options)
     {
         // Valid Options
         $validOptions = ['type', 'unique', 'name', 'limit', 'order', 'include'];
