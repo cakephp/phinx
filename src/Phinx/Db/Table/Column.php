@@ -144,9 +144,9 @@ class Column
     protected $srid;
 
     /**
-     * @var array
+     * @var array|null
      */
-    protected $values;
+    protected $values = null;
 
     /**
      * Sets the column name.
@@ -606,9 +606,9 @@ class Column
     /**
      * Gets field values
      *
-     * @return array
+     * @return array|null
      */
-    public function getValues(): array
+    public function getValues(): ?array
     {
         return $this->values;
     }
