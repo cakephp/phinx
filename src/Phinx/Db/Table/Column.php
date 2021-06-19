@@ -197,10 +197,10 @@ class Column
     /**
      * Sets the column limit.
      *
-     * @param int $limit Limit
+     * @param int|null $limit Limit
      * @return $this
      */
-    public function setLimit(int $limit)
+    public function setLimit(?int $limit)
     {
         $this->limit = $limit;
 
@@ -358,10 +358,10 @@ class Column
      * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
      * and the column could store value from -999.99 to 999.99.
      *
-     * @param int $precision Number precision
+     * @param int|null $precision Number precision
      * @return $this
      */
-    public function setPrecision(int $precision)
+    public function setPrecision(?int $precision)
     {
         $this->setLimit($precision);
 
@@ -436,7 +436,7 @@ class Column
      * @param int|null $scale Number scale
      * @return $this
      */
-    public function setScale(int $scale)
+    public function setScale(?int $scale)
     {
         $this->scale = $scale;
 
