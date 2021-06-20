@@ -1042,7 +1042,7 @@ ORDER BY T.[name], I.[index_id];";
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
-    public function getSqlType($type, ?int $limit = null): array
+    public function getSqlType($type, ?float $limit = null): array
     {
         switch ($type) {
             case static::PHINX_TYPE_FLOAT:

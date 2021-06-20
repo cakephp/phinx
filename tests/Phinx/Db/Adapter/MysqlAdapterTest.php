@@ -466,7 +466,7 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasTable('ntable'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
         $column_definitions = $this->adapter->getColumns('ntable');
-        $this->assertSame($this->usingMysql8() ? null : 4, $column_definitions[0]->getLimit());
+        $this->assertSame($this->usingMysql8() ? null : 4.0, $column_definitions[0]->getLimit());
     }
 
     public function testCreateTableWithSchema()
@@ -938,7 +938,7 @@ class MysqlAdapterTest extends TestCase
         $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
         $this->assertSame($expectedType, $sqlType['name']);
-        $this->assertSame($expectedLimit, $columns[1]->getLimit());
+        $this->assertSame((float)$expectedLimit, $columns[1]->getLimit());
     }
 
     public function varbinaryToBlobAutomaticConversionData()
@@ -965,7 +965,7 @@ class MysqlAdapterTest extends TestCase
         $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
         $this->assertSame($expectedType, $sqlType['name']);
-        $this->assertSame($expectedLimit, $columns[1]->getLimit());
+        $this->assertSame((float)$expectedLimit, $columns[1]->getLimit());
     }
 
     public function blobColumnsData()
@@ -1007,7 +1007,7 @@ class MysqlAdapterTest extends TestCase
         $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
         $this->assertSame($expectedType, $sqlType['name']);
-        $this->assertSame($expectedLimit, $columns[1]->getLimit());
+        $this->assertSame((float)$expectedLimit, $columns[1]->getLimit());
     }
 
     public function testBigIntegerColumn()
@@ -1058,7 +1058,7 @@ class MysqlAdapterTest extends TestCase
               ->save();
         $columns = $table->getColumns();
         $sqlType = $this->adapter->getSqlType($columns[1]->getType(), $columns[1]->getLimit());
-        $this->assertEquals($this->usingMysql8() ? 11 : $limit, $sqlType['limit']);
+        $this->assertEquals($this->usingMysql8() ? 11.0 : $limit, $sqlType['limit']);
     }
 
     public function testDatetimeColumn()

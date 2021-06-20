@@ -27,7 +27,7 @@ class Index
     public const FULLTEXT = 'fulltext';
 
     /**
-     * @var string[]
+     * @var string[]|null
      */
     protected $columns;
 
@@ -72,9 +72,9 @@ class Index
     /**
      * Gets the index columns.
      *
-     * @return string[]
+     * @return string[]|null
      */
-    public function getColumns(): array
+    public function getColumns(): ?array
     {
         return $this->columns;
     }

@@ -399,7 +399,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * @inheritDoc
      */
-    public function getSqlType($type, ?int $limit = null): array
+    public function getSqlType($type, ?float $limit = null): array
     {
         return $this->getAdapter()->getSqlType($type, $limit);
     }

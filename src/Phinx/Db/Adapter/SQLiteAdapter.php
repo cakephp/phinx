@@ -1396,7 +1396,7 @@ PCRE_PATTERN;
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
-    public function getSqlType($type, ?int $limit = null): array
+    public function getSqlType($type, ?float $limit = null): array
     {
         $typeLC = strtolower($type);
         if ($type instanceof Literal) {
