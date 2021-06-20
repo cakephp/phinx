@@ -477,11 +477,14 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * @param string $default Default
+     * @param string|null $default Default
      * @return int|string|null
      */
-    protected function parseDefault(string $default)
+    protected function parseDefault(?string $default)
     {
+        if ($default === null) {
+            return null;
+        }
         $result = preg_replace(["/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"], '$1', $default);
 
         if (strtoupper($result) === 'NULL') {
