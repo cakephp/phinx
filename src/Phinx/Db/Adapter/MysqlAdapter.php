@@ -38,6 +38,7 @@ class MysqlAdapter extends PdoAdapter
         self::PHINX_TYPE_TINYBLOB,
         self::PHINX_TYPE_MEDIUMBLOB,
         self::PHINX_TYPE_LONGBLOB,
+        self::PHINX_TYPE_MEDIUM_INTEGER,
     ];
 
     /**
