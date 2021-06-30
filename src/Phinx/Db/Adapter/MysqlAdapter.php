@@ -999,10 +999,12 @@ class MysqlAdapter extends PdoAdapter
                 return $this->getSqlType(static::PHINX_TYPE_BLOB, $limit ?: static::BLOB_LONG);
             case static::PHINX_TYPE_BIT:
                 return ['name' => 'bit', 'limit' => $limit ?: 64];
-            case static::PHINX_TYPE_SMALL_INTEGER:
-                return ['name' => 'smallint', 'limit' => $limit ?: 6];
+            case static::PHINX_TYPE_BIG_INTEGER:
+                return ['name' => 'bigint', 'limit' => $limit ?: 20];
             case static::PHINX_TYPE_MEDIUM_INTEGER:
                 return ['name' => 'mediumint', 'limit' => $limit ?: 8];
+            case static::PHINX_TYPE_SMALL_INTEGER:
+                return ['name' => 'smallint', 'limit' => $limit ?: 6];
             case static::PHINX_TYPE_TINY_INTEGER:
                 return ['name' => 'tinyint', 'limit' => $limit ?: 4];
             case static::PHINX_TYPE_INTEGER:
@@ -1037,8 +1039,6 @@ class MysqlAdapter extends PdoAdapter
                 }
 
                 return ['name' => 'int', 'limit' => $limit];
-            case static::PHINX_TYPE_BIG_INTEGER:
-                return ['name' => 'bigint', 'limit' => $limit ?: 20];
             case static::PHINX_TYPE_BOOLEAN:
                 return ['name' => 'tinyint', 'limit' => 1];
             case static::PHINX_TYPE_UUID:
