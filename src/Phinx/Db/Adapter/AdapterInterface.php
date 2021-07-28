@@ -437,7 +437,7 @@ interface AdapterInterface
     /**
      * Converts the Phinx logical type to the adapter's SQL type.
      *
-     * @param string|\Phinx\Util\Literal $type Type
+     * @param \Phinx\Util\Literal|string $type Type
      * @param float|null $limit Limit
      * @return array
      */

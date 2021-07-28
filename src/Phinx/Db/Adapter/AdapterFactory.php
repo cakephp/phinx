@@ -52,7 +52,7 @@ class AdapterFactory
     /**
      * Class map of adapters wrappers, indexed by name.
      *
-     * @var (string|object)[]
+     * @var array<object|string>
      */
     protected $wrappers = [
         'prefix' => 'Phinx\Db\Adapter\TablePrefixAdapter',
@@ -64,7 +64,7 @@ class AdapterFactory
      * Add or replace an adapter with a fully qualified class name.
      *
      * @param string $name Name
-     * @param string|object $class Class
+     * @param object|string $class Class
      * @throws \RuntimeException
      * @return $this
      */
@@ -118,7 +118,7 @@ class AdapterFactory
      * Add or replace a wrapper with a fully qualified class name.
      *
      * @param string $name Name
-     * @param string|object $class Class
+     * @param object|string $class Class
      * @throws \RuntimeException
      * @return $this
      */
