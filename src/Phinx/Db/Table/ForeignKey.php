@@ -35,17 +35,17 @@ class ForeignKey
     /**
      * @var string|null
      */
-    protected $onDelete = null;
+    protected $onDelete;
 
     /**
      * @var string|null
      */
-    protected $onUpdate = null;
+    protected $onUpdate;
 
     /**
      * @var string|null
      */
-    protected $constraint = null;
+    protected $constraint;
 
     /**
      * Sets the foreign key columns.

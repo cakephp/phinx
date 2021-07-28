@@ -8,6 +8,7 @@
 namespace Phinx\Config;
 
 use ArrayAccess;
+use Psr\Container\ContainerInterface;
 
 /**
  * Phinx configuration interface.
@@ -108,7 +109,7 @@ interface ConfigInterface extends ArrayAccess
      *
      * @return \Psr\Container\ContainerInterface|null
      */
-    public function getContainer(): ?\Psr\Container\ContainerInterface;
+    public function getContainer(): ?ContainerInterface;
 
     /**
      * Get the data domain array.

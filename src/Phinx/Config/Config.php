@@ -11,6 +11,7 @@ use Closure;
 use InvalidArgumentException;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Util\Util;
+use Psr\Container\ContainerInterface;
 use RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 use UnexpectedValueException;
@@ -366,7 +367,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * @inheritDoc
      */
-    public function getContainer(): ?\Psr\Container\ContainerInterface
+    public function getContainer(): ?ContainerInterface
     {
         if (!isset($this->values['container'])) {
             return null;

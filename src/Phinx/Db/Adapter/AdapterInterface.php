@@ -7,6 +7,7 @@
 
 namespace Phinx\Db\Adapter;
 
+use Cake\Database\Query;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Table;
 use Phinx\Migration\MigrationInterface;
@@ -88,7 +89,7 @@ interface AdapterInterface
      * @param array $options Options
      * @return $this
      */
-    public function setOptions(array $options): AdapterInterface;
+    public function setOptions(array $options);
 
     /**
      * Get all adapter options.
@@ -119,7 +120,7 @@ interface AdapterInterface
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
      * @return $this
      */
-    public function setInput(InputInterface $input): AdapterInterface;
+    public function setInput(InputInterface $input);
 
     /**
      * Gets the console input.
@@ -134,7 +135,7 @@ interface AdapterInterface
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      * @return $this
      */
-    public function setOutput(OutputInterface $output): AdapterInterface;
+    public function setOutput(OutputInterface $output);
 
     /**
      * Gets the console output.
@@ -162,7 +163,7 @@ interface AdapterInterface
      * @param string $endTime End Time
      * @return $this
      */
-    public function migrated(MigrationInterface $migration, string $direction, string $startTime, string $endTime): AdapterInterface;
+    public function migrated(MigrationInterface $migration, string $direction, string $startTime, string $endTime);
 
     /**
      * Toggle a migration breakpoint.
@@ -170,7 +171,7 @@ interface AdapterInterface
      * @param \Phinx\Migration\MigrationInterface $migration Migration
      * @return $this
      */
-    public function toggleBreakpoint(MigrationInterface $migration): AdapterInterface;
+    public function toggleBreakpoint(MigrationInterface $migration);
 
     /**
      * Reset all migration breakpoints.
@@ -185,7 +186,7 @@ interface AdapterInterface
      * @param \Phinx\Migration\MigrationInterface $migration The migration target for the breakpoint set
      * @return $this
      */
-    public function setBreakpoint(MigrationInterface $migration): AdapterInterface;
+    public function setBreakpoint(MigrationInterface $migration);
 
     /**
      * Unset a migration breakpoint.
@@ -193,7 +194,7 @@ interface AdapterInterface
      * @param \Phinx\Migration\MigrationInterface $migration The migration target for the breakpoint unset
      * @return $this
      */
-    public function unsetBreakpoint(MigrationInterface $migration): AdapterInterface;
+    public function unsetBreakpoint(MigrationInterface $migration);
 
     /**
      * Creates the schema table.
@@ -275,7 +276,7 @@ interface AdapterInterface
      *
      * @return \Cake\Database\Query
      */
-    public function getQueryBuilder(): \Cake\Database\Query;
+    public function getQueryBuilder(): Query;
 
     /**
      * Executes a SQL statement.

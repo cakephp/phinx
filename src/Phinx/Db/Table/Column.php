@@ -66,7 +66,7 @@ class Column
     /**
      * @var float|null
      */
-    protected $limit = null;
+    protected $limit;
 
     /**
      * @var bool
@@ -76,7 +76,7 @@ class Column
     /**
      * @var mixed
      */
-    protected $default = null;
+    protected $default;
 
     /**
      * @var bool
@@ -86,32 +86,32 @@ class Column
     /**
      * @var int|null
      */
-    protected $seed = null;
+    protected $seed;
 
     /**
      * @var int|null
      */
-    protected $increment = null;
+    protected $increment;
 
     /**
      * @var int|null
      */
-    protected $scale = null;
+    protected $scale;
 
     /**
      * @var string|null
      */
-    protected $after = null;
+    protected $after;
 
     /**
      * @var string|null
      */
-    protected $update = null;
+    protected $update;
 
     /**
      * @var string|null
      */
-    protected $comment = null;
+    protected $comment;
 
     /**
      * @var bool
@@ -131,22 +131,22 @@ class Column
     /**
      * @var string|null
      */
-    protected $collation = null;
+    protected $collation;
 
     /**
      * @var string|null
      */
-    protected $encoding = null;
+    protected $encoding;
 
     /**
      * @var int|null
      */
-    protected $srid = null;
+    protected $srid;
 
     /**
      * @var array|null
      */
-    protected $values = null;
+    protected $values;
 
     /**
      * Sets the column name.

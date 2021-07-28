@@ -7,6 +7,7 @@
 
 namespace Phinx\Db\Adapter;
 
+use Cake\Database\Query;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Table;
 use Phinx\Migration\MigrationInterface;
@@ -479,7 +480,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * @inheritDoc
      */
-    public function getQueryBuilder(): \Cake\Database\Query
+    public function getQueryBuilder(): Query
     {
         return $this->getAdapter()->getQueryBuilder();
     }

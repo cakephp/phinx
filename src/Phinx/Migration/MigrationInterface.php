@@ -7,6 +7,7 @@
 
 namespace Phinx\Migration;
 
+use Cake\Database\Query;
 use Phinx\Db\Adapter\AdapterInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -44,7 +45,7 @@ interface MigrationInterface
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
      * @return $this
      */
-    public function setAdapter(AdapterInterface $adapter): MigrationInterface;
+    public function setAdapter(AdapterInterface $adapter);
 
     /**
      * Gets the database adapter.
@@ -59,7 +60,7 @@ interface MigrationInterface
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
      * @return $this
      */
-    public function setInput(InputInterface $input): MigrationInterface;
+    public function setInput(InputInterface $input);
 
     /**
      * Gets the input object to be used in migration object
@@ -74,7 +75,7 @@ interface MigrationInterface
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      * @return $this
      */
-    public function setOutput(OutputInterface $output): MigrationInterface;
+    public function setOutput(OutputInterface $output);
 
     /**
      * Gets the output object to be used in migration object
@@ -118,7 +119,7 @@ interface MigrationInterface
      * @param bool $isMigratingUp True if the migration is being applied
      * @return $this
      */
-    public function setMigratingUp(bool $isMigratingUp): MigrationInterface;
+    public function setMigratingUp(bool $isMigratingUp);
 
     /**
      * Gets whether this migration is being applied or reverted.
@@ -161,7 +162,7 @@ interface MigrationInterface
      * @see https://api.cakephp.org/3.6/class-Cake.Database.Query.html
      * @return \Cake\Database\Query
      */
-    public function getQueryBuilder(): \Cake\Database\Query;
+    public function getQueryBuilder(): Query;
 
     /**
      * Executes a query and returns only one row as an array.

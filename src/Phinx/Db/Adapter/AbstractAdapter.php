@@ -29,7 +29,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @var \Symfony\Component\Console\Input\InputInterface|null
      */
-    protected $input = null;
+    protected $input;
 
     /**
      * @var \Symfony\Component\Console\Output\OutputInterface

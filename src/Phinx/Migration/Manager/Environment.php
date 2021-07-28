@@ -31,12 +31,12 @@ class Environment
     /**
      * @var \Symfony\Component\Console\Input\InputInterface|null
      */
-    protected $input = null;
+    protected $input;
 
     /**
      * @var \Symfony\Component\Console\Output\OutputInterface|null
      */
-    protected $output = null;
+    protected $output;
 
     /**
      * @var int

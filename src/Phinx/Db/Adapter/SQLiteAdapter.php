@@ -1613,7 +1613,7 @@ PCRE_PATTERN;
     /**
      * @inheritDoc
      */
-    public function getDecoratedConnection(): \Cake\Database\Connection
+    public function getDecoratedConnection(): Connection
     {
         $options = $this->getOptions();
         $options['quoteIdentifiers'] = true;

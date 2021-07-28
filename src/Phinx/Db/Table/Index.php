@@ -39,22 +39,22 @@ class Index
     /**
      * @var string|null
      */
-    protected $name = null;
+    protected $name;
 
     /**
      * @var int|array|null
      */
-    protected $limit = null;
+    protected $limit;
 
     /**
      * @var string[]|null
      */
-    protected $order = null;
+    protected $order;
 
     /**
      * @var string[]|null
      */
-    protected $includedColumns = null;
+    protected $includedColumns;
 
     /**
      * Sets the index columns.

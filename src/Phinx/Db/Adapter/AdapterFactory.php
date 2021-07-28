@@ -26,9 +26,9 @@ class AdapterFactory
     /**
      * Get the factory singleton instance.
      *
-     * @return self
+     * @return \Phinx\Db\Adapter\AdapterFactory
      */
-    public static function instance(): AdapterFactory
+    public static function instance()
     {
         if (!static::$instance) {
             static::$instance = new static();
@@ -61,7 +61,7 @@ class AdapterFactory
     ];
 
     /**
-     * Add or replace an adapter with a fully qualified class name.
+     * Register an adapter class with a given name.
      *
      * @param string $name Name
      * @param object|string $class Class

@@ -8,6 +8,8 @@
 namespace Phinx\Db\Adapter;
 
 use BadMethodCallException;
+use Cake\Database\Connection;
+use Cake\Database\Query;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
@@ -201,12 +203,12 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      *
      * @return \Cake\Database\Connection
      */
-    abstract public function getDecoratedConnection(): \Cake\Database\Connection;
+    abstract public function getDecoratedConnection(): Connection;
 
     /**
      * @inheritDoc
      */
-    public function getQueryBuilder(): \Cake\Database\Query
+    public function getQueryBuilder(): Query
     {
         return $this->getDecoratedConnection()->newQuery();
     }

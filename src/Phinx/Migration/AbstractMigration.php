@@ -7,6 +7,7 @@
 
 namespace Phinx\Migration;
 
+use Cake\Database\Query;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Table;
 use RuntimeException;
@@ -38,17 +39,17 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @var \Phinx\Db\Adapter\AdapterInterface|null
      */
-    protected $adapter = null;
+    protected $adapter;
 
     /**
      * @var \Symfony\Component\Console\Output\OutputInterface|null
      */
-    protected $output = null;
+    protected $output;
 
     /**
      * @var \Symfony\Component\Console\Input\InputInterface|null
      */
-    protected $input = null;
+    protected $input;
 
     /**
      * Whether this migration is being applied or reverted
@@ -209,7 +210,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
-    public function getQueryBuilder(): \Cake\Database\Query
+    public function getQueryBuilder(): Query
     {
         return $this->getAdapter()->getQueryBuilder();
     }

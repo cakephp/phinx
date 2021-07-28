@@ -41,9 +41,9 @@ class AddForeignKey extends Action
      * @param string|string[] $referencedColumns The columns in the referenced table
      * @param array $options Extra options for the foreign key
      * @param string|null $name The name of the foreign key
-     * @return self
+     * @return static
      */
-    public static function build(Table $table, $columns, $referencedTable, $referencedColumns = ['id'], array $options = [], ?string $name = null): AddForeignKey
+    public static function build(Table $table, $columns, $referencedTable, $referencedColumns = ['id'], array $options = [], ?string $name = null)
     {
         if (is_string($referencedColumns)) {
             $referencedColumns = [$referencedColumns]; // str to array

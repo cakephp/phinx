@@ -38,9 +38,9 @@ class AddColumn extends Action
      * @param string $columnName The column name
      * @param mixed $type The column type
      * @param array $options The column options
-     * @return self
+     * @return static
      */
-    public static function build(Table $table, string $columnName, $type = null, array $options = []): AddColumn
+    public static function build(Table $table, string $columnName, $type = null, array $options = [])
     {
         $column = new Column();
         $column->setName($columnName);

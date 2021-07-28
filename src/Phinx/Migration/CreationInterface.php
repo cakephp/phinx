@@ -27,13 +27,13 @@ interface CreationInterface
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
      * @return $this
      */
-    public function setInput(InputInterface $input): CreationInterface;
+    public function setInput(InputInterface $input);
 
     /**
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      * @return $this
      */
-    public function setOutput(OutputInterface $output): CreationInterface;
+    public function setOutput(OutputInterface $output);
 
     /**
      * @return \Symfony\Component\Console\Input\InputInterface
