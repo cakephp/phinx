@@ -753,7 +753,7 @@ class MysqlAdapter extends PdoAdapter
                 k.COLUMN_NAME
             FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS t
             JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE k
-                USING(CONSTRAINT_NAME,TABLE_NAME)
+                USING(CONSTRAINT_NAME,TABLE_SCHEMA,TABLE_NAME)
             WHERE t.CONSTRAINT_TYPE='PRIMARY KEY'
                 AND t.TABLE_SCHEMA='%s'
                 AND t.TABLE_NAME='%s'",
