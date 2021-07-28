@@ -140,7 +140,7 @@ class AdapterFactory
      *
      * @param string $name Name
      * @throws \RuntimeException
-     * @return string|object
+     * @return object|string
      */
     protected function getWrapperClass(string $name)
     {
