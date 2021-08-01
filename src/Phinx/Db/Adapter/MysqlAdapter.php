@@ -470,7 +470,8 @@ class MysqlAdapter extends PdoAdapter
     {
         $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $column) {
-            if (strcasecmp($column['Field'], $columnName) === 0) {
+            $field = $column instanceof \stdClass ? $column->Field : $column['Field'];
+            if (strcasecmp($field, $columnName) === 0) {
                 return true;
             }
         }
