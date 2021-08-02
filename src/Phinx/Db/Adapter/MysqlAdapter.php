@@ -38,6 +38,7 @@ class MysqlAdapter extends PdoAdapter
         self::PHINX_TYPE_TINYBLOB,
         self::PHINX_TYPE_MEDIUMBLOB,
         self::PHINX_TYPE_LONGBLOB,
+        self::PHINX_TYPE_MEDIUM_INTEGER,
     ];
 
     /**
@@ -47,6 +48,7 @@ class MysqlAdapter extends PdoAdapter
         self::PHINX_TYPE_INTEGER => true,
         self::PHINX_TYPE_TINY_INTEGER => true,
         self::PHINX_TYPE_SMALL_INTEGER => true,
+        self::PHINX_TYPE_MEDIUM_INTEGER => true,
         self::PHINX_TYPE_BIG_INTEGER => true,
         self::PHINX_TYPE_FLOAT => true,
         self::PHINX_TYPE_DECIMAL => true,
@@ -753,7 +755,7 @@ class MysqlAdapter extends PdoAdapter
                 k.COLUMN_NAME
             FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS t
             JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE k
-                USING(CONSTRAINT_NAME,TABLE_NAME)
+                USING(CONSTRAINT_NAME,TABLE_SCHEMA,TABLE_NAME)
             WHERE t.CONSTRAINT_TYPE='PRIMARY KEY'
                 AND t.TABLE_SCHEMA='%s'
                 AND t.TABLE_NAME='%s'",
@@ -1000,6 +1002,10 @@ class MysqlAdapter extends PdoAdapter
                 return $this->getSqlType(static::PHINX_TYPE_BLOB, $limit ?: static::BLOB_LONG);
             case static::PHINX_TYPE_BIT:
                 return ['name' => 'bit', 'limit' => $limit ?: 64];
+            case static::PHINX_TYPE_BIG_INTEGER:
+                return ['name' => 'bigint', 'limit' => $limit ?: 20];
+            case static::PHINX_TYPE_MEDIUM_INTEGER:
+                return ['name' => 'mediumint', 'limit' => $limit ?: 8];
             case static::PHINX_TYPE_SMALL_INTEGER:
                 return ['name' => 'smallint', 'limit' => $limit ?: 6];
             case static::PHINX_TYPE_TINY_INTEGER:
@@ -1017,6 +1023,7 @@ class MysqlAdapter extends PdoAdapter
                     $limits = [
                         'tinyint' => 4,
                         'smallint' => 6,
+                        'mediumint' => 8,
                         'int' => 11,
                         'bigint' => 20,
                     ];
@@ -1035,8 +1042,6 @@ class MysqlAdapter extends PdoAdapter
                 }
 
                 return ['name' => 'int', 'limit' => $limit];
-            case static::PHINX_TYPE_BIG_INTEGER:
-                return ['name' => 'bigint', 'limit' => $limit ?: 20];
             case static::PHINX_TYPE_BOOLEAN:
                 return ['name' => 'tinyint', 'limit' => 1];
             case static::PHINX_TYPE_UUID:
@@ -1105,7 +1110,7 @@ class MysqlAdapter extends PdoAdapter
                 $limit = static::INT_SMALL;
                 break;
             case 'mediumint':
-                $type = static::PHINX_TYPE_INTEGER;
+                $type = static::PHINX_TYPE_MEDIUM_INTEGER;
                 $limit = static::INT_MEDIUM;
                 break;
             case 'int':
