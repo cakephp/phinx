@@ -1,0 +1,7 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Call to function is_subclass_of\\(\\) with non\\-empty\\-string and 'Phinx\\\\\\\\Migration…' will always evaluate to false\\.$#"
+			count: 1
+			path: src/Phinx/Console/Command/Create.php
+

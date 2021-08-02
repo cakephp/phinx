@@ -33,6 +33,8 @@ class Column
     public const UUID = AdapterInterface::PHINX_TYPE_UUID;
     public const BINARYUUID = AdapterInterface::PHINX_TYPE_BINARYUUID;
     /** MySQL-only column type */
+    public const MEDIUMINTEGER = AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER;
+    /** MySQL-only column type */
     public const ENUM = AdapterInterface::PHINX_TYPE_ENUM;
     /** MySQL-only column type */
     public const SET = AdapterInterface::PHINX_TYPE_STRING;
