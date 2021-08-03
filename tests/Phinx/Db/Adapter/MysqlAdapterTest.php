@@ -466,7 +466,7 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasTable('ntable'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
         $column_definitions = $this->adapter->getColumns('ntable');
-        $this->assertSame($this->usingMysql8() ? null : 4.0, $column_definitions[0]->getLimit());
+        $this->assertSame($this->usingMysql8() ? null : 4, $column_definitions[0]->getLimit());
     }
 
     public function testCreateTableWithSchema()
