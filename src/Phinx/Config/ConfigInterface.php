@@ -8,6 +8,7 @@
 namespace Phinx\Config;
 
 use ArrayAccess;
+use Psr\Container\ContainerInterface;
 
 /**
  * Phinx configuration interface.
@@ -24,7 +25,7 @@ interface ConfigInterface extends ArrayAccess
      *
      * @return array|null
      */
-    public function getEnvironments();
+    public function getEnvironments(): ?array;
 
     /**
      * Returns the configuration for a given environment.
@@ -35,7 +36,7 @@ interface ConfigInterface extends ArrayAccess
      * @param string $name Environment Name
      * @return array|null
      */
-    public function getEnvironment($name);
+    public function getEnvironment(string $name): ?array;
 
     /**
      * Does the specified environment exist in the configuration file?
@@ -43,7 +44,7 @@ interface ConfigInterface extends ArrayAccess
      * @param string $name Environment Name
      * @return bool
      */
-    public function hasEnvironment($name);
+    public function hasEnvironment(string $name): bool;
 
     /**
      * Gets the default environment name.
@@ -51,7 +52,7 @@ interface ConfigInterface extends ArrayAccess
      * @throws \RuntimeException
      * @return string
      */
-    public function getDefaultEnvironment();
+    public function getDefaultEnvironment(): string;
 
     /**
      * Get the aliased value from a supplied alias.
@@ -59,35 +60,35 @@ interface ConfigInterface extends ArrayAccess
      * @param string $alias Alias
      * @return string|null
      */
-    public function getAlias($alias);
+    public function getAlias(string $alias): ?string;
 
     /**
      * Get all the aliased values.
      *
      * @return string[]
      */
-    public function getAliases();
+    public function getAliases(): array;
 
     /**
      * Gets the config file path.
      *
      * @return string
      */
-    public function getConfigFilePath();
+    public function getConfigFilePath(): ?string;
 
     /**
      * Gets the paths to search for migration files.
      *
      * @return string[]
      */
-    public function getMigrationPaths();
+    public function getMigrationPaths(): array;
 
     /**
      * Gets the paths to search for seed files.
      *
      * @return string[]
      */
-    public function getSeedPaths();
+    public function getSeedPaths(): array;
 
     /**
      * Get the template file name.
@@ -108,28 +109,28 @@ interface ConfigInterface extends ArrayAccess
      *
      * @return \Psr\Container\ContainerInterface|null
      */
-    public function getContainer();
+    public function getContainer(): ?ContainerInterface;
 
     /**
      * Get the data domain array.
      *
      * @return array
      */
-    public function getDataDomain();
+    public function getDataDomain(): array;
 
     /**
      * Get the version order.
      *
      * @return string
      */
-    public function getVersionOrder();
+    public function getVersionOrder(): string;
 
     /**
      * Is version order creation time?
      *
      * @return bool
      */
-    public function isVersionOrderCreationTime();
+    public function isVersionOrderCreationTime(): bool;
 
     /**
      * Get the bootstrap file path
@@ -144,7 +145,7 @@ interface ConfigInterface extends ArrayAccess
      * @param bool $dropNamespace Return the base migration class name without the namespace.
      * @return string
      */
-    public function getMigrationBaseClassName($dropNamespace = true);
+    public function getMigrationBaseClassName(bool $dropNamespace = true): string;
 
     /**
      * Gets the base class name for seeders.
@@ -152,5 +153,5 @@ interface ConfigInterface extends ArrayAccess
      * @param bool $dropNamespace Return the base seeder class name without the namespace.
      * @return string
      */
-    public function getSeedBaseClassName($dropNamespace = true);
+    public function getSeedBaseClassName(bool $dropNamespace = true): string;
 }

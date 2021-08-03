@@ -34,8 +34,6 @@ class PdoAdapterTest extends TestCase
 
     public function testOptionsSetConnection()
     {
-        $this->assertNull($this->adapter->getConnection());
-
         $connection = new PdoAdapterTestPDOMock();
         $this->adapter->setOptions(['connection' => $connection]);
 

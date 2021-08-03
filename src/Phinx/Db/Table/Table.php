@@ -42,7 +42,7 @@ class Table
      * @param string $name The name of the table
      * @return $this
      */
-    public function setName($name)
+    public function setName(string $name)
     {
         $this->name = $name;
 
@@ -54,7 +54,7 @@ class Table
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -64,7 +64,7 @@ class Table
      *
      * @return array
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options;
     }
@@ -73,10 +73,12 @@ class Table
      * Sets the table options
      *
      * @param array $options The options for the table creation
-     * @return void
+     * @return $this
      */
     public function setOptions(array $options)
     {
         $this->options = $options;
+
+        return $this;
     }
 }

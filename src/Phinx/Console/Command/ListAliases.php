@@ -23,7 +23,7 @@ class ListAliases extends AbstractCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -38,7 +38,7 @@ class ListAliases extends AbstractCommand
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      * @return int 0 on success
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
 

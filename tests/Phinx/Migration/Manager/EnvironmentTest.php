@@ -125,7 +125,7 @@ class EnvironmentTest extends TestCase
             ->getMock();
         $adapterStub->expects($this->once())
                     ->method('migrated')
-                    ->will($this->returnArgument(0));
+                    ->willReturn($adapterStub);
 
         $this->environment->setAdapter($adapterStub);
 
@@ -148,7 +148,7 @@ class EnvironmentTest extends TestCase
             ->getMock();
         $adapterStub->expects($this->once())
                     ->method('migrated')
-                    ->will($this->returnArgument(0));
+                    ->willReturn($adapterStub);
 
         $this->environment->setAdapter($adapterStub);
 
@@ -200,7 +200,7 @@ class EnvironmentTest extends TestCase
             ->getMock();
         $adapterStub->expects($this->once())
                     ->method('migrated')
-                    ->will($this->returnArgument(0));
+                    ->willReturn($adapterStub);
 
         $this->environment->setAdapter($adapterStub);
 
@@ -223,7 +223,7 @@ class EnvironmentTest extends TestCase
             ->getMock();
         $adapterStub->expects($this->once())
                     ->method('migrated')
-                    ->will($this->returnArgument(0));
+                    ->willReturn($adapterStub);
 
         $this->environment->setAdapter($adapterStub);
 
@@ -255,7 +255,7 @@ class EnvironmentTest extends TestCase
             ->getMock();
         $adapterStub->expects($this->once())
                     ->method('migrated')
-                    ->will($this->returnArgument(0));
+                    ->willReturn($adapterStub);
 
         $this->environment->setAdapter($adapterStub);
 

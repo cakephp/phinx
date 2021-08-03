@@ -53,7 +53,7 @@ class NewTable
      * @param \Phinx\Db\Table\Column $column The column description
      * @return void
      */
-    public function addColumn(Column $column)
+    public function addColumn(Column $column): void
     {
         $this->columns[] = $column;
     }
@@ -64,7 +64,7 @@ class NewTable
      * @param \Phinx\Db\Table\Index $index The index description
      * @return void
      */
-    public function addIndex(Index $index)
+    public function addIndex(Index $index): void
     {
         $this->indexes[] = $index;
     }
@@ -74,7 +74,7 @@ class NewTable
      *
      * @return \Phinx\Db\Table\Table
      */
-    public function getTable()
+    public function getTable(): Table
     {
         return $this->table;
     }
@@ -84,7 +84,7 @@ class NewTable
      *
      * @return \Phinx\Db\Table\Column[]
      */
-    public function getColumns()
+    public function getColumns(): array
     {
         return $this->columns;
     }
@@ -94,7 +94,7 @@ class NewTable
      *
      * @return \Phinx\Db\Table\Index[]
      */
-    public function getIndexes()
+    public function getIndexes(): array
     {
         return $this->indexes;
     }

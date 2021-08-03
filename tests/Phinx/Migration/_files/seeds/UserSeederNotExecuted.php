@@ -5,7 +5,7 @@ use Phinx\Seed\AbstractSeed;
 
 class UserSeederNotExecuted extends AbstractSeed
 {
-    public function run()
+    public function run(): void
     {
         $data = [
             [
@@ -23,7 +23,7 @@ class UserSeederNotExecuted extends AbstractSeed
               ->save();
     }
 
-    public function shouldExecute()
+    public function shouldExecute(): bool
     {
         return false;
     }

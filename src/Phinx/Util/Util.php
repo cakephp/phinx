@@ -45,7 +45,7 @@ class Util
      *
      * @return string
      */
-    public static function getCurrentTimestamp()
+    public static function getCurrentTimestamp(): string
     {
         $dt = new DateTime('now', new DateTimeZone('UTC'));
 
@@ -58,7 +58,7 @@ class Util
      * @param string $path Path
      * @return string[]
      */
-    public static function getExistingMigrationClassNames($path)
+    public static function getExistingMigrationClassNames(string $path): array
     {
         $classNames = [];
 
@@ -85,7 +85,7 @@ class Util
      * @param string $fileName File Name
      * @return string
      */
-    public static function getVersionFromFileName($fileName)
+    public static function getVersionFromFileName(string $fileName): string
     {
         $matches = [];
         preg_match('/^[0-9]+/', basename($fileName), $matches);
@@ -101,7 +101,7 @@ class Util
      * @param string $className Class Name
      * @return string
      */
-    public static function mapClassNameToFileName($className)
+    public static function mapClassNameToFileName(string $className): string
     {
         $snake = function ($matches) {
             return '_' . strtolower($matches[0]);
@@ -147,7 +147,7 @@ class Util
      * @param string $path Path
      * @return bool
      */
-    public static function isUniqueMigrationClassName($className, $path)
+    public static function isUniqueMigrationClassName(string $className, string $path): bool
     {
         $existingClassNames = static::getExistingMigrationClassNames($path);
 
@@ -165,7 +165,7 @@ class Util
      * @param string $className Class Name
      * @return bool
      */
-    public static function isValidPhinxClassName($className)
+    public static function isValidPhinxClassName(string $className): bool
     {
         return (bool)preg_match(static::CLASS_NAME_PATTERN, $className);
     }
@@ -188,7 +188,7 @@ class Util
      * @param string $fileName File Name
      * @return bool
      */
-    public static function isValidSeedFileName($fileName)
+    public static function isValidSeedFileName(string $fileName): bool
     {
         return (bool)preg_match(static::SEED_FILE_NAME_PATTERN, $fileName);
     }
@@ -199,7 +199,7 @@ class Util
      * @param string[] $paths Paths
      * @return string[]
      */
-    public static function globAll(array $paths)
+    public static function globAll(array $paths): array
     {
         $result = [];
 
@@ -216,7 +216,7 @@ class Util
      * @param string $path Path
      * @return string[]
      */
-    public static function glob($path)
+    public static function glob(string $path): array
     {
         return glob($path, defined('GLOB_BRACE') ? GLOB_BRACE : 0);
     }
@@ -231,7 +231,7 @@ class Util
      * @throws \Exception
      * @return string
      */
-    public static function loadPhpFile($filename, ?InputInterface $input = null, ?OutputInterface $output = null, $context = null)
+    public static function loadPhpFile(string $filename, ?InputInterface $input = null, ?OutputInterface $output = null, $context = null): string
     {
         $filePath = realpath($filename);
         if (!file_exists($filePath)) {
@@ -263,7 +263,7 @@ class Util
      * @param string|string[] $paths Path or array of paths to get .php files.
      * @return string[]
      */
-    public static function getFiles($paths)
+    public static function getFiles($paths): array
     {
         $files = static::globAll(array_map(function ($path) {
             return $path . DIRECTORY_SEPARATOR . '*.php';
@@ -283,7 +283,7 @@ class Util
      * @param string $path Path to remove cwd prefix from
      * @return string
      */
-    public static function relativePath($path)
+    public static function relativePath(string $path): string
     {
         $realpath = realpath($path);
         if ($realpath !== false) {

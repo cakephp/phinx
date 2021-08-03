@@ -4,7 +4,7 @@ use Phinx\Seed\AbstractSeed;
 
 class PostSeeder extends AbstractSeed
 {
-    public function run()
+    public function run(): void
     {
         $data = [
             [
@@ -22,7 +22,7 @@ class PostSeeder extends AbstractSeed
               ->save();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             'UserSeeder',

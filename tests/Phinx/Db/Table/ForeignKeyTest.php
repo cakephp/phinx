@@ -12,7 +12,7 @@ class ForeignKeyTest extends TestCase
     /**
      * @var ForeignKey
      */
-    private $fk = null;
+    private $fk;
 
     protected function setUp(): void
     {

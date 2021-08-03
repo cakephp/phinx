@@ -25,7 +25,7 @@ class Rollback extends AbstractCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -65,7 +65,7 @@ EOT
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      * @return int integer 0 on success, or an error code.
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
 
@@ -136,7 +136,7 @@ EOT
      * @throws \InvalidArgumentException
      * @return string The target
      */
-    public function getTargetFromDate($date)
+    public function getTargetFromDate(string $date): string
     {
         if (!preg_match('/^\d{4,14}$/', $date)) {
             throw new InvalidArgumentException('Invalid date. Format is YYYY[MM[DD[HH[II[SS]]]]].');

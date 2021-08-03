@@ -38,7 +38,7 @@ class Init extends Command
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setDescription('Initialize the application for Phinx')
             ->addOption(
@@ -63,7 +63,7 @@ class Init extends Command
      * @param \Symfony\Component\Console\Output\OutputInterface $output Interface implemented by all output classes.
      * @return int 0 on success
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $format = strtolower($input->getOption('format'));
         $path = $this->resolvePath($input, $format);
@@ -82,7 +82,7 @@ class Init extends Command
      * @throws \InvalidArgumentException
      * @return string
      */
-    protected function resolvePath(InputInterface $input, $format)
+    protected function resolvePath(InputInterface $input, string $format): string
     {
         // get the migration path from the config
         $path = (string)$input->getArgument('path');
@@ -134,7 +134,7 @@ class Init extends Command
      * @throws \RuntimeException
      * @return void
      */
-    protected function writeConfig($path, $format = AbstractCommand::FORMAT_DEFAULT)
+    protected function writeConfig(string $path, string $format = AbstractCommand::FORMAT_DEFAULT): void
     {
         // Check if dir is writable
         $dirname = dirname($path);

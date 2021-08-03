@@ -39,7 +39,7 @@ abstract class AbstractTemplateCreation implements CreationInterface
     /**
      * @inheritDoc
      */
-    public function getInput()
+    public function getInput(): InputInterface
     {
         return $this->input;
     }
@@ -47,7 +47,7 @@ abstract class AbstractTemplateCreation implements CreationInterface
     /**
      * @inheritDoc
      */
-    public function setInput(InputInterface $input)
+    public function setInput(InputInterface $input): CreationInterface
     {
         $this->input = $input;
 
@@ -57,7 +57,7 @@ abstract class AbstractTemplateCreation implements CreationInterface
     /**
      * @inheritDoc
      */
-    public function getOutput()
+    public function getOutput(): OutputInterface
     {
         return $this->output;
     }
@@ -65,7 +65,7 @@ abstract class AbstractTemplateCreation implements CreationInterface
     /**
      * @inheritDoc
      */
-    public function setOutput(OutputInterface $output)
+    public function setOutput(OutputInterface $output): CreationInterface
     {
         $this->output = $output;
 

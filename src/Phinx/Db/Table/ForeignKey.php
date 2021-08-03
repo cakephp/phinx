@@ -33,12 +33,12 @@ class ForeignKey
     protected $referencedColumns = [];
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $onDelete;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $onUpdate;
 
@@ -65,7 +65,7 @@ class ForeignKey
      *
      * @return string[]
      */
-    public function getColumns()
+    public function getColumns(): array
     {
         return $this->columns;
     }
@@ -88,7 +88,7 @@ class ForeignKey
      *
      * @return \Phinx\Db\Table\Table
      */
-    public function getReferencedTable()
+    public function getReferencedTable(): Table
     {
         return $this->referencedTable;
     }
@@ -111,7 +111,7 @@ class ForeignKey
      *
      * @return string[]
      */
-    public function getReferencedColumns()
+    public function getReferencedColumns(): array
     {
         return $this->referencedColumns;
     }
@@ -122,7 +122,7 @@ class ForeignKey
      * @param string $onDelete On Delete
      * @return $this
      */
-    public function setOnDelete($onDelete)
+    public function setOnDelete(string $onDelete)
     {
         $this->onDelete = $this->normalizeAction($onDelete);
 
@@ -132,9 +132,9 @@ class ForeignKey
     /**
      * Gets ON DELETE action for the foreign key.
      *
-     * @return string
+     * @return string|null
      */
-    public function getOnDelete()
+    public function getOnDelete(): ?string
     {
         return $this->onDelete;
     }
@@ -142,9 +142,9 @@ class ForeignKey
     /**
      * Gets ON UPDATE action for the foreign key.
      *
-     * @return string
+     * @return string|null
      */
-    public function getOnUpdate()
+    public function getOnUpdate(): ?string
     {
         return $this->onUpdate;
     }
@@ -155,7 +155,7 @@ class ForeignKey
      * @param string $onUpdate On Update
      * @return $this
      */
-    public function setOnUpdate($onUpdate)
+    public function setOnUpdate(string $onUpdate)
     {
         $this->onUpdate = $this->normalizeAction($onUpdate);
 
@@ -168,7 +168,7 @@ class ForeignKey
      * @param string $constraint Constraint
      * @return $this
      */
-    public function setConstraint($constraint)
+    public function setConstraint(string $constraint)
     {
         $this->constraint = $constraint;
 
@@ -180,7 +180,7 @@ class ForeignKey
      *
      * @return string|null
      */
-    public function getConstraint()
+    public function getConstraint(): ?string
     {
         return $this->constraint;
     }
@@ -192,7 +192,7 @@ class ForeignKey
      * @throws \RuntimeException
      * @return $this
      */
-    public function setOptions($options)
+    public function setOptions(array $options)
     {
         // Valid Options
         $validOptions = ['delete', 'update', 'constraint'];
@@ -222,7 +222,7 @@ class ForeignKey
      * @throws \InvalidArgumentException
      * @return string
      */
-    protected function normalizeAction($action)
+    protected function normalizeAction(string $action): string
     {
         $constantName = 'static::' . str_replace(' ', '_', strtoupper(trim($action)));
         if (!defined($constantName)) {

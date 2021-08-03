@@ -11,7 +11,7 @@ class ShouldNotExecuteMigration extends AbstractMigration
         $this->table('info')->create();
     }
 
-    public function shouldExecute()
+    public function shouldExecute(): bool
     {
         return false;
     }

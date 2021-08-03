@@ -58,7 +58,7 @@ class Table
      * @param array $options Options
      * @param \Phinx\Db\Adapter\AdapterInterface|null $adapter Database Adapter
      */
-    public function __construct($name, $options = [], ?AdapterInterface $adapter = null)
+    public function __construct(string $name, array $options = [], ?AdapterInterface $adapter = null)
     {
         $this->table = new TableValue($name, $options);
         $this->actions = new Intent();
@@ -71,9 +71,9 @@ class Table
     /**
      * Gets the table name.
      *
-     * @return string|null
+     * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->table->getName();
     }
@@ -83,7 +83,7 @@ class Table
      *
      * @return array
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->table->getOptions();
     }
@@ -93,7 +93,7 @@ class Table
      *
      * @return \Phinx\Db\Table\Table
      */
-    public function getTable()
+    public function getTable(): TableValue
     {
         return $this->table;
     }
@@ -115,9 +115,9 @@ class Table
      * Gets the database adapter.
      *
      * @throws \RuntimeException
-     * @return \Phinx\Db\Adapter\AdapterInterface|null
+     * @return \Phinx\Db\Adapter\AdapterInterface
      */
-    public function getAdapter()
+    public function getAdapter(): AdapterInterface
     {
         if (!$this->adapter) {
             throw new RuntimeException('There is no database adapter set yet, cannot proceed');
@@ -131,7 +131,7 @@ class Table
      *
      * @return bool
      */
-    public function hasPendingActions()
+    public function hasPendingActions(): bool
     {
         return count($this->actions->getActions()) > 0 || count($this->data) > 0;
     }
@@ -141,7 +141,7 @@ class Table
      *
      * @return bool
      */
-    public function exists()
+    public function exists(): bool
     {
         return $this->getAdapter()->hasTable($this->getName());
     }
@@ -164,7 +164,7 @@ class Table
      * @param string $newTableName New Table Name
      * @return $this
      */
-    public function rename($newTableName)
+    public function rename(string $newTableName)
     {
         $this->actions->addAction(new RenameTable($this->table, $newTableName));
 
@@ -191,7 +191,7 @@ class Table
      * @param string|null $constraint Constraint names
      * @return bool
      */
-    public function hasPrimaryKey($columns, $constraint = null)
+    public function hasPrimaryKey($columns, ?string $constraint = null): bool
     {
         return $this->getAdapter()->hasPrimaryKey($this->getName(), $columns, $constraint);
     }
@@ -202,7 +202,7 @@ class Table
      * @param string|null $comment New comment string, or null to drop the comment
      * @return $this
      */
-    public function changeComment($comment)
+    public function changeComment(?string $comment)
     {
         $this->actions->addAction(new ChangeComment($this->table, $comment));
 
@@ -214,7 +214,7 @@ class Table
      *
      * @return \Phinx\Db\Table\Column[]
      */
-    public function getColumns()
+    public function getColumns(): array
     {
         return $this->getAdapter()->getColumns($this->getName());
     }
@@ -225,7 +225,7 @@ class Table
      * @param string $name Column name
      * @return \Phinx\Db\Table\Column|null
      */
-    public function getColumn($name)
+    public function getColumn(string $name): ?Column
     {
         $columns = array_filter(
             $this->getColumns(),
@@ -243,7 +243,7 @@ class Table
      * @param array $data Data
      * @return $this
      */
-    public function setData($data)
+    public function setData(array $data)
     {
         $this->data = $data;
 
@@ -255,7 +255,7 @@ class Table
      *
      * @return array
      */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
     }
@@ -265,7 +265,7 @@ class Table
      *
      * @return void
      */
-    public function resetData()
+    public function resetData(): void
     {
         $this->setData([]);
     }
@@ -275,7 +275,7 @@ class Table
      *
      * @return void
      */
-    public function reset()
+    public function reset(): void
     {
         $this->actions = new Intent();
         $this->resetData();
@@ -295,7 +295,7 @@ class Table
      * @throws \InvalidArgumentException
      * @return $this
      */
-    public function addColumn($columnName, $type = null, $options = [])
+    public function addColumn($columnName, $type = null, array $options = [])
     {
         if ($columnName instanceof Column) {
             $action = new AddColumn($this->table, $columnName);
@@ -323,7 +323,7 @@ class Table
      * @param string $columnName Column Name
      * @return $this
      */
-    public function removeColumn($columnName)
+    public function removeColumn(string $columnName)
     {
         $action = RemoveColumn::build($this->table, $columnName);
         $this->actions->addAction($action);
@@ -338,7 +338,7 @@ class Table
      * @param string $newName New Column Name
      * @return $this
      */
-    public function renameColumn($oldName, $newName)
+    public function renameColumn(string $oldName, string $newName)
     {
         $action = RenameColumn::build($this->table, $oldName, $newName);
         $this->actions->addAction($action);
@@ -354,7 +354,7 @@ class Table
      * @param array $options Options
      * @return $this
      */
-    public function changeColumn($columnName, $newColumnType, array $options = [])
+    public function changeColumn(string $columnName, $newColumnType, array $options = [])
     {
         if ($newColumnType instanceof Column) {
             $action = new ChangeColumn($this->table, $columnName, $newColumnType);
@@ -372,7 +372,7 @@ class Table
      * @param string $columnName Column Name
      * @return bool
      */
-    public function hasColumn($columnName)
+    public function hasColumn(string $columnName): bool
     {
         return $this->getAdapter()->hasColumn($this->getName(), $columnName);
     }
@@ -414,7 +414,7 @@ class Table
      * @param string $name Index name
      * @return $this
      */
-    public function removeIndexByName($name)
+    public function removeIndexByName(string $name)
     {
         $action = DropIndex::buildFromName($this->table, $name);
         $this->actions->addAction($action);
@@ -428,7 +428,7 @@ class Table
      * @param string|string[] $columns Columns
      * @return bool
      */
-    public function hasIndex($columns)
+    public function hasIndex($columns): bool
     {
         return $this->getAdapter()->hasIndex($this->getName(), $columns);
     }
@@ -439,7 +439,7 @@ class Table
      * @param string $indexName Index name
      * @return bool
      */
-    public function hasIndexByName($indexName)
+    public function hasIndexByName($indexName): bool
     {
         return $this->getAdapter()->hasIndexByName($this->getName(), $indexName);
     }
@@ -456,7 +456,7 @@ class Table
      * @param array $options Options
      * @return $this
      */
-    public function addForeignKey($columns, $referencedTable, $referencedColumns = ['id'], $options = [])
+    public function addForeignKey($columns, $referencedTable, $referencedColumns = ['id'], array $options = [])
     {
         $action = AddForeignKey::build($this->table, $columns, $referencedTable, $referencedColumns, $options);
         $this->actions->addAction($action);
@@ -477,7 +477,7 @@ class Table
      * @param array $options Options
      * @return $this
      */
-    public function addForeignKeyWithName($name, $columns, $referencedTable, $referencedColumns = ['id'], $options = [])
+    public function addForeignKeyWithName(string $name, $columns, $referencedTable, $referencedColumns = ['id'], array $options = [])
     {
         $action = AddForeignKey::build(
             $this->table,
@@ -499,7 +499,7 @@ class Table
      * @param string|null $constraint Constraint names
      * @return $this
      */
-    public function dropForeignKey($columns, $constraint = null)
+    public function dropForeignKey($columns, ?string $constraint = null)
     {
         $action = DropForeignKey::build($this->table, $columns, $constraint);
         $this->actions->addAction($action);
@@ -514,7 +514,7 @@ class Table
      * @param string|null $constraint Constraint names
      * @return bool
      */
-    public function hasForeignKey($columns, $constraint = null)
+    public function hasForeignKey($columns, ?string $constraint = null): bool
     {
         return $this->getAdapter()->hasForeignKey($this->getName(), $columns, $constraint);
     }
@@ -527,7 +527,7 @@ class Table
      * @param bool $withTimezone Whether to set the timezone option on the added columns
      * @return $this
      */
-    public function addTimestamps($createdAt = 'created_at', $updatedAt = 'updated_at', $withTimezone = false)
+    public function addTimestamps($createdAt = 'created_at', $updatedAt = 'updated_at', bool $withTimezone = false)
     {
         $createdAt = $createdAt ?? 'created_at';
         $updatedAt = $updatedAt ?? 'updated_at';
@@ -560,8 +560,8 @@ class Table
      * Alias that always sets $withTimezone to true
      *
      * @see addTimestamps
-     * @param string|null $createdAt Alternate name for the created_at column
-     * @param string|null $updatedAt Alternate name for the updated_at column
+     * @param string|false|null $createdAt Alternate name for the created_at column
+     * @param string|false|null $updatedAt Alternate name for the updated_at column
      * @return $this
      */
     public function addTimestampsWithTimezone($createdAt = null, $updatedAt = null)
@@ -582,7 +582,7 @@ class Table
      *              or array("col1" => "value1", "col2" => "anotherValue1")
      * @return $this
      */
-    public function insert($data)
+    public function insert(array $data)
     {
         // handle array of array situations
         $keys = array_keys($data);
@@ -607,7 +607,7 @@ class Table
      *
      * @return void
      */
-    public function create()
+    public function create(): void
     {
         $this->executeActions(false);
         $this->saveData();
@@ -619,7 +619,7 @@ class Table
      *
      * @return void
      */
-    public function update()
+    public function update(): void
     {
         $this->executeActions(true);
         $this->saveData();
@@ -631,7 +631,7 @@ class Table
      *
      * @return void
      */
-    public function saveData()
+    public function saveData(): void
     {
         $rows = $this->getData();
         if (empty($rows)) {
@@ -665,7 +665,7 @@ class Table
      *
      * @return void
      */
-    public function truncate()
+    public function truncate(): void
     {
         $this->getAdapter()->truncateTable($this->getName());
     }
@@ -677,7 +677,7 @@ class Table
      *
      * @return void
      */
-    public function save()
+    public function save(): void
     {
         if ($this->exists()) {
             $this->update(); // update the table
@@ -692,7 +692,7 @@ class Table
      * @param bool $exists Whether or not the table existed prior to executing this method
      * @return void
      */
-    protected function executeActions($exists)
+    protected function executeActions(bool $exists): void
     {
         // Renaming a table is tricky, specially when running a reversible migration
         // down. We will just assume the table already exists if the user commands a

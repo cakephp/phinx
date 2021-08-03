@@ -7,6 +7,7 @@
 
 namespace Phinx\Db\Adapter;
 
+use Cake\Database\Query;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Table;
 use Phinx\Migration\MigrationInterface;
@@ -73,7 +74,7 @@ interface AdapterInterface
      *
      * @return array
      */
-    public function getVersions();
+    public function getVersions(): array;
 
     /**
      * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's
@@ -81,13 +82,13 @@ interface AdapterInterface
      *
      * @return array
      */
-    public function getVersionLog();
+    public function getVersionLog(): array;
 
     /**
      * Set adapter configuration options.
      *
      * @param array $options Options
-     * @return \Phinx\Db\Adapter\AdapterInterface
+     * @return $this
      */
     public function setOptions(array $options);
 
@@ -96,7 +97,7 @@ interface AdapterInterface
      *
      * @return array
      */
-    public function getOptions();
+    public function getOptions(): array;
 
     /**
      * Check if an option has been set.
@@ -104,7 +105,7 @@ interface AdapterInterface
      * @param string $name Name
      * @return bool
      */
-    public function hasOption($name);
+    public function hasOption(string $name): bool;
 
     /**
      * Get a single adapter option, or null if the option does not exist.
@@ -112,28 +113,28 @@ interface AdapterInterface
      * @param string $name Name
      * @return mixed
      */
-    public function getOption($name);
+    public function getOption(string $name);
 
     /**
      * Sets the console input.
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     * @return \Phinx\Db\Adapter\AdapterInterface
+     * @return $this
      */
     public function setInput(InputInterface $input);
 
     /**
      * Gets the console input.
      *
-     * @return \Symfony\Component\Console\Input\InputInterface
+     * @return \Symfony\Component\Console\Input\InputInterface|null
      */
-    public function getInput();
+    public function getInput(): ?InputInterface;
 
     /**
      * Sets the console output.
      *
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     * @return \Phinx\Db\Adapter\AdapterInterface
+     * @return $this
      */
     public function setOutput(OutputInterface $output);
 
@@ -142,7 +143,7 @@ interface AdapterInterface
      *
      * @return \Symfony\Component\Console\Output\OutputInterface
      */
-    public function getOutput();
+    public function getOutput(): OutputInterface;
 
     /**
      * Returns a new Phinx\Db\Table\Column using the existent data domain.
@@ -152,7 +153,7 @@ interface AdapterInterface
      * @param array $options Options array
      * @return \Phinx\Db\Table\Column
      */
-    public function getColumnForType($columnName, $type, array $options);
+    public function getColumnForType(string $columnName, string $type, array $options): Column;
 
     /**
      * Records a migration being run.
@@ -161,15 +162,15 @@ interface AdapterInterface
      * @param string $direction Direction
      * @param string $startTime Start Time
      * @param string $endTime End Time
-     * @return \Phinx\Db\Adapter\AdapterInterface
+     * @return $this
      */
-    public function migrated(MigrationInterface $migration, $direction, $startTime, $endTime);
+    public function migrated(MigrationInterface $migration, string $direction, string $startTime, string $endTime);
 
     /**
      * Toggle a migration breakpoint.
      *
      * @param \Phinx\Migration\MigrationInterface $migration Migration
-     * @return \Phinx\Db\Adapter\AdapterInterface
+     * @return $this
      */
     public function toggleBreakpoint(MigrationInterface $migration);
 
@@ -178,13 +179,13 @@ interface AdapterInterface
      *
      * @return int The number of breakpoints reset
      */
-    public function resetAllBreakpoints();
+    public function resetAllBreakpoints(): int;
 
     /**
      * Set a migration breakpoint.
      *
      * @param \Phinx\Migration\MigrationInterface $migration The migration target for the breakpoint set
-     * @return \Phinx\Db\Adapter\AdapterInterface
+     * @return $this
      */
     public function setBreakpoint(MigrationInterface $migration);
 
@@ -192,7 +193,7 @@ interface AdapterInterface
      * Unset a migration breakpoint.
      *
      * @param \Phinx\Migration\MigrationInterface $migration The migration target for the breakpoint unset
-     * @return \Phinx\Db\Adapter\AdapterInterface
+     * @return $this
      */
     public function unsetBreakpoint(MigrationInterface $migration);
 
@@ -201,14 +202,14 @@ interface AdapterInterface
      *
      * @return void
      */
-    public function createSchemaTable();
+    public function createSchemaTable(): void;
 
     /**
      * Returns the adapter type.
      *
      * @return string
      */
-    public function getAdapterType();
+    public function getAdapterType(): string;
 
     /**
      * Initializes the database connection.
@@ -216,42 +217,42 @@ interface AdapterInterface
      * @throws \RuntimeException When the requested database driver is not installed.
      * @return void
      */
-    public function connect();
+    public function connect(): void;
 
     /**
      * Closes the database connection.
      *
      * @return void
      */
-    public function disconnect();
+    public function disconnect(): void;
 
     /**
      * Does the adapter support transactions?
      *
      * @return bool
      */
-    public function hasTransactions();
+    public function hasTransactions(): bool;
 
     /**
      * Begin a transaction.
      *
      * @return void
      */
-    public function beginTransaction();
+    public function beginTransaction(): void;
 
     /**
      * Commit a transaction.
      *
      * @return void
      */
-    public function commitTransaction();
+    public function commitTransaction(): void;
 
     /**
      * Rollback a transaction.
      *
      * @return void
      */
-    public function rollbackTransaction();
+    public function rollbackTransaction(): void;
 
     /**
      * Executes a SQL statement and returns the number of affected rows.
@@ -260,7 +261,7 @@ interface AdapterInterface
      * @param array $params parameters to use for prepared query
      * @return int
      */
-    public function execute($sql, array $params = []);
+    public function execute(string $sql, array $params = []): int;
 
     /**
      * Executes a list of migration actions for the given table
@@ -269,14 +270,14 @@ interface AdapterInterface
      * @param \Phinx\Db\Action\Action[] $actions The table to execute the actions for
      * @return void
      */
-    public function executeActions(Table $table, array $actions);
+    public function executeActions(Table $table, array $actions): void;
 
     /**
      * Returns a new Query object
      *
      * @return \Cake\Database\Query
      */
-    public function getQueryBuilder();
+    public function getQueryBuilder(): Query;
 
     /**
      * Executes a SQL statement.
@@ -287,7 +288,7 @@ interface AdapterInterface
      * @param array $params parameters to use for prepared query
      * @return mixed
      */
-    public function query($sql, array $params = []);
+    public function query(string $sql, array $params = []);
 
     /**
      * Executes a query and returns only one row as an array.
@@ -295,7 +296,7 @@ interface AdapterInterface
      * @param string $sql SQL
      * @return array|false
      */
-    public function fetchRow($sql);
+    public function fetchRow(string $sql);
 
     /**
      * Executes a query and returns an array of rows.
@@ -303,7 +304,7 @@ interface AdapterInterface
      * @param string $sql SQL
      * @return array
      */
-    public function fetchAll($sql);
+    public function fetchAll(string $sql): array;
 
     /**
      * Inserts data into a table.
@@ -312,7 +313,7 @@ interface AdapterInterface
      * @param array $row Row
      * @return void
      */
-    public function insert(Table $table, $row);
+    public function insert(Table $table, array $row): void;
 
     /**
      * Inserts data into a table in a bulk.
@@ -321,7 +322,7 @@ interface AdapterInterface
      * @param array $rows Rows
      * @return void
      */
-    public function bulkinsert(Table $table, $rows);
+    public function bulkinsert(Table $table, array $rows): void;
 
     /**
      * Quotes a table name for use in a query.
@@ -329,7 +330,7 @@ interface AdapterInterface
      * @param string $tableName Table name
      * @return string
      */
-    public function quoteTableName($tableName);
+    public function quoteTableName(string $tableName): string;
 
     /**
      * Quotes a column name for use in a query.
@@ -337,7 +338,7 @@ interface AdapterInterface
      * @param string $columnName Table name
      * @return string
      */
-    public function quoteColumnName($columnName);
+    public function quoteColumnName(string $columnName): string;
 
     /**
      * Checks to see if a table exists.
@@ -345,7 +346,7 @@ interface AdapterInterface
      * @param string $tableName Table name
      * @return bool
      */
-    public function hasTable($tableName);
+    public function hasTable(string $tableName): bool;
 
     /**
      * Creates the specified database table.
@@ -355,7 +356,7 @@ interface AdapterInterface
      * @param \Phinx\Db\Table\Index[] $indexes List of indexes for the table
      * @return void
      */
-    public function createTable(Table $table, array $columns = [], array $indexes = []);
+    public function createTable(Table $table, array $columns = [], array $indexes = []): void;
 
     /**
      * Truncates the specified table
@@ -363,7 +364,7 @@ interface AdapterInterface
      * @param string $tableName Table name
      * @return void
      */
-    public function truncateTable($tableName);
+    public function truncateTable(string $tableName): void;
 
     /**
      * Returns table columns
@@ -371,7 +372,7 @@ interface AdapterInterface
      * @param string $tableName Table name
      * @return \Phinx\Db\Table\Column[]
      */
-    public function getColumns($tableName);
+    public function getColumns(string $tableName): array;
 
     /**
      * Checks to see if a column exists.
@@ -380,7 +381,7 @@ interface AdapterInterface
      * @param string $columnName Column name
      * @return bool
      */
-    public function hasColumn($tableName, $columnName);
+    public function hasColumn(string $tableName, string $columnName): bool;
 
     /**
      * Checks to see if an index exists.
@@ -389,7 +390,7 @@ interface AdapterInterface
      * @param string|string[] $columns Column(s)
      * @return bool
      */
-    public function hasIndex($tableName, $columns);
+    public function hasIndex(string $tableName, $columns): bool;
 
     /**
      * Checks to see if an index specified by name exists.
@@ -398,7 +399,7 @@ interface AdapterInterface
      * @param string $indexName Index name
      * @return bool
      */
-    public function hasIndexByName($tableName, $indexName);
+    public function hasIndexByName(string $tableName, string $indexName): bool;
 
     /**
      * Checks to see if the specified primary key exists.
@@ -408,7 +409,7 @@ interface AdapterInterface
      * @param string|null $constraint Constraint name
      * @return bool
      */
-    public function hasPrimaryKey($tableName, $columns, $constraint = null);
+    public function hasPrimaryKey(string $tableName, $columns, ?string $constraint = null): bool;
 
     /**
      * Checks to see if a foreign key exists.
@@ -418,14 +419,14 @@ interface AdapterInterface
      * @param string|null $constraint Constraint name
      * @return bool
      */
-    public function hasForeignKey($tableName, $columns, $constraint = null);
+    public function hasForeignKey(string $tableName, $columns, ?string $constraint = null): bool;
 
     /**
      * Returns an array of the supported Phinx column types.
      *
      * @return string[]
      */
-    public function getColumnTypes();
+    public function getColumnTypes(): array;
 
     /**
      * Checks that the given column is of a supported type.
@@ -433,16 +434,16 @@ interface AdapterInterface
      * @param \Phinx\Db\Table\Column $column Column
      * @return bool
      */
-    public function isValidColumnType(Column $column);
+    public function isValidColumnType(Column $column): bool;
 
     /**
      * Converts the Phinx logical type to the adapter's SQL type.
      *
-     * @param string $type Type
+     * @param \Phinx\Util\Literal|string $type Type
      * @param int|null $limit Limit
      * @return array
      */
-    public function getSqlType($type, $limit = null);
+    public function getSqlType($type, ?int $limit = null): array;
 
     /**
      * Creates a new database.
@@ -451,7 +452,7 @@ interface AdapterInterface
      * @param array $options Options
      * @return void
      */
-    public function createDatabase($name, $options = []);
+    public function createDatabase(string $name, array $options = []): void;
 
     /**
      * Checks to see if a database exists.
@@ -459,7 +460,7 @@ interface AdapterInterface
      * @param string $name Database Name
      * @return bool
      */
-    public function hasDatabase($name);
+    public function hasDatabase(string $name): bool;
 
     /**
      * Drops the specified database.
@@ -467,7 +468,7 @@ interface AdapterInterface
      * @param string $name Database Name
      * @return void
      */
-    public function dropDatabase($name);
+    public function dropDatabase(string $name): void;
 
     /**
      * Creates the specified schema or throws an exception
@@ -476,7 +477,7 @@ interface AdapterInterface
      * @param string $schemaName Schema Name
      * @return void
      */
-    public function createSchema($schemaName = 'public');
+    public function createSchema(string $schemaName = 'public'): void;
 
     /**
      * Drops the specified schema table or throws an exception
@@ -485,7 +486,7 @@ interface AdapterInterface
      * @param string $schemaName Schema name
      * @return void
      */
-    public function dropSchema($schemaName);
+    public function dropSchema(string $schemaName): void;
 
     /**
      * Cast a value to a boolean appropriate for the adapter.

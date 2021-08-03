@@ -41,7 +41,7 @@ class AlterInstructions
      * @param string $part The SQL snipped to add as part of the ALTER instruction
      * @return void
      */
-    public function addAlter($part)
+    public function addAlter(string $part): void
     {
         $this->alterParts[] = $part;
     }
@@ -57,7 +57,7 @@ class AlterInstructions
      * @param string|callable $sql The SQL to run after, or a callable to execute
      * @return void
      */
-    public function addPostStep($sql)
+    public function addPostStep($sql): void
     {
         $this->postSteps[] = $sql;
     }
@@ -67,7 +67,7 @@ class AlterInstructions
      *
      * @return string[]
      */
-    public function getAlterParts()
+    public function getAlterParts(): array
     {
         return $this->alterParts;
     }
@@ -77,7 +77,7 @@ class AlterInstructions
      *
      * @return (string|callable)[]
      */
-    public function getPostSteps()
+    public function getPostSteps(): array
     {
         return $this->postSteps;
     }
@@ -88,7 +88,7 @@ class AlterInstructions
      * @param \Phinx\Db\Util\AlterInstructions $other The other collection of instructions to merge in
      * @return void
      */
-    public function merge(AlterInstructions $other)
+    public function merge(AlterInstructions $other): void
     {
         $this->alterParts = array_merge($this->alterParts, $other->getAlterParts());
         $this->postSteps = array_merge($this->postSteps, $other->getPostSteps());
@@ -101,7 +101,7 @@ class AlterInstructions
      * @param callable $executor The function to be used to execute all instructions
      * @return void
      */
-    public function execute($alterTemplate, callable $executor)
+    public function execute(string $alterTemplate, callable $executor): void
     {
         if ($this->alterParts) {
             $alter = sprintf($alterTemplate, implode(', ', $this->alterParts));
