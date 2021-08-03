@@ -2105,7 +2105,7 @@ INPUT;
             MYSQL_DB_CONFIG['name']
         ));
         $colDef = $rows[0];
-        $this->assertEquals('CURRENT_TIMESTAMP(3)', $colDef['COLUMN_DEFAULT']);
+        $this->assertEqualsIgnoringCase('CURRENT_TIMESTAMP(3)', $colDef['COLUMN_DEFAULT']);
     }
 
     public function pdoAttributeProvider()

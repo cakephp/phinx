@@ -1401,9 +1401,9 @@ PCRE_PATTERN;
         $typeLC = strtolower($type);
         if ($type instanceof Literal) {
             $name = $type;
-        } elseif (isset(self::$supportedColumnTypes[$typeLC])) {
-            $name = self::$supportedColumnTypes[$typeLC];
-        } elseif (in_array($typeLC, self::$unsupportedColumnTypes, true)) {
+        } elseif (isset(static::$supportedColumnTypes[$typeLC])) {
+            $name = static::$supportedColumnTypes[$typeLC];
+        } elseif (in_array($typeLC, static::$unsupportedColumnTypes, true)) {
             throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by SQLite.');
         } else {
             throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not known by SQLite.');
@@ -1439,13 +1439,13 @@ PCRE_PATTERN;
                 // the type is a MySQL-style boolean
                 $name = static::PHINX_TYPE_BOOLEAN;
                 $limit = null;
-            } elseif (isset(self::$supportedColumnTypes[$typeLC])) {
+            } elseif (isset(static::$supportedColumnTypes[$typeLC])) {
                 // the type is an explicitly supported type
                 $name = $typeLC;
-            } elseif (isset(self::$supportedColumnTypeAliases[$typeLC])) {
+            } elseif (isset(static::$supportedColumnTypeAliases[$typeLC])) {
                 // the type is an alias for a supported type
-                $name = self::$supportedColumnTypeAliases[$typeLC];
-            } elseif (in_array($typeLC, self::$unsupportedColumnTypes, true)) {
+                $name = static::$supportedColumnTypeAliases[$typeLC];
+            } elseif (in_array($typeLC, static::$unsupportedColumnTypes, true)) {
                 // unsupported but known types are passed through lowercased, and without appended affinity
                 $name = Literal::from($typeLC);
             } else {

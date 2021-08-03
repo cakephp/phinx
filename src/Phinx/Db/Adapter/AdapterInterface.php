@@ -58,6 +58,7 @@ interface AdapterInterface
     public const PHINX_TYPE_POLYGON = 'polygon';
 
     // only for mysql so far
+    public const PHINX_TYPE_MEDIUM_INTEGER = 'mediuminteger';
     public const PHINX_TYPE_ENUM = 'enum';
     public const PHINX_TYPE_SET = 'set';
     public const PHINX_TYPE_YEAR = 'year';
