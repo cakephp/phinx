@@ -961,7 +961,7 @@ class PostgresAdapter extends PdoAdapter
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
-    public function getSqlType($type, ?float $limit = null): array
+    public function getSqlType($type, ?int $limit = null): array
     {
         switch ($type) {
             case static::PHINX_TYPE_TEXT:

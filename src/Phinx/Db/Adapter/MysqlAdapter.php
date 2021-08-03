@@ -56,24 +56,29 @@ class MysqlAdapter extends PdoAdapter
         self::PHINX_TYPE_BOOLEAN => true,
     ];
 
+    // These constants roughly correspond to the maximum allowed value for each field,
+    // except for the `_LONG` and `_BIG` variants, which are maxed at 32-bit
+    // PHP_INT_MAX value. The `INT_REGULAR` field is just arbitrarily half of INT_BIG
+    // as its actual value is its regular value is larger than PHP_INT_MAX. We do this
+    // to keep consistent the type hints for getSqlType and Column::$limit being integers.
     public const TEXT_TINY = 255;
     public const TEXT_SMALL = 255; /* deprecated, alias of TEXT_TINY */
     public const TEXT_REGULAR = 65535;
     public const TEXT_MEDIUM = 16777215;
-    public const TEXT_LONG = 4294967295;
+    public const TEXT_LONG = 2147483647;
 
     // According to https://dev.mysql.com/doc/refman/5.0/en/blob.html BLOB sizes are the same as TEXT
     public const BLOB_TINY = 255;
     public const BLOB_SMALL = 255; /* deprecated, alias of BLOB_TINY */
     public const BLOB_REGULAR = 65535;
     public const BLOB_MEDIUM = 16777215;
-    public const BLOB_LONG = 4294967295;
+    public const BLOB_LONG = 2147483647;
 
     public const INT_TINY = 255;
     public const INT_SMALL = 65535;
     public const INT_MEDIUM = 16777215;
-    public const INT_REGULAR = 4294967295;
-    public const INT_BIG = 18446744073709551615;
+    public const INT_REGULAR = 1073741823;
+    public const INT_BIG = 2147483647;
 
     public const BIT = 64;
 
@@ -907,7 +912,7 @@ class MysqlAdapter extends PdoAdapter
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
-    public function getSqlType($type, ?float $limit = null): array
+    public function getSqlType($type, ?int $limit = null): array
     {
         switch ($type) {
             case static::PHINX_TYPE_FLOAT:

@@ -440,10 +440,10 @@ interface AdapterInterface
      * Converts the Phinx logical type to the adapter's SQL type.
      *
      * @param \Phinx\Util\Literal|string $type Type
-     * @param float|null $limit Limit
+     * @param int|null $limit Limit
      * @return array
      */
-    public function getSqlType($type, ?float $limit = null): array;
+    public function getSqlType($type, ?int $limit = null): array;
 
     /**
      * Creates a new database.
