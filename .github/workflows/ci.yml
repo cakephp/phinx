@@ -1,6 +1,15 @@
 name: CI
 
-on: ['push', 'pull_request']
+on:
+  push:
+    branches:
+      - 'master'
+      - '0.next'
+  pull_request:
+    branches:
+      - '*'
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   testsuite:
