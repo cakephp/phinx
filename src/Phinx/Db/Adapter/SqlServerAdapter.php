@@ -471,7 +471,7 @@ class SqlServerAdapter extends PdoAdapter
                    ->setIdentity($columnInfo['identity'] === '1')
                    ->setComment($this->getColumnComment($columnInfo['table_name'], $columnInfo['name']));
 
-            if ($type != self::PHINX_TYPE_TEXT && !empty($columnInfo['char_length'])) {
+            if ($type !== self::PHINX_TYPE_TEXT && !empty($columnInfo['char_length'])) {
                 // Do not set a limit for text, as that is handled elsewhere.
                 $column->setLimit($columnInfo['char_length']);
             }
