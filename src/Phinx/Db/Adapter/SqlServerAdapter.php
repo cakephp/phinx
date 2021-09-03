@@ -1103,18 +1103,18 @@ ORDER BY T.[name], I.[index_id];";
      * @internal param string $sqlType SQL type
      *
      * @param string $sqlType SQL Type definition
-     * @param int|null $char_length Column length value
+     * @param int|null $charLength Column length value
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      *
      * @return string Phinx type
      */
-    public function getPhinxType($sqlType, $char_length = null)
+    public function getPhinxType($sqlType, $charLength = null)
     {
         switch ($sqlType) {
             case 'nvarchar':
             case 'varchar':
-                if ($char_length == -1) {
+                if ($charLength == -1) {
                     // max char length
                     return static::PHINX_TYPE_TEXT;
                 }
