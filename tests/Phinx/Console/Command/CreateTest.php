@@ -22,17 +22,17 @@ use Test\Phinx\TestUtils;
 class CreateTest extends TestCase
 {
     /**
-     * @var ConfigInterface|array
+     * @var \Phinx\Config\ConfigInterface
      */
-    protected $config = [];
+    protected $config;
 
     /**
-     * @var InputInterface $input
+     * @var \Symfony\Component\Console\Input\InputInterface $input
      */
     protected $input;
 
     /**
-     * @var OutputInterface $output
+     * @var \Symfony\Component\Console\Input\OutputInterface $output
      */
     protected $output;
 
@@ -78,7 +78,7 @@ class CreateTest extends TestCase
         /** @var Create $command */
         $command = $application->find('create');
 
-        /** @var Manager $managerStub mock the manager class */
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -96,7 +96,11 @@ class CreateTest extends TestCase
         $date = substr($fileName, 0, 14);
         $this->assertFileExists($this->config->getMigrationPaths()[0]);
         $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
-        $this->assertStringStartsWith($prefix, file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName));
+        $migrationContents = file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName);
+        $this->assertStringStartsWith($prefix, $migrationContents);
+        $this->assertStringContainsString('public function change()', $migrationContents);
+        $this->assertStringNotContainsString('public function up()', $migrationContents);
+        $this->assertStringNotContainsString('public function down()', $migrationContents);
     }
 
     public function testCreateMigrationWithName(): void
@@ -107,7 +111,7 @@ class CreateTest extends TestCase
         /** @var Create $command */
         $command = $application->find('create');
 
-        /** @var Manager $managerStub mock the manager class */
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -135,7 +139,7 @@ class CreateTest extends TestCase
         /** @var Create $command */
         $command = $application->find('create');
 
-        /** @var Manager $managerStub mock the manager class */
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -161,7 +165,7 @@ class CreateTest extends TestCase
         /** @var Create $command */
         $command = $application->find('create');
 
-        /** @var Manager $managerStub mock the manager class */
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -193,7 +197,7 @@ class CreateTest extends TestCase
         /** @var Create $command $command */
         $command = $application->find('create');
 
-        /** @var Manager $managerStub mock the manager class */
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -217,7 +221,7 @@ class CreateTest extends TestCase
         /** @var Create $command $command */
         $command = $application->find('create');
 
-        /** @var Manager $managerStub mock the manager class */
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -283,7 +287,7 @@ class CreateTest extends TestCase
         /** @var Create $command $command */
         $command = $application->find('create');
 
-        /** @var Manager $managerStub mock the manager class */
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -350,7 +354,7 @@ class CreateTest extends TestCase
         /** @var Create $command $command */
         $command = $application->find('create');
 
-        /** @var Manager $managerStub mock the manager class */
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -414,7 +418,7 @@ class CreateTest extends TestCase
         /** @var Create $command $command */
         $command = $application->find('create');
 
-        /** @var Manager $managerStub mock the manager class */
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
@@ -440,5 +444,130 @@ class CreateTest extends TestCase
         // Does the migration match our expectation?
         $expectedMigration = "useClassName Phinx\\Migration\\AbstractMigration / className {$commandLine['name']} / version {$match['Version']} / baseClassName AbstractMigration";
         $this->assertStringEqualsFile($match['MigrationFilename'], $expectedMigration, 'Failed to create migration file from template generator correctly.');
+    }
+
+    public function testCreateMigrationWithChangeStyleInConfig(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        $this->config['templates'] = ['style' => 'change'];
+
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName()]);
+
+        $files = array_diff(scandir($this->config->getMigrationPaths()[0]), ['.', '..']);
+        $this->assertCount(1, $files);
+        $fileName = current($files);
+        $this->assertMatchesRegularExpression('/^[0-9]{14}.php/', $fileName);
+        $date = substr($fileName, 0, 14);
+        $this->assertFileExists($this->config->getMigrationPaths()[0]);
+        $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
+        $migrationContents = file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName);
+        $this->assertStringStartsWith($prefix, $migrationContents);
+        $this->assertStringContainsString('public function change()', $migrationContents);
+        $this->assertStringNotContainsString('public function up()', $migrationContents);
+        $this->assertStringNotContainsString('public function down()', $migrationContents);
+    }
+
+    public function testCreateMigrationWithChangeStyleAsFlag(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), '--style' => 'change']);
+
+        $files = array_diff(scandir($this->config->getMigrationPaths()[0]), ['.', '..']);
+        $this->assertCount(1, $files);
+        $fileName = current($files);
+        $this->assertMatchesRegularExpression('/^[0-9]{14}.php/', $fileName);
+        $date = substr($fileName, 0, 14);
+        $this->assertFileExists($this->config->getMigrationPaths()[0]);
+        $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
+        $migrationContents = file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName);
+        $this->assertStringStartsWith($prefix, $migrationContents);
+        $this->assertStringContainsString('public function change()', $migrationContents);
+        $this->assertStringNotContainsString('public function up()', $migrationContents);
+        $this->assertStringNotContainsString('public function down()', $migrationContents);
+    }
+
+    public function testCreateMigrationWithUpDownStyleAsFlag(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), '--style' => 'up_down']);
+
+        $files = array_diff(scandir($this->config->getMigrationPaths()[0]), ['.', '..']);
+        $this->assertCount(1, $files);
+        $fileName = current($files);
+        $this->assertMatchesRegularExpression('/^[0-9]{14}.php/', $fileName);
+        $date = substr($fileName, 0, 14);
+        $this->assertFileExists($this->config->getMigrationPaths()[0]);
+        $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
+        $migrationContents = file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName);
+        $this->assertStringStartsWith($prefix, $migrationContents);
+        $this->assertStringContainsString('public function up()', $migrationContents);
+        $this->assertStringContainsString('public function down()', $migrationContents);
+        $this->assertStringNotContainsString('public function change()', $migrationContents);
+    }
+
+    public function testCreateMigrationWithInvalidStyleFlagThrows(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('--style should be one of change or up_down');
+
+        $commandTester->execute(['command' => $command->getName(), '--style' => 'foo']);
     }
 }

@@ -105,6 +105,13 @@ interface ConfigInterface extends ArrayAccess
     public function getTemplateClass();
 
     /**
+     * Get the template style to use, either change or up_down.
+     *
+     * @return string
+     */
+    public function getTemplateStyle(): string;
+
+    /**
      * Get the user-provided container for instantiating seeds
      *
      * @return \Psr\Container\ContainerInterface|null

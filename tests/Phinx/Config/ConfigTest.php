@@ -415,4 +415,28 @@ class ConfigTest extends AbstractConfigTest
             $config->getEnvironment('production')
         );
     }
+
+    public function testDefaultTemplateStyle(): void
+    {
+        $config = new \Phinx\Config\Config([]);
+        $this->assertSame('change', $config->getTemplateStyle());
+    }
+
+    public function templateStyleDataProvider(): array
+    {
+        return [
+            ['change', 'change'],
+            ['up_down', 'up_down'],
+            ['foo', 'change'],
+        ];
+    }
+
+    /**
+     * @dataProvider templateStyleDataProvider
+     */
+    public function testTemplateStyle(string $style, string $expected): void
+    {
+        $config = new \Phinx\Config\Config(['templates' => ['style' => $style]]);
+        $this->assertSame($expected, $config->getTemplateStyle());
+    }
 }

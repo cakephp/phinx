@@ -34,9 +34,14 @@ abstract class AbstractCommand extends Command
     public const FORMAT_DEFAULT = 'php';
 
     /**
-     * The location of the default migration template.
+     * The location of the default change migration template.
      */
-    protected const DEFAULT_MIGRATION_TEMPLATE = '/../../Migration/Migration.template.php.dist';
+    protected const DEFAULT_CHANGE_MIGRATION_TEMPLATE = '/../../Migration/Migration.change.template.php.dist';
+
+    /**
+     * The location of the default up/down migration template.
+     */
+    protected const DEFAULT_UP_DOWN_MIGRATION_TEMPLATE = '/../../Migration/Migration.up_down.template.php.dist';
 
     /**
      * The location of the default seed template.
@@ -381,9 +386,9 @@ abstract class AbstractCommand extends Command
      *
      * @return string
      */
-    protected function getMigrationTemplateFilename(): string
+    protected function getMigrationTemplateFilename(string $style): string
     {
-        return __DIR__ . self::DEFAULT_MIGRATION_TEMPLATE;
+        return $style === Config::TEMPLATE_STYLE_CHANGE ? __DIR__ . self::DEFAULT_CHANGE_MIGRATION_TEMPLATE : __DIR__ . self::DEFAULT_UP_DOWN_MIGRATION_TEMPLATE;
     }
 
     /**

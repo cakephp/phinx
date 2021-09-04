@@ -36,6 +36,9 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      */
     public const VERSION_ORDER_EXECUTION_TIME = 'execution';
 
+    public const TEMPLATE_STYLE_CHANGE = 'change';
+    public const TEMPLATE_STYLE_UP_DOWN = 'up_down';
+
     /**
      * @var array
      */
@@ -325,9 +328,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Get the template file name.
-     *
-     * @return string|false
+     * {@inheritdoc}
      */
     public function getTemplateFile()
     {
@@ -339,9 +340,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Get the template class name.
-     *
-     * @return string|false
+     * {@inheritdoc}
      */
     public function getTemplateClass()
     {
@@ -350,6 +349,18 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         }
 
         return $this->values['templates']['class'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTemplateStyle(): string
+    {
+        if (!isset($this->values['templates']['style'])) {
+            return self::TEMPLATE_STYLE_CHANGE;
+        }
+
+        return $this->values['templates']['style'] === self::TEMPLATE_STYLE_UP_DOWN ? self::TEMPLATE_STYLE_UP_DOWN : self::TEMPLATE_STYLE_CHANGE;
     }
 
     /**
