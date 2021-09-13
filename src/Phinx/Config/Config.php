@@ -430,11 +430,9 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             }
         }
 
-        $configFilePath = $this->getConfigFilePath();
-
         // Phinx defined tokens (override env tokens)
         $tokens['%%PHINX_CONFIG_PATH%%'] = $this->getConfigFilePath();
-        $tokens['%%PHINX_CONFIG_DIR%%'] = is_null($configFilePath) ? '' : dirname($configFilePath);
+        $tokens['%%PHINX_CONFIG_DIR%%'] = $this->getConfigFilePath() !== null ? dirname($this->getConfigFilePath()) : '';
 
         // Recurse the array and replace tokens
         return $this->recurseArrayForTokens($arr, $tokens);
@@ -457,7 +455,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             }
             if (is_string($value)) {
                 foreach ($tokens as $token => $tval) {
-                    $tval = is_null($tval) ? '' : $tval;
+                    $tval = $tval === null ? '' : $tval;
                     $value = str_replace($token, $tval, $value);
                 }
                 $out[$name] = $value;
