@@ -455,8 +455,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             }
             if (is_string($value)) {
                 foreach ($tokens as $token => $tval) {
-                    $tval = $tval === null ? '' : $tval;
-                    $value = str_replace($token, $tval, $value);
+                    $value = str_replace($token, $tval ?? '', $value);
                 }
                 $out[$name] = $value;
                 continue;
