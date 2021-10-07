@@ -432,7 +432,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
 
         // Phinx defined tokens (override env tokens)
         $tokens['%%PHINX_CONFIG_PATH%%'] = $this->getConfigFilePath();
-        $tokens['%%PHINX_CONFIG_DIR%%'] = dirname($this->getConfigFilePath());
+        $tokens['%%PHINX_CONFIG_DIR%%'] = $this->getConfigFilePath() !== null ? dirname($this->getConfigFilePath()) : '';
 
         // Recurse the array and replace tokens
         return $this->recurseArrayForTokens($arr, $tokens);
@@ -455,7 +455,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             }
             if (is_string($value)) {
                 foreach ($tokens as $token => $tval) {
-                    $value = str_replace($token, $tval, $value);
+                    $value = str_replace($token, $tval ?? '', $value);
                 }
                 $out[$name] = $value;
                 continue;
@@ -491,6 +491,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * @param mixed $value Value
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($id, $value)
     {
         $this->values[$id] = $value;
@@ -503,6 +504,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * @throws \InvalidArgumentException
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($id)
     {
         if (!array_key_exists($id, $this->values)) {
@@ -518,6 +520,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * @param mixed $id ID
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($id)
     {
         return isset($this->values[$id]);
@@ -529,6 +532,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * @param mixed $id ID
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($id)
     {
         unset($this->values[$id]);
