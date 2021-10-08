@@ -201,7 +201,9 @@ class Create extends AbstractCommand
         }
 
         // Get the alternative template and static class options from the command line, but only allow one of them.
+        /** @phpstan-var class-string|null $altTemplate */
         $altTemplate = $input->getOption('template');
+        /** @phpstan-var class-string|null $creationClassName */
         $creationClassName = $input->getOption('class');
         if ($altTemplate && $creationClassName) {
             throw new InvalidArgumentException('Cannot use --template and --class at the same time');

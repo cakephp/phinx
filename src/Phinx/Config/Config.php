@@ -41,7 +41,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     protected $values = [];
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $configFilePath;
 

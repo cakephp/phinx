@@ -71,7 +71,7 @@ interface ConfigInterface extends ArrayAccess
     /**
      * Gets the config file path.
      *
-     * @return string
+     * @return string|null
      */
     public function getConfigFilePath();
 

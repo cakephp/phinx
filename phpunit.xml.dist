@@ -1,7 +1,8 @@
 <phpunit
-        bootstrap="tests/phpunit-bootstrap.php"
-        colors="true"
-        columns="max"
+    bootstrap="tests/phpunit-bootstrap.php"
+    colors="true"
+    columns="max"
+    convertErrorsToExceptions="true"
 >
 
     <!--
