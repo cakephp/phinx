@@ -467,6 +467,10 @@ class MysqlAdapter extends PdoAdapter
                     )
                 )
             ) {
+                // The default that comes back from MySQL for these types prefixes the collation type and
+                // surrounds the value with escaped single quotes, for example "_utf8mbf4\'abc\'", and so
+                // this converts that then down to the default value of "abc" to correspond to what the user
+                // would have specified in a migration.
                 $default = preg_replace("/^_(?:[a-zA-Z0-9]+?)\\\'(.*)\\\'$/", '\1', $default);
             }
             $column->setDefault($default);
@@ -1336,7 +1340,7 @@ class MysqlAdapter extends PdoAdapter
         $def .= $column->isNull() ? ' NULL' : ' NOT NULL';
 
         if (
-            version_compare($this->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') > -1
+            version_compare($this->getAttribute(\PDO::ATTR_SERVER_VERSION), '8', '>=')
             && in_array($column->getType(), static::PHINX_TYPES_GEOSPATIAL)
             && !is_null($column->getSrid())
         ) {
@@ -1348,7 +1352,7 @@ class MysqlAdapter extends PdoAdapter
         $default = $column->getDefault();
         // MySQL 8 supports setting default for the following tested types, but only if they are "cast as expressions"
         if (
-            version_compare($this->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') > -1 &&
+            version_compare($this->getAttribute(\PDO::ATTR_SERVER_VERSION), '8', '>=') &&
             is_string($default) &&
             in_array(
                 $column->getType(),
