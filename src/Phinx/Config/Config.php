@@ -328,7 +328,9 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * @inheritdoc
+     * Get the template file name.
+     *
+     * @return string|false
      */
     public function getTemplateFile()
     {
@@ -340,7 +342,9 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * @inheritdoc
+     * Get the template class name.
+     *
+     * @return string|false
      */
     public function getTemplateClass()
     {
@@ -364,7 +368,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getDataDomain(): array
     {
