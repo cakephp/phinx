@@ -299,10 +299,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Gets the base class name for migrations.
-     *
-     * @param bool $dropNamespace Return the base migration class name without the namespace.
-     * @return string
+     * @inheritdoc
      */
     public function getMigrationBaseClassName(bool $dropNamespace = true): string
     {
@@ -312,10 +309,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Gets the base class name for seeders.
-     *
-     * @param bool $dropNamespace Return the base seeder class name without the namespace.
-     * @return string
+     * @inheritdoc
      */
     public function getSeedBaseClassName(bool $dropNamespace = true): string
     {
@@ -325,9 +319,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Get the template file name.
-     *
-     * @return string|false
+     * @inheritdoc
      */
     public function getTemplateFile()
     {
@@ -339,9 +331,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Get the template class name.
-     *
-     * @return string|false
+     * @inheritdoc
      */
     public function getTemplateClass()
     {
@@ -353,7 +343,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getDataDomain(): array
     {
@@ -377,9 +367,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Get the version order.
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getVersionOrder(): string
     {
@@ -391,9 +379,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Is version order creation time?
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function isVersionOrderCreationTime(): bool
     {
@@ -403,9 +389,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Get the bootstrap file path
-     *
-     * @return string|false
+     * @inheritdoc
      */
     public function getBootstrapFile()
     {
