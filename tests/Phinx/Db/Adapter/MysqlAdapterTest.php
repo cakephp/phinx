@@ -2045,7 +2045,7 @@ INPUT;
         $rows = $this->adapter->fetchAll('SELECT ST_AsWKT(geom) as wkt, ST_SRID(geom) as srid FROM table1');
         $this->assertCount(1, $rows);
         $this->assertSame($geom, $rows[0]['wkt']);
-        $this->assertSame('4326', $rows[0]['srid']);
+        $this->assertSame(4326, (int)$rows[0]['srid']);
     }
 
     /**

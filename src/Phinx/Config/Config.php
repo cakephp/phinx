@@ -302,10 +302,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Gets the base class name for migrations.
-     *
-     * @param bool $dropNamespace Return the base migration class name without the namespace.
-     * @return string
+     * @inheritdoc
      */
     public function getMigrationBaseClassName(bool $dropNamespace = true): string
     {
@@ -315,10 +312,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Gets the base class name for seeders.
-     *
-     * @param bool $dropNamespace Return the base seeder class name without the namespace.
-     * @return string
+     * @inheritdoc
      */
     public function getSeedBaseClassName(bool $dropNamespace = true): string
     {
@@ -328,9 +322,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Get the template file name.
-     *
-     * @return string|false
+     * @inheritdoc
      */
     public function getTemplateFile()
     {
@@ -342,9 +334,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Get the template class name.
-     *
-     * @return string|false
+     * @inheritdoc
      */
     public function getTemplateClass()
     {
@@ -368,7 +358,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getDataDomain(): array
     {
@@ -392,9 +382,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Get the version order.
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getVersionOrder(): string
     {
@@ -406,9 +394,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Is version order creation time?
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function isVersionOrderCreationTime(): bool
     {
@@ -418,9 +404,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * Get the bootstrap file path
-     *
-     * @return string|false
+     * @inheritdoc
      */
     public function getBootstrapFile()
     {
@@ -452,7 +436,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
 
         // Phinx defined tokens (override env tokens)
         $tokens['%%PHINX_CONFIG_PATH%%'] = $this->getConfigFilePath();
-        $tokens['%%PHINX_CONFIG_DIR%%'] = dirname($this->getConfigFilePath());
+        $tokens['%%PHINX_CONFIG_DIR%%'] = $this->getConfigFilePath() !== null ? dirname($this->getConfigFilePath()) : '';
 
         // Recurse the array and replace tokens
         return $this->recurseArrayForTokens($arr, $tokens);
@@ -475,7 +459,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             }
             if (is_string($value)) {
                 foreach ($tokens as $token => $tval) {
-                    $value = str_replace($token, $tval, $value);
+                    $value = str_replace($token, $tval ?? '', $value);
                 }
                 $out[$name] = $value;
                 continue;
