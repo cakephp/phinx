@@ -4,11 +4,11 @@ on: ['push', 'pull_request']
 
 jobs:
   testsuite:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['7.2', '7.4', '8.0']
+        php-version: ['7.2', '8.0', '8.1']
         db-type: [sqlite, mysql, pgsql]
         prefer-lowest: ['']
         include:
@@ -33,9 +33,7 @@ jobs:
       if: matrix.db-type == 'pgsql' && matrix.php-version == '7.2'
       run: docker run --rm --name=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=cakephp -p 5432:5432 -d postgres:9.4
 
-    - uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
+    - uses: actions/checkout@v2
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -59,8 +57,8 @@ jobs:
 
     - name: Composer install
       run: |
-        if [[ ${{ matrix.php-version }} == '8.0' ]]; then
-          composer install --ignore-platform-reqs
+        if [[ ${{ matrix.php-version }} == '8.1' ]]; then
+          composer install --ignore-platform-req=php
         elif ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then
           composer update --prefer-lowest --prefer-stable
         else
@@ -68,7 +66,7 @@ jobs:
         fi
 
     - name: Setup problem matchers for PHPUnit
-      if: matrix.php-version == '7.4' && matrix.db-type == 'mysql'
+      if: matrix.php-version == '7.2' && matrix.db-type == 'mysql'
       run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
     - name: Setup Database
@@ -91,14 +89,14 @@ jobs:
         if [[ ${{ matrix.db-type }} == 'mysql' ]]; then export MYSQL_DSN='mysql://root:root@127.0.0.1/phinx'; fi
         if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then export PGSQL_DSN='pgsql://postgres:postgres@127.0.0.1/phinx'; fi
 
-        if [[ ${{ matrix.php-version }} == '7.4' ]]; then
+        if [[ ${{ matrix.php-version }} == '7.2' ]]; then
           export CODECOVERAGE=1 && vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
         else
           vendor/bin/phpunit
         fi
 
     - name: Submit code coverage
-      if: matrix.php-version == '7.4'
+      if: matrix.php-version == '7.2'
       uses: codecov/codecov-action@v1
 
   testsuite-windows:
@@ -110,9 +108,7 @@ jobs:
       PHP_VERSION: '7.4'
 
     steps:
-    - uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
+    - uses: actions/checkout@v2
 
     - name: Get date part for cache key
       id: key-date
@@ -173,12 +169,10 @@ jobs:
 
   cs-stan:
     name: Coding Standard & Static Analysis
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
+    - uses: actions/checkout@v2
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
