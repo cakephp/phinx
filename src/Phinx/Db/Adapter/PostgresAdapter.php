@@ -537,26 +537,27 @@ class PostgresAdapter extends PdoAdapter
      */
     protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn)
     {
+        $quotedColumnName = $this->quoteColumnName($columnName);
         $instructions = new AlterInstructions();
         if ($newColumn->getType() === 'boolean') {
-            $sql = sprintf('ALTER COLUMN %s DROP DEFAULT', $this->quoteColumnName($columnName));
+            $sql = sprintf('ALTER COLUMN %s DROP DEFAULT', $quotedColumnName);
             $instructions->addAlter($sql);
         }
         $sql = sprintf(
             'ALTER COLUMN %s TYPE %s',
-            $this->quoteColumnName($columnName),
+            $quotedColumnName,
             $this->getColumnSqlDefinition($newColumn)
         );
         if (in_array($newColumn->getType(), ['smallinteger', 'integer', 'biginteger'], true)) {
             $sql .= sprintf(
                 ' USING (%s::bigint)',
-                $this->quoteColumnName($columnName)
+                $quotedColumnName
             );
         }
         if ($newColumn->getType() === 'uuid') {
             $sql .= sprintf(
                 ' USING (%s::uuid)',
-                $this->quoteColumnName($columnName)
+                $quotedColumnName
             );
         }
         //NULL and DEFAULT cannot be set while changing column type
@@ -566,8 +567,9 @@ class PostgresAdapter extends PdoAdapter
         $sql = preg_replace('/DEFAULT .*/', '', $sql);
         if ($newColumn->getType() === 'boolean') {
             $sql .= sprintf(
-                ' USING (CASE WHEN %s=0 THEN FALSE ELSE TRUE END)',
-                $this->quoteColumnName($columnName)
+                ' USING (CASE WHEN %s IS NULL THEN NULL WHEN %s::int=0 THEN FALSE ELSE TRUE END)',
+                $quotedColumnName,
+                $quotedColumnName
             );
         }
         $instructions->addAlter($sql);
@@ -575,7 +577,7 @@ class PostgresAdapter extends PdoAdapter
         // process null
         $sql = sprintf(
             'ALTER COLUMN %s',
-            $this->quoteColumnName($columnName)
+            $quotedColumnName
         );
 
         if ($newColumn->isNull()) {
@@ -589,14 +591,14 @@ class PostgresAdapter extends PdoAdapter
         if ($newColumn->getDefault() !== null) {
             $instructions->addAlter(sprintf(
                 'ALTER COLUMN %s SET %s',
-                $this->quoteColumnName($columnName),
+                $quotedColumnName,
                 $this->getDefaultValueDefinition($newColumn->getDefault(), $newColumn->getType())
             ));
         } else {
             //drop default
             $instructions->addAlter(sprintf(
                 'ALTER COLUMN %s DROP DEFAULT',
-                $this->quoteColumnName($columnName)
+                $quotedColumnName
             ));
         }
 
@@ -605,7 +607,7 @@ class PostgresAdapter extends PdoAdapter
             $instructions->addPostStep(sprintf(
                 'ALTER TABLE %s RENAME COLUMN %s TO %s',
                 $this->quoteTableName($tableName),
-                $this->quoteColumnName($columnName),
+                $quotedColumnName,
                 $this->quoteColumnName($newColumn->getName())
             ));
         }

@@ -859,6 +859,29 @@ class PostgresAdapterTest extends TestCase
         $this->assertSame($value, $row['column1']);
     }
 
+    public function testChangeBooleanOptions()
+    {
+        $table = new \Phinx\Db\Table('t', ['id' => false], $this->adapter);
+        $table->addColumn('my_bool', 'boolean', ['default' => true, 'null' => true])
+              ->create();
+        $table
+            ->insert([
+                ['my_bool' => true],
+                ['my_bool' => false],
+                ['my_bool' => null],
+            ])
+            ->update();
+        $table->changeColumn('my_bool', 'boolean', ['default' => false, 'null' => true])->update();
+        $columns = $this->adapter->getColumns('t');
+        $this->assertStringContainsString('false', $columns[0]->getDefault());
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM t');
+        $this->assertCount(3, $rows);
+        $this->assertSame([true, false, null], array_map(function ($row) {
+            return $row['my_bool'];
+        }, $rows));
+    }
+
     public function testChangeColumnFromIntegerToBoolean()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
@@ -1058,8 +1081,8 @@ class PostgresAdapterTest extends TestCase
                         LEFT JOIN LATERAL unnest (i.indoption) WITH ORDINALITY AS o (option, ordinality)
                         ON c.ordinality = o.ordinality
                         JOIN pg_attribute AS a ON trel.oid = a.attrelid AND a.attnum = c.colnum
-                        WHERE trel.relname = 'table1' 
-                        AND irel.relname = 'table1_email_username' 	
+                        WHERE trel.relname = 'table1'
+                        AND irel.relname = 'table1_email_username'
                         AND a.attname = 'email'
                         GROUP BY o.option, tnsp.nspname, trel.relname, irel.relname");
         $emailOrder = $rows[0];
@@ -1097,14 +1120,14 @@ class PostgresAdapterTest extends TestCase
               ->save();
         $this->assertTrue($table->hasIndexByName('table1_include_idx'));
         $rows = $this->adapter->fetchAll("SELECT CASE WHEN attnum <= indnkeyatts  THEN 'KEY' ELSE 'INCLUDED' END as index_column
-                        FROM pg_index ix 
+                        FROM pg_index ix
                         JOIN pg_class t ON ix.indrelid = t.oid
                         JOIN pg_class i ON ix.indexrelid = i.oid
-                        JOIN pg_attribute a ON i.oid = a.attrelid 
+                        JOIN pg_attribute a ON i.oid = a.attrelid
                         JOIN pg_namespace nsp ON t.relnamespace = nsp.oid
                         WHERE nsp.nspname = 'public'
                         AND t.relkind = 'r'
-                        AND t.relname = 'table1' 
+                        AND t.relname = 'table1'
                         AND a.attname = 'email'");
         $indexColumn = $rows[0];
         $this->assertEquals($indexColumn['index_column'], 'KEY');
