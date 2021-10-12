@@ -328,7 +328,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getTemplateFile()
     {
