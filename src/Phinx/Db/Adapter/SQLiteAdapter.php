@@ -644,7 +644,8 @@ PCRE_PATTERN;
             $default = $this->parseDefaultValue($columnInfo['dflt_value'], $type['name']);
 
             $column->setName($columnInfo['name'])
-                   ->setNull($columnInfo['notnull'] !== '1')
+                // SQLite on PHP 8.1 returns int for notnull, older versions return a string
+                   ->setNull((int)$columnInfo['notnull'] !== 1)
                    ->setDefault($default)
                    ->setType($type['name'])
                    ->setLimit($type['limit'])
