@@ -415,6 +415,23 @@ with `AdapterFactory`:
 Adapters can be registered any time before `$app->run()` is called, which normally
 called by `bin/phinx`.
 
+Templates
+---------
+
+You may override how phinx generates the template used with in a handful of ways:
+
+* file - path to an alternative file to use.
+* class - class to use for the template, must implement the ``Phinx\Migration\CreationInterface`` interface.
+* style - style to use for template, either ``change`` or ``up_down``, defaults to ``change`` if not set.
+
+You should only use one of these options. These can be overridden by passing command line options to the
+:doc:`Create Command <commands`. Example usage within the config file is:
+
+.. code-block:: yaml
+
+    templates:
+        style: up_down
+
 Aliases
 -------
 
