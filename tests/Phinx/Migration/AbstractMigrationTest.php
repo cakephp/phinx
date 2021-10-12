@@ -194,8 +194,6 @@ class AbstractMigrationTest extends TestCase
 
     public function testInsertDeprecated()
     {
-        $this->markTestSkipped('Deprecations not working');
-
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
 
@@ -320,8 +318,6 @@ class AbstractMigrationTest extends TestCase
 
     public function testDropTableDeprecated()
     {
-        $this->markTestSkipped('Deprecations not working');
-
         // stub migration
         $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
 
