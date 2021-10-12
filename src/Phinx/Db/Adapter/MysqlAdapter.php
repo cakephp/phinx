@@ -443,7 +443,6 @@ class MysqlAdapter extends PdoAdapter
             $column = new Column();
             $column->setName($columnInfo['Field'])
                    ->setNull($columnInfo['Null'] !== 'NO')
-                   ->setDefault($columnInfo['Default'])
                    ->setType($phinxType['name'])
                    ->setSigned(strpos($columnInfo['Type'], 'unsigned') === false)
                    ->setLimit($phinxType['limit'])
@@ -456,6 +455,25 @@ class MysqlAdapter extends PdoAdapter
             if (isset($phinxType['values'])) {
                 $column->setValues($phinxType['values']);
             }
+
+            $default = $columnInfo['Default'];
+            if (
+                is_string($default) &&
+                in_array(
+                    $column->getType(),
+                    array_merge(
+                        static::PHINX_TYPES_GEOSPATIAL,
+                        [static::PHINX_TYPE_BLOB, static::PHINX_TYPE_JSON, static::PHINX_TYPE_TEXT]
+                    )
+                )
+            ) {
+                // The default that comes back from MySQL for these types prefixes the collation type and
+                // surrounds the value with escaped single quotes, for example "_utf8mbf4\'abc\'", and so
+                // this converts that then down to the default value of "abc" to correspond to what the user
+                // would have specified in a migration.
+                $default = preg_replace("/^_(?:[a-zA-Z0-9]+?)\\\'(.*)\\\'$/", '\1', $default);
+            }
+            $column->setDefault($default);
 
             $columns[] = $column;
         }
@@ -1322,20 +1340,31 @@ class MysqlAdapter extends PdoAdapter
         $def .= $column->isNull() ? ' NULL' : ' NOT NULL';
 
         if (
-            version_compare($this->getAttribute(\PDO::ATTR_SERVER_VERSION), '8') > -1
-            && in_array($column->getType(), [
-                static::PHINX_TYPE_GEOMETRY,
-                static::PHINX_TYPE_POINT,
-                static::PHINX_TYPE_LINESTRING,
-                static::PHINX_TYPE_POLYGON,
-            ])
+            version_compare($this->getAttribute(\PDO::ATTR_SERVER_VERSION), '8', '>=')
+            && in_array($column->getType(), static::PHINX_TYPES_GEOSPATIAL)
             && !is_null($column->getSrid())
         ) {
             $def .= " SRID {$column->getSrid()}";
         }
 
         $def .= $column->isIdentity() ? ' AUTO_INCREMENT' : '';
-        $def .= $this->getDefaultValueDefinition($column->getDefault(), $column->getType());
+
+        $default = $column->getDefault();
+        // MySQL 8 supports setting default for the following tested types, but only if they are "cast as expressions"
+        if (
+            version_compare($this->getAttribute(\PDO::ATTR_SERVER_VERSION), '8', '>=') &&
+            is_string($default) &&
+            in_array(
+                $column->getType(),
+                array_merge(
+                    static::PHINX_TYPES_GEOSPATIAL,
+                    [static::PHINX_TYPE_BLOB, static::PHINX_TYPE_JSON, static::PHINX_TYPE_TEXT]
+                )
+            )
+        ) {
+            $default = Literal::from('(' . $this->getConnection()->quote($column->getDefault()) . ')');
+        }
+        $def .= $this->getDefaultValueDefinition($default, $column->getType());
 
         if ($column->getComment()) {
             $def .= ' COMMENT ' . $this->getConnection()->quote($column->getComment());
