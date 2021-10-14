@@ -33,6 +33,7 @@ use Phinx\Db\Table\Index;
 use Phinx\Db\Table\Table;
 use Phinx\Db\Util\AlterInstructions;
 use Phinx\Migration\MigrationInterface;
+use Phinx\Util\Literal;
 use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -598,8 +599,10 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     protected function getDefaultValueDefinition($default, ?string $columnType = null): string
     {
-        // Ensure a defaults of CURRENT_TIMESTAMP(3) is not quoted.
-        if (is_string($default) && strpos($default, 'CURRENT_TIMESTAMP') !== 0) {
+        if ($default instanceof Literal) {
+            $default = (string)$default;
+        } elseif (is_string($default) && strpos($default, 'CURRENT_TIMESTAMP') !== 0) {
+            // Ensure a defaults of CURRENT_TIMESTAMP(3) is not quoted.
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);

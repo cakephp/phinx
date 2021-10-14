@@ -469,7 +469,7 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
 
                 case $action instanceof RenameTable:
                     /** @var \Phinx\Db\Action\RenameTable $action */
-                    $actions[$k] = new RenameTable($adapterTable, $action->getNewName());
+                    $actions[$k] = new RenameTable($adapterTable, $this->getAdapterTableName($action->getNewName()));
                     break;
 
                 case $action instanceof ChangePrimaryKey:

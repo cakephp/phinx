@@ -2089,6 +2089,45 @@ INPUT;
         $this->assertTrue(in_array('longblob', $validTypes, true));
     }
 
+    public function defaultsCastAsExpressions()
+    {
+        return [
+            [MysqlAdapter::PHINX_TYPE_BLOB, 'abc'],
+            [MysqlAdapter::PHINX_TYPE_JSON, '{"a": true}'],
+            [MysqlAdapter::PHINX_TYPE_TEXT, 'abc'],
+            [MysqlAdapter::PHINX_TYPE_GEOMETRY, 'POINT(0 0)'],
+            [MysqlAdapter::PHINX_TYPE_POINT, 'POINT(0 0)'],
+            [MysqlAdapter::PHINX_TYPE_LINESTRING, 'LINESTRING(30 10,10 30,40 40)'],
+            [MysqlAdapter::PHINX_TYPE_POLYGON, 'POLYGON((30 10,40 40,20 40,10 20,30 10))'],
+        ];
+    }
+
+    /**
+     * MySQL 8 added support for specifying defaults for the BLOB, TEXT, GEOMETRY, and JSON data types,
+     * however requiring that they be wrapped in expressions.
+     *
+     * @dataProvider defaultsCastAsExpressions
+     * @param string $type
+     * @param string $default
+     */
+    public function testDefaultsCastAsExpressionsForCertainTypes(string $type, string $default): void
+    {
+        $this->adapter->connect();
+
+        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        if (!$this->usingMysql8()) {
+            $this->expectException(PDOException::class);
+        }
+        $table
+            ->addColumn('col_1', $type, ['default' => $default])
+            ->create();
+
+        $columns = $this->adapter->getColumns('table1');
+        $this->assertCount(1, $columns);
+        $this->assertSame('col_1', $columns[0]->getName());
+        $this->assertSame($default, $columns[0]->getDefault());
+    }
+
     public function testCreateTableWithPrecisionCurrentTimestamp()
     {
         $this->adapter->connect();

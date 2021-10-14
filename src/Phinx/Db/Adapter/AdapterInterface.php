@@ -57,6 +57,13 @@ interface AdapterInterface
     public const PHINX_TYPE_LINESTRING = 'linestring';
     public const PHINX_TYPE_POLYGON = 'polygon';
 
+    public const PHINX_TYPES_GEOSPATIAL = [
+        self::PHINX_TYPE_GEOMETRY,
+        self::PHINX_TYPE_POINT,
+        self::PHINX_TYPE_LINESTRING,
+        self::PHINX_TYPE_POLYGON,
+    ];
+
     // only for mysql so far
     public const PHINX_TYPE_MEDIUM_INTEGER = 'mediuminteger';
     public const PHINX_TYPE_ENUM = 'enum';

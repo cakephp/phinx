@@ -94,7 +94,6 @@ class SQLiteAdapter extends PdoAdapter
     protected static $unsupportedColumnTypes = [
         self::PHINX_TYPE_BIT,
         self::PHINX_TYPE_CIDR,
-        self::PHINX_TYPE_DECIMAL,
         self::PHINX_TYPE_ENUM,
         self::PHINX_TYPE_FILESTREAM,
         self::PHINX_TYPE_GEOMETRY,
