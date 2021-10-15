@@ -165,7 +165,7 @@ abstract class AbstractAdapter implements AdapterInterface
 
     /**
      * @inheritDoc
-     * @return array
+     * @return array<int>
      */
     public function getVersions(): array
     {

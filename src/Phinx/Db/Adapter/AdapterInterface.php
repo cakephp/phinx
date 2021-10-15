@@ -79,7 +79,7 @@ interface AdapterInterface
     /**
      * Get all migrated version numbers.
      *
-     * @return array
+     * @return array<int>
      */
     public function getVersions(): array;
 
@@ -87,7 +87,7 @@ interface AdapterInterface
      * Get all migration log entries, indexed by version creation time and sorted ascendingly by the configuration's
      * version order option
      *
-     * @return array
+     * @return array<int, mixed>
      */
     public function getVersionLog(): array;
 
