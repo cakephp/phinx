@@ -82,7 +82,7 @@ abstract class AbstractSeed implements SeedInterface
     /**
      * @inheritDoc
      */
-    public function setInput(InputInterface $input): SeedInterface
+    public function setInput(InputInterface $input)
     {
         $this->input = $input;
 
