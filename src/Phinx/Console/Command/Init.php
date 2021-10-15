@@ -29,7 +29,7 @@ class Init extends Command
     ];
 
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'init';
 

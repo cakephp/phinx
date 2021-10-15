@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class SeedRun extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'seed:run';
 

@@ -13,6 +13,7 @@ use Phinx\Config\ConfigInterface;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Migration\Manager;
 use Phinx\Util\Util;
+use RuntimeException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -112,8 +113,8 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(InputInterface $input, OutputInterface $output): void
     {
-        $config = $this->getConfig();
-        if (!$config) {
+        $hasConfig = $this->hasConfig();
+        if (!$hasConfig) {
             $this->loadConfig($input, $output);
         }
 
@@ -161,12 +162,24 @@ abstract class AbstractCommand extends Command
     }
 
     /**
+     * @return bool
+     */
+    public function hasConfig(): bool
+    {
+        return $this->config !== null;
+    }
+
+    /**
      * Gets the config.
      *
-     * @return \Phinx\Config\ConfigInterface|null
+     * @return \Phinx\Config\ConfigInterface
      */
-    public function getConfig(): ?ConfigInterface
+    public function getConfig(): ConfigInterface
     {
+        if ($this->config === null) {
+            throw new RuntimeException('No config set yet');
+        }
+
         return $this->config;
     }
 

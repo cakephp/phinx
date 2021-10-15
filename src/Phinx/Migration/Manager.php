@@ -49,12 +49,12 @@ class Manager
     protected $environments = [];
 
     /**
-     * @var \Phinx\Migration\MigrationInterface[]
+     * @var \Phinx\Migration\MigrationInterface[]|null
      */
     protected $migrations;
 
     /**
-     * @var \Phinx\Seed\SeedInterface[]
+     * @var \Phinx\Seed\SeedInterface[]|null
      */
     protected $seeds;
 

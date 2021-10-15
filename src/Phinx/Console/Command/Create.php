@@ -23,7 +23,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 class Create extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'create';
 

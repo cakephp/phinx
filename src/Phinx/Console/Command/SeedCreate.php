@@ -22,7 +22,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 class SeedCreate extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'seed:create';
 

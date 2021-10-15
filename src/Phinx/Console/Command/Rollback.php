@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Rollback extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'rollback';
 

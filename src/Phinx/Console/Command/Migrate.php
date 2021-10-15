@@ -17,7 +17,7 @@ use Throwable;
 class Migrate extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'migrate';
 
