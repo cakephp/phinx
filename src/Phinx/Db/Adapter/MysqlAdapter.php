@@ -1019,12 +1019,28 @@ class MysqlAdapter extends PdoAdapter
             case static::PHINX_TYPE_BIT:
                 return ['name' => 'bit', 'limit' => $limit ?: 64];
             case static::PHINX_TYPE_BIG_INTEGER:
+                if ($limit === static::INT_BIG) {
+                    $limit = 20;
+                }
+
                 return ['name' => 'bigint', 'limit' => $limit ?: 20];
             case static::PHINX_TYPE_MEDIUM_INTEGER:
+                if ($limit === static::INT_MEDIUM) {
+                    $limit = 8;
+                }
+
                 return ['name' => 'mediumint', 'limit' => $limit ?: 8];
             case static::PHINX_TYPE_SMALL_INTEGER:
+                if ($limit === static::INT_SMALL) {
+                    $limit = 6;
+                }
+
                 return ['name' => 'smallint', 'limit' => $limit ?: 6];
             case static::PHINX_TYPE_TINY_INTEGER:
+                if ($limit === static::INT_TINY) {
+                    $limit = 4;
+                }
+
                 return ['name' => 'tinyint', 'limit' => $limit ?: 4];
             case static::PHINX_TYPE_INTEGER:
                 if ($limit && $limit >= static::INT_TINY) {
