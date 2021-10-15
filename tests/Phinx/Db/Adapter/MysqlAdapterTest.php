@@ -922,8 +922,8 @@ class MysqlAdapterTest extends TestCase
     public function testGetSqlType(string $type, $limit, string $expectedType, int $expectedLimit)
     {
         $sqlType = $this->adapter->getSqlType($type, $limit);
-        $this->assertEquals($expectedType, $sqlType['name']);
-        $this->assertEquals($expectedLimit, $sqlType['limit']);
+        $this->assertSame($expectedType, $sqlType['name']);
+        $this->assertSame($expectedLimit, $sqlType['limit']);
     }
 
     public function testLongTextColumn()
