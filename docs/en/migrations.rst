@@ -1164,7 +1164,7 @@ where its value is the name of the column to position it after.
             }
         }
 
-This would create the new column ``city`` and have it be positioned after the ``email`` column. You
+This would create the new column ``city`` and position it after the ``email`` column. You
 can use the `\Phinx\Db\Adapter\MysqlAdapter\FIRST` constant to specify that the new column should
 created as the first column in that table.
 
