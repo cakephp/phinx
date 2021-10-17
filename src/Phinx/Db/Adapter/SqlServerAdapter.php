@@ -212,6 +212,7 @@ class SqlServerAdapter extends PdoAdapter
             return true;
         }
 
+        /** @var array<string, mixed> $result */
         $result = $this->fetchRow(sprintf("SELECT count(*) as [count] FROM information_schema.tables WHERE table_name = '%s';", $tableName));
 
         return $result['count'] > 0;
@@ -508,6 +509,7 @@ class SqlServerAdapter extends PdoAdapter
             $tableName,
             $columnName
         );
+        /** @var array<string, mixed> $result */
         $result = $this->fetchRow($sql);
 
         return $result['count'] > 0;
@@ -1172,6 +1174,7 @@ ORDER BY T.[name], I.[index_id];";
      */
     public function hasDatabase(string $name): bool
     {
+        /** @var array<string, mixed> $result */
         $result = $this->fetchRow(
             sprintf(
                 "SELECT count(*) as [count] FROM master.dbo.sysdatabases WHERE [name] = '%s'",

@@ -54,7 +54,9 @@ EOT
     {
         $this->bootstrap($input, $output);
 
+        /** @var string|null $environment */
         $environment = $input->getOption('environment');
+        /** @var string|null $environment */
         $format = $input->getOption('format');
 
         if ($environment === null) {

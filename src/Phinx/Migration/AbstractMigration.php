@@ -274,7 +274,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
-    public function table(string $tableName, array $options = [])
+    public function table(string $tableName, array $options = []): Table
     {
         $table = new Table($tableName, $options, $this->getAdapter());
         $this->tables[] = $table;

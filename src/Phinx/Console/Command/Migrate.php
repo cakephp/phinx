@@ -61,7 +61,8 @@ EOT
     {
         $this->bootstrap($input, $output);
 
-        $version = $input->getOption('target');
+        $version = (int)$input->getOption('target');
+        /** @var string|null $environment */
         $environment = $input->getOption('environment');
         $date = $input->getOption('date');
         $fake = (bool)$input->getOption('fake');
@@ -116,9 +117,6 @@ EOT
             if ($date !== null) {
                 $this->getManager()->migrateToDateTime($environment, new DateTime($date), $fake);
             } else {
-                if ($version) {
-                    $version = (int)$version;
-                }
                 $this->getManager()->migrate($environment, $version, $fake);
             }
             $end = microtime(true);

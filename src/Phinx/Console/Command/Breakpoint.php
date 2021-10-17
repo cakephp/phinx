@@ -60,6 +60,7 @@ EOT
     {
         $this->bootstrap($input, $output);
 
+        /** @var string|null $environment */
         $environment = $input->getOption('environment');
         $version = (int)$input->getOption('target') ?: null;
         $removeAll = $input->getOption('remove-all');

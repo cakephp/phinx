@@ -55,7 +55,9 @@ EOT
     {
         $this->bootstrap($input, $output);
 
+        /** @var array<string>|null $seedSet */
         $seedSet = $input->getOption('seed');
+        /** @var string|null $environment */
         $environment = $input->getOption('environment');
 
         if ($environment === null) {

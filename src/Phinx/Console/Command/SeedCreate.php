@@ -145,6 +145,7 @@ class SeedCreate extends AbstractCommand
         $this->verifySeedDirectory($path);
 
         $path = realpath($path);
+        /** @var string|null $className */
         $className = $input->getArgument('name');
 
         if (!Util::isValidPhinxClassName($className)) {

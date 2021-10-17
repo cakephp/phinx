@@ -113,8 +113,7 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(InputInterface $input, OutputInterface $output): void
     {
-        $hasConfig = $this->hasConfig();
-        if (!$hasConfig) {
+        if (!$this->hasConfig()) {
             $this->loadConfig($input, $output);
         }
 
@@ -282,6 +281,7 @@ abstract class AbstractCommand extends Command
         $configFilePath = $this->locateConfigFile($input);
         $output->writeln('<info>using config file</info> ' . Util::relativePath($configFilePath));
 
+        /** @var string|null $parser */
         $parser = $input->getOption('parser');
 
         // If no parser is specified try to determine the correct one from the file extension.  Defaults to YAML
