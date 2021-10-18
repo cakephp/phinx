@@ -61,7 +61,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * List of all the table objects created by this migration
      *
-     * @var array
+     * @var array<\Phinx\Db\Table>
      */
     protected $tables = [];
 

@@ -22,7 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class AbstractAdapter implements AdapterInterface
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $options = [];
 
@@ -54,7 +54,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * Class Constructor.
      *
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @param \Symfony\Component\Console\Input\InputInterface|null $input Input Interface
      * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output Interface
      */

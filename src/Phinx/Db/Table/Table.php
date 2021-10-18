@@ -17,13 +17,13 @@ class Table
     protected $name;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $options;
 
     /**
      * @param string $name The table name
-     * @param array $options The creation options for this table
+     * @param array<string, mixed> $options The creation options for this table
      * @throws \InvalidArgumentException
      */
     public function __construct($name, array $options = [])
@@ -62,7 +62,7 @@ class Table
     /**
      * Gets the table options
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getOptions(): array
     {
@@ -72,7 +72,7 @@ class Table
     /**
      * Sets the table options
      *
-     * @param array $options The options for the table creation
+     * @param array<string, mixed> $options The options for the table creation
      * @return $this
      */
     public function setOptions(array $options)

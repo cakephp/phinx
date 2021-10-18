@@ -728,7 +728,7 @@ class Column
     /**
      * Utility method that maps an array of column options to this objects methods.
      *
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @throws \RuntimeException
      * @return $this
      */

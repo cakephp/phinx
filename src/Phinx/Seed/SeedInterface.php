@@ -156,7 +156,7 @@ interface SeedInterface
      * You can use this class to create and manipulate tables.
      *
      * @param string $tableName Table name
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @return \Phinx\Db\Table
      */
     public function table(string $tableName, array $options): \Phinx\Db\Table;

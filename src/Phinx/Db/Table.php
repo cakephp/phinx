@@ -55,7 +55,7 @@ class Table
 
     /**
      * @param string $name Table Name
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @param \Phinx\Db\Adapter\AdapterInterface|null $adapter Database Adapter
      */
     public function __construct(string $name, array $options = [], ?AdapterInterface $adapter = null)
@@ -81,7 +81,7 @@ class Table
     /**
      * Gets the table options.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getOptions(): array
     {
@@ -291,7 +291,7 @@ class Table
      *
      * @param string|\Phinx\Db\Table\Column $columnName Column Name
      * @param string|\Phinx\Util\Literal|null $type Column Type
-     * @param array $options Column Options
+     * @param array<string, mixed> $options Column Options
      * @throws \InvalidArgumentException
      * @return $this
      */
@@ -351,7 +351,7 @@ class Table
      *
      * @param string $columnName Column Name
      * @param string|\Phinx\Db\Table\Column|\Phinx\Util\Literal $newColumnType New Column Type
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @return $this
      */
     public function changeColumn(string $columnName, $newColumnType, array $options = [])
@@ -383,7 +383,7 @@ class Table
      * In $options you can specific unique = true/false or name (index name).
      *
      * @param string|array|\Phinx\Db\Table\Index $columns Table Column(s)
-     * @param array $options Index Options
+     * @param array<string, mixed> $options Index Options
      * @return $this
      */
     public function addIndex($columns, array $options = [])
@@ -453,7 +453,7 @@ class Table
      * @param string|string[] $columns Columns
      * @param string|\Phinx\Db\Table\Table $referencedTable Referenced Table
      * @param string|string[] $referencedColumns Referenced Columns
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @return $this
      */
     public function addForeignKey($columns, $referencedTable, $referencedColumns = ['id'], array $options = [])
@@ -474,7 +474,7 @@ class Table
      * @param string|string[] $columns Columns
      * @param string|\Phinx\Db\Table\Table $referencedTable Referenced Table
      * @param string|string[] $referencedColumns Referenced Columns
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @return $this
      */
     public function addForeignKeyWithName(string $name, $columns, $referencedTable, $referencedColumns = ['id'], array $options = [])

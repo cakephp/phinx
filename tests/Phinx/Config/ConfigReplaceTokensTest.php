@@ -15,7 +15,7 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
     /**
      * Data to be saved to $_SERVER and checked later
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected static $server = [
         'PHINX_TEST_VAR_1' => 'some-value',
