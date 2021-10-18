@@ -9,6 +9,7 @@ namespace Phinx\Migration;
 
 use Cake\Database\Query;
 use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -236,7 +237,7 @@ interface MigrationInterface
      * @param array $options Options
      * @return \Phinx\Db\Table
      */
-    public function table(string $tableName, array $options);
+    public function table(string $tableName, array $options): Table;
 
     /**
      * Perform checks on the migration, printing a warning

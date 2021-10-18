@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Breakpoint extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'breakpoint';
 
@@ -60,6 +60,7 @@ EOT
     {
         $this->bootstrap($input, $output);
 
+        /** @var string|null $environment */
         $environment = $input->getOption('environment');
         $version = (int)$input->getOption('target') ?: null;
         $removeAll = $input->getOption('remove-all');

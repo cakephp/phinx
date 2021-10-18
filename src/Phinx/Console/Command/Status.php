@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Status extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'status';
 
@@ -54,7 +54,9 @@ EOT
     {
         $this->bootstrap($input, $output);
 
+        /** @var string|null $environment */
         $environment = $input->getOption('environment');
+        /** @var string|null $environment */
         $format = $input->getOption('format');
 
         if ($environment === null) {

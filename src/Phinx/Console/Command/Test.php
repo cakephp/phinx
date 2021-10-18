@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Test extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'test';
 

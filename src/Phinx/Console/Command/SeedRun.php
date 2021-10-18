@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class SeedRun extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'seed:run';
 
@@ -55,7 +55,9 @@ EOT
     {
         $this->bootstrap($input, $output);
 
+        /** @var array<string>|null $seedSet */
         $seedSet = $input->getOption('seed');
+        /** @var string|null $environment */
         $environment = $input->getOption('environment');
 
         if ($environment === null) {

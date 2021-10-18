@@ -40,7 +40,8 @@ class AdapterFactory
     /**
      * Class map of database adapters, indexed by PDO::ATTR_DRIVER_NAME.
      *
-     * @var (object|string)[]
+     * @var array<string, \Phinx\Db\Adapter\AdapterInterface|string>
+     * @phpstan-var array<string, \Phinx\Db\Adapter\AdapterInterface|class-string<\Phinx\Db\Adapter\AdapterInterface>>
      */
     protected $adapters = [
         'mysql' => 'Phinx\Db\Adapter\MysqlAdapter',
@@ -52,7 +53,7 @@ class AdapterFactory
     /**
      * Class map of adapters wrappers, indexed by name.
      *
-     * @var array<object|string>
+     * @var array<string, \Phinx\Db\Adapter\WrapperInterface|string>
      */
     protected $wrappers = [
         'prefix' => 'Phinx\Db\Adapter\TablePrefixAdapter',
@@ -86,7 +87,8 @@ class AdapterFactory
      *
      * @param string $name Name
      * @throws \RuntimeException
-     * @return object
+     * @return object|string
+     * @phpstan-return object|class-string<\Phinx\Db\Adapter\AdapterInterface>
      */
     protected function getClass(string $name)
     {
@@ -140,7 +142,7 @@ class AdapterFactory
      *
      * @param string $name Name
      * @throws \RuntimeException
-     * @return object|string
+     * @return \Phinx\Db\Adapter\WrapperInterface|string
      */
     protected function getWrapperClass(string $name)
     {
@@ -159,9 +161,9 @@ class AdapterFactory
      *
      * @param string $name Name
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Adapter
-     * @return \Phinx\Db\Adapter\AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterWrapper
      */
-    public function getWrapper(string $name, AdapterInterface $adapter): AdapterInterface
+    public function getWrapper(string $name, AdapterInterface $adapter): AdapterWrapper
     {
         $class = $this->getWrapperClass($name);
 
