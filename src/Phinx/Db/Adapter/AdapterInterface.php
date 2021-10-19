@@ -94,7 +94,7 @@ interface AdapterInterface
     /**
      * Set adapter configuration options.
      *
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @return $this
      */
     public function setOptions(array $options);
@@ -102,7 +102,7 @@ interface AdapterInterface
     /**
      * Get all adapter options.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getOptions(): array;
 
@@ -157,7 +157,7 @@ interface AdapterInterface
      *
      * @param string $columnName The desired column name
      * @param string $type The type for the column. Can be a data domain type.
-     * @param array $options Options array
+     * @param array<string, mixed> $options Options array
      * @return \Phinx\Db\Table\Column
      */
     public function getColumnForType(string $columnName, string $type, array $options): Column;
@@ -456,7 +456,7 @@ interface AdapterInterface
      * Creates a new database.
      *
      * @param string $name Database Name
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @return void
      */
     public function createDatabase(string $name, array $options = []): void;

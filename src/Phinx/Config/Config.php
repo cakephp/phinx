@@ -473,8 +473,8 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * Parse a database-agnostic DSN into individual options.
      *
-     * @param array $options Options
-     * @return array
+     * @param array<string, mixed> $options Options
+     * @return array<string, mixed>
      */
     protected function parseAgnosticDsn(array $options): array
     {
@@ -483,7 +483,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             unset($options['dsn']);
         }
 
-        $options = array_merge($parsed, $options);
+        $options += $parsed;
 
         return $options;
     }

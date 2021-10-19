@@ -18,6 +18,11 @@ class ForeignKey
     public const NO_ACTION = 'NO ACTION';
 
     /**
+     * @var array<string>
+     */
+    protected static $validOptions = ['delete', 'update', 'constraint'];
+
+    /**
      * @var string[]
      */
     protected $columns = [];
@@ -188,16 +193,14 @@ class ForeignKey
     /**
      * Utility method that maps an array of index options to this objects methods.
      *
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @throws \RuntimeException
      * @return $this
      */
     public function setOptions(array $options)
     {
-        // Valid Options
-        $validOptions = ['delete', 'update', 'constraint'];
         foreach ($options as $option => $value) {
-            if (!in_array($option, $validOptions, true)) {
+            if (!in_array($option, static::$validOptions, true)) {
                 throw new RuntimeException(sprintf('"%s" is not a valid foreign key option.', $option));
             }
 

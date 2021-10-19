@@ -25,7 +25,7 @@ class TextWrapper
     protected $app;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $options;
 
@@ -36,7 +36,7 @@ class TextWrapper
 
     /**
      * @param \Phinx\Console\PhinxApplication $app Application
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      */
     public function __construct(PhinxApplication $app, array $options = [])
     {
@@ -74,16 +74,16 @@ class TextWrapper
     {
         $command = ['status'];
         if ($env ?: $this->hasOption('environment')) {
-            $command += ['-e' => $env ?: $this->getOption('environment')];
+            $command['-e'] = $env ?: $this->getOption('environment');
         }
         if ($this->hasOption('configuration')) {
-            $command += ['-c' => $this->getOption('configuration')];
+            $command['-c'] = $this->getOption('configuration');
         }
         if ($this->hasOption('parser')) {
-            $command += ['-p' => $this->getOption('parser')];
+            $command['-p'] = $this->getOption('parser');
         }
         if ($this->hasOption('format')) {
-            $command += ['-f' => $this->getOption('format')];
+            $command['-f'] = $this->getOption('format');
         }
 
         return $this->executeRun($command);

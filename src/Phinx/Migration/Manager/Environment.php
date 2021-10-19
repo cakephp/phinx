@@ -24,7 +24,7 @@ class Environment
     protected $name;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $options;
 
@@ -55,7 +55,7 @@ class Environment
 
     /**
      * @param string $name Environment Name
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      */
     public function __construct(string $name, array $options)
     {
@@ -178,7 +178,7 @@ class Environment
     /**
      * Sets the environment's options.
      *
-     * @param array $options Environment Options
+     * @param array<string, mixed> $options Environment Options
      * @return $this
      */
     public function setOptions(array $options)
@@ -191,7 +191,7 @@ class Environment
     /**
      * Gets the environment's options.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getOptions(): array
     {

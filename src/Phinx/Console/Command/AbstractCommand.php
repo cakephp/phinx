@@ -236,7 +236,7 @@ abstract class AbstractCommand extends Command
      */
     protected function locateConfigFile(InputInterface $input): string
     {
-        $configFile = $input->getOption('configuration');
+        $configFile = $input->hasOption('configuration') ? $input->getOption('configuration') : null;
 
         $useDefault = false;
 

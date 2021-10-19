@@ -185,7 +185,7 @@ interface MigrationInterface
      * Create a new database.
      *
      * @param string $name Database Name
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @return void
      */
     public function createDatabase(string $name, array $options): void;
@@ -234,7 +234,7 @@ interface MigrationInterface
      * You can use this class to create and manipulate tables.
      *
      * @param string $tableName Table name
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @return \Phinx\Db\Table
      */
     public function table(string $tableName, array $options): Table;

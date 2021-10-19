@@ -106,7 +106,7 @@ class AdapterFactory
      * Get an adapter instance by name.
      *
      * @param string $name Name
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
     public function getAdapter(string $name, array $options): AdapterInterface
