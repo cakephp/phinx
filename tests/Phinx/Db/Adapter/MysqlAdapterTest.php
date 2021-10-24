@@ -884,6 +884,47 @@ class MysqlAdapterTest extends TestCase
         $this->assertNull($rows[1]['Default']);
     }
 
+    public function sqlTypeIntConversionProvider()
+    {
+        return [
+          // tinyint
+          [AdapterInterface::PHINX_TYPE_TINY_INTEGER, null, 'tinyint', 4],
+          [AdapterInterface::PHINX_TYPE_TINY_INTEGER, 2, 'tinyint', 2],
+          [AdapterInterface::PHINX_TYPE_TINY_INTEGER, MysqlAdapter::INT_TINY, 'tinyint', 4],
+          // smallint
+          [AdapterInterface::PHINX_TYPE_SMALL_INTEGER, null, 'smallint', 6],
+          [AdapterInterface::PHINX_TYPE_SMALL_INTEGER, 3, 'smallint', 3],
+          [AdapterInterface::PHINX_TYPE_SMALL_INTEGER, MysqlAdapter::INT_SMALL, 'smallint', 6],
+          // medium
+          [AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER, null, 'mediumint', 8],
+          [AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER, 2, 'mediumint', 2],
+          [AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER, MysqlAdapter::INT_MEDIUM, 'mediumint', 8],
+          // integer
+          [AdapterInterface::PHINX_TYPE_INTEGER, null, 'int', 11],
+          [AdapterInterface::PHINX_TYPE_INTEGER, 4, 'int', 4],
+          [AdapterInterface::PHINX_TYPE_INTEGER, MysqlAdapter::INT_TINY, 'tinyint', 4],
+          [AdapterInterface::PHINX_TYPE_INTEGER, MysqlAdapter::INT_SMALL, 'smallint', 6],
+          [AdapterInterface::PHINX_TYPE_INTEGER, MysqlAdapter::INT_MEDIUM, 'mediumint', 8],
+          [AdapterInterface::PHINX_TYPE_INTEGER, MysqlAdapter::INT_REGULAR, 'int', 11],
+          [AdapterInterface::PHINX_TYPE_INTEGER, MysqlAdapter::INT_BIG, 'bigint', 20],
+          // bigint
+          [AdapterInterface::PHINX_TYPE_BIG_INTEGER, null, 'bigint', 20],
+          [AdapterInterface::PHINX_TYPE_BIG_INTEGER, 4, 'bigint', 4],
+          [AdapterInterface::PHINX_TYPE_BIG_INTEGER, MysqlAdapter::INT_BIG, 'bigint', 20],
+        ];
+    }
+
+    /**
+     * @dataProvider sqlTypeIntConversionProvider
+     * The second argument is not typed as MysqlAdapter::INT_BIG is a float, and all other values are integers
+     */
+    public function testGetSqlTypeIntegerConversion(string $type, $limit, string $expectedType, int $expectedLimit)
+    {
+        $sqlType = $this->adapter->getSqlType($type, $limit);
+        $this->assertSame($expectedType, $sqlType['name']);
+        $this->assertSame($expectedLimit, $sqlType['limit']);
+    }
+
     public function testLongTextColumn()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
