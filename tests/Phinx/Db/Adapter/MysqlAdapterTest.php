@@ -884,9 +884,8 @@ class MysqlAdapterTest extends TestCase
         $this->assertNull($rows[1]['Default']);
     }
 
-    public function sqlTypeProvider()
+    public function sqlTypeIntConversionProvider()
     {
-        // TODO: add tests for missing types
         return [
           // tinyint
           [AdapterInterface::PHINX_TYPE_TINY_INTEGER, null, 'tinyint', 4],
@@ -916,10 +915,10 @@ class MysqlAdapterTest extends TestCase
     }
 
     /**
-     * @dataProvider sqlTypeProvider
+     * @dataProvider sqlTypeIntConversionProvider
      * The second argument is not typed as MysqlAdapter::INT_BIG is a float, and all other values are integers
      */
-    public function testGetSqlType(string $type, $limit, string $expectedType, int $expectedLimit)
+    public function testGetSqlTypeIntegerConversion(string $type, $limit, string $expectedType, int $expectedLimit)
     {
         $sqlType = $this->adapter->getSqlType($type, $limit);
         $this->assertSame($expectedType, $sqlType['name']);
