@@ -1135,15 +1135,15 @@ class MysqlAdapter extends PdoAdapter
                 break;
             case 'tinyint':
                 $type = static::PHINX_TYPE_TINY_INTEGER;
-                $limit = static::INT_TINY;
+                $limit = $limit ?? static::INT_TINY;
                 break;
             case 'smallint':
                 $type = static::PHINX_TYPE_SMALL_INTEGER;
-                $limit = static::INT_SMALL;
+                $limit = $limit ?? static::INT_SMALL;
                 break;
             case 'mediumint':
                 $type = static::PHINX_TYPE_MEDIUM_INTEGER;
-                $limit = static::INT_MEDIUM;
+                $limit = $limit ?? static::INT_MEDIUM;
                 break;
             case 'int':
                 $type = static::PHINX_TYPE_INTEGER;
@@ -1209,7 +1209,7 @@ class MysqlAdapter extends PdoAdapter
 
         try {
             // Call this to check if parsed type is supported.
-            $this->getSqlType($type, $limit);
+            ['type' => $type, 'limit' => $limit] = $this->getSqlType($type, $limit);
         } catch (UnsupportedColumnTypeException $e) {
             $type = Literal::from($type);
         }
