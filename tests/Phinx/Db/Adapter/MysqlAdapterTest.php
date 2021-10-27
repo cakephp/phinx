@@ -2198,6 +2198,7 @@ INPUT;
             ['tinyint(1)', ['name' => AdapterInterface::PHINX_TYPE_BOOLEAN, 'limit' => 1, 'scale' => null]],
         ];
     }
+
     /**
      * @dataProvider integerDataTypesSQLProvider
      */
