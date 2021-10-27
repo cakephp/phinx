@@ -75,11 +75,11 @@ class MysqlAdapter extends PdoAdapter
     public const INT_REGULAR = 4294967295;
     public const INT_BIG = 18446744073709551615;
 
-    public const INT_DISPLAY_TINY       = 4;
-    public const INT_DISPLAY_SMALL      = 6;
-    public const INT_DISPLAY_MEDIUM     = 8;
-    public const INT_DISPLAY_REGULAR    = 11;
-    public const INT_DISPLAY_BIG        = 20;
+    public const INT_DISPLAY_TINY = 4;
+    public const INT_DISPLAY_SMALL = 6;
+    public const INT_DISPLAY_MEDIUM = 8;
+    public const INT_DISPLAY_REGULAR = 11;
+    public const INT_DISPLAY_BIG = 20;
 
     public const BIT = 64;
 
