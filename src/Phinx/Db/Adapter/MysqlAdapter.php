@@ -1217,9 +1217,6 @@ class MysqlAdapter extends PdoAdapter
             // Call this to check if parsed type is supported.
             $sqlTypeDetails = $this->getSqlType($type, $limit);
             $limit = $limit ?? $sqlTypeDetails['limit'] ?? null;
-//            if ($type !== $sqlTypeDetails['name']) {
-//                $type = $sqlTypeDetails['name'];
-//            }
         } catch (UnsupportedColumnTypeException $e) {
             $type = Literal::from($type);
         }
