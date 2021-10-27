@@ -2181,7 +2181,7 @@ INPUT;
         return [
             ['bigint', ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => 20, 'scale' => null]],
             ['bigint(20)', ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => 20, 'scale' => null]],
-            ['bigint(10)',  ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => 10, 'scale' => null]],
+            ['bigint(10)', ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => 10, 'scale' => null]],
             ['bigint(1) unsigned', ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => 1, 'scale' => null]],
             ['int', ['name' => AdapterInterface::PHINX_TYPE_INTEGER, 'limit' => 11, 'scale' => null]],
             ['int(10) unsigned', ['name' => AdapterInterface::PHINX_TYPE_INTEGER, 'limit' => 10, 'scale' => null]],
