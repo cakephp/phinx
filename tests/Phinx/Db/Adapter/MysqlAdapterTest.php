@@ -2179,23 +2179,28 @@ INPUT;
     public function integerDataTypesSQLProvider()
     {
         return [
-            ['bigint', ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => 20, 'scale' => null]],
+            // Types without a width should always have a null limit
+            ['bigint', ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => null, 'scale' => null]],
+            ['int', ['name' => AdapterInterface::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
+            ['mediumint', ['name' => AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER, 'limit' => null, 'scale' => null]],
+            ['smallint', ['name' => AdapterInterface::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
+            ['tinyint', ['name' => AdapterInterface::PHINX_TYPE_TINY_INTEGER, 'limit' => null, 'scale' => null]],
+
+            // Types which include a width should always have that as their limit
             ['bigint(20)', ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => 20, 'scale' => null]],
             ['bigint(10)', ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => 10, 'scale' => null]],
             ['bigint(1) unsigned', ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => 1, 'scale' => null]],
-            ['int', ['name' => AdapterInterface::PHINX_TYPE_INTEGER, 'limit' => 11, 'scale' => null]],
-            ['int(10) unsigned', ['name' => AdapterInterface::PHINX_TYPE_INTEGER, 'limit' => 10, 'scale' => null]],
             ['int(11)', ['name' => AdapterInterface::PHINX_TYPE_INTEGER, 'limit' => 11, 'scale' => null]],
-            ['mediumint', ['name' => AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER, 'limit' => 8, 'scale' => null]],
+            ['int(10) unsigned', ['name' => AdapterInterface::PHINX_TYPE_INTEGER, 'limit' => 10, 'scale' => null]],
             ['mediumint(6)', ['name' => AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER, 'limit' => 6, 'scale' => null]],
             ['mediumint(8) unsigned', ['name' => AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER, 'limit' => 8, 'scale' => null]],
-            ['smallint', ['name' => AdapterInterface::PHINX_TYPE_SMALL_INTEGER, 'limit' => 6, 'scale' => null]],
             ['smallint(2)', ['name' => AdapterInterface::PHINX_TYPE_SMALL_INTEGER, 'limit' => 2, 'scale' => null]],
             ['smallint(5) unsigned', ['name' => AdapterInterface::PHINX_TYPE_SMALL_INTEGER, 'limit' => 5, 'scale' => null]],
-            ['tinyint', ['name' => AdapterInterface::PHINX_TYPE_TINY_INTEGER, 'limit' => 4, 'scale' => null]],
             ['tinyint(3) unsigned', ['name' => AdapterInterface::PHINX_TYPE_TINY_INTEGER, 'limit' => 3, 'scale' => null]],
             ['tinyint(4)', ['name' => AdapterInterface::PHINX_TYPE_TINY_INTEGER, 'limit' => 4, 'scale' => null]],
-            ['tinyint(1)', ['name' => AdapterInterface::PHINX_TYPE_BOOLEAN, 'limit' => 1, 'scale' => null]],
+
+            // Special case for commonly used boolean type
+            ['tinyint(1)', ['name' => AdapterInterface::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
         ];
     }
 
