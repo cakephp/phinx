@@ -75,6 +75,12 @@ class MysqlAdapter extends PdoAdapter
     public const INT_REGULAR = 4294967295;
     public const INT_BIG = 18446744073709551615;
 
+    public const INT_DISPLAY_TINY = 4;
+    public const INT_DISPLAY_SMALL = 6;
+    public const INT_DISPLAY_MEDIUM = 8;
+    public const INT_DISPLAY_REGULAR = 11;
+    public const INT_DISPLAY_BIG = 20;
+
     public const BIT = 64;
 
     public const TYPE_YEAR = 'year';
@@ -1020,25 +1026,25 @@ class MysqlAdapter extends PdoAdapter
                 return ['name' => 'bit', 'limit' => $limit ?: 64];
             case static::PHINX_TYPE_BIG_INTEGER:
                 if ($limit === static::INT_BIG) {
-                    $limit = 20;
+                    $limit = static::INT_DISPLAY_BIG;
                 }
 
                 return ['name' => 'bigint', 'limit' => $limit ?: 20];
             case static::PHINX_TYPE_MEDIUM_INTEGER:
                 if ($limit === static::INT_MEDIUM) {
-                    $limit = 8;
+                    $limit = static::INT_DISPLAY_MEDIUM;
                 }
 
                 return ['name' => 'mediumint', 'limit' => $limit ?: 8];
             case static::PHINX_TYPE_SMALL_INTEGER:
                 if ($limit === static::INT_SMALL) {
-                    $limit = 6;
+                    $limit = static::INT_DISPLAY_SMALL;
                 }
 
                 return ['name' => 'smallint', 'limit' => $limit ?: 6];
             case static::PHINX_TYPE_TINY_INTEGER:
                 if ($limit === static::INT_TINY) {
-                    $limit = 4;
+                    $limit = static::INT_DISPLAY_TINY;
                 }
 
                 return ['name' => 'tinyint', 'limit' => $limit ?: 4];
@@ -1053,11 +1059,11 @@ class MysqlAdapter extends PdoAdapter
                         'tinyint' => static::INT_TINY,
                     ];
                     $limits = [
-                        'tinyint' => 4,
-                        'smallint' => 6,
-                        'mediumint' => 8,
-                        'int' => 11,
-                        'bigint' => 20,
+                        'tinyint' => static::INT_DISPLAY_TINY,
+                        'smallint' => static::INT_DISPLAY_SMALL,
+                        'mediumint' => static::INT_DISPLAY_MEDIUM,
+                        'int' => static::INT_DISPLAY_REGULAR,
+                        'bigint' => static::INT_DISPLAY_BIG,
                     ];
                     foreach ($sizes as $name => $length) {
                         if ($limit >= $length) {
@@ -1070,7 +1076,7 @@ class MysqlAdapter extends PdoAdapter
                         }
                     }
                 } elseif (!$limit) {
-                    $limit = 11;
+                    $limit = static::INT_DISPLAY_REGULAR;
                 }
 
                 return ['name' => 'int', 'limit' => $limit];
@@ -1135,26 +1141,17 @@ class MysqlAdapter extends PdoAdapter
                 break;
             case 'tinyint':
                 $type = static::PHINX_TYPE_TINY_INTEGER;
-                $limit = static::INT_TINY;
                 break;
             case 'smallint':
                 $type = static::PHINX_TYPE_SMALL_INTEGER;
-                $limit = static::INT_SMALL;
                 break;
             case 'mediumint':
                 $type = static::PHINX_TYPE_MEDIUM_INTEGER;
-                $limit = static::INT_MEDIUM;
                 break;
             case 'int':
                 $type = static::PHINX_TYPE_INTEGER;
-                if ($limit === 11) {
-                    $limit = null;
-                }
                 break;
             case 'bigint':
-                if ($limit === 20) {
-                    $limit = null;
-                }
                 $type = static::PHINX_TYPE_BIG_INTEGER;
                 break;
             case 'bit':
