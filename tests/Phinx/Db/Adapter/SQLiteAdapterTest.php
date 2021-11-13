@@ -600,6 +600,24 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
     }
 
+    public function testChangeColumnWithIndex()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->addIndex(
+                'indexcol',
+                ['unique' => true]
+            )
+            ->create();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcol'));
+
+        $table->changeColumn('indexcol', 'integer', ['null' => false])->update();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcol'));
+    }
+
     public function testChangeColumnDefaultToZero()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
