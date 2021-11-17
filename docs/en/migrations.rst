@@ -306,7 +306,7 @@ insert methods in your migrations.
                     ]
                 ];
 
-                $this->table('status')->insert($rows)->save();
+                $table('status')->insert($rows)->save();
             }
 
             /**
