@@ -284,15 +284,15 @@ insert methods in your migrations.
              */
             public function up()
             {
+                $table = $this->table('status');
+
                 // inserting only one row
                 $singleRow = [
                     'id'    => 1,
                     'name'  => 'In Progress'
                 ];
 
-                $table = $this->table('status');
-                $table->insert($singleRow);
-                $table->saveData();
+                $table->insert($singleRow)->saveData();
 
                 // inserting multiple rows
                 $rows = [
@@ -306,7 +306,7 @@ insert methods in your migrations.
                     ]
                 ];
 
-                $table('status')->insert($rows)->save();
+                $table->insert($rows)->saveData();
             }
 
             /**
