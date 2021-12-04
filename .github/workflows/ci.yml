@@ -166,6 +166,10 @@ jobs:
 
     - name: Submit code coverage
       uses: codecov/codecov-action@v1
+      
+    - name: Prefer lowest check
+      if: matrix.prefer-lowest == 'prefer-lowest'
+      run: composer require --dev dereuromark/composer-prefer-lowest && vendor/bin/validate-prefer-lowest -m      
 
   cs-stan:
     name: Coding Standard & Static Analysis
