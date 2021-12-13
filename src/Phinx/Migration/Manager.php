@@ -64,6 +64,11 @@ class Manager
     protected $container;
 
     /**
+     * @var int
+     */
+    private $verbosityLevel = OutputInterface::OUTPUT_NORMAL | OutputInterface::VERBOSITY_NORMAL;
+
+    /**
      * @param \Phinx\Config\ConfigInterface $config Configuration Object
      * @param \Symfony\Component\Console\Input\InputInterface $input Console Input
      * @param \Symfony\Component\Console\Output\OutputInterface $output Console Output
@@ -100,7 +105,7 @@ class Manager
         if (count($migrations)) {
             // rewrite using Symfony Table Helper as we already have this library
             // included and it will fix formatting issues (e.g drawing the lines)
-            $output->writeln('');
+            $output->writeln('', $this->verbosityLevel);
 
             switch ($this->getConfig()->getVersionOrder()) {
                 case Config::VERSION_ORDER_CREATION_TIME:
@@ -113,8 +118,8 @@ class Manager
                     throw new RuntimeException('Invalid version_order configuration option');
             }
 
-            $output->writeln(" Status  $migrationIdAndStartedHeader  Finished             Migration Name ");
-            $output->writeln('----------------------------------------------------------------------------------');
+            $output->writeln(" Status  $migrationIdAndStartedHeader  Finished             Migration Name ", $this->verbosityLevel);
+            $output->writeln('----------------------------------------------------------------------------------', $this->verbosityLevel);
 
             $env = $this->getEnvironment($environment);
             $versions = $env->getVersionLog();
@@ -189,17 +194,20 @@ class Manager
                 }
                 $maxNameLength = max($maxNameLength, strlen($migration->getName()));
 
-                $output->writeln(sprintf(
-                    '%s %14.0f  %19s  %19s  <comment>%s</comment>',
-                    $status,
-                    $migration->getVersion(),
-                    ($version ? $version['start_time'] : ''),
-                    ($version ? $version['end_time'] : ''),
-                    $migration->getName()
-                ));
+                $output->writeln(
+                    sprintf(
+                        '%s %14.0f  %19s  %19s  <comment>%s</comment>',
+                        $status,
+                        $migration->getVersion(),
+                        ($version ? $version['start_time'] : ''),
+                        ($version ? $version['end_time'] : ''),
+                        $migration->getName()
+                    ),
+                    $this->verbosityLevel
+                );
 
                 if ($version && $version['breakpoint']) {
-                    $output->writeln('         <error>BREAKPOINT SET</error>');
+                    $output->writeln('         <error>BREAKPOINT SET</error>', $this->verbosityLevel);
                 }
 
                 $finalMigrations[] = ['migration_status' => trim(strip_tags($status)), 'migration_id' => sprintf('%14.0f', $migration->getVersion()), 'migration_name' => $migration->getName()];
@@ -214,12 +222,12 @@ class Manager
             }
         } else {
             // there are no migrations
-            $output->writeln('');
-            $output->writeln('There are no available migrations. Try creating one using the <info>create</info> command.');
+            $output->writeln('', $this->verbosityLevel);
+            $output->writeln('There are no available migrations. Try creating one using the <info>create</info> command.', $this->verbosityLevel);
         }
 
         // write an empty line
-        $output->writeln('');
+        $output->writeln('', $this->verbosityLevel);
 
         if ($format !== null) {
             switch ($format) {
@@ -287,7 +295,7 @@ class Manager
 
         if (count($outstandingMigrations) > 0) {
             $migration = max($outstandingMigrations);
-            $this->getOutput()->writeln('Migrating to version ' . $migration);
+            $this->getOutput()->writeln('Migrating to version ' . $migration, $this->verbosityLevel);
             $this->migrate($environment, $migration, $fake);
         }
     }
@@ -364,11 +372,12 @@ class Manager
      */
     public function executeMigration($name, MigrationInterface $migration, $direction = MigrationInterface::UP, $fake = false)
     {
-        $this->getOutput()->writeln('');
+        $this->getOutput()->writeln('', $this->verbosityLevel);
         $this->getOutput()->writeln(
             ' ==' .
             ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>' .
-            ' <comment>' . ($direction === MigrationInterface::UP ? 'migrating' : 'reverting') . '</comment>'
+            ' <comment>' . ($direction === MigrationInterface::UP ? 'migrating' : 'reverting') . '</comment>',
+            $this->verbosityLevel
         );
 
         // Execute the migration and log the time elapsed.
@@ -380,7 +389,8 @@ class Manager
             ' ==' .
             ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>' .
             ' <comment>' . ($direction === MigrationInterface::UP ? 'migrated' : 'reverted') .
-            ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
+            ' ' . sprintf('%.4fs', $end - $start) . '</comment>',
+            $this->verbosityLevel
         );
     }
 
@@ -393,11 +403,12 @@ class Manager
      */
     public function executeSeed($name, SeedInterface $seed)
     {
-        $this->getOutput()->writeln('');
+        $this->getOutput()->writeln('', $this->verbosityLevel);
         $this->getOutput()->writeln(
             ' ==' .
             ' <info>' . $seed->getName() . ':</info>' .
-            ' <comment>seeding</comment>'
+            ' <comment>seeding</comment>',
+            $this->verbosityLevel
         );
 
         // Execute the seeder and log the time elapsed.
@@ -409,7 +420,8 @@ class Manager
             ' ==' .
             ' <info>' . $seed->getName() . ':</info>' .
             ' <comment>seeded' .
-            ' ' . sprintf('%.4fs', $end - $start) . '</comment>'
+            ' ' . sprintf('%.4fs', $end - $start) . '</comment>',
+            $this->verbosityLevel
         );
     }
 
@@ -1059,5 +1071,16 @@ class Manager
     public function unsetBreakpoint($environment, $version)
     {
         $this->markBreakpoint($environment, $version, self::BREAKPOINT_UNSET);
+    }
+
+    /**
+     * @param int $verbosityLevel Verbosity level for info messages
+     * @return $this
+     */
+    public function setVerbosityLevel(int $verbosityLevel)
+    {
+        $this->verbosityLevel = $verbosityLevel;
+
+        return $this;
     }
 }

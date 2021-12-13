@@ -59,9 +59,9 @@ EOT
 
         if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
-            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
+            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment, $this->verbosityLevel);
         } else {
-            $output->writeln('<info>using environment</info> ' . $environment);
+            $output->writeln('<info>using environment</info> ' . $environment, $this->verbosityLevel);
         }
 
         if (!$this->getConfig()->hasEnvironment($environment)) {
@@ -71,10 +71,10 @@ EOT
         }
 
         if ($format !== null) {
-            $output->writeln('<info>using format</info> ' . $format);
+            $output->writeln('<info>using format</info> ' . $format, $this->verbosityLevel);
         }
 
-        $output->writeln('<info>ordering by </info>' . $this->getConfig()->getVersionOrder() . ' time');
+        $output->writeln('<info>ordering by </info>' . $this->getConfig()->getVersionOrder() . ' time', $this->verbosityLevel);
 
         // print the status
         $result = $this->getManager()->printStatus($environment, $format);

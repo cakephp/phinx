@@ -68,9 +68,9 @@ EOT
 
         if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
-            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
+            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment, $this->verbosityLevel);
         } else {
-            $output->writeln('<info>using environment</info> ' . $environment);
+            $output->writeln('<info>using environment</info> ' . $environment, $this->verbosityLevel);
         }
 
         if (!$this->getConfig()->hasEnvironment($environment)) {
@@ -81,15 +81,15 @@ EOT
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
         if (isset($envOptions['adapter'])) {
-            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
+            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter'], $this->verbosityLevel);
         }
 
         if (isset($envOptions['wrapper'])) {
-            $output->writeln('<info>using wrapper</info> ' . $envOptions['wrapper']);
+            $output->writeln('<info>using wrapper</info> ' . $envOptions['wrapper'], $this->verbosityLevel);
         }
 
         if (isset($envOptions['name'])) {
-            $output->writeln('<info>using database</info> ' . $envOptions['name']);
+            $output->writeln('<info>using database</info> ' . $envOptions['name'], $this->verbosityLevel);
         } else {
             $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
 
@@ -97,17 +97,17 @@ EOT
         }
 
         if (isset($envOptions['table_prefix'])) {
-            $output->writeln('<info>using table prefix</info> ' . $envOptions['table_prefix']);
+            $output->writeln('<info>using table prefix</info> ' . $envOptions['table_prefix'], $this->verbosityLevel);
         }
         if (isset($envOptions['table_suffix'])) {
-            $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix']);
+            $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix'], $this->verbosityLevel);
         }
 
         $versionOrder = $this->getConfig()->getVersionOrder();
-        $output->writeln('<info>ordering by</info> ' . $versionOrder . ' time');
+        $output->writeln('<info>ordering by</info> ' . $versionOrder . ' time', $this->verbosityLevel);
 
         if ($fake) {
-            $output->writeln('<comment>warning</comment> performing fake migrations');
+            $output->writeln('<comment>warning</comment> performing fake migrations', $this->verbosityLevel);
         }
 
         try {
@@ -132,8 +132,8 @@ EOT
             return self::CODE_ERROR;
         }
 
-        $output->writeln('');
-        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+        $output->writeln('', $this->verbosityLevel);
+        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>', $this->verbosityLevel);
 
         return self::CODE_SUCCESS;
     }
