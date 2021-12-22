@@ -380,7 +380,7 @@ class Table
     /**
      * Add an index to a database table.
      *
-     * In $options you can specific unique = true/false or name (index name).
+     * In $options you can specify unique = true/false, and name (index name).
      *
      * @param string|array|\Phinx\Db\Table\Index $columns Table Column(s)
      * @param array $options Index Options
