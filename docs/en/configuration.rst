@@ -371,6 +371,7 @@ Declaring an SQLite database uses a simplified structure:
         testing:
             adapter: sqlite
             memory: true     # Setting memory to *any* value overrides name
+            cache: shared    # Determines if the new database is opened using shared cache mode or with a private cache
 
 SQL Server
 `````````````````

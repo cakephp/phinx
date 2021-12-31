@@ -157,7 +157,18 @@ class SQLiteAdapter extends PdoAdapter
 
             // use a memory database if the option was specified
             if (!empty($options['memory']) || $options['name'] === static::MEMORY) {
-                $dsn = 'sqlite:' . static::MEMORY;
+                $params = [];
+                if (!empty($options['cache'])) {
+                    $params[] = 'cache=' . $options['cache'];
+                }
+                if ($params) {
+                    if (PHP_VERSION_ID < 80100) {
+                        throw new RuntimeException('SQLite URI support requires PHP 8.1.');
+                    }
+                    $dsn = 'sqlite:file:' . $options['name'] . '?' . implode('&', $params);
+                } else {
+                    $dsn = 'sqlite:' . static::MEMORY;
+                }
             } else {
                 $dsn = 'sqlite:' . $options['name'] . $this->suffix;
             }
