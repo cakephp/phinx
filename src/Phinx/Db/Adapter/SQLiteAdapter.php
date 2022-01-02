@@ -155,22 +155,26 @@ class SQLiteAdapter extends PdoAdapter
 
             $options = $this->getOptions();
 
-            // use a memory database if the option was specified
-            if (!empty($options['memory']) || $options['name'] === static::MEMORY) {
+            if (PHP_VERSION_ID < 80100 && (!empty($options['mode']) || !empty($options['cache']))) {
+                throw new RuntimeException('SQLite URI support requires PHP 8.1.');
+            } elseif ((!empty($options['mode']) || !empty($options['cache'])) && !empty($options['memory'])) {
+                throw new RuntimeException('Memory must not be set when cache or mode are.');
+            } elseif (PHP_VERSION_ID >= 80100) {
                 $params = [];
                 if (!empty($options['cache'])) {
                     $params[] = 'cache=' . $options['cache'];
                 }
-                if ($params) {
-                    if (PHP_VERSION_ID < 80100) {
-                        throw new RuntimeException('SQLite URI support requires PHP 8.1.');
-                    }
-                    $dsn = 'sqlite:file:' . $options['name'] . '?' . implode('&', $params);
-                } else {
-                    $dsn = 'sqlite:' . static::MEMORY;
+                if (!empty($options['mode'])) {
+                    $params[] = 'mode=' . $options['mode'];
                 }
+                $dsn = 'sqlite:file:' . $options['name'] . '?' . implode('&', $params);
             } else {
-                $dsn = 'sqlite:' . $options['name'] . $this->suffix;
+                // use a memory database if the option was specified
+                if (!empty($options['memory']) || $options['name'] === static::MEMORY) {
+                    $dsn = 'sqlite:' . static::MEMORY;
+                } else {
+                    $dsn = 'sqlite:' . $options['name'] . $this->suffix;
+                }
             }
 
             $driverOptions = [];

@@ -371,7 +371,18 @@ Declaring an SQLite database uses a simplified structure:
         testing:
             adapter: sqlite
             memory: true     # Setting memory to *any* value overrides name
-            cache: shared    # Determines if the new database is opened using shared cache mode or with a private cache
+
+Starting with PHP 8.1 the SQlite adapter supports ``cache`` and ``mode``
+query parameters by using the `URI scheme <https://www.sqlite.org/uri.html>`_ as long as ``open_basedir`` is unset.
+
+.. code-block:: yaml
+
+    environments:
+        testing:
+            adapter: sqlite
+            name: my_app
+            mode: memory     # Determines if the new database is opened read-only, read-write, read-write and created if it does not exist, or that the database is a pure in-memory database that never interacts with disk, respectively.
+            cache: shared    # Determines if the new database is opened using shared cache mode or with a private cache.
 
 SQL Server
 `````````````````
