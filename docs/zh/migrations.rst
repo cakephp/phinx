@@ -58,12 +58,8 @@ Phinx 会自动创建一个迁移示例文件，文件内有一个方法(method)
 Change 方法
 ~~~~~~~~~~~~~~~~~
 
-Phinx 0.2.0 introduced a new feature called reversible migrations. This feature
-has now become the default migration method. With reversible migrations, you
-only need to define the ``up`` logic, and Phinx can figure out how to migrate
-down automatically for you. For example:
 Phinx 0.2.0 加入了一个名为“可逆性迁移”的新功能。该功能现在已成为默认的迁移方法。
-通过“可逆性迁移”，你只需要定义 ``up`` 逻辑，Phinx 就可以自动识别何时为你回滚(migrate down)。例如：
+通过“可逆性迁移”，你只需要定义 ``up`` 逻辑（向上迁移），Phinx 就可以自动识别何时为你进行 ``down`` 逻辑（向下迁移，类似回滚）。例如：
 
 .. code-block:: php
 
@@ -83,9 +79,9 @@ Phinx 0.2.0 加入了一个名为“可逆性迁移”的新功能。该功能�
             }
         }
 
-当执行这次迁移后，Phinx 会创建 ``user_logins`` 表(up)，并自动找到删除表的方法(down)。
+当执行这次迁移后，Phinx 会创建 ``user_logins`` 表(up逻辑)，并自动找到删除表的方法(down逻辑)。
 请注意当 ``change`` 方法存在时，Phinx将自动忽略 ``up`` 和 ``down`` 方法。
-如果你需要使用这两个方法时，建议单独写入另一个迁移文件。
+如果你需要使用这两个方法的话，建议单独写入另一个迁移文件。
 
 .. note::
 
@@ -104,8 +100,7 @@ Phinx 0.2.0 加入了一个名为“可逆性迁移”的新功能。该功能�
 
 如果一个动作不能被反转，Phinx 在执行回滚时，会抛出一个 ``IrreversibleMigrationException`` 错误。
 如果你希望在 change 方法中执行的命令不被反转，可以使用 if 语句判断 ``$this->isMigratingUp()``，
-从而让你的命令只在 Up 或 Down 的情况下才执行。例如：
-
+从而让你的命令只在向上（Up）或向下（Down）的情况下才执行。例如：
 
 
 .. code-block:: php
@@ -130,34 +125,31 @@ Phinx 0.2.0 加入了一个名为“可逆性迁移”的新功能。该功能�
             }
         }
 
-The Up Method
+Up 方法
 ~~~~~~~~~~~~~
 
-The up method is automatically run by Phinx when you are migrating up and it
-detects the given migration hasn't been executed previously. You should use the
-up method to transform the database with your intended changes.
+Phinx 的 ``up()`` 方法将在 向上 迁移时自动执行。它会检查该迁移在之前是否已经执行过。
+当你需要更改数据库时，应该使用这个方法。
 
-The Down Method
+
+Down 方法
 ~~~~~~~~~~~~~~~
 
-The down method is automatically run by Phinx when you are migrating down and
-it detects the given migration has been executed in the past. You should use
-the down method to reverse/undo the transformations described in the up method.
+Phinx 的 ``down()`` 方法将在 向下 迁移时自动执行。它会检查该迁移在之前是否已经执行过。
+当你需要反转/撤销 up 方法中做的改变时，应该使用这个方法。
 
-The Init Method
+Init 方法
 ~~~~~~~~~~~~~~~
 
-The ``init()`` method is run by Phinx before the migration methods if it exists.
-This can be used for setting common class properties that are then used within
-the migration methods.
+Phinx 的 ``init()`` 方法将在迁移方法运行之前执行（如果存在的话）。
+它可以用于设置将在迁移方法中使用的通用类的属性。
 
-Executing Queries
+执行查询
 -----------------
 
-Queries can be executed with the ``execute()`` and ``query()`` methods. The
-``execute()`` method returns the number of affected rows whereas the
-``query()`` method returns the result as a
-`PDOStatement <http://php.net/manual/en/class.pdostatement.php>`_
+查询（Query）可以使用 ``execute()`` 或 ``query()`` 方法。
+``execute()`` 方法将返回受影响的行数量； ``query()`` 方法则返回一个`PDOStatement <http://php.net/manual/en/class.pdostatement.php>` 类型的结果。
+
 
 .. code-block:: php
 
@@ -191,35 +183,24 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
 
 .. note::
 
-    These commands run using the PHP Data Objects (PDO) extension which
-    defines a lightweight, consistent interface for accessing databases
-    in PHP. Always make sure your queries abide with PDOs before using
-    the ``execute()`` command. This is especially important when using
-    DELIMITERs during insertion of stored procedures or triggers which
-    don't support DELIMITERs.
+    这些命令使用 PHP 数据对象 (PDO) 扩展运行。
+    该扩展为访问数据库定义了一个轻量级、具备一致性的接口。
+    在使用 ``execute()`` 之前，请确保您的查询语句是遵循 PDO 的。
+    在插入不支持 DELIMITER 的存储过程或触发器期间时，这一点尤其重要。
 
 .. warning::
 
-    When using ``execute()`` or ``query()`` with a batch of queries, PDO doesn't
-    throw an exception if there is an issue with one or more of the queries
-    in the batch.
+    当对一批查询使用 ``execute()`` 或 ``query()`` 时，如果批处理中的一个或多个查询出现问题，PDO 并不会抛出异常。
 
-    As such, the entire batch is assumed to have passed without issue.
+    因此，整个批处理被视为全部顺利通过，并无异常。
 
-    If Phinx was to iterate any potential result sets, looking to see if one
-    had an error, then Phinx would be denying access to all the results as there
-    is no facility in PDO to get a previous result set
-    `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`_ -
-    but no ``previousSet()``).
+    Phinx 无法实现迭代所有潜在的结果集，并去其中查找是否有错误。因为 PDO 中没有工具可以获取以前的结果集，所以Phinx无法访问所有结果。（`nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`_ -
+    但没有 ``previousSet()``）
 
-    So, as a consequence, due to the design decision in PDO to not throw
-    an exception for batched queries, Phinx is unable to provide the fullest
-    support for error handling when batches of queries are supplied.
+    由于 PDO 的设计决策不会为批处理查询抛出异常，因此在处理批量查询时，Phinx 无法为错误处理提供完整的支持。
 
-    Fortunately though, all the features of PDO are available, so multiple batches
-    can be controlled within the migration by calling upon
-    `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`_
-    and examining `errorInfo <http://php.net/manual/en/pdostatement.errorinfo.php>`_.
+    幸运的是，PDO 的所有功能都可用，因此针对批量处理的问题，可以通过在迁移中调用 `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`_
+    和检查 `errorInfo <http://php.net/manual/en/pdostatement.errorinfo.php>`_ 来实现控制。
 
 Fetching Rows
 -------------
