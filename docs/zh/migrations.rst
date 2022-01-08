@@ -202,12 +202,14 @@ Phinx 的 ``init()`` 方法将在迁移方法运行之前执行（如果存在�
     幸运的是，PDO 的所有功能都可用，因此针对批量处理的问题，可以通过在迁移中调用 `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`_
     和检查 `errorInfo <http://php.net/manual/en/pdostatement.errorinfo.php>`_ 来实现控制。
 
-Fetching Rows
+获取行数据
 -------------
 
 There are two methods available to fetch rows. The ``fetchRow()`` method will
 fetch a single row, whilst the ``fetchAll()`` method will return multiple rows.
 Both methods accept raw SQL as their only parameter.
+有两种方法可用于获取行数据。 ``fetchRow()`` 方法将获取单行，而 ``fetchAll()`` 方法将返回多行。
+这两种方法都接受原始 SQL 作为其唯一参数。
 
 .. code-block:: php
 
@@ -238,12 +240,11 @@ Both methods accept raw SQL as their only parameter.
             }
         }
 
-Inserting Data
+插入数据
 --------------
 
-Phinx makes it easy to insert data into your tables. Whilst this feature is
-intended for the :doc:`seed feature <seeding>`, you are also free to use the
-insert methods in your migrations.
+Phinx 可以轻松地将数据插入到您的表中。
+虽然此功能主要用于 :doc:`种子功能(seeding) <seeding>`，但您也可以在迁移中自由使用插入方法。
 
 .. code-block:: php
 
@@ -294,19 +295,17 @@ insert methods in your migrations.
 
 .. note::
 
-    You cannot use the insert methods inside a `change()` method. Please use the
-    `up()` and `down()` methods.
+    插入语句在 `chang()` 方法中不可用。可在 `up()` 或 `down()` 方法中使用它。
 
-Working With Tables
+使用表
 -------------------
 
-The Table Object
+表对象
 ~~~~~~~~~~~~~~~~
 
-The Table object is one of the most useful APIs provided by Phinx. It allows
-you to easily manipulate database tables using PHP code. You can retrieve an
-instance of the Table object by calling the ``table()`` method from within
-your database migration.
+Table 对象是 Phinx 提供的最有用的 API 之一。
+它可让您使用 PHP 代码轻松操作数据库表。
+您可以通过在数据库迁移中调用 ``table()`` 方法来获取 Table 对象实例。
 
 .. code-block:: php
 
@@ -333,36 +332,29 @@ your database migration.
             }
         }
 
-You can then manipulate this table using the methods provided by the Table
-object.
+随后，您可以使用 Table 对象提供的方法操作该表。
 
-Saving Changes
+保存更改
 ~~~~~~~~~~~~~~
 
-When working with the Table object, Phinx stores certain operations in a
-pending changes cache. Once you have made the changes you want to the table,
-you must save them. To perform this operation, Phinx provides three methods,
-``create()``, ``update()``, and ``save()``. ``create()`` will first create
-the table and then run the pending changes. ``update()`` will just run the
-pending changes, and should be used when the table already exists. ``save()``
-is a helper function that checks first if the table exists and if it does not
-will run ``create()``, else it will run ``update()``.
+使用 Table 对象时，Phinx 会将某些操作存储在“待定更改缓存”中。
+对表格进行所需的更改后，必须执行保存操作。
+Phinx 提供了三种保存方法 ``create()``, ``update()`` 和 ``save()``。
+``create()`` 会先创建表，然后执行待定更改。
+``update()`` 将只运行待定的更改，并且前提是表已经存在。
+``save()`` 是一个助手函数。它首先检查表是否存在，如果不存在则运行 ``create()``，否则运行 ``update()``。
 
-As stated above, when using the ``change()`` migration method, you should always
-use ``create()`` or ``update()``, and never ``save()`` as otherwise migrating
-and rolling back may result in different states, due to ``save()`` calling
-``create()`` when running migrate and then ``update()`` on rollback. When
-using the ``up()``/``down()`` methods, it is safe to use either ``save()`` or
-the more explicit methods.
+如上所述，在使用 ``change()`` 迁移方法时，您应该始终使用 ``create()`` 或 ``update() ``。"
+"而不要使用save()，否则可能会导致迁移和回滚过程中出现不同的状态。"
+"因为 ``save()`` 将在迁移时调用 ``create()``，而在回滚时调用 ``update()``。"
+"所以，在使用 ``up()``/``down()`` 方法时，使用 ``save()`` 或其它更明确的方法是安全的。"
 
-When in doubt with working with tables, it is always recommended to call
-the appropriate function and commit any pending changes to the database.
+如果对使用表有任何疑问，通常建议调用适当的函数，并将待定的更改提交到数据库。
 
-Creating a Table
+创建一个表
 ~~~~~~~~~~~~~~~~
 
-Creating a table is really easy using the Table object. Let's create a table to
-store a collection of users.
+使用 Table 对象创建表非常容易。让我们创建一个存储用户集合的表。
 
 .. code-block:: php
 
@@ -391,20 +383,24 @@ store a collection of users.
 Columns are added using the ``addColumn()`` method. We create a unique index
 for both the username and email columns using the ``addIndex()`` method.
 Finally calling ``create()`` commits the changes to the database.
+使用“addColumn()”方法添加列。 我们使用 addIndex() 方法为用户名和电子邮件列创建唯一索引。 最后调用 create() 将更改提交到数据库。
 
 .. note::
 
     Phinx automatically creates an auto-incrementing primary key column called ``id`` for every
     table.
+    Phinx 会自动为每个表创建一个名为“id”的自动递增主键列。
 
 The ``id`` option sets the name of the automatically created identity field, while the ``primary_key``
 option selects the field or fields used for primary key. ``id`` will always override the ``primary_key``
 option unless it's set to false. If you don't need a primary key set ``id`` to false without
 specifying a ``primary_key``, and no primary key will be created.
+``id`` 选项设置自动创建的身份字段的名称，而 ``primary_key`` 选项选择用于主键的字段或字段。 ``id`` 将始终覆盖 ``primary_key`` 选项，除非它设置为 false。 如果您不需要主键，则在不指定 ``primary_key`` 的情况下将 ``id`` 设置为 false，则不会创建主键。
 
 To specify an alternate primary key, you can specify the ``primary_key`` option
 when accessing the Table object. Let's disable the automatic ``id`` column and
 create a primary key using two columns instead:
+要指定备用主键，您可以在访问 Table 对象时指定 ``primary_key`` 选项。 让我们禁用自动 ``id`` 列并使用两列创建主键：
 
 .. code-block:: php
 
@@ -426,6 +422,8 @@ create a primary key using two columns instead:
 
 Setting a single ``primary_key`` doesn't enable the ``AUTO_INCREMENT`` option.
 To simply change the name of the primary key, we need to override the default ``id`` field name:
+设置单个 ``primary_key`` 不会启用 ``AUTO_INCREMENT`` 选项。
+要简单地更改主键的名称，我们需要覆盖默认的“id”字段名称：
 
 .. code-block:: php
 
@@ -445,20 +443,23 @@ To simply change the name of the primary key, we need to override the default ``
         }
 
 In addition, the MySQL adapter supports following options:
+此外，MySQL 适配器支持以下选项：
 
 ========== ===========
 Option     Description
 ========== ===========
-comment    set a text comment on the table
-row_format set the table row format
-engine     define table engine *(defaults to ``InnoDB``)*
-collation  define table collation *(defaults to ``utf8_general_ci``)*
-signed     whether the primary key is ``signed``  *(defaults to ``true``)*
-limit      set the maximum length for the primary key
+comment    set a text comment on the table 在表格上设置文本注释
+row_format set the table row format 设置表格行格式
+engine     define table engine *(defaults to ``InnoDB``)* 定义表引擎*（默认为``InnoDB``）*
+collation  define table collation *(defaults to ``utf8_general_ci``)* 定义表排序规则*（默认为 ``utf8_general_ci``）*
+signed     whether the primary key is ``signed``  *(defaults to ``true``)* 主键是否“签名”*（默认为“真”）*
+limit      set the maximum length for the primary key 设置主键的最大长度
 ========== ===========
 
 By default the primary key is ``signed``.
 To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
+默认情况下，主键是“签名”。
+要简单地将其设置为无符号，只需传递带有 ``false`` 值的``signed`` 选项：
 
 .. code-block:: php
 
@@ -479,20 +480,23 @@ To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
 
 
 The PostgreSQL adapter supports the following options:
+PostgreSQL 适配器支持以下选项：
 
 ========= ===========
 Option    Description
 ========= ===========
-comment   set a text comment on the table
+comment   set a text comment on the table 在表格上设置文本注释
 ========= ===========
 
 To view available column types and options, see `Valid Column Types`_ for details.
+要查看可用的列类型和选项，请参阅 `Valid Column Types`_ 了解详细信息。
 
-Determining Whether a Table Exists
+Determining Whether a Table Exists 确定表是否存在
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can determine whether or not a table exists by using the ``hasTable()``
 method.
+您可以使用“hasTable()”方法确定表是否存在。
 
 .. code-block:: php
 
@@ -522,15 +526,17 @@ method.
             }
         }
 
-Dropping a Table
+Dropping a Table 删除表
 ~~~~~~~~~~~~~~~~
 
 Tables can be dropped quite easily using the ``drop()`` method. It is a
 good idea to recreate the table again in the ``down()`` method.
+使用 ``drop()`` 方法可以很容易地删除表。 在 ``down()`` 方法中重新创建表是个好主意。
 
 Note that like other methods in the ``Table`` class, ``drop`` also needs ``save()``
 to be called at the end in order to be executed. This allows phinx to intelligently
 plan migrations when more than one table is involved.
+请注意，与 ``Table`` 类中的其他方法一样，``drop`` 也需要在最后调用 ``save()`` 才能执行。 这允许 phinx 在涉及多个表时智能地计划迁移。
 
 .. code-block:: php
 
@@ -567,11 +573,13 @@ plan migrations when more than one table is involved.
             }
         }
 
-Renaming a Table
+Renaming a Table 重命名表
 ~~~~~~~~~~~~~~~~
 
 To rename a table access an instance of the Table object then call the
 ``rename()`` method.
+要重命名表，请访问 Table 对象的实例，然后调用
+``重命名（）``方法。
 
 .. code-block:: php
 
@@ -604,12 +612,15 @@ To rename a table access an instance of the Table object then call the
             }
         }
 
-Changing the Primary Key
+Changing the Primary Key 更改主键
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 To change the primary key on an existing table, use the ``changePrimaryKey()`` method.
 Pass in a column name or array of columns names to include in the primary key, or ``null`` to drop the primary key.
 Note that the mentioned columns must be added to the table, they will not be added implicitly.
+要更改现有表的主键，请使用“changePrimaryKey()”方法。
+传入列名或列名数组以包含在主键中，或“null”以删除主键。
+请注意，提到的列必须添加到表中，它们不会被隐式添加。
 
 .. code-block:: php
 
@@ -645,11 +656,13 @@ Note that the mentioned columns must be added to the table, they will not be add
             }
         }
 
-Changing the Table Comment
+Changing the Table Comment 更改表格注释
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To change the comment on an existing table, use the ``changeComment()`` method.
 Pass in a string to set as the new table comment, or ``null`` to drop the existing comment.
+要更改现有表的注释，请使用“changeComment()”方法。
+传入一个字符串以设置为新表注释，或“null”以删除现有注释。
 
 .. code-block:: php
 
@@ -684,15 +697,16 @@ Pass in a string to set as the new table comment, or ``null`` to drop the existi
             }
         }
 
-Working With Columns
+Working With Columns 使用列
 --------------------
 
 .. _valid-column-types:
 
-Valid Column Types
+Valid Column Types 有效的列类型
 ~~~~~~~~~~~~~~~~~~
 
 Column types are specified as strings and can be one of:
+列类型指定为字符串，可以是以下之一：
 
 -  binary
 -  boolean
@@ -714,63 +728,71 @@ Column types are specified as strings and can be one of:
 In addition, the MySQL adapter supports ``enum``, ``set``, ``blob``, ``tinyblob``, ``mediumblob``, ``longblob``, ``bit`` and ``json`` column types
 (``json`` in MySQL 5.7 and above). When providing a limit value and using ``binary``, ``varbinary`` or ``blob`` and its subtypes, the retained column
 type will be based on required length (see `Limit Option and MySQL`_ for details);
+此外，MySQL 适配器支持“enum”、“set”、“blob”、“tinyblob”、“mediumblob”、“longblob”、“bit”和“ `json`` 列类型（MySQL 5.7 及更高版本中的``json``）。 当提供限制值并使用“binary”、“varbinary”或“blob”及其子类型时，保留的列类型将基于所需的长度（有关详细信息，请参阅“限制选项和 MySQL”） ;
 
 In addition, the Postgres adapter supports ``interval``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
 (PostgreSQL 9.3 and above).
+此外，Postgres 适配器支持“interval”、“json”、“jsonb”、“uuid”、“cidr”、“inet”和“macaddr”列类型
+（PostgreSQL 9.3 及更高版本）。
 
-Valid Column Options
+Valid Column Options 有效的列选项
 ~~~~~~~~~~~~~~~~~~~~
 
-The following are valid column options:
+The following are valid column options: 以下是有效的列选项：
 
 For any column type:
+对于任何列类型：
 
 ======= ===========
 Option  Description
 ======= ===========
-limit   set maximum length for strings, also hints column types in adapters (see note below)
-length  alias for ``limit``
-default set default value or action
-null    allow ``NULL`` values, defaults to false (should not be used with primary keys!) (see note below)
-after   specify the column that a new column should be placed after, or use ``\Phinx\Db\Adapter\MysqlAdapter::FIRST`` to place the column at the start of the table *(only applies to MySQL)*
-comment set a text comment on the column
+limit   set maximum length for strings, also hints column types in adapters (see note below) 设置字符串的最大长度，还提示适配器中的列类型（请参阅下面的注释）
+length  alias for ``limit`` “限制”的别名
+default set default value or action 设置默认值或操作
+null    allow ``NULL`` values, defaults to false (should not be used with primary keys!) (see note below) 允许 ``NULL`` 值，默认为 false（不应与主键一起使用！）（请参阅下面的注释）
+after   specify the column that a new column should be placed after, or use ``\Phinx\Db\Adapter\MysqlAdapter::FIRST`` to place the column at the start of the table *(only applies to MySQL)* 指定新列应该放在后面的列，或使用 ``\Phinx\Db\Adapter\MysqlAdapter::FIRST`` 将列放在表的开头 *（仅适用于 MySQL）*
+comment set a text comment on the column 在列上设置文本注释
 ======= ===========
 
 For ``decimal`` columns:
+对于“十进制”列：
 
 ========= ===========
 Option    Description
 ========= ===========
-precision combine with ``scale`` set to set decimal accuracy
-scale     combine with ``precision`` to set decimal accuracy
-signed    enable or disable the ``unsigned`` option *(only applies to MySQL)*
+precision combine with ``scale`` set to set decimal accuracy 结合 ``scale`` 设置设置小数精度
+scale     combine with ``precision`` to set decimal accuracy 与“precision”结合设置小数精度
+signed    enable or disable the ``unsigned`` option *(only applies to MySQL)* 启用或禁用“无符号”选项*（仅适用于 MySQL）*
 ========= ===========
 
 For ``enum`` and ``set`` columns:
+对于 ``enum`` 和 ``set`` 列：
 
 ========= ===========
 Option    Description
 ========= ===========
-values    Can be a comma separated list or an array of values
+values    Can be a comma separated list or an array of values 可以是逗号分隔的列表或值数组
 ========= ===========
 
 For ``integer`` and ``biginteger`` columns:
+对于“整数”和“大整数”列：
 
 ======== ===========
 Option   Description
 ======== ===========
-identity enable or disable automatic incrementing
-signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
+identity enable or disable automatic incrementing 启用或禁用自动递增
+signed   enable or disable the ``unsigned`` option *(only applies to MySQL)* 启用或禁用“无符号”选项*（仅适用于 MySQL）*
 ======== ===========
 
 For ``timestamp`` columns:
+对于“时间戳”列：
 
 ======== ===========
 Option   Description
 ======== ===========
-default  set default value (use with ``CURRENT_TIMESTAMP``)
-update   set an action to be triggered when the row is updated (use with ``CURRENT_TIMESTAMP``) *(only applies to MySQL)*
-timezone enable or disable the ``with time zone`` option for ``time`` and ``timestamp`` columns *(only applies to Postgres)*
+default  set default value (use with ``CURRENT_TIMESTAMP``) 设置默认值（与``CURRENT_TIMESTAMP``一起使用）
+update   set an action to be triggered when the row is updated (use with ``CURRENT_TIMESTAMP``) *(only applies to MySQL)* 设置更新行时触发的操作（与``CURRENT_TIMESTAMP``一起使用）*（仅适用于MySQL）*
+timezone enable or disable the ``with time zone`` option for ``time`` and ``timestamp`` columns *(only applies to Postgres)* 启用或禁用 ``time`` 和 ``timestamp`` 列的``with time zone`` 选项*（仅适用于 Postgres）*
 ======== ===========
 
 You can add ``created_at`` and ``updated_at`` timestamps to a table using the ``addTimestamps()`` method. This method accepts
@@ -782,6 +804,8 @@ respectively. For the first and second argument, if you provide ``null``, then t
 ``addTimestamps()`` that will always set the third argument to ``true`` (see examples below). The ``created_at`` column will
 have a default set to ``CURRENT_TIMESTAMP``. For MySQL only, ``update_at`` column will have update set to
 ``CURRENT_TIMESTAMP``.
+您可以使用 ``addTimestamps()`` 方法将``created_at`` 和 ``updated_at`` 时间戳添加到表中。 此方法接受三个参数，其中前两个允许为列设置替代名称，而第三个参数允许您为列启用“时区”选项。 这些参数的默认值分别是“created_at”、“updated_at”和“true”。 对于第一个和第二个参数，如果您提供“null”，则将使用默认名称，如果您提供“false”，则不会创建该列。 请注意，尝试将两者都设置为 ``false`` 将引发 ``\RuntimeException``。 此外，您可以使用 `addTimestampsWithTimezone()` 方法，它是
+``addTimestamps()`` 总是将第三个参数设置为 ``true`` （见下面的例子）。 ``created_at`` 列将默认设置为 ``CURRENT_TIMESTAMP``。 仅对于 MySQL，“update_at”列将更新设置为“CURRENT_TIMESTAMP”。
 
 .. code-block:: php
 
@@ -818,33 +842,38 @@ have a default set to ``CURRENT_TIMESTAMP``. For MySQL only, ``update_at`` colum
         }
 
 For ``boolean`` columns:
+对于“布尔”列：
 
 ======== ===========
 Option   Description
 ======== ===========
-signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
+signed   enable or disable the ``unsigned`` option *(only applies to MySQL)* 启用或禁用“无符号”选项*（仅适用于 MySQL）*
 ======== ===========
 
 For ``string`` and ``text`` columns:
+对于 ``string`` 和 ``text`` 列：
 
 ========= ===========
 Option    Description
 ========= ===========
-collation set collation that differs from table defaults *(only applies to MySQL)*
-encoding  set character set that differs from table defaults *(only applies to MySQL)*
+collation set collation that differs from table defaults *(only applies to MySQL)* 设置不同于表默认值的排序规则*（仅适用于 MySQL）*
+encoding  set character set that differs from table defaults *(only applies to MySQL)* 设置不同于表默认值的字符集*（仅适用于 MySQL）*
 ========= ===========
 
 For foreign key definitions:
+对于外键定义：
 
 ====== ===========
 Option Description
 ====== ===========
-update set an action to be triggered when the row is updated
-delete set an action to be triggered when the row is deleted
+update set an action to be triggered when the row is updated 设置更新行时触发的操作
+delete set an action to be triggered when the row is deleted 设置删除行时触发的操作
 ====== ===========
 
 You can pass one or more of these options to any column with the optional
 third argument array.
+您可以将这些选项中的一个或多个传递给带有可选的任何列
+第三个参数数组。
 
 Limit Option and MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
