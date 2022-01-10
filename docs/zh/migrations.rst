@@ -875,12 +875,13 @@ third argument array.
 您可以将这些选项中的一个或多个传递给带有可选的任何列
 第三个参数数组。
 
-Limit Option and MySQL
+Limit Option and MySQL 限制选项和 MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
 
 When using the MySQL adapter, additional hinting of database column type can be
 made for ``integer``, ``text``, ``blob``, ``tinyblob``, ``mediumblob``, ``longblob`` columns. Using ``limit`` with
 one the following options will modify the column type accordingly:
+使用 MySQL 适配器时，可以为“integer”、“text”、“blob”、“tinyblob”、“mediumblob”、“longblob”添加额外的数据库列类型提示 ` 列。 将 ``limit`` 与以下选项一起使用将相应地修改列类型：
 
 ============ ==============
 Limit        Column Type
@@ -901,6 +902,7 @@ INT_BIG      BIGINT
 ============ ==============
 
 For ``binary`` or ``varbinary`` types, if limit is set greater than allowed 255 bytes, the type will be changed to the best matching blob type given the length.
+对于 ``binary`` 或 ``varbinary`` 类型，如果将限制设置为大于允许的 255 个字节，则类型将更改为给定长度的最佳匹配 blob 类型。
 
 .. code-block:: php
 
@@ -917,7 +919,7 @@ For ``binary`` or ``varbinary`` types, if limit is set greater than allowed 255 
               ->addColumn('quantity', 'integer', ['limit' => MysqlAdapter::INT_TINY])
               ->create();
 
-Custom Column Types & Default Values
+Custom Column Types & Default Values 自定义列类型和默认值
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Some DBMS systems provide additional column types and default values that are specific to them.
@@ -926,9 +928,12 @@ through the ``\Phinx\Util\Literal::from`` method, which takes a string as its on
 instance of ``\Phinx\Util\Literal``. When Phinx encounters this value as a column's type it knows not to
 run any validation on it and to use it exactly as supplied without escaping. This also works for ``default``
 values.
+一些 DBMS 系统提供额外的列类型和特定于它们的默认值。
+如果您不想让您的迁移与 DBMS 无关，您可以通过 ``\Phinx\Util\Literal::from`` 方法在迁移中使用这些自定义类型，该方法将字符串作为其唯一参数，并返回 ``\Phinx\Util\Literal`` 的一个实例。 当 Phinx 遇到这个值作为列的类型时，它知道不对它运行任何验证并完全按照提供的方式使用它而不转义。 这也适用于“默认”值。
 
 You can see an example below showing how to add a ``citext`` column as well as a column whose default value
 is a function, in PostgreSQL. This method of preventing the built-in escaping is supported in all adapters.
+您可以在下面看到一个示例，该示例显示了如何在 PostgreSQL 中添加 ``citext`` 列以及默认值为函数的列。 所有适配器都支持这种防止内置转义的方法。
 
 .. code-block:: php
 
@@ -954,12 +959,13 @@ is a function, in PostgreSQL. This method of preventing the built-in escaping is
             }
         }
 
-User Defined Types (Custom Data Domain)
+User Defined Types (Custom Data Domain) 用户定义类型（自定义数据域）
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Building upon the base types and column options you can define your custom
 user defined types. Custom user defined types are configured in the
 ``data_domain`` root config option.
+基于基本类型和列选项，您可以定义自定义的用户定义类型。 自定义用户定义类型在 ``data_domain`` 根配置选项中配置。
 
 .. code-block:: yaml
 
@@ -973,6 +979,7 @@ user defined types. Custom user defined types are configured in the
 
 Each user defined type can hold any valid type and column option, they are just
 used as "macros" and replaced at the time of migration.
+每个用户定义的类型都可以包含任何有效的类型和列选项，它们只是用作“宏”并在迁移时被替换。
 
 .. code-block:: php
 
@@ -989,15 +996,18 @@ used as "macros" and replaced at the time of migration.
 Specifying a data domain at the beginning of your project is crucial to have a
 homogeneous data model. It avoids mistakes like having many ``contact_name``
 columns with different lengths, mismatched integer types (long vs. bigint, etc).
+在项目开始时指定数据域对于拥有同质数据模型至关重要。 它避免了诸如具有许多不同长度的“contact_name”列、不匹配的整数类型（long 与 bigint 等）等错误。
 
 .. note::
 
     For ``integer``, ``text`` and ``blob`` columns you can use the special
     constants from MySQL and Postgress adapter classes.
+    对于“integer”、“text”和“blob”列，您可以使用 MySQL 和 Postgress 适配器类中的特殊常量。
 
     You can even customize some internal types to add your own default options,
     but some column options can't be overriden in the data model (some options
     are fixed like ``limit`` for the ``uuid`` special data type).
+    你甚至可以自定义一些内部类型来添加你自己的默认选项，但是一些列选项不能在数据模型中被覆盖（一些选项是固定的，比如 ``uuid`` 特殊数据类型的 ``limit``）。
 
 .. code-block:: yaml
 
@@ -1016,11 +1026,12 @@ columns with different lengths, mismatched integer types (long vs. bigint, etc).
                 - jpg
                 - png
 
-Get a column list
+Get a column list 获取列列表
 ~~~~~~~~~~~~~~~~~
 
 To retrieve all table columns, simply create a `table` object and call `getColumns()`
 method. This method will return an array of Column classes with basic info. Example below:
+要检索所有表列，只需创建一个 `table` 对象并调用 `getColumns()` 方法。 此方法将返回一个包含基本信息的 Column 类数组。 下面的例子：
 
 .. code-block:: php
 
@@ -1048,11 +1059,12 @@ method. This method will return an array of Column classes with basic info. Exam
             }
         }
 
-Get a column by name
+Get a column by name 按名称获取列
 ~~~~~~~~~~~~~~~~~~~~
 
 To retrieve one table column, simply create a `table` object and call the `getColumn()`
 method. This method will return a Column class with basic info or NULL when the column doesn't exist. Example below:
+要检索一个表列，只需创建一个 `table` 对象并调用 `getColumn()` 方法。 当列不存在时，此方法将返回具有基本信息或 NULL 的 Column 类。 下面的例子：
 
 .. code-block:: php
 
@@ -1080,11 +1092,12 @@ method. This method will return a Column class with basic info or NULL when the 
             }
         }
 
-Checking whether a column exists
+Checking whether a column exists 检查列是否存在
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can check if a table already has a certain column by using the
 ``hasColumn()`` method.
+您可以使用“hasColumn()”方法检查表是否已经有某个列。
 
 .. code-block:: php
 
@@ -1109,11 +1122,12 @@ You can check if a table already has a certain column by using the
             }
         }
 
-Renaming a Column
+Renaming a Column 重命名列
 ~~~~~~~~~~~~~~~~~
 
 To rename a column, access an instance of the Table object then call the
 ``renameColumn()`` method.
+要重命名列，请访问 Table 对象的实例，然后调用“renameColumn()”方法。
 
 .. code-block:: php
 
@@ -1142,11 +1156,12 @@ To rename a column, access an instance of the Table object then call the
             }
         }
 
-Adding a Column After Another Column
+Adding a Column After Another Column 在另一列之后添加一列
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When adding a column with the MySQL adapter, you can dictate its position using the ``after`` option,
 where its value is the name of the column to position it after.
+当使用 MySQL 适配器添加列时，您可以使用 ``after`` 选项指定它的位置，其中它的值是要定位它的列的名称。
 
 .. code-block:: php
 
@@ -1170,11 +1185,13 @@ where its value is the name of the column to position it after.
 This would create the new column ``city`` and position it after the ``email`` column. You
 can use the `\Phinx\Db\Adapter\MysqlAdapter\FIRST` constant to specify that the new column should
 created as the first column in that table.
+这将创建新列 ``city`` 并将其放置在 ``email`` 列之后。 您可以使用 `\Phinx\Db\Adapter\MysqlAdapter\FIRST` 常量来指定应将新列创建为该表中的第一列。
 
-Dropping a Column
+Dropping a Column 删除一列
 ~~~~~~~~~~~~~~~~~
 
 To drop a column, use the ``removeColumn()`` method.
+要删除列，请使用“removeColumn()”方法。
 
 .. code-block:: php
 
@@ -1196,10 +1213,11 @@ To drop a column, use the ``removeColumn()`` method.
         }
 
 
-Specifying a Column Limit
+Specifying a Column Limit 指定列限制
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can limit the maximum length of a column by using the ``limit`` option.
+您可以使用 ``limit`` 选项限制列的最大长度。
 
 .. code-block:: php
 
@@ -1220,11 +1238,13 @@ You can limit the maximum length of a column by using the ``limit`` option.
             }
         }
 
-Changing Column Attributes
+Changing Column Attributes 更改列属性
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To change column type or options on an existing column, use the ``changeColumn()`` method.
 See :ref:`valid-column-types` and `Valid Column Options`_ for allowed values.
+要更改现有列的列类型或选项，请使用“changeColumn()”方法。
+有关允许的值，请参阅 :ref:`valid-column-types` 和 `Valid Column Options`_。
 
 .. code-block:: php
 
@@ -1253,11 +1273,12 @@ See :ref:`valid-column-types` and `Valid Column Options`_ for allowed values.
             }
         }
 
-Working With Indexes
+Working With Indexes 使用索引
 --------------------
 
 To add an index to a table you can simply call the ``addIndex()`` method on the
 table object.
+要将索引添加到表中，您只需在表对象上调用“addIndex()”方法即可。
 
 .. code-block:: php
 
@@ -1292,6 +1313,7 @@ can pass an additional parameter ``unique`` to the ``addIndex()`` method to
 specify a unique index. We can also explicitly specify a name for the index
 using the ``name`` parameter, the index columns sort order can also be specified using
 the ``order`` parameter. The order parameter takes an array of column names and sort order key/value pairs.
+默认情况下，Phinx 指示数据库适配器创建一个普通索引。 我们可以将附加参数 ``unique`` 传递给 ``addIndex()`` 方法以指定唯一索引。 我们还可以使用 name 参数显式指定索引的名称，也可以使用 order 参数指定索引列的排序顺序。 order 参数采用列名数组和排序顺序键/值对。
 
 .. code-block:: php
 
@@ -1328,6 +1350,7 @@ the ``order`` parameter. The order parameter takes an array of column names and 
 
 The MySQL adapter also supports ``fulltext`` indexes. If you are using a version before 5.6 you must
 ensure the table uses the ``MyISAM`` engine.
+MySQL 适配器还支持“全文”索引。 如果您使用的是 5.6 之前的版本，您必须确保该表使用“MyISAM”引擎。
 
 .. code-block:: php
 
@@ -1349,6 +1372,9 @@ ensure the table uses the ``MyISAM`` engine.
 In addition, MySQL adapter also supports setting the index length defined by limit option.
 When you are using a multi-column index, you are able to define each column index length.
 The single column index can define its index length with or without defining column name in limit option.
+此外，MySQL 适配器还支持设置 limit 选项定义的索引长度。
+当您使用多列索引时，您可以定义每列索引长度。
+单列索引可以在限制选项中定义或不定义列名来定义其索引长度。
 
 .. code-block:: php
 
@@ -1371,6 +1397,7 @@ The single column index can define its index length with or without defining col
         }
 
 The SQL Server and PostgreSQL adapters also supports ``include`` (non-key) columns on indexes.
+SQL Server 和 PostgreSQL 适配器还支持索引上的“include”（非键）列。
 
 .. code-block:: php
 
@@ -1394,6 +1421,7 @@ The SQL Server and PostgreSQL adapters also supports ``include`` (non-key) colum
 
 Removing indexes is as easy as calling the ``removeIndex()`` method. You must
 call this method for each index.
+删除索引就像调用“removeIndex()”方法一样简单。 您必须为每个索引调用此方法。
 
 .. code-block:: php
 
@@ -1427,11 +1455,13 @@ call this method for each index.
         }
 
 
-Working With Foreign Keys
+Working With Foreign Keys 使用外键
 -------------------------
 
 Phinx has support for creating foreign key constraints on your database tables.
 Let's add a foreign key to an example table:
+Phinx 支持在数据库表上创建外键约束。
+让我们在示例表中添加一个外键：
 
 .. code-block:: php
 
@@ -1468,9 +1498,13 @@ Let's add a foreign key to an example table:
 
 "On delete" and "On update" actions are defined with a 'delete' and 'update' options array. Possibles values are 'SET_NULL', 'NO_ACTION', 'CASCADE' and 'RESTRICT'.  If 'SET_NULL' is used then the column must be created as nullable with the option ``['null' => true]``.
 Constraint name can be changed with the 'constraint' option.
+“删除时”和“更新时”操作使用“删除”和“更新”选项数组定义。 可能的值为“SET_NULL”、“NO_ACTION”、“CASCADE”和“RESTRICT”。 如果使用 'SET_NULL'，则必须使用选项 ``['null' => true]`` 将列创建为可为空的。
+约束名称可以使用“约束”选项进行更改。
 
 It is also possible to pass ``addForeignKey()`` an array of columns.
 This allows us to establish a foreign key relationship to a table which uses a combined key.
+也可以传递“addForeignKey()”一个列数组。
+这允许我们与使用组合键的表建立外键关系。
 
 .. code-block:: php
 
@@ -1506,6 +1540,7 @@ This allows us to establish a foreign key relationship to a table which uses a c
         }
 
 We can add named foreign keys using the ``constraint`` parameter. This feature is supported as of Phinx version 0.6.5
+我们可以使用“约束”参数添加命名外键。 从 Phinx 版本 0.6.5 开始支持此功能
 
 .. code-block:: php
 
@@ -1536,6 +1571,7 @@ We can add named foreign keys using the ``constraint`` parameter. This feature i
         }
 
 We can also easily check if a foreign key exists:
+我们还可以轻松检查是否存在外键：
 
 .. code-block:: php
 
@@ -1567,10 +1603,12 @@ We can also easily check if a foreign key exists:
         }
 
 Finally, to delete a foreign key, use the ``dropForeignKey`` method.
+最后，要删除外键，请使用“dropForeignKey”方法。
 
 Note that like other methods in the ``Table`` class, ``dropForeignKey`` also needs ``save()``
 to be called at the end in order to be executed. This allows phinx to intelligently
 plan migrations when more than one table is involved.
+请注意，与 ``Table`` 类中的其他方法一样，``dropForeignKey`` 也需要在最后调用 ``save()`` 才能执行。 这允许 phinx 在涉及多个表时智能地计划迁移。
 
 .. code-block:: php
 
@@ -1600,17 +1638,19 @@ plan migrations when more than one table is involved.
 
 
 
-Using the Query Builder
+Using the Query Builder 使用查询生成器
 -----------------------
 
 It is not uncommon to pair database structure changes with data changes. For example, you may want to
 migrate the data in a couple columns from the users to a newly created table. For this type of scenarios,
 Phinx provides access to a Query builder object, that you may use to execute complex ``SELECT``, ``UPDATE``,
 ``INSERT`` or ``DELETE`` statements.
+将数据库结构更改与数据更改配对并不少见。 例如，您可能希望将几列中的数据从用户迁移到新创建的表。 对于这种类型的场景，Phinx 提供对查询构建器对象的访问，您可以使用它来执行复杂的 ``SELECT``、``UPDATE``、``INSERT`` 或 ``DELETE`` 语句。
 
 The Query builder is provided by the `cakephp/database <https://github.com/cakephp/database>`_ project, and should
 be easy to work with as it resembles very closely plain SQL. Accesing the query builder is done by calling the
 ``getQueryBuilder()`` function:
+Query builder 由 `cakephp/database <https://github.com/cakephp/database>`_ 项目提供，应该很容易使用，因为它非常类似于普通的 SQL。 通过调用 getQueryBuilder() 函数来访问查询生成器：
 
 
 .. code-block:: php
@@ -1632,10 +1672,11 @@ be easy to work with as it resembles very closely plain SQL. Accesing the query 
             }
         }
 
-Selecting Fields
+Selecting Fields 选择字段
 ~~~~~~~~~~~~~~~~
 
 Adding fields to the SELECT clause:
+向 SELECT 子句添加字段：
 
 
 .. code-block:: php
@@ -1652,10 +1693,11 @@ Adding fields to the SELECT clause:
         });
 
 
-Where Conditions
+Where Conditions 哪里条件
 ~~~~~~~~~~~~~~~~
 
 Generating conditions:
+生成条件：
 
 .. code-block:: php
 
@@ -1667,6 +1709,7 @@ Generating conditions:
 
 
 As you can see you can use any operator by placing it with a space after the field name. Adding multiple conditions is easy as well:
+如您所见，您可以使用任何运算符，方法是在字段名称后放置一个空格。 添加多个条件也很容易：
 
 
 .. code-block:: php
@@ -1682,6 +1725,7 @@ As you can see you can use any operator by placing it with a space after the fie
 
 
 For even more complex conditions you can use closures and expression objects:
+对于更复杂的条件，您可以使用闭包和表达式对象：
 
 .. code-block:: php
 
@@ -1700,6 +1744,7 @@ For even more complex conditions you can use closures and expression objects:
 
 
 Which results in:
+结果是：
 
 .. code-block:: sql
 
@@ -1712,6 +1757,7 @@ Which results in:
 
 
 Combining expressions is also possible:
+组合表达式也是可能的：
 
 
 .. code-block:: php
@@ -1729,6 +1775,7 @@ Combining expressions is also possible:
             });
 
 It generates:
+它生成：
 
 .. code-block:: sql
 
@@ -1740,6 +1787,7 @@ It generates:
 
 
 When using the expression objects you can use the following methods to create conditions:
+使用表达式对象时，您可以使用以下方法创建条件：
 
 * ``eq()`` Creates an equality condition.
 * ``notEq()`` Create an inequality condition
@@ -1755,7 +1803,7 @@ When using the expression objects you can use the following methods to create co
 * ``isNotNull()`` Create a negated ``IS NULL`` condition.
 
 
-Aggregates and SQL Functions
+Aggregates and SQL Functions 聚合和 SQL 函数
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -1766,6 +1814,7 @@ Aggregates and SQL Functions
     $builder->select(['count' => $builder->func()->count('*')]);
 
 A number of commonly used functions can be created with the func() method:
+使用 func() 方法可以创建许多常用的函数：
 
 * ``sum()`` Calculate a sum. The arguments will be treated as literal values.
 * ``avg()`` Calculate an average. The arguments will be treated as literal values.
@@ -1776,10 +1825,20 @@ A number of commonly used functions can be created with the func() method:
 * ``coalesce()`` Coalesce values. The arguments are treated as bound parameters unless marked as literal.
 * ``dateDiff()`` Get the difference between two dates/times. The arguments are treated as bound parameters unless marked as literal.
 * ``now()`` Take either 'time' or 'date' as an argument allowing you to get either the current time, or current date.
+* ``sum()`` 计算总和。 参数将被视为文字值。
+* ``avg()`` 计算平均值。 参数将被视为文字值。
+* ``min()`` 计算列的最小值。 参数将被视为文字值。
+* ``max()`` 计算列的最大值。 参数将被视为文字值。
+* ``count()`` 计算计数。 参数将被视为文字值。
+* ``concat()`` 将两个值连接在一起。 除非标记为文字，否则参数将被视为绑定参数。
+* ``coalesce()`` 合并值。 除非标记为文字，否则参数将被视为绑定参数。
+* ``dateDiff()`` 获取两个日期/时间之间的差异。 除非标记为文字，否则参数将被视为绑定参数。
+* ``now()`` 以“时间”或“日期”作为参数，允许您获取当前时间或当前日期。
 
 When providing arguments for SQL functions, there are two kinds of parameters you can use,
 literal arguments and bound parameters. Literal parameters allow you to reference columns or
 other SQL literals. Bound parameters can be used to safely add user data to SQL functions. For example:
+为 SQL 函数提供参数时，可以使用两种参数，文字参数和绑定参数。 文字参数允许您引用列或其他 SQL 文字。 绑定参数可用于安全地将用户数据添加到 SQL 函数。 例如：
 
 
 .. code-block:: php
@@ -1794,10 +1853,11 @@ other SQL literals. Bound parameters can be used to safely add user data to SQL 
     $query->select(['title' => $concat]);
 
 
-Getting Results out of a Query
+Getting Results out of a Query 从查询中获取结果
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once you’ve made your query, you’ll want to retrieve rows from it. There are a few ways of doing this:
+进行查询后，您将希望从中检索行。 有几种方法可以做到这一点：
 
 
 .. code-block:: php
@@ -1812,10 +1872,11 @@ Once you’ve made your query, you’ll want to retrieve rows from it. There are
     $results = $builder->execute()->fetchAll('assoc');
 
 
-Creating an Insert Query
+Creating an Insert Query 创建插入查询
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Creating insert queries is also possible:
+也可以创建插入查询：
 
 
 .. code-block:: php
@@ -1831,6 +1892,7 @@ Creating insert queries is also possible:
 
 
 For increased performance, you can use another builder object as the values for an insert query:
+为了提高性能，您可以使用另一个构建器对象作为插入查询的值：
 
 .. code-block:: php
 
@@ -1853,6 +1915,7 @@ For increased performance, you can use another builder object as the values for 
 
 
 The above code will generate:
+上面的代码会生成：
 
 .. code-block:: sql
 
@@ -1860,10 +1923,11 @@ The above code will generate:
         (SELECT fname, lname FROM USERS where is_active = 1)
 
 
-Creating an update Query
+Creating an update Query 创建更新查询
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Creating update queries is similar to both inserting and selecting:
+创建更新查询类似于插入和选择：
 
 .. code-block:: php
 
@@ -1876,10 +1940,10 @@ Creating update queries is similar to both inserting and selecting:
         ->execute()
 
 
-Creating a Delete Query
+Creating a Delete Query 创建删除查询
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Finally, delete queries:
+Finally, delete queries: 最后，删除查询：
 
 .. code-block:: php
 
