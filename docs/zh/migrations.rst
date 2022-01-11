@@ -4,7 +4,7 @@
 编写迁移
 ==================
 
-Phinx 依靠 迁移(migration) 来转换您的数据库。每次迁移即代表一个唯一的 PHP 类。
+Phinx 依靠 迁移(migration) 来转换你的数据库。每次迁移即代表一个唯一的 PHP 类。
 建议使用 Phinx 的 PHP API 来编写迁移文件，但同时也支持原始 SQL。
 
 创建新迁移
@@ -21,7 +21,7 @@ Phinx 依靠 迁移(migration) 来转换您的数据库。每次迁移即代表�
 这会创建一个新的迁移文件，格式为 ``YYYYMMDDHHMMSS_my_new_migration.php``。
 其中前 14 个字符为当前精确到秒的时间戳。
 
-如果您指定了多个迁移文件路径，则会提示选择在哪个路径下创建该迁移。
+如果你指定了多个迁移文件路径，则会提示选择在哪个路径下创建该迁移。
 
 Phinx 会自动创建一个迁移示例文件，文件内有一个方法(method)。
 
@@ -53,7 +53,7 @@ Phinx 会自动创建一个迁移示例文件，文件内有一个方法(method)
 
 所有 Phinx 的迁移都继承 ``AbstractMigration`` 类。
 该类提供创建数据库迁移行为的必要支持。
-数据库迁移可以通过多种方式转换您的数据库，比如创建新的表、插入行、加入索引和修改列。
+数据库迁移可以通过多种方式转换你的数据库，比如创建新的表、插入行、加入索引和修改列。
 
 Change 方法
 ~~~~~~~~~~~~~~~~~
@@ -185,7 +185,7 @@ Phinx 的 ``init()`` 方法将在迁移方法运行之前执行（如果存在�
 
     这些命令使用 PHP 数据对象 (PDO) 扩展运行。
     该扩展为访问数据库定义了一个轻量级、具备一致性的接口。
-    在使用 ``execute()`` 之前，请确保您的查询语句是遵循 PDO 的。
+    在使用 ``execute()`` 之前，请确保你的查询语句是遵循 PDO 的。
     在插入不支持 DELIMITER 的存储过程或触发器期间时，这一点尤其重要。
 
 .. warning::
@@ -243,8 +243,8 @@ Both methods accept raw SQL as their only parameter.
 插入数据
 --------------
 
-Phinx 可以轻松地将数据插入到您的表中。
-虽然此功能主要用于 :doc:`种子功能(seeding) <seeding>`，但您也可以在迁移中自由使用插入方法。
+Phinx 可以轻松地将数据插入到你的表中。
+虽然此功能主要用于 :doc:`种子功能(seeding) <seeding>`，但你也可以在迁移中自由使用插入方法。
 
 .. code-block:: php
 
@@ -304,8 +304,8 @@ Phinx 可以轻松地将数据插入到您的表中。
 ~~~~~~~~~~~~~~~~
 
 Table 对象是 Phinx 提供的最有用的 API 之一。
-它可让您使用 PHP 代码轻松操作数据库表。
-您可以通过在数据库迁移中调用 ``table()`` 方法来获取 Table 对象实例。
+它可让你使用 PHP 代码轻松操作数据库表。
+你可以通过在数据库迁移中调用 ``table()`` 方法来获取 Table 对象实例。
 
 .. code-block:: php
 
@@ -332,7 +332,7 @@ Table 对象是 Phinx 提供的最有用的 API 之一。
             }
         }
 
-随后，您可以使用 Table 对象提供的方法操作该表。
+随后，你可以使用 Table 对象提供的方法操作该表。
 
 保存更改
 ~~~~~~~~~~~~~~
@@ -344,10 +344,10 @@ Phinx 提供了三种保存方法 ``create()``, ``update()`` 和 ``save()``。
 ``update()`` 将只运行待定的更改，并且前提是表已经存在。
 ``save()`` 是一个助手函数。它首先检查表是否存在，如果不存在则运行 ``create()``，否则运行 ``update()``。
 
-如上所述，在使用 ``change()`` 迁移方法时，您应该始终使用 ``create()`` 或 ``update() ``。"
-"而不要使用save()，否则可能会导致迁移和回滚过程中出现不同的状态。"
-"因为 ``save()`` 将在迁移时调用 ``create()``，而在回滚时调用 ``update()``。"
-"所以，在使用 ``up()``/``down()`` 方法时，使用 ``save()`` 或其它更明确的方法是安全的。"
+如上所述，在使用 ``change()`` 迁移方法时，你应该始终使用 ``create()`` 或 ``update() ``。
+而不要使用 ``save()`` ，否则可能会导致迁移和回滚过程中出现不同的状态。
+因为 ``save()`` 将在迁移时调用 ``create()``，而在回滚时调用 ``update()``。
+所以，在使用 ``up()``/``down()`` 方法时，使用 ``save()`` 或其它更明确的方法是安全的。
 
 如果对使用表有任何疑问，通常建议调用适当的函数，并将待定的更改提交到数据库。
 
@@ -380,27 +380,20 @@ Phinx 提供了三种保存方法 ``create()``, ``update()`` 和 ``save()``。
             }
         }
 
-Columns are added using the ``addColumn()`` method. We create a unique index
-for both the username and email columns using the ``addIndex()`` method.
-Finally calling ``create()`` commits the changes to the database.
-使用“addColumn()”方法添加列。 我们使用 addIndex() 方法为用户名和电子邮件列创建唯一索引。 最后调用 create() 将更改提交到数据库。
+使用 ``addColumn()`` 方法添加列。
+使用 ``addIndex()`` 方法为用户名和电子邮件列创建唯一索引。
+最后调用 ``create()`` 将更改提交到数据库。
 
 .. note::
 
-    Phinx automatically creates an auto-incrementing primary key column called ``id`` for every
-    table.
-    Phinx 会自动为每个表创建一个名为“id”的自动递增主键列。
+    Phinx 会自动为每个表创建一个名为 ``id`` 的自动递增的主键列。
 
-The ``id`` option sets the name of the automatically created identity field, while the ``primary_key``
-option selects the field or fields used for primary key. ``id`` will always override the ``primary_key``
-option unless it's set to false. If you don't need a primary key set ``id`` to false without
-specifying a ``primary_key``, and no primary key will be created.
-``id`` 选项设置自动创建的身份字段的名称，而 ``primary_key`` 选项选择用于主键的字段或字段。 ``id`` 将始终覆盖 ``primary_key`` 选项，除非它设置为 false。 如果您不需要主键，则在不指定 ``primary_key`` 的情况下将 ``id`` 设置为 false，则不会创建主键。
+``id`` 选项用于设置自动创建的标识字段的名称，而 ``primary_key`` 用于指定主键字段。
+``id`` 将始终覆盖 ``primary_key`` 选项，除非它设置为 false。
+如果你不需要主键，则在不指定 ``primary_key`` 的情况下将 ``id`` 设置为 false，则不会创建主键。
 
-To specify an alternate primary key, you can specify the ``primary_key`` option
-when accessing the Table object. Let's disable the automatic ``id`` column and
-create a primary key using two columns instead:
-要指定备用主键，您可以在访问 Table 对象时指定 ``primary_key`` 选项。 让我们禁用自动 ``id`` 列并使用两列创建主键：
+要指定备用主键，你可以在访问 Table 对象时指定 ``primary_key`` 选项。
+让我们禁用自动 ``id`` 列并使用另外两个列创建主键：
 
 .. code-block:: php
 
@@ -420,10 +413,8 @@ create a primary key using two columns instead:
             }
         }
 
-Setting a single ``primary_key`` doesn't enable the ``AUTO_INCREMENT`` option.
-To simply change the name of the primary key, we need to override the default ``id`` field name:
-设置单个 ``primary_key`` 不会启用 ``AUTO_INCREMENT`` 选项。
-要简单地更改主键的名称，我们需要覆盖默认的“id”字段名称：
+只设置 ``primary_key`` 不会启用 ``AUTO_INCREMENT`` 选项。
+要更改主键的名称，我们需要覆盖默认的 ``id`` 字段：
 
 .. code-block:: php
 
@@ -442,24 +433,21 @@ To simply change the name of the primary key, we need to override the default ``
             }
         }
 
-In addition, the MySQL adapter supports following options:
 此外，MySQL 适配器支持以下选项：
 
 ========== ===========
-Option     Description
+选项       描述
 ========== ===========
-comment    set a text comment on the table 在表格上设置文本注释
-row_format set the table row format 设置表格行格式
-engine     define table engine *(defaults to ``InnoDB``)* 定义表引擎*（默认为``InnoDB``）*
-collation  define table collation *(defaults to ``utf8_general_ci``)* 定义表排序规则*（默认为 ``utf8_general_ci``）*
-signed     whether the primary key is ``signed``  *(defaults to ``true``)* 主键是否“签名”*（默认为“真”）*
-limit      set the maximum length for the primary key 设置主键的最大长度
+comment    为表添加注释文本
+row_format 设置表中行的格式
+engine     定义表引擎 *(默认为 ``InnoDB``)*
+collation  定义表排序规则 *(默认为 ``utf8_general_ci``)*
+signed     主键是否是 ``signed``  *(默认为 ``true``)*
+limit      设置主键的最大长度
 ========== ===========
 
-By default the primary key is ``signed``.
-To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
-默认情况下，主键是“签名”。
-要简单地将其设置为无符号，只需传递带有 ``false`` 值的``signed`` 选项：
+默认情况下，主键是 ``signed``.
+要将其设置为无符号，需将 ``signed`` 选项值设置为 ``false``：
 
 .. code-block:: php
 
@@ -479,24 +467,20 @@ To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
         }
 
 
-The PostgreSQL adapter supports the following options:
 PostgreSQL 适配器支持以下选项：
 
 ========= ===========
-Option    Description
+选项       描述
 ========= ===========
-comment   set a text comment on the table 在表格上设置文本注释
+comment   为表添加注释文本
 ========= ===========
 
-To view available column types and options, see `Valid Column Types`_ for details.
 要查看可用的列类型和选项，请参阅 `Valid Column Types`_ 了解详细信息。
 
-Determining Whether a Table Exists 确定表是否存在
+确定表是否存在
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can determine whether or not a table exists by using the ``hasTable()``
-method.
-您可以使用“hasTable()”方法确定表是否存在。
+你可以使用 ``hasTable()`` 方法确定表是否存在。
 
 .. code-block:: php
 
@@ -526,17 +510,13 @@ method.
             }
         }
 
-Dropping a Table 删除表
+删除表
 ~~~~~~~~~~~~~~~~
 
-Tables can be dropped quite easily using the ``drop()`` method. It is a
-good idea to recreate the table again in the ``down()`` method.
-使用 ``drop()`` 方法可以很容易地删除表。 在 ``down()`` 方法中重新创建表是个好主意。
+使用 ``drop()`` 方法可以很方便的删除表。在 ``down()`` 方法中重新创建表也是个好主意。
 
-Note that like other methods in the ``Table`` class, ``drop`` also needs ``save()``
-to be called at the end in order to be executed. This allows phinx to intelligently
-plan migrations when more than one table is involved.
-请注意，与 ``Table`` 类中的其他方法一样，``drop`` 也需要在最后调用 ``save()`` 才能执行。 这允许 phinx 在涉及多个表时智能地计划迁移。
+请注意，与 ``Table`` 类中的其他方法一样， ``drop`` 也需要在最后调用 ``save()`` 才能执行。
+这允许 phinx 在涉及多个表时智能地计划迁移。
 
 .. code-block:: php
 
@@ -573,13 +553,10 @@ plan migrations when more than one table is involved.
             }
         }
 
-Renaming a Table 重命名表
+重命名表
 ~~~~~~~~~~~~~~~~
 
-To rename a table access an instance of the Table object then call the
-``rename()`` method.
-要重命名表，请访问 Table 对象的实例，然后调用
-``重命名（）``方法。
+要重命名表，访问 Table 对象的实例后，调用 ``rename()`` 方法。
 
 .. code-block:: php
 
@@ -612,15 +589,12 @@ To rename a table access an instance of the Table object then call the
             }
         }
 
-Changing the Primary Key 更改主键
+更改主键
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-To change the primary key on an existing table, use the ``changePrimaryKey()`` method.
-Pass in a column name or array of columns names to include in the primary key, or ``null`` to drop the primary key.
-Note that the mentioned columns must be added to the table, they will not be added implicitly.
-要更改现有表的主键，请使用“changePrimaryKey()”方法。
-传入列名或列名数组以包含在主键中，或“null”以删除主键。
-请注意，提到的列必须添加到表中，它们不会被隐式添加。
+要更改现有表的主键，请使用 ``changePrimaryKey()`` 方法。
+传入列名或列名数组用于设置主键，或传入 ``null`` 用于删除主键。
+请注意，被设置为主键的列必须已添加至表中，它们不会被隐式添加。
 
 .. code-block:: php
 
@@ -656,13 +630,11 @@ Note that the mentioned columns must be added to the table, they will not be add
             }
         }
 
-Changing the Table Comment 更改表格注释
+更改表注释
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To change the comment on an existing table, use the ``changeComment()`` method.
-Pass in a string to set as the new table comment, or ``null`` to drop the existing comment.
-要更改现有表的注释，请使用“changeComment()”方法。
-传入一个字符串以设置为新表注释，或“null”以删除现有注释。
+要更改现有表的注释，请使用 ``changeComment()`` 方法。
+传入一个字符串用以作为新的表注释，或传入 ``null`` 用以删除现有注释。
 
 .. code-block:: php
 
@@ -697,16 +669,15 @@ Pass in a string to set as the new table comment, or ``null`` to drop the existi
             }
         }
 
-Working With Columns 使用列
+使用列
 --------------------
 
 .. _valid-column-types:
 
-Valid Column Types 有效的列类型
+有效的列类型
 ~~~~~~~~~~~~~~~~~~
 
-Column types are specified as strings and can be one of:
-列类型指定为字符串，可以是以下之一：
+列类型必须指定为字符串，可以是以下之一：
 
 -  binary
 -  boolean
@@ -725,87 +696,73 @@ Column types are specified as strings and can be one of:
 -  timestamp
 -  uuid
 
-In addition, the MySQL adapter supports ``enum``, ``set``, ``blob``, ``tinyblob``, ``mediumblob``, ``longblob``, ``bit`` and ``json`` column types
-(``json`` in MySQL 5.7 and above). When providing a limit value and using ``binary``, ``varbinary`` or ``blob`` and its subtypes, the retained column
-type will be based on required length (see `Limit Option and MySQL`_ for details);
-此外，MySQL 适配器支持“enum”、“set”、“blob”、“tinyblob”、“mediumblob”、“longblob”、“bit”和“ `json`` 列类型（MySQL 5.7 及更高版本中的``json``）。 当提供限制值并使用“binary”、“varbinary”或“blob”及其子类型时，保留的列类型将基于所需的长度（有关详细信息，请参阅“限制选项和 MySQL”） ;
+此外，MySQL 适配器支持 ``enum``, ``set``, ``blob``, ``tinyblob``, ``mediumblob``, ``longblob``, ``bit`` 和 ``json`` 列类型（ ``json`` 适用于 MySQL 5.7 及更高版本中）。
+当提供限制值并使用 ``binary``, ``varbinary`` 或 ``blob`` 及其子类型时，最终保留的列类型将基于所需的长度来决定（有关详细信息，请参阅 `Limit Option and MySQL`_）;
 
-In addition, the Postgres adapter supports ``interval``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` and ``macaddr`` column types
-(PostgreSQL 9.3 and above).
-此外，Postgres 适配器支持“interval”、“json”、“jsonb”、“uuid”、“cidr”、“inet”和“macaddr”列类型
-（PostgreSQL 9.3 及更高版本）。
+此外，Postgres 适配器支持 ``interval``, ``json``, ``jsonb``, ``uuid``, ``cidr``, ``inet`` 和 ``macaddr`` 列类型（PostgreSQL 9.3 及更高版本）。
 
-Valid Column Options 有效的列选项
+有效的列选项
 ~~~~~~~~~~~~~~~~~~~~
 
-The following are valid column options: 以下是有效的列选项：
+以下是有效的列选项：
 
-For any column type:
 对于任何列类型：
 
 ======= ===========
-Option  Description
+选项    描述
 ======= ===========
-limit   set maximum length for strings, also hints column types in adapters (see note below) 设置字符串的最大长度，还提示适配器中的列类型（请参阅下面的注释）
-length  alias for ``limit`` “限制”的别名
-default set default value or action 设置默认值或操作
-null    allow ``NULL`` values, defaults to false (should not be used with primary keys!) (see note below) 允许 ``NULL`` 值，默认为 false（不应与主键一起使用！）（请参阅下面的注释）
-after   specify the column that a new column should be placed after, or use ``\Phinx\Db\Adapter\MysqlAdapter::FIRST`` to place the column at the start of the table *(only applies to MySQL)* 指定新列应该放在后面的列，或使用 ``\Phinx\Db\Adapter\MysqlAdapter::FIRST`` 将列放在表的开头 *（仅适用于 MySQL）*
-comment set a text comment on the column 在列上设置文本注释
+limit   设置字符串的最大长度，直接影响适配器中的列类型（请参阅下面的注释）
+length  ``limit``的别名
+default 设置默认值或操作
+null    允许 ``NULL`` 值，默认为 false（不应与主键一起使用！）（请参阅下面的注释）
+after   指定新列应该放在后面的列，或使用 ``\Phinx\Db\Adapter\MysqlAdapter::FIRST`` 将列放在表的开头 *（仅适用于 MySQL）*
+comment 设置列的注释文本
 ======= ===========
 
-For ``decimal`` columns:
-对于“十进制”列：
+对于 ``decimal`` 列：
 
 ========= ===========
-Option    Description
+选项      描述
 ========= ===========
-precision combine with ``scale`` set to set decimal accuracy 结合 ``scale`` 设置设置小数精度
-scale     combine with ``precision`` to set decimal accuracy 与“precision”结合设置小数精度
-signed    enable or disable the ``unsigned`` option *(only applies to MySQL)* 启用或禁用“无符号”选项*（仅适用于 MySQL）*
+precision 与 ``scale`` 配合使用，用以设置小数精度
+scale     与 ``precision`` 配合使用，用以设置小数精度
+signed    启用或禁用 ``unsigned`` 选项 *（仅适用于 MySQL）*
 ========= ===========
 
-For ``enum`` and ``set`` columns:
 对于 ``enum`` 和 ``set`` 列：
 
 ========= ===========
-Option    Description
+选项      描述
 ========= ===========
-values    Can be a comma separated list or an array of values 可以是逗号分隔的列表或值数组
+values    可以是以逗号分隔的列表，或值的数组
 ========= ===========
 
-For ``integer`` and ``biginteger`` columns:
-对于“整数”和“大整数”列：
+对于 ``integer`` and ``biginteger`` 列：
 
 ======== ===========
-Option   Description
+选项      描述
 ======== ===========
-identity enable or disable automatic incrementing 启用或禁用自动递增
-signed   enable or disable the ``unsigned`` option *(only applies to MySQL)* 启用或禁用“无符号”选项*（仅适用于 MySQL）*
-======== ===========
-
-For ``timestamp`` columns:
-对于“时间戳”列：
-
-======== ===========
-Option   Description
-======== ===========
-default  set default value (use with ``CURRENT_TIMESTAMP``) 设置默认值（与``CURRENT_TIMESTAMP``一起使用）
-update   set an action to be triggered when the row is updated (use with ``CURRENT_TIMESTAMP``) *(only applies to MySQL)* 设置更新行时触发的操作（与``CURRENT_TIMESTAMP``一起使用）*（仅适用于MySQL）*
-timezone enable or disable the ``with time zone`` option for ``time`` and ``timestamp`` columns *(only applies to Postgres)* 启用或禁用 ``time`` 和 ``timestamp`` 列的``with time zone`` 选项*（仅适用于 Postgres）*
+identity 启用或禁用自动递增
+signed   启用或禁用 ``unsigned`` 选项 *（仅适用于 MySQL）*
 ======== ===========
 
-You can add ``created_at`` and ``updated_at`` timestamps to a table using the ``addTimestamps()`` method. This method accepts
-three arguments, where the first two allow setting alternative names for the columns while the third argument allows you to
-enable the ``timezone`` option for the columns. The defaults for these arguments are ``created_at``, ``updated_at``, and ``true``
-respectively. For the first and second argument, if you provide ``null``, then the default name will be used, and if you provide
-``false``, then that column will not be created. Please note that attempting to set both to ``false`` will throw a
-``\RuntimeException``. Additionally, you can use the ``addTimestampsWithTimezone()`` method, which is an alias to
-``addTimestamps()`` that will always set the third argument to ``true`` (see examples below). The ``created_at`` column will
-have a default set to ``CURRENT_TIMESTAMP``. For MySQL only, ``update_at`` column will have update set to
-``CURRENT_TIMESTAMP``.
-您可以使用 ``addTimestamps()`` 方法将``created_at`` 和 ``updated_at`` 时间戳添加到表中。 此方法接受三个参数，其中前两个允许为列设置替代名称，而第三个参数允许您为列启用“时区”选项。 这些参数的默认值分别是“created_at”、“updated_at”和“true”。 对于第一个和第二个参数，如果您提供“null”，则将使用默认名称，如果您提供“false”，则不会创建该列。 请注意，尝试将两者都设置为 ``false`` 将引发 ``\RuntimeException``。 此外，您可以使用 `addTimestampsWithTimezone()` 方法，它是
-``addTimestamps()`` 总是将第三个参数设置为 ``true`` （见下面的例子）。 ``created_at`` 列将默认设置为 ``CURRENT_TIMESTAMP``。 仅对于 MySQL，“update_at”列将更新设置为“CURRENT_TIMESTAMP”。
+对于 ``timestamp`` 列：
+
+======== ===========
+选项      描述
+======== ===========
+default  设置默认值（与 ``CURRENT_TIMESTAMP`` 配合使用）
+update   设置更新行时触发的操作（与 ``CURRENT_TIMESTAMP`` 配合使用） *（仅适用于MySQL）*
+timezone 启用或禁用 ``time`` 和 ``timestamp`` 列的 ``with time zone`` 选项 *（仅适用于 Postgres）*
+======== ===========
+
+你可以使用 ``addTimestamps()`` 方法将 ``created_at`` 和 ``updated_at`` 时间戳添加到表中。
+此方法接受三个参数，其中前两个是为列设置替代名称，第三个参数是为列启用 ``timezone`` 选项。
+这些参数的默认值分别是 ``created_at``, ``updated_at``, and ``true``。
+对于第一个和第二个参数，如果你设置为 ``null``，则将使用默认名称；如果你设置为 ``false``，则不会创建该列。
+请注意，尝试将两者都设置为 ``false`` 将触发 ``\RuntimeException``。
+此外，你可以使用 ``addTimestampsWithTimezone()`` 方法，它是 ``addTimestamps()`` 将第三个参数设置为 ``true`` 的特例（见下面的例子）。
+``created_at`` 列的 *默认值* 为 ``CURRENT_TIMESTAMP``。对于 MySQL 而言， ``update_at`` 列的 *更新值* 也是 ``CURRENT_TIMESTAMP``。
 
 .. code-block:: php
 
@@ -841,39 +798,33 @@ have a default set to ``CURRENT_TIMESTAMP``. For MySQL only, ``update_at`` colum
             }
         }
 
-For ``boolean`` columns:
-对于“布尔”列：
+对于 ``boolean`` 列：
 
 ======== ===========
-Option   Description
+选项      描述
 ======== ===========
-signed   enable or disable the ``unsigned`` option *(only applies to MySQL)* 启用或禁用“无符号”选项*（仅适用于 MySQL）*
+signed   启用或禁用 ``unsigned`` 选项 *（仅适用于 MySQL）*
 ======== ===========
 
-For ``string`` and ``text`` columns:
 对于 ``string`` 和 ``text`` 列：
 
 ========= ===========
-Option    Description
+选项      描述
 ========= ===========
-collation set collation that differs from table defaults *(only applies to MySQL)* 设置不同于表默认值的排序规则*（仅适用于 MySQL）*
-encoding  set character set that differs from table defaults *(only applies to MySQL)* 设置不同于表默认值的字符集*（仅适用于 MySQL）*
+collation 设置不同于表默认值的排序规则 *（仅适用于 MySQL）*
+encoding  设置不同于表默认值的字符集 *（仅适用于 MySQL）*
 ========= ===========
 
-For foreign key definitions:
-对于外键定义：
+对于外键的定义：
 
 ====== ===========
-Option Description
+选项    描述
 ====== ===========
-update set an action to be triggered when the row is updated 设置更新行时触发的操作
-delete set an action to be triggered when the row is deleted 设置删除行时触发的操作
+update 设置更新行时触发的操作
+delete 设置删除行时触发的操作
 ====== ===========
 
-You can pass one or more of these options to any column with the optional
-third argument array.
-您可以将这些选项中的一个或多个传递给带有可选的任何列
-第三个参数数组。
+所有列均可设置第三个参数（可选），通过数组形式配置一个或多个选项。
 
 Limit Option and MySQL 限制选项和 MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -929,11 +880,11 @@ instance of ``\Phinx\Util\Literal``. When Phinx encounters this value as a colum
 run any validation on it and to use it exactly as supplied without escaping. This also works for ``default``
 values.
 一些 DBMS 系统提供额外的列类型和特定于它们的默认值。
-如果您不想让您的迁移与 DBMS 无关，您可以通过 ``\Phinx\Util\Literal::from`` 方法在迁移中使用这些自定义类型，该方法将字符串作为其唯一参数，并返回 ``\Phinx\Util\Literal`` 的一个实例。 当 Phinx 遇到这个值作为列的类型时，它知道不对它运行任何验证并完全按照提供的方式使用它而不转义。 这也适用于“默认”值。
+如果你不想让你的迁移与 DBMS 无关，你可以通过 ``\Phinx\Util\Literal::from`` 方法在迁移中使用这些自定义类型，该方法将字符串作为其唯一参数，并返回 ``\Phinx\Util\Literal`` 的一个实例。 当 Phinx 遇到这个值作为列的类型时，它知道不对它运行任何验证并完全按照提供的方式使用它而不转义。 这也适用于“默认”值。
 
 You can see an example below showing how to add a ``citext`` column as well as a column whose default value
 is a function, in PostgreSQL. This method of preventing the built-in escaping is supported in all adapters.
-您可以在下面看到一个示例，该示例显示了如何在 PostgreSQL 中添加 ``citext`` 列以及默认值为函数的列。 所有适配器都支持这种防止内置转义的方法。
+你可以在下面看到一个示例，该示例显示了如何在 PostgreSQL 中添加 ``citext`` 列以及默认值为函数的列。 所有适配器都支持这种防止内置转义的方法。
 
 .. code-block:: php
 
@@ -965,7 +916,7 @@ User Defined Types (Custom Data Domain) 用户定义类型（自定义数据域�
 Building upon the base types and column options you can define your custom
 user defined types. Custom user defined types are configured in the
 ``data_domain`` root config option.
-基于基本类型和列选项，您可以定义自定义的用户定义类型。 自定义用户定义类型在 ``data_domain`` 根配置选项中配置。
+基于基本类型和列选项，你可以定义自定义的用户定义类型。 自定义用户定义类型在 ``data_domain`` 根配置选项中配置。
 
 .. code-block:: yaml
 
@@ -1002,7 +953,7 @@ columns with different lengths, mismatched integer types (long vs. bigint, etc).
 
     For ``integer``, ``text`` and ``blob`` columns you can use the special
     constants from MySQL and Postgress adapter classes.
-    对于“integer”、“text”和“blob”列，您可以使用 MySQL 和 Postgress 适配器类中的特殊常量。
+    对于“integer”、“text”和“blob”列，你可以使用 MySQL 和 Postgress 适配器类中的特殊常量。
 
     You can even customize some internal types to add your own default options,
     but some column options can't be overriden in the data model (some options
@@ -1097,7 +1048,7 @@ Checking whether a column exists 检查列是否存在
 
 You can check if a table already has a certain column by using the
 ``hasColumn()`` method.
-您可以使用“hasColumn()”方法检查表是否已经有某个列。
+你可以使用“hasColumn()”方法检查表是否已经有某个列。
 
 .. code-block:: php
 
@@ -1161,7 +1112,7 @@ Adding a Column After Another Column 在另一列之后添加一列
 
 When adding a column with the MySQL adapter, you can dictate its position using the ``after`` option,
 where its value is the name of the column to position it after.
-当使用 MySQL 适配器添加列时，您可以使用 ``after`` 选项指定它的位置，其中它的值是要定位它的列的名称。
+当使用 MySQL 适配器添加列时，你可以使用 ``after`` 选项指定它的位置，其中它的值是要定位它的列的名称。
 
 .. code-block:: php
 
@@ -1185,7 +1136,7 @@ where its value is the name of the column to position it after.
 This would create the new column ``city`` and position it after the ``email`` column. You
 can use the `\Phinx\Db\Adapter\MysqlAdapter\FIRST` constant to specify that the new column should
 created as the first column in that table.
-这将创建新列 ``city`` 并将其放置在 ``email`` 列之后。 您可以使用 `\Phinx\Db\Adapter\MysqlAdapter\FIRST` 常量来指定应将新列创建为该表中的第一列。
+这将创建新列 ``city`` 并将其放置在 ``email`` 列之后。 你可以使用 `\Phinx\Db\Adapter\MysqlAdapter\FIRST` 常量来指定应将新列创建为该表中的第一列。
 
 Dropping a Column 删除一列
 ~~~~~~~~~~~~~~~~~
@@ -1217,7 +1168,7 @@ Specifying a Column Limit 指定列限制
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can limit the maximum length of a column by using the ``limit`` option.
-您可以使用 ``limit`` 选项限制列的最大长度。
+你可以使用 ``limit`` 选项限制列的最大长度。
 
 .. code-block:: php
 
@@ -1278,7 +1229,7 @@ Working With Indexes 使用索引
 
 To add an index to a table you can simply call the ``addIndex()`` method on the
 table object.
-要将索引添加到表中，您只需在表对象上调用“addIndex()”方法即可。
+要将索引添加到表中，你只需在表对象上调用“addIndex()”方法即可。
 
 .. code-block:: php
 
@@ -1350,7 +1301,7 @@ the ``order`` parameter. The order parameter takes an array of column names and 
 
 The MySQL adapter also supports ``fulltext`` indexes. If you are using a version before 5.6 you must
 ensure the table uses the ``MyISAM`` engine.
-MySQL 适配器还支持“全文”索引。 如果您使用的是 5.6 之前的版本，您必须确保该表使用“MyISAM”引擎。
+MySQL 适配器还支持“全文”索引。 如果你使用的是 5.6 之前的版本，你必须确保该表使用“MyISAM”引擎。
 
 .. code-block:: php
 
@@ -1373,7 +1324,7 @@ In addition, MySQL adapter also supports setting the index length defined by lim
 When you are using a multi-column index, you are able to define each column index length.
 The single column index can define its index length with or without defining column name in limit option.
 此外，MySQL 适配器还支持设置 limit 选项定义的索引长度。
-当您使用多列索引时，您可以定义每列索引长度。
+当你使用多列索引时，你可以定义每列索引长度。
 单列索引可以在限制选项中定义或不定义列名来定义其索引长度。
 
 .. code-block:: php
@@ -1421,7 +1372,7 @@ SQL Server 和 PostgreSQL 适配器还支持索引上的“include”（非键�
 
 Removing indexes is as easy as calling the ``removeIndex()`` method. You must
 call this method for each index.
-删除索引就像调用“removeIndex()”方法一样简单。 您必须为每个索引调用此方法。
+删除索引就像调用“removeIndex()”方法一样简单。 你必须为每个索引调用此方法。
 
 .. code-block:: php
 
@@ -1645,7 +1596,7 @@ It is not uncommon to pair database structure changes with data changes. For exa
 migrate the data in a couple columns from the users to a newly created table. For this type of scenarios,
 Phinx provides access to a Query builder object, that you may use to execute complex ``SELECT``, ``UPDATE``,
 ``INSERT`` or ``DELETE`` statements.
-将数据库结构更改与数据更改配对并不少见。 例如，您可能希望将几列中的数据从用户迁移到新创建的表。 对于这种类型的场景，Phinx 提供对查询构建器对象的访问，您可以使用它来执行复杂的 ``SELECT``、``UPDATE``、``INSERT`` 或 ``DELETE`` 语句。
+将数据库结构更改与数据更改配对并不少见。 例如，你可能希望将几列中的数据从用户迁移到新创建的表。 对于这种类型的场景，Phinx 提供对查询构建器对象的访问，你可以使用它来执行复杂的 ``SELECT``、``UPDATE``、``INSERT`` 或 ``DELETE`` 语句。
 
 The Query builder is provided by the `cakephp/database <https://github.com/cakephp/database>`_ project, and should
 be easy to work with as it resembles very closely plain SQL. Accesing the query builder is done by calling the
@@ -1709,7 +1660,7 @@ Generating conditions:
 
 
 As you can see you can use any operator by placing it with a space after the field name. Adding multiple conditions is easy as well:
-如您所见，您可以使用任何运算符，方法是在字段名称后放置一个空格。 添加多个条件也很容易：
+如你所见，你可以使用任何运算符，方法是在字段名称后放置一个空格。 添加多个条件也很容易：
 
 
 .. code-block:: php
@@ -1725,7 +1676,7 @@ As you can see you can use any operator by placing it with a space after the fie
 
 
 For even more complex conditions you can use closures and expression objects:
-对于更复杂的条件，您可以使用闭包和表达式对象：
+对于更复杂的条件，你可以使用闭包和表达式对象：
 
 .. code-block:: php
 
@@ -1787,7 +1738,7 @@ It generates:
 
 
 When using the expression objects you can use the following methods to create conditions:
-使用表达式对象时，您可以使用以下方法创建条件：
+使用表达式对象时，你可以使用以下方法创建条件：
 
 * ``eq()`` Creates an equality condition.
 * ``notEq()`` Create an inequality condition
@@ -1833,12 +1784,12 @@ A number of commonly used functions can be created with the func() method:
 * ``concat()`` 将两个值连接在一起。 除非标记为文字，否则参数将被视为绑定参数。
 * ``coalesce()`` 合并值。 除非标记为文字，否则参数将被视为绑定参数。
 * ``dateDiff()`` 获取两个日期/时间之间的差异。 除非标记为文字，否则参数将被视为绑定参数。
-* ``now()`` 以“时间”或“日期”作为参数，允许您获取当前时间或当前日期。
+* ``now()`` 以“时间”或“日期”作为参数，允许你获取当前时间或当前日期。
 
 When providing arguments for SQL functions, there are two kinds of parameters you can use,
 literal arguments and bound parameters. Literal parameters allow you to reference columns or
 other SQL literals. Bound parameters can be used to safely add user data to SQL functions. For example:
-为 SQL 函数提供参数时，可以使用两种参数，文字参数和绑定参数。 文字参数允许您引用列或其他 SQL 文字。 绑定参数可用于安全地将用户数据添加到 SQL 函数。 例如：
+为 SQL 函数提供参数时，可以使用两种参数，文字参数和绑定参数。 文字参数允许你引用列或其他 SQL 文字。 绑定参数可用于安全地将用户数据添加到 SQL 函数。 例如：
 
 
 .. code-block:: php
@@ -1857,7 +1808,7 @@ Getting Results out of a Query 从查询中获取结果
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once you’ve made your query, you’ll want to retrieve rows from it. There are a few ways of doing this:
-进行查询后，您将希望从中检索行。 有几种方法可以做到这一点：
+进行查询后，你将希望从中检索行。 有几种方法可以做到这一点：
 
 
 .. code-block:: php
@@ -1892,7 +1843,7 @@ Creating insert queries is also possible:
 
 
 For increased performance, you can use another builder object as the values for an insert query:
-为了提高性能，您可以使用另一个构建器对象作为插入查询的值：
+为了提高性能，你可以使用另一个构建器对象作为插入查询的值：
 
 .. code-block:: php
 
