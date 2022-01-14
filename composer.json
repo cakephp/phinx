@@ -2,28 +2,39 @@
     "name": "robmorgan/phinx",
     "type": "library",
     "description": "Phinx makes it ridiculously easy to manage the database migrations for your PHP app.",
-    "keywords": ["phinx", "migrations", "database", "db", "database migrations"],
+    "keywords": [
+        "phinx",
+        "migrations",
+        "database",
+        "db",
+        "database migrations"
+    ],
     "homepage": "https://phinx.org",
     "license": "MIT",
-    "authors": [{
-        "name": "Rob Morgan",
-        "email": "robbym@gmail.com",
-        "homepage": "https://robmorgan.id.au",
-        "role": "Lead Developer"
-    }, {
-        "name": "Woody Gilk",
-        "email": "woody.gilk@gmail.com",
-        "homepage": "https://shadowhand.me",
-        "role": "Developer"
-    }, {
-        "name": "Richard Quadling",
-        "email": "rquadling@gmail.com",
-        "role": "Developer"
-    }, {
-        "name": "CakePHP Community",
-        "role": "Developer",
-        "homepage": "https://github.com/cakephp/phinx/graphs/contributors"
-    }],
+    "authors": [
+        {
+            "name": "Rob Morgan",
+            "email": "robbym@gmail.com",
+            "homepage": "https://robmorgan.id.au",
+            "role": "Lead Developer"
+        },
+        {
+            "name": "Woody Gilk",
+            "email": "woody.gilk@gmail.com",
+            "homepage": "https://shadowhand.me",
+            "role": "Developer"
+        },
+        {
+            "name": "Richard Quadling",
+            "email": "rquadling@gmail.com",
+            "role": "Developer"
+        },
+        {
+            "name": "CakePHP Community",
+            "role": "Developer",
+            "homepage": "https://github.com/cakephp/phinx/graphs/contributors"
+        }
+    ],
     "require": {
         "php": ">=7.2",
         "cakephp/database": "^4.0",
@@ -65,5 +76,12 @@
         "stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^0.12 && mv composer.backup composer.json",
         "test": "phpunit --colors=always"
     },
-    "bin": ["bin/phinx"]
+    "bin": [
+        "bin/phinx"
+    ],
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
 }
