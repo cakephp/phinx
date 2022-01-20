@@ -9,7 +9,7 @@ Phinx 使用许多命令运行。
 断点命令（breakpoint）
 ----------------------
 
-breakpoint 命令用于设置断点，允许您限制回滚。不提供任何参数则默认切换至最近一次迁移的断点。
+breakpoint 命令用于设置断点，允许你限制回滚。不提供任何参数则默认切换至最近一次迁移的断点。
 
 .. code-block:: bash
 
@@ -21,7 +21,7 @@ breakpoint 命令用于设置断点，允许您限制回滚。不提供任何参
 
         $ phinx breakpoint -e development -t 20120103083322
 
-您可以使用 ``--remove-all`` 参数或 ``-r`` 来删除所有断点。
+你可以使用 ``--remove-all`` 参数或 ``-r`` 来删除所有断点。
 
 .. code-block:: bash
 
@@ -44,13 +44,13 @@ Create 命令用于创建新的迁移文件。它需要一个参数：迁移的�
 在文本编辑器中打开新的迁移文件以添加数据库转换逻辑。Phinx 使用 Phinx 配置文件中指定的路径创建迁移文件。
 参阅 :doc:`配置 <configuration>` 章节了解更多信息。
 
-您可以通过提供替代模板文件名来覆盖 Phinx 使用的模板文件。
+你可以通过提供替代模板文件名来覆盖 Phinx 使用的模板文件。
 
 .. code-block:: bash
 
         $ phinx create MyNewMigration --template="<file>"
 
-您还可以提供模板生成类。此类必须实现接口 ``Phinx\Migration\CreationInterface``。
+你还可以提供模板生成类。此类必须实现接口 ``Phinx\Migration\CreationInterface``。
 
 .. code-block:: bash
 
@@ -71,7 +71,7 @@ init 命令（initialize 的缩写）用于为 Phinx 准备项目。
 
         $ phinx init
 
-或者，您可以为 Phinx 的配置文件指定自定义位置：
+或者，你可以为 Phinx 的配置文件指定自定义位置：
 
 .. code-block:: bash
 
@@ -89,7 +89,7 @@ init 命令（initialize 的缩写）用于为 Phinx 准备项目。
 
         $ phinx init --format yml
 
-在您的文本编辑器中打开此文件以设置您的项目配置。
+在你的文本编辑器中打开此文件以设置你的项目配置。
 参阅 :doc:`配置 <configuration>` 章节了解更多信息。
 
 迁移命令（migrate）
@@ -167,7 +167,7 @@ rollback 不提供任何参数则默认回滚最近一次迁移。
 状态命令（status）
 ------------------
 
-status 命令打印所有迁移的列表及其当前状态。您可以使用此命令来确定已运行了哪些迁移。
+status 命令打印所有迁移的列表及其当前状态。你可以使用此命令来确定已运行了哪些迁移。
 
 .. code-block:: bash
 
@@ -178,53 +178,47 @@ status 命令打印所有迁移的列表及其当前状态。您可以使用此�
 * 2: 至少有一个缺失的迁移。
 * 3: 至少有一次向下迁移。
 
-An exit code of 1 means an application error has occurred.
 退出代码 1 表示发生了应用程序错误。
 
 种子创建命令（seed:create）
 -----------------------
 
-The Seed Create command can be used to create new database seed classes. It
-requires one argument, the name of the class. The class name should be specified
-in CamelCase format.
+seed:create 命令用于创建新的数据库种子类。它需要一个参数，即类的名称。类名应以 CamelCase 格式指定。
 
 .. code-block:: bash
 
         $ phinx seed:create MyNewSeeder
 
-Open the new seed file in your text editor to add your database seed commands.
-Phinx creates seed files using the path specified in your configuration file.
-Please see the :doc:`Configuration <configuration>` chapter for more information.
+在文本编辑器中打开新的种子文件以添加数据库种子命令。Phinx 使用 Phinx 配置文件中指定的路径创建种子文件。
+参阅 :doc:`配置 <configuration>` 章节了解更多信息。
 
-You are able to override the template file used by Phinx by supplying an
-alternative template filename.
+你可以通过提供替代模板文件名来覆盖 Phinx 使用的模板文件。
 
 .. code-block:: bash
 
         $ phinx seed:create MyNewSeeder --template="<file>"
 
-The Seed Run Command
+执行种子命令（seed:run）
 --------------------
 
-The Seed Run command runs all of the available seed classes or optionally just
-one.
+seed:run 命令将执行所有可用的种子类，或者只执行某一个。
 
 .. code-block:: bash
 
         $ phinx seed:run -e development
 
 To run only one seed class use the ``--seed`` parameter or ``-s`` for short.
+要仅运行一个种子类，请使用 ``--seed`` 参数或简写为 ``-s``。
 
 .. code-block:: bash
 
         $ phinx seed:run -e development -s MyNewSeeder
 
-Configuration File Parameter
+配置文件参数
 ----------------------------
 
-When running Phinx from the command line, you may specify a configuration file
-using the ``--configuration`` or ``-c`` parameter. In addition to YAML, the
-configuration file may be the computed output of a PHP file as a PHP array:
+从命令行运行 Phinx 时，你可以使用 ``--configuration`` 或 ``-c`` 参数指定配置文件。
+除了 YAML 格式外，配置文件也可以是 PHP 数组形式的文件输出：
 
 .. code-block:: php
 
@@ -247,12 +241,11 @@ configuration file may be the computed output of a PHP file as a PHP array:
                 ]
             ];
 
-Phinx auto-detects which language parser to use for files with ``*.yaml``, ``*.yml``, ``*.json``, and ``*.php`` extensions.
-The appropriate parser may also be specified via the ``--parser`` and ``-p`` parameters. Anything other than  ``"json"`` or
-``"php"`` is treated as YAML.
+Phinx 自动检测扩展名为 ``*.yaml``, ``*.yml``, ``*.json`` 和 ``*.php``的文件该使用哪种语言解析器。
+也可以通过 ``--parser`` 或 ``-p`` 参数指定适当的解析器。 ``"json"`` 或 ``"php"`` 以外的任何内容都被视为 YAML 格式。
 
-When using a PHP array, you can provide a ``connection`` key with an existing PDO instance. It is also important to pass
-the database name too, as Phinx requires this for certain methods such as ``hasTable()``:
+使用 PHP 数组时，你可以为键名 ``connection`` 设置一个已存在的 PDO 实例。
+传递数据库名称也很重要，因为 Phinx 的某些方法需要它，例如 ``hasTable()``：
 
 .. code-block:: php
 
@@ -271,40 +264,35 @@ the database name too, as Phinx requires this for certain methods such as ``hasT
                 ]
             ];
 
-Running Phinx in a Web App
+在 Web 应用程序中运行 Phinx
 --------------------------
 
-Phinx can also be run inside of a web application by using the ``Phinx\Wrapper\TextWrapper``
-class. An example of this is provided in ``app/web.php``, which can be run as a
-standalone server:
+通过使用  ``Phinx\Wrapper\TextWrapper`` 类，Phinx 也可以在 Web 应用程序内部运行。
+在 ``app/web.php``中提供了一个示例，它可以作为独立服务器运行：
 
 .. code-block:: bash
 
         $ php -S localhost:8000 vendor/robmorgan/phinx/app/web.php
 
-This will create local web server at `<http://localhost:8000>`__ which will show current
-migration status by default. To run migrations up, use `<http://localhost:8000/migrate>`__
-and to rollback use `<http://localhost:8000/rollback>`__.
+这将在 `<http://localhost:8000>`__ 创建本地 Web 服务器，默认显示当前迁移状态。
+要运行迁移，可使用 `<http://localhost:8000/migrate>`__，而回滚则为 `<http://localhost:8000/rollback>`__。
 
-**The included web app is only an example and should not be used in production!**
+**包含的网络应用程序只是一个示例，不要在生产环境中使用！**
 
 .. note::
 
-        To modify configuration variables at runtime and override ``%%PHINX_DBNAME%%``
-        or other another dynamic option, set ``$_SERVER['PHINX_DBNAME']`` before
-        running commands. Available options are documented in the Configuration page.
+        要在运行时修改配置变量并覆盖 ``%%PHINX_DBNAME%%`` 或其他其他动态选项，要在运行命令之前设置 ``$_SERVER['PHINX_DBNAME']``。
+        其它可用选项可在[配置]页面中找到。
 
-Wrapping Phinx in another Symfony Console Application
+在其它 Symfony 控制台应用程序中打包 Phinx
 -----------------------------------------------------
 
-Phinx can be wrapped and run as part of a separate Symfony console application. This
-may be desirable to present a unified interface to the user for all aspects of your
-application, or because you wish to run multiple Phinx commands. While you could
-run the commands through ``exec`` or use the above ``Phinx\Wrapper\TextWrapper``,
-though this makes it hard to deal with the return code and output in a similar fashion
-as your application.
+Phinx 可以作为单独的 Symfony 控制台应用程序的一部分进行打包和运行。
+这样做或许是希望为用户提供应用程序的所有方面的统一界面，或者因为你希望运行多个 Phinx 命令。
+虽然可以通过 ``exec`` 命令或上述介绍的 ``Phinx\Wrapper\TextWrapper`` 来执行命令，
+但这会使得应用程序以类似的方式处理返回代码和输出将变得困难。
 
-Luckily, Symfony makes doing this sort of "meta" command straight-forward:
+幸运的是，Symfony 可以直接执行这种 "meta" 命令：
 
 .. code-block:: php
 
@@ -332,17 +320,15 @@ Luckily, Symfony makes doing this sort of "meta" command straight-forward:
         // ...
     }
 
-Here, you are instantianting the ``PhinxApplication``, telling it to find the ``migrate``
-command, defining the arguments to pass to it (which match the commandline arguments and flags),
-and then finally running the command, passing it the same ``OutputInterface`` that your
-application uses.
+在这里，你正在实例化 ``PhinxApplication``，告诉它找到 ``migrate`` 命令，
+定义要传递给它的参数（与命令行参数和标志匹配），然后最终运行命令，传递与应用程序所使用的相同的 ``OutputInterface``。
 
-See this `Symfony page <https://symfony.com/doc/current/console/calling_commands.html>`_ for more information.
+有关更多信息，请参阅此 `Symfony 页面 <https://symfony.com/doc/current/console/calling_commands.html>`_ 。
 
-Using Phinx with PHPUnit
+将 Phinx 与 PHPUnit 一起使用
 --------------------------
 
-Phinx can be used within your unit tests to prepare or seed the database. You can use it programatically :
+Phinx 可以在你的单元测试中用于准备或播种数据库。你可以以编程的方式使用它：
 
 .. code-block:: php
 
@@ -353,8 +339,8 @@ Phinx can be used within your unit tests to prepare or seed the database. You ca
           $app->run(new StringInput('migrate'), new NullOutput());
         }
 
-If you use a memory database, you'll need to give Phinx a specific PDO instance. You can interact with Phinx directly
-using the Manager class :
+如果你使用内存数据库（memory database），你需要给 Phinx 一个特定的 PDO 实例。
+你可以使用 Manager 类直接与 Phinx 交互：
 
 .. code-block:: php
 
