@@ -441,4 +441,177 @@ class CreateTest extends TestCase
         $expectedMigration = "useClassName Phinx\\Migration\\AbstractMigration / className {$commandLine['name']} / version {$match['Version']} / baseClassName AbstractMigration";
         $this->assertStringEqualsFile($match['MigrationFilename'], $expectedMigration, 'Failed to create migration file from template generator correctly.');
     }
+
+    public function testNoMigrationsPathConfig()
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $this->config->offsetSet('paths', []);
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Migrations path missing from config file');
+
+        $commandTester->execute(['command' => $command->getName()]);
+    }
+
+    public function testMultipleMigrationsPaths()
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        @mkdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'othermigrations', 0777, true);
+        $this->config->offsetSet('paths', [
+            'migrations' => [
+                sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations',
+                sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'othermigrations',
+            ],
+        ]);
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName()]);
+
+        $files = array_diff(scandir($this->config->getMigrationPaths()[0]), ['.', '..']);
+        $this->assertCount(1, $files);
+        $fileName = current($files);
+        $this->assertMatchesRegularExpression('/^[0-9]{14}.php/', $fileName);
+        $date = substr($fileName, 0, 14);
+        $this->assertFileExists($this->config->getMigrationPaths()[0]);
+        $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
+        $this->assertStringStartsWith($prefix, file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName));
+    }
+
+    public function testNoMigrationsPath()
+    {
+        TestUtils::recursiveRmdir(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'migrations');
+
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('You probably used curly braces to define migration path in your Phinx configuration file, ');
+
+        $commandTester->execute(['command' => $command->getName()]);
+    }
+
+    public function testInvalidClassName(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('The migration class name "Th1sI5ÄnInvalüdClaßnam€" is invalid. Please use CamelCase format.');
+
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'name' => 'Th1sI5ÄnInvalüdClaßnam€',
+        ]);
+    }
+
+    public function testCreateWithPath(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $path = $this->config->getMigrationPaths()[0];
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), '--path' => $path]);
+
+        $files = array_diff(scandir($path), ['.', '..']);
+        $this->assertCount(1, $files);
+        $fileName = current($files);
+        $this->assertMatchesRegularExpression('/^[0-9]{14}.php/', $fileName);
+        $date = substr($fileName, 0, 14);
+        $this->assertFileExists($this->config->getMigrationPaths()[0]);
+        $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
+        $this->assertStringStartsWith($prefix, file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName));
+    }
+
+    public function testNoAltTemplate(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $this->config->offsetSet('templates', [
+            'file' => 'MyTemplate',
+        ]);
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('The alternative template file "MyTemplate" does not exist');
+
+        $commandTester->execute(['command' => $command->getName()]);
+    }
 }
