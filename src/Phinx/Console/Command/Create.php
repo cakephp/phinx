@@ -99,6 +99,12 @@ class Create extends AbstractCommand
         }
 
         $paths = $this->getConfig()->getMigrationPaths();
+
+        // No paths? That's a problem.
+        if (empty($paths)) {
+            throw new Exception('No migration paths set in your Phinx configuration file.');
+        }
+
         $paths = Util::globAll($paths);
 
         if (empty($paths)) {
@@ -136,6 +142,16 @@ class Create extends AbstractCommand
 
         // get the migration path from the config
         $path = $this->getMigrationPath($input, $output);
+
+        if (!file_exists($path)) {
+            /** @var \Symfony\Component\Console\Helper\QuestionHelper $helper */
+            $helper = $this->getHelper('question');
+            $question = $this->getCreateMigrationDirectoryQuestion();
+
+            if ($helper->ask($input, $output, $question)) {
+                mkdir($path, 0755, true);
+            }
+        }
 
         $this->verifyMigrationDirectory($path);
 
