@@ -61,7 +61,8 @@ class ListAliases extends AbstractCommand
                         array_keys($aliases),
                         $aliases
                     )
-                )
+                ),
+                $this->verbosityLevel
             );
         } else {
             $output->writeln(

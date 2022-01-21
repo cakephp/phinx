@@ -79,9 +79,9 @@ EOT
 
         if ($environment === null) {
             $environment = $config->getDefaultEnvironment();
-            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
+            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment, $this->verbosityLevel);
         } else {
-            $output->writeln('<info>using environment</info> ' . $environment);
+            $output->writeln('<info>using environment</info> ' . $environment, $this->verbosityLevel);
         }
 
         if (!$this->getConfig()->hasEnvironment($environment)) {
@@ -92,22 +92,22 @@ EOT
 
         $envOptions = $config->getEnvironment($environment);
         if (isset($envOptions['adapter'])) {
-            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter']);
+            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter'], $this->verbosityLevel);
         }
 
         if (isset($envOptions['wrapper'])) {
-            $output->writeln('<info>using wrapper</info> ' . $envOptions['wrapper']);
+            $output->writeln('<info>using wrapper</info> ' . $envOptions['wrapper'], $this->verbosityLevel);
         }
 
         if (isset($envOptions['name'])) {
-            $output->writeln('<info>using database</info> ' . $envOptions['name']);
+            $output->writeln('<info>using database</info> ' . $envOptions['name'], $this->verbosityLevel);
         }
 
         $versionOrder = $this->getConfig()->getVersionOrder();
-        $output->writeln('<info>ordering by</info> ' . $versionOrder . ' time');
+        $output->writeln('<info>ordering by</info> ' . $versionOrder . ' time', $this->verbosityLevel);
 
         if ($fake) {
-            $output->writeln('<comment>warning</comment> performing fake rollbacks');
+            $output->writeln('<comment>warning</comment> performing fake rollbacks', $this->verbosityLevel);
         }
 
         // rollback the specified environment
@@ -123,8 +123,8 @@ EOT
         $this->getManager()->rollback($environment, $target, $force, $targetMustMatchVersion, $fake);
         $end = microtime(true);
 
-        $output->writeln('');
-        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+        $output->writeln('', $this->verbosityLevel);
+        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>', $this->verbosityLevel);
 
         return self::CODE_SUCCESS;
     }
