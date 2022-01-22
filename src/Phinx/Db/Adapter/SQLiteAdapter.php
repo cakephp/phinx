@@ -159,7 +159,7 @@ class SQLiteAdapter extends PdoAdapter
                 throw new RuntimeException('SQLite URI support requires PHP 8.1.');
             } elseif ((!empty($options['mode']) || !empty($options['cache'])) && !empty($options['memory'])) {
                 throw new RuntimeException('Memory must not be set when cache or mode are.');
-            } elseif (PHP_VERSION_ID >= 80100) {
+            } elseif (PHP_VERSION_ID >= 80100 && (!empty($options['mode']) || !empty($options['cache']))) {
                 $params = [];
                 if (!empty($options['cache'])) {
                     $params[] = 'cache=' . $options['cache'];
