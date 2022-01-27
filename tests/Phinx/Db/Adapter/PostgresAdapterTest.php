@@ -356,13 +356,10 @@ class PostgresAdapterTest extends TestCase
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('names', 'jsonb')
-            ->addColumn('texts', 'jsonb')
-            ->addIndex('names', ['gin' => true])
-            ->addIndex('texts', ['gist' => true])
+            ->addIndex('names', ['type' => 'gin'])
             ->save();
 
         $this->assertTrue($this->adapter->hasIndex('table1', ['names']));
-        $this->assertTrue($this->adapter->hasIndex('table1', ['texts']));
     }
 
     public function testCreateTableWithNamedIndexes()

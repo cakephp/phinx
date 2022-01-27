@@ -35,7 +35,7 @@ class PostgresAdapter extends PdoAdapter
         self::PHINX_TYPE_BINARYUUID,
     ];
 
-    const FULLTEXT_INDEX_TYPES = ['gin', 'gist'];
+    const GIN_INDEX_TYPE = 'gin';
 
     /**
      * Columns with comments
@@ -1267,7 +1267,7 @@ class PostgresAdapter extends PdoAdapter
         $includedColumns = $index->getInclude() ? sprintf('INCLUDE ("%s")', implode('","', $index->getInclude())) : '';
 
         $createIndexSentence = 'CREATE %s INDEX %s ON %s ';
-        if(in_array($index->getType(), self::FULLTEXT_INDEX_TYPES, true)) {
+        if($index->getType() === self::GIN_INDEX_TYPE) {
             $createIndexSentence .= ' USING ' . $index->getType() .'(%s) %s;';
         } else {
             $createIndexSentence .= '(%s) %s;';
