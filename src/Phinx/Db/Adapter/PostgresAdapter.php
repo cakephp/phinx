@@ -1267,8 +1267,8 @@ class PostgresAdapter extends PdoAdapter
         $includedColumns = $index->getInclude() ? sprintf('INCLUDE ("%s")', implode('","', $index->getInclude())) : '';
 
         $createIndexSentence = 'CREATE %s INDEX %s ON %s ';
-        if($index->getType() === self::GIN_INDEX_TYPE) {
-            $createIndexSentence .= ' USING ' . $index->getType() .'(%s) %s;';
+        if ($index->getType() === self::GIN_INDEX_TYPE) {
+            $createIndexSentence .= ' USING ' . $index->getType() . '(%s) %s;';
         } else {
             $createIndexSentence .= '(%s) %s;';
         }
