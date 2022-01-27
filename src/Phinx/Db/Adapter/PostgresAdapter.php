@@ -35,7 +35,7 @@ class PostgresAdapter extends PdoAdapter
         self::PHINX_TYPE_BINARYUUID,
     ];
 
-    const GIN_INDEX_TYPE = 'gin';
+    private const GIN_INDEX_TYPE = 'gin';
 
     /**
      * Columns with comments
