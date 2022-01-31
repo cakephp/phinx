@@ -1388,6 +1388,24 @@ The SQL Server and PostgreSQL adapters also supports ``include`` (non-key) colum
             }
         }
 
+In addition PostgreSQL adapters also supports Generalized Inverted Index ``gin`` indexes.
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->addColumn('address', 'string')
+                      ->addIndex('address', ['type' => 'gin'])
+                      ->create();
+            }
+        }
 
 Removing indexes is as easy as calling the ``removeIndex()`` method. You must
 call this method for each index.

@@ -352,6 +352,16 @@ class PostgresAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasIndex('table1', ['email', 'user_email']));
     }
 
+    public function testCreateTableWithFullTextSearchIndexes()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('names', 'jsonb')
+            ->addIndex('names', ['type' => 'gin'])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasIndex('table1', ['names']));
+    }
+
     public function testCreateTableWithNamedIndexes()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
