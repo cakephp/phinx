@@ -1331,6 +1331,21 @@ SQL Server 和 PostgreSQL 适配器还支持索引上的 ``include``（非键）
             }
         }
 
+此外 PostgreSQL 适配器还支持通用倒排索引（Generalized Inverted Index）即 ``gin`` 索引。
+
+.. code-block:: php
+        <?php
+        use Phinx\Migration\AbstractMigration;
+        class MyNewMigration extends AbstractMigration
+        {
+            public function change()
+            {
+                $table = $this->table('users');
+                $table->addColumn('address', 'string')
+                      ->addIndex('address', ['type' => 'gin'])
+                      ->create();
+            }
+        }
 
 删除索引直接调用 ``removeIndex()`` 方法即可。 你必须为每个索引调用此方法。
 
