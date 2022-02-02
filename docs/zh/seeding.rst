@@ -180,11 +180,9 @@ Then use it in your seed classes:
             }
         }
 
-TRUNCATE 清空表
+清空表
 -----------------
 
-In addition to inserting data Phinx makes it trivial to empty your tables using the
-SQL `TRUNCATE` command:
 除了插入数据之外，Phinx 还支持使用SQL `TRUNCATE` 命令对表进行清空：
 
 .. code-block:: php
