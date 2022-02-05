@@ -5,6 +5,12 @@ on:
   push:
     tags:
       - v0.*
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to run on
+        default: master
+        required: true
 
 jobs:
   deploy:
