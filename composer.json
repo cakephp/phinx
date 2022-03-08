@@ -73,7 +73,7 @@
         "cs-check": "phpcs -np app/ src/ tests/",
         "cs-fix": "phpcbf -np app/ src/ tests/",
         "stan": "phpstan analyse src/",
-        "stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^0.12 && mv composer.backup composer.json",
+        "stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:~1.4.0 && mv composer.backup composer.json",
         "test": "phpunit --colors=always"
     },
     "bin": [
