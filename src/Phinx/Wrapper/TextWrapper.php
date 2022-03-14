@@ -73,7 +73,7 @@ class TextWrapper
     public function getStatus($env = null)
     {
         $command = ['status'];
-        if ($env ?: $this->hasOption('environment')) {
+        if ($this->hasEnvValue($env)) {
             $command += ['-e' => $env ?: $this->getOption('environment')];
         }
         if ($this->hasOption('configuration')) {
@@ -90,6 +90,15 @@ class TextWrapper
     }
 
     /**
+     * @param string|null $env environment name
+     * @return bool
+     */
+    private function hasEnvValue($env): bool
+    {
+        return $env || $this->hasOption('environment');
+    }
+
+    /**
      * Returns the output from running the "migrate" command.
      *
      * @param string|null $env environment name (optional)
@@ -99,7 +108,7 @@ class TextWrapper
     public function getMigrate($env = null, $target = null)
     {
         $command = ['migrate'];
-        if ($env ?: $this->hasOption('environment')) {
+        if ($this->hasEnvValue($env)) {
             $command += ['-e' => $env ?: $this->getOption('environment')];
         }
         if ($this->hasOption('configuration')) {
@@ -126,7 +135,7 @@ class TextWrapper
     public function getSeed($env = null, $target = null, $seed = null)
     {
         $command = ['seed:run'];
-        if ($env ?: $this->hasOption('environment')) {
+        if ($this->hasEnvValue($env)) {
             $command += ['-e' => $env ?: $this->getOption('environment')];
         }
         if ($this->hasOption('configuration')) {
@@ -156,7 +165,7 @@ class TextWrapper
     public function getRollback($env = null, $target = null)
     {
         $command = ['rollback'];
-        if ($env ?: $this->hasOption('environment')) {
+        if ($this->hasEnvValue($env)) {
             $command += ['-e' => $env ?: $this->getOption('environment')];
         }
         if ($this->hasOption('configuration')) {
