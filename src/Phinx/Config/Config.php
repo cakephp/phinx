@@ -140,7 +140,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      */
     public function getEnvironments()
     {
-        if (isset($this->values) && isset($this->values['environments'])) {
+        if (isset($this->values['environments'])) {
             $environments = [];
             foreach ($this->values['environments'] as $key => $value) {
                 if (is_array($value)) {
