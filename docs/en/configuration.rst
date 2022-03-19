@@ -304,9 +304,9 @@ specified directly as connection options.
         default_migration_table: phinxlog
         default_environment: development
         development:
-            dsn: %%DATABASE_URL%%
+            dsn: '%%DATABASE_URL%%'
         production:
-            dsn: %%DATABASE_URL%%
+            dsn: '%%DATABASE_URL%%'
             name: production_database
 
 If the supplied DSN is invalid, then it is completely ignored.
