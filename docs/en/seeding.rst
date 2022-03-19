@@ -152,47 +152,6 @@ within your seed class and then use the `insert()` method to insert data:
     You must call the `saveData()` method to commit your data to the table. Phinx
     will buffer data until you do so.
 
-Integrating with the Faker library
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-It's trivial to use the awesome
-`Faker library <https://github.com/fzaninotto/Faker>`_ in your seed classes.
-Simply install it using Composer:
-
-.. code-block:: bash
-
-        $ composer require fzaninotto/faker
-
-Then use it in your seed classes:
-
-.. code-block:: php
-
-        <?php
-
-        use Phinx\Seed\AbstractSeed;
-
-        class UserSeeder extends AbstractSeed
-        {
-            public function run()
-            {
-                $faker = Faker\Factory::create();
-                $data = [];
-                for ($i = 0; $i < 100; $i++) {
-                    $data[] = [
-                        'username'      => $faker->userName,
-                        'password'      => sha1($faker->password),
-                        'password_salt' => sha1('foo'),
-                        'email'         => $faker->email,
-                        'first_name'    => $faker->firstName,
-                        'last_name'     => $faker->lastName,
-                        'created'       => date('Y-m-d H:i:s'),
-                    ];
-                }
-
-                $this->table('users')->insert($data)->saveData();
-            }
-        }
-
 Truncating Tables
 -----------------
 
