@@ -167,7 +167,7 @@ class SQLiteAdapter extends PdoAdapter
                 if (!empty($options['mode'])) {
                     $params[] = 'mode=' . $options['mode'];
                 }
-                $dsn = 'sqlite:file:' . $options['name'] ?? '' . '?' . implode('&', $params);
+                $dsn = 'sqlite:file:' . ($options['name'] ?? '') . '?' . implode('&', $params);
             } else {
                 // use a memory database if the option was specified
                 if (!empty($options['memory']) || $options['name'] === static::MEMORY) {
