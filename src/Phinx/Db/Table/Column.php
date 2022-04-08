@@ -8,6 +8,7 @@
 namespace Phinx\Db\Table;
 
 use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Adapter\PostgresAdapter;
 use RuntimeException;
 
 /**
@@ -66,17 +67,17 @@ class Column
     protected $type;
 
     /**
-     * @var int|null
+     * @var int
      */
     protected $limit;
 
     /**
      * @var bool
      */
-    protected $null = true;
+    protected $null = false;
 
     /**
-     * @var mixed
+     * @var mixed|null
      */
     protected $default;
 
@@ -86,32 +87,38 @@ class Column
     protected $identity = false;
 
     /**
-     * @var int|null
+     * Postgres-only column option for identity (always|default)
+     * @var string
+     */
+    protected $generated = PostgresAdapter::GENERATED_ALWAYS;
+
+    /**
+     * @var int
      */
     protected $seed;
 
     /**
-     * @var int|null
+     * @var int
      */
     protected $increment;
 
     /**
-     * @var int|null
+     * @var int
      */
     protected $scale;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $after;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $update;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $comment;
 
@@ -131,12 +138,12 @@ class Column
     protected $properties = [];
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $collation;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $encoding;
 
@@ -146,7 +153,7 @@ class Column
     protected $srid;
 
     /**
-     * @var array|null
+     * @var array
      */
     protected $values;
 
@@ -156,7 +163,7 @@ class Column
      * @param string $name Name
      * @return $this
      */
-    public function setName(string $name)
+    public function setName($name)
     {
         $this->name = $name;
 
@@ -168,7 +175,7 @@ class Column
      *
      * @return string|null
      */
-    public function getName(): ?string
+    public function getName()
     {
         return $this->name;
     }
@@ -199,10 +206,10 @@ class Column
     /**
      * Sets the column limit.
      *
-     * @param int|null $limit Limit
+     * @param int $limit Limit
      * @return $this
      */
-    public function setLimit(?int $limit)
+    public function setLimit($limit)
     {
         $this->limit = $limit;
 
@@ -212,9 +219,9 @@ class Column
     /**
      * Gets the column limit.
      *
-     * @return int|null
+     * @return int
      */
-    public function getLimit(): ?int
+    public function getLimit()
     {
         return $this->limit;
     }
@@ -225,7 +232,7 @@ class Column
      * @param bool $null Null
      * @return $this
      */
-    public function setNull(bool $null)
+    public function setNull($null)
     {
         $this->null = (bool)$null;
 
@@ -237,7 +244,7 @@ class Column
      *
      * @return bool
      */
-    public function getNull(): bool
+    public function getNull()
     {
         return $this->null;
     }
@@ -247,7 +254,7 @@ class Column
      *
      * @return bool
      */
-    public function isNull(): bool
+    public function isNull()
     {
         return $this->getNull();
     }
@@ -276,12 +283,35 @@ class Column
     }
 
     /**
+     * Sets generated option for identity columns. Ignored otherwise.
+     *
+     * @param string $identity Identity
+     * @return $this
+     */
+    public function setGenerated($generated)
+    {
+        $this->generated = $generated;
+
+        return $this;
+    }
+
+    /**
+     * Gets generated option for identity columns. Null otherwise
+     *
+     * @return string
+     */
+    public function getGenerated()
+    {
+        return $this->generated;
+    }
+
+    /**
      * Sets whether or not the column is an identity column.
      *
      * @param bool $identity Identity
      * @return $this
      */
-    public function setIdentity(bool $identity)
+    public function setIdentity($identity)
     {
         $this->identity = $identity;
 
@@ -293,7 +323,7 @@ class Column
      *
      * @return bool
      */
-    public function getIdentity(): bool
+    public function getIdentity()
     {
         return $this->identity;
     }
@@ -303,7 +333,7 @@ class Column
      *
      * @return bool
      */
-    public function isIdentity(): bool
+    public function isIdentity()
     {
         return $this->getIdentity();
     }
@@ -314,7 +344,7 @@ class Column
      * @param string $after After
      * @return $this
      */
-    public function setAfter(string $after)
+    public function setAfter($after)
     {
         $this->after = $after;
 
@@ -324,9 +354,9 @@ class Column
     /**
      * Returns the name of the column to add this column after.
      *
-     * @return string|null
+     * @return string
      */
-    public function getAfter(): ?string
+    public function getAfter()
     {
         return $this->after;
     }
@@ -337,7 +367,7 @@ class Column
      * @param string $update On Update function
      * @return $this
      */
-    public function setUpdate(string $update)
+    public function setUpdate($update)
     {
         $this->update = $update;
 
@@ -347,9 +377,9 @@ class Column
     /**
      * Returns the value of the ON UPDATE column function.
      *
-     * @return string|null
+     * @return string
      */
-    public function getUpdate(): ?string
+    public function getUpdate()
     {
         return $this->update;
     }
@@ -360,10 +390,10 @@ class Column
      * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
      * and the column could store value from -999.99 to 999.99.
      *
-     * @param int|null $precision Number precision
+     * @param int $precision Number precision
      * @return $this
      */
-    public function setPrecision(?int $precision)
+    public function setPrecision($precision)
     {
         $this->setLimit($precision);
 
@@ -376,32 +406,29 @@ class Column
      * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
      * and the column could store value from -999.99 to 999.99.
      *
-     * @return int|null
+     * @return int
      */
-    public function getPrecision(): ?int
+    public function getPrecision()
     {
         return $this->limit;
     }
 
     /**
-     * Sets the column identity increment.
+     * Gets the column identity seed.
      *
-     * @param int $increment Number increment
-     * @return $this
+     * @return int
      */
-    public function setIncrement(int $increment)
+    public function getSeed()
     {
-        $this->increment = $increment;
-
-        return $this;
+        return $this->seed;
     }
 
     /**
      * Gets the column identity increment.
      *
-     * @return int|null
+     * @return int
      */
-    public function getIncrement(): ?int
+    public function getIncrement()
     {
         return $this->increment;
     }
@@ -412,7 +439,7 @@ class Column
      * @param int $seed Number seed
      * @return $this
      */
-    public function setSeed(int $seed)
+    public function setSeed($seed)
     {
         $this->seed = $seed;
 
@@ -420,13 +447,16 @@ class Column
     }
 
     /**
-     * Gets the column identity seed.
+     * Sets the column identity increment.
      *
-     * @return int
+     * @param int $increment Number increment
+     * @return $this
      */
-    public function getSeed(): ?int
+    public function setIncrement($increment)
     {
-        return $this->seed;
+        $this->increment = $increment;
+
+        return $this;
     }
 
     /**
@@ -435,10 +465,10 @@ class Column
      * For example `DECIMAL(5,2)`, 5 is the precision and 2 is the scale,
      * and the column could store value from -999.99 to 999.99.
      *
-     * @param int|null $scale Number scale
+     * @param int $scale Number scale
      * @return $this
      */
-    public function setScale(?int $scale)
+    public function setScale($scale)
     {
         $this->scale = $scale;
 
@@ -453,7 +483,7 @@ class Column
      *
      * @return int
      */
-    public function getScale(): ?int
+    public function getScale()
     {
         return $this->scale;
     }
@@ -468,7 +498,7 @@ class Column
      * @param int $scale Number scale
      * @return $this
      */
-    public function setPrecisionAndScale(int $precision, int $scale)
+    public function setPrecisionAndScale($precision, $scale)
     {
         $this->setLimit($precision);
         $this->scale = $scale;
@@ -479,10 +509,10 @@ class Column
     /**
      * Sets the column comment.
      *
-     * @param string|null $comment Comment
+     * @param string $comment Comment
      * @return $this
      */
-    public function setComment(?string $comment)
+    public function setComment($comment)
     {
         $this->comment = $comment;
 
@@ -494,7 +524,7 @@ class Column
      *
      * @return string
      */
-    public function getComment(): ?string
+    public function getComment()
     {
         return $this->comment;
     }
@@ -505,7 +535,7 @@ class Column
      * @param bool $signed Signed
      * @return $this
      */
-    public function setSigned(bool $signed)
+    public function setSigned($signed)
     {
         $this->signed = (bool)$signed;
 
@@ -517,7 +547,7 @@ class Column
      *
      * @return bool
      */
-    public function getSigned(): bool
+    public function getSigned()
     {
         return $this->signed;
     }
@@ -527,7 +557,7 @@ class Column
      *
      * @return bool
      */
-    public function isSigned(): bool
+    public function isSigned()
     {
         return $this->getSigned();
     }
@@ -539,7 +569,7 @@ class Column
      * @param bool $timezone Timezone
      * @return $this
      */
-    public function setTimezone(bool $timezone)
+    public function setTimezone($timezone)
     {
         $this->timezone = (bool)$timezone;
 
@@ -551,7 +581,7 @@ class Column
      *
      * @return bool
      */
-    public function getTimezone(): bool
+    public function getTimezone()
     {
         return $this->timezone;
     }
@@ -561,7 +591,7 @@ class Column
      *
      * @return bool
      */
-    public function isTimezone(): bool
+    public function isTimezone()
     {
         return $this->getTimezone();
     }
@@ -572,7 +602,7 @@ class Column
      * @param array $properties Properties
      * @return $this
      */
-    public function setProperties(array $properties)
+    public function setProperties($properties)
     {
         $this->properties = $properties;
 
@@ -584,7 +614,7 @@ class Column
      *
      * @return array
      */
-    public function getProperties(): array
+    public function getProperties()
     {
         return $this->properties;
     }
@@ -598,7 +628,7 @@ class Column
     public function setValues($values)
     {
         if (!is_array($values)) {
-            $values = (string)preg_split('/,\s*/', $values);
+            $values = preg_split('/,\s*/', $values);
         }
         $this->values = $values;
 
@@ -608,9 +638,9 @@ class Column
     /**
      * Gets field values
      *
-     * @return array|null
+     * @return array
      */
-    public function getValues(): ?array
+    public function getValues()
     {
         return $this->values;
     }
@@ -621,7 +651,7 @@ class Column
      * @param string $collation Collation
      * @return $this
      */
-    public function setCollation(string $collation)
+    public function setCollation($collation)
     {
         $this->collation = $collation;
 
@@ -631,9 +661,9 @@ class Column
     /**
      * Gets the column collation.
      *
-     * @return string|null
+     * @return string
      */
-    public function getCollation(): ?string
+    public function getCollation()
     {
         return $this->collation;
     }
@@ -644,7 +674,7 @@ class Column
      * @param string $encoding Encoding
      * @return $this
      */
-    public function setEncoding(string $encoding)
+    public function setEncoding($encoding)
     {
         $this->encoding = $encoding;
 
@@ -654,9 +684,9 @@ class Column
     /**
      * Gets the column character set.
      *
-     * @return string|null
+     * @return string
      */
-    public function getEncoding(): ?string
+    public function getEncoding()
     {
         return $this->encoding;
     }
@@ -665,9 +695,9 @@ class Column
      * Sets the column SRID.
      *
      * @param int $srid SRID
-     * @return $this
+     * @return \Phinx\Db\Table\Column
      */
-    public function setSrid(int $srid)
+    public function setSrid($srid)
     {
         $this->srid = $srid;
 
@@ -679,7 +709,7 @@ class Column
      *
      * @return int|null
      */
-    public function getSrid(): ?int
+    public function getSrid()
     {
         return $this->srid;
     }
@@ -689,7 +719,7 @@ class Column
      *
      * @return array
      */
-    protected function getValidOptions(): array
+    protected function getValidOptions()
     {
         return [
             'limit',
@@ -709,6 +739,7 @@ class Column
             'srid',
             'seed',
             'increment',
+            'generated'
         ];
     }
 
@@ -717,7 +748,7 @@ class Column
      *
      * @return array
      */
-    protected function getAliasedOptions(): array
+    protected function getAliasedOptions()
     {
         return [
             'length' => 'limit',
@@ -728,18 +759,14 @@ class Column
     /**
      * Utility method that maps an array of column options to this objects methods.
      *
-     * @param array<string, mixed> $options Options
+     * @param array $options Options
      * @throws \RuntimeException
      * @return $this
      */
-    public function setOptions(array $options)
+    public function setOptions($options)
     {
         $validOptions = $this->getValidOptions();
         $aliasOptions = $this->getAliasedOptions();
-
-        if (isset($options['identity']) && $options['identity'] && !isset($options['null'])) {
-            $options['null'] = false;
-        }
 
         foreach ($options as $option => $value) {
             if (isset($aliasOptions[$option])) {
