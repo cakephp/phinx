@@ -53,7 +53,7 @@ class PostgresAdapter extends PdoAdapter
      * @throws \InvalidArgumentException
      * @return void
      */
-    public function connect()
+    public function connect(): void
     {
         if ($this->connection === null) {
             if (!class_exists('PDO') || !in_array('pgsql', PDO::getAvailableDrivers(), true)) {
@@ -103,7 +103,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function disconnect()
+    public function disconnect(): void
     {
         $this->connection = null;
     }
@@ -111,7 +111,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function hasTransactions()
+    public function hasTransactions(): bool
     {
         return true;
     }
@@ -119,7 +119,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function beginTransaction()
+    public function beginTransaction(): void
     {
         $this->execute('BEGIN');
     }
@@ -127,7 +127,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function commitTransaction()
+    public function commitTransaction(): void
     {
         $this->execute('COMMIT');
     }
@@ -135,7 +135,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function rollbackTransaction()
+    public function rollbackTransaction(): void
     {
         $this->execute('ROLLBACK');
     }
@@ -146,7 +146,7 @@ class PostgresAdapter extends PdoAdapter
      * @param string $schemaName Schema Name
      * @return string
      */
-    public function quoteSchemaName($schemaName)
+    public function quoteSchemaName(string $schemaName): string
     {
         return $this->quoteColumnName($schemaName);
     }
@@ -154,7 +154,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function quoteTableName($tableName)
+    public function quoteTableName(string $tableName): string
     {
         $parts = $this->getSchemaName($tableName);
 
@@ -164,7 +164,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function quoteColumnName($columnName)
+    public function quoteColumnName(string $columnName): string
     {
         return '"' . $columnName . '"';
     }
@@ -172,7 +172,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function hasTable($tableName)
+    public function hasTable(string $tableName): bool
     {
         if ($this->hasCreatedTable($tableName)) {
             return true;
@@ -196,7 +196,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function createTable(Table $table, array $columns = [], array $indexes = [])
+    public function createTable(Table $table, array $columns = [], array $indexes = []): void
     {
         $queries = [];
 
@@ -213,7 +213,7 @@ class PostgresAdapter extends PdoAdapter
             $column = new Column();
             $column->setName($options['id'])
                    ->setType('integer')
-                   ->setIdentity(true);
+                   ->setOptions(['identity' => true]);
 
             array_unshift($columns, $column);
             if (isset($options['primary_key']) && (array)$options['id'] !== (array)$options['primary_key']) {
@@ -288,7 +288,7 @@ class PostgresAdapter extends PdoAdapter
      *
      * @throws \InvalidArgumentException
      */
-    protected function getChangePrimaryKeyInstructions(Table $table, $newColumns)
+    protected function getChangePrimaryKeyInstructions(Table $table, $newColumns): AlterInstructions
     {
         $parts = $this->getSchemaName($table->getName());
 
@@ -330,7 +330,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    protected function getChangeCommentInstructions(Table $table, $newComment)
+    protected function getChangeCommentInstructions(Table $table, ?string $newComment): AlterInstructions
     {
         $instructions = new AlterInstructions();
 
@@ -351,7 +351,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    protected function getRenameTableInstructions($tableName, $newTableName)
+    protected function getRenameTableInstructions(string $tableName, string $newTableName): AlterInstructions
     {
         $this->updateCreatedTableName($tableName, $newTableName);
         $sql = sprintf(
@@ -366,7 +366,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    protected function getDropTableInstructions($tableName)
+    protected function getDropTableInstructions(string $tableName): AlterInstructions
     {
         $this->removeCreatedTable($tableName);
         $sql = sprintf('DROP TABLE %s', $this->quoteTableName($tableName));
@@ -377,7 +377,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function truncateTable($tableName)
+    public function truncateTable(string $tableName): void
     {
         $sql = sprintf(
             'TRUNCATE TABLE %s RESTART IDENTITY',
@@ -390,7 +390,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function getColumns($tableName)
+    public function getColumns(string $tableName): array
     {
         $parts = $this->getSchemaName($tableName);
         $columns = [];
@@ -465,7 +465,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function hasColumn($tableName, $columnName)
+    public function hasColumn(string $tableName, string $columnName): bool
     {
         $parts = $this->getSchemaName($tableName);
         $sql = sprintf(
@@ -485,7 +485,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    protected function getAddColumnInstructions(Table $table, Column $column)
+    protected function getAddColumnInstructions(Table $table, Column $column): AlterInstructions
     {
         $instructions = new AlterInstructions();
         $instructions->addAlter(sprintf(
@@ -506,7 +506,7 @@ class PostgresAdapter extends PdoAdapter
      *
      * @throws \InvalidArgumentException
      */
-    protected function getRenameColumnInstructions($tableName, $columnName, $newColumnName)
+    protected function getRenameColumnInstructions(string $tableName, string $columnName, string $newColumnName): AlterInstructions
     {
         $parts = $this->getSchemaName($tableName);
         $sql = sprintf(
@@ -539,7 +539,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    protected function getChangeColumnInstructions($tableName, $columnName, Column $newColumn)
+    protected function getChangeColumnInstructions(string $tableName, string $columnName, Column $newColumn): AlterInstructions
     {
         $quotedColumnName = $this->quoteColumnName($columnName);
         $instructions = new AlterInstructions();
@@ -641,7 +641,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    protected function getDropColumnInstructions($tableName, $columnName)
+    protected function getDropColumnInstructions(string $tableName, string $columnName): AlterInstructions
     {
         $alter = sprintf(
             'DROP COLUMN %s',
@@ -701,7 +701,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function hasIndex($tableName, $columns)
+    public function hasIndex(string $tableName, $columns): bool
     {
         if (is_string($columns)) {
             $columns = [$columns];
@@ -719,7 +719,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function hasIndexByName($tableName, $indexName)
+    public function hasIndexByName(string $tableName, string $indexName): bool
     {
         $indexes = $this->getIndexes($tableName);
         foreach ($indexes as $name => $index) {
@@ -734,7 +734,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    protected function getAddIndexInstructions(Table $table, Index $index)
+    protected function getAddIndexInstructions(Table $table, Index $index): AlterInstructions
     {
         $instructions = new AlterInstructions();
         $instructions->addPostStep($this->getIndexSqlDefinition($index, $table->getName()));
@@ -747,7 +747,7 @@ class PostgresAdapter extends PdoAdapter
      *
      * @throws \InvalidArgumentException
      */
-    protected function getDropIndexByColumnsInstructions($tableName, $columns)
+    protected function getDropIndexByColumnsInstructions(string $tableName, $columns): AlterInstructions
     {
         $parts = $this->getSchemaName($tableName);
 
@@ -775,7 +775,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    protected function getDropIndexByNameInstructions($tableName, $indexName)
+    protected function getDropIndexByNameInstructions(string $tableName, string $indexName): AlterInstructions
     {
         $parts = $this->getSchemaName($tableName);
 
@@ -790,7 +790,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function hasPrimaryKey($tableName, $columns, $constraint = null)
+    public function hasPrimaryKey(string $tableName, $columns, ?string $constraint = null): bool
     {
         $primaryKey = $this->getPrimaryKey($tableName);
 
@@ -816,7 +816,7 @@ class PostgresAdapter extends PdoAdapter
      * @param string $tableName Table name
      * @return array
      */
-    public function getPrimaryKey($tableName)
+    public function getPrimaryKey(string $tableName): array
     {
         $parts = $this->getSchemaName($tableName);
         $rows = $this->fetchAll(sprintf(
@@ -848,7 +848,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function hasForeignKey($tableName, $columns, $constraint = null)
+    public function hasForeignKey(string $tableName, $columns, ?string $constraint = null): bool
     {
         if (is_string($columns)) {
             $columns = [$columns]; // str to array
@@ -878,7 +878,7 @@ class PostgresAdapter extends PdoAdapter
      * @param string $tableName Table name
      * @return array
      */
-    protected function getForeignKeys($tableName)
+    protected function getForeignKeys(string $tableName): array
     {
         $parts = $this->getSchemaName($tableName);
         $foreignKeys = [];
@@ -910,7 +910,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    protected function getAddForeignKeyInstructions(Table $table, ForeignKey $foreignKey)
+    protected function getAddForeignKeyInstructions(Table $table, ForeignKey $foreignKey): AlterInstructions
     {
         $alter = sprintf(
             'ADD %s',
@@ -923,7 +923,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    protected function getDropForeignKeyInstructions($tableName, $constraint)
+    protected function getDropForeignKeyInstructions($tableName, $constraint): AlterInstructions
     {
         $alter = sprintf(
             'DROP CONSTRAINT %s',
@@ -936,7 +936,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    protected function getDropForeignKeyByColumnsInstructions($tableName, $columns)
+    protected function getDropForeignKeyByColumnsInstructions(string $tableName, array $columns): AlterInstructions
     {
         $instructions = new AlterInstructions();
 
@@ -981,7 +981,7 @@ class PostgresAdapter extends PdoAdapter
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
-    public function getSqlType($type, $limit = null)
+    public function getSqlType($type, ?int $limit = null): array
     {
         switch ($type) {
             case static::PHINX_TYPE_TEXT:
@@ -1050,7 +1050,7 @@ class PostgresAdapter extends PdoAdapter
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      * @return string Phinx type
      */
-    public function getPhinxType($sqlType)
+    public function getPhinxType(string $sqlType): string
     {
         switch ($sqlType) {
             case 'character varying':
@@ -1117,7 +1117,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function createDatabase($name, $options = [])
+    public function createDatabase(string $name, array $options = []): void
     {
         $charset = $options['charset'] ?? 'utf8';
         $this->execute(sprintf("CREATE DATABASE %s WITH ENCODING = '%s'", $name, $charset));
@@ -1126,7 +1126,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function hasDatabase($name)
+    public function hasDatabase(string $name): bool
     {
         $sql = sprintf("SELECT count(*) FROM pg_database WHERE datname = '%s'", $name);
         $result = $this->fetchRow($sql);
@@ -1137,7 +1137,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function dropDatabase($name)
+    public function dropDatabase($name): void
     {
         $this->disconnect();
         $this->execute(sprintf('DROP DATABASE IF EXISTS %s', $name));
@@ -1152,7 +1152,7 @@ class PostgresAdapter extends PdoAdapter
      * @param string|null $columnType column type added
      * @return string
      */
-    protected function getDefaultValueDefinition($default, $columnType = null)
+    protected function getDefaultValueDefinition($default, ?string $columnType = null): string
     {
         if (is_string($default) && $default !== 'CURRENT_TIMESTAMP') {
             $default = $this->getConnection()->quote($default);
@@ -1171,11 +1171,17 @@ class PostgresAdapter extends PdoAdapter
      * @param \Phinx\Db\Table\Column $column Column
      * @return string
      */
-    protected function getColumnSqlDefinition(Column $column)
+    protected function getColumnSqlDefinition(Column $column): string
     {
         $buffer = [];
         if ($column->isIdentity() && !$column->getGenerated()) {
-            $buffer[] = $column->getType() === 'biginteger' ? 'BIGSERIAL' : 'SERIAL';
+            if ($column->getType() === 'smallinteger') {
+                $buffer[] = 'SMALLSERIAL';
+            } elseif ($column->getType() === 'biginteger') {
+                $buffer[] = 'BIGSERIAL';
+            } else {
+                $buffer[] = 'SERIAL';
+            }
         } elseif ($column->getType() instanceof Literal) {
             $buffer[] = (string)$column->getType();
         } else {
@@ -1240,7 +1246,7 @@ class PostgresAdapter extends PdoAdapter
      * @param string $tableName Table name
      * @return string
      */
-    protected function getColumnCommentSqlDefinition(Column $column, $tableName)
+    protected function getColumnCommentSqlDefinition(Column $column, string $tableName): string
     {
         // passing 'null' is to remove column comment
         $comment = strcasecmp($column->getComment(), 'NULL') !== 0
@@ -1262,7 +1268,7 @@ class PostgresAdapter extends PdoAdapter
      * @param string $tableName Table name
      * @return string
      */
-    protected function getIndexSqlDefinition(Index $index, $tableName)
+    protected function getIndexSqlDefinition(Index $index, string $tableName): string
     {
         $parts = $this->getSchemaName($tableName);
         $columnNames = $index->getColumns();
@@ -1302,7 +1308,7 @@ class PostgresAdapter extends PdoAdapter
      * @param string $tableName Table name
      * @return string
      */
-    protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, $tableName)
+    protected function getForeignKeySqlDefinition(ForeignKey $foreignKey, string $tableName): string
     {
         $parts = $this->getSchemaName($tableName);
 
@@ -1324,7 +1330,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function createSchemaTable()
+    public function createSchemaTable(): void
     {
         // Create the public/custom schema if it doesn't already exist
         if ($this->hasSchema($this->getGlobalSchemaName()) === false) {
@@ -1339,7 +1345,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function getVersions()
+    public function getVersions(): array
     {
         $this->setSearchPath();
 
@@ -1349,7 +1355,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function getVersionLog()
+    public function getVersionLog(): array
     {
         $this->setSearchPath();
 
@@ -1362,7 +1368,7 @@ class PostgresAdapter extends PdoAdapter
      * @param string $schemaName Schema Name
      * @return void
      */
-    public function createSchema($schemaName = 'public')
+    public function createSchema(string $schemaName = 'public'): void
     {
         // from postgres 9.3 we can use "CREATE SCHEMA IF NOT EXISTS schema_name"
         $sql = sprintf('CREATE SCHEMA IF NOT EXISTS %s', $this->quoteSchemaName($schemaName));
@@ -1375,7 +1381,7 @@ class PostgresAdapter extends PdoAdapter
      * @param string $schemaName Schema Name
      * @return bool
      */
-    public function hasSchema($schemaName)
+    public function hasSchema(string $schemaName): bool
     {
         $sql = sprintf(
             'SELECT count(*)
@@ -1394,7 +1400,7 @@ class PostgresAdapter extends PdoAdapter
      * @param string $schemaName Schema name
      * @return void
      */
-    public function dropSchema($schemaName)
+    public function dropSchema(string $schemaName): void
     {
         $sql = sprintf('DROP SCHEMA IF EXISTS %s CASCADE', $this->quoteSchemaName($schemaName));
         $this->execute($sql);
@@ -1411,7 +1417,7 @@ class PostgresAdapter extends PdoAdapter
      *
      * @return void
      */
-    public function dropAllSchemas()
+    public function dropAllSchemas(): void
     {
         foreach ($this->getAllSchemas() as $schema) {
             $this->dropSchema($schema);
@@ -1423,7 +1429,7 @@ class PostgresAdapter extends PdoAdapter
      *
      * @return array
      */
-    public function getAllSchemas()
+    public function getAllSchemas(): array
     {
         $sql = "SELECT schema_name
                 FROM information_schema.schemata
@@ -1440,7 +1446,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function getColumnTypes()
+    public function getColumnTypes(): array
     {
         return array_merge(parent::getColumnTypes(), static::$specificColumnTypes);
     }
@@ -1448,7 +1454,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function isValidColumnType(Column $column)
+    public function isValidColumnType(Column $column): bool
     {
         // If not a standard column type, maybe it is array type?
         return parent::isValidColumnType($column) || $this->isArrayType($column->getType());
@@ -1457,10 +1463,10 @@ class PostgresAdapter extends PdoAdapter
     /**
      * Check if the given column is an array of a valid type.
      *
-     * @param string $columnType Column type
+     * @param string|\Phinx\Util\Literal $columnType Column type
      * @return bool
      */
-    protected function isArrayType($columnType)
+    protected function isArrayType($columnType): bool
     {
         if (!preg_match('/^([a-z]+)(?:\[\]){1,}$/', $columnType, $matches)) {
             return false;
@@ -1475,7 +1481,7 @@ class PostgresAdapter extends PdoAdapter
      * @param string $tableName Table name
      * @return array
      */
-    protected function getSchemaName($tableName)
+    protected function getSchemaName(string $tableName): array
     {
         $schema = $this->getGlobalSchemaName();
         $table = $tableName;
@@ -1494,7 +1500,7 @@ class PostgresAdapter extends PdoAdapter
      *
      * @return string
      */
-    protected function getGlobalSchemaName()
+    protected function getGlobalSchemaName(): string
     {
         $options = $this->getOptions();
 
@@ -1512,7 +1518,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function getDecoratedConnection()
+    public function getDecoratedConnection(): Connection
     {
         $options = $this->getOptions();
         $options = [
@@ -1534,7 +1540,7 @@ class PostgresAdapter extends PdoAdapter
      *
      * @return void
      */
-    public function setSearchPath()
+    public function setSearchPath(): void
     {
         $this->execute(
             sprintf(
