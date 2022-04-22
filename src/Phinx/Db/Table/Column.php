@@ -8,7 +8,6 @@
 namespace Phinx\Db\Table;
 
 use Phinx\Db\Adapter\AdapterInterface;
-use Phinx\Db\Adapter\PostgresAdapter;
 use RuntimeException;
 
 /**
@@ -90,7 +89,7 @@ class Column
      * Postgres-only column option for identity (always|default)
      * @var string
      */
-    protected $generated = PostgresAdapter::GENERATED_ALWAYS;
+    protected $generated = null;
 
     /**
      * @var int|null
@@ -739,7 +738,7 @@ class Column
             'srid',
             'seed',
             'increment',
-            'generated'
+            'generated',
         ];
     }
 

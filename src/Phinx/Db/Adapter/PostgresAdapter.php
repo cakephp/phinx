@@ -397,7 +397,7 @@ class PostgresAdapter extends PdoAdapter
         $sql = sprintf(
             'SELECT column_name, data_type, udt_name, is_identity, is_nullable,
              column_default, character_maximum_length, numeric_precision, numeric_scale,
-             datetime_precision
+             datetime_precision, identity_generation
              FROM information_schema.columns
              WHERE table_schema = %s AND table_name = %s
              ORDER BY ordinal_position',
@@ -405,7 +405,6 @@ class PostgresAdapter extends PdoAdapter
             $this->getConnection()->quote($parts['table'])
         );
         $columnsInfo = $this->fetchAll($sql);
-
         foreach ($columnsInfo as $columnInfo) {
             $isUserDefined = strtoupper(trim($columnInfo['data_type'])) === 'USER-DEFINED';
 
@@ -423,19 +422,21 @@ class PostgresAdapter extends PdoAdapter
                 } else {
                     $columnDefault = Literal::from($columnInfo['column_default']);
                 }
-            } elseif (preg_match('/^\D[a-z_\d]*\(.*\)$/', $columnInfo['column_default'])) {
+            } elseif ($columnInfo['column_default'] !== null && preg_match('/^\D[a-z_\d]*\(.*\)$/', $columnInfo['column_default'])) {
                 $columnDefault = Literal::from($columnInfo['column_default']);
             } else {
                 $columnDefault = $columnInfo['column_default'];
             }
 
             $column = new Column();
+
             $column->setName($columnInfo['column_name'])
                    ->setType($columnType)
                    ->setNull($columnInfo['is_nullable'] === 'YES')
                    ->setDefault($columnDefault)
                    ->setIdentity($columnInfo['is_identity'] === 'YES')
-                   ->setScale($columnInfo['numeric_scale']);
+                   ->setScale($columnInfo['numeric_scale'])
+                   ->setGenerated($columnInfo['identity_generation'] ?? false);
 
             if (preg_match('/\bwith time zone$/', $columnInfo['data_type'])) {
                 $column->setTimezone(true);
@@ -493,6 +494,9 @@ class PostgresAdapter extends PdoAdapter
             $this->quoteColumnName($column->getName()),
             $this->getColumnSqlDefinition($column)
         ));
+        if ($column->isIdentity() && $column->getGenerated() !== false) {
+            $instructions->addAlter(sprintf('GENERATED %s AS IDENTITY', $column->getGenerated() ?? PostgresAdapter::GENERATED_ALWAYS));
+        }
 
         if ($column->getComment()) {
             $instructions->addPostStep($this->getColumnCommentSqlDefinition($column, $table->getName()));
@@ -598,8 +602,15 @@ class PostgresAdapter extends PdoAdapter
             $quotedColumnName
         );
 
-        if ($newColumn->isIdentity()) {
-            $sql .= sprintf(' SET GENERATED %s AS IDENTITY');
+        if ($newColumn->isIdentity() && $newColumn->getGenerated() !== false) {
+            $column = $this->getColumn($tableName, $columnName);
+            if ($column->isIdentity()) {
+                $sql .= sprintf(' SET GENERATED %s', $newColumn->getGenerated());
+            } else {
+                $sql .= sprintf(' ADD GENERATED %s AS IDENTITY', $newColumn->getGenerated() ?? self::GENERATED_ALWAYS);
+            }
+
+
         } else {
             $sql .= ' DROP IDENTITY IF EXISTS';
         }
@@ -612,7 +623,7 @@ class PostgresAdapter extends PdoAdapter
                 $quotedColumnName,
                 $this->getDefaultValueDefinition($newColumn->getDefault(), $newColumn->getType())
             ));
-        } else {
+        } elseif (!$newColumn->getIdentity()) {
             //drop default
             $instructions->addAlter(sprintf(
                 'ALTER COLUMN %s DROP DEFAULT',
@@ -636,6 +647,19 @@ class PostgresAdapter extends PdoAdapter
         }
 
         return $instructions;
+    }
+
+    /**
+     * @param string $tableName
+     * @param string $columnName
+     * @return mixed
+     */
+    protected function getColumn(string $tableName, string $columnName): Column
+    {
+        $columns = $this->getColumns($tableName);
+        return collection($columns)->filter(function (Column $column) use ($columnName) {
+            return $column->getName() === $columnName;
+        })->first();
     }
 
     /**
@@ -1174,7 +1198,7 @@ class PostgresAdapter extends PdoAdapter
     protected function getColumnSqlDefinition(Column $column): string
     {
         $buffer = [];
-        if ($column->isIdentity() && !$column->getGenerated()) {
+        if ($column->isIdentity() && $column->getGenerated() === false) {
             if ($column->getType() === 'smallinteger') {
                 $buffer[] = 'SMALLSERIAL';
             } elseif ($column->getType() === 'biginteger') {
@@ -1231,9 +1255,6 @@ class PostgresAdapter extends PdoAdapter
 
         if ($column->getDefault() !== null) {
             $buffer[] = $this->getDefaultValueDefinition($column->getDefault(), $column->getType());
-        }
-        if ($column->isIdentity() && $column->getGenerated()) {
-            $buffer[] = sprintf('GENERATED %s AS IDENTITY', $column->getGenerated());
         }
 
         return implode(' ', $buffer);
