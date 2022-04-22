@@ -537,6 +537,64 @@ class PostgresAdapterTest extends TestCase
         }
     }
 
+    public function testAddColumnWithAutoIdentity()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'id') {
+                $this->assertTrue($column->getIdentity());
+                $this->assertEquals(PostgresAdapter::GENERATED_ALWAYS, $column->getGenerated());
+            }
+        }
+    }
+
+    public function testAddColumnWithIdentityAlways()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        $table->save();
+        $table->addColumn('id', 'integer', ['identity' => true])
+            ->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'id') {
+                $this->assertTrue($column->getIdentity());
+                $this->assertEquals(PostgresAdapter::GENERATED_ALWAYS, $column->getGenerated());
+            }
+        }
+    }
+
+    public function testAddColumnWithIdentityDefault()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        $table->save();
+        $table->addColumn('id', 'integer', ['identity' => true, 'generated' => PostgresAdapter::GENERATED_BY_DEFAULT])
+            ->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'id') {
+                $this->assertTrue($column->getIdentity());
+                $this->assertEquals(PostgresAdapter::GENERATED_BY_DEFAULT, $column->getGenerated());
+            }
+        }
+    }
+
+    public function testAddColumnWithoutIdentity()
+    {
+        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        $table->save();
+        $table->addColumn('id', 'integer', ['identity' => true, 'generated' => null])
+            ->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'id') {
+                $this->assertFalse($column->getIdentity());
+                $this->assertNull($column->getGenerated());
+            }
+        }
+    }
+
     public function testAddColumnWithDefaultBoolean()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -830,6 +888,68 @@ class PostgresAdapterTest extends TestCase
         $table->changeColumn('column1', $newColumn2)->save();
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
+    }
+
+    public function testChangeColumnAddIdentityAlways()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('column1', 'integer');
+        $table->save();
+
+        $table->changeColumn('column1', 'integer', ['identity' => true, 'generated' => PostgresAdapter::GENERATED_ALWAYS]);
+        $table->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'column1') {
+                $this->assertTrue($column->getIdentity());
+                $this->assertEquals(PostgresAdapter::GENERATED_ALWAYS, $column->getGenerated());
+            }
+        }
+    }
+
+    public function testChangeColumnAddIdentityDefault()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('column1', 'integer');
+        $table->save();
+        $table->changeColumn('column1', 'integer', ['identity' => true, 'generated' => PostgresAdapter::GENERATED_BY_DEFAULT]);
+        $table->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'column1') {
+                $this->assertTrue($column->getIdentity());
+                $this->assertEquals(PostgresAdapter::GENERATED_BY_DEFAULT, $column->getGenerated());
+            }
+        }
+    }
+
+    public function testChangeColumnDropIdentity()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->changeColumn('id', 'integer', ['identity' => false]);
+        $table->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'id') {
+                $this->assertFalse($column->getIdentity());
+            }
+        }
+    }
+
+    public function testChangeColumnChangeIdentity()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->changeColumn('id', 'integer', ['identity' => true, 'generated' => PostgresAdapter::GENERATED_BY_DEFAULT]);
+        $table->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'id') {
+                $this->assertTrue($column->getIdentity());
+                $this->assertEquals(PostgresAdapter::GENERATED_BY_DEFAULT, $column->getGenerated());
+            }
+        }
     }
 
     public function integersProvider()
@@ -2049,7 +2169,7 @@ class PostgresAdapterTest extends TestCase
             ->addColumn('column3', 'string', ['default' => 'test', 'null' => false])
             ->save();
 
-        $expectedOutput = 'CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
+        $expectedOutput = 'CREATE TABLE "public"."table1" ("id" INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY, "column1" CHARACTER VARYING (255) ' .
         'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
         '"table1_pkey" PRIMARY KEY ("id"));';
         $actualOutput = $consoleOutput->fetch();
@@ -2075,7 +2195,7 @@ class PostgresAdapterTest extends TestCase
             ->addColumn('column3', 'string', ['default' => 'test', 'null' => false])
             ->save();
 
-        $expectedOutput = 'CREATE TABLE "schema1"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
+        $expectedOutput = 'CREATE TABLE "schema1"."table1" ("id" INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY, "column1" CHARACTER VARYING (255) ' .
         'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
         '"table1_pkey" PRIMARY KEY ("id"));';
         $actualOutput = $consoleOutput->fetch();
@@ -2339,7 +2459,7 @@ OUTPUT;
     public function testSerialAliases(string $columnType): void
     {
         $table = new \Phinx\Db\Table('test', ['id' => false], $this->adapter);
-        $table->addColumn('id', $columnType, ['identity' => true])->create();
+        $table->addColumn('id', $columnType, ['identity' => true, 'generated' => null])->create();
 
         $columns = $table->getColumns();
         $this->assertCount(1, $columns);

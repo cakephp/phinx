@@ -22,7 +22,6 @@ use RuntimeException;
 
 class PostgresAdapter extends PdoAdapter
 {
-
     public const GENERATED_ALWAYS = 'ALWAYS';
     public const GENERATED_BY_DEFAULT = 'BY DEFAULT';
 
@@ -63,7 +62,6 @@ class PostgresAdapter extends PdoAdapter
             }
 
             $options = $this->getOptions();
-
             $dsn = 'pgsql:dbname=' . $options['name'];
 
             if (isset($options['host'])) {
@@ -228,7 +226,11 @@ class PostgresAdapter extends PdoAdapter
 
         $this->columnsWithComments = [];
         foreach ($columns as $column) {
-            $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
+            $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column);
+            if ($column->getIdentity() && $column->getGenerated() !== null) {
+                $sql .= sprintf(' GENERATED %s AS IDENTITY', $column->getGenerated());
+            }
+            $sql .= ', ';
 
             // set column comments, if needed
             if ($column->getComment()) {
@@ -436,7 +438,7 @@ class PostgresAdapter extends PdoAdapter
                    ->setDefault($columnDefault)
                    ->setIdentity($columnInfo['is_identity'] === 'YES')
                    ->setScale($columnInfo['numeric_scale'])
-                   ->setGenerated($columnInfo['identity_generation'] ?? false);
+                   ->setGenerated($columnInfo['identity_generation']);
 
             if (preg_match('/\bwith time zone$/', $columnInfo['data_type'])) {
                 $column->setTimezone(true);
@@ -490,13 +492,12 @@ class PostgresAdapter extends PdoAdapter
     {
         $instructions = new AlterInstructions();
         $instructions->addAlter(sprintf(
-            'ADD %s %s',
+            'ADD %s %s %s',
             $this->quoteColumnName($column->getName()),
-            $this->getColumnSqlDefinition($column)
+            $this->getColumnSqlDefinition($column),
+            $column->isIdentity() && $column->getGenerated() !== null ?
+                sprintf('GENERATED %s AS IDENTITY', $column->getGenerated()) : ''
         ));
-        if ($column->isIdentity() && $column->getGenerated() !== false) {
-            $instructions->addAlter(sprintf('GENERATED %s AS IDENTITY', $column->getGenerated() ?? PostgresAdapter::GENERATED_ALWAYS));
-        }
 
         if ($column->getComment()) {
             $instructions->addPostStep($this->getColumnCommentSqlDefinition($column, $table->getName()));
@@ -582,37 +583,35 @@ class PostgresAdapter extends PdoAdapter
         }
         $instructions->addAlter($sql);
 
-        // process null
-        $sql = sprintf(
-            'ALTER COLUMN %s',
-            $quotedColumnName
-        );
-
-        if ($newColumn->isNull()) {
-            $sql .= ' DROP NOT NULL';
-        } else {
-            $sql .= ' SET NOT NULL';
-        }
-
-        $instructions->addAlter($sql);
-
+        $column = $this->getColumn($tableName, $columnName);
         // process identity
         $sql = sprintf(
             'ALTER COLUMN %s',
             $quotedColumnName
         );
 
-        if ($newColumn->isIdentity() && $newColumn->getGenerated() !== false) {
-            $column = $this->getColumn($tableName, $columnName);
+        if ($newColumn->isIdentity() && $newColumn->getGenerated() !== null) {
             if ($column->isIdentity()) {
                 $sql .= sprintf(' SET GENERATED %s', $newColumn->getGenerated());
             } else {
-                $sql .= sprintf(' ADD GENERATED %s AS IDENTITY', $newColumn->getGenerated() ?? self::GENERATED_ALWAYS);
+                $sql .= sprintf(' ADD GENERATED %s AS IDENTITY', $newColumn->getGenerated());
             }
-
-
         } else {
             $sql .= ' DROP IDENTITY IF EXISTS';
+        }
+
+        $instructions->addAlter($sql);
+
+        // process null
+        $sql = sprintf(
+            'ALTER COLUMN %s',
+            $quotedColumnName
+        );
+
+        if (!$newColumn->getIdentity() && !$column->getIdentity() && $newColumn->isNull()) {
+            $sql .= ' DROP NOT NULL';
+        } else {
+            $sql .= ' SET NOT NULL';
         }
 
         $instructions->addAlter($sql);
@@ -650,16 +649,20 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * @param string $tableName
-     * @param string $columnName
-     * @return mixed
+     * @param string $tableName Table name
+     * @param string $columnName Column name
+     * @return ?\Phinx\Db\Table\Column
      */
-    protected function getColumn(string $tableName, string $columnName): Column
+    protected function getColumn(string $tableName, string $columnName): ?Column
     {
         $columns = $this->getColumns($tableName);
-        return collection($columns)->filter(function (Column $column) use ($columnName) {
-            return $column->getName() === $columnName;
-        })->first();
+        foreach ($columns as $column) {
+            if ($column->getName() === $columnName) {
+                return $column;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -1198,7 +1201,8 @@ class PostgresAdapter extends PdoAdapter
     protected function getColumnSqlDefinition(Column $column): string
     {
         $buffer = [];
-        if ($column->isIdentity() && $column->getGenerated() === false) {
+
+        if ($column->isIdentity() && $column->getGenerated() === null) {
             if ($column->getType() === 'smallinteger') {
                 $buffer[] = 'SMALLSERIAL';
             } elseif ($column->getType() === 'biginteger') {

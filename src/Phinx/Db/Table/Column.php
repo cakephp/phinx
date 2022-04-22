@@ -8,6 +8,7 @@
 namespace Phinx\Db\Table;
 
 use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Adapter\PostgresAdapter;
 use RuntimeException;
 
 /**
@@ -87,9 +88,10 @@ class Column
 
     /**
      * Postgres-only column option for identity (always|default)
-     * @var string
+     *
+     * @var ?string
      */
-    protected $generated = null;
+    protected $generated = PostgresAdapter::GENERATED_ALWAYS;
 
     /**
      * @var int|null
@@ -287,7 +289,7 @@ class Column
      * @param string|null $generated Generated option
      * @return $this
      */
-    public function setGenerated(?string $generated): Column
+    public function setGenerated(?string $generated)
     {
         $this->generated = $generated;
 
