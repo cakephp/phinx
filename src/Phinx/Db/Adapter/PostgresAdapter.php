@@ -46,6 +46,21 @@ class PostgresAdapter extends PdoAdapter
     protected $columnsWithComments = [];
 
     /**
+     * Use identity columns if available (Postgres >= 10.0)
+     *
+     * @var bool
+     */
+    protected $useIdentity;
+
+    /**
+     * @return bool
+     */
+    public function isUseIdentity(): bool
+    {
+        return $this->useIdentity;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @throws \RuntimeException
@@ -93,6 +108,8 @@ class PostgresAdapter extends PdoAdapter
                     $exception
                 );
             }
+
+            $this->useIdentity = (float)$db->getAttribute(PDO::ATTR_SERVER_VERSION) >= 10;
 
             $this->setConnection($db);
         }
@@ -227,7 +244,7 @@ class PostgresAdapter extends PdoAdapter
         $this->columnsWithComments = [];
         foreach ($columns as $column) {
             $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column);
-            if ($column->getIdentity() && $column->getGenerated() !== null) {
+            if ($this->useIdentity && $column->getIdentity() && $column->getGenerated() !== null) {
                 $sql .= sprintf(' GENERATED %s AS IDENTITY', $column->getGenerated());
             }
             $sql .= ', ';
@@ -437,8 +454,11 @@ class PostgresAdapter extends PdoAdapter
                    ->setNull($columnInfo['is_nullable'] === 'YES')
                    ->setDefault($columnDefault)
                    ->setIdentity($columnInfo['is_identity'] === 'YES')
-                   ->setScale($columnInfo['numeric_scale'])
-                   ->setGenerated($columnInfo['identity_generation']);
+                   ->setScale($columnInfo['numeric_scale']);
+
+            if ($this->useIdentity) {
+                $column->setGenerated($columnInfo['identity_generation']);
+            }
 
             if (preg_match('/\bwith time zone$/', $columnInfo['data_type'])) {
                 $column->setTimezone(true);
@@ -495,7 +515,7 @@ class PostgresAdapter extends PdoAdapter
             'ADD %s %s %s',
             $this->quoteColumnName($column->getName()),
             $this->getColumnSqlDefinition($column),
-            $column->isIdentity() && $column->getGenerated() !== null ?
+            $column->isIdentity() && $column->getGenerated() !== null && $this->useIdentity ?
                 sprintf('GENERATED %s AS IDENTITY', $column->getGenerated()) : ''
         ));
 
@@ -584,23 +604,24 @@ class PostgresAdapter extends PdoAdapter
         $instructions->addAlter($sql);
 
         $column = $this->getColumn($tableName, $columnName);
-        // process identity
-        $sql = sprintf(
-            'ALTER COLUMN %s',
-            $quotedColumnName
-        );
 
-        if ($newColumn->isIdentity() && $newColumn->getGenerated() !== null) {
-            if ($column->isIdentity()) {
-                $sql .= sprintf(' SET GENERATED %s', $newColumn->getGenerated());
+        if ($this->useIdentity) {
+            // process identity
+            $sql = sprintf(
+                'ALTER COLUMN %s',
+                $quotedColumnName
+            );
+            if ($newColumn->isIdentity() && $newColumn->getGenerated() !== null) {
+                if ($column->isIdentity()) {
+                    $sql .= sprintf(' SET GENERATED %s', $newColumn->getGenerated());
+                } else {
+                    $sql .= sprintf(' ADD GENERATED %s AS IDENTITY', $newColumn->getGenerated());
+                }
             } else {
-                $sql .= sprintf(' ADD GENERATED %s AS IDENTITY', $newColumn->getGenerated());
+                $sql .= ' DROP IDENTITY IF EXISTS';
             }
-        } else {
-            $sql .= ' DROP IDENTITY IF EXISTS';
+            $instructions->addAlter($sql);
         }
-
-        $instructions->addAlter($sql);
 
         // process null
         $sql = sprintf(
@@ -1202,7 +1223,11 @@ class PostgresAdapter extends PdoAdapter
     {
         $buffer = [];
 
-        if ($column->isIdentity() && $column->getGenerated() === null) {
+//        var_dump($column->getName());
+//        var_dump($column->isIdentity());
+//        var_dump($this->useIdentity);
+//        var_dump($column->getGenerated());
+        if ($column->isIdentity() && (!$this->useIdentity || $column->getGenerated() === null)) {
             if ($column->getType() === 'smallinteger') {
                 $buffer[] = 'SMALLSERIAL';
             } elseif ($column->getType() === 'biginteger') {

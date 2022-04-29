@@ -539,6 +539,9 @@ class PostgresAdapterTest extends TestCase
 
     public function testAddColumnWithAutoIdentity()
     {
+        if (!$this->adapter->isUseIdentity()) {
+            $this->markTestSkipped('Test Skipped because of PostgreSQL version is < 10.0');
+        }
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
         $columns = $this->adapter->getColumns('table1');
@@ -552,6 +555,9 @@ class PostgresAdapterTest extends TestCase
 
     public function testAddColumnWithIdentityAlways()
     {
+        if (!$this->adapter->isUseIdentity()) {
+            $this->markTestSkipped('Test Skipped because of PostgreSQL version is < 10.0');
+        }
         $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
         $table->save();
         $table->addColumn('id', 'integer', ['identity' => true])
@@ -567,6 +573,9 @@ class PostgresAdapterTest extends TestCase
 
     public function testAddColumnWithIdentityDefault()
     {
+        if (!$this->adapter->isUseIdentity()) {
+            $this->markTestSkipped('Test Skipped because of PostgreSQL version is < 10.0');
+        }
         $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
         $table->save();
         $table->addColumn('id', 'integer', ['identity' => true, 'generated' => PostgresAdapter::GENERATED_BY_DEFAULT])
@@ -582,6 +591,9 @@ class PostgresAdapterTest extends TestCase
 
     public function testAddColumnWithoutIdentity()
     {
+        if (!$this->adapter->isUseIdentity()) {
+            $this->markTestSkipped('Test Skipped because of PostgreSQL version is < 10.0');
+        }
         $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
         $table->save();
         $table->addColumn('id', 'integer', ['identity' => true, 'generated' => null])
@@ -892,6 +904,9 @@ class PostgresAdapterTest extends TestCase
 
     public function testChangeColumnAddIdentityAlways()
     {
+        if (!$this->adapter->isUseIdentity()) {
+            $this->markTestSkipped('Test Skipped because of PostgreSQL version is < 10.0');
+        }
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'integer');
         $table->save();
@@ -909,6 +924,9 @@ class PostgresAdapterTest extends TestCase
 
     public function testChangeColumnAddIdentityDefault()
     {
+        if (!$this->adapter->isUseIdentity()) {
+            $this->markTestSkipped('Test Skipped because of PostgreSQL version is < 10.0');
+        }
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'integer');
         $table->save();
@@ -925,6 +943,9 @@ class PostgresAdapterTest extends TestCase
 
     public function testChangeColumnDropIdentity()
     {
+        if (!$this->adapter->isUseIdentity()) {
+            $this->markTestSkipped('Test Skipped because of PostgreSQL version is < 10.0');
+        }
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
         $table->changeColumn('id', 'integer', ['identity' => false]);
@@ -939,6 +960,9 @@ class PostgresAdapterTest extends TestCase
 
     public function testChangeColumnChangeIdentity()
     {
+        if (!$this->adapter->isUseIdentity()) {
+            $this->markTestSkipped('Test Skipped because of PostgreSQL version is < 10.0');
+        }
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->save();
         $table->changeColumn('id', 'integer', ['identity' => true, 'generated' => PostgresAdapter::GENERATED_BY_DEFAULT]);
@@ -2169,9 +2193,15 @@ class PostgresAdapterTest extends TestCase
             ->addColumn('column3', 'string', ['default' => 'test', 'null' => false])
             ->save();
 
-        $expectedOutput = 'CREATE TABLE "public"."table1" ("id" INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY, "column1" CHARACTER VARYING (255) ' .
-        'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
-        '"table1_pkey" PRIMARY KEY ("id"));';
+        if ($this->adapter->isUseIdentity()) {
+            $expectedOutput = 'CREATE TABLE "public"."table1" ("id" INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY, "column1" CHARACTER VARYING (255) ' .
+                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+                '"table1_pkey" PRIMARY KEY ("id"));';
+        } else {
+            $expectedOutput = 'CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
+                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+                '"table1_pkey" PRIMARY KEY ("id"));';
+        }
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString(
             $expectedOutput,
@@ -2195,9 +2225,15 @@ class PostgresAdapterTest extends TestCase
             ->addColumn('column3', 'string', ['default' => 'test', 'null' => false])
             ->save();
 
-        $expectedOutput = 'CREATE TABLE "schema1"."table1" ("id" INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY, "column1" CHARACTER VARYING (255) ' .
-        'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
-        '"table1_pkey" PRIMARY KEY ("id"));';
+        if ($this->adapter->isUseIdentity()) {
+            $expectedOutput = 'CREATE TABLE "schema1"."table1" ("id" INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY, "column1" CHARACTER VARYING (255) ' .
+                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+                '"table1_pkey" PRIMARY KEY ("id"));';
+        } else {
+            $expectedOutput = 'CREATE TABLE "schema1"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
+                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+                '"table1_pkey" PRIMARY KEY ("id"));';
+        }
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString(
             $expectedOutput,
