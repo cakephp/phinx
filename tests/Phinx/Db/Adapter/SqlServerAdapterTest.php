@@ -1138,11 +1138,4 @@ INPUT;
         $this->expectExceptionMessage('Invalid PDO attribute: ' . $attribute . ' (\PDO::' . strtoupper($attribute) . ')');
         $adapter->connect();
     }
-
-    public function testPdoSqlSrvNotSupportingPersistentConnections()
-    {
-        $adapter = new SqlServerAdapter(SQLSRV_DB_CONFIG + ['attr_persistent' => true]);
-        $this->expectException(\InvalidArgumentException::class);
-        $adapter->connect();
-    }
 }
