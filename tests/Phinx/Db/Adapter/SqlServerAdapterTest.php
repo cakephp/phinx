@@ -1150,5 +1150,4 @@ INPUT;
         $adapter = new SqlServerAdapter(SQLSRV_DB_CONFIG);
         $this->assertEquals(false, $adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
     }
-
 }
