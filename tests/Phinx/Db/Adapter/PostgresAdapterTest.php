@@ -2310,4 +2310,16 @@ OUTPUT;
         $this->expectExceptionMessage('Invalid PDO attribute: attr_invalid (\PDO::ATTR_INVALID)');
         $adapter->connect();
     }
+
+    public function testPdoPersistentConnection()
+    {
+        $adapter = new PostgresAdapter(PGSQL_DB_CONFIG + ['attr_persistent' => true]);
+        $this->assertEquals(true, $adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+    }
+
+    public function testPdoNotPersistentConnection()
+    {
+        $adapter = new PostgresAdapter(PGSQL_DB_CONFIG);
+        $this->assertEquals(false, $adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+    }
 }
