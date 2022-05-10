@@ -80,12 +80,6 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             'attr_errmode' => PDO::ERRMODE_EXCEPTION,
         ];
 
-        // pass \PDO::ATTR_PERSISTENT to driver options instead of useless setting it after instantiation
-        if (isset($adapterOptions['attr_persistent'])) {
-            $options[PDO::ATTR_PERSISTENT] = $adapterOptions['attr_persistent'];
-            unset($adapterOptions['attr_persistent']);
-        }
-
         try {
             $db = new PDO($dsn, $username, $password, $options);
 

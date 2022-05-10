@@ -1139,16 +1139,10 @@ INPUT;
         $adapter->connect();
     }
 
-    public function testPdoPersistentConnection()
+    public function testPdoSqlSrvNotSupportingPersistentConnections()
     {
         $adapter = new SqlServerAdapter(SQLSRV_DB_CONFIG + ['attr_persistent' => true]);
-        $this->assertEquals(true, $adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+        $this->expectException(\InvalidArgumentException::class);
+        $adapter->connect();
     }
-
-    public function testPdoNotPersistentConnection()
-    {
-        $adapter = new SqlServerAdapter(SQLSRV_DB_CONFIG);
-        $this->assertEquals(false, $adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
-    }
-
 }
