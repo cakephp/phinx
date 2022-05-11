@@ -2310,12 +2310,12 @@ INPUT;
     public function testPdoPersistentConnection()
     {
         $adapter = new SQLiteAdapter(SQLITE_DB_CONFIG + ['attr_persistent' => true]);
-        $this->assertTrue($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT);
+        $this->assertTrue($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
     }
 
     public function testPdoNotPersistentConnection()
     {
         $adapter = new SQLiteAdapter(SQLITE_DB_CONFIG);
-        $this->assertFalse($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT);
+        $this->assertFalse($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
     }
 }
