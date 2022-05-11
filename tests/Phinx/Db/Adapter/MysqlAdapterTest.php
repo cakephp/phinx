@@ -2218,12 +2218,12 @@ INPUT;
     public function testPdoPersistentConnection()
     {
         $adapter = new MysqlAdapter(MYSQL_DB_CONFIG + ['attr_persistent' => true]);
-        $this->assertEquals(true, $adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+        $this->assertTrue($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT);
     }
 
     public function testPdoNotPersistentConnection()
     {
         $adapter = new MysqlAdapter(MYSQL_DB_CONFIG);
-        $this->assertEquals(false, $adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+        $this->assertFalse($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT);
     }
 }
