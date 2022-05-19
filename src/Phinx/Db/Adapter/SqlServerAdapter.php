@@ -75,7 +75,7 @@ class SqlServerAdapter extends PdoAdapter
             if (!empty($options['port'])) {
                 $dsn .= ',' . $options['port'];
             }
-            $dsn .= ';database=' . $options['name'] . ';MultipleActiveResultSets=false';
+            $dsn .= ';database=' . $options['name'] . ';MultipleActiveResultSets=false;TrustServerCertificate=true';
 
             $driverOptions = [];
 
