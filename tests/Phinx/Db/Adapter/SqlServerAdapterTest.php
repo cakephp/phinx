@@ -50,6 +50,14 @@ class SqlServerAdapterTest extends TestCase
         $this->assertSame(\PDO::ERRMODE_EXCEPTION, $this->adapter->getConnection()->getAttribute(\PDO::ATTR_ERRMODE));
     }
 
+    public function testConnectionWithTrustServerCertificate()
+    {
+        $options = $this->adapter->getOptions();
+        $options['trust_server_certificate'] = 'true';
+        $this->adapter->setOptions($options);
+        $this->assertInstanceOf('PDO', $this->adapter->getConnection());
+    }
+
     public function testConnectionWithFetchMode()
     {
         $options = $this->adapter->getOptions();

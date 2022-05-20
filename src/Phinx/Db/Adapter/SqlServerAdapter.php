@@ -75,7 +75,12 @@ class SqlServerAdapter extends PdoAdapter
             if (!empty($options['port'])) {
                 $dsn .= ',' . $options['port'];
             }
-            $dsn .= ';database=' . $options['name'] . ';MultipleActiveResultSets=false;TrustServerCertificate=true';
+            $dsn .= ';database=' . $options['name'] . ';MultipleActiveResultSets=false';
+
+            // option to turn on TrustServerCertificate
+            if (isset($options['trust_server_certificate'])) {
+                $dsn .= ';TrustServerCertificate=' . $options['trust_server_certificate'];
+            }
 
             $driverOptions = [];
 
