@@ -77,9 +77,12 @@ class SqlServerAdapter extends PdoAdapter
             }
             $dsn .= ';database=' . $options['name'] . ';MultipleActiveResultSets=false';
 
-            // option to turn on TrustServerCertificate
-            if (isset($options['trust_server_certificate'])) {
-                $dsn .= ';TrustServerCertificate=' . $options['trust_server_certificate'];
+            // option to add additional connection options
+            // https://docs.microsoft.com/en-us/sql/connect/php/connection-options?view=sql-server-ver15
+            if (isset($options['dsn_options'])) {
+                foreach ($options['dsn_options'] as $key => $option) {
+                    $dsn .= ';' . $key . '=' . $option;
+                }
             }
 
             $driverOptions = [];
