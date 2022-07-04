@@ -7,8 +7,6 @@ on:
       - '0.next'
       - '1.x'
   pull_request:
-    branches:
-      - '*'
 
 jobs:
   testsuite:
