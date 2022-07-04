@@ -184,6 +184,11 @@ class SQLiteAdapter extends PdoAdapter
                 $driverOptions[PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
             }
 
+            // pass \PDO::ATTR_PERSISTENT to driver options instead of useless setting it after instantiation
+            if (isset($options['attr_persistent'])) {
+                $driverOptions[PDO::ATTR_PERSISTENT] = $options['attr_persistent'];
+            }
+
             $db = $this->createPdoConnection($dsn, null, null, $driverOptions);
 
             $this->setConnection($db);

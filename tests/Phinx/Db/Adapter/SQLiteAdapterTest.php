@@ -2306,4 +2306,16 @@ INPUT;
         $table = new \Phinx\Db\Table('non_existing_table', [], $this->adapter);
         $table->addColumn('column', 'string')->update();
     }
+
+    public function testPdoPersistentConnection()
+    {
+        $adapter = new SQLiteAdapter(SQLITE_DB_CONFIG + ['attr_persistent' => true]);
+        $this->assertTrue($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+    }
+
+    public function testPdoNotPersistentConnection()
+    {
+        $adapter = new SQLiteAdapter(SQLITE_DB_CONFIG);
+        $this->assertFalse($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+    }
 }

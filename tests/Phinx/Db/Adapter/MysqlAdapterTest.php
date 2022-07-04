@@ -2214,4 +2214,16 @@ INPUT;
         $this->assertSame($expectedResponse['name'], $result['name'], "Type mismatch - got '{$result['name']}' when expecting '{$expectedResponse['name']}'");
         $this->assertSame($expectedResponse['limit'], $result['limit'], "Field upper boundary mismatch - got '{$result['limit']}' when expecting '{$expectedResponse['limit']}'");
     }
+
+    public function testPdoPersistentConnection()
+    {
+        $adapter = new MysqlAdapter(MYSQL_DB_CONFIG + ['attr_persistent' => true]);
+        $this->assertTrue($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+    }
+
+    public function testPdoNotPersistentConnection()
+    {
+        $adapter = new MysqlAdapter(MYSQL_DB_CONFIG);
+        $this->assertFalse($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+    }
 }

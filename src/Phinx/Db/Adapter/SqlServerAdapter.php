@@ -97,6 +97,9 @@ class SqlServerAdapter extends PdoAdapter
                 $driverOptions[PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
             }
 
+            // Note, the PDO::ATTR_PERSISTENT attribute is not supported for sqlsrv and will throw an error when used
+            // See https://github.com/Microsoft/msphpsql/issues/65
+
             // support arbitrary \PDO::SQLSRV_ATTR_* driver options and pass them to PDO
             // http://php.net/manual/en/ref.pdo-sqlsrv.php#pdo-sqlsrv.constants
             foreach ($options as $key => $option) {
