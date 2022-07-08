@@ -1,6 +1,12 @@
 name: CI
 
-on: ['push', 'pull_request']
+on:
+  push:
+    branches:
+      - '0.x'
+      - '0.next'
+      - '1.x'
+  pull_request:
 
 jobs:
   testsuite:
@@ -8,13 +14,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['7.2', '8.0', '8.1']
+        php-version: ['7.2', '7.4', '8.0', '8.1']
         db-type: [sqlite, mysql, pgsql]
         prefer-lowest: ['']
         include:
+          - php-version: '8.2'
+            db-type: mysql
           - php-version: '7.2'
-            db-type: 'mysql'
-            prefer-lowest: 'prefer-lowest'
+            db-type: mysql
+            prefer-lowest: prefer-lowest
 
     steps:
     - name: Setup MySQL latest
@@ -33,7 +41,7 @@ jobs:
       if: matrix.db-type == 'pgsql' && matrix.php-version == '7.2'
       run: docker run --rm --name=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=cakephp -p 5432:5432 -d postgres:9.4
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -50,14 +58,14 @@ jobs:
       run: echo "::set-output name=date::$(date +'%Y-%m')"
 
     - name: Cache composer dependencies
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ steps.key-date.outputs.date }}-${{ hashFiles('composer.json') }}-${{ matrix.prefer-lowest }}
 
     - name: Composer install
       run: |
-        if [[ ${{ matrix.php-version }} == '8.1' ]]; then
+        if [[ ${{ matrix.php-version }} == '8.2' ]]; then
           composer install --ignore-platform-req=php
         elif ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then
           composer update --prefer-lowest --prefer-stable
@@ -89,26 +97,30 @@ jobs:
         if [[ ${{ matrix.db-type }} == 'mysql' ]]; then export MYSQL_DSN='mysql://root:root@127.0.0.1/phinx'; fi
         if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then export PGSQL_DSN='pgsql://postgres:postgres@127.0.0.1/phinx'; fi
 
-        if [[ ${{ matrix.php-version }} == '8.0' ]]; then
+        if [[ ${{ matrix.php-version }} == '8.1' ]]; then
           export CODECOVERAGE=1 && vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
         else
           vendor/bin/phpunit
         fi
 
+    - name: Prefer lowest check
+      if: matrix.prefer-lowest == 'prefer-lowest'
+      run: composer require --dev dereuromark/composer-prefer-lowest && vendor/bin/validate-prefer-lowest -m
+
     - name: Submit code coverage
-      if: matrix.php-version == '8.0'
-      uses: codecov/codecov-action@v1
+      if: matrix.php-version == '8.1'
+      uses: codecov/codecov-action@v3
 
   testsuite-windows:
     runs-on: windows-2019
-    name: Windows - PHP 7.4 & SQL Server
+    name: Windows - PHP 8.1 & SQL Server
 
     env:
       EXTENSIONS: pdo_sqlsrv
-      PHP_VERSION: '7.4'
+      PHP_VERSION: '8.1'
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Get date part for cache key
       id: key-date
@@ -123,7 +135,7 @@ jobs:
         key: ${{ steps.key-date.outputs.date }}
 
     - name: Cache PHP extensions
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: ${{ steps.php-ext-cache.outputs.dir }}
         key: ${{ runner.os }}-php-ext-${{ steps.php-ext-cache.outputs.key }}
@@ -149,7 +161,7 @@ jobs:
       run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
     - name: Cache composer dependencies
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ steps.key-date.outputs.date }}-${{ hashFiles('composer.json') }}-${{ matrix.prefer-lowest }}
@@ -165,19 +177,19 @@ jobs:
           vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
 
     - name: Submit code coverage
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
 
   cs-stan:
     name: Coding Standard & Static Analysis
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.2'
+        php-version: '7.4'
         coverage: none
 
     - name: Get composer cache directory
@@ -189,7 +201,7 @@ jobs:
       run: echo "::set-output name=date::$(date +'%Y-%m')"
 
     - name: Cache composer dependencies
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ steps.key-date.outputs.date }}-${{ hashFiles('composer.json') }}
@@ -201,4 +213,5 @@ jobs:
       run: vendor/bin/phpcs --report=checkstyle -np app/ src/ tests/
 
     - name: Run phpstan
+      if: always()
       run: vendor/bin/phpstan.phar analyse --error-format=github

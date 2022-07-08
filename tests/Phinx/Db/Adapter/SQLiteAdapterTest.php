@@ -488,6 +488,33 @@ class SQLiteAdapterTest extends TestCase
         $this->assertEquals("''", $rows[1]['dflt_value']);
     }
 
+    public function irregularCreateTableProvider()
+    {
+        return [
+            ["CREATE TABLE \"users\"\n( `id` INTEGER NOT NULL )", ['id', 'foo']],
+            ['CREATE TABLE users   (    id INTEGER NOT NULL )', ['id', 'foo']],
+            ["CREATE TABLE [users]\n(\nid INTEGER NOT NULL)", ['id', 'foo']],
+            ["CREATE TABLE \"users\" ([id] \n INTEGER NOT NULL\n, \"bar\" INTEGER)", ['id', 'bar', 'foo']],
+        ];
+    }
+
+    /**
+     * @dataProvider irregularCreateTableProvider
+     */
+    public function testAddColumnToIrregularCreateTableStatements(string $createTableSql, array $expectedColumns): void
+    {
+        $this->adapter->execute($createTableSql);
+        $table = new \Phinx\Db\Table('users', [], $this->adapter);
+        $table->addColumn('foo', 'string');
+        $table->update();
+
+        $columns = $this->adapter->getColumns('users');
+        $columnCount = count($columns);
+        for ($i = 0; $i < $columnCount; $i++) {
+            $this->assertEquals($expectedColumns[$i], $columns[$i]->getName());
+        }
+    }
+
     public function testAddDoubleColumn()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -2309,5 +2336,17 @@ INPUT;
         $this->expectException(\PDOException::class);
         $table = new \Phinx\Db\Table('non_existing_table', [], $this->adapter);
         $table->addColumn('column', 'string')->update();
+    }
+
+    public function testPdoPersistentConnection()
+    {
+        $adapter = new SQLiteAdapter(SQLITE_DB_CONFIG + ['attr_persistent' => true]);
+        $this->assertTrue($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+    }
+
+    public function testPdoNotPersistentConnection()
+    {
+        $adapter = new SQLiteAdapter(SQLITE_DB_CONFIG);
+        $this->assertFalse($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
     }
 }

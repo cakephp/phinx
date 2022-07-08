@@ -155,11 +155,26 @@ class SQLiteAdapter extends PdoAdapter
 
             $options = $this->getOptions();
 
-            // use a memory database if the option was specified
-            if (!empty($options['memory']) || $options['name'] === static::MEMORY) {
-                $dsn = 'sqlite:' . static::MEMORY;
+            if (PHP_VERSION_ID < 80100 && (!empty($options['mode']) || !empty($options['cache']))) {
+                throw new RuntimeException('SQLite URI support requires PHP 8.1.');
+            } elseif ((!empty($options['mode']) || !empty($options['cache'])) && !empty($options['memory'])) {
+                throw new RuntimeException('Memory must not be set when cache or mode are.');
+            } elseif (PHP_VERSION_ID >= 80100 && (!empty($options['mode']) || !empty($options['cache']))) {
+                $params = [];
+                if (!empty($options['cache'])) {
+                    $params[] = 'cache=' . $options['cache'];
+                }
+                if (!empty($options['mode'])) {
+                    $params[] = 'mode=' . $options['mode'];
+                }
+                $dsn = 'sqlite:file:' . ($options['name'] ?? '') . '?' . implode('&', $params);
             } else {
-                $dsn = 'sqlite:' . $options['name'] . $this->suffix;
+                // use a memory database if the option was specified
+                if (!empty($options['memory']) || $options['name'] === static::MEMORY) {
+                    $dsn = 'sqlite:' . static::MEMORY;
+                } else {
+                    $dsn = 'sqlite:' . $options['name'] . $this->suffix;
+                }
             }
 
             $driverOptions = [];
@@ -167,6 +182,11 @@ class SQLiteAdapter extends PdoAdapter
             // use custom data fetch mode
             if (!empty($options['fetch_mode'])) {
                 $driverOptions[PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
+            }
+
+            // pass \PDO::ATTR_PERSISTENT to driver options instead of useless setting it after instantiation
+            if (isset($options['attr_persistent'])) {
+                $driverOptions[PDO::ATTR_PERSISTENT] = $options['attr_persistent'];
             }
 
             $db = $this->createPdoConnection($dsn, null, null, $driverOptions);
@@ -733,6 +753,21 @@ PCRE_PATTERN;
                 $sql = $table['sql'];
             }
         }
+
+        $columnsInfo = $this->getTableInfo($tableName);
+
+        foreach ($columnsInfo as $column) {
+            $columnName = $column['name'];
+            $columnNamePattern = "\"$columnName\"|`$columnName`|\\[$columnName\\]|$columnName";
+            $columnNamePattern = "#([\(,]+\\s*)($columnNamePattern)(\\s)#iU";
+
+            $sql = preg_replace($columnNamePattern, "$1`$columnName`$3", $sql);
+        }
+
+        $tableNamePattern = "\"$tableName\"|`$tableName`|\\[$tableName\\]|$tableName";
+        $tableNamePattern = "#^(CREATE TABLE)\s*($tableNamePattern)\s*(\()#Ui";
+
+        $sql = preg_replace($tableNamePattern, "$1 `$tableName` $3", $sql, 1);
 
         return $sql;
     }

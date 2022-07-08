@@ -65,6 +65,11 @@ abstract class AbstractCommand extends Command
     protected $manager;
 
     /**
+     * @var int
+     */
+    protected $verbosityLevel = OutputInterface::OUTPUT_NORMAL | OutputInterface::VERBOSITY_NORMAL;
+
+    /**
      * Exit code for when command executes successfully
      *
      * @var int
@@ -102,6 +107,7 @@ abstract class AbstractCommand extends Command
     {
         $this->addOption('--configuration', '-c', InputOption::VALUE_REQUIRED, 'The configuration file to load');
         $this->addOption('--parser', '-p', InputOption::VALUE_REQUIRED, 'Parser used to read the config file. Defaults to YAML');
+        $this->addOption('--no-info', null, InputOption::VALUE_NONE, 'Hides all debug information');
     }
 
     /**
@@ -113,6 +119,10 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(InputInterface $input, OutputInterface $output): void
     {
+        if ($input->hasParameterOption('--no-info')) {
+            $this->verbosityLevel = OutputInterface::VERBOSITY_VERBOSE;
+        }
+
         if (!$this->hasConfig()) {
             $this->loadConfig($input, $output);
         }
@@ -121,26 +131,26 @@ abstract class AbstractCommand extends Command
 
         $bootstrap = $this->getConfig()->getBootstrapFile();
         if ($bootstrap) {
-            $output->writeln('<info>using bootstrap</info> ' . Util::relativePath($bootstrap) . ' ');
+            $output->writeln('<info>using bootstrap</info> ' . Util::relativePath($bootstrap) . ' ', $this->verbosityLevel);
             Util::loadPhpFile($bootstrap, $input, $output, $this);
         }
 
         // report the paths
         $paths = $this->getConfig()->getMigrationPaths();
 
-        $output->writeln('<info>using migration paths</info> ');
+        $output->writeln('<info>using migration paths</info> ', $this->verbosityLevel);
 
         foreach (Util::globAll($paths) as $path) {
-            $output->writeln('<info> - ' . realpath($path) . '</info>');
+            $output->writeln('<info> - ' . realpath($path) . '</info>', $this->verbosityLevel);
         }
 
         try {
             $paths = $this->getConfig()->getSeedPaths();
 
-            $output->writeln('<info>using seed paths</info> ');
+            $output->writeln('<info>using seed paths</info> ', $this->verbosityLevel);
 
             foreach (Util::globAll($paths) as $path) {
-                $output->writeln('<info> - ' . realpath($path) . '</info>');
+                $output->writeln('<info> - ' . realpath($path) . '</info>', $this->verbosityLevel);
             }
         } catch (UnexpectedValueException $e) {
             // do nothing as seeds are optional
@@ -279,7 +289,7 @@ abstract class AbstractCommand extends Command
     protected function loadConfig(InputInterface $input, OutputInterface $output): void
     {
         $configFilePath = $this->locateConfigFile($input);
-        $output->writeln('<info>using config file</info> ' . Util::relativePath($configFilePath));
+        $output->writeln('<info>using config file</info> ' . Util::relativePath($configFilePath), $this->verbosityLevel);
 
         /** @var string|null $parser */
         $parser = $input->getOption('parser');
@@ -318,7 +328,7 @@ abstract class AbstractCommand extends Command
                 throw new InvalidArgumentException(sprintf('\'%s\' is not a valid parser.', $parser));
         }
 
-        $output->writeln('<info>using config parser</info> ' . $parser);
+        $output->writeln('<info>using config parser</info> ' . $parser, $this->verbosityLevel);
 
         $this->setConfig($config);
     }
@@ -334,6 +344,7 @@ abstract class AbstractCommand extends Command
     {
         if ($this->getManager() === null) {
             $manager = new Manager($this->getConfig(), $input, $output);
+            $manager->setVerbosityLevel($this->verbosityLevel);
             $container = $this->getConfig()->getContainer();
             if ($container !== null) {
                 $manager->setContainer($container);

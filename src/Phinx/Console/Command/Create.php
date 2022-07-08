@@ -307,17 +307,17 @@ class Create extends AbstractCommand
             $creationClass->postMigrationCreation($filePath, $className, $this->getConfig()->getMigrationBaseClassName());
         }
 
-        $output->writeln('<info>using migration base class</info> ' . $classes['$useClassName']);
+        $output->writeln('<info>using migration base class</info> ' . $classes['$useClassName'], $this->verbosityLevel);
 
         if (!empty($altTemplate)) {
-            $output->writeln('<info>using alternative template</info> ' . $altTemplate);
+            $output->writeln('<info>using alternative template</info> ' . $altTemplate, $this->verbosityLevel);
         } elseif (!empty($creationClassName)) {
-            $output->writeln('<info>using template creation class</info> ' . $creationClassName);
+            $output->writeln('<info>using template creation class</info> ' . $creationClassName, $this->verbosityLevel);
         } else {
-            $output->writeln('<info>using default template</info>');
+            $output->writeln('<info>using default template</info>', $this->verbosityLevel);
         }
 
-        $output->writeln('<info>created</info> ' . Util::relativePath($filePath));
+        $output->writeln('<info>created</info> ' . Util::relativePath($filePath), $this->verbosityLevel);
 
         return self::CODE_SUCCESS;
     }

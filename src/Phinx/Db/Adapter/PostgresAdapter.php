@@ -35,6 +35,8 @@ class PostgresAdapter extends PdoAdapter
         self::PHINX_TYPE_BINARYUUID,
     ];
 
+    private const GIN_INDEX_TYPE = 'gin';
+
     /**
      * Columns with comments
      *
@@ -76,6 +78,11 @@ class PostgresAdapter extends PdoAdapter
             // use custom data fetch mode
             if (!empty($options['fetch_mode'])) {
                 $driverOptions[PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
+            }
+
+            // pass \PDO::ATTR_PERSISTENT to driver options instead of useless setting it after instantiation
+            if (isset($options['attr_persistent'])) {
+                $driverOptions[PDO::ATTR_PERSISTENT] = $options['attr_persistent'];
             }
 
             $db = $this->createPdoConnection($dsn, $options['user'] ?? null, $options['pass'] ?? null, $driverOptions);
@@ -1270,8 +1277,15 @@ class PostgresAdapter extends PdoAdapter
 
         $includedColumns = $index->getInclude() ? sprintf('INCLUDE ("%s")', implode('","', $index->getInclude())) : '';
 
+        $createIndexSentence = 'CREATE %s INDEX %s ON %s ';
+        if ($index->getType() === self::GIN_INDEX_TYPE) {
+            $createIndexSentence .= ' USING ' . $index->getType() . '(%s) %s;';
+        } else {
+            $createIndexSentence .= '(%s) %s;';
+        }
+
         return sprintf(
-            'CREATE %s INDEX %s ON %s (%s) %s;',
+            $createIndexSentence,
             ($index->getType() === Index::UNIQUE ? 'UNIQUE' : ''),
             $this->quoteColumnName($indexName),
             $this->quoteTableName($tableName),

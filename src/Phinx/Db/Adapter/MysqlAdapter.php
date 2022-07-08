@@ -80,6 +80,12 @@ class MysqlAdapter extends PdoAdapter
     public const INT_REGULAR = 1073741823;
     public const INT_BIG = 2147483647;
 
+    public const INT_DISPLAY_TINY = 4;
+    public const INT_DISPLAY_SMALL = 6;
+    public const INT_DISPLAY_MEDIUM = 8;
+    public const INT_DISPLAY_REGULAR = 11;
+    public const INT_DISPLAY_BIG = 20;
+
     public const BIT = 64;
 
     public const TYPE_YEAR = 'year';
@@ -129,6 +135,11 @@ class MysqlAdapter extends PdoAdapter
             // use custom data fetch mode
             if (!empty($options['fetch_mode'])) {
                 $driverOptions[PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
+            }
+
+            // pass \PDO::ATTR_PERSISTENT to driver options instead of useless setting it after instantiation
+            if (isset($options['attr_persistent'])) {
+                $driverOptions[PDO::ATTR_PERSISTENT] = $options['attr_persistent'];
             }
 
             // support arbitrary \PDO::MYSQL_ATTR_* driver options and pass them to PDO
@@ -1026,12 +1037,28 @@ class MysqlAdapter extends PdoAdapter
             case static::PHINX_TYPE_BIT:
                 return ['name' => 'bit', 'limit' => $limit ?: 64];
             case static::PHINX_TYPE_BIG_INTEGER:
+                if ($limit === static::INT_BIG) {
+                    $limit = static::INT_DISPLAY_BIG;
+                }
+
                 return ['name' => 'bigint', 'limit' => $limit ?: 20];
             case static::PHINX_TYPE_MEDIUM_INTEGER:
+                if ($limit === static::INT_MEDIUM) {
+                    $limit = static::INT_DISPLAY_MEDIUM;
+                }
+
                 return ['name' => 'mediumint', 'limit' => $limit ?: 8];
             case static::PHINX_TYPE_SMALL_INTEGER:
+                if ($limit === static::INT_SMALL) {
+                    $limit = static::INT_DISPLAY_SMALL;
+                }
+
                 return ['name' => 'smallint', 'limit' => $limit ?: 6];
             case static::PHINX_TYPE_TINY_INTEGER:
+                if ($limit === static::INT_TINY) {
+                    $limit = static::INT_DISPLAY_TINY;
+                }
+
                 return ['name' => 'tinyint', 'limit' => $limit ?: 4];
             case static::PHINX_TYPE_INTEGER:
                 if ($limit && $limit >= static::INT_TINY) {
@@ -1044,11 +1071,11 @@ class MysqlAdapter extends PdoAdapter
                         'tinyint' => static::INT_TINY,
                     ];
                     $limits = [
-                        'tinyint' => 4,
-                        'smallint' => 6,
-                        'mediumint' => 8,
-                        'int' => 11,
-                        'bigint' => 20,
+                        'tinyint' => static::INT_DISPLAY_TINY,
+                        'smallint' => static::INT_DISPLAY_SMALL,
+                        'mediumint' => static::INT_DISPLAY_MEDIUM,
+                        'int' => static::INT_DISPLAY_REGULAR,
+                        'bigint' => static::INT_DISPLAY_BIG,
                     ];
                     foreach ($sizes as $name => $length) {
                         if ($limit >= $length) {
@@ -1061,7 +1088,7 @@ class MysqlAdapter extends PdoAdapter
                         }
                     }
                 } elseif (!$limit) {
-                    $limit = 11;
+                    $limit = static::INT_DISPLAY_REGULAR;
                 }
 
                 return ['name' => 'int', 'limit' => $limit];
@@ -1126,26 +1153,17 @@ class MysqlAdapter extends PdoAdapter
                 break;
             case 'tinyint':
                 $type = static::PHINX_TYPE_TINY_INTEGER;
-                $limit = static::INT_TINY;
                 break;
             case 'smallint':
                 $type = static::PHINX_TYPE_SMALL_INTEGER;
-                $limit = static::INT_SMALL;
                 break;
             case 'mediumint':
                 $type = static::PHINX_TYPE_MEDIUM_INTEGER;
-                $limit = static::INT_MEDIUM;
                 break;
             case 'int':
                 $type = static::PHINX_TYPE_INTEGER;
-                if ($limit === 11) {
-                    $limit = null;
-                }
                 break;
             case 'bigint':
-                if ($limit === 20) {
-                    $limit = null;
-                }
                 $type = static::PHINX_TYPE_BIG_INTEGER;
                 break;
             case 'bit':

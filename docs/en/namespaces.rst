@@ -1,3 +1,5 @@
+:orphan:
+
 .. index::
    single: Supporting namespaces
 
