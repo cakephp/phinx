@@ -152,7 +152,7 @@ class SqlServerAdapter extends PdoAdapter
             throw new InvalidArgumentException(sprintf(
                 'There was a problem connecting to the database: %s',
                 $exception->getMessage()
-            ));
+            ), 0, $exception);
         }
 
         $this->setConnection($db);

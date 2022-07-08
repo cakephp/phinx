@@ -94,7 +94,7 @@ class PostgresAdapter extends PdoAdapter
             } catch (PDOException $exception) {
                 throw new InvalidArgumentException(
                     sprintf('Schema does not exists: %s', $options['schema']),
-                    $exception->getCode(),
+                    0,
                     $exception
                 );
             }
