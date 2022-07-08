@@ -1170,7 +1170,8 @@ To rename a column, access an instance of the Table object then call the
 Adding a Column After Another Column
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When adding a column you can dictate its position using the ``after`` option.
+When adding a column with the MySQL adapter, you can dictate its position using the ``after`` option,
+where its value is the name of the column to position it after.
 
 .. code-block:: php
 
@@ -1190,6 +1191,10 @@ When adding a column you can dictate its position using the ``after`` option.
                       ->update();
             }
         }
+
+This would create the new column ``city`` and position it after the ``email`` column. You
+can use the `\Phinx\Db\Adapter\MysqlAdapter\FIRST` constant to specify that the new column should
+created as the first column in that table.
 
 Dropping a Column
 ~~~~~~~~~~~~~~~~~

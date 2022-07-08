@@ -734,6 +734,21 @@ PCRE_PATTERN;
             }
         }
 
+        $columnsInfo = $this->getTableInfo($tableName);
+
+        foreach ($columnsInfo as $column) {
+            $columnName = $column['name'];
+            $columnNamePattern = "\"$columnName\"|`$columnName`|\\[$columnName\\]|$columnName";
+            $columnNamePattern = "#([\(,]+\\s*)($columnNamePattern)(\\s)#iU";
+
+            $sql = preg_replace($columnNamePattern, "$1`$columnName`$3", $sql);
+        }
+
+        $tableNamePattern = "\"$tableName\"|`$tableName`|\\[$tableName\\]|$tableName";
+        $tableNamePattern = "#^(CREATE TABLE)\s*($tableNamePattern)\s*(\()#Ui";
+
+        $sql = preg_replace($tableNamePattern, "$1 `$tableName` $3", $sql, 1);
+
         return $sql;
     }
 
