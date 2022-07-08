@@ -1,0 +1,28 @@
+---
+name: 'deploy_docs_0x'
+
+on:
+  push:
+    tags:
+      - v0.*
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to run on
+        default: master
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cloning repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Push to dokku
+        uses: dokku/github-action@master
+        with:
+          git_remote_url: 'ssh://dokku@apps.cakephp.org:22/phinx-docs'
+          ssh_private_key: ${{ secrets.DOKKU_SSH_PRIVATE_KEY }}

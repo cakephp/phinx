@@ -82,7 +82,7 @@ EOT
                 ));
             }
 
-            $output->writeln(sprintf('<info>validating environment</info> %s', $envName));
+            $output->writeln(sprintf('<info>validating environment</info> %s', $envName), $this->verbosityLevel);
             $environment = new Environment(
                 $envName,
                 $this->getConfig()->getEnvironment($envName)
@@ -91,7 +91,7 @@ EOT
             $environment->getAdapter()->connect();
         }
 
-        $output->writeln('<info>success!</info>');
+        $output->writeln('<info>success!</info>', $this->verbosityLevel);
 
         return self::CODE_SUCCESS;
     }

@@ -352,6 +352,16 @@ class PostgresAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasIndex('table1', ['email', 'user_email']));
     }
 
+    public function testCreateTableWithFullTextSearchIndexes()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('names', 'jsonb')
+            ->addIndex('names', ['type' => 'gin'])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasIndex('table1', ['names']));
+    }
+
     public function testCreateTableWithNamedIndexes()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -2354,5 +2364,17 @@ OUTPUT;
         $this->expectException(\UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid PDO attribute: attr_invalid (\PDO::ATTR_INVALID)');
         $adapter->connect();
+    }
+
+    public function testPdoPersistentConnection()
+    {
+        $adapter = new PostgresAdapter(PGSQL_DB_CONFIG + ['attr_persistent' => true]);
+        $this->assertTrue($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+    }
+
+    public function testPdoNotPersistentConnection()
+    {
+        $adapter = new PostgresAdapter(PGSQL_DB_CONFIG);
+        $this->assertFalse($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
     }
 }

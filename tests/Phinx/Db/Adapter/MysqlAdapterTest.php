@@ -884,6 +884,47 @@ class MysqlAdapterTest extends TestCase
         $this->assertNull($rows[1]['Default']);
     }
 
+    public function sqlTypeIntConversionProvider()
+    {
+        return [
+          // tinyint
+          [AdapterInterface::PHINX_TYPE_TINY_INTEGER, null, 'tinyint', 4],
+          [AdapterInterface::PHINX_TYPE_TINY_INTEGER, 2, 'tinyint', 2],
+          [AdapterInterface::PHINX_TYPE_TINY_INTEGER, MysqlAdapter::INT_TINY, 'tinyint', 4],
+          // smallint
+          [AdapterInterface::PHINX_TYPE_SMALL_INTEGER, null, 'smallint', 6],
+          [AdapterInterface::PHINX_TYPE_SMALL_INTEGER, 3, 'smallint', 3],
+          [AdapterInterface::PHINX_TYPE_SMALL_INTEGER, MysqlAdapter::INT_SMALL, 'smallint', 6],
+          // medium
+          [AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER, null, 'mediumint', 8],
+          [AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER, 2, 'mediumint', 2],
+          [AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER, MysqlAdapter::INT_MEDIUM, 'mediumint', 8],
+          // integer
+          [AdapterInterface::PHINX_TYPE_INTEGER, null, 'int', 11],
+          [AdapterInterface::PHINX_TYPE_INTEGER, 4, 'int', 4],
+          [AdapterInterface::PHINX_TYPE_INTEGER, MysqlAdapter::INT_TINY, 'tinyint', 4],
+          [AdapterInterface::PHINX_TYPE_INTEGER, MysqlAdapter::INT_SMALL, 'smallint', 6],
+          [AdapterInterface::PHINX_TYPE_INTEGER, MysqlAdapter::INT_MEDIUM, 'mediumint', 8],
+          [AdapterInterface::PHINX_TYPE_INTEGER, MysqlAdapter::INT_REGULAR, 'int', 11],
+          [AdapterInterface::PHINX_TYPE_INTEGER, MysqlAdapter::INT_BIG, 'bigint', 20],
+          // bigint
+          [AdapterInterface::PHINX_TYPE_BIG_INTEGER, null, 'bigint', 20],
+          [AdapterInterface::PHINX_TYPE_BIG_INTEGER, 4, 'bigint', 4],
+          [AdapterInterface::PHINX_TYPE_BIG_INTEGER, MysqlAdapter::INT_BIG, 'bigint', 20],
+        ];
+    }
+
+    /**
+     * @dataProvider sqlTypeIntConversionProvider
+     * The second argument is not typed as MysqlAdapter::INT_BIG is a float, and all other values are integers
+     */
+    public function testGetSqlTypeIntegerConversion(string $type, $limit, string $expectedType, int $expectedLimit)
+    {
+        $sqlType = $this->adapter->getSqlType($type, $limit);
+        $this->assertSame($expectedType, $sqlType['name']);
+        $this->assertSame($expectedLimit, $sqlType['limit']);
+    }
+
     public function testLongTextColumn()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
@@ -2164,5 +2205,56 @@ INPUT;
         $this->expectException(\UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid PDO attribute: ' . $attribute . ' (\PDO::' . strtoupper($attribute) . ')');
         $adapter->connect();
+    }
+
+    public function integerDataTypesSQLProvider()
+    {
+        return [
+            // Types without a width should always have a null limit
+            ['bigint', ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => null, 'scale' => null]],
+            ['int', ['name' => AdapterInterface::PHINX_TYPE_INTEGER, 'limit' => null, 'scale' => null]],
+            ['mediumint', ['name' => AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER, 'limit' => null, 'scale' => null]],
+            ['smallint', ['name' => AdapterInterface::PHINX_TYPE_SMALL_INTEGER, 'limit' => null, 'scale' => null]],
+            ['tinyint', ['name' => AdapterInterface::PHINX_TYPE_TINY_INTEGER, 'limit' => null, 'scale' => null]],
+
+            // Types which include a width should always have that as their limit
+            ['bigint(20)', ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => 20, 'scale' => null]],
+            ['bigint(10)', ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => 10, 'scale' => null]],
+            ['bigint(1) unsigned', ['name' => AdapterInterface::PHINX_TYPE_BIG_INTEGER, 'limit' => 1, 'scale' => null]],
+            ['int(11)', ['name' => AdapterInterface::PHINX_TYPE_INTEGER, 'limit' => 11, 'scale' => null]],
+            ['int(10) unsigned', ['name' => AdapterInterface::PHINX_TYPE_INTEGER, 'limit' => 10, 'scale' => null]],
+            ['mediumint(6)', ['name' => AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER, 'limit' => 6, 'scale' => null]],
+            ['mediumint(8) unsigned', ['name' => AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER, 'limit' => 8, 'scale' => null]],
+            ['smallint(2)', ['name' => AdapterInterface::PHINX_TYPE_SMALL_INTEGER, 'limit' => 2, 'scale' => null]],
+            ['smallint(5) unsigned', ['name' => AdapterInterface::PHINX_TYPE_SMALL_INTEGER, 'limit' => 5, 'scale' => null]],
+            ['tinyint(3) unsigned', ['name' => AdapterInterface::PHINX_TYPE_TINY_INTEGER, 'limit' => 3, 'scale' => null]],
+            ['tinyint(4)', ['name' => AdapterInterface::PHINX_TYPE_TINY_INTEGER, 'limit' => 4, 'scale' => null]],
+
+            // Special case for commonly used boolean type
+            ['tinyint(1)', ['name' => AdapterInterface::PHINX_TYPE_BOOLEAN, 'limit' => null, 'scale' => null]],
+        ];
+    }
+
+    /**
+     * @dataProvider integerDataTypesSQLProvider
+     */
+    public function testGetPhinxTypeFromSQLDefinition(string $sqlDefinition, array $expectedResponse)
+    {
+        $result = $this->adapter->getPhinxType($sqlDefinition);
+
+        $this->assertSame($expectedResponse['name'], $result['name'], "Type mismatch - got '{$result['name']}' when expecting '{$expectedResponse['name']}'");
+        $this->assertSame($expectedResponse['limit'], $result['limit'], "Field upper boundary mismatch - got '{$result['limit']}' when expecting '{$expectedResponse['limit']}'");
+    }
+
+    public function testPdoPersistentConnection()
+    {
+        $adapter = new MysqlAdapter(MYSQL_DB_CONFIG + ['attr_persistent' => true]);
+        $this->assertTrue($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+    }
+
+    public function testPdoNotPersistentConnection()
+    {
+        $adapter = new MysqlAdapter(MYSQL_DB_CONFIG);
+        $this->assertFalse($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
     }
 }

@@ -198,8 +198,8 @@ class SeedCreate extends AbstractCommand
             ));
         }
 
-        $output->writeln('<info>using seed base class</info> ' . $classes['$useClassName']);
-        $output->writeln('<info>created</info> ' . Util::relativePath($filePath));
+        $output->writeln('<info>using seed base class</info> ' . $classes['$useClassName'], $this->verbosityLevel);
+        $output->writeln('<info>created</info> ' . Util::relativePath($filePath), $this->verbosityLevel);
 
         return self::CODE_SUCCESS;
     }
