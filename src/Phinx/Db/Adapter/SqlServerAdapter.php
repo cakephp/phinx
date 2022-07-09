@@ -482,8 +482,9 @@ class SqlServerAdapter extends PdoAdapter
      */
     protected function parseDefault($default)
     {
-        // if a column is non-nullable and has no default, the default is null, otherwise
-        // it should be a string value that we parse below
+        // if a column is non-nullable and has no default, the value of column_default is null,
+        // otherwise it should be a string value that we parse below, including "(NULL)" which
+        // also stands for a null default
         if ($default === null) {
             return null;
         }
