@@ -477,16 +477,18 @@ class SqlServerAdapter extends PdoAdapter
     }
 
     /**
-     * @param string $default Default
+     * @param string|null $default Default
      * @return int|string|null
      */
     protected function parseDefault($default)
     {
+        // if a column is non-nullable and has no default, the default is null, otherwise
+        // it should be a string value that we parse below
         if ($default === null) {
-            $result = 'NULL';
-        } else {
-            $result = preg_replace(["/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"], '$1', $default);
+            return null;
         }
+
+        $result = preg_replace(["/\('(.*)'\)/", "/\(\((.*)\)\)/", "/\((.*)\)/"], '$1', $default);
 
         if (strtoupper($result) === 'NULL') {
             $result = null;
