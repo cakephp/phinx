@@ -426,6 +426,21 @@ WHERE t.name='ntable'");
         }
     }
 
+    public function testAddColumnWithNotNullableNoDefault()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table
+            ->addColumn('col', 'string', ['null' => false])
+            ->create();
+
+        $columns = $this->adapter->getColumns('table1');
+        $this->assertCount(2, $columns);
+        $this->assertArrayHasKey('id', $columns);
+        $this->assertArrayHasKey('col', $columns);
+        $this->assertFalse($columns['col']->isNull());
+        $this->assertNull($columns['col']->getDefault());
+    }
+
     public function testAddColumnWithDefaultBool()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
