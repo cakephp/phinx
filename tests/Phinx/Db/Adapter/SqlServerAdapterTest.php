@@ -422,7 +422,7 @@ WHERE t.name='ntable'");
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table
-            ->addColumn('col', 'string', array('null' => false))
+            ->addColumn('col', 'string', ['null' => false])
             ->create();
 
         $columns = $this->adapter->getColumns('table1');
