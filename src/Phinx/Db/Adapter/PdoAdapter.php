@@ -98,7 +98,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             throw new InvalidArgumentException(sprintf(
                 'There was a problem connecting to the database: %s',
                 $e->getMessage()
-            ), $e->getCode(), $e);
+            ), 0, $e);
         }
 
         return $db;
