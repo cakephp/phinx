@@ -25,6 +25,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class AbstractSeed implements SeedInterface
 {
     /**
+     * @var string
+     */
+    protected $environment;
+
+    /**
      * @var \Phinx\Db\Adapter\AdapterInterface
      */
     protected $adapter;
@@ -59,6 +64,24 @@ abstract class AbstractSeed implements SeedInterface
     public function getDependencies(): array
     {
         return [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setEnvironment(string $environment)
+    {
+        $this->environment = $environment;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getEnvironment(): string
+    {
+        return $this->environment;
     }
 
     /**
