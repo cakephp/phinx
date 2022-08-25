@@ -602,7 +602,7 @@ class Manager
      */
     public function seed(string $environment, ?string $seed = null): void
     {
-        $seeds = $this->getSeeds();
+        $seeds = $this->getSeeds($environment);
 
         if ($seed === null) {
             // run all seeders
@@ -918,10 +918,11 @@ class Manager
     /**
      * Gets an array of database seeders.
      *
+     * @param string $environment Environment
      * @throws \InvalidArgumentException
      * @return \Phinx\Seed\SeedInterface[]
      */
-    public function getSeeds(): array
+    public function getSeeds(string $environment): array
     {
         if ($this->seeds === null) {
             $phpFiles = $this->getSeedFiles();
@@ -958,6 +959,7 @@ class Manager
                     } else {
                         $seed = new $class();
                     }
+                    $seed->setEnvironment($environment);
                     $input = $this->getInput();
                     if ($input !== null) {
                         $seed->setInput($input);

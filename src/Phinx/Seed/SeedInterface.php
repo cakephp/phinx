@@ -43,6 +43,20 @@ interface SeedInterface
     public function getDependencies(): array;
 
     /**
+     * Sets the environment.
+     *
+     * @return $this
+     */
+    public function setEnvironment(string $environment);
+
+    /**
+     * Gets the environment.
+     *
+     * @return string
+     */
+    public function getEnvironment(): string;
+
+    /**
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter

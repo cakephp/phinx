@@ -5450,7 +5450,7 @@ class ManagerTest extends TestCase
 
     public function testOrderSeeds()
     {
-        $seeds = array_values($this->manager->getSeeds());
+        $seeds = array_values($this->manager->getSeeds('mockenv'));
         $this->assertInstanceOf('UserSeeder', $seeds[0]);
         $this->assertInstanceOf('GSeeder', $seeds[1]);
         $this->assertInstanceOf('PostSeeder', $seeds[2]);
@@ -5472,7 +5472,7 @@ class ManagerTest extends TestCase
     public function testGettingInputObject()
     {
         $migrations = $this->manager->getMigrations('mockenv');
-        $seeds = $this->manager->getSeeds();
+        $seeds = $this->manager->getSeeds('mockenv');
         $inputObject = $this->manager->getInput();
         $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $inputObject);
 
@@ -5487,7 +5487,7 @@ class ManagerTest extends TestCase
     public function testGettingOutputObject()
     {
         $migrations = $this->manager->getMigrations('mockenv');
-        $seeds = $this->manager->getSeeds();
+        $seeds = $this->manager->getSeeds('mockenv');
         $outputObject = $this->manager->getOutput();
         $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $outputObject);
 
