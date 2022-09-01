@@ -1590,7 +1590,7 @@ class PostgresAdapterTest extends TestCase
     public function testInvalidSqlType()
     {
         $this->expectException(UnsupportedColumnTypeException::class);
-        $this->expectExceptionMessage('Column type "idontexist" is not supported by Postgresql.');
+        $this->expectExceptionMessage('Column type `idontexist` is not supported by Postgresql.');
 
         $this->adapter->getSqlType('idontexist');
     }
