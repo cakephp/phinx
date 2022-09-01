@@ -53,14 +53,6 @@ class PostgresAdapter extends PdoAdapter
     protected $useIdentity;
 
     /**
-     * @return bool
-     */
-    public function isUseIdentity(): bool
-    {
-        return $this->useIdentity;
-    }
-
-    /**
      * {@inheritDoc}
      *
      * @throws \RuntimeException
@@ -92,7 +84,8 @@ class PostgresAdapter extends PdoAdapter
 
             // use custom data fetch mode
             if (!empty($options['fetch_mode'])) {
-                $driverOptions[PDO::ATTR_DEFAULT_FETCH_MODE] = constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
+                $driverOptions[PDO::ATTR_DEFAULT_FETCH_MODE] =
+                    constant('\PDO::FETCH_' . strtoupper($options['fetch_mode']));
             }
 
             $db = $this->createPdoConnection($dsn, $options['user'] ?? null, $options['pass'] ?? null, $driverOptions);
@@ -416,10 +409,12 @@ class PostgresAdapter extends PdoAdapter
         $sql = sprintf(
             'SELECT column_name, data_type, udt_name, is_identity, is_nullable,
              column_default, character_maximum_length, numeric_precision, numeric_scale,
-             datetime_precision, identity_generation
+             datetime_precision
+             %s
              FROM information_schema.columns
              WHERE table_schema = %s AND table_name = %s
              ORDER BY ordinal_position',
+            $this->useIdentity ? ', identity_generation' : '',
             $this->getConnection()->quote($parts['schema']),
             $this->getConnection()->quote($parts['table'])
         );
@@ -441,7 +436,10 @@ class PostgresAdapter extends PdoAdapter
                 } else {
                     $columnDefault = Literal::from($columnInfo['column_default']);
                 }
-            } elseif ($columnInfo['column_default'] !== null && preg_match('/^\D[a-z_\d]*\(.*\)$/', $columnInfo['column_default'])) {
+            } elseif (
+                $columnInfo['column_default'] !== null &&
+                preg_match('/^\D[a-z_\d]*\(.*\)$/', $columnInfo['column_default'])
+            ) {
                 $columnDefault = Literal::from($columnInfo['column_default']);
             } else {
                 $columnDefault = $columnInfo['column_default'];
@@ -531,8 +529,11 @@ class PostgresAdapter extends PdoAdapter
      *
      * @throws \InvalidArgumentException
      */
-    protected function getRenameColumnInstructions(string $tableName, string $columnName, string $newColumnName): AlterInstructions
-    {
+    protected function getRenameColumnInstructions(
+        string $tableName,
+        string $columnName,
+        string $newColumnName
+    ): AlterInstructions {
         $parts = $this->getSchemaName($tableName);
         $sql = sprintf(
             'SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS column_exists
@@ -564,8 +565,11 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    protected function getChangeColumnInstructions(string $tableName, string $columnName, Column $newColumn): AlterInstructions
-    {
+    protected function getChangeColumnInstructions(
+        string $tableName,
+        string $columnName,
+        Column $newColumn
+    ): AlterInstructions {
         $quotedColumnName = $this->quoteColumnName($columnName);
         $instructions = new AlterInstructions();
         if ($newColumn->getType() === 'boolean') {
@@ -1158,7 +1162,9 @@ class PostgresAdapter extends PdoAdapter
             case 'macaddr':
                 return static::PHINX_TYPE_MACADDR;
             default:
-                throw new UnsupportedColumnTypeException('Column type "' . $sqlType . '" is not supported by Postgresql.');
+                throw new UnsupportedColumnTypeException(
+                    'Column type "' . $sqlType . '" is not supported by Postgresql.'
+                );
         }
     }
 
@@ -1223,10 +1229,6 @@ class PostgresAdapter extends PdoAdapter
     {
         $buffer = [];
 
-//        var_dump($column->getName());
-//        var_dump($column->isIdentity());
-//        var_dump($this->useIdentity);
-//        var_dump($column->getGenerated());
         if ($column->isIdentity() && (!$this->useIdentity || $column->getGenerated() === null)) {
             if ($column->getType() === 'smallinteger') {
                 $buffer[] = 'SMALLSERIAL';
@@ -1362,7 +1364,9 @@ class PostgresAdapter extends PdoAdapter
     {
         $parts = $this->getSchemaName($tableName);
 
-        $constraintName = $foreignKey->getConstraint() ?: ($parts['table'] . '_' . implode('_', $foreignKey->getColumns()) . '_fkey');
+        $constraintName = $foreignKey->getConstraint() ?: (
+            $parts['table'] . '_' . implode('_', $foreignKey->getColumns()) . '_fkey'
+        );
         $def = ' CONSTRAINT ' . $this->quoteColumnName($constraintName) .
         ' FOREIGN KEY ("' . implode('", "', $foreignKey->getColumns()) . '")' .
         " REFERENCES {$this->quoteTableName($foreignKey->getReferencedTable()->getName())} (\"" .
