@@ -157,9 +157,10 @@ interface MigrationInterface
      * the dry-run settings.
      *
      * @see https://api.cakephp.org/3.6/class-Cake.Database.Query.html
+     * @param string $type Query
      * @return \Cake\Database\Query
      */
-    public function getQueryBuilder();
+    public function getQueryBuilder(string $type);
 
     /**
      * Executes a query and returns only one row as an array.

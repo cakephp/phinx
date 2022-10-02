@@ -1507,6 +1507,10 @@ class PostgresAdapter extends PdoAdapter
      */
     public function getDecoratedConnection()
     {
+        if (isset($this->decoratedConnection)) {
+            return $this->decoratedConnection;
+        }
+
         $options = $this->getOptions();
         $options = [
             'username' => $options['user'] ?? null,
@@ -1515,11 +1519,7 @@ class PostgresAdapter extends PdoAdapter
             'quoteIdentifiers' => true,
         ] + $options;
 
-        $driver = new PostgresDriver($options);
-
-        $driver->setConnection($this->connection);
-
-        return new Connection(['driver' => $driver] + $options);
+        return $this->decoratedConnection = $this->buildConnection(PostgresDriver::class, $options);
     }
 
     /**

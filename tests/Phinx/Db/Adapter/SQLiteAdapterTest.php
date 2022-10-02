@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use BadMethodCallException;
+use Cake\Database\Query;
 use InvalidArgumentException;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Table\Column;
@@ -1183,7 +1184,7 @@ OUTPUT;
             ->addColumn('int_col', 'integer')
             ->save();
 
-        $builder = $this->adapter->getQueryBuilder();
+        $builder = $this->adapter->getQueryBuilder(Query::TYPE_INSERT);
         $stm = $builder
             ->insert(['string_col', 'int_col'])
             ->into('table1')
@@ -1193,7 +1194,7 @@ OUTPUT;
 
         $this->assertEquals(2, $stm->rowCount());
 
-        $builder = $this->adapter->getQueryBuilder();
+        $builder = $this->adapter->getQueryBuilder(Query::TYPE_SELECT);
         $stm = $builder
             ->select('*')
             ->from('table1')
@@ -1206,7 +1207,7 @@ OUTPUT;
             $stm->fetch('assoc')
         );
 
-        $builder = $this->adapter->getQueryBuilder();
+        $builder = $this->adapter->getQueryBuilder(Query::TYPE_DELETE);
         $stm = $builder
             ->delete('table1')
             ->where(['int_col <' => 2])

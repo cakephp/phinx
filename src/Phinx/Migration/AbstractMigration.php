@@ -209,9 +209,9 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
-    public function getQueryBuilder()
+    public function getQueryBuilder(string $type)
     {
-        return $this->getAdapter()->getQueryBuilder();
+        return $this->getAdapter()->getQueryBuilder($type);
     }
 
     /**

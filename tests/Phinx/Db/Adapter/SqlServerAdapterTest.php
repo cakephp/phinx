@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use BadMethodCallException;
+use Cake\Database\Query;
 use Phinx\Db\Adapter\SqlServerAdapter;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
@@ -1097,7 +1098,7 @@ OUTPUT;
             ->addColumn('int_col', 'integer')
             ->save();
 
-        $builder = $this->adapter->getQueryBuilder();
+        $builder = $this->adapter->getQueryBuilder(Query::TYPE_INSERT);
         $stm = $builder
             ->insert(['string_col', 'int_col'])
             ->into('table1')
@@ -1107,7 +1108,7 @@ OUTPUT;
 
         $stm->closeCursor();
 
-        $builder = $this->adapter->getQueryBuilder();
+        $builder = $this->adapter->getQueryBuilder(Query::TYPE_SELECT);
         $stm = $builder
             ->select('*')
             ->from('table1')
@@ -1122,7 +1123,7 @@ OUTPUT;
 
         $stm->closeCursor();
 
-        $builder = $this->adapter->getQueryBuilder();
+        $builder = $this->adapter->getQueryBuilder(Query::TYPE_DELETE);
         $stm = $builder
             ->delete('table1')
             ->where(['int_col <' => 2])
