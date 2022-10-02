@@ -23,6 +23,9 @@ jobs:
           - php-version: '7.2'
             db-type: mysql
             prefer-lowest: prefer-lowest
+          - php-version: '8.0'
+            db-type: mysql
+            prefer-lowest: prefer-lowest
 
     steps:
     - name: Setup MySQL latest
