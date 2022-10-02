@@ -1201,7 +1201,7 @@ OUTPUT;
             ->where(['int_col >=' => 2])
             ->execute();
 
-        $this->assertEquals(1, $stm->rowCount());
+        $this->assertEquals(0, $stm->rowCount());
         $this->assertEquals(
             ['id' => 2, 'string_col' => 'value2', 'int_col' => '2'],
             $stm->fetch('assoc')
