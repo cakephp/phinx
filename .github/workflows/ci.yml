@@ -110,11 +110,11 @@ jobs:
       uses: codecov/codecov-action@v3
 
   testsuite-windows:
-    runs-on: windows-2019
+    runs-on: windows-2022
     name: Windows - PHP 8.1 & SQL Server
 
     env:
-      EXTENSIONS: pdo_sqlsrv
+      EXTENSIONS: mbstring, intl, pdo_sqlsrv
       PHP_VERSION: '8.1'
 
     steps:
