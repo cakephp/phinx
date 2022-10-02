@@ -8,6 +8,7 @@
 namespace Phinx\Db\Table;
 
 use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Adapter\PostgresAdapter;
 use RuntimeException;
 
 /**
@@ -84,6 +85,13 @@ class Column
      * @var bool
      */
     protected $identity = false;
+
+    /**
+     * Postgres-only column option for identity (always|default)
+     *
+     * @var ?string
+     */
+    protected $generated = PostgresAdapter::GENERATED_ALWAYS;
 
     /**
      * @var int|null
@@ -273,6 +281,29 @@ class Column
     public function getDefault()
     {
         return $this->default;
+    }
+
+    /**
+     * Sets generated option for identity columns. Ignored otherwise.
+     *
+     * @param string|null $generated Generated option
+     * @return $this
+     */
+    public function setGenerated(?string $generated)
+    {
+        $this->generated = $generated;
+
+        return $this;
+    }
+
+    /**
+     * Gets generated option for identity columns. Null otherwise
+     *
+     * @return string|null
+     */
+    public function getGenerated(): ?string
+    {
+        return $this->generated;
     }
 
     /**
@@ -709,6 +740,7 @@ class Column
             'srid',
             'seed',
             'increment',
+            'generated',
         ];
     }
 
