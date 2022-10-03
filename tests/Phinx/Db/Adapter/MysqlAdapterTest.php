@@ -42,9 +42,9 @@ class MysqlAdapterTest extends TestCase
         unset($this->adapter);
     }
 
-    private function usingMysql8(): bool
+    private function usingMysql8($adapter = null): bool
     {
-        return version_compare($this->adapter->getAttribute(\PDO::ATTR_SERVER_VERSION), '8.0.0', '>=');
+        return version_compare(($adapter ?? $this->adapter)->getAttribute(\PDO::ATTR_SERVER_VERSION), '8.0.0', '>=');
     }
 
     public function testConnection()
@@ -408,7 +408,8 @@ class MysqlAdapterTest extends TestCase
               ->save();
         $this->assertTrue($adapter->hasTable('table_with_default_collation'));
         $row = $adapter->fetchRow(sprintf("SHOW TABLE STATUS WHERE Name = '%s'", 'table_with_default_collation'));
-        $this->assertEquals('utf8_unicode_ci', $row['Collation']);
+        $collation = $this->usingMysql8($adapter) ? 'utf8mb3' : 'utf8';
+        $this->assertEquals($collation . '_unicode_ci', $row['Collation']);
     }
 
     public function testCreateTableWithLatin1Collate()
@@ -771,7 +772,8 @@ class MysqlAdapterTest extends TestCase
         $table->addColumn('string_collation_default', 'string', [])->save();
         $table->addColumn('string_collation_custom', 'string', ['collation' => 'utf8mb4_unicode_ci'])->save();
         $rows = $this->adapter->fetchAll('SHOW FULL COLUMNS FROM table_custom_collation');
-        $this->assertEquals('utf8_general_ci', $rows[1]['Collation']);
+        $collation = $this->usingMysql8() ? 'utf8mb3' : 'utf8';
+        $this->assertEquals($collation . '_general_ci', $rows[1]['Collation']);
         $this->assertEquals('utf8mb4_unicode_ci', $rows[2]['Collation']);
     }
 
