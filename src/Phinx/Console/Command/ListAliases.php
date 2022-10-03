@@ -8,9 +8,11 @@
 namespace Phinx\Console\Command;
 
 use Phinx\Util\Util;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'list:aliases')]
 class ListAliases extends AbstractCommand
 {
     /**

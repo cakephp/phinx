@@ -10,13 +10,12 @@ namespace Phinx\Console\Command;
 use InvalidArgumentException;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Util\Util;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @author Leonid Kuzmin <lndkuzmin@gmail.com>
- */
+#[AsCommand(name: 'test')]
 class Test extends AbstractCommand
 {
     /**
