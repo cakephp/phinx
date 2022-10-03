@@ -9,10 +9,12 @@ namespace Phinx\Console\Command;
 
 use DateTime;
 use InvalidArgumentException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'rollback')]
 class Rollback extends AbstractCommand
 {
     /**
