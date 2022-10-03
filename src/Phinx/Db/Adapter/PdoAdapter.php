@@ -220,7 +220,6 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     {
         $driver = new $driverClass($options);
         $prop = new ReflectionProperty($driver, 'pdo');
-        $prop->setAccessible(true);
         $prop->setValue($driver, $this->connection);
 
         return new Connection(['driver' => $driver] + $options);
