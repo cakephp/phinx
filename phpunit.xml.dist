@@ -35,11 +35,14 @@
         <directory>tests/</directory>
     </testsuite>
 
-    <filter>
-        <whitelist>
+    <coverage>
+        <include>
             <directory suffix=".php">src/Phinx/</directory>
-        </whitelist>
-    </filter>
+        </include>
+        <report>
+            <html outputDirectory="logs/report" lowUpperBound="50" highLowerBound="80"/>
+        </report>
+    </coverage>
 
     <logging>
         <log type="coverage-html" target="logs/report"

@@ -7,7 +7,6 @@
 
 namespace Phinx\Db\Adapter;
 
-use Cake\Database\Connection;
 use Cake\Database\Driver\Mysql as MysqlDriver;
 use InvalidArgumentException;
 use PDO;
@@ -1522,6 +1521,10 @@ class MysqlAdapter extends PdoAdapter
      */
     public function getDecoratedConnection()
     {
+        if (isset($this->decoratedConnection)) {
+            return $this->decoratedConnection;
+        }
+
         $options = $this->getOptions();
         $options = [
             'username' => $options['user'] ?? null,
@@ -1530,9 +1533,6 @@ class MysqlAdapter extends PdoAdapter
             'quoteIdentifiers' => true,
         ] + $options;
 
-        $driver = new MysqlDriver($options);
-        $driver->setConnection($this->connection);
-
-        return new Connection(['driver' => $driver] + $options);
+        return $this->decoratedConnection = $this->buildConnection(MysqlDriver::class, $options);
     }
 }

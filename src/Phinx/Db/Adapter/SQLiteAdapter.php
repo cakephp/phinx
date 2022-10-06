@@ -8,7 +8,6 @@
 namespace Phinx\Db\Adapter;
 
 use BadMethodCallException;
-use Cake\Database\Connection;
 use Cake\Database\Driver\Sqlite as SqliteDriver;
 use InvalidArgumentException;
 use PDO;
@@ -1650,6 +1649,10 @@ PCRE_PATTERN;
      */
     public function getDecoratedConnection()
     {
+        if (isset($this->decoratedConnection)) {
+            return $this->decoratedConnection;
+        }
+
         $options = $this->getOptions();
         $options['quoteIdentifiers'] = true;
 
@@ -1661,13 +1664,6 @@ PCRE_PATTERN;
             }
         }
 
-        if ($this->connection === null) {
-            throw new RuntimeException('You need to connect first.');
-        }
-
-        $driver = new SqliteDriver($options);
-        $driver->setConnection($this->connection);
-
-        return new Connection(['driver' => $driver] + $options);
+        return $this->decoratedConnection = $this->buildConnection(SqliteDriver::class, $options);
     }
 }

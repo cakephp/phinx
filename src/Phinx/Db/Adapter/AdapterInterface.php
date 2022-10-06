@@ -289,7 +289,7 @@ interface AdapterInterface
      *
      * @return \Cake\Database\Query
      */
-    public function getQueryBuilder();
+    public function getQueryBuilder(string $type);
 
     /**
      * Executes a SQL statement.

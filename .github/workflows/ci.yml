@@ -10,35 +10,33 @@ on:
 
 jobs:
   testsuite:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['7.2', '7.4', '8.0', '8.1']
+        php-version: ['8.1', '8.2']
         db-type: [sqlite, mysql, pgsql]
         prefer-lowest: ['']
         include:
-          - php-version: '8.2'
-            db-type: mysql
-          - php-version: '7.2'
-            db-type: mysql
+          - php-version: '8.1'
+            db-type: sqlite
             prefer-lowest: prefer-lowest
 
     steps:
     - name: Setup MySQL latest
-      if: matrix.db-type == 'mysql' && matrix.php-version != '7.2'
+      if: matrix.db-type == 'mysql' && matrix.php-version != '8.1'
       run: docker run --rm --name=mysqld -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cakephp -p 3306:3306 -d mysql --default-authentication-plugin=mysql_native_password
 
     - name: Setup MySQL 5.6
-      if: matrix.db-type == 'mysql' && matrix.php-version == '7.2'
+      if: matrix.db-type == 'mysql' && matrix.php-version == '8.1'
       run: docker run --rm --name=mysqld -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cakephp -p 3306:3306 -d mysql:5.6 --character-set-server=utf8
 
     - name: Setup PostgreSQL latest
-      if: matrix.db-type == 'pgsql' && matrix.php-version != '7.2'
+      if: matrix.db-type == 'pgsql' && matrix.php-version != '8.1'
       run: docker run --rm --name=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=cakephp -p 5432:5432 -d postgres
 
     - name: Setup PostgreSQL 9.4
-      if: matrix.db-type == 'pgsql' && matrix.php-version == '7.2'
+      if: matrix.db-type == 'pgsql' && matrix.php-version == '8.1'
       run: docker run --rm --name=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=cakephp -p 5432:5432 -d postgres:9.4
 
     - uses: actions/checkout@v3
@@ -74,7 +72,7 @@ jobs:
         fi
 
     - name: Setup problem matchers for PHPUnit
-      if: matrix.php-version == '7.2' && matrix.db-type == 'mysql'
+      if: matrix.php-version == '8.1' && matrix.db-type == 'mysql'
       run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
     - name: Setup Database
@@ -112,11 +110,11 @@ jobs:
       uses: codecov/codecov-action@v3
 
   testsuite-windows:
-    runs-on: windows-2019
+    runs-on: windows-2022
     name: Windows - PHP 8.1 & SQL Server
 
     env:
-      EXTENSIONS: pdo_sqlsrv
+      EXTENSIONS: mbstring, intl, pdo_sqlsrv
       PHP_VERSION: '8.1'
 
     steps:
@@ -181,7 +179,7 @@ jobs:
 
   cs-stan:
     name: Coding Standard & Static Analysis
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
@@ -189,7 +187,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.0'
+        php-version: '8.1'
         coverage: none
 
     - name: Get composer cache directory

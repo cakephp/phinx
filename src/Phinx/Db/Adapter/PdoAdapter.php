@@ -8,6 +8,8 @@
 namespace Phinx\Db\Adapter;
 
 use BadMethodCallException;
+use Cake\Database\Connection;
+use Cake\Database\Query;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
@@ -32,6 +34,7 @@ use Phinx\Db\Table\Table;
 use Phinx\Db\Util\AlterInstructions;
 use Phinx\Migration\MigrationInterface;
 use Phinx\Util\Literal;
+use ReflectionProperty;
 use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -46,6 +49,11 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * @var \PDO|null
      */
     protected $connection;
+
+    /**
+     * @var \Cake\Database\Connection|null
+     */
+    protected $decoratedConnection;
 
     /**
      * Writes a message to stdout if verbose output is on
@@ -202,11 +210,35 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     abstract public function getDecoratedConnection();
 
     /**
+     * Build connection instance.
+     *
+     * @param class-string<\Cake\Database\Driver> $driverClass Driver class name.
+     * @param array $options Options.
+     * @return \Cake\Database\Connection
+     */
+    protected function buildConnection(string $driverClass, array $options)
+    {
+        $driver = new $driverClass($options);
+        $prop = new ReflectionProperty($driver, 'pdo');
+        $prop->setValue($driver, $this->connection);
+
+        return new Connection(['driver' => $driver] + $options);
+    }
+
+    /**
      * @inheritDoc
      */
-    public function getQueryBuilder()
+    public function getQueryBuilder(string $type)
     {
-        return $this->getDecoratedConnection()->newQuery();
+        return match ($type) {
+            Query::TYPE_SELECT => $this->getDecoratedConnection()->selectQuery(),
+            Query::TYPE_INSERT => $this->getDecoratedConnection()->insertQuery(),
+            Query::TYPE_UPDATE => $this->getDecoratedConnection()->updateQuery(),
+            Query::TYPE_DELETE => $this->getDecoratedConnection()->deleteQuery(),
+            default => throw new InvalidArgumentException(
+                'Query type must be one of: `select`, `insert`, `update`, `delete`.'
+            )
+        };
     }
 
     /**
