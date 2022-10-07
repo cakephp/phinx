@@ -180,7 +180,7 @@ class PdoAdapterTest extends TestCase
      */
     public function testExecuteCanBeCalled()
     {
-        $pdo = $this->getMockForAbstractClass(\PDO::class);
+        $pdo = $this->getMockForAbstractClass(\PDO::class, ['sqlite::memory:'], '', true, true, true, ['exec']);
         $pdo->expects($this->once())->method('exec')->with('SELECT 1;')->will($this->returnValue(1));
 
         $this->adapter->setConnection($pdo);
@@ -189,7 +189,7 @@ class PdoAdapterTest extends TestCase
 
     public function testExecuteRightTrimsSemiColons()
     {
-        $pdo = $this->getMockForAbstractClass(\PDO::class);
+        $pdo = $this->getMockForAbstractClass(\PDO::class, ['sqlite::memory:'], '', true, true, true, ['exec']);
         $pdo->expects($this->once())->method('exec')->with('SELECT 1;')->will($this->returnValue(1));
 
         $this->adapter->setConnection($pdo);
