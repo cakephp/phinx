@@ -6,7 +6,6 @@ use PDOException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Test\Phinx\Db\Mock\PdoAdapterTestPDOMock;
-use Test\Phinx\Db\Mock\PdoAdapterTestPDOMockWithExecChecks;
 
 class PdoAdapterTest extends TestCase
 {
@@ -181,23 +180,19 @@ class PdoAdapterTest extends TestCase
      */
     public function testExecuteCanBeCalled()
     {
-        $pdo = new PdoAdapterTestPDOMockWithExecChecks();
+        $pdo = $this->getMockForAbstractClass(\PDO::class);
+        $pdo->expects($this->once())->method('exec')->with('SELECT 1;')->will($this->returnValue(1));
 
         $this->adapter->setConnection($pdo);
-
         $this->adapter->execute('SELECT 1');
-
-        $this->assertSame('SELECT 1;', $pdo->getExecutedSqlForTest());
     }
 
     public function testExecuteRightTrimsSemiColons()
     {
-        $pdo = new PdoAdapterTestPDOMockWithExecChecks();
+        $pdo = $this->getMockForAbstractClass(\PDO::class);
+        $pdo->expects($this->once())->method('exec')->with('SELECT 1;')->will($this->returnValue(1));
 
         $this->adapter->setConnection($pdo);
-
         $this->adapter->execute('SELECT 1;;');
-
-        $this->assertSame('SELECT 1;', $pdo->getExecutedSqlForTest());
     }
 }
