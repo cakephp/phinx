@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use PDO;
 use PDOException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -32,7 +33,7 @@ class PdoAdapterTest extends TestCase
 
     public function testOptionsSetConnection()
     {
-        $connection = $this->getMockForAbstractClass(\PDO::class, ['sqlite::memory:'], '', false);
+        $connection = $this->getMockBuilder(PDO::class)->disableOriginalConstructor()->getMock();
         $this->adapter->setOptions(['connection' => $connection]);
 
         $this->assertSame($connection, $this->adapter->getConnection());
@@ -179,7 +180,8 @@ class PdoAdapterTest extends TestCase
      */
     public function testExecuteCanBeCalled()
     {
-        $pdo = $this->getMockForAbstractClass(\PDO::class, ['sqlite::memory:'], '', false, true, true, ['exec']);
+        /** @var \PDO&\PHPUnit\Framework\MockObject\MockObject $pdo */
+        $pdo = $this->getMockBuilder(PDO::class)->disableOriginalConstructor()->onlyMethods(['exec'])->getMock();
         $pdo->expects($this->once())->method('exec')->with('SELECT 1;')->will($this->returnValue(1));
 
         $this->adapter->setConnection($pdo);
@@ -188,7 +190,8 @@ class PdoAdapterTest extends TestCase
 
     public function testExecuteRightTrimsSemiColons()
     {
-        $pdo = $this->getMockForAbstractClass(\PDO::class, ['sqlite::memory:'], '', false, true, true, ['exec']);
+        /** @var \PDO&\PHPUnit\Framework\MockObject\MockObject $pdo */
+        $pdo = $this->getMockBuilder(PDO::class)->disableOriginalConstructor()->onlyMethods(['exec'])->getMock();
         $pdo->expects($this->once())->method('exec')->with('SELECT 1;')->will($this->returnValue(1));
 
         $this->adapter->setConnection($pdo);
