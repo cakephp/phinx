@@ -5,7 +5,6 @@ namespace Test\Phinx\Db\Adapter;
 use PDOException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use Test\Phinx\Db\Mock\PdoAdapterTestPDOMock;
 
 class PdoAdapterTest extends TestCase
 {
@@ -33,7 +32,7 @@ class PdoAdapterTest extends TestCase
 
     public function testOptionsSetConnection()
     {
-        $connection = new PdoAdapterTestPDOMock();
+        $connection = $this->getMockForAbstractClass(\PDO::class, ['sqlite::memory:']);
         $this->adapter->setOptions(['connection' => $connection]);
 
         $this->assertSame($connection, $this->adapter->getConnection());
