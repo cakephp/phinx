@@ -2,11 +2,10 @@
 
 namespace Test\Phinx\Db\Adapter;
 
+use PDO;
 use PDOException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use Test\Phinx\Db\Mock\PdoAdapterTestPDOMock;
-use Test\Phinx\Db\Mock\PdoAdapterTestPDOMockWithExecChecks;
 
 class PdoAdapterTest extends TestCase
 {
@@ -34,7 +33,7 @@ class PdoAdapterTest extends TestCase
 
     public function testOptionsSetConnection()
     {
-        $connection = new PdoAdapterTestPDOMock();
+        $connection = $this->getMockBuilder(PDO::class)->disableOriginalConstructor()->getMock();
         $this->adapter->setOptions(['connection' => $connection]);
 
         $this->assertSame($connection, $this->adapter->getConnection());
@@ -181,23 +180,21 @@ class PdoAdapterTest extends TestCase
      */
     public function testExecuteCanBeCalled()
     {
-        $pdo = new PdoAdapterTestPDOMockWithExecChecks();
+        /** @var \PDO&\PHPUnit\Framework\MockObject\MockObject $pdo */
+        $pdo = $this->getMockBuilder(PDO::class)->disableOriginalConstructor()->onlyMethods(['exec'])->getMock();
+        $pdo->expects($this->once())->method('exec')->with('SELECT 1;')->will($this->returnValue(1));
 
         $this->adapter->setConnection($pdo);
-
         $this->adapter->execute('SELECT 1');
-
-        $this->assertSame('SELECT 1;', $pdo->getExecutedSqlForTest());
     }
 
     public function testExecuteRightTrimsSemiColons()
     {
-        $pdo = new PdoAdapterTestPDOMockWithExecChecks();
+        /** @var \PDO&\PHPUnit\Framework\MockObject\MockObject $pdo */
+        $pdo = $this->getMockBuilder(PDO::class)->disableOriginalConstructor()->onlyMethods(['exec'])->getMock();
+        $pdo->expects($this->once())->method('exec')->with('SELECT 1;')->will($this->returnValue(1));
 
         $this->adapter->setConnection($pdo);
-
         $this->adapter->execute('SELECT 1;;');
-
-        $this->assertSame('SELECT 1;', $pdo->getExecutedSqlForTest());
     }
 }

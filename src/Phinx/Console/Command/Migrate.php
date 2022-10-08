@@ -63,7 +63,7 @@ EOT
     {
         $this->bootstrap($input, $output);
 
-        $version = (int)$input->getOption('target');
+        $version = $input->getOption('target');
         /** @var string|null $environment */
         $environment = $input->getOption('environment');
         $date = $input->getOption('date');
