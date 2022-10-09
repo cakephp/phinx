@@ -63,11 +63,13 @@ class EnvironmentTest extends TestCase
         $attributes = [];
         $pdoMock->method('setAttribute')->will($this->returnCallback(function ($attribute, $value) use (&$attributes) {
             $attributes[$attribute] = $value;
+
             return true;
         }));
         $pdoMock->method('getAttribute')->will($this->returnCallback(function ($attribute) use (&$attributes) {
             return $attributes[$attribute] ?? 'pdomock';
         }));
+
         return $pdoMock;
     }
 
