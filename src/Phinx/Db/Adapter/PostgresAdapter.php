@@ -1207,26 +1207,6 @@ class PostgresAdapter extends PdoAdapter
     }
 
     /**
-     * Get the defintion for a `DEFAULT` statement.
-     *
-     * @param mixed $default default value
-     * @param string|null $columnType column type added
-     * @return string
-     */
-    protected function getDefaultValueDefinition($default, ?string $columnType = null): string
-    {
-        if (is_string($default) && $default !== 'CURRENT_TIMESTAMP') {
-            $default = $this->getConnection()->quote($default);
-        } elseif (is_bool($default)) {
-            $default = $this->castToBool($default);
-        } elseif ($columnType === static::PHINX_TYPE_BOOLEAN) {
-            $default = $this->castToBool((bool)$default);
-        }
-
-        return isset($default) ? 'DEFAULT ' . $default : '';
-    }
-
-    /**
      * Gets the PostgreSQL Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
