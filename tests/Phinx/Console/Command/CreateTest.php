@@ -149,7 +149,7 @@ class CreateTest extends TestCase
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
-        sleep(1.01); // need at least a second due to file naming scheme
+        time_nanosleep(1, 100000); // need at least a second due to file naming scheme
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The migration class name "MyDuplicateMigration" already exists');
@@ -181,7 +181,7 @@ class CreateTest extends TestCase
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
-        sleep(1.01); // need at least a second due to file naming scheme
+        time_nanosleep(1, 100000); // need at least a second due to file naming scheme
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The migration class name "Foo\Bar\MyDuplicateMigration" already exists');
