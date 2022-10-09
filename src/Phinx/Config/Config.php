@@ -507,6 +507,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * @throws \InvalidArgumentException
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($id)
     {
         if (!array_key_exists($id, $this->values)) {
