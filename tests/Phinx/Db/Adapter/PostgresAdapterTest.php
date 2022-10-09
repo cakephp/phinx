@@ -2182,11 +2182,11 @@ class PostgresAdapterTest extends TestCase
 
         if ($this->usingPostgres10()) {
             $expectedOutput = 'CREATE TABLE "public"."table1" ("id" INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY, "column1" CHARACTER VARYING (255) ' .
-                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL  DEFAULT \'test\', CONSTRAINT ' .
                 '"table1_pkey" PRIMARY KEY ("id"));';
         } else {
             $expectedOutput = 'CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
-                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL  DEFAULT \'test\', CONSTRAINT ' .
                 '"table1_pkey" PRIMARY KEY ("id"));';
         }
         $actualOutput = $consoleOutput->fetch();
@@ -2214,11 +2214,11 @@ class PostgresAdapterTest extends TestCase
 
         if ($this->usingPostgres10()) {
             $expectedOutput = 'CREATE TABLE "schema1"."table1" ("id" INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY, "column1" CHARACTER VARYING (255) ' .
-                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL  DEFAULT \'test\', CONSTRAINT ' .
                 '"table1_pkey" PRIMARY KEY ("id"));';
         } else {
             $expectedOutput = 'CREATE TABLE "schema1"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
-                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
+                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL  DEFAULT \'test\', CONSTRAINT ' .
                 '"table1_pkey" PRIMARY KEY ("id"));';
         }
         $actualOutput = $consoleOutput->fetch();
