@@ -12,7 +12,7 @@ use Phinx\Db\Adapter\PostgresAdapter;
 use RuntimeException;
 
 /**
- * This object is based loosely on: http://api.rubyonrails.org/classes/ActiveRecord/ConnectionAdapters/Table.html.
+ * This object is based loosely on: https://api.rubyonrails.org/classes/ActiveRecord/ConnectionAdapters/Table.html.
  */
 class Column
 {

@@ -101,7 +101,7 @@ class SqlServerAdapter extends PdoAdapter
             // See https://github.com/Microsoft/msphpsql/issues/65
 
             // support arbitrary \PDO::SQLSRV_ATTR_* driver options and pass them to PDO
-            // http://php.net/manual/en/ref.pdo-sqlsrv.php#pdo-sqlsrv.constants
+            // https://php.net/manual/en/ref.pdo-sqlsrv.php#pdo-sqlsrv.constants
             foreach ($options as $key => $option) {
                 if (strpos($key, 'sqlsrv_attr_') === 0) {
                     $pdoConstant = '\PDO::' . strtoupper($key);

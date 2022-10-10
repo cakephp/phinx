@@ -335,10 +335,10 @@ Supported Adapters
 
 Phinx currently supports the following database adapters natively:
 
-* `MySQL <http://www.mysql.com/>`_: specify the ``mysql`` adapter.
-* `PostgreSQL <http://www.postgresql.org/>`_: specify the ``pgsql`` adapter.
-* `SQLite <http://www.sqlite.org/>`_: specify the ``sqlite`` adapter.
-* `SQL Server <http://www.microsoft.com/sqlserver>`_: specify the ``sqlsrv`` adapter.
+* `MySQL <https://www.mysql.com/>`_: specify the ``mysql`` adapter.
+* `PostgreSQL <https://www.postgresql.org/>`_: specify the ``pgsql`` adapter.
+* `SQLite <https://www.sqlite.org/>`_: specify the ``sqlite`` adapter.
+* `SQL Server <https://www.microsoft.com/sqlserver>`_: specify the ``sqlsrv`` adapter.
 
 For each adapter, you may configure the behavior of the underlying PDO object by setting in your
 config object the lowercase version of the constant name. This works for both PDO options

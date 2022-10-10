@@ -143,7 +143,7 @@ class MysqlAdapter extends PdoAdapter
             }
 
             // support arbitrary \PDO::MYSQL_ATTR_* driver options and pass them to PDO
-            // http://php.net/manual/en/ref.pdo-mysql.php#pdo-mysql.constants
+            // https://php.net/manual/en/ref.pdo-mysql.php#pdo-mysql.constants
             foreach ($options as $key => $option) {
                 if (strpos($key, 'mysql_attr_') === 0) {
                     $pdoConstant = '\PDO::' . strtoupper($key);
@@ -262,7 +262,7 @@ class MysqlAdapter extends PdoAdapter
      */
     public function createTable(Table $table, array $columns = [], array $indexes = []): void
     {
-        // This method is based on the MySQL docs here: http://dev.mysql.com/doc/refman/5.1/en/create-index.html
+        // This method is based on the MySQL docs here: https://dev.mysql.com/doc/refman/5.1/en/create-index.html
         $defaultOptions = [
             'engine' => 'InnoDB',
             'collation' => 'utf8mb4_unicode_ci',

@@ -236,10 +236,10 @@ Phinx は ``PHINX_`` というプレフィックスが付いた環境変数を�
 
 Phinx は現在、次のデータベースアダプターをネイティブにサポートしています。
 
-* `MySQL <http://www.mysql.com/>`_: ``mysql`` アダプターを指定。
-* `PostgreSQL <http://www.postgresql.org/>`_: ``pgsql`` アダプターを指定。
-* `SQLite <http://www.sqlite.org/>`_: ``sqlite`` アダプターを指定。
-* `SQL Server <http://www.microsoft.com/sqlserver>`_: ``sqlsrv`` アダプターを指定。
+* `MySQL <https://www.mysql.com/>`_: ``mysql`` アダプターを指定。
+* `PostgreSQL <https://www.postgresql.org/>`_: ``pgsql`` アダプターを指定。
+* `SQLite <https://www.sqlite.org/>`_: ``sqlite`` アダプターを指定。
+* `SQL Server <https://www.microsoft.com/sqlserver>`_: ``sqlsrv`` アダプターを指定。
 
 SQLite
 ~~~~~~

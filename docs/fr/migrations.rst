@@ -161,7 +161,7 @@ Executing Queries
 Queries can be executed with the ``execute()`` and ``query()`` methods. The
 ``execute()`` method returns the number of affected rows whereas the
 ``query()`` method returns the result as a
-`PDOStatement <http://php.net/manual/en/class.pdostatement.php>`_::
+`PDOStatement <https://php.net/manual/en/class.pdostatement.php>`_::
 
     <?php
 
@@ -211,7 +211,7 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
     If Phinx was to iterate any potential result sets, looking to see if one
     had an error, then Phinx would be denying access to all the results as there
     is no facility in PDO to get a previous result set
-    `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`_ -
+    `nextRowset() <https://php.net/manual/en/pdostatement.nextrowset.php>`_ -
     but no ``previousSet()``).
 
     So, as a consequence, due to the design decision in PDO to not throw
@@ -220,8 +220,8 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
 
     Fortunately though, all the features of PDO are available, so multiple batches
     can be controlled within the migration by calling upon
-    `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`_
-    and examining `errorInfo <http://php.net/manual/en/pdostatement.errorinfo.php>`_.
+    `nextRowset() <https://php.net/manual/en/pdostatement.nextrowset.php>`_
+    and examining `errorInfo <https://php.net/manual/en/pdostatement.errorinfo.php>`_.
 
 Fetching Rows
 -------------
