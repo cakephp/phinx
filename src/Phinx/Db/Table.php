@@ -29,7 +29,7 @@ use Phinx\Db\Table\Table as TableValue;
 use RuntimeException;
 
 /**
- * This object is based loosely on: http://api.rubyonrails.org/classes/ActiveRecord/ConnectionAdapters/Table.html.
+ * This object is based loosely on: https://api.rubyonrails.org/classes/ActiveRecord/ConnectionAdapters/Table.html.
  */
 class Table
 {

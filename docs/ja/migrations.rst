@@ -159,7 +159,7 @@ up メソッドで記述された変換を元に戻すには、down メソッド
 
 クエリーは、 ``execute()`` と ``query()`` メソッドで実行できます。
 ``execute()`` メソッドは影響を受ける行の数を返しますが、 ``query()`` メソッドは結果を
-`PDOStatement <http://php.net/manual/ja/class.pdostatement.php>`_
+`PDOStatement <https://php.net/manual/ja/class.pdostatement.php>`_
 として返します。 ::
 
     <?php
@@ -208,14 +208,14 @@ up メソッドで記述された変換を元に戻すには、down メソッド
     Phinx が潜在的な結果セットを反復して、１つのエラーがあることを発見した場合、
     以前の結果セットを得る機能が PDO にはないため、Phinx はすべての結果へのアクセスを拒否します。
     (``previousSet()`` ではなく
-    `nextRowset() <http://php.net/manual/ja/pdostatement.nextrowset.php>`_) 。
+    `nextRowset() <https://php.net/manual/ja/pdostatement.nextrowset.php>`_) 。
 
     その結果、バッチ処理されたクエリーの例外を投げないようにする PDO の設計上の決定により、
     Phinx はクエリーのバッチが提供されたときにエラー処理を最大限にサポートすることができません。
 
     幸いにも、PDO のすべての機能が利用可能であるため、
-    `nextRowset()  <http://php.net/manual/ja/pdostatement.nextrowset.php>`_
-    を呼び出して `errorInfo <http://php.net/manual/ja/pdostatement.errorinfo.php>`_
+    `nextRowset()  <https://php.net/manual/ja/pdostatement.nextrowset.php>`_
+    を呼び出して `errorInfo <https://php.net/manual/ja/pdostatement.errorinfo.php>`_
     を調べることで、複数のバッチをマイグレーション中に制御することができます。
 
 行の取得

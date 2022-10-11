@@ -581,7 +581,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Retrieve a database connection attribute
      *
-     * @see http://php.net/manual/en/pdo.getattribute.php
+     * @see https://php.net/manual/en/pdo.getattribute.php
      * @param int $attribute One of the PDO::ATTR_* constants
      * @return mixed
      */

@@ -90,7 +90,7 @@ Let's take a closer look on how the paths are resolved, let's start with the non
 This is the directory where Phinx will look for migrations when migrating.
 NB. these migrations must not have a namespace.
 
-.. image:: http://i.imgur.com/l84308Q.jpg
+.. image:: https://i.imgur.com/l84308Q.jpg
 
 This image shows the path for "./db/migrations" where "Phinx" is the project root.
 
@@ -98,7 +98,7 @@ And the namespaced path would be resolved as shown below.
 
 "./src/FooBar/db/migrations" would resolve to <project-root>/src/FooBar/db/migrations, which is where Phinx will look for migrations in the Foo\\Bar namespace.
 
-.. image:: http://i.imgur.com/2mg0V8V.jpg
+.. image:: https://i.imgur.com/2mg0V8V.jpg
 
 The file path would look like this, if the project-root was "Phinx"
 
