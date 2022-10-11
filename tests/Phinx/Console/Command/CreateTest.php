@@ -5,6 +5,7 @@ namespace Test\Phinx\Console\Command;
 use Exception;
 use InvalidArgumentException;
 use Phinx\Config\Config;
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Create;
 use Phinx\Console\PhinxApplication;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -87,7 +88,8 @@ class CreateTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName()]);
+        $exitCode = $commandTester->execute(['command' => $command->getName()]);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
 
         $files = array_diff(scandir($this->config->getMigrationPaths()[0]), ['.', '..']);
         $this->assertCount(1, $files);
@@ -120,7 +122,8 @@ class CreateTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyMigration']);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), 'name' => 'MyMigration']);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
 
         $files = array_diff(scandir($this->config->getMigrationPaths()[0]), ['.', '..']);
         $this->assertCount(1, $files);
@@ -154,7 +157,8 @@ class CreateTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The migration class name "MyDuplicateMigration" already exists');
 
-        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
     public function testExecuteWithDuplicateMigrationNamesWithNamespace()
@@ -180,13 +184,15 @@ class CreateTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
         time_nanosleep(1, 100000); // need at least a second due to file naming scheme
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The migration class name "Foo\Bar\MyDuplicateMigration" already exists');
 
-        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateMigration']);
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
     public function testSupplyingBothClassAndTemplateAtCommandLineThrowsException()
@@ -210,7 +216,8 @@ class CreateTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Cannot use --template and --class at the same time');
 
-        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyFailingMigration', '--template' => 'MyTemplate', '--class' => 'MyTemplateClass']);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), 'name' => 'MyFailingMigration', '--template' => 'MyTemplate', '--class' => 'MyTemplateClass']);
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
     public function testSupplyingBothClassAndTemplateInConfigThrowsException()
@@ -239,7 +246,8 @@ class CreateTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Cannot define template:class and template:file at the same time');
 
-        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyFailingMigration']);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), 'name' => 'MyFailingMigration']);
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
     public function provideFailingTemplateGenerator()
@@ -306,7 +314,8 @@ class CreateTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
-        $commandTester->execute($commandLine);
+        $exitCode = $commandTester->execute($commandLine);
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
     public function provideNullTemplateGenerator()
@@ -369,8 +378,8 @@ class CreateTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $commandLine = array_merge(['command' => $command->getName()], $commandLine);
-        $res = $commandTester->execute($commandLine);
-        $this->assertEquals(0, $res);
+        $exitCode = $commandTester->execute($commandLine);
+        $this->assertEquals(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function provideSimpleTemplateGenerator()
@@ -433,7 +442,8 @@ class CreateTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $commandLine = array_merge(['command' => $command->getName()], $commandLine);
-        $commandTester->execute($commandLine, ['decorated' => false]);
+        $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
 
         // Get output.
         preg_match('`created (?P<MigrationFilename>.+(?P<Version>\d{14}).*?)\s`', $commandTester->getDisplay(), $match);
@@ -465,7 +475,8 @@ class CreateTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName()]);
+        $exitCode = $commandTester->execute(['command' => $command->getName()]);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
 
         $files = array_diff(scandir($this->config->getMigrationPaths()[0]), ['.', '..']);
         $this->assertCount(1, $files);
@@ -498,7 +509,8 @@ class CreateTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--style' => 'change']);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--style' => 'change']);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
 
         $files = array_diff(scandir($this->config->getMigrationPaths()[0]), ['.', '..']);
         $this->assertCount(1, $files);
@@ -531,7 +543,8 @@ class CreateTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--style' => 'up_down']);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--style' => 'up_down']);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
 
         $files = array_diff(scandir($this->config->getMigrationPaths()[0]), ['.', '..']);
         $this->assertCount(1, $files);
@@ -568,6 +581,7 @@ class CreateTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('--style should be one of change or up_down');
 
-        $commandTester->execute(['command' => $command->getName(), '--style' => 'foo']);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--style' => 'foo']);
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 }

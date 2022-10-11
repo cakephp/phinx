@@ -82,7 +82,7 @@ class RollbackTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
 
         $display = $commandTester->getDisplay();
 
@@ -90,6 +90,7 @@ class RollbackTest extends TestCase
 
         // note that the default order is by creation time
         $this->assertStringContainsString('ordering by creation time', $display);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function testExecuteWithEnvironmentOption()
@@ -167,8 +168,9 @@ class RollbackTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
         $this->assertStringContainsString('using database development', $commandTester->getDisplay());
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function testStartTimeVersionOrder()
@@ -194,8 +196,9 @@ class RollbackTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
         $this->assertStringContainsString('ordering by execution time', $commandTester->getDisplay());
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function testWithDate()
@@ -222,7 +225,8 @@ class RollbackTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '-d' => $date], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '-d' => $date], ['decorated' => false]);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     /**
@@ -303,8 +307,9 @@ class RollbackTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '-d' => $targetDate], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '-d' => $targetDate], ['decorated' => false]);
         $this->assertStringContainsString('ordering by execution time', $commandTester->getDisplay());
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function testFakeRollback()
@@ -328,11 +333,12 @@ class RollbackTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--fake' => true], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), '--fake' => true], ['decorated' => false]);
 
         $display = $commandTester->getDisplay();
 
         $this->assertStringContainsString('warning performing fake rollback', $display);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function testRollbackMemorySqlite()
