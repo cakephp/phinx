@@ -4,6 +4,7 @@ namespace Test\Phinx\Console\Command;
 
 use InvalidArgumentException;
 use Phinx\Config\Config;
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\SeedCreate;
 use Phinx\Console\PhinxApplication;
 use PHPUnit\Framework\TestCase;
@@ -78,12 +79,14 @@ class SeedCreateTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateSeeder'], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateSeeder'], ['decorated' => false]);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The file "MyDuplicateSeeder.php" already exists');
 
-        $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateSeeder'], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), 'name' => 'MyDuplicateSeeder'], ['decorated' => false]);
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
     public function testExecuteWithInvalidClassName()
@@ -108,7 +111,8 @@ class SeedCreateTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The seed class name "badseedname" is invalid. Please use CamelCase format');
 
-        $commandTester->execute(['command' => $command->getName(), 'name' => 'badseedname'], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName(), 'name' => 'badseedname'], ['decorated' => false]);
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
     public function testAlternativeTemplate()
@@ -130,7 +134,8 @@ class SeedCreateTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $commandLine = ['command' => $command->getName(), 'name' => 'AltTemplate', '--template' => __DIR__ . '/Templates/SimpleSeeder.template.php.dist'];
-        $commandTester->execute($commandLine, ['decorated' => false]);
+        $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
 
         // Get output.
         preg_match('`created (?P<SeedFilename>.*?)\s`', $commandTester->getDisplay(), $match);
@@ -167,6 +172,7 @@ class SeedCreateTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The template file "' . $template . '" does not exist');
 
-        $commandTester->execute($commandLine, ['decorated' => false]);
+        $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 }

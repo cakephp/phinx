@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Console\Command;
 
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\PhinxApplication;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -29,13 +30,14 @@ class ListAliasesTest extends TestCase
     {
         $command = (new PhinxApplication())->find('list:aliases');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(
+        $exitCode = $commandTester->execute(
             [
                 'command' => $command->getName(),
                 '--configuration' => realpath(sprintf('%s/../../Config/_files/%s', __DIR__, $file)),
             ],
             ['decorated' => false]
         );
+        $this->assertEquals(AbstractCommand::CODE_SUCCESS, $exitCode);
 
         $display = $commandTester->getDisplay(false);
 

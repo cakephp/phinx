@@ -73,8 +73,8 @@ class SeedRunTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
-
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
         $this->assertStringContainsString('no environment specified', $commandTester->getDisplay());
     }
 
@@ -112,8 +112,8 @@ class SeedRunTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
-
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
         $this->assertStringContainsString('no environment specified', $commandTester->getDisplay());
     }
 
@@ -190,7 +190,8 @@ class SeedRunTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+        $exitCode = $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
         $this->assertStringContainsString('using database development', $commandTester->getDisplay());
     }
 
@@ -218,13 +219,14 @@ class SeedRunTest extends TestCase
         $command->setManager($managerStub);
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(
+        $exitCode = $commandTester->execute(
             [
                 'command' => $command->getName(),
                 '--seed' => ['One', 'Two', 'Three'],
             ],
             ['decorated' => false]
         );
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
 
         $this->assertStringContainsString('no environment specified', $commandTester->getDisplay());
     }

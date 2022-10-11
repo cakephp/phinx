@@ -2,6 +2,7 @@
 
 namespace Test\Phinx\Console\Command;
 
+use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\PhinxApplication;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\ApplicationTester;
@@ -15,7 +16,8 @@ class ListTest extends TestCase
         $application->setCatchExceptions(false);
 
         $appTester = new ApplicationTester($application);
-        $appTester->run(['command' => 'list', '--format' => 'txt']);
+        $exitCode = $appTester->run(['command' => 'list', '--format' => 'txt']);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
         $stream = $appTester->getOutput()->getStream();
         rewind($stream);
 
