@@ -834,7 +834,14 @@ PCRE_PATTERN;
 
             $rows = $this->fetchAll(
                 sprintf(
-                    "SELECT * FROM sqlite_master WHERE `type` = 'index' OR `type` = 'trigger' AND tbl_name = %s",
+                    "
+                        SELECT *
+                        FROM sqlite_master
+                        WHERE
+                            (`type` = 'index' OR `type` = 'trigger')
+                            AND tbl_name = %s
+                            AND sql IS NOT NULL
+                    ",
                     $this->quoteValue($tableName)
                 )
             );

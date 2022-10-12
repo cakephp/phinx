@@ -618,6 +618,41 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcol'));
     }
 
+    public function testChangeColumnWithTrigger()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('triggercol', 'integer')
+            ->addColumn('othercol', 'integer')
+            ->create();
+
+        $triggerSQL =
+            'CREATE TRIGGER update_t_othercol UPDATE OF triggercol ON t
+                BEGIN
+                    UPDATE t SET othercol = new.triggercol;
+                END';
+
+        $this->adapter->execute($triggerSQL);
+
+        $rows = $this->adapter->fetchAll(
+            "SELECT * FROM sqlite_master WHERE `type` = 'trigger' AND tbl_name = 't'"
+        );
+        $this->assertCount(1, $rows);
+        $this->assertEquals('trigger', $rows[0]['type']);
+        $this->assertEquals('update_t_othercol', $rows[0]['name']);
+        $this->assertEquals($triggerSQL, $rows[0]['sql']);
+
+        $table->changeColumn('triggercol', 'integer', ['null' => false])->update();
+
+        $rows = $this->adapter->fetchAll(
+            "SELECT * FROM sqlite_master WHERE `type` = 'trigger' AND tbl_name = 't'"
+        );
+        $this->assertCount(1, $rows);
+        $this->assertEquals('trigger', $rows[0]['type']);
+        $this->assertEquals('update_t_othercol', $rows[0]['name']);
+        $this->assertEquals($triggerSQL, $rows[0]['sql']);
+    }
+
     public function testChangeColumnDefaultToZero()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
