@@ -144,11 +144,11 @@ Custom Seeder Base
 
 By default all seeders will extend from Phinx's `AbstractSeed` class.
 This can be set to a custom class that extends from `AbstractSeed` by
-setting ``seeder_base_class`` in your config:
+setting ``seed_base_class`` in your config:
 
 .. code-block:: yaml
 
-    seeder_base_class: MyMagicalSeeder
+    seed_base_class: MyMagicalSeeder
 
 Environments
 ------------
