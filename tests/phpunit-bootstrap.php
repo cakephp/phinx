@@ -25,16 +25,20 @@ if (!getenv('SQLITE_DSN') && !getenv('MYSQL_DSN') && !getenv('PGSQL_DSN') && !ge
 
 if (getenv('SQLITE_DSN')) {
     define('SQLITE_DB_CONFIG', Util::parseDsn(getenv('SQLITE_DSN')));
+    define('DB_CONFIG', SQLITE_DB_CONFIG);
 }
 
 if (getenv('MYSQL_DSN')) {
     define('MYSQL_DB_CONFIG', Util::parseDsn(getenv('MYSQL_DSN')));
+    define('DB_CONFIG', MYSQL_DB_CONFIG);
 }
 
 if (getenv('PGSQL_DSN')) {
     define('PGSQL_DB_CONFIG', Util::parseDsn(getenv('PGSQL_DSN')));
+    define('DB_CONFIG', PGSQL_DB_CONFIG);
 }
 
 if (getenv('SQLSRV_DSN')) {
     define('SQLSRV_DB_CONFIG', Util::parseDsn(getenv('SQLSRV_DSN')));
+    define('DB_CONFIG', SQLSRV_DB_CONFIG);
 }
