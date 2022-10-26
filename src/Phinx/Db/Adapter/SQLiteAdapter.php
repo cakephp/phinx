@@ -846,7 +846,15 @@ PCRE_PATTERN;
                 )
             );
 
+            $foreignKeysEnabled = (bool)$this->fetchRow('PRAGMA foreign_keys')['foreign_keys'];
+            if ($foreignKeysEnabled) {
+                $this->execute('PRAGMA foreign_keys = OFF');
+            }
             $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
+            if ($foreignKeysEnabled) {
+                $this->execute('PRAGMA foreign_keys = ON');
+            }
+
             $this->execute(sprintf(
                 'ALTER TABLE %s RENAME TO %s',
                 $this->quoteTableName($state['tmpTableName']),

@@ -6,6 +6,7 @@ use BadMethodCallException;
 use InvalidArgumentException;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Table\Column;
+use Phinx\Db\Table\ForeignKey;
 use Phinx\Util\Expression;
 use Phinx\Util\Literal;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -1369,6 +1370,71 @@ OUTPUT;
             $this->assertSame($expected[$i]['default'], $columns[$i]->getDefault() instanceof Literal ? (string)$columns[$i]->getDefault() : $columns[$i]->getDefault(), "Wrong default for {$expected[$i]['name']}");
             $this->assertSame($expected[$i]['null'], $columns[$i]->getNull(), "Wrong null for {$expected[$i]['name']}");
         }
+    }
+
+    /**
+     * Tests that operations that trigger implicit table drops will not cause
+     * a foreign key constraint violation error.
+     */
+    public function testAlterTableDoesNotViolateRestrictedForeignKeyConstraint()
+    {
+        $this->adapter->execute('PRAGMA foreign_keys = ON');
+
+        $articlesTable = new \Phinx\Db\Table('articles', [], $this->adapter);
+        $articlesTable
+            ->insert(['id' => 1])
+            ->save();
+
+        $commentsTable = new \Phinx\Db\Table('comments', [], $this->adapter);
+        $commentsTable
+            ->addColumn('article_id', 'integer')
+            ->addForeignKey('article_id', 'articles', 'id', [
+                'update' => ForeignKey::RESTRICT,
+                'delete' => ForeignKey::RESTRICT,
+            ])
+            ->insert(['id' => 1, 'article_id' => 1])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasForeignKey('comments', ['article_id']));
+
+        $articlesTable
+            ->addColumn('new_column', 'integer')
+            ->update();
+
+        $articlesTable
+            ->renameColumn('new_column', 'new_column_renamed')
+            ->update();
+
+        $articlesTable
+            ->changeColumn('new_column_renamed', 'integer', [
+                'default' => 1,
+            ])
+            ->update();
+
+        $articlesTable
+            ->removeColumn('new_column_renamed')
+            ->update();
+
+        $articlesTable
+            ->addIndex('id', ['name' => 'ID_IDX'])
+            ->update();
+
+        $articlesTable
+            ->removeIndex('id')
+            ->update();
+
+        $articlesTable
+            ->addForeignKey('id', 'comments', 'id')
+            ->update();
+
+        $articlesTable
+            ->dropForeignKey('id')
+            ->update();
+
+        $articlesTable
+            ->addColumn('id2', 'integer')
+            ->changePrimaryKey('id2')
+            ->update();
     }
 
     public function testLiteralSupport()
