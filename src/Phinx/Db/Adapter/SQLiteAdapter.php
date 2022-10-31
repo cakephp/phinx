@@ -1363,7 +1363,7 @@ PCRE_PATTERN;
                     );
                     $createIndexSQL = $this->getDeclaringIndexSQL($tableName, $indexName);
                     $sql .= preg_replace(
-                        "/\b${tableName}\b/",
+                        "/\b{$tableName}\b/",
                         $tmpTableName,
                         $createIndexSQL
                     );
