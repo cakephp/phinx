@@ -44,7 +44,7 @@ It is based on a skeleton template:
              * More information on writing seeders is available here:
              * http://docs.phinx.org/en/latest/seeding.html
              */
-            public function run()
+            public function run() : void
             {
 
             }
@@ -107,7 +107,7 @@ current seeder:
                 ];
             }
 
-            public function run()
+            public function run() : void
             {
                 // Seed the shopping cart  after the `UserSeeder` and
                 // `ShopItemSeeder` have been run.
@@ -137,7 +137,7 @@ within your seed class and then use the `insert()` method to insert data:
 
         class PostsSeeder extends AbstractSeed
         {
-            public function run()
+            public function run() : void
             {
                 $data = [
                     [
@@ -174,7 +174,7 @@ SQL `TRUNCATE` command:
 
         class UserSeeder extends AbstractSeed
         {
-            public function run()
+            public function run() : void
             {
                 $data = [
                     [
