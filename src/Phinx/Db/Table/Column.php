@@ -629,7 +629,7 @@ class Column
     public function setValues($values)
     {
         if (!is_array($values)) {
-            $values = (string)preg_split('/,\s*/', $values);
+            $values = preg_split('/,\s*/', $values) ?: [];
         }
         $this->values = $values;
 
