@@ -38,7 +38,7 @@ class ConfigSeedTemplatePathsTest extends AbstractConfigTest
                 'seeds' => '/test',
             ],
             'templates' => [
-                'file' => 'migration_template_file'
+                'file' => 'migration_template_file',
             ],
         ];
 

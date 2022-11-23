@@ -16,6 +16,11 @@ use Test\Phinx\TestUtils;
 class SeedCreateTest extends TestCase
 {
     /**
+     * @var array
+     */
+    protected $configValues = [];
+
+    /**
      * @var ConfigInterface|array
      */
     protected $config = [];
@@ -209,7 +214,7 @@ class SeedCreateTest extends TestCase
 
         // Does the migration match our expectation?
         $expectedMigration = "useClassName Phinx\\Seed\\AbstractSeed / className {$commandLine['name']} / baseClassName AbstractSeed\n"
-            ."This file should be specified in config only, not in console runs\n";
+            . "This file should be specified in config only, not in console runs\n";
         $this->assertStringEqualsFile($match['SeedFilename'], $expectedMigration, 'Failed to create seed file from template generator correctly.');
     }
 
