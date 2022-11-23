@@ -178,11 +178,22 @@ class SeedCreate extends AbstractCommand
             ));
         }
 
+        // Command-line option must have higher priority than value from Config
+        $config = $this->getConfig();
+        if (is_null($altTemplate)) {
+            $altTemplate = $config->getSeederTemplateFile();
+            if (!is_null($altTemplate) && !is_file($altTemplate)) {
+                throw new InvalidArgumentException(sprintf(
+                    'The template file "%s" from config does not exist',
+                    $altTemplate
+                ));
+            }
+        }
+
         // Determine the appropriate mechanism to get the template
         // Load the alternative template if it is defined.
         $contents = file_get_contents($altTemplate ?: $this->getSeedTemplateFilename());
 
-        $config = $this->getConfig();
         $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath($path) : null;
         $classes = [
             '$namespaceDefinition' => $namespace !== null ? ('namespace ' . $namespace . ';') : '',

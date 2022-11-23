@@ -1,0 +1,2 @@
+useClassName $useClassName / className $className / baseClassName $baseClassName
+This file should be specified in config only, not in console runs
