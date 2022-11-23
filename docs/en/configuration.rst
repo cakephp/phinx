@@ -159,7 +159,7 @@ in configuration file:
 .. code-block:: yaml
 
     templates:
-        file: src/templates/customMigrationTemplate.php.dist
+        file: src/templates/customMigrationTemplate.php
 
 
 Custom Seeder Template
@@ -171,7 +171,7 @@ in configuration file:
 .. code-block:: yaml
 
     templates:
-        seedTemplateFile: src/templates/customSeederTemplate.php.dist
+        seedTemplateFile: src/templates/customSeederTemplate.php
 
 
 Environments
