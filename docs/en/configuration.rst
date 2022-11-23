@@ -151,7 +151,7 @@ setting ``seed_base_class`` in your config:
     seed_base_class: MyMagicalSeeder
 
 Custom Migration Template
-----------------------
+-------------------------
 
 Custom template for Migrations could be used either by defining template file path
 in configuration file:
