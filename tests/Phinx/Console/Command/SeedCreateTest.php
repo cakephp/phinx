@@ -242,7 +242,7 @@ class SeedCreateTest extends TestCase
         $commandLine = ['command' => $command->getName(), 'name' => 'AltTemplate'];
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The template file "' . $template . '" from config does not exist');
+        $this->expectExceptionMessage('The template file `' . $template . '` from config does not exist');
 
         $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
         $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);

@@ -184,7 +184,7 @@ class SeedCreate extends AbstractCommand
             $altTemplate = $config->getSeederTemplateFile();
             if (!is_null($altTemplate) && !is_file($altTemplate)) {
                 throw new InvalidArgumentException(sprintf(
-                    'The template file "%s" from config does not exist',
+                    'The template file `%s` from config does not exist',
                     $altTemplate
                 ));
             }
