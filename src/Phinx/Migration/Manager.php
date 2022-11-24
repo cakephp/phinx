@@ -902,13 +902,11 @@ class Manager
     {
         $orderedSeeds = [];
         foreach ($seeds as $seed) {
-            $key = get_class($seed);
+            $orderedSeeds[get_class($seed)] = $seed;
+
             $dependencies = $this->getSeedDependenciesInstances($seed);
             if (!empty($dependencies)) {
-                $orderedSeeds[$key] = $seed;
                 $orderedSeeds = array_merge($this->orderSeedsByDependencies($dependencies), $orderedSeeds);
-            } else {
-                $orderedSeeds[$key] = $seed;
             }
         }
 
