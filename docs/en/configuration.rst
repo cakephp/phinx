@@ -150,6 +150,30 @@ setting ``seed_base_class`` in your config:
 
     seed_base_class: MyMagicalSeeder
 
+Custom Migration Template
+-------------------------
+
+Custom template for Migrations could be used either by defining template file path
+in configuration file:
+
+.. code-block:: yaml
+
+    templates:
+        file: src/templates/customMigrationTemplate.php
+
+
+Custom Seeder Template
+----------------------
+
+Custom Seeder template could be used either by defining template file path
+in configuration file:
+
+.. code-block:: yaml
+
+    templates:
+        seedFile: src/templates/customSeederTemplate.php
+
+
 Environments
 ------------
 
