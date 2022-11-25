@@ -9,7 +9,7 @@ use Phinx\Config\Config;
  *
  * @package Test\Phinx\Config
  * @group config
- * @covers \Phinx\Config\Config::getSeederTemplateFile
+ * @covers \Phinx\Config\Config::getSeedTemplateFile
  */
 class ConfigSeedTemplatePathsTest extends AbstractConfigTest
 {
@@ -20,14 +20,14 @@ class ConfigSeedTemplatePathsTest extends AbstractConfigTest
                 'seeds' => '/test',
             ],
             'templates' => [
-                'seedTemplateFile' => 'seedTemplateFilePath',
+                'seedFile' => 'seedFilePath',
             ],
         ];
 
         $config = new Config($values);
 
-        $actualValue = $config->getSeederTemplateFile();
-        $this->assertEquals('seedTemplateFilePath', $actualValue);
+        $actualValue = $config->getSeedTemplateFile();
+        $this->assertEquals('seedFilePath', $actualValue);
     }
 
     public function testTemplateIsSetButNoPath()
@@ -44,7 +44,7 @@ class ConfigSeedTemplatePathsTest extends AbstractConfigTest
 
         $config = new Config($values);
 
-        $actualValue = $config->getSeederTemplateFile();
+        $actualValue = $config->getSeedTemplateFile();
         $this->assertNull($actualValue);
     }
 
@@ -57,7 +57,7 @@ class ConfigSeedTemplatePathsTest extends AbstractConfigTest
         ];
         $config = new Config($values);
 
-        $actualValue = $config->getSeederTemplateFile();
+        $actualValue = $config->getSeedTemplateFile();
         $this->assertNull($actualValue);
 
         $config->getSeedPaths();

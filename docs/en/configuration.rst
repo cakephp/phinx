@@ -171,7 +171,7 @@ in configuration file:
 .. code-block:: yaml
 
     templates:
-        seedTemplateFile: src/templates/customSeederTemplate.php
+        seedFile: src/templates/customSeederTemplate.php
 
 
 Environments

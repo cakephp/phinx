@@ -190,7 +190,7 @@ class SeedCreateTest extends TestCase
         /** @var SeedCreate $command */
         $command = $application->find('seed:create');
 
-        $this->configValues['templates']['seedTemplateFile'] = __DIR__ . '/Templates/SimpleSeeder.templateFromConfig.php.dist';
+        $this->configValues['templates']['seedFile'] = __DIR__ . '/Templates/SimpleSeeder.templateFromConfig.php.dist';
         $this->config = new Config($this->configValues);
         /** @var Manager $managerStub mock the manager class */
         $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)
@@ -227,7 +227,7 @@ class SeedCreateTest extends TestCase
         $command = $application->find('seed:create');
 
         $template = __DIR__ . '/Templates/SimpleSeeder.templateFromConfigNotExist.php.dist';
-        $this->configValues['templates']['seedTemplateFile'] = $template;
+        $this->configValues['templates']['seedFile'] = $template;
         $this->config = new Config($this->configValues);
         /** @var Manager $managerStub mock the manager class */
         $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)
@@ -256,7 +256,7 @@ class SeedCreateTest extends TestCase
         /** @var SeedCreate $command */
         $command = $application->find('seed:create');
 
-        $this->configValues['templates']['seedTemplateFile'] = __DIR__ . '/Templates/SimpleSeeder.templateFromConfig.php.dist';
+        $this->configValues['templates']['seedFile'] = __DIR__ . '/Templates/SimpleSeeder.templateFromConfig.php.dist';
         $this->config = new Config($this->configValues);
         /** @var Manager $managerStub mock the manager class */
         $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)

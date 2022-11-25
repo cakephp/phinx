@@ -181,7 +181,7 @@ class SeedCreate extends AbstractCommand
         // Command-line option must have higher priority than value from Config
         $config = $this->getConfig();
         if (is_null($altTemplate)) {
-            $altTemplate = $config->getSeederTemplateFile();
+            $altTemplate = $config->getSeedTemplateFile();
             if (!is_null($altTemplate) && !is_file($altTemplate)) {
                 throw new InvalidArgumentException(sprintf(
                     'The template file `%s` from config does not exist',

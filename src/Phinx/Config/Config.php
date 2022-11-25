@@ -542,8 +542,8 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * @inheritdoc
      */
-    public function getSeederTemplateFile(): ?string
+    public function getSeedTemplateFile(): ?string
     {
-        return $this->values['templates']['seedTemplateFile'] ?? null;
+        return $this->values['templates']['seedFile'] ?? null;
     }
 }

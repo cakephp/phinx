@@ -167,5 +167,5 @@ interface ConfigInterface extends ArrayAccess
      *
      * @return string|null
      */
-    public function getSeederTemplateFile(): ?string;
+    public function getSeedTemplateFile(): ?string;
 }
