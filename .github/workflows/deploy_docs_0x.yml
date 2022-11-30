@@ -9,7 +9,7 @@ on:
     inputs:
       branch:
         description: Branch to run on
-        default: master
+        default: 0.x
         required: true
 
 jobs:
