@@ -2,8 +2,8 @@
 
 namespace Test\Phinx\Util;
 
-use RuntimeException;
 use Phinx\Util\Util;
+use RuntimeException;
 use Test\Phinx\TestCase;
 
 class UtilTest extends TestCase
