@@ -5,6 +5,7 @@ namespace Test\Phinx\Migration;
 use InvalidArgumentException;
 use Phinx\Config\Config;
 use Phinx\Console\Command\AbstractCommand;
+use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Migration\Manager;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -118,6 +119,38 @@ class ManagerTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    /**
+     * Prepares an environment for cross DBMS functional tests.
+     *
+     * @param array $paths The paths config to override.
+     * @return \Phinx\Db\Adapter\AdapterInterface
+     */
+    protected function prepareEnvironment(array $paths = []): AdapterInterface
+    {
+        $configArray = $this->getConfigArray();
+
+        // override paths as needed
+        if ($paths) {
+            $configArray['paths'] = $paths + $configArray['paths'];
+        }
+        $configArray['environments']['production'] = DB_CONFIG;
+        $this->manager->setConfig(new Config($configArray));
+
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+
+        // ensure the database is empty
+        if (DB_CONFIG['adapter'] === 'pgsql') {
+            $adapter->dropSchema('public');
+            $adapter->createSchema('public');
+        } elseif (DB_CONFIG['name'] !== ':memory:') {
+            $adapter->dropDatabase(DB_CONFIG['name']);
+            $adapter->createDatabase(DB_CONFIG['name']);
+        }
+        $adapter->disconnect();
+
+        return $adapter;
     }
 
     public function testInstantiation()
@@ -5509,23 +5542,11 @@ class ManagerTest extends TestCase
 
     public function testReversibleMigrationsWorkAsExpected()
     {
-        if (!defined('MYSQL_DB_CONFIG')) {
-            $this->markTestSkipped('Mysql tests disabled.');
-        }
-        $configArray = $this->getConfigArray();
-        $adapter = $this->manager->getEnvironment('production')->getAdapter();
-
-        // override the migrations directory to use the reversible migrations
-        $configArray['paths']['migrations'] = $this->getCorrectedPath(__DIR__ . '/_files/reversiblemigrations');
-        $config = new Config($configArray);
-
-        // ensure the database is empty
-        $adapter->dropDatabase(MYSQL_DB_CONFIG['name']);
-        $adapter->createDatabase(MYSQL_DB_CONFIG['name']);
-        $adapter->disconnect();
+        $adapter = $this->prepareEnvironment([
+            'migrations' => $this->getCorrectedPath(__DIR__ . '/_files/reversiblemigrations'),
+        ]);
 
         // migrate to the latest version
-        $this->manager->setConfig($config);
         $this->manager->migrate('production');
 
         // ensure up migrations worked
@@ -5539,8 +5560,8 @@ class ManagerTest extends TestCase
         $this->assertTrue($adapter->hasTable('change_direction_test'));
         $this->assertTrue($adapter->hasColumn('change_direction_test', 'subthing'));
         $this->assertEquals(
-            count($adapter->fetchAll('SELECT * FROM change_direction_test WHERE subthing IS NOT NULL')),
-            2
+            2,
+            count($adapter->fetchAll('SELECT * FROM change_direction_test WHERE subthing IS NOT NULL'))
         );
 
         // revert all changes to the first
@@ -5554,6 +5575,12 @@ class ManagerTest extends TestCase
         $this->assertTrue($adapter->hasColumn('users', 'bio'));
         $this->assertFalse($adapter->hasForeignKey('user_logins', ['user_id']));
         $this->assertFalse($adapter->hasTable('change_direction_test'));
+
+        // revert all changes
+        $this->manager->rollback('production', '0');
+
+        $this->assertFalse($adapter->hasTable('info'));
+        $this->assertFalse($adapter->hasTable('users'));
     }
 
     public function testReversibleMigrationWithIndexConflict()

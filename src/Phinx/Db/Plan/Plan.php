@@ -190,19 +190,6 @@ class Plan
             }
         }
 
-        // Columns that are dropped will automatically cause the indexes to be dropped as well
-        foreach ($this->columnRemoves as $columnRemove) {
-            foreach ($columnRemove->getActions() as $action) {
-                if ($action instanceof RemoveColumn) {
-                    [$this->indexes] = $this->forgetDropIndex(
-                        $action->getTable(),
-                        [$action->getColumn()->getName()],
-                        $this->indexes
-                    );
-                }
-            }
-        }
-
         // Renaming a column and then changing the renamed column is something people do,
         // but it is a conflicting action. Luckily solving the conflict can be done by moving
         // the ChangeColumn action to another AlterTable.

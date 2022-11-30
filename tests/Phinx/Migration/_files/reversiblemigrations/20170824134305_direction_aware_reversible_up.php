@@ -22,10 +22,10 @@ class DirectionAwareReversibleUp extends AbstractMigration
                     'thing' => 'two',
                 ],
                 [
-                    'thing' => 'fox_socks',
+                    'thing' => 'fox-socks',
                 ],
                 [
-                    'thing' => 'mouse_box',
+                    'thing' => 'mouse-box',
                 ],
             ])->save();
         }
