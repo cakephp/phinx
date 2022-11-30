@@ -4,7 +4,7 @@ name: 'deploy_docs_0x'
 on:
   push:
     tags:
-      - v0.*
+      - 0.*
   workflow_dispatch:
     inputs:
       branch:
