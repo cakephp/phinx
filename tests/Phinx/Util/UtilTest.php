@@ -53,10 +53,16 @@ class UtilTest extends TestCase
         $this->assertSame(20221130101652, Util::getVersionFromFileName('20221130101652_test.php'));
     }
 
-    public function testGetVersionFromFileNameError(): void
+    public function testGetVersionFromFileNameErrorNoVersion(): void
     {
         $this->expectException(RuntimeException::class);
         Util::getVersionFromFileName('foo.php');
+    }
+
+    public function testGetVersionFromFileNameErrorZeroVersion(): VoidCommand
+    {
+        $this->expectException(RuntimeException::class);
+        Util::getVersionFromFileName('0_foo.php');
     }
 
     public function providerMapClassNameToFileName(): array

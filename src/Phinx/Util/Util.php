@@ -90,8 +90,7 @@ class Util
     {
         $matches = [];
         preg_match('/^[0-9]+/', basename($fileName), $matches);
-
-        $value = (int)$matches[0];
+        $value = (int)($matches[0] ?? null);
         if (!$value) {
             throw new RuntimeException(sprintf('Cannot get a valid version from filename `%s`', $fileName));
         }
