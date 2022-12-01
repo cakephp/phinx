@@ -3,6 +3,7 @@
 namespace Test\Phinx\Util;
 
 use Phinx\Util\Util;
+use RuntimeException;
 use Test\Phinx\TestCase;
 
 class UtilTest extends TestCase
@@ -45,6 +46,23 @@ class UtilTest extends TestCase
         $this->assertGreaterThanOrEqual($expected, $current);
         // We limit the assertion time to 2 seconds, which should never fail.
         $this->assertLessThanOrEqual($expected + 2, $current);
+    }
+
+    public function testGetVersionFromFileName(): void
+    {
+        $this->assertSame(20221130101652, Util::getVersionFromFileName('20221130101652_test.php'));
+    }
+
+    public function testGetVersionFromFileNameErrorNoVersion(): void
+    {
+        $this->expectException(RuntimeException::class);
+        Util::getVersionFromFileName('foo.php');
+    }
+
+    public function testGetVersionFromFileNameErrorZeroVersion(): VoidCommand
+    {
+        $this->expectException(RuntimeException::class);
+        Util::getVersionFromFileName('0_foo.php');
     }
 
     public function providerMapClassNameToFileName(): array

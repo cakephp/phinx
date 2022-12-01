@@ -886,12 +886,13 @@ encoding  set character set that differs from table defaults *(only applies to M
 
 For foreign key definitions:
 
-====== ===========
-Option Description
-====== ===========
-update set an action to be triggered when the row is updated
-delete set an action to be triggered when the row is deleted
-====== ===========
+========== ===========
+Option     Description
+========== ===========
+update     set an action to be triggered when the row is updated
+delete     set an action to be triggered when the row is deleted
+constraint set a name to be used by foreign key constraint
+========== ===========
 
 You can pass one or more of these options to any column with the optional
 third argument array.

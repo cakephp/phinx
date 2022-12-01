@@ -10,6 +10,7 @@ namespace Phinx\Util;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -83,14 +84,18 @@ class Util
      * Get the version from the beginning of a file name.
      *
      * @param string $fileName File Name
-     * @return string
+     * @return int
      */
-    public static function getVersionFromFileName(string $fileName): string
+    public static function getVersionFromFileName(string $fileName): int
     {
         $matches = [];
         preg_match('/^[0-9]+/', basename($fileName), $matches);
+        $value = (int)($matches[0] ?? null);
+        if (!$value) {
+            throw new RuntimeException(sprintf('Cannot get a valid version from filename `%s`', $fileName));
+        }
 
-        return $matches[0];
+        return $value;
     }
 
     /**

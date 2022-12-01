@@ -538,4 +538,12 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     {
         unset($this->values[$id]);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSeedTemplateFile(): ?string
+    {
+        return $this->values['templates']['seedFile'] ?? null;
+    }
 }

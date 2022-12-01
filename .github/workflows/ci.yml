@@ -172,7 +172,7 @@ jobs:
 
     - name: Run PHPUnit
       env:
-        SQLSRV_DSN: 'sqlserver://(localdb)\MSSQLLocalDB/phinx'
+        SQLSRV_DSN: 'sqlsrv://(localdb)\MSSQLLocalDB/phinx'
         CODECOVERAGE: 1
       run: |
           vendor/bin/phpunit --verbose --coverage-clover=coverage.xml

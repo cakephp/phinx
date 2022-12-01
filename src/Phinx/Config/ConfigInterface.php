@@ -161,4 +161,11 @@ interface ConfigInterface extends ArrayAccess
      * @return string
      */
     public function getSeedBaseClassName(bool $dropNamespace = true): string;
+
+    /**
+     * Get the seeder template file name or null if not set.
+     *
+     * @return string|null
+     */
+    public function getSeedTemplateFile(): ?string;
 }
