@@ -1195,7 +1195,8 @@ where its value is the name of the column to position it after.
             }
         }
 
-This would create the new column ``city`` and position it after the ``email`` column. ``\Phinx\Db\Adapter\MysqlAdapter::FIRST`` constant can be used to specify that the new column should be
+This would create the new column ``city`` and position it after the ``email`` column. The 
+``\Phinx\Db\Adapter\MysqlAdapter::FIRST`` constant can be used to specify that the new column should be
 created as the first column in that table.
 
 Dropping a Column
