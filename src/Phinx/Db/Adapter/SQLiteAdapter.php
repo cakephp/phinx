@@ -449,7 +449,7 @@ class SQLiteAdapter extends PdoAdapter
         if (!empty($primaryKey)) {
             $instructions->merge(
                 // FIXME: array access is a hack to make this incomplete implementation work with a correct getPrimaryKey implementation
-                $this->getDropPrimaryKeyInstructions($table, $primaryKey[0])
+                $this->getDropPrimaryKeyInstructions($table, $primaryKey[0], false)
             );
         }
 
@@ -820,11 +820,16 @@ PCRE_PATTERN;
      *
      * @param \Phinx\Db\Util\AlterInstructions $instructions The instructions to modify
      * @param string $tableName The table name to copy the data to
+     * @param bool $validateForeignKeys Whether to validate foreign keys after the copy and drop operations. Note that
+     *  enabling this option only has an effect when the `foreign_keys` PRAGMA is set to `ON`!
      * @return \Phinx\Db\Util\AlterInstructions
      */
-    protected function copyAndDropTmpTable(AlterInstructions $instructions, string $tableName): AlterInstructions
-    {
-        $instructions->addPostStep(function ($state) use ($tableName) {
+    protected function copyAndDropTmpTable(
+        AlterInstructions $instructions,
+        string $tableName,
+        bool $validateForeignKeys = true
+    ): AlterInstructions {
+        $instructions->addPostStep(function ($state) use ($tableName, $validateForeignKeys) {
             $this->copyDataToNewTable(
                 $state['tmpTableName'],
                 $tableName,
@@ -865,10 +870,68 @@ PCRE_PATTERN;
                 $this->execute($row['sql']);
             }
 
+            if (
+                $foreignKeysEnabled &&
+                $validateForeignKeys
+            ) {
+                $this->validateForeignKeys($tableName);
+            }
+
             return $state;
         });
 
         return $instructions;
+    }
+
+    /**
+     * Validates the foreign key constraints of the given table, and of those
+     * tables whose constraints are targeting it.
+     *
+     * @param string $tableName The name of the table for which to check constraints.
+     * @return void
+     * @throws \RuntimeException In case of a foreign key constraint violation.
+     */
+    protected function validateForeignKeys(string $tableName): void
+    {
+        $tablesToCheck = [
+            $tableName,
+        ];
+
+        $otherTables = $this
+            ->query(
+                "SELECT name FROM sqlite_master WHERE type = 'table' AND name != ?",
+                [$tableName]
+            )
+            ->fetchAll();
+
+        foreach ($otherTables as $otherTable) {
+            $foreignKeyList = $this->getTableInfo($otherTable['name'], 'foreign_key_list');
+            foreach ($foreignKeyList as $foreignKey) {
+                if (strcasecmp($foreignKey['table'], $tableName) === 0) {
+                    $tablesToCheck[] = $otherTable['name'];
+                    break;
+                }
+            }
+        }
+
+        $tablesToCheck = array_unique(array_map('strtolower', $tablesToCheck));
+
+        foreach ($tablesToCheck as $tableToCheck) {
+            $schema = $this->getSchemaName($tableToCheck, true)['schema'];
+
+            $stmt = $this->query(
+                sprintf('PRAGMA %sforeign_key_check(%s)', $schema, $this->quoteTableName($tableToCheck))
+            );
+            $row = $stmt->fetch();
+            $stmt->closeCursor();
+
+            if (is_array($row)) {
+                throw new RuntimeException(sprintf(
+                    'Integrity constraint violation: FOREIGN KEY constraint on `%s` failed.',
+                    $tableToCheck
+                ));
+            }
+        }
     }
 
     /**
@@ -1320,10 +1383,15 @@ PCRE_PATTERN;
     /**
      * @param \Phinx\Db\Table\Table $table Table
      * @param string $column Column Name
+     * @param bool $validateForeignKeys Whether to validate foreign keys after the copy and drop operations. Note that
+     *  enabling this option only has an effect when the `foreign_keys` PRAGMA is set to `ON`!
      * @return \Phinx\Db\Util\AlterInstructions
      */
-    protected function getDropPrimaryKeyInstructions(Table $table, string $column): AlterInstructions
-    {
+    protected function getDropPrimaryKeyInstructions(
+        Table $table,
+        string $column,
+        bool $validateForeignKeys = true
+    ): AlterInstructions {
         $instructions = $this->beginAlterByCopyTable($table->getName());
 
         $instructions->addPostStep(function ($state) {
@@ -1343,7 +1411,7 @@ PCRE_PATTERN;
             return $newState + $state;
         });
 
-        return $this->copyAndDropTmpTable($instructions, $table->getName());
+        return $this->copyAndDropTmpTable($instructions, $table->getName(), $validateForeignKeys);
     }
 
     /**
