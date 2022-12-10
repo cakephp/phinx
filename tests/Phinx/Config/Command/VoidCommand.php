@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
  */
 class VoidCommand extends AbstractCommand
 {
-    public function locateConfigFile(InputInterface $input)
+    public function locateConfigFile(InputInterface $input): string
     {
         return parent::locateConfigFile($input);
     }

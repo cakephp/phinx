@@ -10,15 +10,15 @@ class FirstFkIndexMigration extends AbstractMigration
                 'id' => false,
                 'primary_key' => ['id'],
                 'engine' => 'InnoDB',
-                'encoding' => 'utf8',
-                'collation' => 'utf8_unicode_ci',
+                'encoding' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
                 'comment' => '',
                 'row_format' => 'DYNAMIC',
             ])
             ->addColumn('id', 'integer', [
                 'null' => false,
                 'limit' => 20,
-                'identity' => 'enable',
+                'identity' => true,
             ])
             ->create();
 
@@ -26,15 +26,15 @@ class FirstFkIndexMigration extends AbstractMigration
                 'id' => false,
                 'primary_key' => ['id'],
                 'engine' => 'InnoDB',
-                'encoding' => 'utf8',
-                'collation' => 'utf8_unicode_ci',
+                'encoding' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
                 'comment' => '',
                 'row_format' => 'DYNAMIC',
             ])
             ->addColumn('id', 'integer', [
                 'null' => false,
                 'limit' => 20,
-                'identity' => 'enable',
+                'identity' => true,
             ])
             ->create();
 
@@ -42,15 +42,15 @@ class FirstFkIndexMigration extends AbstractMigration
                 'id' => false,
                 'primary_key' => ['id'],
                 'engine' => 'InnoDB',
-                'encoding' => 'utf8',
-                'collation' => 'utf8_unicode_ci',
+                'encoding' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
                 'comment' => '',
                 'row_format' => 'DYNAMIC',
             ])
             ->addColumn('id', 'integer', [
                 'null' => false,
                 'limit' => 20,
-                'identity' => 'enable',
+                'identity' => true,
             ])
             ->addColumn('table2_id', 'integer', [
                 'null' => true,
@@ -88,8 +88,8 @@ class FirstFkIndexMigration extends AbstractMigration
             'id' => false,
             'primary_key' => ['id'],
             'engine' => 'InnoDB',
-            'encoding' => 'utf8',
-            'collation' => 'utf8_unicode_ci',
+            'encoding' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
             'comment' => '',
             'row_format' => 'DYNAMIC',
         ])

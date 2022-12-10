@@ -49,12 +49,12 @@ class Manager
     protected $environments = [];
 
     /**
-     * @var \Phinx\Migration\AbstractMigration[]|null
+     * @var \Phinx\Migration\MigrationInterface[]|null
      */
     protected $migrations;
 
     /**
-     * @var \Phinx\Seed\AbstractSeed[]|null
+     * @var \Phinx\Seed\SeedInterface[]|null
      */
     protected $seeds;
 
@@ -88,7 +88,7 @@ class Manager
      * @throws \RuntimeException
      * @return array array indicating if there are any missing or down migrations
      */
-    public function printStatus($environment, $format = null)
+    public function printStatus(string $environment, ?string $format = null): array
     {
         $output = $this->getOutput();
         $hasDownMigration = false;
@@ -260,7 +260,7 @@ class Manager
      * @param int $maxNameLength The maximum migration name length.
      * @return void
      */
-    protected function printMissingVersion($version, $maxNameLength)
+    protected function printMissingVersion(array $version, int $maxNameLength): void
     {
         $this->getOutput()->writeln(sprintf(
             '     <error>up</error>  %14.0f  %19s  %19s  <comment>%s</comment>  <error>** MISSING MIGRATION FILE **</error>',
@@ -284,7 +284,7 @@ class Manager
      *                               migration
      * @return void
      */
-    public function migrateToDateTime($environment, DateTime $dateTime, $fake = false)
+    public function migrateToDateTime(string $environment, DateTime $dateTime, bool $fake = false): void
     {
         $versions = array_keys($this->getMigrations($environment));
         $dateString = $dateTime->format('YmdHis');
@@ -308,7 +308,7 @@ class Manager
      * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
      * @return void
      */
-    public function migrate($environment, $version = null, $fake = false)
+    public function migrate(string $environment, ?int $version = null, bool $fake = false): void
     {
         $migrations = $this->getMigrations($environment);
         $env = $this->getEnvironment($environment);
@@ -370,27 +370,28 @@ class Manager
      * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
      * @return void
      */
-    public function executeMigration($name, MigrationInterface $migration, $direction = MigrationInterface::UP, $fake = false)
+    public function executeMigration(string $name, MigrationInterface $migration, string $direction = MigrationInterface::UP, bool $fake = false): void
     {
         $this->getOutput()->writeln('', $this->verbosityLevel);
-        $this->getOutput()->writeln(
-            ' ==' .
-            ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>' .
-            ' <comment>' . ($direction === MigrationInterface::UP ? 'migrating' : 'reverting') . '</comment>',
-            $this->verbosityLevel
-        );
+
+        // Skip the migration if it should not be executed
+        if (!$migration->shouldExecute()) {
+            $this->printMigrationStatus($migration, 'skipped');
+
+            return;
+        }
+
+        $this->printMigrationStatus($migration, ($direction === MigrationInterface::UP ? 'migrating' : 'reverting'));
 
         // Execute the migration and log the time elapsed.
         $start = microtime(true);
         $this->getEnvironment($name)->executeMigration($migration, $direction, $fake);
         $end = microtime(true);
 
-        $this->getOutput()->writeln(
-            ' ==' .
-            ' <info>' . $migration->getVersion() . ' ' . $migration->getName() . ':</info>' .
-            ' <comment>' . ($direction === MigrationInterface::UP ? 'migrated' : 'reverted') .
-            ' ' . sprintf('%.4fs', $end - $start) . '</comment>',
-            $this->verbosityLevel
+        $this->printMigrationStatus(
+            $migration,
+            ($direction === MigrationInterface::UP ? 'migrated' : 'reverted'),
+            sprintf('%.4fs', $end - $start)
         );
     }
 
@@ -401,26 +402,79 @@ class Manager
      * @param \Phinx\Seed\SeedInterface $seed Seed
      * @return void
      */
-    public function executeSeed($name, SeedInterface $seed)
+    public function executeSeed(string $name, SeedInterface $seed): void
     {
         $this->getOutput()->writeln('', $this->verbosityLevel);
-        $this->getOutput()->writeln(
-            ' ==' .
-            ' <info>' . $seed->getName() . ':</info>' .
-            ' <comment>seeding</comment>',
-            $this->verbosityLevel
-        );
+
+        // Skip the seed if it should not be executed
+        if (!$seed->shouldExecute()) {
+            $this->printSeedStatus($seed, 'skipped');
+
+            return;
+        }
+
+        $this->printSeedStatus($seed, 'seeding');
 
         // Execute the seeder and log the time elapsed.
         $start = microtime(true);
         $this->getEnvironment($name)->executeSeed($seed);
         $end = microtime(true);
 
+        $this->printSeedStatus(
+            $seed,
+            'seeded',
+            sprintf('%.4fs', $end - $start)
+        );
+    }
+
+    /**
+     * Print Migration Status
+     *
+     * @param \Phinx\Migration\MigrationInterface $migration Migration
+     * @param string $status Status of the migration
+     * @param string|null $duration Duration the migration took the be executed
+     * @return void
+     */
+    protected function printMigrationStatus(MigrationInterface $migration, string $status, ?string $duration = null): void
+    {
+        $this->printStatusOutput(
+            $migration->getVersion() . ' ' . $migration->getName(),
+            $status,
+            $duration
+        );
+    }
+
+    /**
+     * Print Seed Status
+     *
+     * @param \Phinx\Seed\SeedInterface $seed Seed
+     * @param string $status Status of the seed
+     * @param string|null $duration Duration the seed took the be executed
+     * @return void
+     */
+    protected function printSeedStatus(SeedInterface $seed, string $status, ?string $duration = null): void
+    {
+        $this->printStatusOutput(
+            $seed->getName(),
+            $status,
+            $duration
+        );
+    }
+
+    /**
+     * Print Status in Output
+     *
+     * @param string $name Name of the migration or seed
+     * @param string $status Status of the migration or seed
+     * @param string|null $duration Duration the migration or seed took the be executed
+     * @return void
+     */
+    protected function printStatusOutput(string $name, string $status, ?string $duration = null): void
+    {
         $this->getOutput()->writeln(
             ' ==' .
-            ' <info>' . $seed->getName() . ':</info>' .
-            ' <comment>seeded' .
-            ' ' . sprintf('%.4fs', $end - $start) . '</comment>',
+            ' <info>' . $name . ':</info>' .
+            ' <comment>' . $status . ' ' . $duration . '</comment>',
             $this->verbosityLevel
         );
     }
@@ -435,7 +489,7 @@ class Manager
      * @param bool $fake Flag that if true, we just record running the migration, but not actually do the migration
      * @return void
      */
-    public function rollback($environment, $target = null, $force = false, $targetMustMatchVersion = true, $fake = false)
+    public function rollback(string $environment, $target = null, bool $force = false, bool $targetMustMatchVersion = true, bool $fake = false): void
     {
         // note that the migrations are indexed by name (aka creation time) in ascending order
         $migrations = $this->getMigrations($environment);
@@ -546,9 +600,9 @@ class Manager
      * @throws \InvalidArgumentException
      * @return void
      */
-    public function seed($environment, $seed = null)
+    public function seed(string $environment, ?string $seed = null): void
     {
-        $seeds = $this->getSeeds();
+        $seeds = $this->getSeeds($environment);
 
         if ($seed === null) {
             // run all seeders
@@ -573,7 +627,7 @@ class Manager
      * @param \Phinx\Migration\Manager\Environment[] $environments Environments
      * @return $this
      */
-    public function setEnvironments($environments = [])
+    public function setEnvironments(array $environments = [])
     {
         $this->environments = $environments;
 
@@ -587,7 +641,7 @@ class Manager
      * @throws \InvalidArgumentException
      * @return \Phinx\Migration\Manager\Environment
      */
-    public function getEnvironment($name)
+    public function getEnvironment(string $name): Environment
     {
         if (isset($this->environments[$name])) {
             return $this->environments[$name];
@@ -618,11 +672,13 @@ class Manager
      * Sets the user defined PSR-11 container
      *
      * @param \Psr\Container\ContainerInterface $container Container
-     * @return void
+     * @return $this
      */
     public function setContainer(ContainerInterface $container)
     {
         $this->container = $container;
+
+        return $this;
     }
 
     /**
@@ -643,7 +699,7 @@ class Manager
      *
      * @return \Symfony\Component\Console\Input\InputInterface
      */
-    public function getInput()
+    public function getInput(): InputInterface
     {
         return $this->input;
     }
@@ -666,7 +722,7 @@ class Manager
      *
      * @return \Symfony\Component\Console\Output\OutputInterface
      */
-    public function getOutput()
+    public function getOutput(): OutputInterface
     {
         return $this->output;
     }
@@ -690,9 +746,9 @@ class Manager
      *
      * @param string $environment Environment
      * @throws \InvalidArgumentException
-     * @return \Phinx\Migration\AbstractMigration[]
+     * @return \Phinx\Migration\MigrationInterface[]
      */
-    public function getMigrations($environment)
+    public function getMigrations(string $environment): array
     {
         if ($this->migrations === null) {
             $phpFiles = $this->getMigrationFiles();
@@ -795,7 +851,7 @@ class Manager
      *
      * @return string[]
      */
-    protected function getMigrationFiles()
+    protected function getMigrationFiles(): array
     {
         return Util::getFiles($this->getConfig()->getMigrationPaths());
     }
@@ -803,7 +859,7 @@ class Manager
     /**
      * Sets the database seeders.
      *
-     * @param \Phinx\Seed\AbstractSeed[] $seeds Seeders
+     * @param \Phinx\Seed\SeedInterface[] $seeds Seeders
      * @return $this
      */
     public function setSeeds(array $seeds)
@@ -816,10 +872,10 @@ class Manager
     /**
      * Get seed dependencies instances from seed dependency array
      *
-     * @param \Phinx\Seed\AbstractSeed $seed Seed
-     * @return \Phinx\Seed\AbstractSeed[]
+     * @param \Phinx\Seed\SeedInterface $seed Seed
+     * @return \Phinx\Seed\SeedInterface[]
      */
-    protected function getSeedDependenciesInstances(AbstractSeed $seed)
+    protected function getSeedDependenciesInstances(SeedInterface $seed): array
     {
         $dependenciesInstances = [];
         $dependencies = $seed->getDependencies();
@@ -839,20 +895,17 @@ class Manager
     /**
      * Order seeds by dependencies
      *
-     * @param \Phinx\Seed\AbstractSeed[] $seeds Seeds
-     * @return \Phinx\Seed\AbstractSeed[]
+     * @param \Phinx\Seed\SeedInterface[] $seeds Seeds
+     * @return \Phinx\Seed\SeedInterface[]
      */
-    protected function orderSeedsByDependencies(array $seeds)
+    protected function orderSeedsByDependencies(array $seeds): array
     {
         $orderedSeeds = [];
         foreach ($seeds as $seed) {
-            $key = get_class($seed);
+            $orderedSeeds[get_class($seed)] = $seed;
             $dependencies = $this->getSeedDependenciesInstances($seed);
             if (!empty($dependencies)) {
-                $orderedSeeds[$key] = $seed;
                 $orderedSeeds = array_merge($this->orderSeedsByDependencies($dependencies), $orderedSeeds);
-            } else {
-                $orderedSeeds[$key] = $seed;
             }
         }
 
@@ -862,17 +915,18 @@ class Manager
     /**
      * Gets an array of database seeders.
      *
+     * @param string $environment Environment
      * @throws \InvalidArgumentException
-     * @return \Phinx\Seed\AbstractSeed[]
+     * @return \Phinx\Seed\SeedInterface[]
      */
-    public function getSeeds()
+    public function getSeeds(string $environment): array
     {
         if ($this->seeds === null) {
             $phpFiles = $this->getSeedFiles();
 
             // filter the files to only get the ones that match our naming scheme
             $fileNames = [];
-            /** @var \Phinx\Seed\AbstractSeed[] $seeds */
+            /** @var \Phinx\Seed\SeedInterface[] $seeds */
             $seeds = [];
 
             foreach ($phpFiles as $filePath) {
@@ -902,6 +956,7 @@ class Manager
                     } else {
                         $seed = new $class();
                     }
+                    $seed->setEnvironment($environment);
                     $input = $this->getInput();
                     if ($input !== null) {
                         $seed->setInput($input);
@@ -937,7 +992,7 @@ class Manager
      *
      * @return string[]
      */
-    protected function getSeedFiles()
+    protected function getSeedFiles(): array
     {
         return Util::getFiles($this->getConfig()->getSeedPaths());
     }
@@ -960,7 +1015,7 @@ class Manager
      *
      * @return \Phinx\Config\ConfigInterface
      */
-    public function getConfig()
+    public function getConfig(): ConfigInterface
     {
         return $this->config;
     }
@@ -972,7 +1027,7 @@ class Manager
      * @param int|null $version Version
      * @return void
      */
-    public function toggleBreakpoint($environment, $version)
+    public function toggleBreakpoint(string $environment, ?int $version): void
     {
         $this->markBreakpoint($environment, $version, self::BREAKPOINT_TOGGLE);
     }
@@ -985,10 +1040,9 @@ class Manager
      * @param int $mark The state of the breakpoint as defined by self::BREAKPOINT_xxxx constants.
      * @return void
      */
-    protected function markBreakpoint($environment, $version, $mark)
+    protected function markBreakpoint(string $environment, ?int $version, int $mark): void
     {
         $migrations = $this->getMigrations($environment);
-        $this->getMigrations($environment);
         $env = $this->getEnvironment($environment);
         $versions = $env->getVersionLog();
 
@@ -1041,7 +1095,7 @@ class Manager
      * @param string $environment The required environment
      * @return void
      */
-    public function removeBreakpoints($environment)
+    public function removeBreakpoints(string $environment): void
     {
         $this->getOutput()->writeln(sprintf(
             ' %d breakpoints cleared.',
@@ -1056,7 +1110,7 @@ class Manager
      * @param int|null $version The version of the target migration
      * @return void
      */
-    public function setBreakpoint($environment, $version)
+    public function setBreakpoint(string $environment, ?int $version): void
     {
         $this->markBreakpoint($environment, $version, self::BREAKPOINT_SET);
     }
@@ -1068,7 +1122,7 @@ class Manager
      * @param int|null $version The version of the target migration
      * @return void
      */
-    public function unsetBreakpoint($environment, $version)
+    public function unsetBreakpoint(string $environment, ?int $version): void
     {
         $this->markBreakpoint($environment, $version, self::BREAKPOINT_UNSET);
     }

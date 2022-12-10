@@ -1,26 +1,30 @@
 <?php
-
-namespace Baz;
+declare(strict_types=1);
 
 use Phinx\Seed\AbstractSeed;
 
-class PostSeeder extends AbstractSeed
+class UserSeederNotExecuted extends AbstractSeed
 {
     public function run(): void
     {
         $data = [
             [
-                'body' => 'foo',
+                'name' => 'foo',
                 'created' => date('Y-m-d H:i:s'),
             ],
             [
-                'body' => 'bar',
+                'name' => 'bar',
                 'created' => date('Y-m-d H:i:s'),
             ],
         ];
 
-        $posts = $this->table('posts');
-        $posts->insert($data)
+        $users = $this->table('users');
+        $users->insert($data)
               ->save();
+    }
+
+    public function shouldExecute(): bool
+    {
+        return false;
     }
 }

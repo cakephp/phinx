@@ -7,18 +7,8 @@ parameters:
 
 		-
 			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
-			count: 2
+			count: 1
 			path: src/Phinx/Db/Adapter/MysqlAdapter.php
-
-		-
-			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
-			count: 1
-			path: src/Phinx/Db/Adapter/PostgresAdapter.php
-
-		-
-			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
-			count: 1
-			path: src/Phinx/Db/Adapter/SqlServerAdapter.php
 
 		-
 			message: "#^Ternary operator condition is always true\\.$#"

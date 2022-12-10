@@ -158,13 +158,23 @@ The ``init()`` method is run by Phinx before the migration methods if it exists.
 This can be used for setting common class properties that are then used within
 the migration methods.
 
+The Should Execute Method
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``shouldExecute()`` method is run by Phinx before executing the migration.
+This can be used to prevent the migration from being executed at this time. It always
+returns true by default. You can override it in your custom ``AbstractMigration``
+implementation.
+
 Executing Queries
 -----------------
 
 Queries can be executed with the ``execute()`` and ``query()`` methods. The
 ``execute()`` method returns the number of affected rows whereas the
 ``query()`` method returns the result as a
-`PDOStatement <http://php.net/manual/en/class.pdostatement.php>`_
+`PDOStatement <https://php.net/manual/en/class.pdostatement.php>`_. Both methods
+accept an optional second parameter ``$params`` which is an array of elements,
+and if used will cause the underlying connection to use a prepared statement.
 
 .. code-block:: php
 
@@ -185,6 +195,11 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
                 // query()
                 $stmt = $this->query('SELECT * FROM users'); // returns PDOStatement
                 $rows = $stmt->fetchAll(); // returns the result as an array
+
+                // using prepared queries
+                $count = $this->execute('DELETE FROM users WHERE id = ?', [5]);
+                $stmt = $this->query('SELECT * FROM users WHERE id > ?', [5]); // returns PDOStatement
+                $rows = $stmt->fetchAll();
             }
 
             /**
@@ -205,6 +220,12 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
     DELIMITERs during insertion of stored procedures or triggers which
     don't support DELIMITERs.
 
+.. note::
+
+    If you wish to execute multiple queries at once, you may not also use the prepared
+    variant of these functions. When using prepared queries, PDO can only execute
+    them one at a time.
+
 .. warning::
 
     When using ``execute()`` or ``query()`` with a batch of queries, PDO doesn't
@@ -216,7 +237,7 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
     If Phinx was to iterate any potential result sets, looking to see if one
     had an error, then Phinx would be denying access to all the results as there
     is no facility in PDO to get a previous result set
-    `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`_ -
+    `nextRowset() <https://php.net/manual/en/pdostatement.nextrowset.php>`_ -
     but no ``previousSet()``).
 
     So, as a consequence, due to the design decision in PDO to not throw
@@ -225,8 +246,8 @@ Queries can be executed with the ``execute()`` and ``query()`` methods. The
 
     Fortunately though, all the features of PDO are available, so multiple batches
     can be controlled within the migration by calling upon
-    `nextRowset() <http://php.net/manual/en/pdostatement.nextrowset.php>`_
-    and examining `errorInfo <http://php.net/manual/en/pdostatement.errorinfo.php>`_.
+    `nextRowset() <https://php.net/manual/en/pdostatement.nextrowset.php>`_
+    and examining `errorInfo <https://php.net/manual/en/pdostatement.errorinfo.php>`_.
 
 Fetching Rows
 -------------
@@ -478,13 +499,13 @@ Option     Description
 comment    set a text comment on the table
 row_format set the table row format
 engine     define table engine *(defaults to ``InnoDB``)*
-collation  define table collation *(defaults to ``utf8_general_ci``)*
-signed     whether the primary key is ``signed``  *(defaults to ``true``)*
+collation  define table collation *(defaults to ``utf8mb4_unicode_ci``)*
+signed     whether the primary key is ``signed``  *(defaults to ``false``)*
 limit      set the maximum length for the primary key
 ========== ===========
 
-By default the primary key is ``signed``.
-To simply set it to unsigned just pass ``signed`` option with a ``false`` value:
+By default, the primary key is ``unsigned``.
+To simply set it to be signed just pass ``signed`` option with a ``true`` value:
 
 .. code-block:: php
 
@@ -757,7 +778,7 @@ Option  Description
 limit   set maximum length for strings, also hints column types in adapters (see note below)
 length  alias for ``limit``
 default set default value or action
-null    allow ``NULL`` values, defaults to false (should not be used with primary keys!) (see note below)
+null    allow ``NULL`` values, defaults to false if `identity` option is set to true, else defaults to true
 after   specify the column that a new column should be placed after, or use ``\Phinx\Db\Adapter\MysqlAdapter::FIRST`` to place the column at the start of the table *(only applies to MySQL)*
 comment set a text comment on the column
 ======= ===========
@@ -780,7 +801,7 @@ Option    Description
 values    Can be a comma separated list or an array of values
 ========= ===========
 
-For ``integer`` and ``biginteger`` columns:
+For ``smallinteger``, ``integer`` and ``biginteger`` columns:
 
 ======== ===========
 Option   Description
@@ -788,6 +809,9 @@ Option   Description
 identity enable or disable automatic incrementing
 signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
 ======== ===========
+
+For Postgres, when using ``identity``, it will utilize the ``serial`` type appropriate for the integer size, so that
+``smallinteger`` will give you ``smallserial``, ``integer`` gives ``serial``, and ``biginteger`` gives ``bigserial``.
 
 For ``timestamp`` columns:
 
@@ -801,7 +825,7 @@ timezone enable or disable the ``with time zone`` option for ``time`` and ``time
 
 You can add ``created_at`` and ``updated_at`` timestamps to a table using the ``addTimestamps()`` method. This method accepts
 three arguments, where the first two allow setting alternative names for the columns while the third argument allows you to
-enable the ``timezone`` option for the columns. The defaults for these arguments are ``created_at``, ``updated_at``, and ``true``
+enable the ``timezone`` option for the columns. The defaults for these arguments are ``created_at``, ``updated_at``, and ``false``
 respectively. For the first and second argument, if you provide ``null``, then the default name will be used, and if you provide
 ``false``, then that column will not be created. Please note that attempting to set both to ``false`` will throw a
 ``\RuntimeException``. Additionally, you can use the ``addTimestampsWithTimezone()`` method, which is an alias to
@@ -862,12 +886,13 @@ encoding  set character set that differs from table defaults *(only applies to M
 
 For foreign key definitions:
 
-====== ===========
-Option Description
-====== ===========
-update set an action to be triggered when the row is updated
-delete set an action to be triggered when the row is deleted
-====== ===========
+========== ===========
+Option     Description
+========== ===========
+update     set an action to be triggered when the row is updated
+delete     set an action to be triggered when the row is deleted
+constraint set a name to be used by foreign key constraint
+========== ===========
 
 You can pass one or more of these options to any column with the optional
 third argument array.
@@ -875,7 +900,11 @@ third argument array.
 Limit Option and MySQL
 ~~~~~~~~~~~~~~~~~~~~~~
 
-When using the MySQL adapter, additional hinting of database column type can be
+When using the MySQL adapter, there are a couple things to consider when working with limits:
+
+- When using a ``string`` primary key or index on MySQL 5.7 or below and the default charset of ``utf8mb4_unicode_ci``, you
+must specify a limit less than or equal to 191, or use a different charset.
+- Additional hinting of database column type can be
 made for ``integer``, ``text``, ``blob``, ``tinyblob``, ``mediumblob``, ``longblob`` columns. Using ``limit`` with
 one the following options will modify the column type accordingly:
 
@@ -1166,8 +1195,8 @@ where its value is the name of the column to position it after.
             }
         }
 
-This would create the new column ``city`` and position it after the ``email`` column. You
-can use the `\Phinx\Db\Adapter\MysqlAdapter\FIRST` constant to specify that the new column should
+This would create the new column ``city`` and position it after the ``email`` column. The 
+``\Phinx\Db\Adapter\MysqlAdapter::FIRST`` constant can be used to specify that the new column should be
 created as the first column in that table.
 
 Dropping a Column

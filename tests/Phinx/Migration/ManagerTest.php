@@ -5,6 +5,7 @@ namespace Test\Phinx\Migration;
 use InvalidArgumentException;
 use Phinx\Config\Config;
 use Phinx\Console\Command\AbstractCommand;
+use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Migration\Manager;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -118,6 +119,38 @@ class ManagerTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    /**
+     * Prepares an environment for cross DBMS functional tests.
+     *
+     * @param array $paths The paths config to override.
+     * @return \Phinx\Db\Adapter\AdapterInterface
+     */
+    protected function prepareEnvironment(array $paths = []): AdapterInterface
+    {
+        $configArray = $this->getConfigArray();
+
+        // override paths as needed
+        if ($paths) {
+            $configArray['paths'] = $paths + $configArray['paths'];
+        }
+        $configArray['environments']['production'] = DB_CONFIG;
+        $this->manager->setConfig(new Config($configArray));
+
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+
+        // ensure the database is empty
+        if (DB_CONFIG['adapter'] === 'pgsql') {
+            $adapter->dropSchema('public');
+            $adapter->createSchema('public');
+        } elseif (DB_CONFIG['name'] !== ':memory:') {
+            $adapter->dropDatabase(DB_CONFIG['name']);
+            $adapter->createDatabase(DB_CONFIG['name']);
+        }
+        $adapter->disconnect();
+
+        return $adapter;
     }
 
     public function testInstantiation()
@@ -5450,16 +5483,29 @@ class ManagerTest extends TestCase
 
     public function testOrderSeeds()
     {
-        $seeds = array_values($this->manager->getSeeds());
+        $seeds = array_values($this->manager->getSeeds('mockenv'));
         $this->assertInstanceOf('UserSeeder', $seeds[0]);
         $this->assertInstanceOf('GSeeder', $seeds[1]);
         $this->assertInstanceOf('PostSeeder', $seeds[2]);
     }
 
+    public function testSeedWillNotBeExecuted()
+    {
+        // stub environment
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock();
+        $this->manager->setEnvironments(['mockenv' => $envStub]);
+        $this->manager->seed('mockenv', 'UserSeederNotExecuted');
+        rewind($this->manager->getOutput()->getStream());
+        $output = stream_get_contents($this->manager->getOutput()->getStream());
+        $this->assertStringContainsString('skipped', $output);
+    }
+
     public function testGettingInputObject()
     {
         $migrations = $this->manager->getMigrations('mockenv');
-        $seeds = $this->manager->getSeeds();
+        $seeds = $this->manager->getSeeds('mockenv');
         $inputObject = $this->manager->getInput();
         $this->assertInstanceOf('\Symfony\Component\Console\Input\InputInterface', $inputObject);
 
@@ -5474,7 +5520,7 @@ class ManagerTest extends TestCase
     public function testGettingOutputObject()
     {
         $migrations = $this->manager->getMigrations('mockenv');
-        $seeds = $this->manager->getSeeds();
+        $seeds = $this->manager->getSeeds('mockenv');
         $outputObject = $this->manager->getOutput();
         $this->assertInstanceOf('\Symfony\Component\Console\Output\OutputInterface', $outputObject);
 
@@ -5496,23 +5542,11 @@ class ManagerTest extends TestCase
 
     public function testReversibleMigrationsWorkAsExpected()
     {
-        if (!defined('MYSQL_DB_CONFIG')) {
-            $this->markTestSkipped('Mysql tests disabled.');
-        }
-        $configArray = $this->getConfigArray();
-        $adapter = $this->manager->getEnvironment('production')->getAdapter();
-
-        // override the migrations directory to use the reversible migrations
-        $configArray['paths']['migrations'] = $this->getCorrectedPath(__DIR__ . '/_files/reversiblemigrations');
-        $config = new Config($configArray);
-
-        // ensure the database is empty
-        $adapter->dropDatabase(MYSQL_DB_CONFIG['name']);
-        $adapter->createDatabase(MYSQL_DB_CONFIG['name']);
-        $adapter->disconnect();
+        $adapter = $this->prepareEnvironment([
+            'migrations' => $this->getCorrectedPath(__DIR__ . '/_files/reversiblemigrations'),
+        ]);
 
         // migrate to the latest version
-        $this->manager->setConfig($config);
         $this->manager->migrate('production');
 
         // ensure up migrations worked
@@ -5526,8 +5560,8 @@ class ManagerTest extends TestCase
         $this->assertTrue($adapter->hasTable('change_direction_test'));
         $this->assertTrue($adapter->hasColumn('change_direction_test', 'subthing'));
         $this->assertEquals(
-            count($adapter->fetchAll('SELECT * FROM change_direction_test WHERE subthing IS NOT NULL')),
-            2
+            2,
+            count($adapter->fetchAll('SELECT * FROM change_direction_test WHERE subthing IS NOT NULL'))
         );
 
         // revert all changes to the first
@@ -5541,6 +5575,12 @@ class ManagerTest extends TestCase
         $this->assertTrue($adapter->hasColumn('users', 'bio'));
         $this->assertFalse($adapter->hasForeignKey('user_logins', ['user_id']));
         $this->assertFalse($adapter->hasTable('change_direction_test'));
+
+        // revert all changes
+        $this->manager->rollback('production', '0');
+
+        $this->assertFalse($adapter->hasTable('info'));
+        $this->assertFalse($adapter->hasTable('users'));
     }
 
     public function testReversibleMigrationWithIndexConflict()
@@ -6062,5 +6102,34 @@ class ManagerTest extends TestCase
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
         $this->assertEquals('warning 20120133235330 is not a valid version', trim($outputStr));
+    }
+
+    public function testMigrationWillNotBeExecuted()
+    {
+        if (!defined('MYSQL_DB_CONFIG')) {
+            $this->markTestSkipped('Mysql tests disabled.');
+        }
+        $configArray = $this->getConfigArray();
+        $adapter = $this->manager->getEnvironment('production')->getAdapter();
+
+        // override the migrations directory to use the should execute migrations
+        $configArray['paths']['migrations'] = $this->getCorrectedPath(__DIR__ . '/_files/should_execute');
+        $config = new Config($configArray);
+
+        // ensure the database is empty
+        $adapter->dropDatabase(MYSQL_DB_CONFIG['name']);
+        $adapter->createDatabase(MYSQL_DB_CONFIG['name']);
+        $adapter->disconnect();
+
+        // Run the migration with shouldExecute returning false: the table should not be created
+        $this->manager->setConfig($config);
+        $this->manager->migrate('production', '20201207205056');
+
+        $this->assertFalse($adapter->hasTable('info'));
+
+        // Run the migration with shouldExecute returning true: the table should be created
+        $this->manager->migrate('production', '20201207205057');
+
+        $this->assertTrue($adapter->hasTable('info'));
     }
 }

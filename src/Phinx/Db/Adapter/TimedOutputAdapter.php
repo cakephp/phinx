@@ -22,7 +22,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * @inheritDoc
      */
-    public function getAdapterType()
+    public function getAdapterType(): string
     {
         return $this->getAdapter()->getAdapterType();
     }
@@ -32,7 +32,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      *
      * @return callable A function that is to be called when the command finishes
      */
-    public function startCommandTimer()
+    public function startCommandTimer(): callable
     {
         $started = microtime(true);
 
@@ -51,7 +51,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @param array $args Command Args
      * @return void
      */
-    public function writeCommand($command, $args = [])
+    public function writeCommand(string $command, array $args = []): void
     {
         if (OutputInterface::VERBOSITY_VERBOSE > $this->getOutput()->getVerbosity()) {
             return;
@@ -84,7 +84,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * @inheritDoc
      */
-    public function insert(Table $table, $row)
+    public function insert(Table $table, array $row): void
     {
         $end = $this->startCommandTimer();
         $this->writeCommand('insert', [$table->getName()]);
@@ -95,7 +95,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * @inheritDoc
      */
-    public function bulkinsert(Table $table, $rows)
+    public function bulkinsert(Table $table, array $rows): void
     {
         $end = $this->startCommandTimer();
         $this->writeCommand('bulkinsert', [$table->getName()]);
@@ -106,7 +106,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * @inheritDoc
      */
-    public function createTable(Table $table, array $columns = [], array $indexes = [])
+    public function createTable(Table $table, array $columns = [], array $indexes = []): void
     {
         $end = $this->startCommandTimer();
         $this->writeCommand('createTable', [$table->getName()]);
@@ -120,7 +120,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function changePrimaryKey(Table $table, $newColumns)
+    public function changePrimaryKey(Table $table, $newColumns): void
     {
         $adapter = $this->getAdapter();
         if (!$adapter instanceof DirectActionInterface) {
@@ -138,7 +138,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function changeComment(Table $table, $newComment)
+    public function changeComment(Table $table, ?string $newComment): void
     {
         $adapter = $this->getAdapter();
         if (!$adapter instanceof DirectActionInterface) {
@@ -156,7 +156,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function renameTable($tableName, $newTableName)
+    public function renameTable(string $tableName, string $newTableName): void
     {
         $adapter = $this->getAdapter();
         if (!$adapter instanceof DirectActionInterface) {
@@ -174,7 +174,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function dropTable($tableName)
+    public function dropTable(string $tableName): void
     {
         $adapter = $this->getAdapter();
         if (!$adapter instanceof DirectActionInterface) {
@@ -189,7 +189,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * @inheritDoc
      */
-    public function truncateTable($tableName)
+    public function truncateTable(string $tableName): void
     {
         $end = $this->startCommandTimer();
         $this->writeCommand('truncateTable', [$tableName]);
@@ -203,7 +203,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function addColumn(Table $table, Column $column)
+    public function addColumn(Table $table, Column $column): void
     {
         $adapter = $this->getAdapter();
         if (!$adapter instanceof DirectActionInterface) {
@@ -228,7 +228,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function renameColumn($tableName, $columnName, $newColumnName)
+    public function renameColumn(string $tableName, string $columnName, string $newColumnName): void
     {
         $adapter = $this->getAdapter();
         if (!$adapter instanceof DirectActionInterface) {
@@ -246,7 +246,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function changeColumn($tableName, $columnName, Column $newColumn)
+    public function changeColumn(string $tableName, string $columnName, Column $newColumn): void
     {
         $adapter = $this->getAdapter();
         if (!$adapter instanceof DirectActionInterface) {
@@ -264,7 +264,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function dropColumn($tableName, $columnName)
+    public function dropColumn(string $tableName, string $columnName): void
     {
         $adapter = $this->getAdapter();
         if (!$adapter instanceof DirectActionInterface) {
@@ -282,7 +282,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function addIndex(Table $table, Index $index)
+    public function addIndex(Table $table, Index $index): void
     {
         $adapter = $this->getAdapter();
         if (!$adapter instanceof DirectActionInterface) {
@@ -300,7 +300,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function dropIndex($tableName, $columns)
+    public function dropIndex(string $tableName, $columns): void
     {
         $adapter = $this->getAdapter();
         if (!$adapter instanceof DirectActionInterface) {
@@ -318,7 +318,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function dropIndexByName($tableName, $indexName)
+    public function dropIndexByName(string $tableName, string $indexName): void
     {
         $adapter = $this->getAdapter();
         if (!$adapter instanceof DirectActionInterface) {
@@ -336,7 +336,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function addForeignKey(Table $table, ForeignKey $foreignKey)
+    public function addForeignKey(Table $table, ForeignKey $foreignKey): void
     {
         $adapter = $this->getAdapter();
         if (!$adapter instanceof DirectActionInterface) {
@@ -354,7 +354,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
      * @throws \BadMethodCallException
      * @return void
      */
-    public function dropForeignKey($tableName, $columns, $constraint = null)
+    public function dropForeignKey(string $tableName, array $columns, ?string $constraint = null): void
     {
         $adapter = $this->getAdapter();
         if (!$adapter instanceof DirectActionInterface) {
@@ -369,7 +369,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * @inheritDoc
      */
-    public function createDatabase($name, $options = [])
+    public function createDatabase(string $name, array $options = []): void
     {
         $end = $this->startCommandTimer();
         $this->writeCommand('createDatabase', [$name]);
@@ -380,7 +380,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * @inheritDoc
      */
-    public function dropDatabase($name)
+    public function dropDatabase(string $name): void
     {
         $end = $this->startCommandTimer();
         $this->writeCommand('dropDatabase', [$name]);
@@ -391,7 +391,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * @inheritDoc
      */
-    public function createSchema($name = 'public')
+    public function createSchema(string $name = 'public'): void
     {
         $end = $this->startCommandTimer();
         $this->writeCommand('createSchema', [$name]);
@@ -402,7 +402,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * @inheritDoc
      */
-    public function dropSchema($name)
+    public function dropSchema(string $name): void
     {
         $end = $this->startCommandTimer();
         $this->writeCommand('dropSchema', [$name]);
@@ -413,7 +413,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * @inheritDoc
      */
-    public function executeActions(Table $table, array $actions)
+    public function executeActions(Table $table, array $actions): void
     {
         $end = $this->startCommandTimer();
         $this->writeCommand(sprintf('Altering table %s', $table->getName()));

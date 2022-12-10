@@ -16,12 +16,12 @@ abstract class AbstractConfigTest extends TestCase
     /**
      * @var string
      */
-    protected $migrationPath = null;
+    protected $migrationPath;
 
     /**
      * @var string
      */
-    protected $seedPath = null;
+    protected $seedPath;
 
     /**
      * Returns a sample configuration array for use with the unit tests.

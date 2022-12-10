@@ -9,6 +9,7 @@ namespace Phinx\Console\Command;
 
 use Exception;
 use InvalidArgumentException;
+use Phinx\Config\Config;
 use Phinx\Config\NamespaceAwareInterface;
 use Phinx\Util\Util;
 use RuntimeException;
@@ -24,7 +25,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 class Create extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'create';
 
@@ -38,7 +39,7 @@ class Create extends AbstractCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -59,6 +60,8 @@ class Create extends AbstractCommand
 
         // Allow the migration path to be chosen non-interactively.
         $this->addOption('path', null, InputOption::VALUE_REQUIRED, 'Specify the path in which to create this migration');
+
+        $this->addOption('style', null, InputOption::VALUE_REQUIRED, 'Specify the style of migration to create');
     }
 
     /**
@@ -67,7 +70,7 @@ class Create extends AbstractCommand
      *
      * @return \Symfony\Component\Console\Question\ConfirmationQuestion
      */
-    protected function getCreateMigrationDirectoryQuestion()
+    protected function getCreateMigrationDirectoryQuestion(): ConfirmationQuestion
     {
         return new ConfirmationQuestion('Create migrations directory? [y]/n ', true);
     }
@@ -78,7 +81,7 @@ class Create extends AbstractCommand
      * @param string[] $paths Paths
      * @return \Symfony\Component\Console\Question\ChoiceQuestion
      */
-    protected function getSelectMigrationPathQuestion(array $paths)
+    protected function getSelectMigrationPathQuestion(array $paths): ChoiceQuestion
     {
         return new ChoiceQuestion('Which migrations path would you like to use?', $paths, 0);
     }
@@ -91,7 +94,7 @@ class Create extends AbstractCommand
      * @throws \Exception
      * @return string
      */
-    protected function getMigrationPath(InputInterface $input, OutputInterface $output)
+    protected function getMigrationPath(InputInterface $input, OutputInterface $output): string
     {
         // First, try the non-interactive option:
         $path = $input->getOption('path');
@@ -138,7 +141,7 @@ class Create extends AbstractCommand
      * @throws \InvalidArgumentException
      * @return int 0 on success
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
 
@@ -198,17 +201,24 @@ class Create extends AbstractCommand
         // Get the alternative template and static class options from the config, but only allow one of them.
         $defaultAltTemplate = $this->getConfig()->getTemplateFile();
         $defaultCreationClassName = $this->getConfig()->getTemplateClass();
+        $defaultStyle = $this->getConfig()->getTemplateStyle();
         if ($defaultAltTemplate && $defaultCreationClassName) {
             throw new InvalidArgumentException('Cannot define template:class and template:file at the same time');
         }
 
         // Get the alternative template and static class options from the command line, but only allow one of them.
-        /** @phpstan-var class-string|null $altTemplate */
+        /** @var string|null $altTemplate */
         $altTemplate = $input->getOption('template');
-        /** @phpstan-var class-string|null $creationClassName */
+        /** @var string|null $creationClassName */
         $creationClassName = $input->getOption('class');
+        $style = $input->getOption('style');
+
         if ($altTemplate && $creationClassName) {
             throw new InvalidArgumentException('Cannot use --template and --class at the same time');
+        }
+
+        if ($style && !in_array($style, [Config::TEMPLATE_STYLE_CHANGE, Config::TEMPLATE_STYLE_UP_DOWN])) {
+            throw new InvalidArgumentException('--style should be one of ' . Config::TEMPLATE_STYLE_CHANGE . ' or ' . Config::TEMPLATE_STYLE_UP_DOWN);
         }
 
         // If no commandline options then use the defaults.
@@ -272,7 +282,7 @@ class Create extends AbstractCommand
             $contents = $creationClass->getMigrationTemplate();
         } else {
             // Load the alternative template if it is defined.
-            $contents = file_get_contents($altTemplate ?: $this->getMigrationTemplateFilename());
+            $contents = file_get_contents($altTemplate ?: $this->getMigrationTemplateFilename($style ?: $defaultStyle));
         }
 
         // inject the class names appropriate to this migration

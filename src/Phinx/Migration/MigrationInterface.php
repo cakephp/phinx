@@ -7,7 +7,9 @@
 
 namespace Phinx\Migration;
 
+use Cake\Database\Query;
 use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -42,83 +44,83 @@ interface MigrationInterface
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
-     * @return \Phinx\Migration\MigrationInterface
+     * @return $this
      */
     public function setAdapter(AdapterInterface $adapter);
 
     /**
      * Gets the database adapter.
      *
-     * @return \Phinx\Db\Adapter\AdapterInterface
+     * @return \Phinx\Db\Adapter\AdapterInterface|null
      */
-    public function getAdapter();
+    public function getAdapter(): ?AdapterInterface;
 
     /**
      * Sets the input object to be used in migration object
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     * @return \Phinx\Migration\MigrationInterface
+     * @return $this
      */
     public function setInput(InputInterface $input);
 
     /**
      * Gets the input object to be used in migration object
      *
-     * @return \Symfony\Component\Console\Input\InputInterface
+     * @return \Symfony\Component\Console\Input\InputInterface|null
      */
-    public function getInput();
+    public function getInput(): ?InputInterface;
 
     /**
      * Sets the output object to be used in migration object
      *
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     * @return \Phinx\Migration\MigrationInterface
+     * @return $this
      */
     public function setOutput(OutputInterface $output);
 
     /**
      * Gets the output object to be used in migration object
      *
-     * @return \Symfony\Component\Console\Output\OutputInterface
+     * @return \Symfony\Component\Console\Output\OutputInterface|null
      */
-    public function getOutput();
+    public function getOutput(): ?OutputInterface;
 
     /**
      * Gets the name.
      *
      * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * Gets the detected environment
      *
      * @return string
      */
-    public function getEnvironment();
+    public function getEnvironment(): string;
 
     /**
      * Sets the migration version number.
      *
      * @param int $version Version
-     * @return \Phinx\Migration\MigrationInterface
+     * @return $this
      */
-    public function setVersion($version);
+    public function setVersion(int $version);
 
     /**
      * Gets the migration version number.
      *
      * @return int
      */
-    public function getVersion();
+    public function getVersion(): int;
 
     /**
      * Sets whether this migration is being applied or reverted
      *
      * @param bool $isMigratingUp True if the migration is being applied
-     * @return \Phinx\Migration\MigrationInterface
+     * @return $this
      */
-    public function setMigratingUp($isMigratingUp);
+    public function setMigratingUp(bool $isMigratingUp);
 
     /**
      * Gets whether this migration is being applied or reverted.
@@ -126,15 +128,16 @@ interface MigrationInterface
      *
      * @return bool
      */
-    public function isMigratingUp();
+    public function isMigratingUp(): bool;
 
     /**
      * Executes a SQL statement and returns the number of affected rows.
      *
      * @param string $sql SQL
+     * @param array $params parameters to use for prepared query
      * @return int
      */
-    public function execute($sql);
+    public function execute(string $sql, array $params = []): int;
 
     /**
      * Executes a SQL statement.
@@ -145,9 +148,10 @@ interface MigrationInterface
      * you can set the return type by the adapter in your current use.
      *
      * @param string $sql SQL
+     * @param array $params parameters to use for prepared query
      * @return mixed
      */
-    public function query($sql);
+    public function query(string $sql, array $params = []);
 
     /**
      * Returns a new Query object that can be used to build complex SELECT, UPDATE, INSERT or DELETE
@@ -160,7 +164,7 @@ interface MigrationInterface
      * @param string $type Query
      * @return \Cake\Database\Query
      */
-    public function getQueryBuilder(string $type);
+    public function getQueryBuilder(string $type): Query;
 
     /**
      * Executes a query and returns only one row as an array.
@@ -168,7 +172,7 @@ interface MigrationInterface
      * @param string $sql SQL
      * @return array|false
      */
-    public function fetchRow($sql);
+    public function fetchRow(string $sql);
 
     /**
      * Executes a query and returns an array of rows.
@@ -176,26 +180,16 @@ interface MigrationInterface
      * @param string $sql SQL
      * @return array
      */
-    public function fetchAll($sql);
-
-    /**
-     * Insert data into a table.
-     *
-     * @deprecated since 0.10.0. Use $this->table($tableName)->insert($data)->save() instead.
-     * @param string $tableName Table name
-     * @param array $data Data
-     * @return void
-     */
-    public function insert($tableName, $data);
+    public function fetchAll(string $sql): array;
 
     /**
      * Create a new database.
      *
      * @param string $name Database Name
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @return void
      */
-    public function createDatabase($name, $options);
+    public function createDatabase(string $name, array $options): void;
 
     /**
      * Drop a database.
@@ -203,7 +197,29 @@ interface MigrationInterface
      * @param string $name Database Name
      * @return void
      */
-    public function dropDatabase($name);
+    public function dropDatabase(string $name): void;
+
+    /**
+     * Creates schema.
+     *
+     * This will thrown an error for adapters that do not support schemas.
+     *
+     * @param string $name Schema name
+     * @return void
+     * @throws \BadMethodCallException
+     */
+    public function createSchema(string $name): void;
+
+    /**
+     * Drops schema.
+     *
+     * This will thrown an error for adapters that do not support schemas.
+     *
+     * @param string $name Schema name
+     * @return void
+     * @throws \BadMethodCallException
+     */
+    public function dropSchema(string $name): void;
 
     /**
      * Checks to see if a table exists.
@@ -211,7 +227,7 @@ interface MigrationInterface
      * @param string $tableName Table name
      * @return bool
      */
-    public function hasTable($tableName);
+    public function hasTable(string $tableName): bool;
 
     /**
      * Returns an instance of the <code>\Table</code> class.
@@ -219,27 +235,36 @@ interface MigrationInterface
      * You can use this class to create and manipulate tables.
      *
      * @param string $tableName Table name
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @return \Phinx\Db\Table
      */
-    public function table($tableName, $options);
+    public function table(string $tableName, array $options): Table;
 
     /**
-     * Perform checks on the migration, print a warning
+     * Perform checks on the migration, printing a warning
      * if there are potential problems.
      *
-     * @param string|null $direction Direction
      * @return void
      */
-    public function preFlightCheck($direction = null);
+    public function preFlightCheck(): void;
 
     /**
      * Perform checks on the migration after completion
      *
      * Right now, the only check is whether all changes were committed
      *
-     * @param string|null $direction direction of migration
      * @return void
      */
-    public function postFlightCheck($direction = null);
+    public function postFlightCheck(): void;
+
+    /**
+     * Checks to see if the migration should be executed.
+     *
+     * Returns true by default.
+     *
+     * You can use this to prevent a migration from executing.
+     *
+     * @return bool
+     */
+    public function shouldExecute(): bool;
 }

@@ -46,6 +46,7 @@ jobs:
       with:
         php-version: ${{ matrix.php-version }}
         coverage: pcov
+        ini-values: zend.assertions=1, error_reporting=-1, display_errors=On
 
     - name: Get composer cache directory
       id: composer-cache
@@ -144,7 +145,7 @@ jobs:
       with:
         php-version: ${{ env.PHP_VERSION }}
         extensions: ${{ env.EXTENSIONS }}
-        ini-values: apc.enable_cli = 1, extension = php_fileinfo.dll
+        ini-values: apc.enable_cli=1, extension=php_fileinfo.dll, zend.assertions=1, error_reporting=-1, display_errors=On
         coverage: pcov
 
     - name: Setup SQLServer
@@ -169,7 +170,7 @@ jobs:
 
     - name: Run PHPUnit
       env:
-        SQLSRV_DSN: 'sqlserver://(localdb)\MSSQLLocalDB/phinx'
+        SQLSRV_DSN: 'sqlsrv://(localdb)\MSSQLLocalDB/phinx'
         CODECOVERAGE: 1
       run: |
           vendor/bin/phpunit --verbose --coverage-clover=coverage.xml

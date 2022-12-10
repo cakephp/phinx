@@ -31,9 +31,9 @@ class RenameColumn extends Action
      *
      * @param \Phinx\Db\Table\Table $table The table where the column is
      * @param \Phinx\Db\Table\Column $column The column to be renamed
-     * @param mixed $newName The new name for the column
+     * @param string $newName The new name for the column
      */
-    public function __construct(Table $table, Column $column, $newName)
+    public function __construct(Table $table, Column $column, string $newName)
     {
         parent::__construct($table);
         $this->newName = $newName;
@@ -45,11 +45,11 @@ class RenameColumn extends Action
      * arguments
      *
      * @param \Phinx\Db\Table\Table $table The table where the column is
-     * @param mixed $columnName The name of the column to be changed
-     * @param mixed $newName The new name for the column
-     * @return \Phinx\Db\Action\RenameColumn
+     * @param string $columnName The name of the column to be changed
+     * @param string $newName The new name for the column
+     * @return static
      */
-    public static function build(Table $table, $columnName, $newName)
+    public static function build(Table $table, string $columnName, string $newName)
     {
         $column = new Column();
         $column->setName($columnName);
@@ -62,7 +62,7 @@ class RenameColumn extends Action
      *
      * @return \Phinx\Db\Table\Column
      */
-    public function getColumn()
+    public function getColumn(): Column
     {
         return $this->column;
     }
@@ -72,7 +72,7 @@ class RenameColumn extends Action
      *
      * @return string
      */
-    public function getNewName()
+    public function getNewName(): string
     {
         return $this->newName;
     }

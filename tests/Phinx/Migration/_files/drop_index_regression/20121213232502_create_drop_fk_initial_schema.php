@@ -11,7 +11,7 @@ class CreateDropFkInitialSchema extends AbstractMigration
     {
         $this->table('my_table')
             ->addColumn('name', 'string')
-            ->addColumn('entity_id', 'integer')
+            ->addColumn('entity_id', 'integer', ['signed' => false])
             ->create();
 
         $this->table('my_other_table')

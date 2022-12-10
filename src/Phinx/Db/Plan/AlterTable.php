@@ -45,7 +45,7 @@ class AlterTable
      * @param \Phinx\Db\Action\Action $action The action to add
      * @return void
      */
-    public function addAction(Action $action)
+    public function addAction(Action $action): void
     {
         $this->actions[] = $action;
     }
@@ -55,7 +55,7 @@ class AlterTable
      *
      * @return \Phinx\Db\Table\Table
      */
-    public function getTable()
+    public function getTable(): Table
     {
         return $this->table;
     }
@@ -65,7 +65,7 @@ class AlterTable
      *
      * @return \Phinx\Db\Action\Action[]
      */
-    public function getActions()
+    public function getActions(): array
     {
         return $this->actions;
     }

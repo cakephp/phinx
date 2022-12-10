@@ -601,6 +601,59 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
     }
 
+    public function testChangeColumnWithIndex()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->addIndex(
+                'indexcol',
+                ['unique' => true]
+            )
+            ->create();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcol'));
+
+        $table->changeColumn('indexcol', 'integer', ['null' => false])->update();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcol'));
+    }
+
+    public function testChangeColumnWithTrigger()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('triggercol', 'integer')
+            ->addColumn('othercol', 'integer')
+            ->create();
+
+        $triggerSQL =
+            'CREATE TRIGGER update_t_othercol UPDATE OF triggercol ON t
+                BEGIN
+                    UPDATE t SET othercol = new.triggercol;
+                END';
+
+        $this->adapter->execute($triggerSQL);
+
+        $rows = $this->adapter->fetchAll(
+            "SELECT * FROM sqlite_master WHERE `type` = 'trigger' AND tbl_name = 't'"
+        );
+        $this->assertCount(1, $rows);
+        $this->assertEquals('trigger', $rows[0]['type']);
+        $this->assertEquals('update_t_othercol', $rows[0]['name']);
+        $this->assertEquals($triggerSQL, $rows[0]['sql']);
+
+        $table->changeColumn('triggercol', 'integer', ['null' => false])->update();
+
+        $rows = $this->adapter->fetchAll(
+            "SELECT * FROM sqlite_master WHERE `type` = 'trigger' AND tbl_name = 't'"
+        );
+        $this->assertCount(1, $rows);
+        $this->assertEquals('trigger', $rows[0]['type']);
+        $this->assertEquals('update_t_othercol', $rows[0]['name']);
+        $this->assertEquals($triggerSQL, $rows[0]['sql']);
+    }
+
     public function testChangeColumnDefaultToZero()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
@@ -1045,13 +1098,13 @@ class SQLiteAdapterTest extends TestCase
 
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
 
-        $table->addColumn('column1', 'string')
+        $table->addColumn('column1', 'string', ['null' => false])
             ->addColumn('column2', 'integer')
             ->addColumn('column3', 'string', ['default' => 'test'])
             ->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR NOT NULL, `column2` INTEGER NOT NULL, `column3` VARCHAR NOT NULL DEFAULT 'test');
+CREATE TABLE `table1` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `column1` VARCHAR NOT NULL, `column2` INTEGER NULL, `column3` VARCHAR NULL DEFAULT 'test');
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create table query to the output');
@@ -1153,7 +1206,7 @@ OUTPUT;
 
         $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
 
-        $table->addColumn('column1', 'string')
+        $table->addColumn('column1', 'string', ['null' => false])
             ->addColumn('column2', 'integer')
             ->save();
 
@@ -1166,7 +1219,7 @@ OUTPUT;
         ])->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE `table1` (`column1` VARCHAR NOT NULL, `column2` INTEGER NOT NULL, PRIMARY KEY (`column1`));
+CREATE TABLE `table1` (`column1` VARCHAR NOT NULL, `column2` INTEGER NULL, PRIMARY KEY (`column1`));
 INSERT INTO `table1` (`column1`, `column2`) VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
@@ -1216,6 +1269,37 @@ OUTPUT;
         $this->assertEquals(1, $stm->rowCount());
     }
 
+    public function testQueryWithParams()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('string_col', 'string')
+            ->addColumn('int_col', 'integer')
+            ->save();
+
+        $this->adapter->insert($table->getTable(), [
+            'string_col' => 'test data',
+            'int_col' => 10,
+        ]);
+
+        $this->adapter->insert($table->getTable(), [
+            'string_col' => null,
+        ]);
+
+        $this->adapter->insert($table->getTable(), [
+            'int_col' => 23,
+        ]);
+
+        $countQuery = $this->adapter->query('SELECT COUNT(*) AS c FROM table1 WHERE int_col > ?', [5]);
+        $res = $countQuery->fetchAll();
+        $this->assertEquals(2, $res[0]['c']);
+
+        $this->adapter->execute('UPDATE table1 SET int_col = ? WHERE int_col IS NULL', [12]);
+
+        $countQuery->execute([1]);
+        $res = $countQuery->fetchAll();
+        $this->assertEquals(3, $res[0]['c']);
+    }
+
     /**
      * Tests adding more than one column to a table
      * that already exists due to adapters having different add column instructions
@@ -1227,14 +1311,14 @@ OUTPUT;
 
         $table->addColumn('string_col', 'string', ['default' => '']);
         $table->addColumn('string_col_2', 'string', ['null' => true]);
-        $table->addColumn('string_col_3', 'string');
+        $table->addColumn('string_col_3', 'string', ['null' => false]);
         $table->addTimestamps();
         $table->save();
 
         $columns = $this->adapter->getColumns('table1');
         $expected = [
             ['name' => 'id', 'type' => 'integer', 'default' => null, 'null' => false],
-            ['name' => 'string_col', 'type' => 'string', 'default' => '', 'null' => false],
+            ['name' => 'string_col', 'type' => 'string', 'default' => '', 'null' => true],
             ['name' => 'string_col_2', 'type' => 'string', 'default' => null, 'null' => true],
             ['name' => 'string_col_3', 'type' => 'string', 'default' => null, 'null' => false],
             ['name' => 'created_at', 'type' => 'timestamp', 'default' => 'CURRENT_TIMESTAMP', 'null' => false],

@@ -24,7 +24,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 class SeedCreate extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'seed:create';
 
@@ -33,7 +33,7 @@ class SeedCreate extends AbstractCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -56,7 +56,7 @@ class SeedCreate extends AbstractCommand
      *
      * @return \Symfony\Component\Console\Question\ConfirmationQuestion
      */
-    protected function getCreateSeedDirectoryQuestion()
+    protected function getCreateSeedDirectoryQuestion(): ConfirmationQuestion
     {
         return new ConfirmationQuestion('Create seeds directory? [y]/n ', true);
     }
@@ -67,7 +67,7 @@ class SeedCreate extends AbstractCommand
      * @param string[] $paths Paths
      * @return \Symfony\Component\Console\Question\ChoiceQuestion
      */
-    protected function getSelectSeedPathQuestion(array $paths)
+    protected function getSelectSeedPathQuestion(array $paths): ChoiceQuestion
     {
         return new ChoiceQuestion('Which seeds path would you like to use?', $paths, 0);
     }
@@ -80,7 +80,7 @@ class SeedCreate extends AbstractCommand
      * @throws \Exception
      * @return string
      */
-    protected function getSeedPath(InputInterface $input, OutputInterface $output)
+    protected function getSeedPath(InputInterface $input, OutputInterface $output): string
     {
         // First, try the non-interactive option:
         $path = $input->getOption('path');
@@ -127,7 +127,7 @@ class SeedCreate extends AbstractCommand
      * @throws \InvalidArgumentException
      * @return int 0 on success
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
 
@@ -147,6 +147,7 @@ class SeedCreate extends AbstractCommand
         $this->verifySeedDirectory($path);
 
         $path = realpath($path);
+        /** @var string|null $className */
         $className = $input->getArgument('name');
 
         if (!Util::isValidPhinxClassName($className)) {
@@ -177,11 +178,22 @@ class SeedCreate extends AbstractCommand
             ));
         }
 
+        // Command-line option must have higher priority than value from Config
+        $config = $this->getConfig();
+        if (is_null($altTemplate)) {
+            $altTemplate = $config->getSeedTemplateFile();
+            if (!is_null($altTemplate) && !is_file($altTemplate)) {
+                throw new InvalidArgumentException(sprintf(
+                    'The template file `%s` from config does not exist',
+                    $altTemplate
+                ));
+            }
+        }
+
         // Determine the appropriate mechanism to get the template
         // Load the alternative template if it is defined.
         $contents = file_get_contents($altTemplate ?: $this->getSeedTemplateFilename());
 
-        $config = $this->getConfig();
         $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath($path) : null;
         $classes = [
             '$namespaceDefinition' => $namespace !== null ? ('namespace ' . $namespace . ';') : '',

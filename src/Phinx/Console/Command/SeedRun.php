@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class SeedRun extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'seed:run';
 
@@ -25,7 +25,7 @@ class SeedRun extends AbstractCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -53,11 +53,13 @@ EOT
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      * @return int integer 0 on success, or an error code.
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
 
+        /** @var array<string>|null $seedSet */
         $seedSet = $input->getOption('seed');
+        /** @var string|null $environment */
         $environment = $input->getOption('environment');
 
         if ($environment === null) {

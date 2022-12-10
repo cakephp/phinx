@@ -36,9 +36,9 @@ class AddIndex extends Action
      * provided arguments
      *
      * @param \Phinx\Db\Table\Table $table The table to add the index to
-     * @param mixed $columns The columns to index
-     * @param array $options Additional options for the index creation
-     * @return \Phinx\Db\Action\AddIndex
+     * @param string|string[]|\Phinx\Db\Table\Index $columns The columns to index
+     * @param array<string, mixed> $options Additional options for the index creation
+     * @return static
      */
     public static function build(Table $table, $columns, array $options = [])
     {
@@ -47,10 +47,6 @@ class AddIndex extends Action
 
         if (!$columns instanceof Index) {
             $index = new Index();
-
-            if (is_string($columns)) {
-                $columns = [$columns]; // str to array
-            }
 
             $index->setColumns($columns);
             $index->setOptions($options);
@@ -64,7 +60,7 @@ class AddIndex extends Action
      *
      * @return \Phinx\Db\Table\Index
      */
-    public function getIndex()
+    public function getIndex(): Index
     {
         return $this->index;
     }

@@ -144,11 +144,35 @@ Custom Seeder Base
 
 By default all seeders will extend from Phinx's `AbstractSeed` class.
 This can be set to a custom class that extends from `AbstractSeed` by
-setting ``seeder_base_class`` in your config:
+setting ``seed_base_class`` in your config:
 
 .. code-block:: yaml
 
-    seeder_base_class: MyMagicalSeeder
+    seed_base_class: MyMagicalSeeder
+
+Custom Migration Template
+-------------------------
+
+Custom template for Migrations could be used either by defining template file path
+in configuration file:
+
+.. code-block:: yaml
+
+    templates:
+        file: src/templates/customMigrationTemplate.php
+
+
+Custom Seeder Template
+----------------------
+
+Custom Seeder template could be used either by defining template file path
+in configuration file:
+
+.. code-block:: yaml
+
+    templates:
+        seedFile: src/templates/customSeederTemplate.php
+
 
 Environments
 ------------
@@ -170,8 +194,8 @@ specified under the ``environments`` nested collection. For example:
             user: root
             pass: ''
             port: 3306
-            charset: utf8
-            collation: utf8_unicode_ci
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
 
 would define a new environment called ``production``.
 
@@ -191,7 +215,8 @@ Migration Table
 
 To keep track of the migration statuses for an environment, phinx creates
 a table to store this information. You can customize where this table
-is created by configuring ``default_migration_table``:
+is created by configuring ``default_migration_table`` to be used as default
+for all environments:
 
 .. code-block:: yaml
 
@@ -203,6 +228,24 @@ databases that support it, e.g. Postgres, the schema name can be prefixed
 with a period separator (``.``). For example, ``phinx.log`` will create
 the table ``log`` in the ``phinx`` schema instead of ``phinxlog`` in the
 ``public`` (default) schema.
+
+You may also specify the ``migration_table`` on a per environment basis.
+Any environment that does not have a ``migration_table`` specified will
+fallback to using the ``default_migration_table`` that is defined at the
+top level. An example of how you might use this is as follows:
+
+.. code-block:: yaml
+
+    environment:
+        default_migration_table: phinxlog
+        development:
+            migration_table: phinxlog_dev
+            # rest of the development settings
+        production:
+            # rest of the production settings
+
+In the above example, ``development`` will look to the ``phinxlog_dev``
+table for migration statues while ``production`` will use ``phinxlog``.
 
 Table Prefix and Suffix
 -----------------------
@@ -316,10 +359,10 @@ Supported Adapters
 
 Phinx currently supports the following database adapters natively:
 
-* `MySQL <http://www.mysql.com/>`_: specify the ``mysql`` adapter.
-* `PostgreSQL <http://www.postgresql.org/>`_: specify the ``pgsql`` adapter.
-* `SQLite <http://www.sqlite.org/>`_: specify the ``sqlite`` adapter.
-* `SQL Server <http://www.microsoft.com/sqlserver>`_: specify the ``sqlsrv`` adapter.
+* `MySQL <https://www.mysql.com/>`_: specify the ``mysql`` adapter.
+* `PostgreSQL <https://www.postgresql.org/>`_: specify the ``pgsql`` adapter.
+* `SQLite <https://www.sqlite.org/>`_: specify the ``sqlite`` adapter.
+* `SQL Server <https://www.microsoft.com/sqlserver>`_: specify the ``sqlsrv`` adapter.
 
 For each adapter, you may configure the behavior of the underlying PDO object by setting in your
 config object the lowercase version of the constant name. This works for both PDO options
@@ -407,6 +450,23 @@ with `AdapterFactory`:
 
 Adapters can be registered any time before `$app->run()` is called, which normally
 called by `bin/phinx`.
+
+Templates
+---------
+
+You may override how phinx generates the template used with in a handful of ways:
+
+* file - path to an alternative file to use.
+* class - class to use for the template, must implement the ``Phinx\Migration\CreationInterface`` interface.
+* style - style to use for template, either ``change`` or ``up_down``, defaults to ``change`` if not set.
+
+You should only use one of these options. These can be overridden by passing command line options to the
+:doc:`Create Command <commands`. Example usage within the config file is:
+
+.. code-block:: yaml
+
+    templates:
+        style: up_down
 
 Aliases
 -------

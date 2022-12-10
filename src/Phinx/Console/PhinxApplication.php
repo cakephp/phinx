@@ -56,7 +56,7 @@ class PhinxApplication extends Application
      * @param \Symfony\Component\Console\Output\OutputInterface $output An Output instance
      * @return int 0 if everything went fine, or an error code
      */
-    public function doRun(InputInterface $input, OutputInterface $output)
+    public function doRun(InputInterface $input, OutputInterface $output): int
     {
         // always show the version information except when the user invokes the help
         // command as that already does it

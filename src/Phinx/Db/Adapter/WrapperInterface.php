@@ -27,7 +27,7 @@ interface WrapperInterface
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Adapter
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
-    public function setAdapter(AdapterInterface $adapter);
+    public function setAdapter(AdapterInterface $adapter): AdapterInterface;
 
     /**
      * Gets the database adapter.
@@ -35,5 +35,5 @@ interface WrapperInterface
      * @throws \RuntimeException if the adapter has not been set
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
-    public function getAdapter();
+    public function getAdapter(): AdapterInterface;
 }

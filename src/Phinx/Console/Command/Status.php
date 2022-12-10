@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Status extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'status';
 
@@ -25,7 +25,7 @@ class Status extends AbstractCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -52,11 +52,13 @@ EOT
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
      * @return int 0 if all migrations are up, or an error code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
 
+        /** @var string|null $environment */
         $environment = $input->getOption('environment');
+        /** @var string|null $environment */
         $format = $input->getOption('format');
 
         if ($environment === null) {

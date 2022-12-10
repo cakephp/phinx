@@ -33,20 +33,30 @@ class AddColumnIndexFk extends AbstractMigration
      */
     public function change()
     {
-        $this->table('statuses')
+        $table = $this->table('statuses')
             ->addColumn('user_id', Column::INTEGER, [
                 'null' => true,
                 'limit' => 20,
+                'signed' => false,
             ])
             ->addIndex(['user_id'], [
-                    'name' => 'statuses_users_id',
-                    'unique' => false,
-                ])
-            ->addForeignKey('user_id', 'users', 'id', [
-                    'constraint' => 'statuses_users_id',
-                    'update' => ForeignKey::RESTRICT,
-                    'delete' => ForeignKey::RESTRICT,
-                ])
-            ->update();
+                'name' => 'statuses_users_id',
+                'unique' => false,
+            ]);
+
+        if ($this->getAdapter()->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+            $table->addForeignKey('user_id', 'users', 'id', [
+                'update' => ForeignKey::NO_ACTION,
+                'delete' => ForeignKey::NO_ACTION,
+            ]);
+        } else {
+            $table->addForeignKey('user_id', 'users', 'id', [
+                'constraint' => 'statuses_users_id',
+                'update' => ForeignKey::NO_ACTION,
+                'delete' => ForeignKey::NO_ACTION,
+            ]);
+        }
+
+        $table->update();
     }
 }

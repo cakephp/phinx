@@ -36,11 +36,11 @@ class AddColumn extends Action
      *
      * @param \Phinx\Db\Table\Table $table The table to add the column to
      * @param string $columnName The column name
-     * @param mixed $type The column type
-     * @param mixed $options The column options
-     * @return \Phinx\Db\Action\AddColumn
+     * @param string|\Phinx\Util\Literal $type The column type
+     * @param array<string, mixed> $options The column options
+     * @return static
      */
-    public static function build(Table $table, $columnName, $type = null, $options = [])
+    public static function build(Table $table, string $columnName, $type = null, array $options = [])
     {
         $column = new Column();
         $column->setName($columnName);
@@ -55,7 +55,7 @@ class AddColumn extends Action
      *
      * @return \Phinx\Db\Table\Column
      */
-    public function getColumn()
+    public function getColumn(): Column
     {
         return $this->column;
     }

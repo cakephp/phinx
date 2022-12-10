@@ -106,7 +106,8 @@ class BreakpointTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $commandLine = array_merge(['command' => $command->getName()], $commandLine);
-        $commandTester->execute($commandLine, ['decorated' => false]);
+        $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
     public function provideBreakpointTests()
@@ -177,7 +178,7 @@ class BreakpointTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
 
-        $commandTester->execute(
+        $exitCode = $commandTester->execute(
             [
                 'command' => $command->getName(),
                 '--remove-all' => true,
@@ -185,6 +186,7 @@ class BreakpointTest extends TestCase
             ],
             ['decorated' => false]
         );
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
     /**
@@ -215,7 +217,8 @@ class BreakpointTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Cannot use more than one of --set, --unset, or --remove-all at the same time.');
 
-        $commandTester->execute($commandLine, ['decorated' => false]);
+        $exitCode = $commandTester->execute($commandLine, ['decorated' => false]);
+        $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
 
     public function provideCombinedParametersToCauseException()

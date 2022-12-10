@@ -31,7 +31,7 @@ abstract class Action
      *
      * @return \Phinx\Db\Table\Table
      */
-    public function getTable()
+    public function getTable(): Table
     {
         return $this->table;
     }

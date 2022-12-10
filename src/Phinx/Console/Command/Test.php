@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Test extends AbstractCommand
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected static $defaultName = 'test';
 
@@ -28,7 +28,7 @@ class Test extends AbstractCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -55,7 +55,7 @@ EOT
      * @throws \InvalidArgumentException
      * @return int 0 on success
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->loadConfig($input, $output);
         $this->loadManager($input, $output);

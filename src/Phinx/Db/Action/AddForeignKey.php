@@ -39,11 +39,11 @@ class AddForeignKey extends Action
      * @param string|string[] $columns The columns for the foreign key
      * @param \Phinx\Db\Table\Table|string $referencedTable The table the foreign key references
      * @param string|string[] $referencedColumns The columns in the referenced table
-     * @param array $options Extra options for the foreign key
+     * @param array<string, mixed> $options Extra options for the foreign key
      * @param string|null $name The name of the foreign key
-     * @return \Phinx\Db\Action\AddForeignKey
+     * @return static
      */
-    public static function build(Table $table, $columns, $referencedTable, $referencedColumns = ['id'], array $options = [], $name = null)
+    public static function build(Table $table, $columns, $referencedTable, $referencedColumns = ['id'], array $options = [], ?string $name = null)
     {
         if (is_string($referencedColumns)) {
             $referencedColumns = [$referencedColumns]; // str to array
@@ -71,7 +71,7 @@ class AddForeignKey extends Action
      *
      * @return \Phinx\Db\Table\ForeignKey
      */
-    public function getForeignKey()
+    public function getForeignKey(): ForeignKey
     {
         return $this->foreignKey;
     }

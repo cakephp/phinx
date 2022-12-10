@@ -22,12 +22,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class AbstractAdapter implements AdapterInterface
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $options = [];
 
     /**
-     * @var \Symfony\Component\Console\Input\InputInterface
+     * @var \Symfony\Component\Console\Input\InputInterface|null
      */
     protected $input;
 
@@ -54,7 +54,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * Class Constructor.
      *
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @param \Symfony\Component\Console\Input\InputInterface|null $input Input Interface
      * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output Interface
      */
@@ -72,12 +72,19 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritDoc
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options): AdapterInterface
     {
         $this->options = $options;
 
         if (isset($options['default_migration_table'])) {
-            $this->setSchemaTableName($options['default_migration_table']);
+            trigger_error('The default_migration_table setting for adapter has been deprecated since 0.13.0. Use `migration_table` instead.', E_USER_DEPRECATED);
+            if (!isset($options['migration_table'])) {
+                $options['migration_table'] = $options['default_migration_table'];
+            }
+        }
+
+        if (isset($options['migration_table'])) {
+            $this->setSchemaTableName($options['migration_table']);
         }
 
         if (isset($options['data_domain'])) {
@@ -90,7 +97,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritDoc
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options;
     }
@@ -98,7 +105,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritDoc
      */
-    public function hasOption($name)
+    public function hasOption(string $name): bool
     {
         return isset($this->options[$name]);
     }
@@ -106,7 +113,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritDoc
      */
-    public function getOption($name)
+    public function getOption(string $name)
     {
         if (!$this->hasOption($name)) {
             return null;
@@ -118,7 +125,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritDoc
      */
-    public function setInput(InputInterface $input)
+    public function setInput(InputInterface $input): AdapterInterface
     {
         $this->input = $input;
 
@@ -128,7 +135,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritDoc
      */
-    public function getInput()
+    public function getInput(): ?InputInterface
     {
         return $this->input;
     }
@@ -136,7 +143,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritDoc
      */
-    public function setOutput(OutputInterface $output)
+    public function setOutput(OutputInterface $output): AdapterInterface
     {
         $this->output = $output;
 
@@ -146,7 +153,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritDoc
      */
-    public function getOutput()
+    public function getOutput(): OutputInterface
     {
         if ($this->output === null) {
             $output = new NullOutput();
@@ -158,9 +165,9 @@ abstract class AbstractAdapter implements AdapterInterface
 
     /**
      * @inheritDoc
-     * @return array
+     * @return array<int>
      */
-    public function getVersions()
+    public function getVersions(): array
     {
         $rows = $this->getVersionLog();
 
@@ -172,7 +179,7 @@ abstract class AbstractAdapter implements AdapterInterface
      *
      * @return string
      */
-    public function getSchemaTableName()
+    public function getSchemaTableName(): string
     {
         return $this->schemaTableName;
     }
@@ -183,7 +190,7 @@ abstract class AbstractAdapter implements AdapterInterface
      * @param string $schemaTableName Schema Table Name
      * @return $this
      */
-    public function setSchemaTableName($schemaTableName)
+    public function setSchemaTableName(string $schemaTableName)
     {
         $this->schemaTableName = $schemaTableName;
 
@@ -195,7 +202,7 @@ abstract class AbstractAdapter implements AdapterInterface
      *
      * @return array
      */
-    public function getDataDomain()
+    public function getDataDomain(): array
     {
         return $this->dataDomain;
     }
@@ -269,7 +276,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritdoc
      */
-    public function getColumnForType($columnName, $type, array $options)
+    public function getColumnForType(string $columnName, string $type, array $options): Column
     {
         $column = new Column();
         $column->setName($columnName);
@@ -287,19 +294,11 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @inheritdoc
-     */
-    public function hasSchemaTable()
-    {
-        return $this->hasTable($this->getSchemaTableName());
-    }
-
-    /**
      * @inheritDoc
      * @throws \InvalidArgumentException
      * @return void
      */
-    public function createSchemaTable()
+    public function createSchemaTable(): void
     {
         try {
             $options = [
@@ -308,7 +307,7 @@ abstract class AbstractAdapter implements AdapterInterface
             ];
 
             $table = new Table($this->getSchemaTableName(), $options, $this);
-            $table->addColumn('version', 'biginteger')
+            $table->addColumn('version', 'biginteger', ['null' => false])
                 ->addColumn('migration_name', 'string', ['limit' => 100, 'default' => null, 'null' => true])
                 ->addColumn('start_time', 'timestamp', ['default' => null, 'null' => true])
                 ->addColumn('end_time', 'timestamp', ['default' => null, 'null' => true])
@@ -326,7 +325,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritDoc
      */
-    public function getAdapterType()
+    public function getAdapterType(): string
     {
         return $this->getOption('adapter');
     }
@@ -334,7 +333,7 @@ abstract class AbstractAdapter implements AdapterInterface
     /**
      * @inheritDoc
      */
-    public function isValidColumnType(Column $column)
+    public function isValidColumnType(Column $column): bool
     {
         return $column->getType() instanceof Literal || in_array($column->getType(), $this->getColumnTypes(), true);
     }
@@ -344,7 +343,7 @@ abstract class AbstractAdapter implements AdapterInterface
      *
      * @return bool
      */
-    public function isDryRunEnabled()
+    public function isDryRunEnabled(): bool
     {
         /** @var \Symfony\Component\Console\Input\InputInterface|null $input */
         $input = $this->getInput();
@@ -358,7 +357,7 @@ abstract class AbstractAdapter implements AdapterInterface
      * @param string $tableName The name of the table
      * @return void
      */
-    protected function addCreatedTable($tableName)
+    protected function addCreatedTable(string $tableName): void
     {
         $tableName = $this->quoteTableName($tableName);
         if (substr_compare($tableName, 'phinxlog', -strlen('phinxlog')) !== 0) {
@@ -373,7 +372,7 @@ abstract class AbstractAdapter implements AdapterInterface
      * @param string $newTableName New name of the table
      * @return void
      */
-    protected function updateCreatedTableName($tableName, $newTableName)
+    protected function updateCreatedTableName(string $tableName, string $newTableName): void
     {
         $tableName = $this->quoteTableName($tableName);
         $newTableName = $this->quoteTableName($newTableName);
@@ -389,7 +388,7 @@ abstract class AbstractAdapter implements AdapterInterface
      * @param string $tableName The name of the table
      * @return void
      */
-    protected function removeCreatedTable($tableName)
+    protected function removeCreatedTable(string $tableName): void
     {
         $tableName = $this->quoteTableName($tableName);
         $key = array_search($tableName, $this->createdTables, true);
@@ -404,7 +403,7 @@ abstract class AbstractAdapter implements AdapterInterface
      * @param string $tableName The name of the table
      * @return bool
      */
-    protected function hasCreatedTable($tableName)
+    protected function hasCreatedTable(string $tableName): bool
     {
         $tableName = $this->quoteTableName($tableName);
 

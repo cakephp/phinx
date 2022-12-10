@@ -69,6 +69,11 @@ class PostgresAdapterTest extends TestCase
         }
     }
 
+    private function usingPostgres10(): bool
+    {
+        return version_compare($this->adapter->getConnection()->getAttribute(\PDO::ATTR_SERVER_VERSION), '10.0.0', '>=');
+    }
+
     public function testConnection()
     {
         $this->assertInstanceOf('PDO', $this->adapter->getConnection());
@@ -548,6 +553,56 @@ class PostgresAdapterTest extends TestCase
         }
     }
 
+    public function testAddColumnWithAutoIdentity()
+    {
+        if (!$this->usingPostgres10()) {
+            $this->markTestSkipped('Test Skipped because of PostgreSQL version is < 10.0');
+        }
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'id') {
+                $this->assertTrue($column->getIdentity());
+                $this->assertEquals(PostgresAdapter::GENERATED_ALWAYS, $column->getGenerated());
+            }
+        }
+    }
+
+    public function providerAddColumnIdentity(): array
+    {
+        return [
+            [PostgresAdapter::GENERATED_ALWAYS, false], //testAddColumnWithIdentityAlways
+            [PostgresAdapter::GENERATED_BY_DEFAULT, true], //testAddColumnWithIdentityDefault
+            [null, true], //testAddColumnWithoutIdentity
+        ];
+    }
+
+    /**
+     * @dataProvider providerAddColumnIdentity
+     */
+    public function testAddColumnIdentity($generated, $addToColumn)
+    {
+        if (!$this->usingPostgres10()) {
+            $this->markTestSkipped('Test Skipped because of PostgreSQL version is < 10.0');
+        }
+        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        $table->save();
+        $options = ['identity' => true];
+        if ($addToColumn !== false) {
+            $options['generated'] = $generated;
+        }
+        $table->addColumn('id', 'integer', $options)
+            ->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'id') {
+                $this->assertEquals((bool)$generated, $column->getIdentity());
+                $this->assertEquals($generated, $column->getGenerated());
+            }
+        }
+    }
+
     public function testAddColumnWithDefaultBoolean()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
@@ -841,6 +896,72 @@ class PostgresAdapterTest extends TestCase
         $table->changeColumn('column1', $newColumn2)->save();
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
+    }
+
+    public function providerChangeColumnIdentity(): array
+    {
+        return [
+            [PostgresAdapter::GENERATED_ALWAYS], //testChangeColumnAddIdentityAlways
+            [PostgresAdapter::GENERATED_BY_DEFAULT], //testChangeColumnAddIdentityDefault
+        ];
+    }
+
+    /**
+     * @dataProvider providerChangeColumnIdentity
+     */
+    public function testChangeColumnIdentity($generated)
+    {
+        if (!$this->usingPostgres10()) {
+            $this->markTestSkipped('Test Skipped because of PostgreSQL version is < 10.0');
+        }
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('column1', 'integer');
+        $table->save();
+
+        $table->changeColumn('column1', 'integer', ['identity' => true, 'generated' => PostgresAdapter::GENERATED_ALWAYS]);
+        $table->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'column1') {
+                $this->assertTrue($column->getIdentity());
+                $this->assertEquals(PostgresAdapter::GENERATED_ALWAYS, $column->getGenerated());
+            }
+        }
+    }
+
+    public function testChangeColumnDropIdentity()
+    {
+        if (!$this->usingPostgres10()) {
+            $this->markTestSkipped('Test Skipped because of PostgreSQL version is < 10.0');
+        }
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->changeColumn('id', 'integer', ['identity' => false]);
+        $table->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'id') {
+                $this->assertFalse($column->getIdentity());
+            }
+        }
+    }
+
+    public function testChangeColumnChangeIdentity()
+    {
+        if (!$this->usingPostgres10()) {
+            $this->markTestSkipped('Test Skipped because of PostgreSQL version is < 10.0');
+        }
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->changeColumn('id', 'integer', ['identity' => true, 'generated' => PostgresAdapter::GENERATED_BY_DEFAULT]);
+        $table->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'id') {
+                $this->assertTrue($column->getIdentity());
+                $this->assertEquals(PostgresAdapter::GENERATED_BY_DEFAULT, $column->getGenerated());
+            }
+        }
     }
 
     public function integersProvider()
@@ -1480,7 +1601,7 @@ class PostgresAdapterTest extends TestCase
     public function testInvalidSqlType()
     {
         $this->expectException(UnsupportedColumnTypeException::class);
-        $this->expectExceptionMessage('Column type "idontexist" is not supported by Postgresql.');
+        $this->expectExceptionMessage('Column type `idontexist` is not supported by Postgresql.');
 
         $this->adapter->getSqlType('idontexist');
     }
@@ -2056,13 +2177,19 @@ class PostgresAdapterTest extends TestCase
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
 
         $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
-            ->addColumn('column3', 'string', ['default' => 'test'])
+            ->addColumn('column2', 'integer', ['null' => true])
+            ->addColumn('column3', 'string', ['default' => 'test', 'null' => false])
             ->save();
 
-        $expectedOutput = 'CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
-        'NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
-        '"table1_pkey" PRIMARY KEY ("id"));';
+        if ($this->usingPostgres10()) {
+            $expectedOutput = 'CREATE TABLE "public"."table1" ("id" INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY, "column1" CHARACTER VARYING (255) ' .
+                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL  DEFAULT \'test\', CONSTRAINT ' .
+                '"table1_pkey" PRIMARY KEY ("id"));';
+        } else {
+            $expectedOutput = 'CREATE TABLE "public"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
+                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL  DEFAULT \'test\', CONSTRAINT ' .
+                '"table1_pkey" PRIMARY KEY ("id"));';
+        }
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString(
             $expectedOutput,
@@ -2082,13 +2209,19 @@ class PostgresAdapterTest extends TestCase
         $table = new \Phinx\Db\Table('schema1.table1', [], $this->adapter);
 
         $table->addColumn('column1', 'string')
-            ->addColumn('column2', 'integer')
-            ->addColumn('column3', 'string', ['default' => 'test'])
+            ->addColumn('column2', 'integer', ['null' => true])
+            ->addColumn('column3', 'string', ['default' => 'test', 'null' => false])
             ->save();
 
-        $expectedOutput = 'CREATE TABLE "schema1"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
-        'NOT NULL, "column2" INTEGER NOT NULL, "column3" CHARACTER VARYING (255) NOT NULL DEFAULT \'test\', CONSTRAINT ' .
-        '"table1_pkey" PRIMARY KEY ("id"));';
+        if ($this->usingPostgres10()) {
+            $expectedOutput = 'CREATE TABLE "schema1"."table1" ("id" INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY, "column1" CHARACTER VARYING (255) ' .
+                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL  DEFAULT \'test\', CONSTRAINT ' .
+                '"table1_pkey" PRIMARY KEY ("id"));';
+        } else {
+            $expectedOutput = 'CREATE TABLE "schema1"."table1" ("id" SERIAL NOT NULL, "column1" CHARACTER VARYING (255) ' .
+                'NULL, "column2" INTEGER NULL, "column3" CHARACTER VARYING (255) NOT NULL  DEFAULT \'test\', CONSTRAINT ' .
+                '"table1_pkey" PRIMARY KEY ("id"));';
+        }
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString(
             $expectedOutput,
@@ -2199,7 +2332,7 @@ OUTPUT;
         $this->adapter->setOutput($consoleOutput);
 
         $table = new \Phinx\Db\Table('schema1.table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
-        $table->addColumn('column1', 'string')
+        $table->addColumn('column1', 'string', ['null' => false])
             ->addColumn('column2', 'integer')
             ->save();
 
@@ -2210,7 +2343,7 @@ OUTPUT;
         ])->save();
 
         $expectedOutput = <<<'OUTPUT'
-CREATE TABLE "schema1"."table1" ("column1" CHARACTER VARYING (255) NOT NULL, "column2" INTEGER NOT NULL, CONSTRAINT "table1_pkey" PRIMARY KEY ("column1"));
+CREATE TABLE "schema1"."table1" ("column1" CHARACTER VARYING (255) NOT NULL, "column2" INTEGER NULL, CONSTRAINT "table1_pkey" PRIMARY KEY ("column1"));
 INSERT INTO "schema1"."table1" ("column1", "column2") VALUES ('id1', 1);
 OUTPUT;
         $actualOutput = $consoleOutput->fetch();
@@ -2282,6 +2415,37 @@ OUTPUT;
         $this->assertEquals(1, $stm->rowCount());
     }
 
+    public function testQueryWithParams()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->addColumn('string_col', 'string')
+            ->addColumn('int_col', 'integer')
+            ->save();
+
+        $this->adapter->insert($table->getTable(), [
+            'string_col' => 'test data',
+            'int_col' => 10,
+        ]);
+
+        $this->adapter->insert($table->getTable(), [
+            'string_col' => null,
+        ]);
+
+        $this->adapter->insert($table->getTable(), [
+            'int_col' => 23,
+        ]);
+
+        $countQuery = $this->adapter->query('SELECT COUNT(*) AS c FROM table1 WHERE int_col > ?', [5]);
+        $res = $countQuery->fetchAll();
+        $this->assertEquals(2, $res[0]['c']);
+
+        $this->adapter->execute('UPDATE table1 SET int_col = ? WHERE int_col IS NULL', [12]);
+
+        $countQuery->execute([1]);
+        $res = $countQuery->fetchAll();
+        $this->assertEquals(3, $res[0]['c']);
+    }
+
     public function testRenameMixedCaseTableAndColumns()
     {
         $table = new \Phinx\Db\Table('OrganizationSettings', [], $this->adapter);
@@ -2302,6 +2466,30 @@ OUTPUT;
         $this->assertTrue($this->adapter->hasColumn('OrganizationSettings', 'id'));
         $this->assertTrue($this->adapter->hasColumn('OrganizationSettings', 'SettingTypeId'));
         $this->assertFalse($this->adapter->hasColumn('OrganizationSettings', 'SettingType'));
+    }
+
+    public function serialProvider(): array
+    {
+        return [
+            [\Phinx\Db\Adapter\AdapterInterface::PHINX_TYPE_SMALL_INTEGER],
+            [\Phinx\Db\Adapter\AdapterInterface::PHINX_TYPE_INTEGER],
+            [\Phinx\Db\Adapter\AdapterInterface::PHINX_TYPE_BIG_INTEGER],
+        ];
+    }
+
+    /**
+     * @dataProvider serialProvider
+     */
+    public function testSerialAliases(string $columnType): void
+    {
+        $table = new \Phinx\Db\Table('test', ['id' => false], $this->adapter);
+        $table->addColumn('id', $columnType, ['identity' => true, 'generated' => null])->create();
+
+        $columns = $table->getColumns();
+        $this->assertCount(1, $columns);
+        $column = $columns[0];
+        $this->assertSame($columnType, $column->getType());
+        $this->assertSame("nextval('test_id_seq'::regclass)", (string)$column->getDefault());
     }
 
     public function testInvalidPdoAttribute()

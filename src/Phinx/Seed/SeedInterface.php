@@ -33,13 +33,34 @@ interface SeedInterface
      *
      * @return void
      */
-    public function run();
+    public function run(): void;
+
+    /**
+     * Return seeds dependencies.
+     *
+     * @return array
+     */
+    public function getDependencies(): array;
+
+    /**
+     * Sets the environment.
+     *
+     * @return $this
+     */
+    public function setEnvironment(string $environment);
+
+    /**
+     * Gets the environment.
+     *
+     * @return string
+     */
+    public function getEnvironment(): string;
 
     /**
      * Sets the database adapter.
      *
      * @param \Phinx\Db\Adapter\AdapterInterface $adapter Database Adapter
-     * @return \Phinx\Seed\SeedInterface
+     * @return $this
      */
     public function setAdapter(AdapterInterface $adapter);
 
@@ -48,13 +69,13 @@ interface SeedInterface
      *
      * @return \Phinx\Db\Adapter\AdapterInterface
      */
-    public function getAdapter();
+    public function getAdapter(): AdapterInterface;
 
     /**
      * Sets the input object to be used in migration object
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input Input
-     * @return \Phinx\Seed\SeedInterface
+     * @return $this
      */
     public function setInput(InputInterface $input);
 
@@ -63,13 +84,13 @@ interface SeedInterface
      *
      * @return \Symfony\Component\Console\Input\InputInterface
      */
-    public function getInput();
+    public function getInput(): InputInterface;
 
     /**
      * Sets the output object to be used in migration object
      *
      * @param \Symfony\Component\Console\Output\OutputInterface $output Output
-     * @return \Phinx\Seed\SeedInterface
+     * @return $this
      */
     public function setOutput(OutputInterface $output);
 
@@ -78,22 +99,23 @@ interface SeedInterface
      *
      * @return \Symfony\Component\Console\Output\OutputInterface
      */
-    public function getOutput();
+    public function getOutput(): OutputInterface;
 
     /**
      * Gets the name.
      *
      * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * Executes a SQL statement and returns the number of affected rows.
      *
      * @param string $sql SQL
+     * @param array $params parameters to use for prepared query
      * @return int
      */
-    public function execute($sql);
+    public function execute(string $sql, array $params = []);
 
     /**
      * Executes a SQL statement.
@@ -104,9 +126,10 @@ interface SeedInterface
      * you can set the return type by the adapter in your current use.
      *
      * @param string $sql SQL
+     * @param array $params parameters to use for prepared query
      * @return mixed
      */
-    public function query($sql);
+    public function query(string $sql, array $params = []);
 
     /**
      * Executes a query and returns only one row as an array.
@@ -114,7 +137,7 @@ interface SeedInterface
      * @param string $sql SQL
      * @return array|false
      */
-    public function fetchRow($sql);
+    public function fetchRow(string $sql);
 
     /**
      * Executes a query and returns an array of rows.
@@ -122,7 +145,7 @@ interface SeedInterface
      * @param string $sql SQL
      * @return array
      */
-    public function fetchAll($sql);
+    public function fetchAll(string $sql): array;
 
     /**
      * Insert data into a table.
@@ -131,7 +154,7 @@ interface SeedInterface
      * @param array $data Data
      * @return void
      */
-    public function insert($tableName, $data);
+    public function insert(string $tableName, array $data): void;
 
     /**
      * Checks to see if a table exists.
@@ -139,7 +162,7 @@ interface SeedInterface
      * @param string $tableName Table name
      * @return bool
      */
-    public function hasTable($tableName);
+    public function hasTable(string $tableName): bool;
 
     /**
      * Returns an instance of the <code>\Table</code> class.
@@ -147,8 +170,19 @@ interface SeedInterface
      * You can use this class to create and manipulate tables.
      *
      * @param string $tableName Table name
-     * @param array $options Options
+     * @param array<string, mixed> $options Options
      * @return \Phinx\Db\Table
      */
-    public function table($tableName, $options);
+    public function table(string $tableName, array $options): \Phinx\Db\Table;
+
+    /**
+     * Checks to see if the seed should be executed.
+     *
+     * Returns true by default.
+     *
+     * You can use this to prevent a seed from executing.
+     *
+     * @return bool
+     */
+    public function shouldExecute(): bool;
 }
