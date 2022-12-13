@@ -1,4 +1,4 @@
-https://github.com/theoboldalex/phinx.git.. index::
+.. index::
    single: Writing Migrations
 
 Writing Migrations
