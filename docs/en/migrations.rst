@@ -1873,7 +1873,7 @@ Creating insert queries is also possible:
         ->into('users')
         ->values(['first_name' => 'Steve', 'last_name' => 'Jobs'])
         ->values(['first_name' => 'Jon', 'last_name' => 'Snow'])
-        ->execute()
+        ->execute();
 
 
 For increased performance, you can use another builder object as the values for an insert query:
@@ -1886,14 +1886,14 @@ For increased performance, you can use another builder object as the values for 
     $namesQuery
         ->select(['fname', 'lname'])
         ->from('users')
-        ->where(['is_active' => true])
+        ->where(['is_active' => true]);
 
     $builder = $this->getQueryBuilder();
     $st = $builder
         ->insert(['first_name', 'last_name'])
         ->into('names')
         ->values($namesQuery)
-        ->execute()
+        ->execute();
 
     var_dump($st->lastInsertId('names', 'id'));
 
@@ -1919,7 +1919,7 @@ Creating update queries is similar to both inserting and selecting:
         ->update('users')
         ->set('fname', 'Snow')
         ->where(['fname' => 'Jon'])
-        ->execute()
+        ->execute();
 
 
 Creating a Delete Query
@@ -1934,4 +1934,4 @@ Finally, delete queries:
     $builder
         ->delete('users')
         ->where(['accepted_gdpr' => false])
-        ->execute()
+        ->execute();
