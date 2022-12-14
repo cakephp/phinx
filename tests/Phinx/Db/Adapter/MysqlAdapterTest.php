@@ -671,6 +671,53 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($rows[1]['Default'] === 'CURRENT_TIMESTAMP' || $rows[1]['Default'] === 'current_timestamp()');
     }
 
+    public function testAddColumnWithCustomType()
+    {
+        $this->adapter->setDataDomain([
+            'custom1' => [
+                'type' => 'enum',
+                'null' => true,
+                'values' => 'a,b,c',
+            ],
+            'custom2' => [
+                'type' => 'enum',
+                'null' => true,
+                'values' => ['a', 'b', 'c'],
+            ],
+        ]);
+
+        (new \Phinx\Db\Table('table1', [], $this->adapter))
+            ->addColumn('custom1', 'custom1')
+            ->addColumn('custom2', 'custom2')
+            ->addColumn('custom_ext', 'custom2', [
+                'null' => false,
+                'values' => ['d', 'e', 'f'],
+            ])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasTable('table1'));
+
+        $columns = $this->adapter->getColumns('table1');
+
+        $this->assertArrayHasKey(1, $columns);
+        $this->assertArrayHasKey(2, $columns);
+        $this->assertArrayHasKey(3, $columns);
+
+        foreach ([1, 2] as $index) {
+            $column = $this->adapter->getColumns('table1')[$index];
+            $this->assertSame("custom{$index}", $column->getName());
+            $this->assertSame('enum', $column->getType());
+            $this->assertSame(['a', 'b', 'c'], $column->getValues());
+            $this->assertTrue($column->getNull());
+        }
+
+        $column = $this->adapter->getColumns('table1')[3];
+        $this->assertSame('custom_ext', $column->getName());
+        $this->assertSame('enum', $column->getType());
+        $this->assertSame(['d', 'e', 'f'], $column->getValues());
+        $this->assertFalse($column->getNull());
+    }
+
     public function testAddColumnFirst()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
