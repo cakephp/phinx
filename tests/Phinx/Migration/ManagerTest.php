@@ -6132,4 +6132,41 @@ class ManagerTest extends TestCase
 
         $this->assertTrue($adapter->hasTable('info'));
     }
+
+    public function testMigrationWithCustomColumnTypes()
+    {
+        $adapter = $this->prepareEnvironment([
+            'migrations' => $this->getCorrectedPath(__DIR__ . '/_files/custom_column_types'),
+        ]);
+
+        $this->manager->migrate('production');
+
+        $this->assertTrue($adapter->hasTable('users'));
+
+        $columns = array_values($adapter->getColumns('users'));
+        $this->assertArrayHasKey(3, $columns);
+        $this->assertArrayHasKey(4, $columns);
+
+        $limit = 15;
+        if ($adapter->getAdapterType() === 'pgsql') {
+            $limit = null;
+        }
+
+        $column = $columns[3];
+        $this->assertSame('phone_number', $column->getName());
+        $this->assertSame('string', $column->getType());
+        $this->assertSame($limit, $column->getLimit());
+        $this->assertTrue($column->getNull());
+
+        $limit = 30;
+        if ($adapter->getAdapterType() === 'pgsql') {
+            $limit = null;
+        }
+
+        $column = $columns[4];
+        $this->assertSame('phone_number_ext', $column->getName());
+        $this->assertSame('string', $column->getType());
+        $this->assertSame($limit, $column->getLimit());
+        $this->assertFalse($column->getNull());
+    }
 }
