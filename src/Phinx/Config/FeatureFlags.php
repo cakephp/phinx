@@ -12,7 +12,8 @@ namespace Phinx\Config;
  *
  * New flags should be added very sparingly.
  */
-class FeatureFlags {
+class FeatureFlags
+{
     /**
      * @var bool Should Phinx create unsigned primary keys by default?
      */
@@ -23,9 +24,10 @@ class FeatureFlags {
     public static $columnNull = true;
 
     /**
-     * Set the feature flags from a config object
+     * Set the feature flags from the `feature_flags` section of the overall
+     * config.
      *
-     * @param array $config
+     * @param array $config The `feature_flags` section of the config
      */
     public static function setFlagsFromConfig(array $config): void
     {
