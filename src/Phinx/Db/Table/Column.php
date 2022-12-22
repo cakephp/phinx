@@ -159,6 +159,9 @@ class Column
      */
     protected $values;
 
+    /**
+     * Column constructor
+     */
     public function __construct()
     {
         $this->null = FeatureFlags::$columnNull;

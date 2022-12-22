@@ -22,7 +22,13 @@ class FeatureFlags {
      */
     public static $columnNull = true;
 
-    public static function setFlagsFromConfig(array $config): void {
+    /**
+     * Set the feature flags from a config object
+     *
+     * @param array $config
+     */
+    public static function setFlagsFromConfig(array $config): void
+    {
         if (isset($config['unsigned_pks'])) {
             self::$unsignedPks = (bool)$config['unsigned_pks'];
         }
