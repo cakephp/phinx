@@ -512,3 +512,17 @@ Within the bootstrap script, the following variables will be available:
      * @var \Symfony\Component\Console\Output\OutputInterface $output The executing command's output object
      * @var \Phinx\Console\Command\AbstractCommand $context the executing command object
      */
+
+Feature Flags
+-------------
+
+For some breaking changes, Phinx offers a way to opt-out of new behavior. The following flags are available:
+
+* ``unsigned_pks``: Should Phinx create primary keys as unsigned integers? (default: ``true``)
+* ``column_null``: Should Phinx create columns as null by default? (default: ``true``)
+
+These values can also be set by modifying class fields on the ```Phinx\Config\FeatureFlags``` class, for example:
+
+.. code-block:: php
+
+    Phinx\Config\FeatureFlags::$unsignedPks = false;

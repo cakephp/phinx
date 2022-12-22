@@ -11,6 +11,7 @@ use Cake\Database\Connection;
 use Cake\Database\Driver\Mysql as MysqlDriver;
 use InvalidArgumentException;
 use PDO;
+use Phinx\Config\FeatureFlags;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
@@ -285,7 +286,7 @@ class MysqlAdapter extends PdoAdapter
             $column->setName($options['id'])
                    ->setType('integer')
                    ->setOptions([
-                       'signed' => $options['signed'] ?? false,
+                       'signed' => $options['signed'] ?? !FeatureFlags::$unsignedPks,
                        'identity' => true,
                    ]);
 
