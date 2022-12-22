@@ -14,13 +14,13 @@ namespace Phinx\Config;
  */
 class FeatureFlags {
     /**
-     * Should Phinx create unsigned primary keys by default?
+     * @var bool Should Phinx create unsigned primary keys by default?
      */
-    public static bool $unsignedPks = true;
+    public static $unsignedPks = true;
     /**
-     * Should Phinx create columns NULL by default?
+     * @var bool Should Phinx create columns NULL by default?
      */
-    public static bool $columnNull = true;
+    public static $columnNull = true;
 
     public static function setFlagsFromConfig(array $config): void {
         if (isset($config['unsigned_pks'])) {
