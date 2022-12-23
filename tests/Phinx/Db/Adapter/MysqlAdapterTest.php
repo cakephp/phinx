@@ -162,7 +162,6 @@ class MysqlAdapterTest extends TestCase
         $this->assertCount(3, $columns);
         $this->assertSame('id', $columns[0]->getName());
         $this->assertFalse($columns[0]->isSigned());
-
     }
 
     public function testCreateTableWithComment()

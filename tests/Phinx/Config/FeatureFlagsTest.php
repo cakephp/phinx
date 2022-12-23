@@ -2,8 +2,8 @@
 
 namespace Test\Phinx\Config;
 
-use PHPUnit\Framework\TestCase;
 use Phinx\Config\FeatureFlags;
+use PHPUnit\Framework\TestCase;
 
 class FeatureFlagsTest extends TestCase
 {
