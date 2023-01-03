@@ -491,7 +491,7 @@ class MysqlAdapterTest extends TestCase
     {
         $this->adapter->connect();
 
-        FeatureFlags::$unsignedPks = false;
+        FeatureFlags::$unsignedPrimaryKeys = false;
 
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
         $table->create();

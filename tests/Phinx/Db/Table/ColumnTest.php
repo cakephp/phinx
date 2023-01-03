@@ -38,7 +38,7 @@ class ColumnTest extends TestCase
         $column = new Column();
         $this->assertTrue($column->isNull());
 
-        FeatureFlags::$columnNull = false;
+        FeatureFlags::$columnNullDefault = false;
         $column = new Column();
         $this->assertFalse($column->isNull());
     }

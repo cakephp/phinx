@@ -17,11 +17,11 @@ class FeatureFlags
     /**
      * @var bool Should Phinx create unsigned primary keys by default?
      */
-    public static $unsignedPks = true;
+    public static $unsignedPrimaryKeys = true;
     /**
      * @var bool Should Phinx create columns NULL by default?
      */
-    public static $columnNull = true;
+    public static $columnNullDefault = true;
 
     /**
      * Set the feature flags from the `feature_flags` section of the overall
@@ -31,11 +31,11 @@ class FeatureFlags
      */
     public static function setFlagsFromConfig(array $config): void
     {
-        if (isset($config['unsigned_pks'])) {
-            self::$unsignedPks = (bool)$config['unsigned_pks'];
+        if (isset($config['unsigned_primary_keys'])) {
+            self::$unsignedPrimaryKeys = (bool)$config['unsigned_primary_keys'];
         }
-        if (isset($config['column_null'])) {
-            self::$columnNull = (bool)$config['column_null'];
+        if (isset($config['column_null_default'])) {
+            self::$columnNullDefault = (bool)$config['column_null_default'];
         }
     }
 }

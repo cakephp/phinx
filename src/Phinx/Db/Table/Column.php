@@ -164,7 +164,7 @@ class Column
      */
     public function __construct()
     {
-        $this->null = FeatureFlags::$columnNull;
+        $this->null = FeatureFlags::$columnNullDefault;
     }
 
     /**

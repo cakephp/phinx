@@ -286,7 +286,7 @@ class MysqlAdapter extends PdoAdapter
             $column->setName($options['id'])
                    ->setType('integer')
                    ->setOptions([
-                       'signed' => $options['signed'] ?? !FeatureFlags::$unsignedPks,
+                       'signed' => $options['signed'] ?? !FeatureFlags::$unsignedPrimaryKeys,
                        'identity' => true,
                    ]);
 

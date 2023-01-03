@@ -13,13 +13,13 @@ class FeatureFlagsTest extends TestCase
     public function testSetFlagsFromConfig(): void
     {
         $config = [
-            'unsigned_pks' => false,
-            'column_null' => false,
+            'unsigned_primary_keys' => false,
+            'column_null_default' => false,
         ];
-        $this->assertTrue(FeatureFlags::$unsignedPks);
-        $this->assertTrue(FeatureFlags::$columnNull);
+        $this->assertTrue(FeatureFlags::$unsignedPrimaryKeys);
+        $this->assertTrue(FeatureFlags::$columnNullDefault);
         FeatureFlags::setFlagsFromConfig($config);
-        $this->assertFalse(FeatureFlags::$unsignedPks);
-        $this->assertFalse(FeatureFlags::$columnNull);
+        $this->assertFalse(FeatureFlags::$unsignedPrimaryKeys);
+        $this->assertFalse(FeatureFlags::$columnNullDefault);
     }
 }

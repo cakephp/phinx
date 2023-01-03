@@ -518,11 +518,12 @@ Feature Flags
 
 For some breaking changes, Phinx offers a way to opt-out of new behavior. The following flags are available:
 
-* ``unsigned_pks``: Should Phinx create primary keys as unsigned integers? (default: ``true``)
-* ``column_null``: Should Phinx create columns as null by default? (default: ``true``)
+* ``unsigned_primary_keys``: Should Phinx create primary keys as unsigned integers? (default: ``true``)
+* ``column_null_default``: Should Phinx create columns as null by default? (default: ``true``)
 
-These values can also be set by modifying class fields on the ```Phinx\Config\FeatureFlags``` class, for example:
+These values can also be set by modifying class fields on the ```Phinx\Config\FeatureFlags``` class, converting
+the flag name to ``camelCase``, for example:
 
 .. code-block:: php
 
-    Phinx\Config\FeatureFlags::$unsignedPks = false;
+    Phinx\Config\FeatureFlags::$unsignedPrimaryKeys = false;
