@@ -6,6 +6,7 @@ use BadMethodCallException;
 use InvalidArgumentException;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Table\Column;
+use Phinx\Db\Table\ForeignKey;
 use Phinx\Util\Expression;
 use Phinx\Util\Literal;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -1408,6 +1409,208 @@ OUTPUT;
         }
     }
 
+    /**
+     * Tests that operations that trigger implicit table drops will not cause
+     * a foreign key constraint violation error.
+     */
+    public function testAlterTableDoesNotViolateRestrictedForeignKeyConstraint()
+    {
+        $this->adapter->execute('PRAGMA foreign_keys = ON');
+
+        $articlesTable = new \Phinx\Db\Table('articles', [], $this->adapter);
+        $articlesTable
+            ->insert(['id' => 1])
+            ->save();
+
+        $commentsTable = new \Phinx\Db\Table('comments', [], $this->adapter);
+        $commentsTable
+            ->addColumn('article_id', 'integer')
+            ->addForeignKey('article_id', 'articles', 'id', [
+                'update' => ForeignKey::RESTRICT,
+                'delete' => ForeignKey::RESTRICT,
+            ])
+            ->insert(['id' => 1, 'article_id' => 1])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasForeignKey('comments', ['article_id']));
+
+        $articlesTable
+            ->addColumn('new_column', 'integer')
+            ->update();
+
+        $articlesTable
+            ->renameColumn('new_column', 'new_column_renamed')
+            ->update();
+
+        $articlesTable
+            ->changeColumn('new_column_renamed', 'integer', [
+                'default' => 1,
+            ])
+            ->update();
+
+        $articlesTable
+            ->removeColumn('new_column_renamed')
+            ->update();
+
+        $articlesTable
+            ->addIndex('id', ['name' => 'ID_IDX'])
+            ->update();
+
+        $articlesTable
+            ->removeIndex('id')
+            ->update();
+
+        $articlesTable
+            ->addForeignKey('id', 'comments', 'id')
+            ->update();
+
+        $articlesTable
+            ->dropForeignKey('id')
+            ->update();
+
+        $articlesTable
+            ->addColumn('id2', 'integer')
+            ->addIndex('id', ['unique' => true])
+            ->changePrimaryKey('id2')
+            ->update();
+    }
+
+    /**
+     * Tests that foreign key constraint violations introduced around the table
+     * alteration process (being it implicitly by the process itself or by the user)
+     * will trigger an error accordingly.
+     */
+    public function testAlterTableDoesViolateForeignKeyConstraintOnTargetTableChange()
+    {
+        $articlesTable = new \Phinx\Db\Table('articles', [], $this->adapter);
+        $articlesTable
+            ->insert(['id' => 1])
+            ->save();
+
+        $commentsTable = new \Phinx\Db\Table('comments', [], $this->adapter);
+        $commentsTable
+            ->addColumn('article_id', 'integer')
+            ->addForeignKey('article_id', 'articles', 'id', [
+                'update' => ForeignKey::RESTRICT,
+                'delete' => ForeignKey::RESTRICT,
+            ])
+            ->insert(['id' => 1, 'article_id' => 1])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasForeignKey('comments', ['article_id']));
+
+        $this->adapter->execute('PRAGMA foreign_keys = OFF');
+        $this->adapter->execute('DELETE FROM articles');
+        $this->adapter->execute('PRAGMA foreign_keys = ON');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Integrity constraint violation: FOREIGN KEY constraint on `comments` failed.');
+
+        $articlesTable
+            ->addColumn('new_column', 'integer')
+            ->update();
+    }
+
+    /**
+     * Tests that foreign key constraint violations introduced around the table
+     * alteration process (being it implicitly by the process itself or by the user)
+     * will trigger an error accordingly.
+     */
+    public function testAlterTableDoesViolateForeignKeyConstraintOnSourceTableChange()
+    {
+        $adapter = $this
+            ->getMockBuilder(SQLiteAdapter::class)
+            ->setConstructorArgs([SQLITE_DB_CONFIG, new ArrayInput([]), new NullOutput()])
+            ->onlyMethods(['validateForeignKeys'])
+            ->getMock();
+
+        $articlesTable = new \Phinx\Db\Table('articles', [], $adapter);
+        $articlesTable
+            ->insert(['id' => 1])
+            ->save();
+
+        $commentsTable = new \Phinx\Db\Table('comments', [], $adapter);
+        $commentsTable
+            ->addColumn('article_id', 'integer')
+            ->addForeignKey('article_id', 'articles', 'id', [
+                'update' => ForeignKey::RESTRICT,
+                'delete' => ForeignKey::RESTRICT,
+            ])
+            ->insert(['id' => 1, 'article_id' => 1])
+            ->save();
+
+        $this->assertTrue($adapter->hasForeignKey('comments', ['article_id']));
+
+        $adapterReflection = new \ReflectionObject($adapter);
+        $validateForeignKeysReflection = $adapterReflection->getParentClass()->getMethod('validateForeignKeys');
+        $validateForeignKeysReflection->setAccessible(true);
+
+        $adapter
+            ->expects($this->once())
+            ->method('validateForeignKeys')
+            ->willReturnCallback(function (string $tableName) use ($adapter, $validateForeignKeysReflection) {
+                $adapter->execute('PRAGMA foreign_keys = OFF');
+                $adapter->execute('DELETE FROM articles');
+                $adapter->execute('PRAGMA foreign_keys = ON');
+
+                $validateForeignKeysReflection->invoke($adapter, $tableName);
+            });
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Integrity constraint violation: FOREIGN KEY constraint on `comments` failed.');
+
+        $commentsTable
+            ->addColumn('new_column', 'integer')
+            ->update();
+    }
+
+    /**
+     * Tests that the adapter's foreign key validation does not apply when
+     * the `foreign_keys` pragma is set to `OFF`.
+     */
+    public function testAlterTableForeignKeyConstraintValidationNotRunningWithDisabledForeignKeys()
+    {
+        $articlesTable = new \Phinx\Db\Table('articles', [], $this->adapter);
+        $articlesTable
+            ->insert(['id' => 1])
+            ->save();
+
+        $commentsTable = new \Phinx\Db\Table('comments', [], $this->adapter);
+        $commentsTable
+            ->addColumn('article_id', 'integer')
+            ->addForeignKey('article_id', 'articles', 'id', [
+                'update' => ForeignKey::RESTRICT,
+                'delete' => ForeignKey::RESTRICT,
+            ])
+            ->insert(['id' => 1, 'article_id' => 1])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasForeignKey('comments', ['article_id']));
+
+        $this->adapter->execute('PRAGMA foreign_keys = OFF');
+        $this->adapter->execute('DELETE FROM articles');
+
+        $noException = false;
+        try {
+            $articlesTable
+                ->addColumn('new_column1', 'integer')
+                ->update();
+
+            $noException = true;
+        } finally {
+            $this->assertTrue($noException);
+        }
+
+        $this->adapter->execute('PRAGMA foreign_keys = ON');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Integrity constraint violation: FOREIGN KEY constraint on `comments` failed.');
+
+        $articlesTable
+            ->addColumn('new_column2', 'integer')
+            ->update();
+    }
+
     public function testLiteralSupport()
     {
         $createQuery = <<<'INPUT'
@@ -2366,7 +2569,10 @@ INPUT;
         $table->addForeignKey($refTableColumnId, $refTable->getName(), 'id');
         $table->save();
 
-        $refTable->changePrimaryKey($refTableColumnAdditionalId)->save();
+        $refTable
+            ->addIndex('id', ['unique' => true])
+            ->changePrimaryKey($refTableColumnAdditionalId)
+            ->save();
 
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), [$refTableColumnId]));
         $this->assertFalse($this->adapter->hasTable("tmp_{$refTable->getName()}"));
