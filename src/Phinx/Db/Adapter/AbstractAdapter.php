@@ -311,7 +311,7 @@ abstract class AbstractAdapter implements AdapterInterface
                 ->addColumn('migration_name', 'string', ['limit' => 100, 'default' => null, 'null' => true])
                 ->addColumn('start_time', 'timestamp', ['default' => null, 'null' => true])
                 ->addColumn('end_time', 'timestamp', ['default' => null, 'null' => true])
-                ->addColumn('breakpoint', 'boolean', ['default' => false])
+                ->addColumn('breakpoint', 'boolean', ['default' => false, 'null' => false])
                 ->save();
         } catch (Exception $exception) {
             throw new InvalidArgumentException(
