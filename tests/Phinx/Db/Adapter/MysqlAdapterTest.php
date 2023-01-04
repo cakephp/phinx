@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Test\Phinx\Db\Adapter;
 
 use PDOException;
+use Phinx\Config\FeatureFlags;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Util\Literal;
@@ -156,6 +157,11 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+
+        $columns = $this->adapter->getColumns('ntable');
+        $this->assertCount(3, $columns);
+        $this->assertSame('id', $columns[0]->getName());
+        $this->assertFalse($columns[0]->isSigned());
     }
 
     public function testCreateTableWithComment()
@@ -421,6 +427,25 @@ class MysqlAdapterTest extends TestCase
         $this->assertEquals('latin1_general_ci', $row['Collation']);
     }
 
+    public function testCreateTableWithSignedPK()
+    {
+        $table = new \Phinx\Db\Table('ntable', ['signed' => true], $this->adapter);
+        $table->addColumn('realname', 'string')
+            ->addColumn('email', 'integer')
+            ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+        $column_definitions = $this->adapter->getColumns('ntable');
+        foreach ($column_definitions as $column_definition) {
+            if ($column_definition->getName() === 'id') {
+                $this->assertTrue($column_definition->getSigned());
+            }
+        }
+    }
+
     public function testCreateTableWithUnsignedPK()
     {
         $table = new \Phinx\Db\Table('ntable', ['signed' => false], $this->adapter);
@@ -457,6 +482,24 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testUnsignedPksFeatureFlag()
+    {
+        $this->adapter->connect();
+
+        FeatureFlags::$unsignedPrimaryKeys = false;
+
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->create();
+
+        $columns = $this->adapter->getColumns('table1');
+        $this->assertCount(1, $columns);
+        $this->assertSame('id', $columns[0]->getName());
+        $this->assertTrue($columns[0]->getSigned());
     }
 
     public function testCreateTableWithLimitPK()
