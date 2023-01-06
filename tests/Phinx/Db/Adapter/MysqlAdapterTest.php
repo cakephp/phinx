@@ -1061,7 +1061,7 @@ class MysqlAdapterTest extends TestCase
     }
 
     /** @dataProvider binaryToBlobAutomaticConversionData */
-    public function testBinaryToBlobAutomaticConversion(?int $limit = null, string $expectedType, int $expectedLimit)
+    public function testBinaryToBlobAutomaticConversion(?int $limit, string $expectedType, int $expectedLimit)
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'binary', ['limit' => $limit])
@@ -1088,7 +1088,7 @@ class MysqlAdapterTest extends TestCase
     }
 
     /** @dataProvider varbinaryToBlobAutomaticConversionData */
-    public function testVarbinaryToBlobAutomaticConversion(?int $limit = null, string $expectedType, int $expectedLimit)
+    public function testVarbinaryToBlobAutomaticConversion(?int $limit, string $expectedType, int $expectedLimit)
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'varbinary', ['limit' => $limit])
@@ -1130,7 +1130,7 @@ class MysqlAdapterTest extends TestCase
     }
 
     /** @dataProvider blobColumnsData */
-    public function testblobColumns(string $type, string $expectedType, ?int $limit = null, int $expectedLimit)
+    public function testblobColumns(string $type, string $expectedType, ?int $limit, int $expectedLimit)
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', $type, ['limit' => $limit])
