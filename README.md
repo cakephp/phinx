@@ -1,6 +1,6 @@
 # [Phinx](https://phinx.org): Simple PHP Database Migrations
 
-[![Build Status](https://github.com/cakephp/phinx/workflows/Phinx%20CI/badge.svg?branch=master&event=push)](https://github.com/cakephp/phinx/actions?query=workflow%3A%22Phinx+CI%22+branch%3Amaster+event%3Apush)
+[![Build Status](https://github.com/cakephp/phinx/workflows/CI/badge.svg?branch=master&event=push)](https://github.com/cakephp/phinx/actions?query=workflow%3A%22CI%22+branch%3Amaster+event%3Apush)
 [![Code Coverage](https://codecov.io/gh/cakephp/phinx/branch/master/graph/badge.svg)](https://codecov.io/gh/cakephp/phinx)
 [![Latest Stable Version](https://poser.pugx.org/robmorgan/phinx/version.png)](https://packagist.org/packages/robmorgan/phinx)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.2-8892BF.svg)](https://php.net/)
