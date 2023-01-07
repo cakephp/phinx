@@ -585,6 +585,332 @@ class SQLiteAdapterTest extends TestCase
         $this->adapter->renameColumn('t', 'column2', 'column1');
     }
 
+    public function testRenameColumnWithIndex()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->addIndex('indexcol')
+            ->create();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcol'));
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), 'newindexcol'));
+
+        $table->renameColumn('indexcol', 'newindexcol')->update();
+
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), 'indexcol'));
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'newindexcol'));
+    }
+
+    public function testRenameColumnWithUniqueIndex()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->addIndex('indexcol', ['unique' => true])
+            ->create();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcol'));
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), 'newindexcol'));
+
+        $table->renameColumn('indexcol', 'newindexcol')->update();
+
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), 'indexcol'));
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'newindexcol'));
+    }
+
+    public function testRenameColumnWithCompositeIndex()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol1', 'integer')
+            ->addColumn('indexcol2', 'integer')
+            ->addIndex(['indexcol1', 'indexcol2'])
+            ->create();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), ['indexcol1', 'indexcol2']));
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), ['indexcol1', 'newindexcol2']));
+
+        $table->renameColumn('indexcol2', 'newindexcol2')->update();
+
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), ['indexcol1', 'indexcol2']));
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), ['indexcol1', 'newindexcol2']));
+    }
+
+    /**
+     * Tests that rewriting the index SQL does not accidentally change
+     * the table name in case it matches the column name.
+     */
+    public function testRenameColumnWithIndexMatchingTheTableName()
+    {
+        $table = new \Phinx\Db\Table('indexcol', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->addIndex('indexcol')
+            ->create();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcol'));
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), 'newindexcol'));
+
+        $table->renameColumn('indexcol', 'newindexcol')->update();
+
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), 'indexcol'));
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'newindexcol'));
+    }
+
+    /**
+     * Tests that rewriting the index SQL does not accidentally change
+     * column names that partially match the column to rename.
+     */
+    public function testRenameColumnWithIndexColumnPartialMatch()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->addColumn('indexcolumn', 'integer')
+            ->create();
+
+        $this->adapter->execute('CREATE INDEX custom_idx ON t (indexcolumn, indexcol)');
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), ['indexcolumn', 'indexcol']));
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), ['indexcolumn', 'newindexcol']));
+
+        $table->renameColumn('indexcol', 'newindexcol')->update();
+
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), ['indexcolumn', 'indexcol']));
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), ['indexcolumn', 'newindexcol']));
+    }
+
+    public function testRenameColumnWithIndexColumnRequiringQuoting()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->addIndex('indexcol')
+            ->create();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcol'));
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), 'new index col'));
+
+        $table->renameColumn('indexcol', 'new index col')->update();
+
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), 'indexcol'));
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'new index col'));
+    }
+
+    /**
+     * Indices that are using expressions are not being updated.
+     */
+    public function testRenameColumnWithExpressionIndex()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->create();
+
+        $this->adapter->execute('CREATE INDEX custom_idx ON t (`indexcol`, ABS(`indexcol`))');
+
+        $this->assertTrue($this->adapter->hasIndexByName('t', 'custom_idx'));
+
+        $this->expectException(\PDOException::class);
+        $this->expectExceptionMessage('no such column: indexcol');
+
+        $table->renameColumn('indexcol', 'newindexcol')->update();
+    }
+
+    /**
+     * Index SQL is mostly returned as-is, hence custom indices can contain
+     * a wide variety of formats.
+     */
+    public function customIndexSQLDataProvider(): array
+    {
+        return [
+            [
+                'CREATE INDEX test_idx ON t(indexcol);',
+                'CREATE INDEX test_idx ON t(`newindexcol`)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t(`indexcol`);',
+                'CREATE INDEX test_idx ON t(`newindexcol`)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t("indexcol");',
+                'CREATE INDEX test_idx ON t(`newindexcol`)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t([indexcol]);',
+                'CREATE INDEX test_idx ON t(`newindexcol`)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t(indexcol ASC);',
+                'CREATE INDEX test_idx ON t(`newindexcol` ASC)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t(`indexcol` ASC);',
+                'CREATE INDEX test_idx ON t(`newindexcol` ASC)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t("indexcol" DESC);',
+                'CREATE INDEX test_idx ON t(`newindexcol` DESC)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t([indexcol] DESC);',
+                'CREATE INDEX test_idx ON t(`newindexcol` DESC)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t(indexcol COLLATE BINARY);',
+                'CREATE INDEX test_idx ON t(`newindexcol` COLLATE BINARY)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t(indexcol COLLATE BINARY ASC);',
+                'CREATE INDEX test_idx ON t(`newindexcol` COLLATE BINARY ASC)',
+            ],
+            [
+                '
+                    cReATE uniQUE inDEx
+                        iF   nOT   ExISts
+                            main.test_idx   on   t  (
+                                ( ((
+                                    inDEXcoL
+                                ) )) COLLATE   BINARY   ASC
+                            );
+                ',
+                'CREATE UNIQUE INDEX test_idx   on   t  (
+                                ( ((
+                                    `newindexcol`
+                                ) )) COLLATE   BINARY   ASC
+                            )',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider customIndexSQLDataProvider
+     * @param string $indexSQL Index creation SQL
+     * @param string $newIndexSQL Expected new index creation SQL
+     */
+    public function testRenameColumnWithCustomIndex(string $indexSQL, string $newIndexSQL)
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->create();
+
+        $this->adapter->execute($indexSQL);
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcol'));
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), 'newindexcol'));
+
+        $table->renameColumn('indexcol', 'newindexcol')->update();
+
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), 'indexcol'));
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'newindexcol'));
+
+        $index = $this->adapter->fetchRow("SELECT sql FROM sqlite_master WHERE type = 'index' AND name = 'test_idx'");
+        $this->assertSame($newIndexSQL, $index['sql']);
+    }
+
+    /**
+     * Index SQL is mostly returned as-is, hence custom indices can contain
+     * a wide variety of formats.
+     */
+    public function customCompositeIndexSQLDataProvider(): array
+    {
+        return [
+            [
+                'CREATE INDEX test_idx ON t(indexcol1, indexcol2, indexcol3);',
+                'CREATE INDEX test_idx ON t(indexcol1, `newindexcol`, indexcol3)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t(`indexcol1`, `indexcol2`, `indexcol3`);',
+                'CREATE INDEX test_idx ON t(`indexcol1`, `newindexcol`, `indexcol3`)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t("indexcol1", "indexcol2", "indexcol3");',
+                'CREATE INDEX test_idx ON t("indexcol1", `newindexcol`, "indexcol3")',
+            ],
+            [
+                'CREATE INDEX test_idx ON t([indexcol1], [indexcol2], [indexcol3]);',
+                'CREATE INDEX test_idx ON t([indexcol1], `newindexcol`, [indexcol3])',
+            ],
+            [
+                'CREATE INDEX test_idx ON t(indexcol1 ASC, indexcol2 DESC, indexcol3);',
+                'CREATE INDEX test_idx ON t(indexcol1 ASC, `newindexcol` DESC, indexcol3)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t(`indexcol1` ASC, `indexcol2` DESC, `indexcol3`);',
+                'CREATE INDEX test_idx ON t(`indexcol1` ASC, `newindexcol` DESC, `indexcol3`)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t("indexcol1" ASC, "indexcol2" DESC, "indexcol3");',
+                'CREATE INDEX test_idx ON t("indexcol1" ASC, `newindexcol` DESC, "indexcol3")',
+            ],
+            [
+                'CREATE INDEX test_idx ON t([indexcol1] ASC, [indexcol2] DESC, [indexcol3]);',
+                'CREATE INDEX test_idx ON t([indexcol1] ASC, `newindexcol` DESC, [indexcol3])',
+            ],
+            [
+                'CREATE INDEX test_idx ON t(indexcol1 COLLATE BINARY, indexcol2 COLLATE NOCASE, indexcol3);',
+                'CREATE INDEX test_idx ON t(indexcol1 COLLATE BINARY, `newindexcol` COLLATE NOCASE, indexcol3)',
+            ],
+            [
+                'CREATE INDEX test_idx ON t(indexcol1 COLLATE BINARY ASC, indexcol2 COLLATE NOCASE DESC, indexcol3);',
+                'CREATE INDEX test_idx ON t(indexcol1 COLLATE BINARY ASC, `newindexcol` COLLATE NOCASE DESC, indexcol3)',
+            ],
+            [
+                '
+                    cReATE uniQUE inDEx
+                        iF   nOT   ExISts
+                            main.test_idx   on   t  (
+                                inDEXcoL1 ,
+                                ( ((
+                                    inDEXcoL2
+                                ) )) COLLATE   BINARY   ASC ,
+                                inDEXcoL3
+                            );
+                ',
+                'CREATE UNIQUE INDEX test_idx   on   t  (
+                                inDEXcoL1 ,
+                                ( ((
+                                    `newindexcol`
+                                ) )) COLLATE   BINARY   ASC ,
+                                inDEXcoL3
+                            )',
+            ],
+        ];
+    }
+
+    /**
+     * Index SQL is mostly returned as-is, hence custom indices can contain
+     * a wide variety of formats.
+     *
+     * @dataProvider customCompositeIndexSQLDataProvider
+     * @param string $indexSQL Index creation SQL
+     * @param string $newIndexSQL Expected new index creation SQL
+     */
+    public function testRenameColumnWithCustomCompositeIndex(string $indexSQL, string $newIndexSQL)
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol1', 'integer')
+            ->addColumn('indexcol2', 'integer')
+            ->addColumn('indexcol3', 'integer')
+            ->create();
+
+        $this->adapter->execute($indexSQL);
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), ['indexcol1', 'indexcol2', 'indexcol3']));
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), ['indexcol1', 'newindexcol', 'indexcol3']));
+
+        $table->renameColumn('indexcol2', 'newindexcol')->update();
+
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), ['indexcol1', 'indexcol2', 'indexcol3']));
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), ['indexcol1', 'newindexcol', 'indexcol3']));
+
+        $index = $this->adapter->fetchRow("SELECT sql FROM sqlite_master WHERE type = 'index' AND name = 'test_idx'");
+        $this->assertSame($newIndexSQL, $index['sql']);
+    }
+
     public function testChangeColumn()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
@@ -745,6 +1071,157 @@ class SQLiteAdapterTest extends TestCase
         $table->removeColumn($columnName)->save();
 
         $this->assertFalse($this->adapter->hasColumn('t', $columnName));
+    }
+
+    public function testDropColumnWithIndex()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->addIndex('indexcol')
+            ->create();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcol'));
+
+        $table->removeColumn('indexcol')->update();
+
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), 'indexcol'));
+    }
+
+    public function testDropColumnWithUniqueIndex()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->addIndex('indexcol', ['unique' => true])
+            ->create();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcol'));
+
+        $table->removeColumn('indexcol')->update();
+
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), 'indexcol'));
+    }
+
+    public function testDropColumnWithCompositeIndex()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol1', 'integer')
+            ->addColumn('indexcol2', 'integer')
+            ->addIndex(['indexcol1', 'indexcol2'])
+            ->create();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), ['indexcol1', 'indexcol2']));
+
+        $table->removeColumn('indexcol2')->update();
+
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), ['indexcol1', 'indexcol2']));
+    }
+
+    /**
+     * Tests that removing columns does not accidentally drop indices
+     * on table names that match the column to remove.
+     */
+    public function testDropColumnWithIndexMatchingTheTableName()
+    {
+        $table = new \Phinx\Db\Table('indexcol', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->addColumn('indexcolumn', 'integer')
+            ->addIndex('indexcolumn')
+            ->create();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcolumn'));
+
+        $table->removeColumn('indexcol')->update();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcolumn'));
+    }
+
+    /**
+     * Tests that removing columns does not accidentally drop indices
+     * that contain column names that partially match the column to remove.
+     */
+    public function testDropColumnWithIndexColumnPartialMatch()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->addColumn('indexcolumn', 'integer')
+            ->create();
+
+        $this->adapter->execute('CREATE INDEX custom_idx ON t (indexcolumn)');
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcolumn'));
+
+        $table->removeColumn('indexcol')->update();
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcolumn'));
+    }
+
+    /**
+     * Indices with expressions are not being removed.
+     */
+    public function testDropColumnWithExpressionIndex()
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->create();
+
+        $this->adapter->execute('CREATE INDEX custom_idx ON t (ABS(indexcol))');
+
+        $this->assertTrue($this->adapter->hasIndexByName('t', 'custom_idx'));
+
+        $this->expectException(\PDOException::class);
+        $this->expectExceptionMessage('no such column: indexcol');
+
+        $table->removeColumn('indexcol')->update();
+    }
+
+    /**
+     * @dataProvider customIndexSQLDataProvider
+     * @param string $indexSQL Index creation SQL
+     */
+    public function testDropColumnWithCustomIndex(string $indexSQL)
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol', 'integer')
+            ->create();
+
+        $this->adapter->execute($indexSQL);
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), 'indexcol'));
+
+        $table->removeColumn('indexcol')->update();
+
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), 'indexcol'));
+    }
+
+    /**
+     * @dataProvider customCompositeIndexSQLDataProvider
+     * @param string $indexSQL Index creation SQL
+     */
+    public function testDropColumnWithCustomCompositeIndex(string $indexSQL)
+    {
+        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table
+            ->addColumn('indexcol1', 'integer')
+            ->addColumn('indexcol2', 'integer')
+            ->addColumn('indexcol3', 'integer')
+            ->create();
+
+        $this->adapter->execute($indexSQL);
+
+        $this->assertTrue($this->adapter->hasIndex($table->getName(), ['indexcol1', 'indexcol2', 'indexcol3']));
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), ['indexcol1', 'indexcol3']));
+
+        $table->removeColumn('indexcol2')->update();
+
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), ['indexcol1', 'indexcol2', 'indexcol3']));
+        $this->assertFalse($this->adapter->hasIndex($table->getName(), ['indexcol1', 'indexcol3']));
     }
 
     public function columnCreationArgumentProvider()
@@ -1521,8 +1998,24 @@ OUTPUT;
         $adapter = $this
             ->getMockBuilder(SQLiteAdapter::class)
             ->setConstructorArgs([SQLITE_DB_CONFIG, new ArrayInput([]), new NullOutput()])
-            ->onlyMethods(['validateForeignKeys'])
+            ->onlyMethods(['query'])
             ->getMock();
+
+        $adapterReflection = new \ReflectionObject($adapter);
+        $queryReflection = $adapterReflection->getParentClass()->getMethod('query');
+
+        $adapter
+            ->expects($this->atLeastOnce())
+            ->method('query')
+            ->willReturnCallback(function (string $sql, array $params = []) use ($adapter, $queryReflection) {
+                if ($sql === 'PRAGMA foreign_key_check(`comments`)') {
+                    $adapter->execute('PRAGMA foreign_keys = OFF');
+                    $adapter->execute('DELETE FROM articles');
+                    $adapter->execute('PRAGMA foreign_keys = ON');
+                }
+
+                return $queryReflection->invoke($adapter, $sql, $params);
+            });
 
         $articlesTable = new \Phinx\Db\Table('articles', [], $adapter);
         $articlesTable
@@ -1540,21 +2033,6 @@ OUTPUT;
             ->save();
 
         $this->assertTrue($adapter->hasForeignKey('comments', ['article_id']));
-
-        $adapterReflection = new \ReflectionObject($adapter);
-        $validateForeignKeysReflection = $adapterReflection->getParentClass()->getMethod('validateForeignKeys');
-        $validateForeignKeysReflection->setAccessible(true);
-
-        $adapter
-            ->expects($this->once())
-            ->method('validateForeignKeys')
-            ->willReturnCallback(function (string $tableName) use ($adapter, $validateForeignKeysReflection) {
-                $adapter->execute('PRAGMA foreign_keys = OFF');
-                $adapter->execute('DELETE FROM articles');
-                $adapter->execute('PRAGMA foreign_keys = ON');
-
-                $validateForeignKeysReflection->invoke($adapter, $tableName);
-            });
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Integrity constraint violation: FOREIGN KEY constraint on `comments` failed.');
