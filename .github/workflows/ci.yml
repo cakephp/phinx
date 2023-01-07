@@ -17,8 +17,6 @@ jobs:
         db-type: [sqlite, mysql, pgsql]
         prefer-lowest: ['']
         include:
-          - php-version: '8.1'
-            db-type: mysql
           - php-version: '7.3'
             db-type: mysql
             prefer-lowest: prefer-lowest
