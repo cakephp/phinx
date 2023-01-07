@@ -70,9 +70,9 @@
             "@test",
             "@cs-check"
         ],
-        "cs-check": "phpcs -np app/ src/ tests/",
-        "cs-fix": "phpcbf -np app/ src/ tests/",
-        "stan": "phpstan analyse src/",
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "stan": "phpstan analyse",
         "stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:~1.9.0 && mv composer.backup composer.json",
         "test": "phpunit --colors=always"
     },

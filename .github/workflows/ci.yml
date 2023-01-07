@@ -4,13 +4,12 @@ on:
   push:
     branches:
       - '0.x'
-      - '0.next'
       - '1.x'
   pull_request:
 
 jobs:
   testsuite:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -66,12 +65,10 @@ jobs:
 
     - name: Composer install
       run: |
-        if [[ ${{ matrix.php-version }} == '8.2' ]]; then
-          composer install --ignore-platform-req=php
-        elif ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then
+        if ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then
           composer update --prefer-lowest --prefer-stable
         else
-          composer update
+          composer install
         fi
 
     - name: Setup problem matchers for PHPUnit
@@ -182,7 +179,7 @@ jobs:
 
   cs-stan:
     name: Coding Standard & Static Analysis
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
@@ -211,7 +208,7 @@ jobs:
       run: composer stan-setup
 
     - name: Run PHP CodeSniffer
-      run: vendor/bin/phpcs --report=checkstyle -np app/ src/ tests/
+      run: vendor/bin/phpcs --report=checkstyle
 
     - name: Run phpstan
       if: always()
