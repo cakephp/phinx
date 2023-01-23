@@ -1103,6 +1103,8 @@ class MysqlAdapter extends PdoAdapter
                 }
 
                 return ['name' => 'year', 'limit' => $limit];
+            case static::PHINX_TYPE_MEDIUMTEXT:
+                return ['name' =>'mediumtext' ];
             default:
                 throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by MySQL.');
         }

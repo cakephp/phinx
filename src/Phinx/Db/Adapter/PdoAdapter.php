@@ -567,6 +567,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             'point',
             'linestring',
             'polygon',
+            'mediumtext'
         ];
     }
 
