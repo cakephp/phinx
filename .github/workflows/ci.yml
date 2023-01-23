@@ -206,7 +206,7 @@ jobs:
       run: composer stan-setup
 
     - name: Run PHP CodeSniffer
-      run: vendor/bin/phpcs --report=checkstyle
+      run: vendor/bin/phpcs
 
     - name: Run phpstan
       if: always()
