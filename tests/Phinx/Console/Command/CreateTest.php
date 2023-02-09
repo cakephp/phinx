@@ -97,7 +97,7 @@ class CreateTest extends TestCase
         $this->assertMatchesRegularExpression('/^[0-9]{14}.php/', $fileName);
         $date = substr($fileName, 0, 14);
         $this->assertFileExists($this->config->getMigrationPaths()[0]);
-        $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
+        $prefix = "<?php\n\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
         $migrationContents = file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName);
         $this->assertStringStartsWith($prefix, $migrationContents);
         $this->assertStringContainsString('public function change()', $migrationContents);
@@ -130,7 +130,7 @@ class CreateTest extends TestCase
         $fileName = current($files);
         $this->assertMatchesRegularExpression('/^[0-9]{14}_my_migration.php/', $fileName);
         $this->assertFileExists($this->config->getMigrationPaths()[0]);
-        $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class MyMigration extends AbstractMigration\n";
+        $prefix = "<?php\n\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class MyMigration extends AbstractMigration\n";
         $this->assertStringStartsWith($prefix, file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName));
     }
 
@@ -484,7 +484,7 @@ class CreateTest extends TestCase
         $this->assertMatchesRegularExpression('/^[0-9]{14}.php/', $fileName);
         $date = substr($fileName, 0, 14);
         $this->assertFileExists($this->config->getMigrationPaths()[0]);
-        $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
+        $prefix = "<?php\n\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
         $migrationContents = file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName);
         $this->assertStringStartsWith($prefix, $migrationContents);
         $this->assertStringContainsString('public function change()', $migrationContents);
@@ -518,7 +518,7 @@ class CreateTest extends TestCase
         $this->assertMatchesRegularExpression('/^[0-9]{14}.php/', $fileName);
         $date = substr($fileName, 0, 14);
         $this->assertFileExists($this->config->getMigrationPaths()[0]);
-        $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
+        $prefix = "<?php\n\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
         $migrationContents = file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName);
         $this->assertStringStartsWith($prefix, $migrationContents);
         $this->assertStringContainsString('public function change()', $migrationContents);
@@ -552,7 +552,7 @@ class CreateTest extends TestCase
         $this->assertMatchesRegularExpression('/^[0-9]{14}.php/', $fileName);
         $date = substr($fileName, 0, 14);
         $this->assertFileExists($this->config->getMigrationPaths()[0]);
-        $prefix = "<?php\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
+        $prefix = "<?php\n\ndeclare(strict_types=1);\n\nuse Phinx\\Migration\\AbstractMigration;\n\nfinal class V{$date} extends AbstractMigration\n";
         $migrationContents = file_get_contents($this->config->getMigrationPaths()[0] . DIRECTORY_SEPARATOR . $fileName);
         $this->assertStringStartsWith($prefix, $migrationContents);
         $this->assertStringContainsString('public function up()', $migrationContents);
