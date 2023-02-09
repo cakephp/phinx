@@ -1,4 +1,5 @@
 <?php
+
 namespace Test\Phinx\Console\Command\TemplateGenerators;
 
 use Phinx\Migration\AbstractTemplateCreation;
