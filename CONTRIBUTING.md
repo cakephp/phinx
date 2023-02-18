@@ -92,4 +92,4 @@ install [docker-compose](https://docs.docker.com/compose/) for your platform.
 ## Documentation
 
 The Phinx documentation is stored in the **docs** directory using the [RestructedText](https://docutils.sourceforge.io/rst.html)
-format. All documentation merged to `master` is automatically published to the Phinx documentation site available at http://docs.phinx.org.
+format. All documentation merged to `master` is automatically published to the Phinx documentation site available at https://docs.phinx.org.
