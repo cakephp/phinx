@@ -111,7 +111,7 @@ class Environment
                 $migration->{$direction}();
             }
 	    
-	    // Record it in the database
+	        // Record it in the database
             $this->getAdapter()->migrated($migration, $direction, date('Y-m-d H:i:s', $startTime), date('Y-m-d H:i:s', time()));
 
             // commit the transaction if the adapter supports it
