@@ -1289,7 +1289,7 @@ class MysqlAdapterTest extends TestCase
             ['column10', 'timestamp', []],
             ['column11', 'date', []],
             ['column12', 'binary', []],
-            ['column13', 'boolean', []],
+            ['column13', 'boolean', ['comment' => 'Lorem ipsum']],
             ['column14', 'string', ['limit' => 10]],
             ['column16', 'geometry', []],
             ['column17', 'point', []],
@@ -1332,6 +1332,10 @@ class MysqlAdapterTest extends TestCase
 
         if (isset($options['scale'])) {
             $this->assertEquals($options['scale'], $columns[1]->getScale());
+        }
+
+        if (isset($options['comment'])) {
+            $this->assertEquals($options['comment'], $columns[1]->getComment());
         }
     }
 
