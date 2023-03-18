@@ -48,6 +48,28 @@ This means that:
         ]
     ];
 
+Another example of custom PDO with SSL_CA
+---------------
+
+.. code-block:: php
+
+    // Example of Connection to Azure Flex Server with SSL CA
+    $options = array(
+       PDO::MYSQL_ATTR_SSL_CA => '/var/www/html/MY-PATH-EXAMPLE/Config/DigiCertGlobalRootCA.crt.pem'
+    );
+    
+    $MyPdo = new PDO('mysql:host=MY-URL-FOR-AZURE.mysql.database.azure.com;port=3306;dbname=MY-DB', 'MY-USER-NAME', 'MY-PASSWORD', $options);
+
+    return [
+        'environments' => [
+            'default_environment' => 'development',
+            'development' => [
+                'name' => 'devdb',
+                'connection' => $MyPdo
+            ]
+        ]
+    ];
+
 Migration Paths
 ---------------
 
