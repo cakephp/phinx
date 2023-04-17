@@ -461,6 +461,39 @@ WHERE t.name='ntable'");
         }
     }
 
+    public function testAddColumnWithCustomType()
+    {
+        $this->adapter->setDataDomain([
+            'custom' => [
+                'type' => 'geometry',
+                'null' => true,
+            ],
+        ]);
+
+        (new \Phinx\Db\Table('table1', [], $this->adapter))
+            ->addColumn('custom', 'custom')
+            ->addColumn('custom_ext', 'custom', [
+                'null' => false,
+            ])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasTable('table1'));
+
+        $columns = $this->adapter->getColumns('table1');
+        $this->assertArrayHasKey('custom', $columns);
+        $this->assertArrayHasKey('custom_ext', $columns);
+
+        $column = $this->adapter->getColumns('table1')['custom'];
+        $this->assertSame('custom', $column->getName());
+        $this->assertSame('geometry', (string)$column->getType());
+        $this->assertTrue($column->getNull());
+
+        $column = $this->adapter->getColumns('table1')['custom_ext'];
+        $this->assertSame('custom_ext', $column->getName());
+        $this->assertSame('geometry', (string)$column->getType());
+        $this->assertFalse($column->getNull());
+    }
+
     public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);

@@ -1018,7 +1018,7 @@ ORDER BY T.[name], I.[index_id];";
         $instructions->addPostStep(sprintf(
             'ALTER TABLE %s DROP CONSTRAINT %s',
             $this->quoteTableName($tableName),
-            $constraint
+            $this->quoteColumnName($constraint)
         ));
 
         return $instructions;

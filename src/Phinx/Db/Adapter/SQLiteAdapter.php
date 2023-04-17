@@ -734,7 +734,7 @@ PCRE_PATTERN;
             return $newState + $state;
         });
 
-        return $this->copyAndDropTmpTable($instructions, $tableName);
+        return $this->endAlterByCopyTable($instructions, $tableName);
     }
 
     /**
@@ -794,6 +794,236 @@ PCRE_PATTERN;
     }
 
     /**
+     * Obtains index and trigger information for a table.
+     *
+     * They will be stored in the state as arrays under the `indices` and `triggers`
+     * keys accordingly.
+     *
+     * Index columns defined as expressions, as for example in `ON (ABS(id), other)`,
+     * will appear as `null`, so for the given example the columns for the index would
+     * look like `[null, 'other']`.
+     *
+     * @param \Phinx\Db\Util\AlterInstructions $instructions The instructions to modify
+     * @param string $tableName The name of table being processed
+     * @return \Phinx\Db\Util\AlterInstructions
+     */
+    protected function bufferIndicesAndTriggers(AlterInstructions $instructions, string $tableName): AlterInstructions
+    {
+        $instructions->addPostStep(function (array $state) use ($tableName): array {
+            $state['indices'] = [];
+            $state['triggers'] = [];
+
+            $rows = $this->fetchAll(
+                sprintf(
+                    "
+                        SELECT *
+                        FROM sqlite_master
+                        WHERE
+                            (`type` = 'index' OR `type` = 'trigger')
+                            AND tbl_name = %s
+                            AND sql IS NOT NULL
+                    ",
+                    $this->quoteValue($tableName)
+                )
+            );
+
+            $schema = $this->getSchemaName($tableName, true)['schema'];
+
+            foreach ($rows as $row) {
+                switch ($row['type']) {
+                    case 'index':
+                        $info = $this->fetchAll(
+                            sprintf('PRAGMA %sindex_info(%s)', $schema, $this->quoteValue($row['name']))
+                        );
+
+                        $columns = array_map(
+                            function ($column) {
+                                if ($column === null) {
+                                    return null;
+                                }
+
+                                return strtolower($column);
+                            },
+                            array_column($info, 'name')
+                        );
+                        $hasExpressions = in_array(null, $columns, true);
+
+                        $index = [
+                            'columns' => $columns,
+                            'hasExpressions' => $hasExpressions,
+                        ];
+
+                        $state['indices'][] = $index + $row;
+                        break;
+
+                    case 'trigger':
+                        $state['triggers'][] = $row;
+                        break;
+                }
+            }
+
+            return $state;
+        });
+
+        return $instructions;
+    }
+
+    /**
+     * Filters out indices that reference a removed column.
+     *
+     * @param \Phinx\Db\Util\AlterInstructions $instructions The instructions to modify
+     * @param string $columnName The name of the removed column
+     * @return \Phinx\Db\Util\AlterInstructions
+     */
+    protected function filterIndicesForRemovedColumn(
+        AlterInstructions $instructions,
+        string $columnName
+    ): AlterInstructions {
+        $instructions->addPostStep(function (array $state) use ($columnName): array {
+            foreach ($state['indices'] as $key => $index) {
+                if (
+                    !$index['hasExpressions'] &&
+                    in_array(strtolower($columnName), $index['columns'], true)
+                ) {
+                    unset($state['indices'][$key]);
+                }
+            }
+
+            return $state;
+        });
+
+        return $instructions;
+    }
+
+    /**
+     * Updates indices that reference a renamed column.
+     *
+     * @param \Phinx\Db\Util\AlterInstructions $instructions The instructions to modify
+     * @param string $oldColumnName The old column name
+     * @param string $newColumnName The new column name
+     * @return \Phinx\Db\Util\AlterInstructions
+     */
+    protected function updateIndicesForRenamedColumn(
+        AlterInstructions $instructions,
+        string $oldColumnName,
+        string $newColumnName
+    ): AlterInstructions {
+        $instructions->addPostStep(function (array $state) use ($oldColumnName, $newColumnName): array {
+            foreach ($state['indices'] as $key => $index) {
+                if (
+                    !$index['hasExpressions'] &&
+                    in_array(strtolower($oldColumnName), $index['columns'], true)
+                ) {
+                    $pattern = '
+                        /
+                            (INDEX.+?ON\s.+?)
+                                (\(\s*|,\s*)        # opening parenthesis or comma
+                                (?:`|"|\[)?         # optional opening quote
+                                (%s)                # column name
+                                (?:`|"|\])?         # optional closing quote
+                                (\s+COLLATE\s+.+?)? # optional collation
+                                (\s+(?:ASC|DESC))?  # optional order
+                                (\s*,|\s*\))        # comma or closing parenthesis
+                        /isx';
+
+                    $newColumnName = $this->quoteColumnName($newColumnName);
+
+                    $state['indices'][$key]['sql'] = preg_replace(
+                        sprintf($pattern, preg_quote($oldColumnName, '/')),
+                        "\\1\\2$newColumnName\\4\\5\\6",
+                        $index['sql']
+                    );
+                }
+            }
+
+            return $state;
+        });
+
+        return $instructions;
+    }
+
+    /**
+     * Recreates indices and triggers.
+     *
+     * @param \Phinx\Db\Util\AlterInstructions $instructions The instructions to process
+     * @return \Phinx\Db\Util\AlterInstructions
+     */
+    protected function recreateIndicesAndTriggers(AlterInstructions $instructions): AlterInstructions
+    {
+        $instructions->addPostStep(function (array $state): array {
+            foreach ($state['indices'] as $index) {
+                $this->execute($index['sql']);
+            }
+
+            foreach ($state['triggers'] as $trigger) {
+                $this->execute($trigger['sql']);
+            }
+
+            return $state;
+        });
+
+        return $instructions;
+    }
+
+    /**
+     * Returns instructions for validating the foreign key constraints of
+     * the given table, and of those tables whose constraints are
+     * targeting it.
+     *
+     * @param \Phinx\Db\Util\AlterInstructions $instructions The instructions to process
+     * @param string $tableName The name of the table for which to check constraints.
+     * @return \Phinx\Db\Util\AlterInstructions
+     */
+    protected function validateForeignKeys(AlterInstructions $instructions, string $tableName): AlterInstructions
+    {
+        $instructions->addPostStep(function ($state) use ($tableName) {
+            $tablesToCheck = [
+                $tableName,
+            ];
+
+            $otherTables = $this
+                ->query(
+                    "SELECT name FROM sqlite_master WHERE type = 'table' AND name != ?",
+                    [$tableName]
+                )
+                ->fetchAll();
+
+            foreach ($otherTables as $otherTable) {
+                $foreignKeyList = $this->getTableInfo($otherTable['name'], 'foreign_key_list');
+                foreach ($foreignKeyList as $foreignKey) {
+                    if (strcasecmp($foreignKey['table'], $tableName) === 0) {
+                        $tablesToCheck[] = $otherTable['name'];
+                        break;
+                    }
+                }
+            }
+
+            $tablesToCheck = array_unique(array_map('strtolower', $tablesToCheck));
+
+            foreach ($tablesToCheck as $tableToCheck) {
+                $schema = $this->getSchemaName($tableToCheck, true)['schema'];
+
+                $stmt = $this->query(
+                    sprintf('PRAGMA %sforeign_key_check(%s)', $schema, $this->quoteTableName($tableToCheck))
+                );
+                $row = $stmt->fetch();
+                $stmt->closeCursor();
+
+                if (is_array($row)) {
+                    throw new RuntimeException(sprintf(
+                        'Integrity constraint violation: FOREIGN KEY constraint on `%s` failed.',
+                        $tableToCheck
+                    ));
+                }
+            }
+
+            return $state;
+        });
+
+        return $instructions;
+    }
+
+    /**
      * Copies all the data from a tmp table to another table
      *
      * @param string $tableName The table name to copy the data to
@@ -832,30 +1062,12 @@ PCRE_PATTERN;
                 $state['selectColumns']
             );
 
-            $rows = $this->fetchAll(
-                sprintf(
-                    "
-                        SELECT *
-                        FROM sqlite_master
-                        WHERE
-                            (`type` = 'index' OR `type` = 'trigger')
-                            AND tbl_name = %s
-                            AND sql IS NOT NULL
-                    ",
-                    $this->quoteValue($tableName)
-                )
-            );
-
             $this->execute(sprintf('DROP TABLE %s', $this->quoteTableName($tableName)));
             $this->execute(sprintf(
                 'ALTER TABLE %s RENAME TO %s',
                 $this->quoteTableName($state['tmpTableName']),
                 $this->quoteTableName($tableName)
             ));
-
-            foreach ($rows as $row) {
-                $this->execute($row['sql']);
-            }
 
             return $state;
         });
@@ -946,6 +1158,59 @@ PCRE_PATTERN;
     }
 
     /**
+     * Returns the final instructions to alter a table using the
+     * create-copy-drop strategy.
+     *
+     * @param \Phinx\Db\Util\AlterInstructions $instructions The instructions to modify
+     * @param string $tableName The name of table being processed
+     * @param ?string $renamedOrRemovedColumnName The name of the renamed or removed column when part of a column
+     *  rename/drop operation.
+     * @param ?string $newColumnName The new column name when part of a column rename operation.
+     * @param bool $validateForeignKeys Whether to validate foreign keys after the copy and drop operations. Note that
+     *  enabling this option only has an effect when the `foreign_keys` PRAGMA is set to `ON`!
+     * @return \Phinx\Db\Util\AlterInstructions
+     */
+    protected function endAlterByCopyTable(
+        AlterInstructions $instructions,
+        string $tableName,
+        ?string $renamedOrRemovedColumnName = null,
+        ?string $newColumnName = null,
+        bool $validateForeignKeys = true
+    ): AlterInstructions {
+        $instructions = $this->bufferIndicesAndTriggers($instructions, $tableName);
+
+        if ($renamedOrRemovedColumnName !== null) {
+            if ($newColumnName !== null) {
+                $this->updateIndicesForRenamedColumn($instructions, $renamedOrRemovedColumnName, $newColumnName);
+            } else {
+                $this->filterIndicesForRemovedColumn($instructions, $renamedOrRemovedColumnName);
+            }
+        }
+
+        $foreignKeysEnabled = (bool)$this->fetchRow('PRAGMA foreign_keys')['foreign_keys'];
+
+        if ($foreignKeysEnabled) {
+            $instructions->addPostStep('PRAGMA foreign_keys = OFF');
+        }
+
+        $instructions = $this->copyAndDropTmpTable($instructions, $tableName);
+        $instructions = $this->recreateIndicesAndTriggers($instructions);
+
+        if ($foreignKeysEnabled) {
+            $instructions->addPostStep('PRAGMA foreign_keys = ON');
+        }
+
+        if (
+            $foreignKeysEnabled &&
+            $validateForeignKeys
+        ) {
+            $instructions = $this->validateForeignKeys($instructions, $tableName);
+        }
+
+        return $instructions;
+    }
+
+    /**
      * @inheritDoc
      */
     protected function getRenameColumnInstructions(string $tableName, string $columnName, string $newColumnName): AlterInstructions
@@ -969,7 +1234,7 @@ PCRE_PATTERN;
             return $newState + $state;
         });
 
-        return $this->copyAndDropTmpTable($instructions, $tableName);
+        return $this->endAlterByCopyTable($instructions, $tableName, $columnName, $newColumnName);
     }
 
     /**
@@ -998,7 +1263,7 @@ PCRE_PATTERN;
             return $newState + $state;
         });
 
-        return $this->copyAndDropTmpTable($instructions, $tableName);
+        return $this->endAlterByCopyTable($instructions, $tableName);
     }
 
     /**
@@ -1030,7 +1295,7 @@ PCRE_PATTERN;
             return $state;
         });
 
-        return $this->copyAndDropTmpTable($instructions, $tableName);
+        return $this->endAlterByCopyTable($instructions, $tableName, $columnName);
     }
 
     /**
@@ -1306,7 +1571,7 @@ PCRE_PATTERN;
             return compact('selectColumns', 'writeColumns') + $state;
         });
 
-        return $this->copyAndDropTmpTable($instructions, $tableName);
+        return $this->endAlterByCopyTable($instructions, $tableName);
     }
 
     /**
@@ -1316,7 +1581,8 @@ PCRE_PATTERN;
      */
     protected function getDropPrimaryKeyInstructions(Table $table, string $column): AlterInstructions
     {
-        $instructions = $this->beginAlterByCopyTable($table->getName());
+        $tableName = $table->getName();
+        $instructions = $this->beginAlterByCopyTable($tableName);
 
         $instructions->addPostStep(function ($state) {
             $search = "/(,?\s*PRIMARY KEY\s*\([^\)]*\)|\s+PRIMARY KEY(\s+AUTOINCREMENT)?)/";
@@ -1335,7 +1601,7 @@ PCRE_PATTERN;
             return $newState + $state;
         });
 
-        return $this->copyAndDropTmpTable($instructions, $table->getName());
+        return $this->endAlterByCopyTable($instructions, $tableName, null, null, false);
     }
 
     /**
@@ -1383,7 +1649,7 @@ PCRE_PATTERN;
             return compact('selectColumns', 'writeColumns') + $state;
         });
 
-        return $this->copyAndDropTmpTable($instructions, $tableName);
+        return $this->endAlterByCopyTable($instructions, $tableName);
     }
 
     /**
@@ -1441,7 +1707,7 @@ PCRE_PATTERN;
             return $newState + $state;
         });
 
-        return $this->copyAndDropTmpTable($instructions, $tableName);
+        return $this->endAlterByCopyTable($instructions, $tableName);
     }
 
     /**

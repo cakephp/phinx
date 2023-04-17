@@ -26,6 +26,7 @@ use Phinx\Db\Plan\Intent;
 use Phinx\Db\Plan\Plan;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Table as TableValue;
+use Phinx\Util\Literal;
 use RuntimeException;
 
 /**
@@ -299,8 +300,10 @@ class Table
     {
         if ($columnName instanceof Column) {
             $action = new AddColumn($this->table, $columnName);
-        } else {
+        } elseif ($type instanceof Literal) {
             $action = AddColumn::build($this->table, $columnName, $type, $options);
+        } else {
+            $action = new AddColumn($this->table, $this->getAdapter()->getColumnForType($columnName, $type, $options));
         }
 
         // Delegate to Adapters to check column type

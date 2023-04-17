@@ -504,6 +504,7 @@ class Manager
             // if we have a date (ie. the target must not match a version) and we are sorting by execution time, we
             // convert the version start time so we can compare directly with the target date
             if (!$this->getConfig()->isVersionOrderCreationTime() && !$targetMustMatchVersion) {
+                /** @var \DateTime $dateTime */
                 $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $executedVersion['start_time']);
                 $executedVersion['start_time'] = $dateTime->format('YmdHis');
             }
