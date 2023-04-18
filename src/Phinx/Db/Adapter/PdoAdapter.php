@@ -601,7 +601,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     {
         if ($default instanceof Literal) {
             $default = (string)$default;
-        } elseif (is_string($default) && strpos($default, 'CURRENT_TIMESTAMP') !== 0) {
+        } elseif (is_string($default) && stripos($default, 'CURRENT_TIMESTAMP') !== 0) {
             // Ensure a defaults of CURRENT_TIMESTAMP(3) is not quoted.
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
