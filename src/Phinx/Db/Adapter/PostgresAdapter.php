@@ -1566,7 +1566,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function getDecoratedConnection(): Connection
+    protected function getDecoratedConnectionConfig(): array
     {
         $options = $this->getOptions();
         $options = [
@@ -1576,11 +1576,7 @@ class PostgresAdapter extends PdoAdapter
             'quoteIdentifiers' => true,
         ] + $options;
 
-        $driver = new PostgresDriver($options);
-
-        $driver->setConnection($this->connection);
-
-        return new Connection(['driver' => $driver] + $options);
+        return ['driver' => new PostgresDriver($options)] + $options;
     }
 
     /**

@@ -1531,7 +1531,7 @@ class MysqlAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function getDecoratedConnection(): Connection
+    protected function getDecoratedConnectionConfig(): array
     {
         $options = $this->getOptions();
         $options = [
@@ -1541,9 +1541,6 @@ class MysqlAdapter extends PdoAdapter
             'quoteIdentifiers' => true,
         ] + $options;
 
-        $driver = new MysqlDriver($options);
-        $driver->setConnection($this->connection);
-
-        return new Connection(['driver' => $driver] + $options);
+        return ['driver' => new MysqlDriver($options)] + $options;
     }
 }

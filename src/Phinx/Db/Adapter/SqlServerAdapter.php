@@ -1359,7 +1359,7 @@ SQL;
     /**
      * @inheritDoc
      */
-    public function getDecoratedConnection(): Connection
+    protected function getDecoratedConnectionConfig(): array
     {
         $options = $this->getOptions();
         $options = [
@@ -1369,9 +1369,6 @@ SQL;
             'quoteIdentifiers' => true,
         ] + $options;
 
-        $driver = new SqlServerDriver($options);
-        $driver->setConnection($this->connection);
-
-        return new Connection(['driver' => $driver] + $options);
+        return ['driver' => new SqlServerDriver($options)] + $options;
     }
 }

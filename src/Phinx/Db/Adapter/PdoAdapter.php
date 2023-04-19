@@ -50,6 +50,11 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     protected $connection;
 
     /**
+     * @var \Cake\Database\Connection|null
+     */
+    protected $decoratedConnection;
+
+    /**
      * Writes a message to stdout if verbose output is on
      *
      * @param string $message The message to show
@@ -199,12 +204,33 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
+     * Returns the config for a new decorated connection.
+     *
+     * @return array
+     */
+    abstract protected function getDecoratedConnectionConfig(): array;
+
+    /**
      * Returns the Cake\Database connection object using the same underlying
      * PDO object as this connection.
      *
      * @return \Cake\Database\Connection
      */
-    abstract public function getDecoratedConnection(): Connection;
+    public function getDecoratedConnection(): Connection
+    {
+        if (isset($this->decoratedConnection)) {
+            return $this->decoratedConnection;
+        }
+
+        $config = $this->getDecoratedConnectionConfig();
+        if (!isset($config['driver'])) {
+            throw new RuntimeException('Decorated connection config is missing the driver.');
+        }
+
+        $config['driver']->setConnection($this->connection);
+
+        return $this->decoratedConnection = new Connection($this->getDecoratedConnectionConfig());
+    }
 
     /**
      * @inheritDoc

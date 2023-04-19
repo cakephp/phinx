@@ -1932,7 +1932,7 @@ PCRE_PATTERN;
     /**
      * @inheritDoc
      */
-    public function getDecoratedConnection(): Connection
+    protected function getDecoratedConnectionConfig(): array
     {
         $options = $this->getOptions();
         $options['quoteIdentifiers'] = true;
@@ -1949,9 +1949,6 @@ PCRE_PATTERN;
             throw new RuntimeException('You need to connect first.');
         }
 
-        $driver = new SqliteDriver($options);
-        $driver->setConnection($this->connection);
-
-        return new Connection(['driver' => $driver] + $options);
+        return ['driver' => new SqliteDriver($options)] + $options;
     }
 }
