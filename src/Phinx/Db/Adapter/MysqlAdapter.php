@@ -7,7 +7,6 @@
 
 namespace Phinx\Db\Adapter;
 
-use Cake\Database\Connection;
 use Cake\Database\Driver\Mysql as MysqlDriver;
 use InvalidArgumentException;
 use PDO;

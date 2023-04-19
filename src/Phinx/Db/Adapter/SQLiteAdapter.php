@@ -8,7 +8,6 @@
 namespace Phinx\Db\Adapter;
 
 use BadMethodCallException;
-use Cake\Database\Connection;
 use Cake\Database\Driver\Sqlite as SqliteDriver;
 use InvalidArgumentException;
 use PDO;
