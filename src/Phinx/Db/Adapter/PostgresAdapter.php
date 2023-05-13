@@ -1621,11 +1621,17 @@ class PostgresAdapter extends PdoAdapter
             }
         }
 
+        $override = '';
+        if ($this->useIdentity)
+        {
+            $override = self::OVERRIDE_SYSTEM_VALUE;
+        }
+
         if ($this->isDryRunEnabled()) {
-            $sql .= ' ' . self::OVERRIDE_SYSTEM_VALUE . ' VALUES (' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ');';
+            $sql .= ' ' . $override . ' VALUES (' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ');';
             $this->output->writeln($sql);
         } else {
-            $sql .= ' ' . self::OVERRIDE_SYSTEM_VALUE . ' VALUES (' . implode(', ', array_fill(0, count($columns), '?')) . ')';
+            $sql .= ' ' . $override . ' VALUES (' . implode(', ', array_fill(0, count($columns), '?')) . ')';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute(array_values($row));
         }
@@ -1643,7 +1649,13 @@ class PostgresAdapter extends PdoAdapter
         $current = current($rows);
         $keys = array_keys($current);
 
-        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ') ' . self::OVERRIDE_SYSTEM_VALUE . ' VALUES ';
+        $override = '';
+        if ($this->useIdentity)
+        {
+            $override = self::OVERRIDE_SYSTEM_VALUE;
+        }
+
+        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ') ' . $override . ' VALUES ';
 
         if ($this->isDryRunEnabled()) {
             $values = array_map(function ($row) {

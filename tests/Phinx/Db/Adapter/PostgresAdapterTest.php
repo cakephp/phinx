@@ -563,7 +563,7 @@ class PostgresAdapterTest extends TestCase
         foreach ($columns as $column) {
             if ($column->getName() === 'id') {
                 $this->assertTrue($column->getIdentity());
-                $this->assertEquals(PostgresAdapter::GENERATED_ALWAYS, $column->getGenerated());
+                $this->assertEquals(PostgresAdapter::GENERATED_BY_DEFAULT, $column->getGenerated());
             }
         }
     }
@@ -571,8 +571,8 @@ class PostgresAdapterTest extends TestCase
     public function providerAddColumnIdentity(): array
     {
         return [
-            [PostgresAdapter::GENERATED_ALWAYS, false], //testAddColumnWithIdentityAlways
-            [PostgresAdapter::GENERATED_BY_DEFAULT, true], //testAddColumnWithIdentityDefault
+            [PostgresAdapter::GENERATED_ALWAYS, true], //testAddColumnWithIdentityAlways
+            [PostgresAdapter::GENERATED_BY_DEFAULT, false], //testAddColumnWithIdentityDefault
             [null, true], //testAddColumnWithoutIdentity
         ];
     }
