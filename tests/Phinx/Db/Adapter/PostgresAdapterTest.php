@@ -2342,6 +2342,13 @@ OUTPUT;
         $expectedOutput = <<<'OUTPUT'
 INSERT INTO "public"."table1" ("string_col", "int_col") OVERRIDING SYSTEM VALUE VALUES ('test_data1', 23), (null, 42);
 OUTPUT;
+
+        if (!$this->usingPostgres10()) {
+            $expectedOutput = <<<'OUTPUT'
+INSERT INTO "public"."table1" ("string_col", "int_col") VALUES ('test_data1', 23), (null, 42);
+OUTPUT;
+        }
+
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString(
             $expectedOutput,
@@ -2378,6 +2385,14 @@ OUTPUT;
 CREATE TABLE "schema1"."table1" ("column1" CHARACTER VARYING (255) NOT NULL, "column2" INTEGER NULL, CONSTRAINT "table1_pkey" PRIMARY KEY ("column1"));
 INSERT INTO "schema1"."table1" ("column1", "column2") OVERRIDING SYSTEM VALUE VALUES ('id1', 1);
 OUTPUT;
+
+        if (!$this->usingPostgres10()) {
+            $expectedOutput = <<<'OUTPUT'
+CREATE TABLE "schema1"."table1" ("column1" CHARACTER VARYING (255) NOT NULL, "column2" INTEGER NULL, CONSTRAINT "table1_pkey" PRIMARY KEY ("column1"));
+INSERT INTO "schema1"."table1" ("column1", "column2") VALUES ('id1', 1);
+OUTPUT;
+        }
+
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString($expectedOutput, $actualOutput, 'Passing the --dry-run option does not dump create and then insert table queries to the output');
     }
