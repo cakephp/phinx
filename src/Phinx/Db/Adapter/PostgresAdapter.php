@@ -24,6 +24,11 @@ class PostgresAdapter extends PdoAdapter
 {
     public const GENERATED_ALWAYS = 'ALWAYS';
     public const GENERATED_BY_DEFAULT = 'BY DEFAULT';
+    /**
+     * Allow insert when a column was created with the GENERATED ALWAYS clause.
+     * This is required for seeding the database.
+     */
+    public const OVERRIDE_SYSTEM_VALUE = 'OVERRIDING SYSTEM VALUE';
 
     /**
      * @var string[]
@@ -1596,5 +1601,76 @@ class PostgresAdapter extends PdoAdapter
                 $this->quoteSchemaName($this->getGlobalSchemaName())
             )
         );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function insert(Table $table, array $row): void
+    {
+        $sql = sprintf(
+            'INSERT INTO %s ',
+            $this->quoteTableName($table->getName())
+        );
+        $columns = array_keys($row);
+        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ')';
+
+        foreach ($row as $column => $value) {
+            if (is_bool($value)) {
+                $row[$column] = $this->castToBool($value);
+            }
+        }
+
+        if ($this->isDryRunEnabled()) {
+            $sql .= ' ' . self::OVERRIDE_SYSTEM_VALUE . ' VALUES (' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ');';
+            $this->output->writeln($sql);
+        } else {
+            $sql .= ' ' . self::OVERRIDE_SYSTEM_VALUE . ' VALUES (' . implode(', ', array_fill(0, count($columns), '?')) . ')';
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute(array_values($row));
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function bulkinsert(Table $table, array $rows): void
+    {
+        $sql = sprintf(
+            'INSERT INTO %s ',
+            $this->quoteTableName($table->getName())
+        );
+        $current = current($rows);
+        $keys = array_keys($current);
+
+        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ') ' . self::OVERRIDE_SYSTEM_VALUE . ' VALUES ';
+
+        if ($this->isDryRunEnabled()) {
+            $values = array_map(function ($row) {
+                return '(' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ')';
+            }, $rows);
+            $sql .= implode(', ', $values) . ';';
+            $this->output->writeln($sql);
+        } else {
+            $count_keys = count($keys);
+            $query = '(' . implode(', ', array_fill(0, $count_keys, '?')) . ')';
+            $count_vars = count($rows);
+            $queries = array_fill(0, $count_vars, $query);
+            $sql .= implode(',', $queries);
+            $stmt = $this->getConnection()->prepare($sql);
+            $vals = [];
+
+            foreach ($rows as $row) {
+                foreach ($row as $v) {
+                    if (is_bool($v)) {
+                        $vals[] = $this->castToBool($v);
+                    } else {
+                        $vals[] = $v;
+                    }
+                }
+            }
+
+            $stmt->execute($vals);
+        }
     }
 }
