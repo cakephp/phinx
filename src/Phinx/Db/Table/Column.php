@@ -92,7 +92,7 @@ class Column
      *
      * @var ?string
      */
-    protected $generated = PostgresAdapter::GENERATED_ALWAYS;
+    protected $generated = PostgresAdapter::GENERATED_BY_DEFAULT;
 
     /**
      * @var int|null
