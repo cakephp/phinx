@@ -2297,6 +2297,15 @@ INSERT INTO "public"."table1" ("string_col") OVERRIDING SYSTEM VALUE VALUES ('te
 INSERT INTO "public"."table1" ("string_col") OVERRIDING SYSTEM VALUE VALUES (null);
 INSERT INTO "public"."table1" ("int_col") OVERRIDING SYSTEM VALUE VALUES (23);
 OUTPUT;
+
+        if (!$this->usingPostgres10()) {
+            $expectedOutput = <<<'OUTPUT'
+INSERT INTO "public"."table1" ("string_col") VALUES ('test data');
+INSERT INTO "public"."table1" ("string_col") VALUES (null);
+INSERT INTO "public"."table1" ("int_col") VALUES (23);
+OUTPUT;
+        }
+
         $actualOutput = $consoleOutput->fetch();
         $this->assertStringContainsString(
             $expectedOutput,
