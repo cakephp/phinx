@@ -32,7 +32,7 @@ abstract class AbstractMigration implements MigrationInterface
     protected $environment;
 
     /**
-     * @var int
+     * @var string
      */
     protected $version;
 
@@ -67,11 +67,11 @@ abstract class AbstractMigration implements MigrationInterface
 
     /**
      * @param string $environment Environment Detected
-     * @param int $version Migration Version
+     * @param string $version Migration Version
      * @param \Symfony\Component\Console\Input\InputInterface|null $input Input
      * @param \Symfony\Component\Console\Output\OutputInterface|null $output Output
      */
-    final public function __construct(string $environment, int $version, ?InputInterface $input = null, ?OutputInterface $output = null)
+    final public function __construct(string $environment, string $version, ?InputInterface $input = null, ?OutputInterface $output = null)
     {
         $this->environment = $environment;
         $this->version = $version;
@@ -158,7 +158,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
-    public function setVersion($version): MigrationInterface
+    public function setVersion(string $version): MigrationInterface
     {
         $this->version = $version;
 
@@ -168,7 +168,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
-    public function getVersion(): int
+    public function getVersion(): string
     {
         return $this->version;
     }

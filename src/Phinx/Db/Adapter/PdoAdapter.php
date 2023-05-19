@@ -389,7 +389,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
         }
 
         foreach ($rows as $version) {
-            $result[(int)$version['version']] = $version;
+            $result[$version['version']] = $version;
         }
 
         return $result;

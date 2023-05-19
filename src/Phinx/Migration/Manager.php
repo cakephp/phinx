@@ -304,11 +304,11 @@ class Manager
      * Migrate an environment to the specified version.
      *
      * @param string $environment Environment
-     * @param int|null $version version to migrate to
+     * @param string|null $version version to migrate to
      * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
      * @return void
      */
-    public function migrate(string $environment, ?int $version = null, bool $fake = false): void
+    public function migrate(string $environment, ?string $version = null, bool $fake = false): void
     {
         $migrations = $this->getMigrations($environment);
         $env = $this->getEnvironment($environment);
@@ -845,6 +845,24 @@ class Manager
         }
 
         return $this->migrations;
+    }
+
+    /**
+     * Returns a list of the versions of the migration file
+     * array_keys() of $this->migrations is not reliable on 32 bit systems
+     *
+     * @param string $environment Environment
+     * @return string[]
+     */
+    public function getVersions(string $environment): array
+    {
+        $migrations = $this->getMigrations($environment);
+        $versions = [];
+        foreach ($migrations as $migration) {
+            $versions[] = $migration->getVersion();
+        }
+
+        return $versions;
     }
 
     /**

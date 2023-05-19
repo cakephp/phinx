@@ -50,7 +50,7 @@ class UtilTest extends TestCase
 
     public function testGetVersionFromFileName(): void
     {
-        $this->assertSame(20221130101652, Util::getVersionFromFileName('20221130101652_test.php'));
+        $this->assertSame('20221130101652', Util::getVersionFromFileName('20221130101652_test.php'));
     }
 
     public function testGetVersionFromFileNameErrorNoVersion(): void

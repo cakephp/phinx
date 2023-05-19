@@ -5532,6 +5532,12 @@ class ManagerTest extends TestCase
         }
     }
 
+    public function testGetVersions()
+    {
+        $versions = $this->manager->getVersions('mockenv');
+        $this->assertSame(['20120111235330', '20120116183504'], $versions);
+    }
+
     public function testGettingAnInvalidEnvironment()
     {
         $this->expectException(InvalidArgumentException::class);

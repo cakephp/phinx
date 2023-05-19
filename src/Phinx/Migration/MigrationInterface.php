@@ -102,17 +102,17 @@ interface MigrationInterface
     /**
      * Sets the migration version number.
      *
-     * @param int $version Version
+     * @param string $version Version
      * @return $this
      */
-    public function setVersion(int $version);
+    public function setVersion(string $version);
 
     /**
      * Gets the migration version number.
      *
-     * @return int
+     * @return string
      */
-    public function getVersion(): int;
+    public function getVersion(): string;
 
     /**
      * Sets whether this migration is being applied or reverted
