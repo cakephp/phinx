@@ -39,7 +39,7 @@ class Environment
     protected $output;
 
     /**
-     * @var int
+     * @var string
      */
     protected $currentVersion;
 
@@ -267,10 +267,10 @@ class Environment
     /**
      * Sets the current version of the environment.
      *
-     * @param int $version Environment Version
+     * @param string $version Environment Version
      * @return $this
      */
-    public function setCurrentVersion(int $version)
+    public function setCurrentVersion(string $version)
     {
         $this->currentVersion = $version;
 
@@ -280,15 +280,15 @@ class Environment
     /**
      * Gets the current version of the environment.
      *
-     * @return int
+     * @return string
      */
-    public function getCurrentVersion(): int
+    public function getCurrentVersion(): string
     {
         // We don't cache this code as the current version is pretty volatile.
         // that means they're no point in a setter then?
         // maybe we should cache and call a reset() method every time a migration is run
         $versions = $this->getVersions();
-        $version = 0;
+        $version = '0';
 
         if (!empty($versions)) {
             $version = end($versions);

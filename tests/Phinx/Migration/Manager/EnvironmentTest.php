@@ -129,7 +129,7 @@ class EnvironmentTest extends TestCase
 
         $this->environment->setAdapter($stub);
 
-        $this->assertEquals('20110301080000', $this->environment->getCurrentVersion());
+        $this->assertSame('20110301080000', $this->environment->getCurrentVersion());
     }
 
     public function testExecutingAMigrationUp()
