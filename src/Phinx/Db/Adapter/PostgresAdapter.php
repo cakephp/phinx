@@ -7,7 +7,6 @@
 
 namespace Phinx\Db\Adapter;
 
-use Cake\Database\Connection;
 use Cake\Database\Driver\Postgres as PostgresDriver;
 use InvalidArgumentException;
 use PDO;
@@ -1566,7 +1565,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function getDecoratedConnection(): Connection
+    protected function getDecoratedConnectionConfig(): array
     {
         $options = $this->getOptions();
         $options = [
@@ -1576,11 +1575,7 @@ class PostgresAdapter extends PdoAdapter
             'quoteIdentifiers' => true,
         ] + $options;
 
-        $driver = new PostgresDriver($options);
-
-        $driver->setConnection($this->connection);
-
-        return new Connection(['driver' => $driver] + $options);
+        return ['driver' => new PostgresDriver($options)] + $options;
     }
 
     /**

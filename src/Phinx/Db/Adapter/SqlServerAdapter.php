@@ -8,7 +8,6 @@
 namespace Phinx\Db\Adapter;
 
 use BadMethodCallException;
-use Cake\Database\Connection;
 use Cake\Database\Driver\Sqlserver as SqlServerDriver;
 use InvalidArgumentException;
 use PDO;
@@ -1359,7 +1358,7 @@ SQL;
     /**
      * @inheritDoc
      */
-    public function getDecoratedConnection(): Connection
+    protected function getDecoratedConnectionConfig(): array
     {
         $options = $this->getOptions();
         $options = [
@@ -1369,9 +1368,6 @@ SQL;
             'quoteIdentifiers' => true,
         ] + $options;
 
-        $driver = new SqlServerDriver($options);
-        $driver->setConnection($this->connection);
-
-        return new Connection(['driver' => $driver] + $options);
+        return ['driver' => new SqlServerDriver($options)] + $options;
     }
 }
