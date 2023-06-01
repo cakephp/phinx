@@ -229,7 +229,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
 
         $config['driver']->setConnection($this->connection);
 
-        return $this->decoratedConnection = new Connection($this->getDecoratedConnectionConfig());
+        return $this->decoratedConnection = new Connection($config);
     }
 
     /**
