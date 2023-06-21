@@ -929,7 +929,7 @@ class MysqlAdapter extends PdoAdapter
 
         if (empty($instructions->getAlterParts())) {
             throw new InvalidArgumentException(sprintf(
-                "No foreign key on column(s) '%s' exist",
+                "No foreign key on column(s) '%s' exists",
                 implode(',', $columns)
             ));
         }
