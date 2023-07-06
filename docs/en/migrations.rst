@@ -902,11 +902,8 @@ Limit Option and MySQL
 
 When using the MySQL adapter, there are a couple things to consider when working with limits:
 
-- When using a ``string`` primary key or index on MySQL 5.7 or below and the default charset of ``utf8mb4_unicode_ci``, you
-must specify a limit less than or equal to 191, or use a different charset.
-- Additional hinting of database column type can be
-made for ``integer``, ``text``, ``blob``, ``tinyblob``, ``mediumblob``, ``longblob`` columns. Using ``limit`` with
-one the following options will modify the column type accordingly:
+- When using a ``string`` primary key or index on MySQL 5.7 or below, or the MyISAM storage engine, and the default charset of ``utf8mb4_unicode_ci``, you must specify a limit less than or equal to 191, or use a different charset.
+- Additional hinting of database column type can be made for ``integer``, ``text``, ``blob``, ``tinyblob``, ``mediumblob``, ``longblob`` columns. Using ``limit`` with one the following options will modify the column type accordingly:
 
 ============ ==============
 Limit        Column Type
