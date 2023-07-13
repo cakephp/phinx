@@ -521,6 +521,11 @@ For some breaking changes, Phinx offers a way to opt-out of new behavior. The fo
 * ``unsigned_primary_keys``: Should Phinx create primary keys as unsigned integers? (default: ``true``)
 * ``column_null_default``: Should Phinx create columns as null by default? (default: ``true``)
 
+.. code-block:: yaml
+
+    feature_flags:
+        unsigned_primary_keys: false
+
 These values can also be set by modifying class fields on the ```Phinx\Config\FeatureFlags``` class, converting
 the flag name to ``camelCase``, for example:
 
