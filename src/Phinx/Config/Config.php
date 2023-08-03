@@ -57,6 +57,10 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     {
         $this->configFilePath = $configFilePath;
         $this->values = $this->replaceTokens($configArray);
+
+        if (isset($this->values['feature_flags'])) {
+            FeatureFlags::setFlagsFromConfig($this->values['feature_flags']);
+        }
     }
 
     /**

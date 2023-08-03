@@ -3,6 +3,7 @@
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\ProxyAdapter;
+use Phinx\Db\Table\Column;
 use Phinx\Migration\IrreversibleMigrationException;
 use PHPUnit\Framework\TestCase;
 
@@ -62,6 +63,18 @@ class ProxyAdapterTest extends TestCase
             ->expects($this->any())
             ->method('hasTable')
             ->will($this->returnValue(true));
+
+        $this->adapter
+            ->getAdapter()
+            ->expects($this->any())
+            ->method('getColumnForType')
+            ->willReturnCallback(function (string $columnName, string $type, array $options) {
+                return (new Column())
+                    ->setName($columnName)
+                    ->setType($type)
+                    ->setOptions($options);
+            });
+
         $table = new \Phinx\Db\Table('atable', [], $this->adapter);
         $table->addColumn('acolumn', 'string')
               ->save();
