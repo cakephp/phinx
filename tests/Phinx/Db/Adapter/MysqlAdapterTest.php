@@ -5,6 +5,7 @@ namespace Test\Phinx\Db\Adapter;
 
 use Cake\Database\Query;
 use PDOException;
+use Phinx\Config\FeatureFlags;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Util\Literal;
@@ -157,6 +158,11 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+
+        $columns = $this->adapter->getColumns('ntable');
+        $this->assertCount(3, $columns);
+        $this->assertSame('id', $columns[0]->getName());
+        $this->assertFalse($columns[0]->isSigned());
     }
 
     public function testCreateTableWithComment()
@@ -422,6 +428,25 @@ class MysqlAdapterTest extends TestCase
         $this->assertEquals('latin1_general_ci', $row['Collation']);
     }
 
+    public function testCreateTableWithSignedPK()
+    {
+        $table = new \Phinx\Db\Table('ntable', ['signed' => true], $this->adapter);
+        $table->addColumn('realname', 'string')
+            ->addColumn('email', 'integer')
+            ->save();
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
+        $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+        $column_definitions = $this->adapter->getColumns('ntable');
+        foreach ($column_definitions as $column_definition) {
+            if ($column_definition->getName() === 'id') {
+                $this->assertTrue($column_definition->getSigned());
+            }
+        }
+    }
+
     public function testCreateTableWithUnsignedPK()
     {
         $table = new \Phinx\Db\Table('ntable', ['signed' => false], $this->adapter);
@@ -458,6 +483,24 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('ntable', 'realname'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'email'));
         $this->assertFalse($this->adapter->hasColumn('ntable', 'address'));
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testUnsignedPksFeatureFlag()
+    {
+        $this->adapter->connect();
+
+        FeatureFlags::$unsignedPrimaryKeys = false;
+
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->create();
+
+        $columns = $this->adapter->getColumns('table1');
+        $this->assertCount(1, $columns);
+        $this->assertSame('id', $columns[0]->getName());
+        $this->assertTrue($columns[0]->getSigned());
     }
 
     public function testCreateTableWithLimitPK()
@@ -670,6 +713,53 @@ class MysqlAdapterTest extends TestCase
         $rows = $this->adapter->fetchAll('SHOW COLUMNS FROM table1');
         // MariaDB returns current_timestamp()
         $this->assertTrue($rows[1]['Default'] === 'CURRENT_TIMESTAMP' || $rows[1]['Default'] === 'current_timestamp()');
+    }
+
+    public function testAddColumnWithCustomType()
+    {
+        $this->adapter->setDataDomain([
+            'custom1' => [
+                'type' => 'enum',
+                'null' => true,
+                'values' => 'a,b,c',
+            ],
+            'custom2' => [
+                'type' => 'enum',
+                'null' => true,
+                'values' => ['a', 'b', 'c'],
+            ],
+        ]);
+
+        (new \Phinx\Db\Table('table1', [], $this->adapter))
+            ->addColumn('custom1', 'custom1')
+            ->addColumn('custom2', 'custom2')
+            ->addColumn('custom_ext', 'custom2', [
+                'null' => false,
+                'values' => ['d', 'e', 'f'],
+            ])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasTable('table1'));
+
+        $columns = $this->adapter->getColumns('table1');
+
+        $this->assertArrayHasKey(1, $columns);
+        $this->assertArrayHasKey(2, $columns);
+        $this->assertArrayHasKey(3, $columns);
+
+        foreach ([1, 2] as $index) {
+            $column = $this->adapter->getColumns('table1')[$index];
+            $this->assertSame("custom{$index}", $column->getName());
+            $this->assertSame('enum', $column->getType());
+            $this->assertSame(['a', 'b', 'c'], $column->getValues());
+            $this->assertTrue($column->getNull());
+        }
+
+        $column = $this->adapter->getColumns('table1')[3];
+        $this->assertSame('custom_ext', $column->getName());
+        $this->assertSame('enum', $column->getType());
+        $this->assertSame(['d', 'e', 'f'], $column->getValues());
+        $this->assertFalse($column->getNull());
     }
 
     public function testAddColumnFirst()
@@ -972,7 +1062,7 @@ class MysqlAdapterTest extends TestCase
     }
 
     /** @dataProvider binaryToBlobAutomaticConversionData */
-    public function testBinaryToBlobAutomaticConversion(?int $limit = null, string $expectedType, int $expectedLimit)
+    public function testBinaryToBlobAutomaticConversion(?int $limit, string $expectedType, int $expectedLimit)
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'binary', ['limit' => $limit])
@@ -999,7 +1089,7 @@ class MysqlAdapterTest extends TestCase
     }
 
     /** @dataProvider varbinaryToBlobAutomaticConversionData */
-    public function testVarbinaryToBlobAutomaticConversion(?int $limit = null, string $expectedType, int $expectedLimit)
+    public function testVarbinaryToBlobAutomaticConversion(?int $limit, string $expectedType, int $expectedLimit)
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', 'varbinary', ['limit' => $limit])
@@ -1041,7 +1131,7 @@ class MysqlAdapterTest extends TestCase
     }
 
     /** @dataProvider blobColumnsData */
-    public function testblobColumns(string $type, string $expectedType, ?int $limit = null, int $expectedLimit)
+    public function testblobColumns(string $type, string $expectedType, ?int $limit, int $expectedLimit)
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
         $table->addColumn('column1', $type, ['limit' => $limit])
@@ -1200,7 +1290,7 @@ class MysqlAdapterTest extends TestCase
             ['column10', 'timestamp', []],
             ['column11', 'date', []],
             ['column12', 'binary', []],
-            ['column13', 'boolean', []],
+            ['column13', 'boolean', ['comment' => 'Lorem ipsum']],
             ['column14', 'string', ['limit' => 10]],
             ['column16', 'geometry', []],
             ['column17', 'point', []],
@@ -1243,6 +1333,10 @@ class MysqlAdapterTest extends TestCase
 
         if (isset($options['scale'])) {
             $this->assertEquals($options['scale'], $columns[1]->getScale());
+        }
+
+        if (isset($options['comment'])) {
+            $this->assertEquals($options['comment'], $columns[1]->getComment());
         }
     }
 

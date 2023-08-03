@@ -7,6 +7,7 @@
 
 namespace Phinx\Db\Table;
 
+use Phinx\Config\FeatureFlags;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\PostgresAdapter;
 use RuntimeException;
@@ -157,6 +158,14 @@ class Column
      * @var array|null
      */
     protected $values;
+
+    /**
+     * Column constructor
+     */
+    public function __construct()
+    {
+        $this->null = FeatureFlags::$columnNullDefault;
+    }
 
     /**
      * Sets the column name.

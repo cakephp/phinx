@@ -11,6 +11,7 @@ use Cake\Database\Connection;
 use Cake\Database\Driver\Mysql as MysqlDriver;
 use InvalidArgumentException;
 use PDO;
+use Phinx\Config\FeatureFlags;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
@@ -285,7 +286,7 @@ class MysqlAdapter extends PdoAdapter
             $column->setName($options['id'])
                    ->setType('integer')
                    ->setOptions([
-                       'signed' => $options['signed'] ?? false,
+                       'signed' => $options['signed'] ?? !FeatureFlags::$unsignedPrimaryKeys,
                        'identity' => true,
                    ]);
 
@@ -454,7 +455,7 @@ class MysqlAdapter extends PdoAdapter
     public function getColumns(string $tableName): array
     {
         $columns = [];
-        $rows = $this->fetchAll(sprintf('SHOW COLUMNS FROM %s', $this->quoteTableName($tableName)));
+        $rows = $this->fetchAll(sprintf('SHOW FULL COLUMNS FROM %s', $this->quoteTableName($tableName)));
         foreach ($rows as $columnInfo) {
             $phinxType = $this->getPhinxType($columnInfo['Type']);
 
@@ -464,7 +465,8 @@ class MysqlAdapter extends PdoAdapter
                    ->setType($phinxType['name'])
                    ->setSigned(strpos($columnInfo['Type'], 'unsigned') === false)
                    ->setLimit($phinxType['limit'])
-                   ->setScale($phinxType['scale']);
+                   ->setScale($phinxType['scale'])
+                   ->setComment($columnInfo['Comment']);
 
             if ($columnInfo['Extra'] === 'auto_increment') {
                 $column->setIdentity(true);
@@ -928,7 +930,7 @@ class MysqlAdapter extends PdoAdapter
 
         if (empty($instructions->getAlterParts())) {
             throw new InvalidArgumentException(sprintf(
-                "Not foreign key on columns '%s' exist",
+                "No foreign key on column(s) '%s' exists",
                 implode(',', $columns)
             ));
         }

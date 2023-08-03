@@ -838,6 +838,39 @@ class PostgresAdapterTest extends TestCase
         $this->assertTrue($table->hasColumn($column_name));
     }
 
+    public function testAddColumnWithCustomType()
+    {
+        $this->adapter->setDataDomain([
+            'custom' => [
+                'type' => 'inet',
+                'null' => true,
+            ],
+        ]);
+
+        (new \Phinx\Db\Table('table1', [], $this->adapter))
+            ->addColumn('custom', 'custom')
+            ->addColumn('custom_ext', 'custom', [
+                'null' => false,
+            ])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasTable('table1'));
+
+        $columns = $this->adapter->getColumns('table1');
+        $this->assertArrayHasKey(1, $columns);
+        $this->assertArrayHasKey(2, $columns);
+
+        $column = $this->adapter->getColumns('table1')[1];
+        $this->assertSame('custom', $column->getName());
+        $this->assertSame('inet', $column->getType());
+        $this->assertTrue($column->getNull());
+
+        $column = $this->adapter->getColumns('table1')[2];
+        $this->assertSame('custom_ext', $column->getName());
+        $this->assertSame('inet', $column->getType());
+        $this->assertFalse($column->getNull());
+    }
+
     public function testRenameColumn()
     {
         $table = new \Phinx\Db\Table('t', [], $this->adapter);
