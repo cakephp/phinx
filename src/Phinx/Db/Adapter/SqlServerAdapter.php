@@ -224,7 +224,7 @@ class SqlServerAdapter extends PdoAdapter
         }
 
         /** @var array<string, mixed> $result */
-        $result = $this->fetchRow(sprintf("SELECT count(*) as [count] FROM information_schema.tables WHERE table_name = '%s';", $tableName));
+        $result = $this->fetchRow(sprintf("SELECT count(*) as [count] FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '%s';", $tableName));
 
         return $result['count'] > 0;
     }
@@ -519,8 +519,8 @@ class SqlServerAdapter extends PdoAdapter
     {
         $sql = sprintf(
             "SELECT count(*) as [count]
-             FROM information_schema.columns
-             WHERE table_name = '%s' AND column_name = '%s'",
+             FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_NAME = '%s' AND COLUMN_NAME = '%s'",
             $tableName,
             $columnName
         );
@@ -912,14 +912,14 @@ ORDER BY T.[name], I.[index_id];";
     {
         $rows = $this->fetchAll(sprintf(
             "SELECT
-                    tc.constraint_name,
-                    kcu.column_name
-                FROM information_schema.table_constraints AS tc
-                JOIN information_schema.key_column_usage AS kcu
-                    ON tc.constraint_name = kcu.constraint_name
-                WHERE constraint_type = 'PRIMARY KEY'
-                    AND tc.table_name = '%s'
-                ORDER BY kcu.ordinal_position",
+                    tc.CONSTRAINT_NAME,
+                    kcu.COLUMN_NAME
+                FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc
+                JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS kcu
+                    ON tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME
+                WHERE CONSTRAINT_TYPE = 'PRIMARY KEY'
+                    AND tc.TABLE_NAME = '%s'
+                ORDER BY kcu.ORDINAL_POSITION",
             $tableName
         ));
 
@@ -927,8 +927,8 @@ ORDER BY T.[name], I.[index_id];";
             'columns' => [],
         ];
         foreach ($rows as $row) {
-            $primaryKey['constraint'] = $row['constraint_name'];
-            $primaryKey['columns'][] = $row['column_name'];
+            $primaryKey['constraint'] = $row['CONSTRAINT_NAME'];
+            $primaryKey['columns'][] = $row['COLUMN_NAME'];
         }
 
         return $primaryKey;
@@ -939,9 +939,6 @@ ORDER BY T.[name], I.[index_id];";
      */
     public function hasForeignKey(string $tableName, $columns, ?string $constraint = null): bool
     {
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
         $foreignKeys = $this->getForeignKeys($tableName);
         if ($constraint) {
             if (isset($foreignKeys[$constraint])) {
@@ -951,9 +948,12 @@ ORDER BY T.[name], I.[index_id];";
             return false;
         }
 
+        if (is_string($columns)) {
+            $columns = [$columns];
+        }
+
         foreach ($foreignKeys as $key) {
-            $a = array_diff($columns, $key['columns']);
-            if (empty($a)) {
+            if ($key['columns'] === $columns) {
                 return true;
             }
         }
@@ -972,23 +972,27 @@ ORDER BY T.[name], I.[index_id];";
         $foreignKeys = [];
         $rows = $this->fetchAll(sprintf(
             "SELECT
-                    tc.constraint_name,
-                    tc.table_name, kcu.column_name,
-                    ccu.table_name AS referenced_table_name,
-                    ccu.column_name AS referenced_column_name
+                    tc.CONSTRAINT_NAME,
+                    tc.TABLE_NAME, kcu.COLUMN_NAME,
+                    ccu.TABLE_NAME AS REFERENCED_TABLE_NAME,
+                    ccu.COLUMN_NAME AS REFERENCED_COLUMN_NAME
                 FROM
-                    information_schema.table_constraints AS tc
-                    JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
-                    JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
-                WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s'
-                ORDER BY kcu.ordinal_position",
+                    INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc
+                    JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS kcu ON tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME
+                    JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE AS ccu ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+                WHERE CONSTRAINT_TYPE = 'FOREIGN KEY' AND tc.TABLE_NAME = '%s'
+                ORDER BY kcu.ORDINAL_POSITION",
             $tableName
         ));
         foreach ($rows as $row) {
-            $foreignKeys[$row['constraint_name']]['table'] = $row['table_name'];
-            $foreignKeys[$row['constraint_name']]['columns'][] = $row['column_name'];
-            $foreignKeys[$row['constraint_name']]['referenced_table'] = $row['referenced_table_name'];
-            $foreignKeys[$row['constraint_name']]['referenced_columns'][] = $row['referenced_column_name'];
+            $foreignKeys[$row['CONSTRAINT_NAME']]['table'] = $row['TABLE_NAME'];
+            $foreignKeys[$row['CONSTRAINT_NAME']]['columns'][] = $row['COLUMN_NAME'];
+            $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_table'] = $row['REFERENCED_TABLE_NAME'];
+            $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_columns'][] = $row['REFERENCED_COLUMN_NAME'];
+        }
+        foreach ($foreignKeys as $name => $key) {
+            $foreignKeys[$name]['columns'] = array_values(array_unique($key['columns']));
+            $foreignKeys[$name]['referenced_columns'] = array_values(array_unique($key['referenced_columns']));
         }
 
         return $foreignKeys;
@@ -1031,27 +1035,25 @@ ORDER BY T.[name], I.[index_id];";
     {
         $instructions = new AlterInstructions();
 
-        foreach ($columns as $column) {
-            $rows = $this->fetchAll(sprintf(
-                "SELECT
-                tc.constraint_name,
-                tc.table_name, kcu.column_name,
-                ccu.table_name AS referenced_table_name,
-                ccu.column_name AS referenced_column_name
-            FROM
-                information_schema.table_constraints AS tc
-                JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name
-                JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name
-            WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name = '%s' and ccu.column_name='%s'
-            ORDER BY kcu.ordinal_position",
-                $tableName,
-                $column
-            ));
-            foreach ($rows as $row) {
-                $instructions->merge(
-                    $this->getDropForeignKeyInstructions($tableName, $row['constraint_name'])
-                );
+        $matches = [];
+        $foreignKeys = $this->getForeignKeys($tableName);
+        foreach ($foreignKeys as $name => $key) {
+            if ($key['columns'] === $columns) {
+                $matches[] = $name;
             }
+        }
+
+        if (empty($matches)) {
+            throw new InvalidArgumentException(sprintf(
+                'No foreign key on column(s) `%s` exists',
+                implode(', ', $columns)
+            ));
+        }
+
+        foreach ($matches as $name) {
+            $instructions->merge(
+                $this->getDropForeignKeyInstructions($tableName, $name)
+            );
         }
 
         return $instructions;

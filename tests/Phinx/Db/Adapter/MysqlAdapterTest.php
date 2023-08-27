@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Test\Phinx\Db\Adapter;
 
 use Cake\Database\Query;
+use InvalidArgumentException;
 use PDOException;
 use Phinx\Config\FeatureFlags;
 use Phinx\Db\Adapter\AdapterInterface;
@@ -1628,6 +1629,165 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
     }
 
+    public function testDropForeignKeyWithMultipleColumns()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable
+            ->addColumn('field1', 'string', ['limit' => 8])
+            ->addColumn('field2', 'string', ['limit' => 8])
+            ->addIndex(['id', 'field1'], ['unique' => true])
+            ->addIndex(['field1', 'id'], ['unique' => true])
+            ->addIndex(['id', 'field1', 'field2'], ['unique' => true])
+            ->save();
+
+        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table
+            ->addColumn('ref_table_id', 'integer', ['signed' => false])
+            ->addColumn('ref_table_field1', 'string', ['limit' => 8])
+            ->addColumn('ref_table_field2', 'string', ['limit' => 8])
+            ->addForeignKey(
+                ['ref_table_id', 'ref_table_field1'],
+                'ref_table',
+                ['id', 'field1']
+            )
+            ->addForeignKey(
+                ['ref_table_field1', 'ref_table_id'],
+                'ref_table',
+                ['field1', 'id']
+            )
+            ->addForeignKey(
+                ['ref_table_id', 'ref_table_field1', 'ref_table_field2'],
+                'ref_table',
+                ['id', 'field1', 'field2']
+            )
+            ->save();
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id', 'ref_table_field1']));
+        $this->adapter->dropForeignKey($table->getName(), ['ref_table_id', 'ref_table_field1']);
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id', 'ref_table_field1']));
+        $this->assertTrue(
+            $this->adapter->hasForeignKey($table->getName(), ['ref_table_id', 'ref_table_field1', 'ref_table_field2']),
+            'dropForeignKey() should only affect foreign keys that comprise of exactly the given columns'
+        );
+        $this->assertTrue(
+            $this->adapter->hasForeignKey($table->getName(), ['ref_table_field1', 'ref_table_id']),
+            'dropForeignKey() should only affect foreign keys that comprise of columns in exactly the given order'
+        );
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_field1', 'ref_table_id']));
+        $this->adapter->dropForeignKey($table->getName(), ['ref_table_field1', 'ref_table_id']);
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_field1', 'ref_table_id']));
+    }
+
+    public function testDropForeignKeyWithIdenticalMultipleColumns()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable
+            ->addColumn('field1', 'string', ['limit' => 8])
+            ->addIndex(['id', 'field1'], ['unique' => true])
+            ->save();
+
+        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table
+            ->addColumn('ref_table_id', 'integer', ['signed' => false])
+            ->addColumn('ref_table_field1', 'string', ['limit' => 8])
+            ->addForeignKeyWithName(
+                'ref_table_fk_1',
+                ['ref_table_id', 'ref_table_field1'],
+                'ref_table',
+                ['id', 'field1'],
+            )
+            ->addForeignKeyWithName(
+                'ref_table_fk_2',
+                ['ref_table_id', 'ref_table_field1'],
+                'ref_table',
+                ['id', 'field1']
+            )
+            ->save();
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id', 'ref_table_field1']));
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), [], 'ref_table_fk_1'));
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), [], 'ref_table_fk_2'));
+
+        $this->adapter->dropForeignKey($table->getName(), ['ref_table_id', 'ref_table_field1']);
+
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id', 'ref_table_field1']));
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), [], 'ref_table_fk_1'));
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), [], 'ref_table_fk_2'));
+    }
+
+    public function nonExistentForeignKeyColumnsProvider(): array
+    {
+        return [
+            [['ref_table_id']],
+            [['ref_table_field1']],
+            [['ref_table_field1', 'ref_table_id']],
+            [['non_existent_column']],
+        ];
+    }
+
+    /**
+     * @dataProvider nonExistentForeignKeyColumnsProvider
+     * @param array $columns
+     */
+    public function testDropForeignKeyByNonExistentKeyColumns(array $columns)
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable
+            ->addColumn('field1', 'string', ['limit' => 8])
+            ->addIndex(['id', 'field1'])
+            ->save();
+
+        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table
+            ->addColumn('ref_table_id', 'integer', ['signed' => false])
+            ->addColumn('ref_table_field1', 'string', ['limit' => 8])
+            ->addForeignKey(
+                ['ref_table_id', 'ref_table_field1'],
+                'ref_table',
+                ['id', 'field1']
+            )
+            ->save();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(sprintf(
+            'No foreign key on column(s) `%s` exists',
+            implode(', ', $columns)
+        ));
+
+        $this->adapter->dropForeignKey($table->getName(), $columns);
+    }
+
+    public function testDropForeignKeyCaseInsensitivity()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable->save();
+
+        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table
+            ->addColumn('ref_table_id', 'integer', ['signed' => false])
+            ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
+            ->save();
+
+        $this->adapter->dropForeignKey($table->getName(), ['REF_TABLE_ID']);
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
+    }
+
+    public function testDropForeignKeyByName()
+    {
+        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable->save();
+
+        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table
+            ->addColumn('ref_table_id', 'integer', ['signed' => false])
+            ->addForeignKeyWithName('my_constraint', ['ref_table_id'], 'ref_table', ['id'])
+            ->save();
+
+        $this->adapter->dropForeignKey($table->getName(), [], 'my_constraint');
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
+    }
+
     public function testDropForeignKeyForTableWithSignedPK()
     {
         $refTable = new \Phinx\Db\Table('ref_table', ['signed' => true], $this->adapter);
@@ -1658,6 +1818,43 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id']));
     }
 
+    /**
+     * @dataProvider provideForeignKeysToCheck
+     */
+    public function testHasForeignKey($tableDef, $key, $exp)
+    {
+        $conn = $this->adapter->getConnection();
+        $conn->exec('CREATE TABLE other(a int, b int, c int, key(a), key(b), key(a,b), key(a,b,c));');
+        $conn->exec($tableDef);
+        $this->assertSame($exp, $this->adapter->hasForeignKey('t', $key));
+    }
+
+    public function provideForeignKeysToCheck()
+    {
+        return [
+            ['create table t(a int)', 'a', false],
+            ['create table t(a int)', [], false],
+            ['create table t(a int primary key)', 'a', false],
+            ['create table t(a int, foreign key (a) references other(a))', 'a', true],
+            ['create table t(a int, foreign key (a) references other(b))', 'a', true],
+            ['create table t(a int, foreign key (a) references other(b))', ['a'], true],
+            ['create table t(a int, foreign key (a) references other(b))', ['a', 'a'], false],
+            ['create table t(a int, foreign key(a) references other(a))', 'a', true],
+            ['create table t(a int, b int, foreign key(a,b) references other(a,b))', 'a', false],
+            ['create table t(a int, b int, foreign key(a,b) references other(a,b))', ['a', 'b'], true],
+            ['create table t(a int, b int, foreign key(a,b) references other(a,b))', ['b', 'a'], false],
+            ['create table t(a int, `B` int, foreign key(a,`B`) references other(a,b))', ['a', 'b'], true],
+            ['create table t(a int, b int, foreign key(a,b) references other(a,b))', ['a', 'B'], true],
+            ['create table t(a int, b int, c int, foreign key(a,b,c) references other(a,b,c))', ['a', 'b'], false],
+            ['create table t(a int, foreign key(a) references other(a))', ['a', 'b'], false],
+            ['create table t(a int, b int, foreign key(a) references other(a), foreign key(b) references other(b))', ['a', 'b'], false],
+            ['create table t(a int, b int, foreign key(a) references other(a), foreign key(b) references other(b))', ['a', 'b'], false],
+            ['create table t(`0` int, foreign key(`0`) references other(a))', '0', true],
+            ['create table t(`0` int, foreign key(`0`) references other(a))', '0e0', false],
+            ['create table t(`0e0` int, foreign key(`0e0`) references other(a))', '0', false],
+        ];
+    }
+
     public function testHasForeignKeyAsString()
     {
         $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
@@ -1673,7 +1870,7 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), 'ref_table_id2'));
     }
 
-    public function testHasForeignKeyWithConstraint()
+    public function testHasNamedForeignKey()
     {
         $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
         $refTable->addColumn('field1', 'string')->save();
@@ -1686,6 +1883,9 @@ class MysqlAdapterTest extends TestCase
 
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_id'], 'my_constraint'));
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id'], 'my_constraint2'));
+
+        $this->assertTrue($this->adapter->hasForeignKey($table->getName(), [], 'my_constraint'));
+        $this->assertFalse($this->adapter->hasForeignKey($table->getName(), [], 'my_constraint2'));
     }
 
     public function testHasForeignKeyWithConstraintForTableWithSignedPK()
