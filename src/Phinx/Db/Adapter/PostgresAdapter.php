@@ -474,13 +474,7 @@ class PostgresAdapter extends PdoAdapter
 
             if (in_array($columnType, [static::PHINX_TYPE_TIME, static::PHINX_TYPE_DATETIME], true)) {
                 $column->setPrecision($columnInfo['datetime_precision']);
-            } elseif (
-                !in_array($columnType, [
-                    self::PHINX_TYPE_SMALL_INTEGER,
-                    self::PHINX_TYPE_INTEGER,
-                    self::PHINX_TYPE_BIG_INTEGER,
-                ], true)
-            ) {
+            } elseif ($columnType === self::PHINX_TYPE_DECIMAL) {
                 $column->setPrecision($columnInfo['numeric_precision']);
             }
             $columns[] = $column;

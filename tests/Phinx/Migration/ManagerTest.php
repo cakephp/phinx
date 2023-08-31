@@ -6147,26 +6147,16 @@ class ManagerTest extends TestCase
         $this->assertArrayHasKey(3, $columns);
         $this->assertArrayHasKey(4, $columns);
 
-        $limit = 15;
-        if ($adapter->getAdapterType() === 'pgsql') {
-            $limit = null;
-        }
-
         $column = $columns[3];
         $this->assertSame('phone_number', $column->getName());
         $this->assertSame('string', $column->getType());
-        $this->assertSame($limit, $column->getLimit());
+        $this->assertSame(15, $column->getLimit());
         $this->assertTrue($column->getNull());
-
-        $limit = 30;
-        if ($adapter->getAdapterType() === 'pgsql') {
-            $limit = null;
-        }
 
         $column = $columns[4];
         $this->assertSame('phone_number_ext', $column->getName());
         $this->assertSame('string', $column->getType());
-        $this->assertSame($limit, $column->getLimit());
+        $this->assertSame(30, $column->getLimit());
         $this->assertFalse($column->getNull());
     }
 }
