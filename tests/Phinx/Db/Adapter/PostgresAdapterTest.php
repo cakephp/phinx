@@ -758,6 +758,25 @@ class PostgresAdapterTest extends TestCase
         );
     }
 
+    public function testAddStringWithLimit()
+    {
+        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn('string1', 'string', ['limit' => 10])
+                ->addColumn('char1', 'char', ['limit' => 20])
+                ->save();
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'string1') {
+                    $this->assertEquals('10', $column->getLimit());
+            }
+
+            if ($column->getName() === 'char1') {
+                    $this->assertEquals('20', $column->getLimit());
+            }
+        }
+    }
+
     public function testAddDecimalWithPrecisionAndScale()
     {
         $table = new \Phinx\Db\Table('table1', [], $this->adapter);
