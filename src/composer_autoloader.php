@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * Attempts to load Composer's autoload.php as either a dependency or a

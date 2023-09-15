@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -16,7 +17,7 @@ class ChangeComment extends Action
      *
      * @var string|null
      */
-    protected $newComment;
+    protected ?string $newComment = null;
 
     /**
      * Constructor

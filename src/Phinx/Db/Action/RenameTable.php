@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -16,7 +17,7 @@ class RenameTable extends Action
      *
      * @var string
      */
-    protected $newName;
+    protected string $newName;
 
     /**
      * Constructor

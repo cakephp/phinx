@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -30,8 +31,6 @@ use Phinx\Db\Table\Table;
  * Table prefix/suffix adapter.
  *
  * Used for inserting a prefix or suffix into table names.
- *
- * @author Samuel Fisher <sam@sfisher.co>
  */
 class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
 {
@@ -236,7 +235,7 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
     /**
      * @inheritDoc
      */
-    public function hasIndex(string $tableName, $columns): bool
+    public function hasIndex(string $tableName, string|array $columns): bool
     {
         $adapterTableName = $this->getAdapterTableName($tableName);
 

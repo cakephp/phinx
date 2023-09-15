@@ -17,11 +17,11 @@ class FeatureFlags
     /**
      * @var bool Should Phinx create unsigned primary keys by default?
      */
-    public static $unsignedPrimaryKeys = true;
+    public static bool $unsignedPrimaryKeys = true;
     /**
      * @var bool Should Phinx create columns NULL by default?
      */
-    public static $columnNullDefault = true;
+    public static bool $columnNullDefault = true;
 
     /**
      * Set the feature flags from the `feature_flags` section of the overall

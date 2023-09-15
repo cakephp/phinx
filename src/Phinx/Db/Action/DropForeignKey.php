@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -17,7 +18,7 @@ class DropForeignKey extends Action
      *
      * @var \Phinx\Db\Table\ForeignKey
      */
-    protected $foreignKey;
+    protected ForeignKey $foreignKey;
 
     /**
      * Constructor
@@ -40,7 +41,7 @@ class DropForeignKey extends Action
      * @param string|null $constraint The constraint name
      * @return static
      */
-    public static function build(Table $table, $columns, ?string $constraint = null)
+    public static function build(Table $table, string|array $columns, ?string $constraint = null): static
     {
         if (is_string($columns)) {
             $columns = [$columns];

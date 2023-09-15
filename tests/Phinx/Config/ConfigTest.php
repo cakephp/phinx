@@ -216,41 +216,41 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testGetTemplateValuesFalseOnEmpty()
     {
-        $config = new \Phinx\Config\Config([]);
+        $config = new Config([]);
         $this->assertFalse($config->getTemplateFile());
         $this->assertFalse($config->getTemplateClass());
     }
 
     public function testGetAliasNoAliasesEntry()
     {
-        $config = new \Phinx\Config\Config([]);
+        $config = new Config([]);
         $this->assertNull($config->getAlias('Short'));
     }
 
     public function testGetAliasEmptyAliasesEntry()
     {
-        $config = new \Phinx\Config\Config(['aliases' => []]);
+        $config = new Config(['aliases' => []]);
         $this->assertNull($config->getAlias('Short'));
     }
 
     public function testGetAliasInvalidAliasRequest()
     {
-        $config = new \Phinx\Config\Config(['aliases' => ['Medium' => 'Some\Long\Classname']]);
+        $config = new Config(['aliases' => ['Medium' => 'Some\Long\Classname']]);
         $this->assertNull($config->getAlias('Short'));
     }
 
     public function testGetAliasValidAliasRequest()
     {
-        $config = new \Phinx\Config\Config(['aliases' => ['Short' => 'Some\Long\Classname']]);
+        $config = new Config(['aliases' => ['Short' => 'Some\Long\Classname']]);
         $this->assertEquals('Some\Long\Classname', $config->getAlias('Short'));
     }
 
     public function testGetSeedPath()
     {
-        $config = new \Phinx\Config\Config(['paths' => ['seeds' => 'db/seeds']]);
+        $config = new Config(['paths' => ['seeds' => 'db/seeds']]);
         $this->assertEquals(['db/seeds'], $config->getSeedPaths());
 
-        $config = new \Phinx\Config\Config(['paths' => ['seeds' => ['db/seeds1', 'db/seeds2']]]);
+        $config = new Config(['paths' => ['seeds' => ['db/seeds1', 'db/seeds2']]]);
         $this->assertEquals(['db/seeds1', 'db/seeds2'], $config->getSeedPaths());
     }
 
@@ -259,7 +259,7 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testGetSeedPathThrowsException()
     {
-        $config = new \Phinx\Config\Config([]);
+        $config = new Config([]);
 
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Seeds path missing from config file');
@@ -296,9 +296,9 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testGetVersionOrder()
     {
-        $config = new \Phinx\Config\Config([]);
-        $config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
-        $this->assertEquals(\Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, $config->getVersionOrder());
+        $config = new Config([]);
+        $config['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
+        $this->assertEquals(Config::VERSION_ORDER_EXECUTION_TIME, $config->getVersionOrder());
     }
 
     /**
@@ -328,11 +328,11 @@ class ConfigTest extends AbstractConfigTest
         return [
             'With Creation Time Version Order' =>
             [
-                \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME, true,
+                Config::VERSION_ORDER_CREATION_TIME, true,
             ],
             'With Execution Time Version Order' =>
             [
-                \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, false,
+                Config::VERSION_ORDER_EXECUTION_TIME, false,
             ],
         ];
     }
@@ -345,7 +345,7 @@ class ConfigTest extends AbstractConfigTest
         $_ENV['PHINX_TEST_CONFIG_SUFFIX'] = 'foo';
 
         try {
-            $config = new \Phinx\Config\Config([
+            $config = new Config([
                 'environments' => [
                     'production' => [
                         'adapter' => '%%PHINX_TEST_CONFIG_ADAPTER%%',
@@ -369,7 +369,7 @@ class ConfigTest extends AbstractConfigTest
 
     public function testSqliteMemorySetsName()
     {
-        $config = new \Phinx\Config\Config([
+        $config = new Config([
             'environments' => [
                 'production' => [
                     'adapter' => 'sqlite',
@@ -385,7 +385,7 @@ class ConfigTest extends AbstractConfigTest
 
     public function testSqliteMemoryOverridesName()
     {
-        $config = new \Phinx\Config\Config([
+        $config = new Config([
             'environments' => [
                 'production' => [
                     'adapter' => 'sqlite',
@@ -402,7 +402,7 @@ class ConfigTest extends AbstractConfigTest
 
     public function testSqliteNonBooleanMemory()
     {
-        $config = new \Phinx\Config\Config([
+        $config = new Config([
             'environments' => [
                 'production' => [
                     'adapter' => 'sqlite',
@@ -418,7 +418,7 @@ class ConfigTest extends AbstractConfigTest
 
     public function testDefaultTemplateStyle(): void
     {
-        $config = new \Phinx\Config\Config([]);
+        $config = new Config([]);
         $this->assertSame('change', $config->getTemplateStyle());
     }
 
@@ -436,7 +436,7 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testTemplateStyle(string $style, string $expected): void
     {
-        $config = new \Phinx\Config\Config(['templates' => ['style' => $style]]);
+        $config = new Config(['templates' => ['style' => $style]]);
         $this->assertSame($expected, $config->getTemplateStyle());
     }
 }

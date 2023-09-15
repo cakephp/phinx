@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -37,23 +38,22 @@ use Phinx\Util\Literal;
 use ReflectionProperty;
 use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
+use UnexpectedValueException;
 
 /**
  * Phinx PDO Adapter.
- *
- * @author Rob Morgan <robbym@gmail.com>
  */
 abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterface
 {
     /**
      * @var \PDO|null
      */
-    protected $connection;
+    protected ?PDO $connection = null;
 
     /**
      * @var \Cake\Database\Connection|null
      */
-    protected $decoratedConnection;
+    protected ?Connection $decoratedConnection = null;
 
     /**
      * Writes a message to stdout if verbose output is on
@@ -61,7 +61,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * @param string $message The message to show
      * @return void
      */
-    protected function verboseLog($message): void
+    protected function verboseLog(string $message): void
     {
         if (
             !$this->isDryRunEnabled() &&
@@ -95,7 +95,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
                 if (strpos($key, 'attr_') === 0) {
                     $pdoConstant = '\PDO::' . strtoupper($key);
                     if (!defined($pdoConstant)) {
-                        throw new \UnexpectedValueException('Invalid PDO attribute: ' . $key . ' (' . $pdoConstant . ')');
+                        throw new UnexpectedValueException('Invalid PDO attribute: ' . $key . ' (' . $pdoConstant . ')');
                     }
                     $db->setAttribute(constant($pdoConstant), $option);
                 }
@@ -219,7 +219,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * @param array $options Options.
      * @return \Cake\Database\Connection
      */
-    protected function buildConnection(string $driverClass, array $options)
+    protected function buildConnection(string $driverClass, array $options): Connection
     {
         $driver = new $driverClass($options);
         $prop = new ReflectionProperty($driver, 'pdo');
@@ -248,9 +248,9 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * Executes a query and returns PDOStatement.
      *
      * @param string $sql SQL
-     * @return \PDOStatement|false
+     * @return mixed
      */
-    public function query(string $sql, array $params = [])
+    public function query(string $sql, array $params = []): mixed
     {
         if (empty($params)) {
             return $this->getConnection()->query($sql);
@@ -264,7 +264,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * @inheritDoc
      */
-    public function fetchRow(string $sql)
+    public function fetchRow(string $sql): array|false
     {
         return $this->query($sql)->fetch();
     }
@@ -311,7 +311,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * @param mixed $value The value to quote
      * @return mixed
      */
-    protected function quoteValue($value)
+    protected function quoteValue(mixed $value): mixed
     {
         if (is_numeric($value)) {
             return $value;
@@ -603,7 +603,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * @inheritDoc
      */
-    public function castToBool($value)
+    public function castToBool($value): mixed
     {
         return (bool)$value ? 1 : 0;
     }
@@ -615,7 +615,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * @param int $attribute One of the PDO::ATTR_* constants
      * @return mixed
      */
-    public function getAttribute(int $attribute)
+    public function getAttribute(int $attribute): mixed
     {
         return $this->connection->getAttribute($attribute);
     }
@@ -627,7 +627,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * @param string|null $columnType column type added
      * @return string
      */
-    protected function getDefaultValueDefinition($default, ?string $columnType = null): string
+    protected function getDefaultValueDefinition(mixed $default, ?string $columnType = null): string
     {
         if ($default instanceof Literal) {
             $default = (string)$default;
@@ -764,7 +764,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * @param string|string[] $columns Column(s)
      * @return \Phinx\Db\Util\AlterInstructions
      */
-    abstract protected function getDropIndexByColumnsInstructions(string $tableName, $columns): AlterInstructions;
+    abstract protected function getDropIndexByColumnsInstructions(string $tableName, string|array $columns): AlterInstructions;
 
     /**
      * @inheritdoc
@@ -885,7 +885,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * @param string|string[]|null $newColumns Column name(s) to belong to the primary key, or null to drop the key
      * @return \Phinx\Db\Util\AlterInstructions
      */
-    abstract protected function getChangePrimaryKeyInstructions(Table $table, $newColumns): AlterInstructions;
+    abstract protected function getChangePrimaryKeyInstructions(Table $table, string|array|null $newColumns): AlterInstructions;
 
     /**
      * @inheritdoc

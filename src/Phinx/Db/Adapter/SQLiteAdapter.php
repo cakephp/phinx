@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -21,12 +22,10 @@ use Phinx\Db\Util\AlterInstructions;
 use Phinx\Util\Expression;
 use Phinx\Util\Literal;
 use RuntimeException;
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * Phinx SQLite Adapter.
- *
- * @author Rob Morgan <robbym@gmail.com>
- * @author Richard McIntyre <richard.mackstars@gmail.com>
  */
 class SQLiteAdapter extends PdoAdapter
 {
@@ -38,7 +37,7 @@ class SQLiteAdapter extends PdoAdapter
      *
      * @var string[]
      */
-    protected static $supportedColumnTypes = [
+    protected static array $supportedColumnTypes = [
         self::PHINX_TYPE_BIG_INTEGER => 'biginteger',
         self::PHINX_TYPE_BINARY => 'binary_blob',
         self::PHINX_TYPE_BINARYUUID => 'binary_blob',
@@ -68,7 +67,7 @@ class SQLiteAdapter extends PdoAdapter
      *
      * @var string[]
      */
-    protected static $supportedColumnTypeAliases = [
+    protected static array $supportedColumnTypeAliases = [
         'varchar' => self::PHINX_TYPE_STRING,
         'tinyint' => self::PHINX_TYPE_TINY_INTEGER,
         'tinyinteger' => self::PHINX_TYPE_TINY_INTEGER,
@@ -91,7 +90,7 @@ class SQLiteAdapter extends PdoAdapter
      *
      * @var string[]
      */
-    protected static $unsupportedColumnTypes = [
+    protected static array $unsupportedColumnTypes = [
         self::PHINX_TYPE_BIT,
         self::PHINX_TYPE_CIDR,
         self::PHINX_TYPE_ENUM,
@@ -109,7 +108,7 @@ class SQLiteAdapter extends PdoAdapter
     /**
      * @var string[]
      */
-    protected $definitionsWithLimits = [
+    protected array $definitionsWithLimits = [
         'CHAR',
         'CHARACTER',
         'VARCHAR',
@@ -122,7 +121,7 @@ class SQLiteAdapter extends PdoAdapter
     /**
      * @var string
      */
-    protected $suffix = '.sqlite3';
+    protected string $suffix = '.sqlite3';
 
     /**
      * Indicates whether the database library version is at least the specified version
@@ -130,7 +129,7 @@ class SQLiteAdapter extends PdoAdapter
      * @param string $ver The version to check against e.g. '3.28.0'
      * @return bool
      */
-    public function databaseVersionAtLeast($ver): bool
+    public function databaseVersionAtLeast(string $ver): bool
     {
         $actual = $this->query('SELECT sqlite_version()')->fetchColumn();
 
@@ -540,7 +539,7 @@ class SQLiteAdapter extends PdoAdapter
      * @param string $columnType The Phinx type of the column
      * @return mixed
      */
-    protected function parseDefaultValue($default, string $columnType)
+    protected function parseDefaultValue(mixed $default, string $columnType): mixed
     {
         if ($default === null) {
             return null;
@@ -597,7 +596,7 @@ PCRE_PATTERN;
             return null;
         } elseif (preg_match('/^true|false$/i', $defaultBare)) {
             // boolean literal
-            return filter_var($defaultClean, \FILTER_VALIDATE_BOOLEAN);
+            return filter_var($defaultClean, FILTER_VALIDATE_BOOLEAN);
         } else {
             // any other expression: return the expression with parentheses, but without comments
             return Expression::from($defaultClean);
@@ -1085,7 +1084,7 @@ PCRE_PATTERN;
      * @throws \InvalidArgumentException
      * @return array
      */
-    protected function calculateNewTableColumns(string $tableName, $columnName, $newColumnName): array
+    protected function calculateNewTableColumns(string $tableName, string|false $columnName, string|false $newColumnName): array
     {
         $columns = $this->fetchAll(sprintf('pragma table_info(%s)', $this->quoteTableName($tableName)));
         $selectColumns = [];
@@ -1329,7 +1328,7 @@ PCRE_PATTERN;
      * @param string|string[] $columns The columns of the index
      * @return array
      */
-    protected function resolveIndex(string $tableName, $columns): array
+    protected function resolveIndex(string $tableName, string|array $columns): array
     {
         $columns = array_map('strtolower', (array)$columns);
         $indexes = $this->getIndexes($tableName);
@@ -1348,7 +1347,7 @@ PCRE_PATTERN;
     /**
      * @inheritDoc
      */
-    public function hasIndex(string $tableName, $columns): bool
+    public function hasIndex(string $tableName, string|array $columns): bool
     {
         return (bool)$this->resolveIndex($tableName, $columns);
     }
@@ -1715,17 +1714,20 @@ PCRE_PATTERN;
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
-    public function getSqlType($type, ?int $limit = null): array
+    public function getSqlType(Literal|string $type, ?int $limit = null): array
     {
-        $typeLC = strtolower($type);
         if ($type instanceof Literal) {
             $name = $type;
-        } elseif (isset(static::$supportedColumnTypes[$typeLC])) {
-            $name = static::$supportedColumnTypes[$typeLC];
-        } elseif (in_array($typeLC, static::$unsupportedColumnTypes, true)) {
-            throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by SQLite.');
         } else {
-            throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not known by SQLite.');
+            $typeLC = strtolower($type);
+
+            if (isset(static::$supportedColumnTypes[$typeLC])) {
+                $name = static::$supportedColumnTypes[$typeLC];
+            } elseif (in_array($typeLC, static::$unsupportedColumnTypes, true)) {
+                throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not supported by SQLite.');
+            } else {
+                throw new UnsupportedColumnTypeException('Column type "' . $type . '" is not known by SQLite.');
+            }
         }
 
         return ['name' => $name, 'limit' => $limit];

@@ -9,9 +9,6 @@ namespace Phinx\Config;
 
 /**
  * Config aware getNamespaceByPath method.
- *
- * @package Phinx\Config
- * @author Andrey N. Mokhov
  */
 interface NamespaceAwareInterface
 {

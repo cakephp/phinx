@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -9,6 +10,7 @@ namespace Phinx\Db\Action;
 
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Table;
+use Phinx\Util\Literal;
 
 class AddColumn extends Action
 {
@@ -17,7 +19,7 @@ class AddColumn extends Action
      *
      * @var \Phinx\Db\Table\Column
      */
-    protected $column;
+    protected Column $column;
 
     /**
      * Constructor
@@ -40,7 +42,7 @@ class AddColumn extends Action
      * @param array<string, mixed> $options The column options
      * @return static
      */
-    public static function build(Table $table, string $columnName, $type = null, array $options = [])
+    public static function build(Table $table, string $columnName, string|Literal $type, array $options = []): static
     {
         $column = new Column();
         $column->setName($columnName);

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -12,8 +13,6 @@ use Exception;
 /**
  * Exception class thrown when migrations cannot be reversed using the 'change'
  * feature.
- *
- * @author Rob Morgan <robbym@gmail.com>
  */
 class IrreversibleMigrationException extends Exception
 {

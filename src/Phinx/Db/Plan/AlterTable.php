@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -20,14 +21,14 @@ class AlterTable
      *
      * @var \Phinx\Db\Table\Table
      */
-    protected $table;
+    protected Table $table;
 
     /**
      * The list of actions to execute
      *
      * @var \Phinx\Db\Action\Action[]
      */
-    protected $actions = [];
+    protected array $actions = [];
 
     /**
      * Constructor

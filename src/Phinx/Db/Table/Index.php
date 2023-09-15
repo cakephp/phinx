@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -29,32 +30,32 @@ class Index
     /**
      * @var string[]|null
      */
-    protected $columns;
+    protected ?array $columns = null;
 
     /**
      * @var string
      */
-    protected $type = self::INDEX;
+    protected string $type = self::INDEX;
 
     /**
      * @var string|null
      */
-    protected $name;
+    protected ?string $name = null;
 
     /**
      * @var int|array|null
      */
-    protected $limit;
+    protected int|array|null $limit = null;
 
     /**
      * @var string[]|null
      */
-    protected $order;
+    protected ?array $order = null;
 
     /**
      * @var string[]|null
      */
-    protected $includedColumns;
+    protected ?array $includedColumns = null;
 
     /**
      * Sets the index columns.
@@ -62,7 +63,7 @@ class Index
      * @param string|string[] $columns Columns
      * @return $this
      */
-    public function setColumns($columns)
+    public function setColumns(string|array $columns)
     {
         $this->columns = is_string($columns) ? [$columns] : $columns;
 
@@ -131,7 +132,7 @@ class Index
      * @param int|array $limit limit value or array of limit value
      * @return $this
      */
-    public function setLimit($limit)
+    public function setLimit(int|array $limit)
     {
         $this->limit = $limit;
 
@@ -143,7 +144,7 @@ class Index
      *
      * @return int|array|null
      */
-    public function getLimit()
+    public function getLimit(): int|array|null
     {
         return $this->limit;
     }

@@ -1,15 +1,21 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Db;
 
+use InvalidArgumentException;
 use Phinx\Db\Action\DropIndex;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Adapter\PostgresAdapter;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Db\Adapter\SqlServerAdapter;
+use Phinx\Db\Table;
+use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Index;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
+use RuntimeException;
 
 class TableTest extends TestCase
 {
@@ -42,11 +48,11 @@ class TableTest extends TestCase
     {
         try {
             $adapter = new MysqlAdapter([]);
-            $column = new \Phinx\Db\Table\Column();
+            $column = new Column();
             $column->setType('badtype');
-            $table = new \Phinx\Db\Table('ntable', [], $adapter);
-            $table->addColumn($column);
-        } catch (\InvalidArgumentException $e) {
+            $table = new Table('ntable', [], $adapter);
+            $table->addColumn($column, 'int');
+        } catch (InvalidArgumentException $e) {
             $this->assertInstanceOf(
                 'InvalidArgumentException',
                 $e,
@@ -59,11 +65,11 @@ class TableTest extends TestCase
     public function testAddColumnWithColumnObject()
     {
         $adapter = new MysqlAdapter([]);
-        $column = new \Phinx\Db\Table\Column();
+        $column = new Column();
         $column->setName('email')
                ->setType('integer');
-        $table = new \Phinx\Db\Table('ntable', [], $adapter);
-        $table->addColumn($column);
+        $table = new Table('ntable', [], $adapter);
+        $table->addColumn($column, 'int');
         $actions = $this->getPendingActions($table);
         $this->assertInstanceOf('Phinx\Db\Action\AddColumn', $actions[0]);
         $this->assertSame($column, $actions[0]->getColumn());
@@ -72,10 +78,10 @@ class TableTest extends TestCase
     public function testAddColumnWithNoAdapterSpecified()
     {
         try {
-            $table = new \Phinx\Db\Table('ntable');
+            $table = new Table('ntable');
             $table->addColumn('realname', 'string');
             $this->fail('Expected the table object to throw an exception');
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $this->assertInstanceOf(
                 'RuntimeException',
                 $e,
@@ -87,7 +93,7 @@ class TableTest extends TestCase
     public function testAddComment()
     {
         $adapter = new MysqlAdapter([]);
-        $table = new \Phinx\Db\Table('ntable', ['comment' => 'test comment'], $adapter);
+        $table = new Table('ntable', ['comment' => 'test comment'], $adapter);
         $options = $table->getOptions();
         $this->assertEquals('test comment', $options['comment']);
     }
@@ -95,10 +101,10 @@ class TableTest extends TestCase
     public function testAddIndexWithIndexObject()
     {
         $adapter = new MysqlAdapter([]);
-        $index = new \Phinx\Db\Table\Index();
-        $index->setType(\Phinx\Db\Table\Index::INDEX)
+        $index = new Index();
+        $index->setType(Index::INDEX)
               ->setColumns(['email']);
-        $table = new \Phinx\Db\Table('ntable', [], $adapter);
+        $table = new Table('ntable', [], $adapter);
         $table->addIndex($index);
         $actions = $this->getPendingActions($table);
         $this->assertInstanceOf('Phinx\Db\Action\AddIndex', $actions[0]);
@@ -116,7 +122,7 @@ class TableTest extends TestCase
      */
     public function testAddTimestamps(AdapterInterface $adapter, $createdAtColumnName, $updatedAtColumnName, $expectedCreatedAtColumnName, $expectedUpdatedAtColumnName, $withTimezone)
     {
-        $table = new \Phinx\Db\Table('ntable', [], $adapter);
+        $table = new Table('ntable', [], $adapter);
         $table->addTimestamps($createdAtColumnName, $updatedAtColumnName, $withTimezone);
         $actions = $this->getPendingActions($table);
 
@@ -146,7 +152,7 @@ class TableTest extends TestCase
      */
     public function testAddTimestampsNoUpdated(AdapterInterface $adapter)
     {
-        $table = new \Phinx\Db\Table('ntable', [], $adapter);
+        $table = new Table('ntable', [], $adapter);
         $table->addTimestamps(null, false);
         $actions = $this->getPendingActions($table);
 
@@ -171,7 +177,7 @@ class TableTest extends TestCase
      */
     public function testAddTimestampsNoCreated(AdapterInterface $adapter)
     {
-        $table = new \Phinx\Db\Table('ntable', [], $adapter);
+        $table = new Table('ntable', [], $adapter);
         $table->addTimestamps(false, null);
         $actions = $this->getPendingActions($table);
 
@@ -197,8 +203,8 @@ class TableTest extends TestCase
      */
     public function testAddTimestampsThrowsOnBothFalse(AdapterInterface $adapter)
     {
-        $table = new \Phinx\Db\Table('ntable', [], $adapter);
-        $this->expectException(\RuntimeException::class);
+        $table = new Table('ntable', [], $adapter);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Cannot set both created_at and updated_at columns to false');
         $table->addTimestamps(false, false);
     }
@@ -214,7 +220,7 @@ class TableTest extends TestCase
      */
     public function testAddTimestampsWithTimezone(AdapterInterface $adapter, $createdAtColumnName, $updatedAtColumnName, $expectedCreatedAtColumnName, $expectedUpdatedAtColumnName, $withTimezone)
     {
-        $table = new \Phinx\Db\Table('ntable', [], $adapter);
+        $table = new Table('ntable', [], $adapter);
         $table->addTimestampsWithTimezone($createdAtColumnName, $updatedAtColumnName);
         $actions = $this->getPendingActions($table);
 
@@ -243,7 +249,7 @@ class TableTest extends TestCase
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
             ->setConstructorArgs([[]])
             ->getMock();
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $table = new Table('ntable', [], $adapterStub);
         $data = [
             'column1' => 'value1',
             'column2' => 'value2',
@@ -260,7 +266,7 @@ class TableTest extends TestCase
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
             ->setConstructorArgs([[]])
             ->getMock();
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $table = new Table('ntable', [], $adapterStub);
         $data = [
             1 => [
                 'column1' => 'value1',
@@ -281,7 +287,7 @@ class TableTest extends TestCase
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
             ->setConstructorArgs([[]])
             ->getMock();
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $table = new Table('ntable', [], $adapterStub);
 
         $adapterStub->expects($this->never())->method('bulkinsert');
 
@@ -293,7 +299,7 @@ class TableTest extends TestCase
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
             ->setConstructorArgs([[]])
             ->getMock();
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $table = new Table('ntable', [], $adapterStub);
         $data = [
             [
                 'column1' => 'value1',
@@ -326,7 +332,7 @@ class TableTest extends TestCase
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
             ->setConstructorArgs([[]])
             ->getMock();
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $table = new Table('ntable', [], $adapterStub);
         $data = [
             [
                 'column1' => 'value1',
@@ -359,7 +365,7 @@ class TableTest extends TestCase
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
             ->setConstructorArgs([[]])
             ->getMock();
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $table = new Table('ntable', [], $adapterStub);
         $columns = ['column1'];
         $data = [['value1']];
         $table->insert($columns, $data)->save();
@@ -371,7 +377,7 @@ class TableTest extends TestCase
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
             ->setConstructorArgs([[]])
             ->getMock();
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $table = new Table('ntable', [], $adapterStub);
         $columns = ['column1'];
         $data = [['value1']];
         $table->insert($columns, $data);
@@ -386,7 +392,7 @@ class TableTest extends TestCase
         $adapterStub->expects($this->any())
             ->method('isValidColumnType')
             ->willReturn(true);
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $table = new Table('ntable', [], $adapterStub);
         $table->addColumn('column1', 'integer', ['null' => true]);
         $this->assertTrue($table->hasPendingActions());
     }
@@ -397,7 +403,7 @@ class TableTest extends TestCase
             ->setConstructorArgs([[]])
             ->getMock();
 
-        $column1 = (new \Phinx\Db\Table\Column())->setName('column1');
+        $column1 = (new Column())->setName('column1');
 
         $adapterStub->expects($this->exactly(2))
             ->method('getColumns')
@@ -405,7 +411,7 @@ class TableTest extends TestCase
                 $column1,
             ]);
 
-        $table = new \Phinx\Db\Table('ntable', [], $adapterStub);
+        $table = new Table('ntable', [], $adapterStub);
 
         $this->assertEquals($column1, $table->getColumn('column1'));
         $this->assertNull($table->getColumn('column2'));
@@ -422,7 +428,7 @@ class TableTest extends TestCase
             ->setConstructorArgs([[]])
             ->getMock();
 
-        $table = new \Phinx\Db\Table('table', [], $adapterStub);
+        $table = new Table('table', [], $adapterStub);
         $table->removeIndex($indexIdentifier);
 
         $indexes = array_map(function (DropIndex $action) {
@@ -452,7 +458,7 @@ class TableTest extends TestCase
 
     protected function getPendingActions($table)
     {
-        $prop = new \ReflectionProperty(get_class($table), 'actions');
+        $prop = new ReflectionProperty(get_class($table), 'actions');
         $prop->setAccessible(true);
 
         return $prop->getValue($table)->getActions();

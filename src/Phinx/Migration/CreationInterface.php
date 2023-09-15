@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -12,8 +13,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Migration interface
- *
- * @author Richard Quadling <RQuadling@GMail.com>
  */
 interface CreationInterface
 {

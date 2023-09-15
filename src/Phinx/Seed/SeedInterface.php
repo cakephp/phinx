@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -8,13 +9,12 @@
 namespace Phinx\Seed;
 
 use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Seed interface
- *
- * @author Rob Morgan <robbym@gmail.com>
  */
 interface SeedInterface
 {
@@ -115,7 +115,7 @@ interface SeedInterface
      * @param array $params parameters to use for prepared query
      * @return int
      */
-    public function execute(string $sql, array $params = []);
+    public function execute(string $sql, array $params = []): int;
 
     /**
      * Executes a SQL statement.
@@ -129,7 +129,7 @@ interface SeedInterface
      * @param array $params parameters to use for prepared query
      * @return mixed
      */
-    public function query(string $sql, array $params = []);
+    public function query(string $sql, array $params = []): mixed;
 
     /**
      * Executes a query and returns only one row as an array.
@@ -137,7 +137,7 @@ interface SeedInterface
      * @param string $sql SQL
      * @return array|false
      */
-    public function fetchRow(string $sql);
+    public function fetchRow(string $sql): array|false;
 
     /**
      * Executes a query and returns an array of rows.
@@ -173,7 +173,7 @@ interface SeedInterface
      * @param array<string, mixed> $options Options
      * @return \Phinx\Db\Table
      */
-    public function table(string $tableName, array $options): \Phinx\Db\Table;
+    public function table(string $tableName, array $options): Table;
 
     /**
      * Checks to see if the seed should be executed.

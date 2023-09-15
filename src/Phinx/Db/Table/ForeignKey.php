@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -20,37 +21,37 @@ class ForeignKey
     /**
      * @var array<string>
      */
-    protected static $validOptions = ['delete', 'update', 'constraint'];
+    protected static array $validOptions = ['delete', 'update', 'constraint'];
 
     /**
      * @var string[]
      */
-    protected $columns = [];
+    protected array $columns = [];
 
     /**
      * @var \Phinx\Db\Table\Table
      */
-    protected $referencedTable;
+    protected Table $referencedTable;
 
     /**
      * @var string[]
      */
-    protected $referencedColumns = [];
+    protected array $referencedColumns = [];
 
     /**
      * @var string|null
      */
-    protected $onDelete;
+    protected ?string $onDelete = null;
 
     /**
      * @var string|null
      */
-    protected $onUpdate;
+    protected ?string $onUpdate = null;
 
     /**
      * @var string|null
      */
-    protected $constraint;
+    protected ?string $constraint = null;
 
     /**
      * Sets the foreign key columns.
@@ -58,7 +59,7 @@ class ForeignKey
      * @param string[]|string $columns Columns
      * @return $this
      */
-    public function setColumns($columns)
+    public function setColumns(array|string $columns)
     {
         $this->columns = is_string($columns) ? [$columns] : $columns;
 

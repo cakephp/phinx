@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Console\Command;
 
@@ -7,6 +8,7 @@ use Phinx\Config\Config;
 use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\SeedCreate;
 use Phinx\Console\PhinxApplication;
+use Phinx\Migration\Manager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
@@ -77,7 +79,7 @@ class SeedCreateTest extends TestCase
 
         // mock the manager class
         /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
-        $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)
+        $managerStub = $this->getMockBuilder(Manager::class)
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
 
@@ -105,7 +107,7 @@ class SeedCreateTest extends TestCase
 
         // mock the manager class
         /** @var Manager|\PHPUnit\Framework\MockObject\MockObject $managerStub */
-        $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)
+        $managerStub = $this->getMockBuilder(Manager::class)
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
 
@@ -130,7 +132,7 @@ class SeedCreateTest extends TestCase
         $command = $application->find('seed:create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)
+        $managerStub = $this->getMockBuilder(Manager::class)
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
 
@@ -163,7 +165,7 @@ class SeedCreateTest extends TestCase
         $command = $application->find('seed:create');
 
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)
+        $managerStub = $this->getMockBuilder(Manager::class)
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
 
@@ -193,7 +195,7 @@ class SeedCreateTest extends TestCase
         $this->configValues['templates']['seedFile'] = __DIR__ . '/Templates/SimpleSeeder.templateFromConfig.php.dist';
         $this->config = new Config($this->configValues);
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)
+        $managerStub = $this->getMockBuilder(Manager::class)
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
 
@@ -230,7 +232,7 @@ class SeedCreateTest extends TestCase
         $this->configValues['templates']['seedFile'] = $template;
         $this->config = new Config($this->configValues);
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)
+        $managerStub = $this->getMockBuilder(Manager::class)
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
 
@@ -259,7 +261,7 @@ class SeedCreateTest extends TestCase
         $this->configValues['templates']['seedFile'] = __DIR__ . '/Templates/SimpleSeeder.templateFromConfig.php.dist';
         $this->config = new Config($this->configValues);
         /** @var Manager $managerStub mock the manager class */
-        $managerStub = $this->getMockBuilder(\Phinx\Migration\Manager::class)
+        $managerStub = $this->getMockBuilder(Manager::class)
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
 

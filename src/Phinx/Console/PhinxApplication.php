@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -23,8 +24,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Phinx console application.
- *
- * @author Rob Morgan <robbym@gmail.com>
  */
 class PhinxApplication extends Application
 {

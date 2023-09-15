@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Console\Command;
 
@@ -228,7 +229,7 @@ class MigrateTest extends TestCase
 
     public function testMigrateExecutionOrder()
     {
-        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $this->config['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
 
         $application = new PhinxApplication();
         $application->add(new Migrate());

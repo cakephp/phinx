@@ -1,21 +1,30 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Db\Adapter;
 
 use BadMethodCallException;
 use Cake\Database\Query;
+use Exception;
 use InvalidArgumentException;
+use PDO;
+use PDOException;
 use Phinx\Db\Adapter\SQLiteAdapter;
+use Phinx\Db\Adapter\UnsupportedColumnTypeException;
+use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Util\Expression;
 use Phinx\Util\Literal;
+use ReflectionObject;
+use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Test\Phinx\TestCase;
+use UnexpectedValueException;
 
 class SQLiteAdapterTest extends TestCase
 {
@@ -50,7 +59,7 @@ class SQLiteAdapterTest extends TestCase
     public function testConnection()
     {
         $this->assertInstanceOf('PDO', $this->adapter->getConnection());
-        $this->assertSame(\PDO::ERRMODE_EXCEPTION, $this->adapter->getConnection()->getAttribute(\PDO::ATTR_ERRMODE));
+        $this->assertSame(PDO::ERRMODE_EXCEPTION, $this->adapter->getConnection()->getAttribute(PDO::ATTR_ERRMODE));
     }
 
     public function testConnectionWithFetchMode()
@@ -59,7 +68,7 @@ class SQLiteAdapterTest extends TestCase
         $options['fetch_mode'] = 'assoc';
         $this->adapter->setOptions($options);
         $this->assertInstanceOf('PDO', $this->adapter->getConnection());
-        $this->assertSame(\PDO::FETCH_ASSOC, $this->adapter->getConnection()->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE));
+        $this->assertSame(PDO::FETCH_ASSOC, $this->adapter->getConnection()->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE));
     }
 
     public function testBeginTransaction()
@@ -75,7 +84,7 @@ class SQLiteAdapterTest extends TestCase
     public function testRollbackTransaction()
     {
         $this->adapter->getConnection()
-            ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            ->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->adapter->beginTransaction();
         $this->adapter->rollbackTransaction();
 
@@ -88,7 +97,7 @@ class SQLiteAdapterTest extends TestCase
     public function testCommitTransactionTransaction()
     {
         $this->adapter->getConnection()
-            ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            ->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->adapter->beginTransaction();
         $this->adapter->commitTransaction();
 
@@ -112,7 +121,7 @@ class SQLiteAdapterTest extends TestCase
     public function testSchemaTableIsCreatedWithPrimaryKey()
     {
         $this->adapter->connect();
-        $table = new \Phinx\Db\Table($this->adapter->getSchemaTableName(), [], $this->adapter);
+        new Table($this->adapter->getSchemaTableName(), [], $this->adapter);
         $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), ['version']));
     }
 
@@ -128,7 +137,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testCreateTable()
     {
-        $table = new \Phinx\Db\Table('ntable', [], $this->adapter);
+        $table = new Table('ntable', [], $this->adapter);
         $table->addColumn('realname', 'string')
             ->addColumn('email', 'integer')
             ->save();
@@ -141,7 +150,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testCreateTableCustomIdColumn()
     {
-        $table = new \Phinx\Db\Table('ntable', ['id' => 'custom_id'], $this->adapter);
+        $table = new Table('ntable', ['id' => 'custom_id'], $this->adapter);
         $table->addColumn('realname', 'string')
             ->addColumn('email', 'integer')
             ->save();
@@ -161,7 +170,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testCreateTableIdentityIdColumn()
     {
-        $table = new \Phinx\Db\Table('ntable', ['id' => false, 'primary_key' => ['custom_id']], $this->adapter);
+        $table = new Table('ntable', ['id' => false, 'primary_key' => ['custom_id']], $this->adapter);
         $table->addColumn('custom_id', 'integer', ['identity' => true])
             ->save();
 
@@ -178,7 +187,7 @@ class SQLiteAdapterTest extends TestCase
         $options = [
             'id' => false,
         ];
-        $table = new \Phinx\Db\Table('atable', $options, $this->adapter);
+        $table = new Table('atable', $options, $this->adapter);
         $table->addColumn('user_id', 'integer')
             ->save();
         $this->assertFalse($this->adapter->hasColumn('atable', 'id'));
@@ -190,7 +199,7 @@ class SQLiteAdapterTest extends TestCase
             'id' => false,
             'primary_key' => ['user_id', 'tag_id'],
         ];
-        $table = new \Phinx\Db\Table('table1', $options, $this->adapter);
+        $table = new Table('table1', $options, $this->adapter);
         $table->addColumn('user_id', 'integer')
             ->addColumn('tag_id', 'integer')
             ->save();
@@ -209,7 +218,7 @@ class SQLiteAdapterTest extends TestCase
             'id' => false,
             'primary_key' => 'id',
         ];
-        $table = new \Phinx\Db\Table('ztable', $options, $this->adapter);
+        $table = new Table('ztable', $options, $this->adapter);
         $table->addColumn('id', 'uuid')->save();
         $this->assertTrue($this->adapter->hasColumn('ztable', 'id'));
         $this->assertTrue($this->adapter->hasIndex('ztable', 'id'));
@@ -224,7 +233,7 @@ class SQLiteAdapterTest extends TestCase
             'id' => false,
             'primary_key' => 'id',
         ];
-        $table = new \Phinx\Db\Table('ztable', $options, $this->adapter);
+        $table = new Table('ztable', $options, $this->adapter);
         $table->addColumn('id', 'binaryuuid')->save();
         $this->assertTrue($this->adapter->hasColumn('ztable', 'id'));
         $this->assertTrue($this->adapter->hasIndex('ztable', 'id'));
@@ -232,7 +241,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testCreateTableWithMultipleIndexes()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
             ->addColumn('name', 'string')
             ->addIndex('email')
@@ -246,7 +255,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testCreateTableWithUniqueIndexes()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
             ->addIndex('email', ['unique' => true])
             ->save();
@@ -256,7 +265,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testCreateTableWithNamedIndexes()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
             ->addIndex('email', ['name' => 'myemailindex'])
             ->save();
@@ -272,10 +281,10 @@ class SQLiteAdapterTest extends TestCase
 
     public function testCreateTableWithForeignKey()
     {
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable->addColumn('field1', 'string')->save();
 
-        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table = new Table('table', [], $this->adapter);
         $table->addColumn('ref_table_id', 'integer');
         $table->addForeignKey('ref_table_id', 'ref_table', 'id');
         $table->save();
@@ -286,10 +295,10 @@ class SQLiteAdapterTest extends TestCase
 
     public function testCreateTableWithIndexesAndForeignKey()
     {
-        $refTable = new \Phinx\Db\Table('tbl_master', [], $this->adapter);
+        $refTable = new Table('tbl_master', [], $this->adapter);
         $refTable->create();
 
-        $table = new \Phinx\Db\Table('tbl_child', [], $this->adapter);
+        $table = new Table('tbl_child', [], $this->adapter);
         $table
             ->addColumn('column1', 'integer')
             ->addColumn('column2', 'integer')
@@ -319,11 +328,11 @@ class SQLiteAdapterTest extends TestCase
 
     public function testCreateTableWithoutAutoIncrementingPrimaryKeyAndWithForeignKey()
     {
-        $refTable = (new \Phinx\Db\Table('tbl_master', ['id' => false, 'primary_key' => 'id'], $this->adapter))
+        $refTable = (new Table('tbl_master', ['id' => false, 'primary_key' => 'id'], $this->adapter))
             ->addColumn('id', 'text');
         $refTable->create();
 
-        $table = (new \Phinx\Db\Table('tbl_child', ['id' => false, 'primary_key' => 'master_id'], $this->adapter))
+        $table = (new Table('tbl_child', ['id' => false, 'primary_key' => 'master_id'], $this->adapter))
             ->addColumn('master_id', 'text')
             ->addForeignKey(
                 'master_id',
@@ -346,7 +355,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testAddPrimaryKey()
     {
-        $table = new \Phinx\Db\Table('table1', ['id' => false], $this->adapter);
+        $table = new Table('table1', ['id' => false], $this->adapter);
         $table
             ->addColumn('column1', 'integer')
             ->addColumn('column2', 'integer')
@@ -361,7 +370,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testChangePrimaryKey()
     {
-        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table = new Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
         $table
             ->addColumn('column1', 'integer')
             ->addColumn('column2', 'integer')
@@ -377,7 +386,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testChangePrimaryKeyNonInteger()
     {
-        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table = new Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
         $table
             ->addColumn('column1', 'string')
             ->addColumn('column2', 'string')
@@ -393,7 +402,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testDropPrimaryKey()
     {
-        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
+        $table = new Table('table1', ['id' => false, 'primary_key' => 'column1'], $this->adapter);
         $table
             ->addColumn('column1', 'integer')
             ->addColumn('column2', 'integer')
@@ -408,7 +417,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testAddMultipleColumnPrimaryKeyFails()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table
             ->addColumn('column1', 'integer')
             ->addColumn('column2', 'integer')
@@ -423,7 +432,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testChangeCommentFails()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->save();
 
         $this->expectException(BadMethodCallException::class);
@@ -435,7 +444,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testRenameTable()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->save();
         $this->assertTrue($this->adapter->hasTable('table1'));
         $this->assertFalse($this->adapter->hasTable('table2'));
@@ -446,7 +455,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testAddColumn()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->save();
         $this->assertFalse($table->hasColumn('email'));
         $table->addColumn('email', 'string', ['null' => true])
@@ -461,7 +470,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testAddColumnWithDefaultValue()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->save();
         $table->addColumn('default_zero', 'string', ['default' => 'test'])
             ->save();
@@ -471,7 +480,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testAddColumnWithDefaultZero()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->save();
         $table->addColumn('default_zero', 'integer', ['default' => 0])
             ->save();
@@ -482,7 +491,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testAddColumnWithDefaultEmptyString()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->save();
         $table->addColumn('default_empty', 'string', ['default' => ''])
             ->save();
@@ -500,7 +509,7 @@ class SQLiteAdapterTest extends TestCase
             ],
         ]);
 
-        (new \Phinx\Db\Table('table1', [], $this->adapter))
+        (new Table('table1', [], $this->adapter))
             ->addColumn('custom', 'custom')
             ->addColumn('custom_ext', 'custom', [
                 'null' => false,
@@ -543,7 +552,7 @@ class SQLiteAdapterTest extends TestCase
     public function testAddColumnToIrregularCreateTableStatements(string $createTableSql, array $expectedColumns): void
     {
         $this->adapter->execute($createTableSql);
-        $table = new \Phinx\Db\Table('users', [], $this->adapter);
+        $table = new Table('users', [], $this->adapter);
         $table->addColumn('foo', 'string');
         $table->update();
 
@@ -556,7 +565,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testAddDoubleColumn()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->save();
         $table->addColumn('foo', 'double', ['null' => true])
             ->save();
@@ -566,7 +575,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testRenameColumn()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string')
             ->save();
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
@@ -577,7 +586,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testRenamingANonExistentColumn()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string')
             ->save();
 
@@ -588,7 +597,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testRenameColumnWithIndex()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->addIndex('indexcol')
@@ -605,7 +614,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testRenameColumnWithUniqueIndex()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->addIndex('indexcol', ['unique' => true])
@@ -622,7 +631,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testRenameColumnWithCompositeIndex()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol1', 'integer')
             ->addColumn('indexcol2', 'integer')
@@ -644,7 +653,7 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testRenameColumnWithIndexMatchingTheTableName()
     {
-        $table = new \Phinx\Db\Table('indexcol', [], $this->adapter);
+        $table = new Table('indexcol', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->addIndex('indexcol')
@@ -665,7 +674,7 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testRenameColumnWithIndexColumnPartialMatch()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->addColumn('indexcolumn', 'integer')
@@ -684,7 +693,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testRenameColumnWithIndexColumnRequiringQuoting()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->addIndex('indexcol')
@@ -704,7 +713,7 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testRenameColumnWithExpressionIndex()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->create();
@@ -713,7 +722,7 @@ class SQLiteAdapterTest extends TestCase
 
         $this->assertTrue($this->adapter->hasIndexByName('t', 'custom_idx'));
 
-        $this->expectException(\PDOException::class);
+        $this->expectException(PDOException::class);
         $this->expectExceptionMessage('no such column: indexcol');
 
         $table->renameColumn('indexcol', 'newindexcol')->update();
@@ -792,7 +801,7 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testRenameColumnWithCustomIndex(string $indexSQL, string $newIndexSQL)
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->create();
@@ -891,7 +900,7 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testRenameColumnWithCustomCompositeIndex(string $indexSQL, string $newIndexSQL)
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol1', 'integer')
             ->addColumn('indexcol2', 'integer')
@@ -914,15 +923,15 @@ class SQLiteAdapterTest extends TestCase
 
     public function testChangeColumn()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string')
             ->save();
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
-        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1 = new Column();
         $newColumn1->setType('string');
         $table->changeColumn('column1', $newColumn1);
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
-        $newColumn2 = new \Phinx\Db\Table\Column();
+        $newColumn2 = new Column();
         $newColumn2->setName('column2')
             ->setType('string');
         $table->changeColumn('column1', $newColumn2)->save();
@@ -932,10 +941,10 @@ class SQLiteAdapterTest extends TestCase
 
     public function testChangeColumnDefaultValue()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string', ['default' => 'test'])
             ->save();
-        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1 = new Column();
         $newColumn1->setDefault('test1')
             ->setType('string');
         $table->changeColumn('column1', $newColumn1)->save();
@@ -949,10 +958,10 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testChangeColumnWithForeignKey()
     {
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable->addColumn('field1', 'string')->save();
 
-        $table = new \Phinx\Db\Table('another_table', [], $this->adapter);
+        $table = new Table('another_table', [], $this->adapter);
         $table
             ->addColumn('ref_table_id', 'integer')
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
@@ -967,7 +976,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testChangeColumnWithIndex()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->addIndex(
@@ -985,7 +994,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testChangeColumnWithTrigger()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('triggercol', 'integer')
             ->addColumn('othercol', 'integer')
@@ -1020,10 +1029,10 @@ class SQLiteAdapterTest extends TestCase
 
     public function testChangeColumnDefaultToZero()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table->addColumn('column1', 'integer')
             ->save();
-        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1 = new Column();
         $newColumn1->setDefault(0)
             ->setType('integer');
         $table->changeColumn('column1', $newColumn1)->save();
@@ -1033,10 +1042,10 @@ class SQLiteAdapterTest extends TestCase
 
     public function testChangeColumnDefaultToNull()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string', ['default' => 'test'])
             ->save();
-        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1 = new Column();
         $newColumn1->setDefault(null)
             ->setType('string');
         $table->changeColumn('column1', $newColumn1)->save();
@@ -1046,10 +1055,10 @@ class SQLiteAdapterTest extends TestCase
 
     public function testChangeColumnWithCommasInCommentsOrDefaultValue()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string', ['default' => 'one, two or three', 'comment' => 'three, two or one'])
             ->save();
-        $newColumn1 = new \Phinx\Db\Table\Column();
+        $newColumn1 = new Column();
         $newColumn1->setDefault('another default')
             ->setComment('another comment')
             ->setType('string');
@@ -1063,7 +1072,7 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testDropColumn($columnCreationArgs)
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $columnName = $columnCreationArgs[0];
         call_user_func_array([$table, 'addColumn'], $columnCreationArgs);
         $table->save();
@@ -1076,7 +1085,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testDropColumnWithIndex()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->addIndex('indexcol')
@@ -1091,7 +1100,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testDropColumnWithUniqueIndex()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->addIndex('indexcol', ['unique' => true])
@@ -1106,7 +1115,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testDropColumnWithCompositeIndex()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol1', 'integer')
             ->addColumn('indexcol2', 'integer')
@@ -1126,7 +1135,7 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testDropColumnWithIndexMatchingTheTableName()
     {
-        $table = new \Phinx\Db\Table('indexcol', [], $this->adapter);
+        $table = new Table('indexcol', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->addColumn('indexcolumn', 'integer')
@@ -1146,7 +1155,7 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testDropColumnWithIndexColumnPartialMatch()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->addColumn('indexcolumn', 'integer')
@@ -1166,7 +1175,7 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testDropColumnWithExpressionIndex()
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->create();
@@ -1175,7 +1184,7 @@ class SQLiteAdapterTest extends TestCase
 
         $this->assertTrue($this->adapter->hasIndexByName('t', 'custom_idx'));
 
-        $this->expectException(\PDOException::class);
+        $this->expectException(PDOException::class);
         $this->expectExceptionMessage('no such column: indexcol');
 
         $table->removeColumn('indexcol')->update();
@@ -1187,7 +1196,7 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testDropColumnWithCustomIndex(string $indexSQL)
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol', 'integer')
             ->create();
@@ -1207,7 +1216,7 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testDropColumnWithCustomCompositeIndex(string $indexSQL)
     {
-        $table = new \Phinx\Db\Table('t', [], $this->adapter);
+        $table = new Table('t', [], $this->adapter);
         $table
             ->addColumn('indexcol1', 'integer')
             ->addColumn('indexcol2', 'integer')
@@ -1255,7 +1264,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testAddIndex()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
             ->save();
         $this->assertFalse($table->hasIndex('email'));
@@ -1267,7 +1276,7 @@ class SQLiteAdapterTest extends TestCase
     public function testDropIndex()
     {
         // single column index
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
             ->addIndex('email')
             ->save();
@@ -1276,7 +1285,7 @@ class SQLiteAdapterTest extends TestCase
         $this->assertFalse($table->hasIndex('email'));
 
         // multiple column index
-        $table2 = new \Phinx\Db\Table('table2', [], $this->adapter);
+        $table2 = new Table('table2', [], $this->adapter);
         $table2->addColumn('fname', 'string')
             ->addColumn('lname', 'string')
             ->addIndex(['fname', 'lname'])
@@ -1286,7 +1295,7 @@ class SQLiteAdapterTest extends TestCase
         $this->assertFalse($table2->hasIndex(['fname', 'lname']));
 
         // single column index with name specified
-        $table3 = new \Phinx\Db\Table('table3', [], $this->adapter);
+        $table3 = new Table('table3', [], $this->adapter);
         $table3->addColumn('email', 'string')
             ->addIndex('email', ['name' => 'someindexname'])
             ->save();
@@ -1295,7 +1304,7 @@ class SQLiteAdapterTest extends TestCase
         $this->assertFalse($table3->hasIndex('email'));
 
         // multiple column index with name specified
-        $table4 = new \Phinx\Db\Table('table4', [], $this->adapter);
+        $table4 = new Table('table4', [], $this->adapter);
         $table4->addColumn('fname', 'string')
             ->addColumn('lname', 'string')
             ->addIndex(['fname', 'lname'], ['name' => 'multiname'])
@@ -1308,7 +1317,7 @@ class SQLiteAdapterTest extends TestCase
     public function testDropIndexByName()
     {
         // single column index
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
             ->addIndex('email', ['name' => 'myemailindex'])
             ->save();
@@ -1317,7 +1326,7 @@ class SQLiteAdapterTest extends TestCase
         $this->assertFalse($table->hasIndex('email'));
 
         // multiple column index
-        $table2 = new \Phinx\Db\Table('table2', [], $this->adapter);
+        $table2 = new Table('table2', [], $this->adapter);
         $table2->addColumn('fname', 'string')
             ->addColumn('lname', 'string')
             ->addIndex(['fname', 'lname'], ['name' => 'twocolumnindex'])
@@ -1329,10 +1338,10 @@ class SQLiteAdapterTest extends TestCase
 
     public function testAddForeignKey()
     {
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable->addColumn('field1', 'string')->save();
 
-        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table = new Table('table', [], $this->adapter);
         $table
             ->addColumn('ref_table_id', 'integer')
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
@@ -1343,12 +1352,12 @@ class SQLiteAdapterTest extends TestCase
 
     public function testDropForeignKey()
     {
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable->addColumn('field1', 'string')
             ->addIndex(['field1'], ['unique' => true])
             ->save();
 
-        $table = new \Phinx\Db\Table('another_table', [], $this->adapter);
+        $table = new Table('another_table', [], $this->adapter);
         $opts = [
             'update' => 'CASCADE',
             'delete' => 'CASCADE',
@@ -1373,10 +1382,10 @@ class SQLiteAdapterTest extends TestCase
 
     public function testFailingDropForeignKey()
     {
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable->save();
 
-        $table = new \Phinx\Db\Table('another_table', [], $this->adapter);
+        $table = new Table('another_table', [], $this->adapter);
         $table
             ->addColumn('ref_table_id', 'integer')
             ->addForeignKey(['ref_table_id'], 'ref_table', ['id'])
@@ -1407,7 +1416,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testAddColumnWithComment()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string', ['comment' => $comment = 'Comments from "column1"'])
             ->save();
 
@@ -1446,10 +1455,10 @@ class SQLiteAdapterTest extends TestCase
 
     public function testAddIndexTwoTablesSameIndex()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('email', 'string')
             ->save();
-        $table2 = new \Phinx\Db\Table('table2', [], $this->adapter);
+        $table2 = new Table('table2', [], $this->adapter);
         $table2->addColumn('email', 'string')
             ->save();
 
@@ -1467,7 +1476,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testBulkInsertData()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
             ->addColumn('column2', 'integer', ['null' => true])
             ->insert([
@@ -1507,7 +1516,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testInsertData()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
             ->addColumn('column2', 'integer', ['null' => true])
             ->insert([
@@ -1548,7 +1557,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testBulkInsertDataEnum()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('column1', 'string')
             ->addColumn('column2', 'string', ['null' => true])
             ->addColumn('column3', 'string', ['default' => 'c'])
@@ -1569,7 +1578,7 @@ class SQLiteAdapterTest extends TestCase
         $this->markTestSkipped('Skipping for now. See Github Issue #265.');
 
         // construct table with default/null combinations
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('aa', 'string', ['null' => true]) // no default value
         ->addColumn('bb', 'string', ['null' => false]) // no default value
         ->addColumn('cc', 'string', ['null' => true, 'default' => 'some1'])
@@ -1611,7 +1620,7 @@ class SQLiteAdapterTest extends TestCase
         $consoleOutput = new BufferedOutput();
         $this->adapter->setOutput($consoleOutput);
 
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
 
         $table->addColumn('column1', 'string', ['null' => false])
             ->addColumn('column2', 'integer')
@@ -1632,7 +1641,7 @@ OUTPUT;
      */
     public function testDumpInsert()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('string_col', 'string')
             ->addColumn('int_col', 'integer')
             ->save();
@@ -1677,7 +1686,7 @@ OUTPUT;
      */
     public function testDumpBulkinsert()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('string_col', 'string')
             ->addColumn('int_col', 'integer')
             ->save();
@@ -1719,7 +1728,7 @@ OUTPUT;
         $consoleOutput = new BufferedOutput();
         $this->adapter->setOutput($consoleOutput);
 
-        $table = new \Phinx\Db\Table('table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
+        $table = new Table('table1', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
 
         $table->addColumn('column1', 'string', ['null' => false])
             ->addColumn('column2', 'integer')
@@ -1727,7 +1736,7 @@ OUTPUT;
 
         $expectedOutput = 'C';
 
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->insert([
             'column1' => 'id1',
             'column2' => 1,
@@ -1747,7 +1756,7 @@ OUTPUT;
      */
     public function testQueryBuilder()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('string_col', 'string')
             ->addColumn('int_col', 'integer')
             ->save();
@@ -1786,7 +1795,7 @@ OUTPUT;
 
     public function testQueryWithParams()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->addColumn('string_col', 'string')
             ->addColumn('int_col', 'integer')
             ->save();
@@ -1821,7 +1830,7 @@ OUTPUT;
      */
     public function testAlterTableColumnAdd()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->create();
 
         $table->addColumn('string_col', 'string', ['default' => '']);
@@ -1853,10 +1862,10 @@ OUTPUT;
 
     public function testAlterTableWithConstraints()
     {
-        $table = new \Phinx\Db\Table('table1', [], $this->adapter);
+        $table = new Table('table1', [], $this->adapter);
         $table->create();
 
-        $table2 = new \Phinx\Db\Table('table2', [], $this->adapter);
+        $table2 = new Table('table2', [], $this->adapter);
         $table2->create();
 
         $table
@@ -1895,12 +1904,12 @@ OUTPUT;
     {
         $this->adapter->execute('PRAGMA foreign_keys = ON');
 
-        $articlesTable = new \Phinx\Db\Table('articles', [], $this->adapter);
+        $articlesTable = new Table('articles', [], $this->adapter);
         $articlesTable
             ->insert(['id' => 1])
             ->save();
 
-        $commentsTable = new \Phinx\Db\Table('comments', [], $this->adapter);
+        $commentsTable = new Table('comments', [], $this->adapter);
         $commentsTable
             ->addColumn('article_id', 'integer')
             ->addForeignKey('article_id', 'articles', 'id', [
@@ -1960,12 +1969,12 @@ OUTPUT;
      */
     public function testAlterTableDoesViolateForeignKeyConstraintOnTargetTableChange()
     {
-        $articlesTable = new \Phinx\Db\Table('articles', [], $this->adapter);
+        $articlesTable = new Table('articles', [], $this->adapter);
         $articlesTable
             ->insert(['id' => 1])
             ->save();
 
-        $commentsTable = new \Phinx\Db\Table('comments', [], $this->adapter);
+        $commentsTable = new Table('comments', [], $this->adapter);
         $commentsTable
             ->addColumn('article_id', 'integer')
             ->addForeignKey('article_id', 'articles', 'id', [
@@ -1981,7 +1990,7 @@ OUTPUT;
         $this->adapter->execute('DELETE FROM articles');
         $this->adapter->execute('PRAGMA foreign_keys = ON');
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Integrity constraint violation: FOREIGN KEY constraint on `comments` failed.');
 
         $articlesTable
@@ -2002,7 +2011,7 @@ OUTPUT;
             ->onlyMethods(['query'])
             ->getMock();
 
-        $adapterReflection = new \ReflectionObject($adapter);
+        $adapterReflection = new ReflectionObject($adapter);
         $queryReflection = $adapterReflection->getParentClass()->getMethod('query');
 
         $adapter
@@ -2018,12 +2027,12 @@ OUTPUT;
                 return $queryReflection->invoke($adapter, $sql, $params);
             });
 
-        $articlesTable = new \Phinx\Db\Table('articles', [], $adapter);
+        $articlesTable = new Table('articles', [], $adapter);
         $articlesTable
             ->insert(['id' => 1])
             ->save();
 
-        $commentsTable = new \Phinx\Db\Table('comments', [], $adapter);
+        $commentsTable = new Table('comments', [], $adapter);
         $commentsTable
             ->addColumn('article_id', 'integer')
             ->addForeignKey('article_id', 'articles', 'id', [
@@ -2035,7 +2044,7 @@ OUTPUT;
 
         $this->assertTrue($adapter->hasForeignKey('comments', ['article_id']));
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Integrity constraint violation: FOREIGN KEY constraint on `comments` failed.');
 
         $commentsTable
@@ -2049,12 +2058,12 @@ OUTPUT;
      */
     public function testAlterTableForeignKeyConstraintValidationNotRunningWithDisabledForeignKeys()
     {
-        $articlesTable = new \Phinx\Db\Table('articles', [], $this->adapter);
+        $articlesTable = new Table('articles', [], $this->adapter);
         $articlesTable
             ->insert(['id' => 1])
             ->save();
 
-        $commentsTable = new \Phinx\Db\Table('comments', [], $this->adapter);
+        $commentsTable = new Table('comments', [], $this->adapter);
         $commentsTable
             ->addColumn('article_id', 'integer')
             ->addForeignKey('article_id', 'articles', 'id', [
@@ -2082,7 +2091,7 @@ OUTPUT;
 
         $this->adapter->execute('PRAGMA foreign_keys = ON');
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Integrity constraint violation: FOREIGN KEY constraint on `comments` failed.');
 
         $articlesTable
@@ -2096,7 +2105,7 @@ OUTPUT;
 CREATE TABLE `test` (`real_col` DECIMAL)
 INPUT;
         $this->adapter->execute($createQuery);
-        $table = new \Phinx\Db\Table('test', [], $this->adapter);
+        $table = new Table('test', [], $this->adapter);
         $columns = $table->getColumns();
         $this->assertCount(1, $columns);
         $this->assertEquals(Literal::from('decimal'), array_pop($columns)->getType());
@@ -2280,7 +2289,7 @@ INPUT;
      */
     public function testHasNamedPrimaryKey()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $this->adapter->hasPrimaryKey('t', [], 'named_constraint');
     }
@@ -2331,13 +2340,13 @@ INPUT;
     /** @covers \Phinx\Db\Adapter\SQLiteAdapter::hasForeignKey */
     public function testHasNamedForeignKey()
     {
-        $refTable = new \Phinx\Db\Table('tbl_parent_1', [], $this->adapter);
+        $refTable = new Table('tbl_parent_1', [], $this->adapter);
         $refTable->addColumn('column', 'string')->create();
 
-        $refTable = new \Phinx\Db\Table('tbl_parent_2', [], $this->adapter);
+        $refTable = new Table('tbl_parent_2', [], $this->adapter);
         $refTable->create();
 
-        $refTable = new \Phinx\Db\Table('tbl_parent_3', [
+        $refTable = new Table('tbl_parent_3', [
             'id' => false,
             'primary_key' => ['id', 'column'],
         ], $this->adapter);
@@ -2372,7 +2381,7 @@ INPUT;
      */
     public function testGetSqlType($phinxType, $limit, $exp)
     {
-        if ($exp instanceof \Exception) {
+        if ($exp instanceof Exception) {
             $this->expectException(get_class($exp));
 
             $this->adapter->getSqlType($phinxType, $limit);
@@ -2384,7 +2393,7 @@ INPUT;
 
     public function providePhinxTypes()
     {
-        $unsupported = new \Phinx\Db\Adapter\UnsupportedColumnTypeException();
+        $unsupported = new UnsupportedColumnTypeException();
 
         return [
             [SQLiteAdapter::PHINX_TYPE_BIG_INTEGER, null, SQLiteAdapter::PHINX_TYPE_BIG_INTEGER],
@@ -2740,7 +2749,6 @@ INPUT;
             ['create table t("0" text)', '0', true],
             ['create table t("0" text)', '0e0', false],
             ['create table t("0e0" text)', '0', false],
-            ['create table t("0" text)', 0, true],
             ['create table t(b text); create temp table t(a text)', 'a', true],
             ['create table not_t(a text)', 'a', false],
         ];
@@ -2959,10 +2967,10 @@ INPUT;
         $refTableColumnId = 'ref_table_id';
         $refTableColumnToRename = 'columnToRename';
         $refTableRenamedColumn = 'renamedColumn';
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable->addColumn($refTableColumnToRename, 'string')->save();
 
-        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table = new Table('table', [], $this->adapter);
         $table->addColumn($refTableColumnId, 'integer');
         $table->addForeignKey($refTableColumnId, $refTable->getName(), 'id');
         $table->save();
@@ -2986,10 +2994,10 @@ INPUT;
     {
         $refTableColumnId = 'ref_table_id';
         $refTableColumnToChange = 'columnToChange';
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable->addColumn($refTableColumnToChange, 'string')->save();
 
-        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table = new Table('table', [], $this->adapter);
         $table->addColumn($refTableColumnId, 'integer');
         $table->addForeignKey($refTableColumnId, $refTable->getName(), 'id');
         $table->save();
@@ -3013,10 +3021,10 @@ INPUT;
     {
         $refTableColumnId = 'ref_table_id';
         $refTableColumnToRemove = 'columnToRemove';
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable->addColumn($refTableColumnToRemove, 'string')->save();
 
-        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table = new Table('table', [], $this->adapter);
         $table->addColumn($refTableColumnId, 'integer');
         $table->addForeignKey($refTableColumnId, $refTable->getName(), 'id');
         $table->save();
@@ -3040,10 +3048,10 @@ INPUT;
     {
         $refTableColumnAdditionalId = 'additional_id';
         $refTableColumnId = 'ref_table_id';
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable->addColumn($refTableColumnAdditionalId, 'integer')->save();
 
-        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table = new Table('table', [], $this->adapter);
         $table->addColumn($refTableColumnId, 'integer');
         $table->addForeignKey($refTableColumnId, $refTable->getName(), 'id');
         $table->save();
@@ -3069,16 +3077,16 @@ INPUT;
     public function testForeignKeyReferenceCorrectAfterDropForeignKey()
     {
         $refTableAdditionalColumnId = 'ref_table_additional_id';
-        $refTableAdditional = new \Phinx\Db\Table('ref_table_additional', [], $this->adapter);
+        $refTableAdditional = new Table('ref_table_additional', [], $this->adapter);
         $refTableAdditional->save();
 
         $refTableColumnId = 'ref_table_id';
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable->addColumn($refTableAdditionalColumnId, 'integer');
         $refTable->addForeignKey($refTableAdditionalColumnId, $refTableAdditional->getName(), 'id');
         $refTable->save();
 
-        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table = new Table('table', [], $this->adapter);
         $table->addColumn($refTableColumnId, 'integer');
         $table->addForeignKey($refTableColumnId, $refTable->getName(), 'id');
         $table->save();
@@ -3101,27 +3109,27 @@ INPUT;
     public function testInvalidPdoAttribute()
     {
         $adapter = new SQLiteAdapter(SQLITE_DB_CONFIG + ['attr_invalid' => true]);
-        $this->expectException(\UnexpectedValueException::class);
+        $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid PDO attribute: attr_invalid (\PDO::ATTR_INVALID)');
         $adapter->connect();
     }
 
     public function testPdoExceptionUpdateNonExistingTable()
     {
-        $this->expectException(\PDOException::class);
-        $table = new \Phinx\Db\Table('non_existing_table', [], $this->adapter);
+        $this->expectException(PDOException::class);
+        $table = new Table('non_existing_table', [], $this->adapter);
         $table->addColumn('column', 'string')->update();
     }
 
     public function testPdoPersistentConnection()
     {
         $adapter = new SQLiteAdapter(SQLITE_DB_CONFIG + ['attr_persistent' => true]);
-        $this->assertTrue($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+        $this->assertTrue($adapter->getConnection()->getAttribute(PDO::ATTR_PERSISTENT));
     }
 
     public function testPdoNotPersistentConnection()
     {
         $adapter = new SQLiteAdapter(SQLITE_DB_CONFIG);
-        $this->assertFalse($adapter->getConnection()->getAttribute(\PDO::ATTR_PERSISTENT));
+        $this->assertFalse($adapter->getConnection()->getAttribute(PDO::ATTR_PERSISTENT));
     }
 }

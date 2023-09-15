@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -17,7 +18,7 @@ class RemoveColumn extends Action
      *
      * @var \Phinx\Db\Table\Column
      */
-    protected $column;
+    protected Column $column;
 
     /**
      * Constructor
@@ -39,7 +40,7 @@ class RemoveColumn extends Action
      * @param string $columnName The name of the column to drop
      * @return static
      */
-    public static function build(Table $table, string $columnName)
+    public static function build(Table $table, string $columnName): static
     {
         $column = new Column();
         $column->setName($columnName);

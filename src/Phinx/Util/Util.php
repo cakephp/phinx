@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -236,7 +237,7 @@ class Util
      * @throws \Exception
      * @return string
      */
-    public static function loadPhpFile(string $filename, ?InputInterface $input = null, ?OutputInterface $output = null, $context = null): string
+    public static function loadPhpFile(string $filename, ?InputInterface $input = null, ?OutputInterface $output = null, mixed $context = null): string
     {
         $filePath = realpath($filename);
         if (!file_exists($filePath)) {
@@ -268,7 +269,7 @@ class Util
      * @param string|string[] $paths Path or array of paths to get .php files.
      * @return string[]
      */
-    public static function getFiles($paths): array
+    public static function getFiles(string|array $paths): array
     {
         $files = static::globAll(array_map(function ($path) {
             return $path . DIRECTORY_SEPARATOR . '*.php';

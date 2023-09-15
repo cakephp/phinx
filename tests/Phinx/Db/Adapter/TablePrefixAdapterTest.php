@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Db\Adapter;
 
@@ -15,9 +16,10 @@ use Phinx\Db\Action\RemoveColumn;
 use Phinx\Db\Action\RenameColumn;
 use Phinx\Db\Action\RenameTable;
 use Phinx\Db\Adapter\TablePrefixAdapter;
+use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
-use Phinx\Db\Table\Table;
+use Phinx\Db\Table\Table as TableValue;
 use PHPUnit\Framework\TestCase;
 
 class TablePrefixAdapterTest extends TestCase
@@ -93,7 +95,7 @@ class TablePrefixAdapterTest extends TestCase
 
     public function testCreateTable()
     {
-        $table = new Table('table');
+        $table = new TableValue('table');
 
         $this->mock
             ->expects($this->once())
@@ -109,10 +111,10 @@ class TablePrefixAdapterTest extends TestCase
 
     public function testChangePrimaryKey()
     {
-        $table = new Table('table');
+        $table = new TableValue('table');
         $newColumns = 'column1';
 
-        $expectedTable = new Table('pre_table_suf');
+        $expectedTable = new TableValue('pre_table_suf');
         $this->mock
             ->expects($this->once())
             ->method('changePrimaryKey')
@@ -126,10 +128,10 @@ class TablePrefixAdapterTest extends TestCase
 
     public function testChangeComment()
     {
-        $table = new Table('table');
+        $table = new TableValue('table');
         $newComment = 'comment';
 
-        $expectedTable = new Table('pre_table_suf');
+        $expectedTable = new TableValue('pre_table_suf');
         $this->mock
             ->expects($this->once())
             ->method('changeComment')
@@ -189,7 +191,7 @@ class TablePrefixAdapterTest extends TestCase
 
     public function testAddColumn()
     {
-        $table = new Table('table');
+        $table = new TableValue('table');
         $column = new Column();
 
         $this->mock
@@ -327,7 +329,7 @@ class TablePrefixAdapterTest extends TestCase
 
     public function testAddForeignKey()
     {
-        $table = new Table('table');
+        $table = new TableValue('table');
         $foreignKey = new ForeignKey();
 
         $this->mock
@@ -374,20 +376,20 @@ class TablePrefixAdapterTest extends TestCase
                 $this->equalTo($row)
             ));
 
-        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table = new Table('table', [], $this->adapter);
         $table->insert($row)
               ->save();
     }
 
     public function actionsProvider()
     {
-        $table = new Table('my_test');
+        $table = new TableValue('my_test');
 
         return [
-            [AddColumn::build($table, 'acolumn')],
+            [AddColumn::build($table, 'acolumn', 'int')],
             [AddIndex::build($table, ['acolumn'])],
             [AddForeignKey::build($table, ['acolumn'], 'another_table'), true],
-            [ChangeColumn::build($table, 'acolumn')],
+            [ChangeColumn::build($table, 'acolumn', 'int')],
             [DropForeignKey::build($table, ['acolumn'])],
             [DropIndex::build($table, ['acolumn'])],
             [new DropTable($table)],
@@ -426,7 +428,7 @@ class TablePrefixAdapterTest extends TestCase
                 }
             }));
 
-        $table = new Table('my_test');
+        $table = new TableValue('my_test');
         $this->adapter->executeActions($table, [$action]);
     }
 }

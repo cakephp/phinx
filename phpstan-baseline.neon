@@ -15,13 +15,3 @@ parameters:
 			count: 2
 			path: src/Phinx/Db/Adapter/SqlServerAdapter.php
 
-		-
-			message: "#^Property Phinx\\\\Migration\\\\Manager\\\\Environment\\:\\:\\$adapter \\(Phinx\\\\Db\\\\Adapter\\\\AdapterInterface\\) in isset\\(\\) is not nullable\\.$#"
-			count: 1
-			path: src/Phinx/Migration/Manager/Environment.php
-
-		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
-			count: 1
-			path: src/Phinx/Migration/Manager/Environment.php
-

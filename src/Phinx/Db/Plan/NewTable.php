@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -21,21 +22,21 @@ class NewTable
      *
      * @var \Phinx\Db\Table\Table
      */
-    protected $table;
+    protected Table $table;
 
     /**
      * The list of columns to add
      *
      * @var \Phinx\Db\Table\Column[]
      */
-    protected $columns = [];
+    protected array $columns = [];
 
     /**
      * The list of indexes to create
      *
      * @var \Phinx\Db\Table\Index[]
      */
-    protected $indexes = [];
+    protected array $indexes = [];
 
     /**
      * Constructor

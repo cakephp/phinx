@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -39,42 +40,42 @@ class Plan
      *
      * @var \Phinx\Db\Plan\NewTable[]
      */
-    protected $tableCreates = [];
+    protected array $tableCreates = [];
 
     /**
      * List of table updates
      *
      * @var \Phinx\Db\Plan\AlterTable[]
      */
-    protected $tableUpdates = [];
+    protected array $tableUpdates = [];
 
     /**
      * List of table removals or renames
      *
      * @var \Phinx\Db\Plan\AlterTable[]
      */
-    protected $tableMoves = [];
+    protected array $tableMoves = [];
 
     /**
      * List of index additions or removals
      *
      * @var \Phinx\Db\Plan\AlterTable[]
      */
-    protected $indexes = [];
+    protected array $indexes = [];
 
     /**
      * List of constraint additions or removals
      *
      * @var \Phinx\Db\Plan\AlterTable[]
      */
-    protected $constraints = [];
+    protected array $constraints = [];
 
     /**
      * List of dropped columns
      *
      * @var \Phinx\Db\Plan\AlterTable[]
      */
-    protected $columnRemoves = [];
+    protected array $columnRemoves = [];
 
     /**
      * Constructor

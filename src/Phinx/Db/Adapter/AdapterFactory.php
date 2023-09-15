@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -13,22 +14,20 @@ use RuntimeException;
  * Adapter factory and registry.
  *
  * Used for registering adapters and creating instances of adapters.
- *
- * @author Woody Gilk <woody.gilk@gmail.com>
  */
 class AdapterFactory
 {
     /**
-     * @var \Phinx\Db\Adapter\AdapterFactory|null
+     * @var static|null
      */
-    protected static $instance;
+    protected static ?AdapterFactory $instance = null;
 
     /**
      * Get the factory singleton instance.
      *
-     * @return \Phinx\Db\Adapter\AdapterFactory
+     * @return static
      */
-    public static function instance()
+    public static function instance(): static
     {
         if (!static::$instance) {
             static::$instance = new static();
@@ -43,7 +42,7 @@ class AdapterFactory
      * @var array<string, \Phinx\Db\Adapter\AdapterInterface|string>
      * @phpstan-var array<string, \Phinx\Db\Adapter\AdapterInterface|class-string<\Phinx\Db\Adapter\AdapterInterface>>
      */
-    protected $adapters = [
+    protected array $adapters = [
         'mysql' => 'Phinx\Db\Adapter\MysqlAdapter',
         'pgsql' => 'Phinx\Db\Adapter\PostgresAdapter',
         'sqlite' => 'Phinx\Db\Adapter\SQLiteAdapter',
@@ -55,7 +54,7 @@ class AdapterFactory
      *
      * @var array<string, \Phinx\Db\Adapter\WrapperInterface|string>
      */
-    protected $wrappers = [
+    protected array $wrappers = [
         'prefix' => 'Phinx\Db\Adapter\TablePrefixAdapter',
         'proxy' => 'Phinx\Db\Adapter\ProxyAdapter',
         'timed' => 'Phinx\Db\Adapter\TimedOutputAdapter',
@@ -69,7 +68,7 @@ class AdapterFactory
      * @throws \RuntimeException
      * @return $this
      */
-    public function registerAdapter(string $name, $class)
+    public function registerAdapter(string $name, object|string $class)
     {
         if (!is_subclass_of($class, 'Phinx\Db\Adapter\AdapterInterface')) {
             throw new RuntimeException(sprintf(
@@ -90,7 +89,7 @@ class AdapterFactory
      * @return object|string
      * @phpstan-return object|class-string<\Phinx\Db\Adapter\AdapterInterface>
      */
-    protected function getClass(string $name)
+    protected function getClass(string $name): object|string
     {
         if (empty($this->adapters[$name])) {
             throw new RuntimeException(sprintf(
@@ -124,7 +123,7 @@ class AdapterFactory
      * @throws \RuntimeException
      * @return $this
      */
-    public function registerWrapper(string $name, $class)
+    public function registerWrapper(string $name, object|string $class)
     {
         if (!is_subclass_of($class, 'Phinx\Db\Adapter\WrapperInterface')) {
             throw new RuntimeException(sprintf(
@@ -144,7 +143,7 @@ class AdapterFactory
      * @throws \RuntimeException
      * @return \Phinx\Db\Adapter\WrapperInterface|string
      */
-    protected function getWrapperClass(string $name)
+    protected function getWrapperClass(string $name): WrapperInterface|string
     {
         if (empty($this->wrappers[$name])) {
             throw new RuntimeException(sprintf(

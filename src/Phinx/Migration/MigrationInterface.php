@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -15,8 +16,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Migration interface
- *
- * @author Rob Morgan <robbym@gmail.com>
  */
 interface MigrationInterface
 {
@@ -151,7 +150,7 @@ interface MigrationInterface
      * @param array $params parameters to use for prepared query
      * @return mixed
      */
-    public function query(string $sql, array $params = []);
+    public function query(string $sql, array $params = []): mixed;
 
     /**
      * Returns a new Query object that can be used to build complex SELECT, UPDATE, INSERT or DELETE
@@ -172,7 +171,7 @@ interface MigrationInterface
      * @param string $sql SQL
      * @return array|false
      */
-    public function fetchRow(string $sql);
+    public function fetchRow(string $sql): array|false;
 
     /**
      * Executes a query and returns an array of rows.

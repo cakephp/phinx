@@ -1,9 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Db\Adapter;
 
 use PDO;
 use PDOException;
+use Phinx\Config\Config;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -122,10 +124,10 @@ class PdoAdapterTest extends TestCase
     {
         return [
             'With Creation Time Version Order' => [
-                \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME, 'version ASC',
+                Config::VERSION_ORDER_CREATION_TIME, 'version ASC',
             ],
             'With Execution Time Version Order' => [
-                \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME, 'start_time ASC, version ASC',
+                Config::VERSION_ORDER_EXECUTION_TIME, 'start_time ASC, version ASC',
             ],
         ];
     }
@@ -147,7 +149,7 @@ class PdoAdapterTest extends TestCase
     {
         $adapter = $this->getMockForAbstractClass(
             '\Phinx\Db\Adapter\PdoAdapter',
-            [['version_order' => \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME]],
+            [['version_order' => Config::VERSION_ORDER_CREATION_TIME]],
             '',
             true,
             true,

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -16,12 +17,12 @@ class AlterInstructions
     /**
      * @var string[] The SQL snippets to be added to an ALTER instruction
      */
-    protected $alterParts = [];
+    protected array $alterParts = [];
 
     /**
      * @var (string|callable)[] The SQL commands to be executed after the ALTER instruction
      */
-    protected $postSteps = [];
+    protected array $postSteps = [];
 
     /**
      * Constructor
@@ -57,7 +58,7 @@ class AlterInstructions
      * @param string|callable $sql The SQL to run after, or a callable to execute
      * @return void
      */
-    public function addPostStep($sql): void
+    public function addPostStep(string|callable $sql): void
     {
         $this->postSteps[] = $sql;
     }
