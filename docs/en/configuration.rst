@@ -493,7 +493,7 @@ When rolling back or printing the status of migrations, Phinx orders the execute
 Bootstrap Path
 ---------------
 
-You can provide a path to a `bootstrap` php file that will included before any commands phinx commands are run. Note that
+You can provide a path to a `bootstrap` php file that will be included before any phinx commands are run. Note that
 setting External Variables to modify the config will not work because the config has already been parsed by this point.
 
 .. code-block:: yaml
