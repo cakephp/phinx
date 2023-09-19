@@ -270,6 +270,39 @@ class SQLiteAdapter extends PdoAdapter
     }
 
     /**
+     * Generates a regular expression to match identifiers that may or
+     * may not be quoted with any of the supported quotes.
+     *
+     * @param string $identifier The identifier to match.
+     * @param bool $spacedNoQuotes Whether the non-quoted identifier requires to be surrounded by whitespace.
+     * @return string
+     */
+    protected function possiblyQuotedIdentifierRegex(string $identifier, bool $spacedNoQuotes = true): string
+    {
+        $identifiers = [];
+        $identifier = preg_quote($identifier, '/');
+
+        $hasTick = str_contains($identifier, '`');
+        $hasDoubleQuote = str_contains($identifier, '"');
+        $hasSingleQuote = str_contains($identifier, "'");
+
+        $identifiers[] = '\[' . $identifier . '\]';
+        $identifiers[] = '`' . ($hasTick ? str_replace('`', '``', $identifier) : $identifier) . '`';
+        $identifiers[] = '"' . ($hasDoubleQuote ? str_replace('"', '""', $identifier) : $identifier) . '"';
+        $identifiers[] = "'" . ($hasSingleQuote ? str_replace("'", "''", $identifier) : $identifier) . "'";
+
+        if (!$hasTick && !$hasDoubleQuote && !$hasSingleQuote) {
+            if ($spacedNoQuotes) {
+                $identifiers[] = "\s+$identifier\s+";
+            } else {
+                $identifiers[] = $identifier;
+            }
+        }
+
+        return '(' . implode('|', $identifiers) . ')';
+    }
+
+    /**
      * @param string $tableName Table name
      * @param bool $quoted Whether to return the schema name and table name escaped and quoted. If quoted, the schema (if any) will also be appended with a dot
      * @return array
@@ -756,11 +789,11 @@ PCRE_PATTERN;
         $columnsInfo = $this->getTableInfo($tableName);
 
         foreach ($columnsInfo as $column) {
-            $columnName = $column['name'];
+            $columnName = preg_quote($column['name'], '#');
             $columnNamePattern = "\"$columnName\"|`$columnName`|\\[$columnName\\]|$columnName";
             $columnNamePattern = "#([\(,]+\\s*)($columnNamePattern)(\\s)#iU";
 
-            $sql = preg_replace($columnNamePattern, "$1`$columnName`$3", $sql);
+            $sql = preg_replace($columnNamePattern, "$1`{$column['name']}`$3", $sql);
         }
 
         $tableNamePattern = "\"$tableName\"|`$tableName`|\\[$tableName\\]|$tableName";
@@ -1488,21 +1521,17 @@ PCRE_PATTERN;
     {
         if ($constraint !== null) {
             return preg_match(
-                "/,?\sCONSTRAINT\s" . preg_quote($this->quoteColumnName($constraint)) . ' FOREIGN KEY/',
+                "/,?\s*CONSTRAINT\s*" . $this->possiblyQuotedIdentifierRegex($constraint) . '\s*FOREIGN\s+KEY/is',
                 $this->getDeclaringSql($tableName)
             ) === 1;
         }
 
-        $columns = array_map('strtolower', (array)$columns);
-        $foreignKeys = $this->getForeignKeys($tableName);
+        $columns = array_map('mb_strtolower', (array)$columns);
 
-        foreach ($foreignKeys as $key) {
-            $key = array_map('strtolower', $key);
-            if (array_diff($key, $columns) || array_diff($columns, $key)) {
-                continue;
+        foreach ($this->getForeignKeys($tableName) as $key) {
+            if (array_map('mb_strtolower', $key) === $columns) {
+                return true;
             }
-
-            return true;
         }
 
         return false;
@@ -1670,18 +1699,27 @@ PCRE_PATTERN;
      */
     protected function getDropForeignKeyByColumnsInstructions(string $tableName, array $columns): AlterInstructions
     {
+        if (!$this->hasForeignKey($tableName, $columns)) {
+            throw new InvalidArgumentException(sprintf(
+                'No foreign key on column(s) `%s` exists',
+                implode(', ', $columns)
+            ));
+        }
+
         $instructions = $this->beginAlterByCopyTable($tableName);
 
         $instructions->addPostStep(function ($state) use ($columns) {
-            $sql = '';
-
-            foreach ($columns as $columnName) {
-                $search = sprintf(
-                    "/,[^,]*\(%s(?:,`?(.*)`?)?\) REFERENCES[^,]*\([^\)]*\)[^,)]*/",
-                    $this->quoteColumnName($columnName)
-                );
-                $sql = preg_replace($search, '', $state['createSQL'], 1);
-            }
+            $search = sprintf(
+                "/,[^,]+?\(\s*%s\s*\)\s*REFERENCES[^,]*\([^\)]*\)[^,)]*/is",
+                implode(
+                    '\s*,\s*',
+                    array_map(
+                        fn ($column) => $this->possiblyQuotedIdentifierRegex($column, false),
+                        $columns
+                    )
+                ),
+            );
+            $sql = preg_replace($search, '', $state['createSQL']);
 
             if ($sql) {
                 $this->execute($sql);
@@ -1690,18 +1728,8 @@ PCRE_PATTERN;
             return $state;
         });
 
-        $instructions->addPostStep(function ($state) use ($columns) {
-            $newState = $this->calculateNewTableColumns($state['tmpTableName'], $columns[0], $columns[0]);
-
-            $selectColumns = $newState['selectColumns'];
-            $columns = array_map([$this, 'quoteColumnName'], $columns);
-            $diff = array_diff($columns, $selectColumns);
-
-            if (!empty($diff)) {
-                throw new InvalidArgumentException(sprintf(
-                    'The specified columns don\'t exist: ' . implode(', ', $diff)
-                ));
-            }
+        $instructions->addPostStep(function ($state) {
+            $newState = $this->calculateNewTableColumns($state['tmpTableName'], false, false);
 
             return $newState + $state;
         });

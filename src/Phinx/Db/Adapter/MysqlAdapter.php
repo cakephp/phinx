@@ -815,9 +815,6 @@ class MysqlAdapter extends PdoAdapter
      */
     public function hasForeignKey(string $tableName, $columns, ?string $constraint = null): bool
     {
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
         $foreignKeys = $this->getForeignKeys($tableName);
         if ($constraint) {
             if (isset($foreignKeys[$constraint])) {
@@ -827,8 +824,10 @@ class MysqlAdapter extends PdoAdapter
             return false;
         }
 
+        $columns = array_map('mb_strtolower', (array)$columns);
+
         foreach ($foreignKeys as $key) {
-            if ($columns == $key['columns']) {
+            if (array_map('mb_strtolower', $key['columns']) === $columns) {
                 return true;
             }
         }
@@ -909,30 +908,27 @@ class MysqlAdapter extends PdoAdapter
     {
         $instructions = new AlterInstructions();
 
-        foreach ($columns as $column) {
-            $rows = $this->fetchAll(sprintf(
-                "SELECT
-                    CONSTRAINT_NAME
-                  FROM information_schema.KEY_COLUMN_USAGE
-                  WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
-                    AND REFERENCED_TABLE_NAME IS NOT NULL
-                    AND TABLE_NAME = '%s'
-                    AND COLUMN_NAME = '%s'
-                  ORDER BY POSITION_IN_UNIQUE_CONSTRAINT",
-                $tableName,
-                $column
-            ));
+        $columns = array_map('mb_strtolower', $columns);
 
-            foreach ($rows as $row) {
-                $instructions->merge($this->getDropForeignKeyInstructions($tableName, $row['CONSTRAINT_NAME']));
+        $matches = [];
+        $foreignKeys = $this->getForeignKeys($tableName);
+        foreach ($foreignKeys as $name => $key) {
+            if (array_map('mb_strtolower', $key['columns']) === $columns) {
+                $matches[] = $name;
             }
         }
 
-        if (empty($instructions->getAlterParts())) {
+        if (empty($matches)) {
             throw new InvalidArgumentException(sprintf(
-                "No foreign key on column(s) '%s' exists",
-                implode(',', $columns)
+                'No foreign key on column(s) `%s` exists',
+                implode(', ', $columns)
             ));
+        }
+
+        foreach ($matches as $name) {
+            $instructions->merge(
+                $this->getDropForeignKeyInstructions($tableName, $name)
+            );
         }
 
         return $instructions;
