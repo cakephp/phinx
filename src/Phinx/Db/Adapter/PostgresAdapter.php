@@ -62,6 +62,17 @@ class PostgresAdapter extends PdoAdapter
 
     /**
      * {@inheritDoc}
+     */
+    public function setConnection(PDO $connection): AdapterInterface
+    {
+        // always set here since connect() isn't always called
+        $this->useIdentity = (float)$connection->getAttribute(PDO::ATTR_SERVER_VERSION) >= 10;
+
+        return parent::setConnection($connection);
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
@@ -114,8 +125,6 @@ class PostgresAdapter extends PdoAdapter
                     $exception
                 );
             }
-
-            $this->useIdentity = (float)$db->getAttribute(PDO::ATTR_SERVER_VERSION) >= 10;
 
             $this->setConnection($db);
         }
