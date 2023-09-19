@@ -1382,7 +1382,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testDropForeignKeyWithQuoteVariants()
     {
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable->addColumn('field1', 'string')
             ->addIndex(['field1'], ['unique' => true])
             ->save();
@@ -1441,7 +1441,7 @@ class SQLiteAdapterTest extends TestCase
 
     public function testDropForeignKeyWithMultipleColumns()
     {
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable
             ->addColumn('field1', 'string')
             ->addColumn('field2', 'string')
@@ -1450,7 +1450,7 @@ class SQLiteAdapterTest extends TestCase
             ->addIndex(['id', 'field1', 'field2'], ['unique' => true])
             ->save();
 
-        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table = new Table('table', [], $this->adapter);
         $table
             ->addColumn('ref_table_id', 'integer')
             ->addColumn('ref_table_field1', 'string')
@@ -1491,13 +1491,13 @@ class SQLiteAdapterTest extends TestCase
 
     public function testDropForeignKeyWithIdenticalMultipleColumns()
     {
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable
             ->addColumn('field1', 'string')
             ->addIndex(['id', 'field1'], ['unique' => true])
             ->save();
 
-        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table = new Table('table', [], $this->adapter);
         $table
             ->addColumn('ref_table_id', 'integer', ['signed' => false])
             ->addColumn('ref_table_field1', 'string')
@@ -1542,13 +1542,13 @@ class SQLiteAdapterTest extends TestCase
      */
     public function testDropForeignKeyByNonExistentKeyColumns(array $columns)
     {
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable
             ->addColumn('field1', 'string')
             ->addIndex(['id', 'field1'], ['unique' => true])
             ->save();
 
-        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table = new Table('table', [], $this->adapter);
         $table
             ->addColumn('ref_table_id', 'integer')
             ->addColumn('ref_table_field1', 'string')
@@ -1588,10 +1588,10 @@ class SQLiteAdapterTest extends TestCase
         $this->expectExceptionMessage('SQLite does not have named foreign keys');
         $this->expectException(BadMethodCallException::class);
 
-        $refTable = new \Phinx\Db\Table('ref_table', [], $this->adapter);
+        $refTable = new Table('ref_table', [], $this->adapter);
         $refTable->save();
 
-        $table = new \Phinx\Db\Table('table', [], $this->adapter);
+        $table = new Table('table', [], $this->adapter);
         $table
             ->addColumn('ref_table_id', 'integer', ['signed' => false])
             ->addForeignKeyWithName('my_constraint', ['ref_table_id'], 'ref_table', ['id'])
