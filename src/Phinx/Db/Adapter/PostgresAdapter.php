@@ -115,8 +115,6 @@ class PostgresAdapter extends PdoAdapter
                 );
             }
 
-            $this->useIdentity = (float)$db->getAttribute(PDO::ATTR_SERVER_VERSION) >= 10;
-
             $this->setConnection($db);
         }
     }

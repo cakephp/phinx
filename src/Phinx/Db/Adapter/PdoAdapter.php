@@ -134,6 +134,9 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     {
         $this->connection = $connection;
 
+        // always set here since connect() isn't always called
+        $this->useIdentity = (float)$connection->getAttribute(PDO::ATTR_SERVER_VERSION) >= 10;
+
         // Create the schema table if it doesn't already exist
         if (!$this->hasTable($this->getSchemaTableName())) {
             $this->createSchemaTable();
