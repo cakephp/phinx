@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Console\Command;
 
@@ -234,7 +235,7 @@ class StatusTest extends TestCase
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, null)
                     ->will($this->returnValue(['hasMissingMigration' => false, 'hasDownMigration' => false]));
 
-        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $this->config['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -267,7 +268,7 @@ class StatusTest extends TestCase
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, null)
                     ->will($this->returnValue(['hasMissingMigration' => true, 'hasDownMigration' => false]));
 
-        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $this->config['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -296,7 +297,7 @@ class StatusTest extends TestCase
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, null)
                     ->will($this->returnValue(['hasMissingMigration' => false, 'hasDownMigration' => true]));
 
-        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $this->config['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
@@ -325,7 +326,7 @@ class StatusTest extends TestCase
                     ->with(self::DEFAULT_TEST_ENVIRONMENT, null)
                     ->will($this->returnValue(['hasMissingMigration' => true, 'hasDownMigration' => true]));
 
-        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $this->config['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -42,7 +43,7 @@ interface DirectActionInterface
      * @param string|string[]|null $newColumns Column name(s) to belong to the primary key, or null to drop the key
      * @return void
      */
-    public function changePrimaryKey(Table $table, $newColumns): void;
+    public function changePrimaryKey(Table $table, string|array|null $newColumns): void;
 
     /**
      * Changes the comment of the specified database table.
@@ -107,7 +108,7 @@ interface DirectActionInterface
      * @param string|string[] $columns Column(s)
      * @return void
      */
-    public function dropIndex(string $tableName, $columns): void;
+    public function dropIndex(string $tableName, string|array $columns): void;
 
     /**
      * Drops the index specified by name from a database table.

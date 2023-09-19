@@ -12,9 +12,6 @@ use Psr\Container\ContainerInterface;
 
 /**
  * Phinx configuration interface.
- *
- * @package Phinx
- * @author Woody Gilk
  */
 interface ConfigInterface extends ArrayAccess
 {
@@ -95,14 +92,14 @@ interface ConfigInterface extends ArrayAccess
      *
      * @return string|false
      */
-    public function getTemplateFile();
+    public function getTemplateFile(): string|false;
 
     /**
      * Get the template class name.
      *
      * @return string|false
      */
-    public function getTemplateClass();
+    public function getTemplateClass(): string|false;
 
     /**
      * Get the template style to use, either change or up_down.
@@ -144,7 +141,7 @@ interface ConfigInterface extends ArrayAccess
      *
      * @return string|false
      */
-    public function getBootstrapFile();
+    public function getBootstrapFile(): string|false;
 
     /**
      * Gets the base class name for migrations.

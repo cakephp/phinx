@@ -12,15 +12,13 @@ use InvalidArgumentException;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Util\Util;
 use Psr\Container\ContainerInterface;
+use ReturnTypeWillChange;
 use RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 use UnexpectedValueException;
 
 /**
  * Phinx configuration class.
- *
- * @package Phinx
- * @author Rob Morgan
  */
 class Config implements ConfigInterface, NamespaceAwareInterface
 {
@@ -42,12 +40,12 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * @var array
      */
-    protected $values = [];
+    protected array $values = [];
 
     /**
      * @var string|null
      */
-    protected $configFilePath;
+    protected ?string $configFilePath = null;
 
     /**
      * @param array $configArray Config array
@@ -328,7 +326,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * @inheritdoc
      */
-    public function getTemplateFile()
+    public function getTemplateFile(): string|false
     {
         if (!isset($this->values['templates']['file'])) {
             return false;
@@ -340,7 +338,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * @inheritdoc
      */
-    public function getTemplateClass()
+    public function getTemplateClass(): string|false
     {
         if (!isset($this->values['templates']['class'])) {
             return false;
@@ -410,7 +408,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
     /**
      * @inheritdoc
      */
-    public function getBootstrapFile()
+    public function getBootstrapFile(): string|false
     {
         if (!isset($this->values['paths']['bootstrap'])) {
             return false;
@@ -511,7 +509,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
      * @throws \InvalidArgumentException
      * @return mixed
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function offsetGet($id)
     {
         if (!array_key_exists($id, $this->values)) {

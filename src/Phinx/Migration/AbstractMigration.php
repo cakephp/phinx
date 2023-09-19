@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -21,49 +22,47 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * This abstract class proxies the various database methods to your specified
  * adapter.
- *
- * @author Rob Morgan <robbym@gmail.com>
  */
 abstract class AbstractMigration implements MigrationInterface
 {
     /**
      * @var string
      */
-    protected $environment;
+    protected string $environment;
 
     /**
      * @var int
      */
-    protected $version;
+    protected int $version;
 
     /**
      * @var \Phinx\Db\Adapter\AdapterInterface|null
      */
-    protected $adapter;
+    protected ?AdapterInterface $adapter = null;
 
     /**
      * @var \Symfony\Component\Console\Output\OutputInterface|null
      */
-    protected $output;
+    protected ?OutputInterface $output = null;
 
     /**
      * @var \Symfony\Component\Console\Input\InputInterface|null
      */
-    protected $input;
+    protected ?InputInterface $input = null;
 
     /**
      * Whether this migration is being applied or reverted
      *
      * @var bool
      */
-    protected $isMigratingUp = true;
+    protected bool $isMigratingUp = true;
 
     /**
      * List of all the table objects created by this migration
      *
      * @var array<\Phinx\Db\Table>
      */
-    protected $tables = [];
+    protected array $tables = [];
 
     /**
      * @param string $environment Environment Detected
@@ -202,7 +201,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
-    public function query(string $sql, array $params = [])
+    public function query(string $sql, array $params = []): mixed
     {
         return $this->getAdapter()->query($sql, $params);
     }
@@ -218,7 +217,7 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
-    public function fetchRow(string $sql)
+    public function fetchRow(string $sql): array|false
     {
         return $this->getAdapter()->fetchRow($sql);
     }

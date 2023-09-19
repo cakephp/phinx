@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -23,7 +24,7 @@ class ActionSplitter
      *
      * @var string
      */
-    protected $conflictClass;
+    protected string $conflictClass;
 
     /**
      * The fully qualified class name of the Action class to match for conflicts, which
@@ -31,7 +32,7 @@ class ActionSplitter
      *
      * @var string
      */
-    protected $conflictClassDual;
+    protected string $conflictClassDual;
 
     /**
      * A callback used to signal the actual presence of a conflict, that will be used to

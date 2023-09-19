@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -14,19 +15,19 @@ class Table
     /**
      * @var string
      */
-    protected $name;
+    protected string $name;
 
     /**
      * @var array<string, mixed>
      */
-    protected $options;
+    protected array $options;
 
     /**
      * @param string $name The table name
      * @param array<string, mixed> $options The creation options for this table
      * @throws \InvalidArgumentException
      */
-    public function __construct($name, array $options = [])
+    public function __construct(string $name, array $options = [])
     {
         if (empty($name)) {
             throw new InvalidArgumentException('Cannot use an empty table name');

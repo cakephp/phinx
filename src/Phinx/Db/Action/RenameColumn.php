@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -17,14 +18,14 @@ class RenameColumn extends Action
      *
      * @var \Phinx\Db\Table\Column
      */
-    protected $column;
+    protected Column $column;
 
     /**
      * The new name for the column
      *
      * @var string
      */
-    protected $newName;
+    protected string $newName;
 
     /**
      * Constructor
@@ -49,7 +50,7 @@ class RenameColumn extends Action
      * @param string $newName The new name for the column
      * @return static
      */
-    public static function build(Table $table, string $columnName, string $newName)
+    public static function build(Table $table, string $columnName, string $newName): static
     {
         $column = new Column();
         $column->setName($columnName);

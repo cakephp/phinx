@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Console\Command;
 
@@ -175,11 +176,11 @@ class RollbackTest extends TestCase
 
     public function testStartTimeVersionOrder()
     {
-        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application = new PhinxApplication('testing');
         $application->add(new Rollback());
 
         // setup dependencies
-        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $this->config['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
 
         $command = $application->find('rollback');
 
@@ -203,7 +204,7 @@ class RollbackTest extends TestCase
 
     public function testWithDate()
     {
-        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application = new PhinxApplication('testing');
 
         $date = '20160101';
         $target = '20160101000000';
@@ -286,11 +287,11 @@ class RollbackTest extends TestCase
 
     public function testStarTimeVersionOrderWithDate()
     {
-        $application = new \Phinx\Console\PhinxApplication('testing');
+        $application = new PhinxApplication('testing');
         $application->add(new Rollback());
 
         // setup dependencies
-        $this->config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $this->config['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
 
         $command = $application->find('rollback');
 

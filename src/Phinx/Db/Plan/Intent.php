@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -19,7 +20,7 @@ class Intent
      *
      * @var \Phinx\Db\Action\Action[]
      */
-    protected $actions = [];
+    protected array $actions = [];
 
     /**
      * Adds a new action to the collection

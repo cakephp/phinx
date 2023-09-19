@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -12,7 +13,7 @@ class Expression
     /**
      * @var string The expression
      */
-    protected $value;
+    protected string $value;
 
     /**
      * @param string $value The expression

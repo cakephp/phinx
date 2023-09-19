@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -9,8 +10,6 @@ namespace Phinx\Db\Adapter;
 
 /**
  * Wrapper Interface.
- *
- * @author Woody Gilk <woody.gilk@gmail.com>
  */
 interface WrapperInterface
 {

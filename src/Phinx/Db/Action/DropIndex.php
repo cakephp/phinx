@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -17,7 +18,7 @@ class DropIndex extends Action
      *
      * @var \Phinx\Db\Table\Index
      */
-    protected $index;
+    protected Index $index;
 
     /**
      * Constructor
@@ -39,7 +40,7 @@ class DropIndex extends Action
      * @param string[] $columns the indexed columns
      * @return static
      */
-    public static function build(Table $table, array $columns = [])
+    public static function build(Table $table, array $columns = []): static
     {
         $index = new Index();
         $index->setColumns($columns);
@@ -55,7 +56,7 @@ class DropIndex extends Action
      * @param string $name The name of the index
      * @return static
      */
-    public static function buildFromName(Table $table, string $name)
+    public static function buildFromName(Table $table, string $name): static
     {
         $index = new Index();
         $index->setName($name);

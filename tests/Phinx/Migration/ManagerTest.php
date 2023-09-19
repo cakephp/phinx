@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Migration;
 
+use DateTime;
 use InvalidArgumentException;
 use Phinx\Config\Config;
 use Phinx\Console\Command\AbstractCommand;
@@ -1284,7 +1286,7 @@ class ManagerTest extends TestCase
                     ->will($this->returnValue($availableMigrations));
         }
         $this->manager->setEnvironments(['mockenv' => $envStub]);
-        $this->manager->migrateToDateTime('mockenv', new \DateTime($dateString));
+        $this->manager->migrateToDateTime('mockenv', new DateTime($dateString));
         rewind($this->manager->getOutput()->getStream());
         $output = stream_get_contents($this->manager->getOutput()->getStream());
         if (is_null($expectedMigration)) {
@@ -1514,7 +1516,7 @@ class ManagerTest extends TestCase
 
         // get a manager with a config whose version order is set to execution time
         $configArray = $this->getConfigArray();
-        $configArray['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $configArray['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
         $config = new Config($configArray);
         $this->input = new ArrayInput([]);
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -1557,7 +1559,7 @@ class ManagerTest extends TestCase
 
         // get a manager with a config whose version order is set to execution time
         $configArray = $this->getConfigArray();
-        $configArray['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $configArray['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
         $config = new Config($configArray);
         $this->input = new ArrayInput([]);
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -1600,7 +1602,7 @@ class ManagerTest extends TestCase
 
         // get a manager with a config whose version order is set to execution time
         $config = $this->getConfigWithNamespace();
-        $config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $config['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
         $this->input = new ArrayInput([]);
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
         $this->output->setDecorated(false);
@@ -1642,7 +1644,7 @@ class ManagerTest extends TestCase
 
         // get a manager with a config whose version order is set to execution time
         $configArray = $this->getConfigArray();
-        $configArray['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $configArray['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
         $config = new Config($configArray);
         $this->input = new ArrayInput([]);
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
@@ -1685,7 +1687,7 @@ class ManagerTest extends TestCase
 
         // get a manager with a config whose version order is set to execution time
         $config = $this->getConfigWithNamespace();
-        $config['version_order'] = \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME;
+        $config['version_order'] = Config::VERSION_ORDER_EXECUTION_TIME;
         $this->input = new ArrayInput([]);
         $this->output = new StreamOutput(fopen('php://memory', 'a', false));
         $this->output->setDecorated(false);
@@ -4809,7 +4811,7 @@ class ManagerTest extends TestCase
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 0],
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     '== 20120116183504 TestMigration2: reverted',
                 ],
 
@@ -4819,7 +4821,7 @@ class ManagerTest extends TestCase
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-10 18:35:04', 'breakpoint' => 0],
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     '== 20120111235330 TestMigration: reverted',
                 ],
 
@@ -4830,7 +4832,7 @@ class ManagerTest extends TestCase
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04', 'breakpoint' => 0],
                         '20130101225232' => ['version' => '20130101225232', 'start_time' => '2013-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     '== 20120116183504 TestMigration2: reverted',
                 ],
 
@@ -4841,7 +4843,7 @@ class ManagerTest extends TestCase
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 0],
                         '20130101225232' => ['version' => '20130101225232', 'start_time' => '2013-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     '== 20120111235330 TestMigration: reverted',
                 ],
 
@@ -4853,7 +4855,7 @@ class ManagerTest extends TestCase
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 0],
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -4863,7 +4865,7 @@ class ManagerTest extends TestCase
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 1],
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     '== 20120116183504 TestMigration2: reverted',
                 ],
 
@@ -4874,7 +4876,7 @@ class ManagerTest extends TestCase
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04', 'breakpoint' => 1],
                         '20130101225232' => ['version' => '20130101225232', 'start_time' => '2013-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -4885,7 +4887,7 @@ class ManagerTest extends TestCase
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 1],
                         '20130101225232' => ['version' => '20130101225232', 'start_time' => '2013-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -4896,7 +4898,7 @@ class ManagerTest extends TestCase
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04', 'breakpoint' => 0],
                         '20130101225232' => ['version' => '20130101225232', 'start_time' => '2013-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     '== 20120116183504 TestMigration2: reverted',
                 ],
 
@@ -4907,7 +4909,7 @@ class ManagerTest extends TestCase
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 0],
                         '20130101225232' => ['version' => '20130101225232', 'start_time' => '2013-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     '== 20120111235330 TestMigration: reverted',
                 ],
 
@@ -4919,7 +4921,7 @@ class ManagerTest extends TestCase
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 1],
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -4929,7 +4931,7 @@ class ManagerTest extends TestCase
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 1],
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -4940,7 +4942,7 @@ class ManagerTest extends TestCase
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2012-01-16 18:35:04', 'breakpoint' => 1],
                         '20130101225232' => ['version' => '20130101225232', 'start_time' => '2013-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -4951,7 +4953,7 @@ class ManagerTest extends TestCase
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2012-01-12 23:53:30', 'breakpoint' => 1],
                         '20130101225232' => ['version' => '20130101225232', 'start_time' => '2013-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
             ];
@@ -4974,7 +4976,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2016-01-12 23:53:30', 'breakpoint' => 0],
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2016-01-16 18:35:04', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     '== 20160116183504 Foo\Bar\TestMigration2: reverted',
                 ],
 
@@ -4984,7 +4986,7 @@ class ManagerTest extends TestCase
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2016-01-10 18:35:04', 'breakpoint' => 0],
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2016-01-12 23:53:30', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     '== 20160111235330 Foo\Bar\TestMigration: reverted',
                 ],
 
@@ -4995,7 +4997,7 @@ class ManagerTest extends TestCase
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2016-01-16 18:35:04', 'breakpoint' => 0],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     '== 20160116183504 Foo\Bar\TestMigration2: reverted',
                 ],
 
@@ -5006,7 +5008,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2016-01-12 23:53:30', 'breakpoint' => 0],
                         '20170101225232' => ['version' => '20130101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     '== 20160111235330 Foo\Bar\TestMigration: reverted',
                 ],
 
@@ -5018,7 +5020,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2016-01-12 23:53:30', 'breakpoint' => 0],
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2016-01-16 18:35:04', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -5028,7 +5030,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2016-01-12 23:53:30', 'breakpoint' => 1],
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2016-01-16 18:35:04', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     '== 20160116183504 Foo\Bar\TestMigration2: reverted',
                 ],
 
@@ -5039,7 +5041,7 @@ class ManagerTest extends TestCase
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2016-01-16 18:35:04', 'breakpoint' => 1],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -5050,7 +5052,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2016-01-12 23:53:30', 'breakpoint' => 1],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -5061,7 +5063,7 @@ class ManagerTest extends TestCase
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2016-01-16 18:35:04', 'breakpoint' => 0],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     '== 20160116183504 Foo\Bar\TestMigration2: reverted',
                 ],
 
@@ -5072,7 +5074,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2016-01-12 23:53:30', 'breakpoint' => 0],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     '== 20160111235330 Foo\Bar\TestMigration: reverted',
                 ],
 
@@ -5084,7 +5086,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2016-01-12 23:53:30', 'breakpoint' => 1],
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2016-01-16 18:35:04', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -5094,7 +5096,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2016-01-12 23:53:30', 'breakpoint' => 1],
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2016-01-16 18:35:04', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -5105,7 +5107,7 @@ class ManagerTest extends TestCase
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2016-01-16 18:35:04', 'breakpoint' => 1],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -5116,7 +5118,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2016-01-12 23:53:30', 'breakpoint' => 1],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
             ];
@@ -5143,7 +5145,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2017-01-01 00:00:04', 'breakpoint' => 0],
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2017-01-01 00:00:05', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     '== 20160116183504 Foo\Bar\TestMigration2: reverted',
                 ],
 
@@ -5157,7 +5159,7 @@ class ManagerTest extends TestCase
                         '20150111235330' => ['version' => '20150111235330', 'start_time' => '2017-01-01 00:00:06', 'breakpoint' => 0],
                         '20150116183504' => ['version' => '20150116183504', 'start_time' => '2017-01-01 00:00:07', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     '== 20150116183504 Baz\TestMigration2: reverted',
                 ],
 
@@ -5172,7 +5174,7 @@ class ManagerTest extends TestCase
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2017-01-01 00:00:05', 'breakpoint' => 0],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     '== 20160116183504 Foo\Bar\TestMigration2: reverted',
                 ],
 
@@ -5187,7 +5189,7 @@ class ManagerTest extends TestCase
                         '20120116183504' => ['version' => '20120116183504', 'start_time' => '2017-01-01 00:00:07', 'breakpoint' => 0],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     '== 20120116183504 TestMigration2: reverted',
                 ],
 
@@ -5203,7 +5205,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2017-01-01 00:00:04', 'breakpoint' => 0],
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2017-01-01 00:00:05', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -5217,7 +5219,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2017-01-01 00:00:04', 'breakpoint' => 1],
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2017-01-01 00:00:05', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     '== 20160116183504 Foo\Bar\TestMigration2: reverted',
                 ],
 
@@ -5232,7 +5234,7 @@ class ManagerTest extends TestCase
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2017-01-01 00:00:05', 'breakpoint' => 1],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -5247,7 +5249,7 @@ class ManagerTest extends TestCase
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2017-01-01 00:00:05', 'breakpoint' => 1],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 0],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -5262,7 +5264,7 @@ class ManagerTest extends TestCase
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2017-01-01 00:00:05', 'breakpoint' => 0],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     '== 20160116183504 Foo\Bar\TestMigration2: reverted',
                 ],
 
@@ -5277,7 +5279,7 @@ class ManagerTest extends TestCase
                         '20120111235330' => ['version' => '20120111235330', 'start_time' => '2017-01-01 00:00:06', 'breakpoint' => 0],
                         '20130101225232' => ['version' => '20130101225232', 'start_time' => '2013-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     '== 20120111235330 TestMigration: reverted',
                 ],
 
@@ -5293,7 +5295,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2017-01-01 00:00:04', 'breakpoint' => 1],
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2017-01-01 00:00:05', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -5307,7 +5309,7 @@ class ManagerTest extends TestCase
                         '20160111235330' => ['version' => '20160111235330', 'start_time' => '2017-01-01 00:00:04', 'breakpoint' => 1],
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2017-01-01 00:00:05', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -5322,7 +5324,7 @@ class ManagerTest extends TestCase
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2017-01-01 00:00:05', 'breakpoint' => 1],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_CREATION_TIME,
+                    Config::VERSION_ORDER_CREATION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
 
@@ -5337,7 +5339,7 @@ class ManagerTest extends TestCase
                         '20160116183504' => ['version' => '20160116183504', 'start_time' => '2017-01-01 00:00:05', 'breakpoint' => 1],
                         '20170101225232' => ['version' => '20170101225232', 'start_time' => '2017-01-01 22:52:32', 'breakpoint' => 1],
                     ],
-                    \Phinx\Config\Config::VERSION_ORDER_EXECUTION_TIME,
+                    Config::VERSION_ORDER_EXECUTION_TIME,
                     'Breakpoint reached. Further rollbacks inhibited.',
                 ],
             ];
@@ -6034,7 +6036,7 @@ class ManagerTest extends TestCase
         $adapter->disconnect();
 
         $this->manager->setConfig($config);
-        $this->manager->migrate('production', '20190928205056');
+        $this->manager->migrate('production', 20190928205056);
 
         $this->assertTrue($adapter->hasTable('table1'));
         $this->assertTrue($adapter->hasTable('table2'));
@@ -6097,7 +6099,7 @@ class ManagerTest extends TestCase
 
         $this->manager->setEnvironments(['mockenv' => $envStub]);
         $this->manager->getOutput()->setDecorated(false);
-        $return = $this->manager->setBreakpoint('mockenv', '20120133235330');
+        $this->manager->setBreakpoint('mockenv', 20120133235330);
 
         rewind($this->manager->getOutput()->getStream());
         $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
@@ -6123,12 +6125,12 @@ class ManagerTest extends TestCase
 
         // Run the migration with shouldExecute returning false: the table should not be created
         $this->manager->setConfig($config);
-        $this->manager->migrate('production', '20201207205056');
+        $this->manager->migrate('production', 20201207205056);
 
         $this->assertFalse($adapter->hasTable('info'));
 
         // Run the migration with shouldExecute returning true: the table should be created
-        $this->manager->migrate('production', '20201207205057');
+        $this->manager->migrate('production', 20201207205057);
 
         $this->assertTrue($adapter->hasTable('info'));
     }

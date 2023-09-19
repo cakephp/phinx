@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Migration;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class AbstractMigrationTest extends TestCase
 {
@@ -276,7 +278,7 @@ class AbstractMigrationTest extends TestCase
         $table = $migrationStub->table('test_table');
         $table->addColumn('column1', 'integer', ['null' => true]);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Migration has pending actions after execution!');
 
         $migrationStub->postFlightCheck();

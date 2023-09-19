@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -31,42 +32,42 @@ class Manager
     /**
      * @var \Phinx\Config\ConfigInterface
      */
-    protected $config;
+    protected ConfigInterface $config;
 
     /**
      * @var \Symfony\Component\Console\Input\InputInterface
      */
-    protected $input;
+    protected InputInterface $input;
 
     /**
      * @var \Symfony\Component\Console\Output\OutputInterface
      */
-    protected $output;
+    protected OutputInterface $output;
 
     /**
      * @var \Phinx\Migration\Manager\Environment[]
      */
-    protected $environments = [];
+    protected array $environments = [];
 
     /**
      * @var \Phinx\Migration\MigrationInterface[]|null
      */
-    protected $migrations;
+    protected ?array $migrations = null;
 
     /**
      * @var \Phinx\Seed\SeedInterface[]|null
      */
-    protected $seeds;
+    protected ?array $seeds = null;
 
     /**
      * @var \Psr\Container\ContainerInterface
      */
-    protected $container;
+    protected ContainerInterface $container;
 
     /**
      * @var int
      */
-    private $verbosityLevel = OutputInterface::OUTPUT_NORMAL | OutputInterface::VERBOSITY_NORMAL;
+    private int $verbosityLevel = OutputInterface::OUTPUT_NORMAL | OutputInterface::VERBOSITY_NORMAL;
 
     /**
      * @param \Phinx\Config\ConfigInterface $config Configuration Object
@@ -489,7 +490,7 @@ class Manager
      * @param bool $fake Flag that if true, we just record running the migration, but not actually do the migration
      * @return void
      */
-    public function rollback(string $environment, $target = null, bool $force = false, bool $targetMustMatchVersion = true, bool $fake = false): void
+    public function rollback(string $environment, int|string|null $target = null, bool $force = false, bool $targetMustMatchVersion = true, bool $fake = false): void
     {
         // note that the migrations are indexed by name (aka creation time) in ascending order
         $migrations = $this->getMigrations($environment);
@@ -952,7 +953,7 @@ class Manager
 
                     // instantiate it
                     /** @var \Phinx\Seed\AbstractSeed $seed */
-                    if ($this->container !== null) {
+                    if (isset($this->container)) {
                         $seed = $this->container->get($class);
                     } else {
                         $seed = new $class();

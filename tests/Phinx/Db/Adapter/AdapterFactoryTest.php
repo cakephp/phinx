@@ -1,9 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Db\Adapter;
 
 use Phinx\Db\Adapter\AdapterFactory;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 use RuntimeException;
 
 class AdapterFactoryTest extends TestCase
@@ -32,7 +34,7 @@ class AdapterFactoryTest extends TestCase
     {
         // AdapterFactory::getClass is protected, work around it to avoid
         // creating unnecessary instances and making the test more complex.
-        $method = new \ReflectionMethod(get_class($this->factory), 'getClass');
+        $method = new ReflectionMethod(get_class($this->factory), 'getClass');
         $method->setAccessible(true);
 
         $adapter = $method->invoke($this->factory, 'mysql');
@@ -70,7 +72,7 @@ class AdapterFactoryTest extends TestCase
     {
         // WrapperFactory::getClass is protected, work around it to avoid
         // creating unnecessary instances and making the test more complex.
-        $method = new \ReflectionMethod(get_class($this->factory), 'getWrapperClass');
+        $method = new ReflectionMethod(get_class($this->factory), 'getWrapperClass');
         $method->setAccessible(true);
 
         $wrapper = $method->invoke($this->factory, 'proxy');

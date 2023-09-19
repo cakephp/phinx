@@ -9,9 +9,6 @@ namespace Phinx\Config;
 
 /**
  * Trait implemented NamespaceAwareInterface.
- *
- * @package Phinx\Config
- * @author Andrey N. Mokhov
  */
 trait NamespaceAwareTrait
 {

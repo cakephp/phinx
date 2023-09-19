@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -21,37 +22,37 @@ class Environment
     /**
      * @var string
      */
-    protected $name;
+    protected string $name;
 
     /**
      * @var array<string, mixed>
      */
-    protected $options;
+    protected array $options;
 
     /**
      * @var \Symfony\Component\Console\Input\InputInterface|null
      */
-    protected $input;
+    protected ?InputInterface $input = null;
 
     /**
      * @var \Symfony\Component\Console\Output\OutputInterface|null
      */
-    protected $output;
+    protected ?OutputInterface $output = null;
 
     /**
      * @var int
      */
-    protected $currentVersion;
+    protected int $currentVersion;
 
     /**
      * @var string
      */
-    protected $schemaTableName = 'phinxlog';
+    protected string $schemaTableName = 'phinxlog';
 
     /**
      * @var \Phinx\Db\Adapter\AdapterInterface
      */
-    protected $adapter;
+    protected AdapterInterface $adapter;
 
     /**
      * @param string $name Environment Name
@@ -378,7 +379,7 @@ class Environment
      * @param string $schemaTableName Schema Table Name
      * @return $this
      */
-    public function setSchemaTableName($schemaTableName)
+    public function setSchemaTableName(string $schemaTableName)
     {
         $this->schemaTableName = $schemaTableName;
 

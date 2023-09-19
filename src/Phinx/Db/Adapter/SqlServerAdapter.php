@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -21,18 +22,17 @@ use Phinx\Db\Util\AlterInstructions;
 use Phinx\Migration\MigrationInterface;
 use Phinx\Util\Literal;
 use RuntimeException;
+use UnexpectedValueException;
 
 /**
  * Phinx SqlServer Adapter.
- *
- * @author Rob Morgan <robbym@gmail.com>
  */
 class SqlServerAdapter extends PdoAdapter
 {
     /**
      * @var string[]
      */
-    protected static $specificColumnTypes = [
+    protected static array $specificColumnTypes = [
         self::PHINX_TYPE_FILESTREAM,
         self::PHINX_TYPE_BINARYUUID,
     ];
@@ -40,12 +40,12 @@ class SqlServerAdapter extends PdoAdapter
     /**
      * @var string
      */
-    protected $schema = 'dbo';
+    protected string $schema = 'dbo';
 
     /**
      * @var bool[]
      */
-    protected $signedColumnTypes = [
+    protected array $signedColumnTypes = [
         self::PHINX_TYPE_INTEGER => true,
         self::PHINX_TYPE_BIG_INTEGER => true,
         self::PHINX_TYPE_FLOAT => true,
@@ -106,7 +106,7 @@ class SqlServerAdapter extends PdoAdapter
                 if (strpos($key, 'sqlsrv_attr_') === 0) {
                     $pdoConstant = '\PDO::' . strtoupper($key);
                     if (!defined($pdoConstant)) {
-                        throw new \UnexpectedValueException('Invalid PDO attribute: ' . $key . ' (' . $pdoConstant . ')');
+                        throw new UnexpectedValueException('Invalid PDO attribute: ' . $key . ' (' . $pdoConstant . ')');
                     }
                     $driverOptions[constant($pdoConstant)] = $option;
                 }
@@ -360,7 +360,7 @@ class SqlServerAdapter extends PdoAdapter
      * @param string $tableName Table name
      * @return string
      */
-    protected function getColumnCommentSqlDefinition(Column $column, $tableName): string
+    protected function getColumnCommentSqlDefinition(Column $column, string $tableName): string
     {
         // passing 'null' is to remove column comment
         $currentComment = $this->getColumnComment($tableName, $column->getName());
@@ -479,7 +479,7 @@ class SqlServerAdapter extends PdoAdapter
                    ->setComment($this->getColumnComment($columnInfo['table_name'], $columnInfo['name']));
 
             if (!empty($columnInfo['char_length'])) {
-                $column->setLimit($columnInfo['char_length']);
+                $column->setLimit((int)$columnInfo['char_length']);
             }
 
             $columns[$columnInfo['name']] = $column;
@@ -492,7 +492,7 @@ class SqlServerAdapter extends PdoAdapter
      * @param string|null $default Default
      * @return int|string|null
      */
-    protected function parseDefault(?string $default)
+    protected function parseDefault(?string $default): int|string|null
     {
         // if a column is non-nullable and has no default, the value of column_default is null,
         // otherwise it should be a string value that we parse below, including "(NULL)" which
@@ -693,7 +693,7 @@ SQL;
      * @param string $columnName Column name
      * @return string|false
      */
-    protected function getDefaultConstraint(string $tableName, string $columnName)
+    protected function getDefaultConstraint(string $tableName, string $columnName): string|false
     {
         $sql = "SELECT
     default_constraints.name
@@ -723,11 +723,11 @@ WHERE
     }
 
     /**
-     * @param int $tableId Table ID
-     * @param int $indexId Index ID
+     * @param string $tableId Table ID
+     * @param string $indexId Index ID
      * @return array
      */
-    protected function getIndexColums(int $tableId, int $indexId): array
+    protected function getIndexColums(string $tableId, string $indexId): array
     {
         $sql = "SELECT AC.[name] AS [column_name]
 FROM sys.[index_columns] IC
@@ -771,7 +771,7 @@ ORDER BY T.[name], I.[index_id];";
     /**
      * @inheritDoc
      */
-    public function hasIndex(string $tableName, $columns): bool
+    public function hasIndex(string $tableName, string|array $columns): bool
     {
         if (is_string($columns)) {
             $columns = [$columns]; // str to array
@@ -1064,8 +1064,9 @@ ORDER BY T.[name], I.[index_id];";
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
-    public function getSqlType($type, ?int $limit = null): array
+    public function getSqlType(Literal|string $type, ?int $limit = null): array
     {
+        $type = (string)$type;
         switch ($type) {
             case static::PHINX_TYPE_FLOAT:
             case static::PHINX_TYPE_DECIMAL:

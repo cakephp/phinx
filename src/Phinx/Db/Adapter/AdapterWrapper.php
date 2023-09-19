@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -8,9 +9,11 @@
 namespace Phinx\Db\Adapter;
 
 use Cake\Database\Query;
+use PDO;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Table;
 use Phinx\Migration\MigrationInterface;
+use Phinx\Util\Literal;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -19,15 +22,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * Proxy commands through to another adapter, allowing modification of
  * parameters during calls.
- *
- * @author Woody Gilk <woody.gilk@gmail.com>
  */
 abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
 {
     /**
      * @var \Phinx\Db\Adapter\AdapterInterface
      */
-    protected $adapter;
+    protected AdapterInterface $adapter;
 
     /**
      * @inheritDoc
@@ -84,7 +85,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * @inheritDoc
      */
-    public function getOption(string $name)
+    public function getOption(string $name): mixed
     {
         return $this->adapter->getOption($name);
     }
@@ -160,7 +161,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * @inheritDoc
      */
-    public function query(string $sql, array $params = [])
+    public function query(string $sql, array $params = []): mixed
     {
         return $this->getAdapter()->query($sql, $params);
     }
@@ -184,7 +185,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * @inheritDoc
      */
-    public function fetchRow(string $sql)
+    public function fetchRow(string $sql): array|false
     {
         return $this->getAdapter()->fetchRow($sql);
     }
@@ -368,7 +369,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * @inheritDoc
      */
-    public function hasIndex(string $tableName, $columns): bool
+    public function hasIndex(string $tableName, string|array $columns): bool
     {
         return $this->getAdapter()->hasIndex($tableName, $columns);
     }
@@ -400,7 +401,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * @inheritDoc
      */
-    public function getSqlType($type, ?int $limit = null): array
+    public function getSqlType(Literal|string $type, ?int $limit = null): array
     {
         return $this->getAdapter()->getSqlType($type, $limit);
     }
@@ -456,7 +457,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * @inheritDoc
      */
-    public function castToBool($value)
+    public function castToBool($value): mixed
     {
         return $this->getAdapter()->castToBool($value);
     }
@@ -464,7 +465,7 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * @return \PDO
      */
-    public function getConnection()
+    public function getConnection(): PDO
     {
         return $this->getAdapter()->getConnection();
     }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -15,12 +16,12 @@ abstract class AbstractTemplateCreation implements CreationInterface
     /**
      * @var \Symfony\Component\Console\Input\InputInterface
      */
-    protected $input;
+    protected InputInterface $input;
 
     /**
      * @var \Symfony\Component\Console\Output\OutputInterface
      */
-    protected $output;
+    protected OutputInterface $output;
 
     /**
      * @param \Symfony\Component\Console\Input\InputInterface|null $input Input

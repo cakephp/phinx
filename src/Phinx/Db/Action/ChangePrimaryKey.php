@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -16,7 +17,7 @@ class ChangePrimaryKey extends Action
      *
      * @var string|string[]|null
      */
-    protected $newColumns;
+    protected string|array|null $newColumns = null;
 
     /**
      * Constructor
@@ -24,7 +25,7 @@ class ChangePrimaryKey extends Action
      * @param \Phinx\Db\Table\Table $table The table to be changed
      * @param string|string[]|null $newColumns The new columns for the primary key
      */
-    public function __construct(Table $table, $newColumns)
+    public function __construct(Table $table, string|array|null $newColumns)
     {
         parent::__construct($table);
         $this->newColumns = $newColumns;
@@ -35,7 +36,7 @@ class ChangePrimaryKey extends Action
      *
      * @return string|string[]|null
      */
-    public function getNewColumns()
+    public function getNewColumns(): string|array|null
     {
         return $this->newColumns;
     }

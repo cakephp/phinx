@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -19,18 +20,17 @@ use Phinx\Db\Table\Table;
 use Phinx\Db\Util\AlterInstructions;
 use Phinx\Util\Literal;
 use RuntimeException;
+use UnexpectedValueException;
 
 /**
  * Phinx MySQL Adapter.
- *
- * @author Rob Morgan <robbym@gmail.com>
  */
 class MysqlAdapter extends PdoAdapter
 {
     /**
      * @var string[]
      */
-    protected static $specificColumnTypes = [
+    protected static array $specificColumnTypes = [
         self::PHINX_TYPE_ENUM,
         self::PHINX_TYPE_SET,
         self::PHINX_TYPE_YEAR,
@@ -45,7 +45,7 @@ class MysqlAdapter extends PdoAdapter
     /**
      * @var bool[]
      */
-    protected $signedColumnTypes = [
+    protected array $signedColumnTypes = [
         self::PHINX_TYPE_INTEGER => true,
         self::PHINX_TYPE_TINY_INTEGER => true,
         self::PHINX_TYPE_SMALL_INTEGER => true,
@@ -149,7 +149,7 @@ class MysqlAdapter extends PdoAdapter
                 if (strpos($key, 'mysql_attr_') === 0) {
                     $pdoConstant = '\PDO::' . strtoupper($key);
                     if (!defined($pdoConstant)) {
-                        throw new \UnexpectedValueException('Invalid PDO attribute: ' . $key . ' (' . $pdoConstant . ')');
+                        throw new UnexpectedValueException('Invalid PDO attribute: ' . $key . ' (' . $pdoConstant . ')');
                     }
                     $driverOptions[constant($pdoConstant)] = $option;
                 }
@@ -637,7 +637,7 @@ class MysqlAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function hasIndex(string $tableName, $columns): bool
+    public function hasIndex(string $tableName, string|array $columns): bool
     {
         if (is_string($columns)) {
             $columns = [$columns]; // str to array
@@ -939,8 +939,9 @@ class MysqlAdapter extends PdoAdapter
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
-    public function getSqlType($type, ?int $limit = null): array
+    public function getSqlType(Literal|string $type, ?int $limit = null): array
     {
+        $type = (string)$type;
         switch ($type) {
             case static::PHINX_TYPE_FLOAT:
             case static::PHINX_TYPE_DOUBLE:
@@ -1113,7 +1114,7 @@ class MysqlAdapter extends PdoAdapter
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      * @return array Phinx type
      */
-    public function getPhinxType($sqlTypeDef)
+    public function getPhinxType(string $sqlTypeDef): array
     {
         $matches = [];
         if (!preg_match('/^([\w]+)(\(([\d]+)*(,([\d]+))*\))*(.+)*$/', $sqlTypeDef, $matches)) {
@@ -1363,7 +1364,7 @@ class MysqlAdapter extends PdoAdapter
         $def .= $column->isNull() ? ' NULL' : ' NOT NULL';
 
         if (
-            version_compare($this->getAttribute(\PDO::ATTR_SERVER_VERSION), '8', '>=')
+            version_compare($this->getAttribute(PDO::ATTR_SERVER_VERSION), '8', '>=')
             && in_array($column->getType(), static::PHINX_TYPES_GEOSPATIAL)
             && !is_null($column->getSrid())
         ) {
@@ -1375,7 +1376,7 @@ class MysqlAdapter extends PdoAdapter
         $default = $column->getDefault();
         // MySQL 8 supports setting default for the following tested types, but only if they are "cast as expressions"
         if (
-            version_compare($this->getAttribute(\PDO::ATTR_SERVER_VERSION), '8', '>=') &&
+            version_compare($this->getAttribute(PDO::ATTR_SERVER_VERSION), '8', '>=') &&
             is_string($default) &&
             in_array(
                 $column->getType(),

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -17,7 +18,7 @@ class AddForeignKey extends Action
      *
      * @var \Phinx\Db\Table\ForeignKey
      */
-    protected $foreignKey;
+    protected ForeignKey $foreignKey;
 
     /**
      * Constructor
@@ -43,7 +44,7 @@ class AddForeignKey extends Action
      * @param string|null $name The name of the foreign key
      * @return static
      */
-    public static function build(Table $table, $columns, $referencedTable, $referencedColumns = ['id'], array $options = [], ?string $name = null)
+    public static function build(Table $table, string|array $columns, Table|string $referencedTable, string|array $referencedColumns = ['id'], array $options = [], ?string $name = null): static
     {
         if (is_string($referencedColumns)) {
             $referencedColumns = [$referencedColumns]; // str to array

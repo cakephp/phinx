@@ -1,13 +1,16 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Migration\Manager;
 
 use PDO;
 use Phinx\Db\Adapter\AdapterFactory;
+use Phinx\Db\Adapter\TablePrefixAdapter;
 use Phinx\Migration\Manager\Environment;
 use Phinx\Migration\MigrationInterface;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use stdClass;
 
 class EnvironmentTest extends TestCase
 {
@@ -88,12 +91,12 @@ class EnvironmentTest extends TestCase
         AdapterFactory::instance()->registerAdapter('pdomock', $adapter);
         $this->environment->setOptions(['connection' => $this->getPdoMock()]);
         $options = $this->environment->getAdapter()->getOptions();
-        $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $options['connection']->getAttribute(\PDO::ATTR_ERRMODE));
+        $this->assertEquals(PDO::ERRMODE_EXCEPTION, $options['connection']->getAttribute(PDO::ATTR_ERRMODE));
     }
 
     public function testGetAdapterWithBadExistingPdoInstance()
     {
-        $this->environment->setOptions(['connection' => new \stdClass()]);
+        $this->environment->setOptions(['connection' => new stdClass()]);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('The specified connection is not a PDO instance');
@@ -104,7 +107,7 @@ class EnvironmentTest extends TestCase
     public function testTablePrefixAdapter()
     {
         $this->environment->setOptions(['table_prefix' => 'tbl_', 'adapter' => 'mysql']);
-        $this->assertInstanceOf(\Phinx\Db\Adapter\TablePrefixAdapter::class, $this->environment->getAdapter());
+        $this->assertInstanceOf(TablePrefixAdapter::class, $this->environment->getAdapter());
 
         $tablePrefixAdapter = $this->environment->getAdapter();
         $this->assertInstanceOf('Phinx\Db\Adapter\MysqlAdapter', $tablePrefixAdapter->getAdapter()->getAdapter());
@@ -125,11 +128,11 @@ class EnvironmentTest extends TestCase
             ->getMock();
         $stub->expects($this->any())
              ->method('getVersions')
-             ->will($this->returnValue(['20110301080000']));
+             ->will($this->returnValue([20110301080000]));
 
         $this->environment->setAdapter($stub);
 
-        $this->assertEquals('20110301080000', $this->environment->getCurrentVersion());
+        $this->assertEquals(20110301080000, $this->environment->getCurrentVersion());
     }
 
     public function testExecutingAMigrationUp()

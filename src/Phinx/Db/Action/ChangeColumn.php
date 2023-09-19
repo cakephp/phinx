@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -9,6 +10,7 @@ namespace Phinx\Db\Action;
 
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Table;
+use Phinx\Util\Literal;
 
 class ChangeColumn extends Action
 {
@@ -17,14 +19,14 @@ class ChangeColumn extends Action
      *
      * @var \Phinx\Db\Table\Column
      */
-    protected $column;
+    protected Column $column;
 
     /**
      * The name of the column to be changed
      *
      * @var string
      */
-    protected $columnName;
+    protected string $columnName;
 
     /**
      * Constructor
@@ -51,11 +53,11 @@ class ChangeColumn extends Action
      *
      * @param \Phinx\Db\Table\Table $table The table to alter
      * @param string $columnName The name of the column to change
-     * @param string|\Phinx\Db\Table\Column|\Phinx\Util\Literal $type The type of the column
+     * @param string|\Phinx\Util\Literal $type The type of the column
      * @param array<string, mixed> $options Additional options for the column
      * @return static
      */
-    public static function build(Table $table, string $columnName, $type = null, array $options = [])
+    public static function build(Table $table, string $columnName, string|Literal $type, array $options = []): static
     {
         $column = new Column();
         $column->setName($columnName);

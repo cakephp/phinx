@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -36,7 +37,7 @@ class TimedOutputAdapter extends AdapterWrapper implements DirectActionInterface
     {
         $started = microtime(true);
 
-        return function () use ($started) {
+        return function () use ($started): void {
             $end = microtime(true);
             if (OutputInterface::VERBOSITY_VERBOSE <= $this->getOutput()->getVerbosity()) {
                 $this->getOutput()->writeln('    -> ' . sprintf('%.4fs', $end - $started));

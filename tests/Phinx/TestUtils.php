@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 namespace Test\Phinx;
 
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+
 class TestUtils
 {
     /**
@@ -22,8 +26,8 @@ class TestUtils
 
             return;
         }
-        $dir = new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS);
-        $iter = new \RecursiveIteratorIterator($dir, \RecursiveIteratorIterator::CHILD_FIRST);
+        $dir = new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS);
+        $iter = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::CHILD_FIRST);
         foreach ($iter as $file) {
             if ($file->isDir()) {
                 rmdir($file->getPathname());

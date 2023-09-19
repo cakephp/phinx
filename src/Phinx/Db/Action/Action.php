@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -14,7 +15,7 @@ abstract class Action
     /**
      * @var \Phinx\Db\Table\Table
      */
-    protected $table;
+    protected Table $table;
 
     /**
      * Constructor

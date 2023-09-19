@@ -34,8 +34,7 @@ class ConfigPhpTest extends TestCase
         $path = __DIR__ . '/_files';
 
         $this->expectException(RuntimeException::class);
-
-        $config = Config::fromPhp($path . '/config_without_array.php');
+        Config::fromPhp($path . '/config_without_array.php');
     }
 
     /**
@@ -47,7 +46,6 @@ class ConfigPhpTest extends TestCase
         $path = __DIR__ . '/_files';
 
         $this->expectException(RuntimeException::class);
-
-        $config = Config::fromPhp($path . '/empty.json');
+        Config::fromPhp($path . '/empty.json');
     }
 }

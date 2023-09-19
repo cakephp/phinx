@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -26,15 +27,13 @@ use Phinx\Migration\IrreversibleMigrationException;
  * Phinx Proxy Adapter.
  *
  * Used for recording migration commands to automatically reverse them.
- *
- * @author Rob Morgan <robbym@gmail.com>
  */
 class ProxyAdapter extends AdapterWrapper
 {
     /**
      * @var \Phinx\Db\Action\Action[]
      */
-    protected $commands = [];
+    protected array $commands = [];
 
     /**
      * @inheritDoc

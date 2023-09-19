@@ -2,16 +2,12 @@
 <ruleset name="Phinx">
     <config name="installed_paths" value="../../cakephp/cakephp-codesniffer"/>
 
+    <rule ref="CakePHP"/>
+
     <arg value="nps"/>
 
     <file>src/</file>
     <file>tests/</file>
 
     <exclude-pattern>*_files*</exclude-pattern>
-
-    <rule ref="CakePHP"/>
-
-    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
-        <severity>0</severity>
-    </rule>
 </ruleset>

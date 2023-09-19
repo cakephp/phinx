@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -14,25 +15,23 @@ use Symfony\Component\Console\Output\StreamOutput;
 /**
  * Phinx text wrapper: a way to run `status`, `migrate`, and `rollback` commands
  * and get the output of the command back as plain text.
- *
- * @author Woody Gilk <woody.gilk@gmail.com>
  */
 class TextWrapper
 {
     /**
      * @var \Phinx\Console\PhinxApplication
      */
-    protected $app;
+    protected PhinxApplication $app;
 
     /**
      * @var array<string, mixed>
      */
-    protected $options;
+    protected array $options;
 
     /**
      * @var int
      */
-    protected $exitCode;
+    protected int $exitCode;
 
     /**
      * @param \Phinx\Console\PhinxApplication $app Application
@@ -93,7 +92,7 @@ class TextWrapper
      * @param string|null $env environment name
      * @return bool
      */
-    private function hasEnvValue($env): bool
+    private function hasEnvValue(?string $env): bool
     {
         return $env || $this->hasOption('environment');
     }
@@ -132,7 +131,7 @@ class TextWrapper
      * @param string[]|string|null $seed Array of seed names or seed name
      * @return string
      */
-    public function getSeed(?string $env = null, ?string $target = null, $seed = null): string
+    public function getSeed(?string $env = null, ?string $target = null, array|string|null $seed = null): string
     {
         $command = ['seed:run'];
         if ($this->hasEnvValue($env)) {
@@ -162,7 +161,7 @@ class TextWrapper
      * @param mixed $target Target version, or 0 (zero) fully revert (optional)
      * @return string
      */
-    public function getRollback(?string $env = null, $target = null): string
+    public function getRollback(?string $env = null, mixed $target = null): string
     {
         $command = ['rollback'];
         if ($this->hasEnvValue($env)) {

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -23,8 +24,6 @@ use UnexpectedValueException;
 
 /**
  * Abstract command, contains bootstrapping info
- *
- * @author Rob Morgan <robbym@gmail.com>
  */
 abstract class AbstractCommand extends Command
 {
@@ -52,22 +51,22 @@ abstract class AbstractCommand extends Command
     /**
      * @var \Phinx\Config\ConfigInterface|null
      */
-    protected $config;
+    protected ?ConfigInterface $config = null;
 
     /**
      * @var \Phinx\Db\Adapter\AdapterInterface
      */
-    protected $adapter;
+    protected AdapterInterface $adapter;
 
     /**
      * @var \Phinx\Migration\Manager
      */
-    protected $manager;
+    protected Manager $manager;
 
     /**
      * @var int
      */
-    protected $verbosityLevel = OutputInterface::OUTPUT_NORMAL | OutputInterface::VERBOSITY_NORMAL;
+    protected int $verbosityLevel = OutputInterface::OUTPUT_NORMAL | OutputInterface::VERBOSITY_NORMAL;
 
     /**
      * Exit code for when command executes successfully
@@ -235,7 +234,7 @@ abstract class AbstractCommand extends Command
      */
     public function getManager(): ?Manager
     {
-        return $this->manager;
+        return $this->manager ?? null;
     }
 
     /**
@@ -342,7 +341,7 @@ abstract class AbstractCommand extends Command
      */
     protected function loadManager(InputInterface $input, OutputInterface $output): void
     {
-        if ($this->getManager() === null) {
+        if (!isset($this->manager)) {
             $manager = new Manager($this->getConfig(), $input, $output);
             $manager->setVerbosityLevel($this->verbosityLevel);
             $container = $this->getConfig()->getContainer();

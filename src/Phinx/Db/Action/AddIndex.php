@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -17,7 +18,7 @@ class AddIndex extends Action
      *
      * @var \Phinx\Db\Table\Index
      */
-    protected $index;
+    protected Index $index;
 
     /**
      * Constructor
@@ -40,7 +41,7 @@ class AddIndex extends Action
      * @param array<string, mixed> $options Additional options for the index creation
      * @return static
      */
-    public static function build(Table $table, $columns, array $options = [])
+    public static function build(Table $table, string|array|Index $columns, array $options = []): static
     {
         // create a new index object if strings or an array of strings were supplied
         $index = $columns;

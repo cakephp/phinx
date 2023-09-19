@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -33,7 +34,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @var string[]
      */
-    protected static $specificColumnTypes = [
+    protected static array $specificColumnTypes = [
         self::PHINX_TYPE_JSON,
         self::PHINX_TYPE_JSONB,
         self::PHINX_TYPE_CIDR,
@@ -50,14 +51,14 @@ class PostgresAdapter extends PdoAdapter
      *
      * @var \Phinx\Db\Table\Column[]
      */
-    protected $columnsWithComments = [];
+    protected array $columnsWithComments = [];
 
     /**
      * Use identity columns if available (Postgres >= 10.0)
      *
      * @var bool
      */
-    protected $useIdentity;
+    protected bool $useIdentity;
 
     /**
      * {@inheritDoc}
@@ -715,7 +716,7 @@ class PostgresAdapter extends PdoAdapter
      * @param string $tableName Table name
      * @return array
      */
-    protected function getIndexes($tableName)
+    protected function getIndexes(string $tableName): array
     {
         $parts = $this->getSchemaName($tableName);
 
@@ -759,7 +760,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function hasIndex(string $tableName, $columns): bool
+    public function hasIndex(string $tableName, string|array $columns): bool
     {
         if (is_string($columns)) {
             $columns = [$columns];
@@ -1031,8 +1032,9 @@ class PostgresAdapter extends PdoAdapter
      *
      * @throws \Phinx\Db\Adapter\UnsupportedColumnTypeException
      */
-    public function getSqlType($type, ?int $limit = null): array
+    public function getSqlType(Literal|string $type, ?int $limit = null): array
     {
+        $type = (string)$type;
         switch ($type) {
             case static::PHINX_TYPE_TEXT:
             case static::PHINX_TYPE_TIME:
@@ -1505,7 +1507,7 @@ class PostgresAdapter extends PdoAdapter
      * @param string|\Phinx\Util\Literal $columnType Column type
      * @return bool
      */
-    protected function isArrayType($columnType): bool
+    protected function isArrayType(string|Literal $columnType): bool
     {
         if (!preg_match('/^([a-z]+)(?:\[\]){1,}$/', $columnType, $matches)) {
             return false;
@@ -1549,7 +1551,7 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function castToBool($value)
+    public function castToBool($value): mixed
     {
         return (bool)$value ? 'TRUE' : 'FALSE';
     }

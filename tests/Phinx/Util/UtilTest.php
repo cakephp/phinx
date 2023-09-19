@@ -1,7 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx\Util;
 
+use DateTime;
+use DateTimeZone;
 use Phinx\Util\Util;
 use RuntimeException;
 use Test\Phinx\TestCase;
@@ -36,7 +39,7 @@ class UtilTest extends TestCase
 
     public function testGetCurrentTimestamp()
     {
-        $dt = new \DateTime('now', new \DateTimeZone('UTC'));
+        $dt = new DateTime('now', new DateTimeZone('UTC'));
         $expected = $dt->format(Util::DATE_FORMAT);
 
         $current = Util::getCurrentTimestamp();

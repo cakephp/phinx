@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * MIT License
@@ -23,7 +24,7 @@ class Init extends Command
     /**
      * @var string[]
      */
-    protected static $supportedFormats = [
+    protected static array $supportedFormats = [
         AbstractCommand::FORMAT_JSON,
         AbstractCommand::FORMAT_YML_ALIAS,
         AbstractCommand::FORMAT_YML,
@@ -33,6 +34,7 @@ class Init extends Command
     /**
      * @var string|null
      */
+    // phpcs:ignore SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
     protected static $defaultName = 'init';
 
     /**
