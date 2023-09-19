@@ -53,11 +53,11 @@ class ChangeColumn extends Action
      *
      * @param \Phinx\Db\Table\Table $table The table to alter
      * @param string $columnName The name of the column to change
-     * @param string|\Phinx\Db\Table\Column|\Phinx\Util\Literal $type The type of the column
+     * @param string|\Phinx\Util\Literal $type The type of the column
      * @param array<string, mixed> $options Additional options for the column
      * @return static
      */
-    public static function build(Table $table, string $columnName, string|Column|Literal $type, array $options = []): static
+    public static function build(Table $table, string $columnName, string|Literal $type, array $options = []): static
     {
         $column = new Column();
         $column->setName($columnName);
