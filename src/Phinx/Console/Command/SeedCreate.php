@@ -198,7 +198,7 @@ class SeedCreate extends AbstractCommand
 
         $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath($path) : null;
         $classes = [
-            '$namespaceDefinition' => $namespace !== null ? ('namespace ' . $namespace . ';') : '',
+            '$namespaceDefinition' => $namespace !== null ? (PHP_EOL . 'namespace ' . $namespace . ';' . PHP_EOL) : '',
             '$namespace' => $namespace,
             '$useClassName' => $config->getSeedBaseClassName(false),
             '$className' => $className,

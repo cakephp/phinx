@@ -1,6 +1,7 @@
 <?php
-$namespaceDefinition
 
+declare(strict_types=1);
+$namespaceDefinition
 use $useClassName;
 
 class $className extends $baseClassName
