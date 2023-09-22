@@ -293,13 +293,14 @@ class Table
      * Valid options can be: limit, default, null, precision or scale.
      *
      * @param string|\Phinx\Db\Table\Column $columnName Column Name
-     * @param string|\Phinx\Util\Literal $type Column Type
+     * @param string|\Phinx\Util\Literal|null $type Column Type
      * @param array<string, mixed> $options Column Options
      * @throws \InvalidArgumentException
      * @return $this
      */
-    public function addColumn(string|Column $columnName, string|Literal $type, array $options = [])
+    public function addColumn(string|Column $columnName, string|Literal|null $type, array $options = [])
     {
+        assert($columnName instanceof Column || $type !== null);
         if ($columnName instanceof Column) {
             $action = new AddColumn($this->table, $columnName);
         } elseif ($type instanceof Literal) {
@@ -312,7 +313,7 @@ class Table
         if (!$this->getAdapter()->isValidColumnType($action->getColumn())) {
             throw new InvalidArgumentException(sprintf(
                 'An invalid column type "%s" was specified for column "%s".',
-                $type,
+                $action->getColumn()->getType(),
                 $action->getColumn()->getName()
             ));
         }
