@@ -766,14 +766,13 @@ class MysqlAdapter extends PdoAdapter
 
         if ($constraint) {
             return $primaryKey['constraint'] === $constraint;
-        } else {
-            if (is_string($columns)) {
-                $columns = [$columns]; // str to array
-            }
-            $missingColumns = array_diff($columns, $primaryKey['columns']);
-
-            return empty($missingColumns);
         }
+
+        // Normalize the columns for comparison
+        $primaryKeyColumns = array_map('mb_strtolower', $primaryKey['columns']);
+        $columns = array_map('mb_strtolower', (array)$columns);
+
+        return $primaryKeyColumns === $columns;
     }
 
     /**
