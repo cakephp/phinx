@@ -59,7 +59,10 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->loadConfig($input, $output);
+        if (!$this->hasConfig()) {
+            $this->loadConfig($input, $output);
+        }
+
         $this->loadManager($input, $output);
 
         // Verify the migrations path(s)
