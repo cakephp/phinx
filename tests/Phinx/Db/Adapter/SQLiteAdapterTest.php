@@ -415,6 +415,20 @@ class SQLiteAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
     }
 
+    public function testHasPrimaryKeyMultipleColumns()
+    {
+        $table = new Table('table1', ['id' => false, 'primary_key' => ['column1', 'column2', 'column3']], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer', ['null' => false])
+            ->addColumn('column2', 'integer', ['null' => false])
+            ->addColumn('column3', 'integer', ['null' => false])
+            ->save();
+
+        $this->assertFalse($table->hasPrimaryKey(['column1', 'column2']));
+        $this->assertTrue($table->hasPrimaryKey(['column1', 'column2', 'column3']));
+        $this->assertFalse($table->hasPrimaryKey(['column1', 'column2', 'column3', 'column4']));
+    }
+
     public function testAddMultipleColumnPrimaryKeyFails()
     {
         $table = new Table('table1', [], $this->adapter);
