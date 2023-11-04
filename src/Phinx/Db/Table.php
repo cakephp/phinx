@@ -298,7 +298,7 @@ class Table
      * @throws \InvalidArgumentException
      * @return $this
      */
-    public function addColumn(string|Column $columnName, string|Literal|null $type, array $options = [])
+    public function addColumn(string|Column $columnName, string|Literal|null $type = null, array $options = [])
     {
         assert($columnName instanceof Column || $type !== null);
         if ($columnName instanceof Column) {

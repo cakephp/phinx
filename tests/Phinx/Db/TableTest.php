@@ -69,7 +69,7 @@ class TableTest extends TestCase
         $column->setName('email')
                ->setType('integer');
         $table = new Table('ntable', [], $adapter);
-        $table->addColumn($column, 'int');
+        $table->addColumn($column);
         $actions = $this->getPendingActions($table);
         $this->assertInstanceOf('Phinx\Db\Action\AddColumn', $actions[0]);
         $this->assertSame($column, $actions[0]->getColumn());
