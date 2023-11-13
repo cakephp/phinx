@@ -10,14 +10,11 @@ namespace Phinx\Db\Adapter;
 
 use BadMethodCallException;
 use Cake\Database\Connection;
-use Cake\Database\Exception\DatabaseException;
 use Cake\Database\Query;
-use Cake\Database\Query\{
-    SelectQuery,
-    InsertQuery,
-    UpdateQuery,
-    DeleteQuery
-};
+use Cake\Database\Query\DeleteQuery;
+use Cake\Database\Query\InsertQuery;
+use Cake\Database\Query\SelectQuery;
+use Cake\Database\Query\UpdateQuery;
 use InvalidArgumentException;
 use PDO;
 use PDOException;

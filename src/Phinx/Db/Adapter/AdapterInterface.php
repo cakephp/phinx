@@ -9,12 +9,10 @@ declare(strict_types=1);
 namespace Phinx\Db\Adapter;
 
 use Cake\Database\Query;
-use Cake\Database\Query\{
-    DeleteQuery,
-    InsertQuery,
-    SelectQuery,
-    UpdateQuery
-};
+use Cake\Database\Query\DeleteQuery;
+use Cake\Database\Query\InsertQuery;
+use Cake\Database\Query\SelectQuery;
+use Cake\Database\Query\UpdateQuery;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Table;
 use Phinx\Migration\MigrationInterface;
@@ -295,29 +293,29 @@ interface AdapterInterface
 
     /**
      * Return a new SelectQuery object
-     * 
-     * @return \Cake\Database\Query\SelectQuery 
+     *
+     * @return \Cake\Database\Query\SelectQuery
      */
     public function getSelectBuilder(): SelectQuery;
 
     /**
      * Return a new InsertQuery object
-     * 
-     * @return \Cake\Database\Query\InsertQuery 
+     *
+     * @return \Cake\Database\Query\InsertQuery
      */
     public function getInsertBuilder(): InsertQuery;
 
     /**
      * Return a new UpdateQuery object
-     * 
-     * @return \Cake\Database\Query\UpdateQuery 
+     *
+     * @return \Cake\Database\Query\UpdateQuery
      */
     public function getUpdateBuilder(): UpdateQuery;
 
     /**
      * Return a new DeleteQuery object
-     * 
-     * @return \Cake\Database\Query\DeleteQuery 
+     *
+     * @return \Cake\Database\Query\DeleteQuery
      */
     public function getDeleteBuilder(): DeleteQuery;
 

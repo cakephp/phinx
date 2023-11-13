@@ -9,12 +9,10 @@ declare(strict_types=1);
 namespace Phinx\Db\Adapter;
 
 use Cake\Database\Query;
-use Cake\Database\Query\{
-    SelectQuery,
-    InsertQuery,
-    UpdateQuery,
-    DeleteQuery
-};
+use Cake\Database\Query\DeleteQuery;
+use Cake\Database\Query\InsertQuery;
+use Cake\Database\Query\SelectQuery;
+use Cake\Database\Query\UpdateQuery;
 use PDO;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\Table;
@@ -492,7 +490,6 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
         return $this->getAdapter()->getQueryBuilder($type);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -523,5 +520,5 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     public function getDeleteBuilder(): DeleteQuery
     {
         return $this->getAdapter()->getDeleteBuilder();
-    }    
+    }
 }
