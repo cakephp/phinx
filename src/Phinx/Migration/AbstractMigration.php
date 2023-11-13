@@ -9,6 +9,12 @@ declare(strict_types=1);
 namespace Phinx\Migration;
 
 use Cake\Database\Query;
+use Cake\Database\Query\{
+    SelectQuery,
+    InsertQuery,
+    UpdateQuery,
+    DeleteQuery
+};
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Table;
 use RuntimeException;
@@ -213,6 +219,38 @@ abstract class AbstractMigration implements MigrationInterface
     {
         return $this->getAdapter()->getQueryBuilder($type);
     }
+
+    /**
+     * @inheritDoc
+     */    
+    public function getSelectBuilder(): SelectQuery
+    {
+        return $this->getAdapter()->getSelectBuilder();
+    }
+
+    /**
+     * @inheritDoc
+     */    
+    public function getInsertBuilder(): InsertQuery
+    {
+        return $this->getAdapter()->getInsertBuilder();
+    }
+
+    /**
+     * @inheritDoc
+     */    
+    public function getUpdateBuilder(): UpdateQuery
+    {
+        return $this->getAdapter()->getUpdateBuilder();
+    }
+
+    /**
+     * @inheritDoc
+     */    
+    public function getDeleteBuilder(): DeleteQuery
+    {
+        return $this->getAdapter()->getDeleteBuilder();
+    }    
 
     /**
      * @inheritDoc
