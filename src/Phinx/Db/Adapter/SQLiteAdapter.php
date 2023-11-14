@@ -40,7 +40,7 @@ class SQLiteAdapter extends PdoAdapter
     protected static array $supportedColumnTypes = [
         self::PHINX_TYPE_BIG_INTEGER => 'biginteger',
         self::PHINX_TYPE_BINARY => 'binary_blob',
-        self::PHINX_TYPE_BINARYUUID => 'uuid_blob',
+        self::PHINX_TYPE_BINARYUUID => 'binaryuuid',
         self::PHINX_TYPE_BLOB => 'blob',
         self::PHINX_TYPE_BOOLEAN => 'boolean_integer',
         self::PHINX_TYPE_CHAR => 'char',
