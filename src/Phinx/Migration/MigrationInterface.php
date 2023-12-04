@@ -9,6 +9,10 @@ declare(strict_types=1);
 namespace Phinx\Migration;
 
 use Cake\Database\Query;
+use Cake\Database\Query\DeleteQuery;
+use Cake\Database\Query\InsertQuery;
+use Cake\Database\Query\SelectQuery;
+use Cake\Database\Query\UpdateQuery;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -164,6 +168,50 @@ interface MigrationInterface
      * @return \Cake\Database\Query
      */
     public function getQueryBuilder(string $type): Query;
+
+    /**
+     * Returns a new SelectQuery object that can be used to build complex
+     * SELECT queries and execute them against the current database.
+     *
+     * Queries executed through the query builder are always sent to the database, regardless of the
+     * the dry-run settings.
+     *
+     * @return \Cake\Database\Query\SelectQuery
+     */
+    public function getSelectBuilder(): SelectQuery;
+
+    /**
+     * Returns a new InsertQuery object that can be used to build complex
+     * INSERT queries and execute them against the current database.
+     *
+     * Queries executed through the query builder are always sent to the database, regardless of the
+     * the dry-run settings.
+     *
+     * @return \Cake\Database\Query\InsertQuery
+     */
+    public function getInsertBuilder(): InsertQuery;
+
+    /**
+     * Returns a new UpdateQuery object that can be used to build complex
+     * UPDATE queries and execute them against the current database.
+     *
+     * Queries executed through the query builder are always sent to the database, regardless of the
+     * the dry-run settings.
+     *
+     * @return \Cake\Database\Query\UpdateQuery
+     */
+    public function getUpdateBuilder(): UpdateQuery;
+
+    /**
+     * Returns a new DeleteQuery object that can be used to build complex
+     * DELETE queries and execute them against the current database.
+     *
+     * Queries executed through the query builder are always sent to the database, regardless of the
+     * the dry-run settings.
+     *
+     * @return \Cake\Database\Query\DeleteQuery
+     */
+    public function getDeleteBuilder(): DeleteQuery;
 
     /**
      * Executes a query and returns only one row as an array.
