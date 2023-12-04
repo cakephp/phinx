@@ -306,4 +306,12 @@ class AbstractMigrationTest extends TestCase
         // Dummy assert to prevent the test being marked as risky
         $this->assertTrue(true);
     }
+
+    public function testVersionOutOfRange(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Invalid version `202312030335180`, should be in format `YYYYMMDDHHMMSS` (length of 14).');
+
+        $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 202312030335180]);
+    }
 }

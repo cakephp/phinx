@@ -76,6 +76,8 @@ abstract class AbstractMigration implements MigrationInterface
      */
     final public function __construct(string $environment, int $version, ?InputInterface $input = null, ?OutputInterface $output = null)
     {
+        $this->validateVersion($version);
+
         $this->environment = $environment;
         $this->version = $version;
 
@@ -369,5 +371,22 @@ abstract class AbstractMigration implements MigrationInterface
     public function shouldExecute(): bool
     {
         return true;
+    }
+
+    /**
+     * Makes sure the version int is within range for valid datetime.
+     * This is required to have a meaningful order in the overview.
+     *
+     * @param int $version Version
+     * @return void
+     */
+    protected function validateVersion(int $version): void
+    {
+        $length = strlen((string)$version);
+        if (!$version || $length === 14) {
+            return;
+        }
+
+        throw new RuntimeException('Invalid version `' . $version . '`, should be in format `YYYYMMDDHHMMSS` (length of 14).');
     }
 }
