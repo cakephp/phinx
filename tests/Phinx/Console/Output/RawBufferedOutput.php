@@ -16,7 +16,7 @@ class RawBufferedOutput extends BufferedOutput
      * @param int $options
      * @return void
      */
-    public function writeln($messages, $options = 0)
+    public function writeln($messages, $options = 0): void
     {
         $this->write($messages, true, $options | self::OUTPUT_RAW);
     }
