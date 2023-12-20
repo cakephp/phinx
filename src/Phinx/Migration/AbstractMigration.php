@@ -383,7 +383,7 @@ abstract class AbstractMigration implements MigrationInterface
     protected function validateVersion(int $version): void
     {
         $length = strlen((string)$version);
-        if (!$version || $length === 14) {
+        if ($length === 14) {
             return;
         }
 
