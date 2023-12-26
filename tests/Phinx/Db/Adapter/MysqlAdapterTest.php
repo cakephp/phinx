@@ -587,6 +587,17 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($table->hasPrimaryKey(['column1', 'column2', 'column3', 'column4']));
     }
 
+    public function testHasPrimaryKeyCaseInsensitivity()
+    {
+        $table = new Table('table', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer', ['null' => false])
+            ->save();
+        
+        $this->assertTrue($table->hasPrimaryKey('column1'));
+        $this->assertTrue($table->hasPrimaryKey('cOlUmN1'));
+    }
+
     public function testAddComment()
     {
         $table = new Table('table1', [], $this->adapter);

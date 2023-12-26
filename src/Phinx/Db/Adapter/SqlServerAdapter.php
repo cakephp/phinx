@@ -894,11 +894,7 @@ ORDER BY T.[name], I.[index_id];";
             return $primaryKey['constraint'] === $constraint;
         }
 
-        // Normalize the columns for comparison
-        $primaryKeyColumns = array_map('mb_strtolower', $primaryKey['columns']);
-        $columns = array_map('mb_strtolower', (array)$columns);
-
-        return $primaryKeyColumns === $columns;
+        return $primaryKey['columns'] === (array)$columns;
     }
 
     /**
