@@ -378,7 +378,7 @@ WHERE t.name='ntable'");
         $table
             ->addColumn('column1', 'integer', ['null' => false])
             ->save();
-        
+
         $this->assertTrue($table->hasPrimaryKey('column1'));
         $this->assertFalse($table->hasPrimaryKey('cOlUmN1'));
     }

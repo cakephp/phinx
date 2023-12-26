@@ -435,7 +435,7 @@ class SQLiteAdapterTest extends TestCase
         $table
             ->addColumn('column1', 'integer', ['null' => false])
             ->save();
-        
+
         $this->assertTrue($table->hasPrimaryKey('column1'));
         $this->assertTrue($table->hasPrimaryKey('cOlUmN1'));
     }
