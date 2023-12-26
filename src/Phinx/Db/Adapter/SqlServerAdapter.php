@@ -894,12 +894,7 @@ ORDER BY T.[name], I.[index_id];";
             return $primaryKey['constraint'] === $constraint;
         }
 
-        if (is_string($columns)) {
-            $columns = [$columns]; // str to array
-        }
-        $missingColumns = array_diff($columns, $primaryKey['columns']);
-
-        return empty($missingColumns);
+        return $primaryKey['columns'] === (array)$columns;
     }
 
     /**
