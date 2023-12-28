@@ -571,6 +571,7 @@ class MysqlAdapter extends PdoAdapter
                     if ($value == 'DEFAULT_GENERATED') {
                         return false;
                     }
+
                     return true;
                 });
                 $extra = implode(' ', $extras);
