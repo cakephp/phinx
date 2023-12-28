@@ -573,14 +573,6 @@ class MysqlAdapter extends PdoAdapter
                 });
                 $extra = implode(' ', $extras);
 
-                if (is_array($extras)) {
-                    foreach ($extras as $e) {
-                        if ($e != 'DEFAULT_GENERATED') {
-                            $extra .= ' ' . $e;
-                        }
-                    }
-                }
-
                 if (($row['Default'] !== null)) {
                     $extra .= $this->getDefaultValueDefinition($row['Default']);
                 }
