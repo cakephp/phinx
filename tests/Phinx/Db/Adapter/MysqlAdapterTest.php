@@ -929,6 +929,19 @@ class MysqlAdapterTest extends TestCase
         $this->assertEquals('comment1', $columns[1]['Comment']);
     }
 
+    public function testRenameColumnWithDefaultGeneratedExtra()
+    {
+        $table = new Table('t', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('last_changed'));
+        $table->addColumn('last_changed', 'datetime', ['default' => 'CURRENT_TIMESTAMP', 'null' => false])
+              ->save();
+        $this->assertTrue($table->hasColumn('last_changed'));
+        $table->renameColumn('last_changed', 'last_changed2')->save();
+        $this->assertFalse($this->adapter->hasColumn('t', 'last_changed'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'last_changed2'));
+    }
+
     public function testRenamingANonExistentColumn()
     {
         $table = new Table('t', [], $this->adapter);
