@@ -573,6 +573,31 @@ class MysqlAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasPrimaryKey('table1', ['column1']));
     }
 
+    public function testHasPrimaryKeyMultipleColumns()
+    {
+        $table = new Table('table1', ['id' => false, 'primary_key' => ['column1', 'column2', 'column3']], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer', ['null' => false])
+            ->addColumn('column2', 'integer', ['null' => false])
+            ->addColumn('column3', 'integer', ['null' => false])
+            ->save();
+
+        $this->assertFalse($table->hasPrimaryKey(['column1', 'column2']));
+        $this->assertTrue($table->hasPrimaryKey(['column1', 'column2', 'column3']));
+        $this->assertFalse($table->hasPrimaryKey(['column1', 'column2', 'column3', 'column4']));
+    }
+
+    public function testHasPrimaryKeyCaseInsensitivity()
+    {
+        $table = new Table('table', ['id' => false, 'primary_key' => ['column1']], $this->adapter);
+        $table
+            ->addColumn('column1', 'integer', ['null' => false])
+            ->save();
+
+        $this->assertTrue($table->hasPrimaryKey('column1'));
+        $this->assertTrue($table->hasPrimaryKey('cOlUmN1'));
+    }
+
     public function testAddComment()
     {
         $table = new Table('table1', [], $this->adapter);
@@ -902,6 +927,19 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
         $columns = $this->adapter->fetchAll('SHOW FULL COLUMNS FROM t');
         $this->assertEquals('comment1', $columns[1]['Comment']);
+    }
+
+    public function testRenameColumnWithDefaultGeneratedExtra()
+    {
+        $table = new Table('t', [], $this->adapter);
+        $table->save();
+        $this->assertFalse($table->hasColumn('last_changed'));
+        $table->addColumn('last_changed', 'datetime', ['default' => 'CURRENT_TIMESTAMP', 'null' => false])
+              ->save();
+        $this->assertTrue($table->hasColumn('last_changed'));
+        $table->renameColumn('last_changed', 'last_changed2')->save();
+        $this->assertFalse($this->adapter->hasColumn('t', 'last_changed'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'last_changed2'));
     }
 
     public function testRenamingANonExistentColumn()

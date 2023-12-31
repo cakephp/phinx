@@ -868,14 +868,9 @@ class PostgresAdapter extends PdoAdapter
 
         if ($constraint) {
             return $primaryKey['constraint'] === $constraint;
-        } else {
-            if (is_string($columns)) {
-                $columns = [$columns]; // str to array
-            }
-            $missingColumns = array_diff($columns, $primaryKey['columns']);
-
-            return empty($missingColumns);
         }
+
+        return $primaryKey['columns'] === (array)$columns;
     }
 
     /**

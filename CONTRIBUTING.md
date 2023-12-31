@@ -55,7 +55,7 @@ Great, so you want to contribute. Let's get started:
 1. Run the unit tests locally to ensure they pass:
 
     ```
-    php vendor/bin/phpunit --config phpunit.xml
+    vendor/bin/phpunit
     ```
 
 1. Write the code and unit tests for your bug fix or feature.
@@ -92,4 +92,4 @@ install [docker-compose](https://docs.docker.com/compose/) for your platform.
 ## Documentation
 
 The Phinx documentation is stored in the **docs** directory using the [RestructedText](https://docutils.sourceforge.io/rst.html)
-format. All documentation merged to `master` is automatically published to the Phinx documentation site available at https://docs.phinx.org.
+format. All documentation merged to main branch is automatically published to the Phinx documentation site available at https://docs.phinx.org.

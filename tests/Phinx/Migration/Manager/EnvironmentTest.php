@@ -256,6 +256,29 @@ class EnvironmentTest extends TestCase
         $this->environment->executeMigration($migration, MigrationInterface::DOWN);
     }
 
+    public function testExecutingAFakeMigration()
+    {
+        // stub adapter
+        $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
+            ->setConstructorArgs([[]])
+            ->getMock();
+        $adapterStub->expects($this->once())
+                    ->method('migrated')
+                    ->willReturn($adapterStub);
+
+        $this->environment->setAdapter($adapterStub);
+
+        // migration
+        $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
+            ->setConstructorArgs(['mockenv', '20130301080000'])
+            ->setMethods(['change'])
+            ->getMock();
+        $migration->expects($this->never())
+                  ->method('change');
+
+        $this->environment->executeMigration($migration, MigrationInterface::UP, true);
+    }
+
     public function testGettingInputObject()
     {
         $mock = $this->getMockBuilder('\Symfony\Component\Console\Input\InputInterface')

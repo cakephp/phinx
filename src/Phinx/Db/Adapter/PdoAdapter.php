@@ -11,6 +11,10 @@ namespace Phinx\Db\Adapter;
 use BadMethodCallException;
 use Cake\Database\Connection;
 use Cake\Database\Query;
+use Cake\Database\Query\DeleteQuery;
+use Cake\Database\Query\InsertQuery;
+use Cake\Database\Query\SelectQuery;
+use Cake\Database\Query\UpdateQuery;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
@@ -242,6 +246,38 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
                 'Query type must be one of: `select`, `insert`, `update`, `delete`.'
             )
         };
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSelectBuilder(): SelectQuery
+    {
+        return $this->getDecoratedConnection()->selectQuery();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getInsertBuilder(): InsertQuery
+    {
+        return $this->getDecoratedConnection()->insertQuery();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUpdateBuilder(): UpdateQuery
+    {
+        return $this->getDecoratedConnection()->updateQuery();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDeleteBuilder(): DeleteQuery
+    {
+        return $this->getDecoratedConnection()->deleteQuery();
     }
 
     /**

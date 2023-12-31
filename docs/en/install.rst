@@ -10,7 +10,7 @@ website for more information.
 
 .. note::
 
-    Phinx requires at least PHP 7.2 (or later).
+    Phinx requires at least PHP 8.1 (or later).
 
 To install Phinx, simply require it using Composer:
 

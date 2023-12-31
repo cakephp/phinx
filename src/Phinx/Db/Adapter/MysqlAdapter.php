@@ -565,7 +565,17 @@ class MysqlAdapter extends PdoAdapter
             if (strcasecmp($row['Field'], $columnName) === 0) {
                 $null = $row['Null'] === 'NO' ? 'NOT NULL' : 'NULL';
                 $comment = isset($row['Comment']) ? ' COMMENT ' . '\'' . addslashes($row['Comment']) . '\'' : '';
-                $extra = ' ' . strtoupper($row['Extra']);
+
+                // create the extra string by also filtering out the DEFAULT_GENERATED option (MySQL 8 fix)
+                $extras = array_filter(explode(' ', strtoupper($row['Extra'])), function ($value) {
+                    if ($value == 'DEFAULT_GENERATED') {
+                        return false;
+                    }
+
+                    return true;
+                });
+                $extra = implode(' ', $extras);
+
                 if (($row['Default'] !== null)) {
                     $extra .= $this->getDefaultValueDefinition($row['Default']);
                 }
@@ -766,14 +776,13 @@ class MysqlAdapter extends PdoAdapter
 
         if ($constraint) {
             return $primaryKey['constraint'] === $constraint;
-        } else {
-            if (is_string($columns)) {
-                $columns = [$columns]; // str to array
-            }
-            $missingColumns = array_diff($columns, $primaryKey['columns']);
-
-            return empty($missingColumns);
         }
+
+        // Normalize the columns for comparison
+        $primaryKeyColumns = array_map('mb_strtolower', $primaryKey['columns']);
+        $columns = array_map('mb_strtolower', (array)$columns);
+
+        return $primaryKeyColumns === $columns;
     }
 
     /**
