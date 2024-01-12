@@ -524,6 +524,23 @@ class SQLiteAdapterTest extends TestCase
         $this->assertEquals("''", $rows[1]['dflt_value']);
     }
 
+    public function testAddColumnWithLiteralTypeAndDefault()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table
+            ->addColumn('checked', Literal::from('boolean'), ['default' => 0])
+            ->save();
+
+        $column = $this->adapter->getColumns('table1')[1];
+
+        $this->assertSame('checked', $column->getName());
+        $this->assertSame('boolean', $column->getType());
+        $this->assertSame(false, $column->getDefault());
+        $this->assertTrue($column->getNull());
+    }
+
     public function testAddColumnWithCustomType()
     {
         $this->adapter->setDataDomain([
