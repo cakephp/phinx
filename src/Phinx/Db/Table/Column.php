@@ -212,6 +212,10 @@ class Column
      */
     public function getType(): string|Literal
     {
+        if (!isset($this->type)) {
+            throw new RuntimeException('Cannot access `type` it has not been set');
+        }
+
         return $this->type;
     }
 

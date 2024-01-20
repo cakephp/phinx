@@ -20,6 +20,13 @@ class ColumnTest extends TestCase
         $column->setOptions(['identity']);
     }
 
+    public function testGetType()
+    {
+        $column = new Column();
+        $this->expectException(RuntimeException::class);
+        $column->getType();
+    }
+
     public function testSetOptionsIdentity()
     {
         $column = new Column();
