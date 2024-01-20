@@ -493,6 +493,23 @@ WHERE t.name='ntable'");
         }
     }
 
+    public function testAddColumnWithLiteralTypeAndDefault()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table
+            ->addColumn('checked', Literal::from('bit'), ['default' => 0])
+            ->save();
+
+        $column = $this->adapter->getColumns('table1')['checked'];
+
+        $this->assertSame('checked', $column->getName());
+        $this->assertSame('boolean', $column->getType());
+        $this->assertSame(0, $column->getDefault());
+        $this->assertTrue($column->getNull());
+    }
+
     public function testAddColumnWithCustomType()
     {
         $this->adapter->setDataDomain([

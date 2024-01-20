@@ -660,10 +660,10 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * Get the definition for a `DEFAULT` statement.
      *
      * @param mixed $default Default value
-     * @param string|null $columnType column type added
+     * @param string|\Phinx\Util\Literal|null $columnType Column type
      * @return string
      */
-    protected function getDefaultValueDefinition(mixed $default, ?string $columnType = null): string
+    protected function getDefaultValueDefinition(mixed $default, string|Literal|null $columnType = null): string
     {
         if ($default instanceof Literal) {
             $default = (string)$default;
@@ -672,7 +672,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
-        } elseif ($default !== null && $columnType === static::PHINX_TYPE_BOOLEAN) {
+        } elseif ($default !== null && (string)$columnType === static::PHINX_TYPE_BOOLEAN) {
             $default = $this->castToBool((bool)$default);
         }
 
