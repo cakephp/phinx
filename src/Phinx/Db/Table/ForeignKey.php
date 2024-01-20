@@ -96,6 +96,10 @@ class ForeignKey
      */
     public function getReferencedTable(): Table
     {
+        if (!isset($this->referencedTable)) {
+            throw new RuntimeException('Cannot access `referencedTable` it has not been set');
+        }
+
         return $this->referencedTable;
     }
 

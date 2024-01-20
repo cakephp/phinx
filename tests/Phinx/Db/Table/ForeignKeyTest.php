@@ -34,6 +34,12 @@ class ForeignKeyTest extends TestCase
         $this->assertNull($this->fk->getOnUpdate());
     }
 
+    public function testRefrencedTableUndefined()
+    {
+        $this->expectException(RuntimeException::class);
+        $this->fk->getReferencedTable();
+    }
+
     /**
      * @param string $dirtyValue
      * @param string $valueOfConstant
