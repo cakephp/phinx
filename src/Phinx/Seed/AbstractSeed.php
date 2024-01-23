@@ -10,6 +10,7 @@ namespace Phinx\Seed;
 
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Table;
+use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -98,6 +99,10 @@ abstract class AbstractSeed implements SeedInterface
      */
     public function getAdapter(): AdapterInterface
     {
+        if (!isset($this->adapter)) {
+            throw new RuntimeException('Cannot access `adapter` it has not been set');
+        }
+
         return $this->adapter;
     }
 
