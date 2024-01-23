@@ -19,7 +19,8 @@ class AbstractMigrationTest extends TestCase
             ->getMock();
 
         // test methods
-        $this->assertNull($migrationStub->getAdapter());
+        $this->expectException(RuntimeException::class);
+        $migrationStub->getAdapter();
         $migrationStub->setAdapter($adapterStub);
         $this->assertInstanceOf(
             'Phinx\Db\Adapter\AdapterInterface',
