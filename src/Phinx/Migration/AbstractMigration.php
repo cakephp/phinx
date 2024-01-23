@@ -103,8 +103,12 @@ abstract class AbstractMigration implements MigrationInterface
     /**
      * @inheritDoc
      */
-    public function getAdapter(): ?AdapterInterface
+    public function getAdapter(): AdapterInterface
     {
+        if (!isset($this->adapter)) {
+            throw new RuntimeException('Cannot access `adapter` it has not been set');
+        }
+
         return $this->adapter;
     }
 
