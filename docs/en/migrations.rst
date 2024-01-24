@@ -806,7 +806,7 @@ For ``smallinteger``, ``integer`` and ``biginteger`` columns:
 ======== ===========
 Option   Description
 ======== ===========
-identity enable or disable automatic incrementing (if enabled, will set ``null: false`` if ``null`` is not set)
+identity enable or disable automatic incrementing (if enabled, will set ``null: false`` if ``null`` option is not set)
 signed   enable or disable the ``unsigned`` option *(only applies to MySQL)*
 ======== ===========
 
