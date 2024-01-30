@@ -21,7 +21,7 @@ command:
         $ vendor/bin/phinx create MyNewMigration
 
 This will create a new migration in the format
-``YYYYMMDDHHMMSS_my_new_migration.php``, where the first 14 characters are
+``YYYYMMDDHHMMSS_MyNewMigration.php``, where the first 14 characters are
 replaced with the current timestamp down to the second.
 
 If you have specified multiple migration paths, you will be asked to select
