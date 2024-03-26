@@ -1008,6 +1008,39 @@ class ManagerTest extends TestCase
             '\s*down  20160116183504                                            Foo\\\\Bar\\\\TestMigration2/', $outputStr);
     }
 
+    public function testNullMigrationNameDoesNotThrowErrors()
+    {
+        $envStub = $this->getMockBuilder('\Phinx\Migration\Manager\Environment')
+            ->setConstructorArgs(['mockenv', []])
+            ->getMock();
+        $envStub->expects($this->once())
+                ->method('getVersionLog')
+                ->will($this->returnValue([
+                    '20120103083300' =>
+                        [
+                            'version' => '20120103083300',
+                            'start_time' => '2012-01-11 23:53:36',
+                            'end_time' => '2012-01-11 23:53:37',
+                            'migration_name' => null,
+                            'breakpoint' => 0,
+                        ],
+                ]));
+
+        $this->manager->setEnvironments(['mockenv' => $envStub]);
+        $this->manager->getOutput()->setDecorated(false);
+        $this->manager->setConfig($this->getConfigWithMixedNamespace());
+        $return = $this->manager->printStatus('mockenv');
+        $this->assertEquals(['hasMissingMigration' => true, 'hasDownMigration' => true], $return);
+
+        rewind($this->manager->getOutput()->getStream());
+        $outputStr = stream_get_contents($this->manager->getOutput()->getStream());
+
+        $this->assertMatchesRegularExpression(
+            '/\s*up  20120103083300  2012-01-11 23:53:36  2012-01-11 23:53:37  *\*\* MISSING MIGRATION FILE \*\*/',
+            $outputStr
+        );
+    }
+
     public function testPrintStatusMethodWithMissingAndDownMigrationsWithMixedNamespace()
     {
         // stub environment

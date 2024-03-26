@@ -126,7 +126,7 @@ class Manager
             $versions = $env->getVersionLog();
 
             $maxNameLength = $versions ? max(array_map(function ($version) {
-                return strlen($version['migration_name']);
+                return strlen($version['migration_name'] ?? '');
             }, $versions)) : 0;
 
             $missingVersions = array_diff_key($versions, $migrations);
@@ -268,7 +268,7 @@ class Manager
             $version['version'],
             $version['start_time'],
             $version['end_time'],
-            str_pad($version['migration_name'], $maxNameLength, ' ')
+            str_pad($version['migration_name'] ?? '', $maxNameLength, ' ')
         ));
 
         if ($version && $version['breakpoint']) {
