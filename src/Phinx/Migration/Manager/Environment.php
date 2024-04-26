@@ -110,17 +110,17 @@ class Environment
             } else {
                 $migration->{$direction}();
             }
-
-            // commit the transaction if the adapter supports it
-            if ($this->getAdapter()->hasTransactions()) {
-                $this->getAdapter()->commitTransaction();
-            }
         }
-
-        $migration->postFlightCheck();
 
         // Record it in the database
         $this->getAdapter()->migrated($migration, $direction, date('Y-m-d H:i:s', $startTime), date('Y-m-d H:i:s', time()));
+
+        $migration->postFlightCheck();
+
+        // commit the transaction if the adapter supports it
+        if ($this->getAdapter()->hasTransactions()) {
+            $this->getAdapter()->commitTransaction();
+        }
     }
 
     /**
