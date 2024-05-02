@@ -521,6 +521,11 @@ For some breaking changes, Phinx offers a way to opt-out of new behavior. The fo
 * ``unsigned_primary_keys``: Should Phinx create primary keys as unsigned integers? (default: ``true``)
 * ``column_null_default``: Should Phinx create columns as null by default? (default: ``true``)
 
+Since MySQL ``TIMESTAMP`` fields do not support dates past 2038-01-19, you have the option to use ``DATETIME`` field
+types for fields created by the ``addTimestamps()`` function:
+
+* ``add_timestamps_use_datetime``: Should Phinx create created_at and updated_at fields as datetime? (default: ``false``)
+
 .. code-block:: yaml
 
     feature_flags:

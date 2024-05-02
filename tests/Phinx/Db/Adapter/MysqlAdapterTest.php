@@ -509,6 +509,36 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($columns[0]->getSigned());
     }
 
+    /**
+     * @runInSeparateProcess
+     */
+    public function testAddTimestampsFeatureFlag()
+    {
+        $this->adapter->connect();
+
+        FeatureFlags::$addTimestampsUseDateTime = true;
+
+        $table = new Table('table1', [], $this->adapter);
+        $table->addTimestamps();
+        $table->create();
+
+        $columns = $this->adapter->getColumns('table1');
+
+        $this->assertCount(3, $columns);
+        $this->assertSame('id', $columns[0]->getName());
+
+        $this->assertEquals('created_at', $columns[1]->getName());
+        $this->assertEquals('datetime', $columns[1]->getType());
+        $this->assertEquals('CURRENT_TIMESTAMP', $columns[1]->getDefault());
+        $this->assertEquals('', $columns[1]->getUpdate());
+
+        $this->assertEquals('updated_at', $columns[2]->getName());
+        $this->assertEquals('datetime', $columns[2]->getType());
+        $this->assertEquals('CURRENT_TIMESTAMP', $columns[2]->getUpdate());
+        $this->assertTrue($columns[2]->isNull());
+        $this->assertNull($columns[2]->getDefault());
+    }
+
     public function testCreateTableWithLimitPK()
     {
         $table = new Table('ntable', ['id' => 'id', 'limit' => 4], $this->adapter);
