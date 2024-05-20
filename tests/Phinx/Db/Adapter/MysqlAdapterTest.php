@@ -927,6 +927,19 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
     }
 
+    public function testRenameNonNullColumnWithExtra()
+    {
+        // Extra = "AUTO_INCREMENT" for the id column
+        $table = new Table('t', [], $this->adapter);
+        $table->save();
+        $this->assertTrue($this->adapter->hasColumn('t', 'id'));
+        $this->assertFalse($this->adapter->hasColumn('t', 'new_id'));
+
+        $table->renameColumn('id', 'new_id')->save();
+        $this->assertFalse($this->adapter->hasColumn('t', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'new_id'));
+    }
+
     public function testRenameColumnPreserveComment()
     {
         $table = new Table('t', [], $this->adapter);
