@@ -6,6 +6,7 @@ on:
       - '0.x'
       - '1.x'
   pull_request:
+  workflow_dispatch:
 
 jobs:
   testsuite:
