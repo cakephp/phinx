@@ -1072,6 +1072,7 @@ class PostgresAdapter extends PdoAdapter
             case static::PHINX_TYPE_DATETIME:
                 return ['name' => 'timestamp'];
             case static::PHINX_TYPE_BINARYUUID:
+            case static::PHINX_TYPE_NATIVEUUID:
                 return ['name' => 'uuid'];
             case static::PHINX_TYPE_BLOB:
             case static::PHINX_TYPE_BINARY:
@@ -1090,8 +1091,6 @@ class PostgresAdapter extends PdoAdapter
                 return ['name' => 'geography', 'type' => 'linestring', 'srid' => 4326];
             case static::PHINX_TYPE_POLYGON:
                 return ['name' => 'geography', 'type' => 'polygon', 'srid' => 4326];
-            case static::PHINX_TYPE_NATIVEUUID:
-                return ['name' => 'uuid'];
             default:
                 if ($this->isArrayType($type)) {
                     return ['name' => $type];
