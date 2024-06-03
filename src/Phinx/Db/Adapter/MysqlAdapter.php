@@ -472,6 +472,10 @@ class MysqlAdapter extends PdoAdapter
                 $column->setIdentity(true);
             }
 
+            if ($columnInfo['Extra'] === 'on update CURRENT_TIMESTAMP') {
+                $column->setUpdate('CURRENT_TIMESTAMP');
+            }
+
             if (isset($phinxType['values'])) {
                 $column->setValues($phinxType['values']);
             }
