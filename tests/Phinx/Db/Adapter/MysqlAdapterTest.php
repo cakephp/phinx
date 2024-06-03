@@ -957,6 +957,19 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasColumn('t', 'column2'));
     }
 
+    public function testRenameNonNullColumnWithExtra()
+    {
+        // Extra = "AUTO_INCREMENT" for the id column
+        $table = new Table('t', [], $this->adapter);
+        $table->save();
+        $this->assertTrue($this->adapter->hasColumn('t', 'id'));
+        $this->assertFalse($this->adapter->hasColumn('t', 'new_id'));
+
+        $table->renameColumn('id', 'new_id')->save();
+        $this->assertFalse($this->adapter->hasColumn('t', 'id'));
+        $this->assertTrue($this->adapter->hasColumn('t', 'new_id'));
+    }
+
     public function testRenameColumnPreserveComment()
     {
         $table = new Table('t', [], $this->adapter);
@@ -1825,7 +1838,7 @@ class MysqlAdapterTest extends TestCase
         $refTable = new Table('ref_table', [], $this->adapter);
         $refTable
             ->addColumn('field1', 'string', ['limit' => 8])
-            ->addIndex(['id', 'field1'])
+            ->addIndex(['id', 'field1'], ['unique' => true])
             ->save();
 
         $table = new Table('table', [], $this->adapter);
@@ -1914,7 +1927,7 @@ class MysqlAdapterTest extends TestCase
     public function testHasForeignKey($tableDef, $key, $exp)
     {
         $conn = $this->adapter->getConnection();
-        $conn->exec('CREATE TABLE other(a int, b int, c int, key(a), key(b), key(a,b), key(a,b,c));');
+        $conn->exec('CREATE TABLE other(a int, b int, c int, unique key(a), unique key(b), unique key(a,b), unique key(a,b,c));');
         $conn->exec($tableDef);
         $this->assertSame($exp, $this->adapter->hasForeignKey('t', $key));
     }
