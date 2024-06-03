@@ -11,7 +11,7 @@ from cakephpsphinx.config.all import *
 release = '0.13.x'
 
 # The search index version.
-search_version = 'phinx-0'
+search_version = 'phinx-0.13'
 
 # The marketing display name for the book.
 version_name = ''
@@ -21,7 +21,7 @@ project = 'Phinx'
 
 # Other versions that display in the version picker menu.
 version_list = [
-    {'name': '0.13', 'number': '/phinx/0', 'title': '0.13', 'current': True},
+    {'name': '0.13', 'number': '/phinx/0.13', 'title': '0.13', 'current': True},
 ]
 
 # Languages available.
@@ -29,7 +29,7 @@ languages = ['en']
 
 # The GitHub branch name for this version of the docs
 # for edit links to point at.
-branch = '0.x'
+branch = '0.13.x'
 
 # Current version being built
 version = '0.13'
