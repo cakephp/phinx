@@ -2035,6 +2035,24 @@ class MysqlAdapterTest extends TestCase
         $this->adapter->dropDatabase('phinx_temp_database');
     }
 
+    public function testDatabaseNameWithEscapedCharacter()
+    {
+        $databaseName = MYSQL_DB_CONFIG['name'] . '-`test`';
+        $this->adapter->dropDatabase($databaseName);
+        $this->adapter->createDatabase($databaseName);
+        $this->assertTrue($this->adapter->hasDatabase($databaseName));
+        $this->adapter->dropDatabase($databaseName);
+    }
+
+    public function testDatabaseNameWithEscapedCharacterWithCollation()
+    {
+        $databaseName = MYSQL_DB_CONFIG['name'] . '-`test`';
+        $this->adapter->dropDatabase($databaseName);
+        $this->adapter->createDatabase($databaseName, ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_unicode_ci']);
+        $this->assertTrue($this->adapter->hasDatabase($databaseName));
+        $this->adapter->dropDatabase($databaseName);
+    }
+
     public function testAddColumnWithComment()
     {
         $table = new Table('table1', [], $this->adapter);

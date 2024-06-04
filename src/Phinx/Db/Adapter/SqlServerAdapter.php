@@ -1174,12 +1174,13 @@ ORDER BY T.[name], I.[index_id];";
      */
     public function createDatabase(string $name, array $options = []): void
     {
+        $databaseName = $this->quoteColumnName($name);
         if (isset($options['collation'])) {
-            $this->execute(sprintf('CREATE DATABASE [%s] COLLATE [%s]', $name, $options['collation']));
+            $this->execute(sprintf('CREATE DATABASE %s COLLATE [%s]', $databaseName, $options['collation']));
         } else {
-            $this->execute(sprintf('CREATE DATABASE [%s]', $name));
+            $this->execute(sprintf('CREATE DATABASE %s', $databaseName));
         }
-        $this->execute(sprintf('USE [%s]', $name));
+        $this->execute(sprintf('USE %s', $databaseName));
     }
 
     /**

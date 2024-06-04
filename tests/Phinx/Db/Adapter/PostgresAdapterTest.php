@@ -1895,6 +1895,15 @@ class PostgresAdapterTest extends TestCase
         $this->adapter->dropDatabase('phinx_temp_database');
     }
 
+    public function testDatabaseNameWithEscapedCharacter()
+    {
+        $databaseName = PGSQL_DB_CONFIG['name'] . '-test';
+        $this->adapter->dropDatabase($databaseName);
+        $this->adapter->createDatabase($databaseName);
+        $this->assertTrue($this->adapter->hasDatabase($databaseName));
+        $this->adapter->dropDatabase($databaseName);
+    }
+
     public function testCreateSchema()
     {
         $this->adapter->createSchema('foo');
