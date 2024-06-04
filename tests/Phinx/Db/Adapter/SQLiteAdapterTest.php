@@ -176,6 +176,22 @@ class SQLiteAdapterTest extends TestCase
 
         $this->assertTrue($this->adapter->hasTable('ntable'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'custom_id'));
+        $this->assertTrue($this->adapter->hasPrimaryKey('ntable', 'custom_id'));
+
+        /** @var \Phinx\Db\Table\Column $idColumn */
+        $idColumn = $this->adapter->getColumns('ntable')[0];
+        $this->assertTrue($idColumn->getIdentity());
+    }
+
+    public function testCreateTableIdentityIdColumnStringPrimaryKey()
+    {
+        $table = new Table('ntable', ['id' => false, 'primary_key' => 'custom_id'], $this->adapter);
+        $table->addColumn('custom_id', 'integer', ['identity' => true])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'custom_id'));
+        $this->assertTrue($this->adapter->hasPrimaryKey('ntable', 'custom_id'));
 
         /** @var \Phinx\Db\Table\Column $idColumn */
         $idColumn = $this->adapter->getColumns('ntable')[0];

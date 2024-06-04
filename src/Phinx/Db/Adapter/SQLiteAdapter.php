@@ -424,6 +424,9 @@ class SQLiteAdapter extends PdoAdapter
 
         $sql = 'CREATE TABLE ';
         $sql .= $this->quoteTableName($table->getName()) . ' (';
+        if (isset($options['primary_key'])) {
+            $options['primary_key'] = (array)$options['primary_key'];
+        }
         foreach ($columns as $column) {
             $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column) . ', ';
 
@@ -446,9 +449,7 @@ class SQLiteAdapter extends PdoAdapter
         if (isset($options['primary_key'])) {
             $sql = rtrim($sql);
             $sql .= ' PRIMARY KEY (';
-            if (is_string($options['primary_key'])) { // handle primary_key => 'id'
-                $sql .= $this->quoteColumnName($options['primary_key']);
-            } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
+            if (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
                 $sql .= implode(',', array_map([$this, 'quoteColumnName'], $options['primary_key']));
             }
             $sql .= ')';
