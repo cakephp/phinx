@@ -1204,12 +1204,13 @@ ORDER BY T.[name], I.[index_id];";
      */
     public function dropDatabase(string $name): void
     {
-        $sql = <<<SQL
-USE master;
-IF EXISTS(select * from sys.databases where name=N'$name')
-ALTER DATABASE [$name] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-DROP DATABASE [$name];
-SQL;
+        $sql = sprintf(
+            'USE master;
+            IF EXISTS(select * from sys.databases where name=N\'$name\')
+            ALTER DATABASE %1$s SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+            DROP DATABASE %1$s;',
+            $this->quoteColumnName($name),
+        );
         $this->execute($sql);
         $this->createdTables = [];
     }
