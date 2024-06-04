@@ -1301,13 +1301,13 @@ class MysqlAdapter extends PdoAdapter
 
         if (isset($options['collation'])) {
             $this->execute(sprintf(
-                'CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s` COLLATE `%s`',
-                $name,
+                'CREATE DATABASE %s DEFAULT CHARACTER SET `%s` COLLATE `%s`',
+                $this->quoteColumnName($name),
                 $charset,
                 $options['collation']
             ));
         } else {
-            $this->execute(sprintf('CREATE DATABASE `%s` DEFAULT CHARACTER SET `%s`', $name, $charset));
+            $this->execute(sprintf('CREATE DATABASE %s DEFAULT CHARACTER SET `%s`', $this->quoteColumnName($name), $charset));
         }
     }
 
@@ -1337,7 +1337,7 @@ class MysqlAdapter extends PdoAdapter
      */
     public function dropDatabase(string $name): void
     {
-        $this->execute(sprintf('DROP DATABASE IF EXISTS `%s`', $name));
+        $this->execute(sprintf('DROP DATABASE IF EXISTS %s', $this->quoteColumnName($name)));
         $this->createdTables = [];
     }
 

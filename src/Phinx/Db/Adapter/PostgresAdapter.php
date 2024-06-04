@@ -1178,7 +1178,7 @@ class PostgresAdapter extends PdoAdapter
     public function createDatabase(string $name, array $options = []): void
     {
         $charset = $options['charset'] ?? 'utf8';
-        $this->execute(sprintf("CREATE DATABASE %s WITH ENCODING = '%s'", $name, $charset));
+        $this->execute(sprintf("CREATE DATABASE %s WITH ENCODING = '%s'", $this->quoteColumnName($name), $charset));
     }
 
     /**
@@ -1198,7 +1198,7 @@ class PostgresAdapter extends PdoAdapter
     public function dropDatabase($name): void
     {
         $this->disconnect();
-        $this->execute(sprintf('DROP DATABASE IF EXISTS %s', $name));
+        $this->execute(sprintf('DROP DATABASE IF EXISTS %s', $this->quoteColumnName($name)));
         $this->createdTables = [];
         $this->connect();
     }

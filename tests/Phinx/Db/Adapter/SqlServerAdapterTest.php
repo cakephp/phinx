@@ -1127,6 +1127,24 @@ WHERE t.name='ntable'");
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), [], 'my_constraint2'));
     }
 
+    public function testDatabaseNameWithEscapedCharacter()
+    {
+        $databaseName = SQLSRV_DB_CONFIG['name'] . '-[test]';
+        $this->adapter->dropDatabase($databaseName);
+        $this->adapter->createDatabase($databaseName);
+        $this->assertTrue($this->adapter->hasDatabase($databaseName));
+        $this->adapter->dropDatabase($databaseName);
+    }
+
+    public function testDatabaseNameWithEscapedCharacterWithCollation()
+    {
+        $databaseName = SQLSRV_DB_CONFIG['name'] . '-[test]';
+        $this->adapter->dropDatabase($databaseName);
+        $this->adapter->createDatabase($databaseName, ['collation' => 'SQL_Latin1_General_CP1_CS_AS']);
+        $this->assertTrue($this->adapter->hasDatabase($databaseName));
+        $this->adapter->dropDatabase($databaseName);
+    }
+
     public function testHasDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('fake_database_name'));
