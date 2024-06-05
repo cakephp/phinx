@@ -211,7 +211,7 @@ class SqlServerAdapter extends PdoAdapter
      */
     public function quoteColumnName(string $columnName): string
     {
-        return '[' . str_replace(']', '\]', $columnName) . ']';
+        return '[' . str_replace(']', ']]', $columnName) . ']';
     }
 
     /**
@@ -1176,7 +1176,7 @@ ORDER BY T.[name], I.[index_id];";
     {
         $databaseName = $this->quoteColumnName($name);
         if (isset($options['collation'])) {
-            $this->execute(sprintf('CREATE DATABASE %s COLLATE [%s]', $databaseName, $options['collation']));
+            $this->execute(sprintf('CREATE DATABASE %s COLLATE %s', $databaseName, $options['collation']));
         } else {
             $this->execute(sprintf('CREATE DATABASE %s', $databaseName));
         }
@@ -1206,7 +1206,7 @@ ORDER BY T.[name], I.[index_id];";
     {
         $sql = sprintf(
             'USE master;
-            IF EXISTS(select * from sys.databases where name=N\'$name\')
+            IF EXISTS(select * from sys.databases where name=N\'' . $name .'\')
             ALTER DATABASE %1$s SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
             DROP DATABASE %1$s;',
             $this->quoteColumnName($name),
