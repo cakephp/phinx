@@ -1206,7 +1206,7 @@ ORDER BY T.[name], I.[index_id];";
     {
         $sql = sprintf(
             'USE master;
-            IF EXISTS(select * from sys.databases where name=N\'' . $name .'\')
+            IF EXISTS(select * from sys.databases where name=N\'' . $name . '\')
             ALTER DATABASE %1$s SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
             DROP DATABASE %1$s;',
             $this->quoteColumnName($name),
