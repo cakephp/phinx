@@ -129,9 +129,20 @@ class SqlServerAdapterTest extends TestCase
         $this->assertEquals('[test_table]', $this->adapter->quoteTableName('test_table'));
     }
 
-    public function testQuoteColumnName()
+    public function columnNameDataProvider(): array
     {
-        $this->assertEquals('[test_column]', $this->adapter->quoteColumnName('test_column'));
+        return [
+            ['test_column', '[test_column]'],
+            ['test_col[u]mn', '[test_col[u]]mn]'],
+        ];
+    }
+
+    /**
+     * @dataProvider columnNameDataProvider
+     */
+    public function testQuoteColumnName(string $columnName, string $expected)
+    {
+        $this->assertEquals($expected, $this->adapter->quoteColumnName($columnName));
     }
 
     public function testCreateTable()
