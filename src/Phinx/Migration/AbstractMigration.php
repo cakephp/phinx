@@ -358,7 +358,7 @@ abstract class AbstractMigration implements MigrationInterface
     {
         foreach ($this->tables as $table) {
             if ($table->hasPendingActions()) {
-                throw new RuntimeException('Migration has pending actions after execution!');
+                throw new RuntimeException(sprintf('Migration %s_%s has pending actions after execution!', $this->getVersion(), $this->getName()));
             }
         }
     }

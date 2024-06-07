@@ -280,7 +280,7 @@ class AbstractMigrationTest extends TestCase
         $table->addColumn('column1', 'integer', ['null' => true]);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Migration has pending actions after execution!');
+        $this->expectExceptionMessage(sprintf('Migration %s_%s has pending actions after execution!', $migrationStub->getVersion(), $migrationStub->getName()));
 
         $migrationStub->postFlightCheck();
     }
