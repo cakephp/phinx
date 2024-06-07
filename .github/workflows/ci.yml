@@ -13,29 +13,29 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['7.2', '7.4', '8.0', '8.1', '8.2']
+        php-version: ['7.4', '8.0', '8.1', '8.2']
         db-type: [sqlite, mysql, pgsql]
         prefer-lowest: ['']
         include:
-          - php-version: '7.2'
+          - php-version: '7.4'
             db-type: mysql
             prefer-lowest: prefer-lowest
 
     steps:
     - name: Setup MySQL latest
-      if: matrix.db-type == 'mysql' && matrix.php-version != '7.2'
-      run: docker run --rm --name=mysqld -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cakephp -p 3306:3306 -d mysql --default-authentication-plugin=mysql_native_password
+      if: matrix.db-type == 'mysql' && matrix.php-version != '7.4'
+      run: docker run --rm --name=mysqld -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cakephp -p 3306:3306 -d mysql:8.3 --default-authentication-plugin=mysql_native_password
 
     - name: Setup MySQL 5.6
-      if: matrix.db-type == 'mysql' && matrix.php-version == '7.2'
+      if: matrix.db-type == 'mysql' && matrix.php-version == '7.4'
       run: docker run --rm --name=mysqld -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cakephp -p 3306:3306 -d mysql:5.6 --character-set-server=utf8
 
     - name: Setup PostgreSQL latest
-      if: matrix.db-type == 'pgsql' && matrix.php-version != '7.2'
+      if: matrix.db-type == 'pgsql' && matrix.php-version != '7.4'
       run: docker run --rm --name=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=cakephp -p 5432:5432 -d postgres
 
     - name: Setup PostgreSQL 9.4
-      if: matrix.db-type == 'pgsql' && matrix.php-version == '7.2'
+      if: matrix.db-type == 'pgsql' && matrix.php-version == '7.4'
       run: docker run --rm --name=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=cakephp -p 5432:5432 -d postgres:9.4
 
     - uses: actions/checkout@v3
@@ -70,7 +70,7 @@ jobs:
         fi
 
     - name: Setup problem matchers for PHPUnit
-      if: matrix.php-version == '7.2' && matrix.db-type == 'mysql'
+      if: matrix.php-version == '7.4' && matrix.db-type == 'mysql'
       run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
     - name: Setup Database
@@ -109,11 +109,11 @@ jobs:
 
   testsuite-windows:
     runs-on: windows-2019
-    name: Windows - PHP 7.2 & SQL Server
+    name: Windows - PHP 7.4 & SQL Server
 
     env:
       EXTENSIONS: pdo_sqlsrv
-      PHP_VERSION: '7.2'
+      PHP_VERSION: '7.4'
 
     steps:
     - uses: actions/checkout@v3

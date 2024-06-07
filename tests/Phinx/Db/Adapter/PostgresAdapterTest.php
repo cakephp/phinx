@@ -2415,6 +2415,11 @@ OUTPUT;
             ->addColumn('int_col', 'integer')
             ->save();
 
+        if (method_exists(\Cake\Database\Connection::class, 'selectQuery')) {
+            $this->expectDeprecation();
+            $this->expectExceptionMessage('As of 4.5.0, using newQuery() is deprecated. Instead, use `insertQuery()`, `deleteQuery()`, `selectQuery()` or `updateQuery()`. The query objects returned by these methods will emit deprecations that will become fatal errors in 5.0.See https://book.cakephp.org/4/en/appendices/4-5-migration-guide.html for more information');
+        }
+
         $builder = $this->adapter->getQueryBuilder();
         $stm = $builder
             ->insert(['string_col', 'int_col'])
