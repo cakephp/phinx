@@ -262,7 +262,7 @@ class AbstractMigrationTest extends TestCase
     public function testPostFlightCheckFail()
     {
         // stub migration
-        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 0]);
+        $migrationStub = $this->getMockForAbstractClass('\Phinx\Migration\AbstractMigration', ['mockenv', 20230102030405], 'PostFlightCheck');
 
         $adapterStub = $this->getMockBuilder('\Phinx\Db\Adapter\MysqlAdapter')
             ->setConstructorArgs([[]])
@@ -277,7 +277,7 @@ class AbstractMigrationTest extends TestCase
         $table->addColumn('column1', 'integer', ['null' => true]);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage(sprintf('Migration %s_%s has pending actions after execution!', $migrationStub->getVersion(), $migrationStub->getName()));
+        $this->expectExceptionMessage('Migration 20230102030405_PostFlightCheck has pending actions after execution!');
 
         $migrationStub->postFlightCheck();
     }
