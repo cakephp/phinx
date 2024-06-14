@@ -5,6 +5,7 @@
         "KevinGH\\Box\\Compactor\\Php"
     ],
     "directories": ["src", "app", "data", "vendor/symfony/console/Resources"],
+    "exclude-composer-files": false,
     "files": [
         "LICENSE"
     ],
@@ -24,6 +25,6 @@
             "in": "vendor"
         }
     ],
-    "output": "phinx.phar",
-    "exclude-composer-files": false
+    "git-tag": "git_tag",
+    "output": "phinx.phar"
 }
