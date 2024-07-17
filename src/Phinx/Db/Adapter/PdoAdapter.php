@@ -41,6 +41,7 @@ use Phinx\Migration\MigrationInterface;
 use Phinx\Util\Literal;
 use ReflectionProperty;
 use RuntimeException;
+use SensitiveParameter;
 use Symfony\Component\Console\Output\OutputInterface;
 use UnexpectedValueException;
 
@@ -86,7 +87,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * @param array<int, mixed> $options Connection options
      * @return \PDO
      */
-    protected function createPdoConnection(string $dsn, ?string $username = null, ?string $password = null, array $options = []): PDO
+    protected function createPdoConnection(string $dsn, ?string $username = null, #[SensitiveParameter] ?string $password = null, array $options = []): PDO
     {
         $adapterOptions = $this->getOptions() + [
             'attr_errmode' => PDO::ERRMODE_EXCEPTION,
