@@ -35,6 +35,7 @@ class SeedRun extends AbstractCommand
 
         $this->setDescription('Run database seeders')
             ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
+            ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
             ->setHelp(
                 <<<EOT
 The <info>seed:run</info> command runs all available or individual seeders
