@@ -336,9 +336,22 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             $sql .= '(' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ');';
             $this->output->writeln($sql);
         } else {
-            $sql .= '(' . implode(', ', array_fill(0, count($columns), '?')) . ')';
+            $sql .= '(';
+            $vals = [];
+            $values = [];
+            foreach ($row as $value) {
+                $values[] = $value instanceof Literal ? (string)$value : '?';
+                if (!($value instanceof Literal)) {
+                    if (is_bool($value)) {
+                        $vals[] = $this->castToBool($value);
+                    } else {
+                        $vals[] = $value;
+                    }
+                }
+            }
+            $sql .= implode(', ', $values) . ')';
             $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute(array_values($row));
+            $stmt->execute($vals);
         }
     }
 
@@ -356,6 +369,10 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
 
         if ($value === null) {
             return 'null';
+        }
+
+        if ($value instanceof Literal) {
+            return (string)$value;
         }
 
         return $this->getConnection()->quote($value);
@@ -392,17 +409,23 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             $sql .= implode(', ', $values) . ';';
             $this->output->writeln($sql);
         } else {
-            $count_keys = count($keys);
-            $query = '(' . implode(', ', array_fill(0, $count_keys, '?')) . ')';
-            $count_vars = count($rows);
-            $queries = array_fill(0, $count_vars, $query);
+            $queries = [];
+            foreach ($rows as $row) {
+                $values = [];
+                foreach ($row as $value) {
+                    $values[] = $value instanceof Literal ? (string)$value : '?';
+                }
+                $queries[] = '(' . implode(', ', $values) . ')';
+            }
             $sql .= implode(',', $queries);
             $stmt = $this->getConnection()->prepare($sql);
             $vals = [];
 
             foreach ($rows as $row) {
                 foreach ($row as $v) {
-                    if (is_bool($v)) {
+                    if ($v instanceof Literal) {
+                        continue;
+                    } elseif (is_bool($v)) {
                         $vals[] = $this->castToBool($v);
                     } else {
                         $vals[] = $v;
