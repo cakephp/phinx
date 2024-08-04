@@ -1598,81 +1598,8 @@ class PostgresAdapter extends PdoAdapter
     /**
      * @inheritDoc
      */
-    public function insert(Table $table, array $row): void
+    protected function getInsertOverride(): string
     {
-        $sql = sprintf(
-            'INSERT INTO %s ',
-            $this->quoteTableName($table->getName())
-        );
-        $columns = array_keys($row);
-        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $columns)) . ')';
-
-        foreach ($row as $column => $value) {
-            if (is_bool($value)) {
-                $row[$column] = $this->castToBool($value);
-            }
-        }
-
-        $override = '';
-        if ($this->useIdentity) {
-            $override = self::OVERRIDE_SYSTEM_VALUE . ' ';
-        }
-
-        if ($this->isDryRunEnabled()) {
-            $sql .= ' ' . $override . 'VALUES (' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ');';
-            $this->output->writeln($sql);
-        } else {
-            $sql .= ' ' . $override . 'VALUES (' . implode(', ', array_fill(0, count($columns), '?')) . ')';
-            $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute(array_values($row));
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function bulkinsert(Table $table, array $rows): void
-    {
-        $sql = sprintf(
-            'INSERT INTO %s ',
-            $this->quoteTableName($table->getName())
-        );
-        $current = current($rows);
-        $keys = array_keys($current);
-
-        $override = '';
-        if ($this->useIdentity) {
-            $override = self::OVERRIDE_SYSTEM_VALUE . ' ';
-        }
-
-        $sql .= '(' . implode(', ', array_map([$this, 'quoteColumnName'], $keys)) . ') ' . $override . 'VALUES ';
-
-        if ($this->isDryRunEnabled()) {
-            $values = array_map(function ($row) {
-                return '(' . implode(', ', array_map([$this, 'quoteValue'], $row)) . ')';
-            }, $rows);
-            $sql .= implode(', ', $values) . ';';
-            $this->output->writeln($sql);
-        } else {
-            $count_keys = count($keys);
-            $query = '(' . implode(', ', array_fill(0, $count_keys, '?')) . ')';
-            $count_vars = count($rows);
-            $queries = array_fill(0, $count_vars, $query);
-            $sql .= implode(',', $queries);
-            $stmt = $this->getConnection()->prepare($sql);
-            $vals = [];
-
-            foreach ($rows as $row) {
-                foreach ($row as $v) {
-                    if (is_bool($v)) {
-                        $vals[] = $this->castToBool($v);
-                    } else {
-                        $vals[] = $v;
-                    }
-                }
-            }
-
-            $stmt->execute($vals);
-        }
+        return $this->useIdentity ? self::OVERRIDE_SYSTEM_VALUE . ' ' : '';
     }
 }
