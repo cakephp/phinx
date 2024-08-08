@@ -455,6 +455,10 @@ abstract class AbstractCommand extends Command
             return false;
         }
 
+        if ($environment === null) {
+            $environment = $this->getConfig()->getDefaultEnvironment();
+        }
+
         $envOptions = $this->getConfig()->getEnvironment($environment);
         if (isset($envOptions['adapter'])) {
             $output->writeln('<info>using adapter</info> ' . $envOptions['adapter'], $this->verbosityLevel);
