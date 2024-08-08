@@ -427,7 +427,7 @@ abstract class AbstractCommand extends Command
     /**
      * Write out environment information to the OutputInterface
      */
-    protected function writeEnvironmentOutput(?string $environment, OutputInterface $output): bool
+    protected function writeEnvironmentOutput(?string &$environment, OutputInterface $output): bool
     {
         if ($environment === null) {
             $environment = $this->getConfig()->getDefaultEnvironment();
@@ -448,15 +448,11 @@ abstract class AbstractCommand extends Command
     /**
      * Write out options information to the OutputInterface
      */
-    protected function writeInformationOutput(?string $environment, OutputInterface $output): bool
+    protected function writeInformationOutput(?string &$environment, OutputInterface $output): bool
     {
         $success = $this->writeEnvironmentOutput($environment, $output);
         if (!$success) {
             return false;
-        }
-
-        if ($environment === null) {
-            $environment = $this->getConfig()->getDefaultEnvironment();
         }
 
         $envOptions = $this->getConfig()->getEnvironment($environment);
