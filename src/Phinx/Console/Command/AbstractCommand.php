@@ -424,6 +424,9 @@ abstract class AbstractCommand extends Command
         return __DIR__ . self::DEFAULT_SEED_TEMPLATE;
     }
 
+    /**
+     * Write out environment information to the OutputInterface
+     */
     protected function writeEnvironmentOutput(?string $environment, OutputInterface $output): bool
     {
         if ($environment === null) {
@@ -438,8 +441,13 @@ abstract class AbstractCommand extends Command
 
             return false;
         }
+
+        return true;
     }
 
+    /**
+     * Write out options information to the OutputInterface
+     */
     protected function writeInformationOutput(?string $environment, OutputInterface $output): bool
     {
         $success = $this->writeEnvironmentOutput($environment, $output);
