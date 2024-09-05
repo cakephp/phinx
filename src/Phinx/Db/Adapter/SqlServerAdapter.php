@@ -270,7 +270,7 @@ class SqlServerAdapter extends PdoAdapter
 
         // set the primary key(s)
         if (isset($options['primary_key'])) {
-            $pkSql = sprintf('CONSTRAINT PK_%s PRIMARY KEY (', $table->getName());
+            $pkSql = sprintf('CONSTRAINT PK_%s PRIMARY KEY (', str_replace('.', '_', $table->getName()));
             if (is_string($options['primary_key'])) { // handle primary_key => 'id'
                 $pkSql .= $this->quoteColumnName($options['primary_key']);
             } elseif (is_array($options['primary_key'])) { // handle primary_key => array('tag_id', 'resource_id')
