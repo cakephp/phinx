@@ -12,6 +12,7 @@ use InvalidArgumentException;
 use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
 use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Migration\Manager;
 use Phinx\Util\Util;
 use RuntimeException;
@@ -465,7 +466,11 @@ abstract class AbstractCommand extends Command
         }
 
         if (isset($envOptions['name'])) {
-            $output->writeln('<info>using database</info> ' . $envOptions['name'], $this->verbosityLevel);
+            $name = $envOptions['name'];
+            if ($envOptions['adapter'] === 'sqlite') {
+                $name .= SQLiteAdapter::getSuffix($envOptions);
+            }
+            $output->writeln('<info>using database</info> ' . $name, $this->verbosityLevel);
         } else {
             $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
 
