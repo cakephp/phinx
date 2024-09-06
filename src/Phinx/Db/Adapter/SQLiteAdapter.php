@@ -31,6 +31,8 @@ class SQLiteAdapter extends PdoAdapter
 {
     public const MEMORY = ':memory:';
 
+    public const DEFAULT_SUFFIX = '.sqlite3';
+
     /**
      * List of supported Phinx column types with their SQL equivalents
      * some types have an affinity appended to ensure they do not receive NUMERIC affinity
@@ -117,8 +119,6 @@ class SQLiteAdapter extends PdoAdapter
         'NATIVE CHARACTER',
         'NVARCHAR',
     ];
-
-    const DEFAULT_SUFFIX = '.sqlite3';
 
     /**
      * @var string
@@ -217,6 +217,7 @@ class SQLiteAdapter extends PdoAdapter
         if ($suffix !== '' && strpos($suffix, '.') !== 0) {
             $suffix = '.' . $suffix;
         }
+
         return $suffix;
     }
 
