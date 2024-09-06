@@ -87,8 +87,13 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      * @param array<int, mixed> $options Connection options
      * @return \PDO
      */
-    protected function createPdoConnection(string $dsn, ?string $username = null, #[SensitiveParameter] ?string $password = null, array $options = []): PDO
-    {
+    protected function createPdoConnection(
+        string $dsn,
+        ?string $username = null,
+        #[SensitiveParameter]
+        ?string $password = null,
+        array $options = []
+    ): PDO {
         $adapterOptions = $this->getOptions() + [
             'attr_errmode' => PDO::ERRMODE_EXCEPTION,
         ];
