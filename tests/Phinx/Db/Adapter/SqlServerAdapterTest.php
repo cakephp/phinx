@@ -199,6 +199,13 @@ WHERE t.name='ntable'");
         $this->assertFalse($this->adapter->hasColumn('atable', 'id'));
     }
 
+    public function testCreateFullyQualifiedTable()
+    {
+        (new Table('dbo.qualified_table', [], $this->adapter))->create();
+        $this->assertTrue($this->adapter->hasTable('dbo.qualified_table'));
+        $this->assertTrue($this->adapter->hasPrimaryKey('qualified_table', 'id'));
+    }
+
     public function testCreateTableWithConflictingPrimaryKeys()
     {
         $options = [
