@@ -61,6 +61,25 @@ class PostgresAdapter extends PdoAdapter
     protected bool $useIdentity;
 
     /**
+     * @var string
+     */
+    protected string $schema = 'public';
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setOptions(array $options): AdapterInterface
+    {
+        parent::setOptions($options);
+
+        if (!empty($options['schema'])) {
+            $this->schema = $options['schema'];
+        }
+
+        return $this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function setConnection(PDO $connection): AdapterInterface
@@ -1378,8 +1397,8 @@ class PostgresAdapter extends PdoAdapter
     public function createSchemaTable(): void
     {
         // Create the public/custom schema if it doesn't already exist
-        if ($this->hasSchema($this->getGlobalSchemaName()) === false) {
-            $this->createSchema($this->getGlobalSchemaName());
+        if ($this->hasSchema($this->schema) === false) {
+            $this->createSchema($this->schema);
         }
 
         $this->setSearchPath();
@@ -1528,7 +1547,7 @@ class PostgresAdapter extends PdoAdapter
      */
     protected function getSchemaName(string $tableName): array
     {
-        $schema = $this->getGlobalSchemaName();
+        $schema = $this->schema;
         $table = $tableName;
         if (strpos($tableName, '.') !== false) {
             [$schema, $table] = explode('.', $tableName);
@@ -1538,18 +1557,6 @@ class PostgresAdapter extends PdoAdapter
             'schema' => $schema,
             'table' => $table,
         ];
-    }
-
-    /**
-     * Gets the schema name.
-     *
-     * @return string
-     */
-    protected function getGlobalSchemaName(): string
-    {
-        $options = $this->getOptions();
-
-        return empty($options['schema']) ? 'public' : $options['schema'];
     }
 
     /**
@@ -1574,6 +1581,7 @@ class PostgresAdapter extends PdoAdapter
             'username' => $options['user'] ?? null,
             'password' => $options['pass'] ?? null,
             'database' => $options['name'],
+            'schema' => $this->schema,
             'quoteIdentifiers' => true,
         ] + $options;
 
@@ -1590,7 +1598,7 @@ class PostgresAdapter extends PdoAdapter
         $this->execute(
             sprintf(
                 'SET search_path TO %s,"$user",public',
-                $this->quoteSchemaName($this->getGlobalSchemaName())
+                $this->quoteSchemaName($this->schema)
             )
         );
     }

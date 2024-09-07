@@ -364,6 +364,26 @@ Phinx currently supports the following database adapters natively:
 * `SQLite <https://www.sqlite.org/>`_: specify the ``sqlite`` adapter.
 * `SQL Server <https://www.microsoft.com/sqlserver>`_: specify the ``sqlsrv`` adapter.
 
+The following settings are available for the adapters:
+
+adapter
+    The name of the adapter to use, e.g. ``pgsql``.
+host
+    The database server's hostname (or IP address).
+port
+    The database server's TCP port number.
+user
+    The username for the database.
+pass
+    The password for the database.
+name
+    The name of the database for this environment. For SQLite, it's recommended to use an absolute path,
+    without the file extension.
+suffix
+    The suffix to use for the SQLite database file. Defaults to ``.sqlite3``.
+schema
+    For PostgreSQL, allows specifying the schema to use for the database. Defaults to ``public``.
+
 For each adapter, you may configure the behavior of the underlying PDO object by setting in your
 config object the lowercase version of the constant name. This works for both PDO options
 (e.g. ``\PDO::ATTR_CASE`` would be ``attr_case``) and adapter specific options (e.g. for MySQL
