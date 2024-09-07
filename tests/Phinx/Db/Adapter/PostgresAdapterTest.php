@@ -136,6 +136,18 @@ class PostgresAdapterTest extends TestCase
         $this->assertInstanceOf('\PDO', $this->adapter->getConnection());
     }
 
+    public function testConnectionWithSchema()
+    {
+        $this->adapter->connect();
+        $this->adapter->createSchema('foo');
+
+        $options = PGSQL_DB_CONFIG;
+        $options['schema'] = 'foo';
+        $adapter = new PostgresAdapter($options, new ArrayInput([]), new NullOutput());
+        $adapter->connect();
+        $this->assertTrue($adapter->hasTable('foo.' . $adapter->getSchemaTableName()));
+    }
+
     public function testCreatingTheSchemaTableOnConnect()
     {
         $this->adapter->connect();
@@ -150,7 +162,6 @@ class PostgresAdapterTest extends TestCase
     public function testSchemaTableIsCreatedWithPrimaryKey()
     {
         $this->adapter->connect();
-        new Table($this->adapter->getSchemaTableName(), [], $this->adapter);
         $this->assertTrue($this->adapter->hasIndex($this->adapter->getSchemaTableName(), ['version']));
     }
 
