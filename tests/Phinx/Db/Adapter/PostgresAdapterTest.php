@@ -145,7 +145,7 @@ class PostgresAdapterTest extends TestCase
         $options['schema'] = 'foo';
         $adapter = new PostgresAdapter($options, new ArrayInput([]), new NullOutput());
         $adapter->connect();
-        $this->assertTrue($adapter->hasTable('foo.'. $adapter->getSchemaTableName()));
+        $this->assertTrue($adapter->hasTable('foo.' . $adapter->getSchemaTableName()));
     }
 
     public function testCreatingTheSchemaTableOnConnect()
