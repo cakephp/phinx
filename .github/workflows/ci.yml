@@ -114,6 +114,8 @@ jobs:
     - name: Submit code coverage
       if: matrix.php-version == '8.2'
       uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
 
   testsuite-windows:
     runs-on: windows-2022
@@ -182,6 +184,8 @@ jobs:
 
     - name: Submit code coverage
       uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
 
   cs-stan:
     name: Coding Standard & Static Analysis
