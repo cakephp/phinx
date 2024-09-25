@@ -9,13 +9,13 @@ declare(strict_types=1);
 namespace Phinx\Console\Command;
 
 use InvalidArgumentException;
+use PDO;
 use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Db\Adapter\SQLiteAdapter;
 use Phinx\Migration\Manager;
 use Phinx\Util\Util;
-use PDO;
 use RuntimeException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Command\Command;
