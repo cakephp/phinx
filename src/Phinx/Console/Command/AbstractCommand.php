@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Phinx\Console\Command;
 
 use InvalidArgumentException;
+use PDO;
 use Phinx\Config\Config;
 use Phinx\Config\ConfigInterface;
 use Phinx\Db\Adapter\AdapterInterface;
@@ -467,7 +468,12 @@ abstract class AbstractCommand extends Command
 
         if (isset($envOptions['name'])) {
             $name = $envOptions['name'];
-            if ($envOptions['adapter'] === 'sqlite') {
+            // We do error handling for missing adapter or connection is invalid later on running a command
+            $adapter = $envOptions['adapter'] ?? null;
+            if (isset($envOptions['connection']) && $envOptions['connection'] instanceof PDO) {
+                $adapter = $envOptions['connection']->getAttribute(PDO::ATTR_DRIVER_NAME);
+            }
+            if ($adapter === 'sqlite') {
                 $name .= SQLiteAdapter::getSuffix($envOptions);
             }
             $output->writeln('<info>using database</info> ' . $name, $this->verbosityLevel);
