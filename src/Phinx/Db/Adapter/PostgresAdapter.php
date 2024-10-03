@@ -70,11 +70,11 @@ class PostgresAdapter extends PdoAdapter
      */
     public function setOptions(array $options): AdapterInterface
     {
-        parent::setOptions($options);
-
         if (!empty($options['schema'])) {
             $this->schema = $options['schema'];
         }
+
+        parent::setOptions($options);
 
         return $this;
     }
