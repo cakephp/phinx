@@ -38,7 +38,8 @@ class ListAliasesTest extends TestCase
             ],
             ['decorated' => false]
         );
-        $this->assertEquals(AbstractCommand::CODE_SUCCESS, $exitCode);
+        $expectedExitCode = $hasAliases ? AbstractCommand::CODE_SUCCESS : AbstractCommand::CODE_ERROR;
+        $this->assertSame($expectedExitCode, $exitCode);
 
         $display = $commandTester->getDisplay(false);
 
