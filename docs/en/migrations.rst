@@ -1675,6 +1675,34 @@ be easy to work with as it resembles very closely plain SQL. Accesing the query 
             }
         }
 
+Alternatively, the following methods are available to enhance code organization and improve clarity:
+
+* ``getSelectBuilder()``: Returns a SelectQuery object for building SELECT statements.
+* ``getInsertBuilder()``: Returns an InsertQuery object for building INSERT statements.
+* ``getUpdateBuilder()``: Returns an UpdateQuery object for building UPDATE statements.
+* ``getDeleteBuilder()``: Returns a DeleteQuery object for building DELETE statements.
+
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $builder = $this->getSelectBuilder();
+                $statement = $builder->select('*')->from('users')->execute();
+                var_dump($statement->fetchAll());
+            }
+        }
+
+
 Selecting Fields
 ~~~~~~~~~~~~~~~~
 
