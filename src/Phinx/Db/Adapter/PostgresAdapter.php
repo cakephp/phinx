@@ -1081,7 +1081,7 @@ class PostgresAdapter extends PdoAdapter
             case static::PHINX_TYPE_DOUBLE:
                 return ['name' => 'double precision'];
             case static::PHINX_TYPE_STRING:
-                return ['name' => 'character varying', 'limit' => 255];
+                return ['name' => 'character varying'];
             case static::PHINX_TYPE_CHAR:
                 return ['name' => 'character', 'limit' => 255];
             case static::PHINX_TYPE_BIG_INTEGER:
