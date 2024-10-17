@@ -1680,7 +1680,7 @@ Alternatively, the following methods are available to enhance code organization 
 * ``getSelectBuilder()``: Returns a SelectQuery object for building SELECT statements.
 * ``getInsertBuilder()``: Returns an InsertQuery object for building INSERT statements.
 * ``getUpdateBuilder()``: Returns an UpdateQuery object for building UPDATE statements.
-* ``getDeleteBuilder():`` Returns a DeleteQuery object for building DELETE statements.
+* ``getDeleteBuilder()``: Returns a DeleteQuery object for building DELETE statements.
 
 
 .. code-block:: php
