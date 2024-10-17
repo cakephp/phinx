@@ -36,6 +36,7 @@ class Column
     public const TIMESTAMP = AdapterInterface::PHINX_TYPE_TIMESTAMP;
     public const UUID = AdapterInterface::PHINX_TYPE_UUID;
     public const BINARYUUID = AdapterInterface::PHINX_TYPE_BINARYUUID;
+    public const NATIVEUUID = AdapterInterface::PHINX_TYPE_NATIVEUUID;
     /** MySQL-only column type */
     public const MEDIUMINTEGER = AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER;
     /** MySQL-only column type */

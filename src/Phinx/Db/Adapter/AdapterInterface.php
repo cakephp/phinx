@@ -53,6 +53,7 @@ interface AdapterInterface
     public const PHINX_TYPE_JSON = 'json';
     public const PHINX_TYPE_JSONB = 'jsonb';
     public const PHINX_TYPE_UUID = 'uuid';
+    public const PHINX_TYPE_NATIVEUUID = 'nativeuuid';
     public const PHINX_TYPE_FILESTREAM = 'filestream';
 
     // Geospatial database types

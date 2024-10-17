@@ -1108,6 +1108,8 @@ class MysqlAdapter extends PdoAdapter
                 return ['name' => 'tinyint', 'limit' => 1];
             case static::PHINX_TYPE_UUID:
                 return ['name' => 'char', 'limit' => 36];
+            case static::PHINX_TYPE_NATIVEUUID:
+                return ['name' => 'uuid'];
             case static::PHINX_TYPE_YEAR:
                 if (!$limit || in_array($limit, [2, 4])) {
                     $limit = 4;
@@ -1225,6 +1227,10 @@ class MysqlAdapter extends PdoAdapter
                 if ($limit === 16) {
                     $type = static::PHINX_TYPE_BINARYUUID;
                 }
+                break;
+            case 'uuid':
+                $type = static::PHINX_TYPE_NATIVEUUID;
+                $limit = null;
                 break;
         }
 
