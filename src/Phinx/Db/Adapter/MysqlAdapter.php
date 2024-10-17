@@ -1374,7 +1374,10 @@ class MysqlAdapter extends PdoAdapter
         $def .= $column->getEncoding() ? ' CHARACTER SET ' . $column->getEncoding() : '';
         $def .= $column->getCollation() ? ' COLLATE ' . $column->getCollation() : '';
         $def .= !$column->isSigned() && isset($this->signedColumnTypes[$column->getType()]) ? ' unsigned' : '';
-        $def .= $column->isNull() ? ' NULL' : ' NOT NULL';
+
+        if (!($column->getType() instanceof Literal) || strpos($this->getConnection()->getAttribute(PDO::ATTR_SERVER_VERSION), 'MariaDB') === false) {
+            $def .= $column->isNull() ? ' NULL' : ' NOT NULL';
+        }
 
         if (
             version_compare($this->getAttribute(PDO::ATTR_SERVER_VERSION), '8', '>=')
