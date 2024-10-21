@@ -204,7 +204,7 @@ class SQLiteAdapter extends PdoAdapter
      */
     public static function getSuffix(array $options): string
     {
-        if ($options['name'] === self::MEMORY) {
+        if (($options['name'] ?? '') === self::MEMORY) {
             return '';
         }
 
