@@ -21,6 +21,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use UnexpectedValueException;
 
@@ -439,7 +440,7 @@ abstract class AbstractCommand extends Command
         }
 
         if (!$this->getConfig()->hasEnvironment($environment)) {
-            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
+            self::getErrorOutput($output)->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
 
             return false;
         }
@@ -478,7 +479,7 @@ abstract class AbstractCommand extends Command
             }
             $output->writeln('<info>using database</info> ' . $name, $this->verbosityLevel);
         } else {
-            $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
+            self::getErrorOutput($output)->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
 
             return false;
         }
@@ -491,5 +492,16 @@ abstract class AbstractCommand extends Command
         }
 
         return true;
+    }
+
+    /**
+     * Returns the error output to use
+     *
+     * @param \Symfony\Component\Console\Output\OutputInterface $output Output
+     * @return \Symfony\Component\Console\Output\OutputInterface
+     */
+    protected static function getErrorOutput(OutputInterface $output): OutputInterface
+    {
+        return $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
     }
 }

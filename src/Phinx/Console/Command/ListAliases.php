@@ -70,10 +70,10 @@ class ListAliases extends AbstractCommand
             );
         } else {
             $output->writeln(
-                sprintf(
-                    '<error>No aliases defined in %s</error>',
-                    Util::relativePath($this->config->getConfigFilePath())
-                )
+                '<comment>warning</comment> no aliases defined in ' . Util::relativePath(
+                    $this->config->getConfigFilePath()
+                ),
+                $this->verbosityLevel
             );
         }
 

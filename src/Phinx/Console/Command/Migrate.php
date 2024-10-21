@@ -9,7 +9,6 @@ declare(strict_types=1);
 namespace Phinx\Console\Command;
 
 use DateTime;
-use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -92,12 +91,8 @@ EOT
                 $this->getManager()->migrate($environment, $version, $fake);
             }
             $end = microtime(true);
-        } catch (Exception $e) {
-            $output->writeln('<error>' . $e->__toString() . '</error>');
-
-            return self::CODE_ERROR;
         } catch (Throwable $e) {
-            $output->writeln('<error>' . $e->__toString() . '</error>');
+            self::getErrorOutput($output)->writeln('<error>' . $e->__toString() . '</error>');
 
             return self::CODE_ERROR;
         }
