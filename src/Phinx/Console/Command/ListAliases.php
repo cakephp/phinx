@@ -68,14 +68,14 @@ class ListAliases extends AbstractCommand
                 ),
                 $this->verbosityLevel
             );
-
-            return self::CODE_SUCCESS;
+        } else {
+            $output->writeln(
+                '<comment>warning</comment> no aliases defined in ' . Util::relativePath(
+                    $this->config->getConfigFilePath()
+                ),
+                $this->verbosityLevel
+            );
         }
-
-        $output->writeln(
-            '<comment>warning</comment> no aliases defined in ' . Util::relativePath($this->config->getConfigFilePath()),
-            $this->verbosityLevel
-        );
 
         return self::CODE_SUCCESS;
     }
