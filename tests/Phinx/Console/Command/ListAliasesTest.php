@@ -38,19 +38,18 @@ class ListAliasesTest extends TestCase
             ],
             ['decorated' => false]
         );
-        $expectedExitCode = $hasAliases ? AbstractCommand::CODE_SUCCESS : AbstractCommand::CODE_ERROR;
-        $this->assertSame($expectedExitCode, $exitCode);
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
 
         $display = $commandTester->getDisplay(false);
 
         if ($hasAliases) {
-            $this->assertStringNotContainsString('No aliases defined in ', $display);
+            $this->assertStringNotContainsString('no aliases defined in ', $display);
             $this->assertStringContainsString('Alias            Class                                             ', $display);
             $this->assertStringContainsString('================ ==================================================', $display);
             $this->assertStringContainsString('MakePermission   Vendor\Package\Migration\Creation\MakePermission  ', $display);
             $this->assertStringContainsString('RemovePermission Vendor\Package\Migration\Creation\RemovePermission', $display);
         } else {
-            $this->assertStringContainsString('No aliases defined in ', $display);
+            $this->assertStringContainsString('no aliases defined in ', $display);
         }
     }
 }
