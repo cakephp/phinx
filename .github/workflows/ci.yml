@@ -14,12 +14,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.1', '8.2', '8.3']
+        php-version: ['8.1', '8.4']
         db-type: [sqlite, mysql, pgsql]
         prefer-lowest: ['']
         include:
-          - php-version: '8.3'
-            db-type: sqlite
+          - php-version: '8.2'
+            db-type: mysql
             prefer-lowest: ''
           - php-version: '8.1'
             db-type: sqlite
@@ -27,7 +27,7 @@ jobs:
 
     steps:
     - name: Setup MySQL latest
-      if: matrix.db-type == 'mysql' && matrix.php-version == '8.3'
+      if: matrix.db-type == 'mysql' && matrix.php-version == '8.4'
       run: docker run --rm --name=mysqld -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cakephp -p 3306:3306 -d mysql:8.4
 
     - name: Setup MySQL 8.0
