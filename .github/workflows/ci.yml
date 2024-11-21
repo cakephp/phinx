@@ -101,7 +101,7 @@ jobs:
         if [[ ${{ matrix.db-type }} == 'mysql' ]]; then export MYSQL_DSN='mysql://root:root@127.0.0.1/phinx'; fi
         if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then export PGSQL_DSN='pgsql://postgres:postgres@127.0.0.1/phinx'; fi
 
-        if [[ ${{ matrix.php-version }} == '8.2' ]]; then
+        if [[ ${{ matrix.php-version }} == '8.1' ]]; then
           export CODECOVERAGE=1 && vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
         else
           vendor/bin/phpunit
