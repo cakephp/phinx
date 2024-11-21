@@ -112,7 +112,7 @@ jobs:
       run: composer require --dev dereuromark/composer-prefer-lowest && vendor/bin/validate-prefer-lowest -m
 
     - name: Submit code coverage
-      if: matrix.php-version == '8.2'
+      if: matrix.php-version == '8.1'
       uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
