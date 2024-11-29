@@ -149,6 +149,16 @@ You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
     paths:
         seeds: '%%PHINX_CONFIG_DIR%%/your/relative/path'
 
+Class namespaces may be specified by adding a key to each seed path:
+
+.. code-block:: yaml
+
+    paths:
+        seeds:
+            App\Module1\Seeds: application/module1/seeds
+            App\Module2\Seeds: application/module2/seeds
+
+
 Custom Seeder Base
 ---------------------
 
