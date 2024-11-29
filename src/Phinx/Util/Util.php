@@ -59,7 +59,7 @@ class Util
 
     public static function isUniqueTimestamp(string $path, string $timestamp): bool
     {
-        return !count(static::glob($path. DIRECTORY_SEPARATOR . $timestamp . '*\\.php'));
+        return !count(static::glob($path. DIRECTORY_SEPARATOR . $timestamp . '*.php'));
     }
 
     /**
