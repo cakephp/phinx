@@ -9,6 +9,7 @@ use Phinx\Config\Config;
 use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Create;
 use Phinx\Console\PhinxApplication;
+use Phinx\Util\Util;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -559,6 +560,33 @@ class CreateTest extends TestCase
         $this->assertStringContainsString('public function up()', $migrationContents);
         $this->assertStringContainsString('public function down()', $migrationContents);
         $this->assertStringNotContainsString('public function change()', $migrationContents);
+    }
+
+    public function testCreateMigrationWithExistingTimestamp(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'Foo']);
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'Bar']);
+
+        $files = array_map(fn ($file) => basename($file), Util::getFiles($this->config->getMigrationPaths()));
+        sort($files);
+        $timestamp = explode('_', $files[0])[0];
+        $secondTimestamp = (float)$timestamp + (str_ends_with($timestamp, '59') ? 41 : 1);
+        $this->assertEquals([$timestamp . '_foo.php', $secondTimestamp . '_bar.php'], $files);
     }
 
     public function testCreateMigrationWithInvalidStyleFlagThrows(): void

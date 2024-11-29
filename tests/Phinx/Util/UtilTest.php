@@ -51,6 +51,12 @@ class UtilTest extends TestCase
         $this->assertLessThanOrEqual($expected + 2, $current);
     }
 
+    public function testIsUniqueTimestamp(): void
+    {
+        $this->assertFalse(Util::isUniqueTimestamp(__DIR__ . '/_files/migrations', '20120111235330'));
+        $this->assertTrue(Util::isUniqueTimestamp(__DIR__ . '/_files/migrations', '20120111235301'));
+    }
+
     public function testGetVersionFromFileName(): void
     {
         $this->assertSame(20221130101652, Util::getVersionFromFileName('20221130101652_test.php'));
@@ -62,7 +68,7 @@ class UtilTest extends TestCase
         Util::getVersionFromFileName('foo.php');
     }
 
-    public function testGetVersionFromFileNameErrorZeroVersion(): VoidCommand
+    public function testGetVersionFromFileNameErrorZeroVersion(): void
     {
         $this->expectException(RuntimeException::class);
         Util::getVersionFromFileName('0_foo.php');

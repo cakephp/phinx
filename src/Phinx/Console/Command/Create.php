@@ -167,10 +167,14 @@ class Create extends AbstractCommand
 
         $path = realpath($path);
         $className = $input->getArgument('name');
+        $offset = 0;
+        do {
+            $timestamp = Util::getCurrentTimestamp($offset++);
+        } while (!Util::isUniqueTimestamp($path, $timestamp));
+
         if ($className === null) {
-            $currentTimestamp = Util::getCurrentTimestamp();
-            $className = 'V' . $currentTimestamp;
-            $fileName = $currentTimestamp . '.php';
+            $className = 'V' . $timestamp;
+            $fileName = '';
         } else {
             if (!Util::isValidPhinxClassName($className)) {
                 throw new InvalidArgumentException(sprintf(
@@ -179,9 +183,9 @@ class Create extends AbstractCommand
                 ));
             }
 
-            // Compute the file path
-            $fileName = Util::mapClassNameToFileName($className);
+            $fileName = Util::toSnakeCase($className);
         }
+        $fileName = $timestamp . $fileName . '.php';
 
         if (!Util::isUniqueMigrationClassName($className, $path)) {
             throw new InvalidArgumentException(sprintf(
