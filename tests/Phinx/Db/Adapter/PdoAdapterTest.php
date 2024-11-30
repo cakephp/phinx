@@ -8,6 +8,8 @@ use PDOException;
 use Phinx\Config\Config;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Test\Phinx\DeprecationException;
+use Test\Phinx\TestUtils;
 
 class PdoAdapterTest extends TestCase
 {
@@ -50,9 +52,11 @@ class PdoAdapterTest extends TestCase
 
     public function testOptionsSetDefaultMigrationTableThrowsDeprecation()
     {
+        TestUtils::throwUserDeprecatedError();
+
         $this->assertEquals('phinxlog', $this->adapter->getSchemaTableName());
 
-        $this->expectDeprecation();
+        $this->expectException(DeprecationException::class);
         $this->expectExceptionMessage('The default_migration_table setting for adapter has been deprecated since 0.13.0. Use `migration_table` instead.');
         $this->adapter->setOptions(['default_migration_table' => 'schema_table_test']);
         $this->assertEquals('schema_table_test', $this->adapter->getSchemaTableName());

@@ -140,6 +140,7 @@ class Util
      */
     public static function mapClassNameToFileName(string $className): string
     {
+        trigger_error('Util::mapClassNameToFileName is deprecated since 0.16.6, and will be removed in a future release.', E_USER_DEPRECATED);
         $snake = function ($matches) {
             return '_' . strtolower($matches[0]);
         };

@@ -37,4 +37,12 @@ class TestUtils
         }
         rmdir($path);
     }
+
+    public static function throwUserDeprecatedError(): void
+    {
+        set_error_handler(static function (int $errno, string $errstr): void {
+            restore_error_handler();
+            throw new DeprecationException($errstr, $errno);
+        }, E_USER_DEPRECATED);
+    }
 }

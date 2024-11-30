@@ -7,7 +7,9 @@ use DateTime;
 use DateTimeZone;
 use Phinx\Util\Util;
 use RuntimeException;
+use Test\Phinx\DeprecationException;
 use Test\Phinx\TestCase;
+use Test\Phinx\TestUtils;
 
 class UtilTest extends TestCase
 {
@@ -72,6 +74,13 @@ class UtilTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
         Util::getVersionFromFileName('0_foo.php');
+    }
+
+    public function testMapClassNameToFileNameDeprecated(): void
+    {
+        TestUtils::throwUserDeprecatedError();
+        $this->expectException(DeprecationException::class);
+        Util::mapClassNameToFileName('Test');
     }
 
     public function providerMapClassNameToFileName(): array
