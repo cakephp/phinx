@@ -1,5 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace Test\Phinx;
 
-class DeprecationException extends \Exception {}
+use Exception;
+
+class DeprecationException extends Exception
+{
+}
