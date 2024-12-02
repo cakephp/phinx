@@ -621,6 +621,7 @@ class CreateTest extends TestCase
 
         /** @var Create $command */
         $command = $application->find('create');
+        $command->setConfig($this->config);
 
         $commandTester = new CommandTester($command);
 
