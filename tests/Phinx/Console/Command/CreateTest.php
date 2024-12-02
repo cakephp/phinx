@@ -625,6 +625,7 @@ class CreateTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The migration class name "Class" is a reserved PHP keyword. Please choose a different class name.');
         $commandTester->execute(['command' => $command->getName(), 'name' => 'Class']);
     }
 }
