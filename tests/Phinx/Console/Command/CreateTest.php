@@ -613,4 +613,18 @@ class CreateTest extends TestCase
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--style' => 'foo']);
         $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }
+
+    public function testCreateWithKeywordNameThrows(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        $commandTester = new CommandTester($command);
+
+        $this->expectException(InvalidArgumentException::class);
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'Class']);
+    }
 }
