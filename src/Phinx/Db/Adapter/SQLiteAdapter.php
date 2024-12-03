@@ -1794,7 +1794,7 @@ PCRE_PATTERN;
         if ($sqlTypeDef === null) {
             // in SQLite columns can legitimately have null as a type, which is distinct from the empty string
             $name = null;
-        } elseif (!preg_match('/^([a-z]+)(_(?:integer|float|text|blob))?(?:\((\d+)(?:,(\d+))?\))?$/i', $sqlTypeDef, $match)) {
+        } elseif (!preg_match('/^([a-z]+)(_(?:integer|float|text|blob))?(?:\((\d+)(?:,[ ]*(\d+))?\))?$/i', $sqlTypeDef, $match)) {
             // doesn't match the pattern of a type we'd know about
             $name = Literal::from($sqlTypeDef);
         } else {
