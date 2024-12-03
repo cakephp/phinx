@@ -2438,7 +2438,7 @@ INPUT;
         $this->assertCount(1, $columns);
         $column = array_pop($columns);
         $this->assertSame('real_col', $column->getName());
-        $this->assertEquals('Phinx\Util\Literal', get_class($column->getType()));
+        $this->assertInstanceOf(Literal::class, $column->getType());
         $this->assertEquals(Literal::from('FOO'), $column->getType());
     }
 
