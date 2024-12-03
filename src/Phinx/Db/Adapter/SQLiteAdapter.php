@@ -712,7 +712,8 @@ PCRE_PATTERN;
         foreach ($rows as $columnInfo) {
             $column = new Column();
             $type = $this->getPhinxType($columnInfo['type']);
-            $default = $this->parseDefaultValue($columnInfo['dflt_value'], $type['name']);
+            // $type['name'] is string|Literal, convert it to be a string
+            $default = $this->parseDefaultValue($columnInfo['dflt_value'], (string)$type['name']);
 
             $column->setName($columnInfo['name'])
                 // SQLite on PHP 8.1 returns int for notnull, older versions return a string

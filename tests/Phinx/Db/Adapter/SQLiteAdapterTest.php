@@ -2430,13 +2430,16 @@ OUTPUT;
     public function testLiteralSupport()
     {
         $createQuery = <<<'INPUT'
-CREATE TABLE `test` (`real_col` DECIMAL)
+CREATE TABLE `test` (`real_col` FOO)
 INPUT;
         $this->adapter->execute($createQuery);
         $table = new Table('test', [], $this->adapter);
         $columns = $table->getColumns();
         $this->assertCount(1, $columns);
-        $this->assertEquals(Literal::from('decimal'), array_pop($columns)->getType());
+        $column = array_pop($columns);
+        $this->assertSame('real_col', $column->getName());
+        $this->assertEquals('Phinx\Util\Literal', get_class($column->getType()));
+        $this->assertEquals(Literal::from('FOO'), $column->getType());
     }
 
     /**
@@ -3229,6 +3232,7 @@ INPUT;
             'Arbitrary expression' => ['create table t(a float default ((2) + (2)))', Expression::from('(2) + (2)')],
             'Pathological case 1' => ['create table t(a float default (\'/*\' || \'*/\'))', Expression::from('\'/*\' || \'*/\'')],
             'Pathological case 2' => ['create table t(a float default (\'--\' || \'stuff\'))', Expression::from('\'--\' || \'stuff\'')],
+            'Literal' => ['create table t(a foo default \'bar\')', Literal::from('bar')],
         ];
     }
 
