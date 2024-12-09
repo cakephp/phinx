@@ -403,9 +403,9 @@ using the Manager class :
                 $manager = new Manager($config, new StringInput(' '), new NullOutput());
                 $manager->migrate('test');
                 $manager->seed('test');
+                $this->pdo = $pdo;
                 // You can change default fetch mode after the seeding
                 $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-                $this->pdo = $pdo;
             }
 
         }
