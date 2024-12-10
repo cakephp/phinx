@@ -397,7 +397,8 @@ using the Manager class :
                 $configArray = require('phinx.php');
                 $configArray['environments']['test'] = [
                     'adapter'    => 'sqlite',
-                    'connection' => $pdo
+                    'connection' => $pdo,
+                    'name' => ':memory:',
                 ];
                 $config = new Config($configArray);
                 $manager = new Manager($config, new StringInput(' '), new NullOutput());
