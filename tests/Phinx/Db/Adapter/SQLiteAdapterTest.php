@@ -3481,4 +3481,23 @@ INPUT;
         $adapter = new SQLiteAdapter(SQLITE_DB_CONFIG);
         $this->assertFalse($adapter->getConnection()->getAttribute(PDO::ATTR_PERSISTENT));
     }
+
+    public function isMemoryProvider(): array
+    {
+        return [
+            [['name' => ':memory:'], true],
+            [['memory' => true], true],
+            [['name' => 'foo', 'memory' => true], true],
+            [['name' => 'bar'], false],
+            [['memory' => false], false],
+        ];
+    }
+
+    /**
+     * @dataProvider isMemoryProvider
+     */
+    public function testIsMemory(array $config, bool $expected): void
+    {
+        $this->assertSame($expected, SQLiteAdapter::isMemory($config));
+    }
 }

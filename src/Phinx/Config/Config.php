@@ -179,7 +179,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             if (
                 isset($environments[$name]['adapter'])
                 && $environments[$name]['adapter'] === 'sqlite'
-                && !empty($environments[$name]['memory'])
+                && SQLiteAdapter::isMemory($environments[$name])
             ) {
                 $environments[$name]['name'] = SQLiteAdapter::MEMORY;
             }
