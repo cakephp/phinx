@@ -394,7 +394,7 @@ using the Manager class :
                 $pdo = new PDO('sqlite::memory:', null, null, [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
                 ]);
-                $configArray = require('phinx.php');
+                $configArray = require 'phinx.php';
                 $configArray['environments']['test'] = [
                     'adapter'    => 'sqlite',
                     'connection' => $pdo,
