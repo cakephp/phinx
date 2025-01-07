@@ -400,7 +400,10 @@ using the Manager class :
                     'connection' => $pdo,
                     'name' => ':memory:',
                 ];
-                $config = new Config($configArray);
+                $config = new Config(
+                    $configArray,
+                    __DIR__ . '/../phinx.php'
+                 );
                 $manager = new Manager($config, new StringInput(' '), new NullOutput());
                 $manager->migrate('test');
                 $manager->seed('test');
