@@ -197,8 +197,8 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     public function execute(string $sql, array $params = []): int
     {
-        $sql = rtrim($sql, "; \t\n\r\0\x0B") . ';';
-        $this->verboseLog($sql);
+        $sql = rtrim($sql, "; \t\n\r\0\x0B");
+        $this->verboseLog($sql . ';');
 
         if ($this->isDryRunEnabled()) {
             return 0;

@@ -188,7 +188,7 @@ class PdoAdapterTest extends TestCase
     {
         /** @var \PDO&\PHPUnit\Framework\MockObject\MockObject $pdo */
         $pdo = $this->getMockBuilder(PDO::class)->disableOriginalConstructor()->onlyMethods(['exec'])->getMock();
-        $pdo->expects($this->once())->method('exec')->with('SELECT 1;')->will($this->returnValue(1));
+        $pdo->expects($this->once())->method('exec')->with('SELECT 1')->will($this->returnValue(1));
 
         $this->adapter->setConnection($pdo);
         $this->adapter->execute('SELECT 1');
@@ -198,7 +198,7 @@ class PdoAdapterTest extends TestCase
     {
         /** @var \PDO&\PHPUnit\Framework\MockObject\MockObject $pdo */
         $pdo = $this->getMockBuilder(PDO::class)->disableOriginalConstructor()->onlyMethods(['exec'])->getMock();
-        $pdo->expects($this->once())->method('exec')->with('SELECT 1;')->will($this->returnValue(1));
+        $pdo->expects($this->once())->method('exec')->with('SELECT 1')->will($this->returnValue(1));
 
         $this->adapter->setConnection($pdo);
         $this->adapter->execute('SELECT 1;;');

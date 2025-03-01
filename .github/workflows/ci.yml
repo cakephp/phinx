@@ -91,7 +91,7 @@ jobs:
             n=$((n+1))
             sleep 2
           done
-          mysql -h 127.0.0.1 -u root -proot -D phinx -e 'SELECT 1;'
+          mysql -h 127.0.0.1 -u root -proot -D phinx -e 'SELECT 1'
         fi
         if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then psql -c 'CREATE DATABASE phinx;' postgresql://postgres:postgres@127.0.0.1; fi
 
