@@ -394,7 +394,8 @@ using the Manager class :
                 $pdo = new PDO('sqlite::memory:', null, null, [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
                 ]);
-                $configArray = require 'phinx.php';
+                $configPath = __DIR__ . '/../phinx.php';
+                $configArray = require $configPath;
                 $configArray['environments']['test'] = [
                     'adapter'    => 'sqlite',
                     'connection' => $pdo,
@@ -402,7 +403,7 @@ using the Manager class :
                 ];
                 $config = new Config(
                     $configArray,
-                    __DIR__ . '/../phinx.php'
+                    $configPath
                  );
                 $manager = new Manager($config, new StringInput(' '), new NullOutput());
                 $manager->migrate('test');
