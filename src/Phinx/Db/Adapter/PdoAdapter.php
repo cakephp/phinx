@@ -262,6 +262,8 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
         foreach ($row as $column => $value) {
             if (is_bool($value)) {
                 $row[$column] = $this->castToBool($value);
+            } elseif (preg_match('/^[1-9][0-9]{3}-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/', $value)) {
+                $row[$column] = $this->castToDate($value);
             }
         }
 
@@ -337,6 +339,8 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
                 foreach ($row as $v) {
                     if (is_bool($v)) {
                         $vals[] = $this->castToBool($v);
+                    } elseif (preg_match('/^[1-9][0-9]{3}-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/', $v)) {
+                        $vals[] = $this->castToDate($v);
                     } else {
                         $vals[] = $v;
                     }
@@ -412,8 +416,8 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
                 $this->quoteColumnName('breakpoint'),
                 $migration->getVersion(),
                 substr($migration->getName(), 0, 100),
-                $startTime,
-                $endTime,
+                $this->castToDate($startTime),
+                $this->castToDate($endTime),
                 $this->castToBool(false)
             );
 
@@ -579,6 +583,15 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
+     * @param string|null $value Date & time, in iso format (Y-m-d H:i:s)
+     * @return string
+     */
+    public function castToDate(?string $value)
+    {
+        return $value;
+    }
+
+    /**
      * Retrieve a database connection attribute
      *
      * @see https://php.net/manual/en/pdo.getattribute.php
@@ -606,6 +619,8 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {
             $default = $this->castToBool($default);
+        } elseif ($default !== null && $columnType === static::PHINX_TYPE_DATETIME) {
+            $default = $this->castToDate($default);
         } elseif ($default !== null && $columnType === static::PHINX_TYPE_BOOLEAN) {
             $default = $this->castToBool((bool)$default);
         }
