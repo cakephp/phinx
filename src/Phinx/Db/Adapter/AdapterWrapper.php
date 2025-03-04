@@ -467,6 +467,14 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function castToDate($value)
+    {
+        return $this->getAdapter()->castToDate($value);
+    }
+
+    /**
      * @return \PDO
      */
     public function getConnection(): PDO
