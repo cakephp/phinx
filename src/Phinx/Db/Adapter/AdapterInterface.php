@@ -535,4 +535,10 @@ interface AdapterInterface
      * @return mixed
      */
     public function castToBool(mixed $value): mixed;
+
+    /**
+     * @param string|null $value Date & time, in iso-format (Y-m-d H:i:s)
+     * @return string
+     */
+    public function castToDate(?string $value);
 }
