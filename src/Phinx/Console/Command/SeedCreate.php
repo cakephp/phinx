@@ -45,7 +45,7 @@ class SeedCreate extends AbstractCommand
             ->setHelp(sprintf(
                 '%sCreates a new database seeder%s',
                 PHP_EOL,
-                PHP_EOL
+                PHP_EOL,
             ));
 
         // An alternative template.
@@ -104,7 +104,7 @@ class SeedCreate extends AbstractCommand
             throw new Exception(
                 'You probably used curly braces to define seed path in your Phinx configuration file, ' .
                 'but no directories have been matched using this pattern. ' .
-                'You need to create a seed directory manually.'
+                'You need to create a seed directory manually.',
             );
         }
 
@@ -155,7 +155,7 @@ class SeedCreate extends AbstractCommand
         if (!Util::isValidPhinxClassName($className)) {
             throw new InvalidArgumentException(sprintf(
                 'The seed class name "%s" is invalid. Please use CamelCase format',
-                $className
+                $className,
             ));
         }
 
@@ -165,7 +165,7 @@ class SeedCreate extends AbstractCommand
         if (is_file($filePath)) {
             throw new InvalidArgumentException(sprintf(
                 'The file "%s" already exists',
-                basename($filePath)
+                basename($filePath),
             ));
         }
 
@@ -176,7 +176,7 @@ class SeedCreate extends AbstractCommand
         if ($altTemplate && !is_file($altTemplate)) {
             throw new InvalidArgumentException(sprintf(
                 'The template file "%s" does not exist',
-                $altTemplate
+                $altTemplate,
             ));
         }
 
@@ -187,7 +187,7 @@ class SeedCreate extends AbstractCommand
             if (!is_null($altTemplate) && !is_file($altTemplate)) {
                 throw new InvalidArgumentException(sprintf(
                     'The template file `%s` from config does not exist',
-                    $altTemplate
+                    $altTemplate,
                 ));
             }
         }
@@ -209,7 +209,7 @@ class SeedCreate extends AbstractCommand
         if (file_put_contents($filePath, $contents) === false) {
             throw new RuntimeException(sprintf(
                 'The file "%s" could not be written to',
-                $path
+                $path,
             ));
         }
 

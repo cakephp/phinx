@@ -213,7 +213,7 @@ class SeedRunTest extends TestCase
                     ->method('seed')->withConsecutive(
                         [$this->identicalTo('development'), $this->identicalTo('One')],
                         [$this->identicalTo('development'), $this->identicalTo('Two')],
-                        [$this->identicalTo('development'), $this->identicalTo('Three')]
+                        [$this->identicalTo('development'), $this->identicalTo('Three')],
                     );
 
         $command->setConfig($this->config);
@@ -225,7 +225,7 @@ class SeedRunTest extends TestCase
                 'command' => $command->getName(),
                 '--seed' => ['One', 'Two', 'Three'],
             ],
-            ['decorated' => false]
+            ['decorated' => false],
         );
         $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
 
@@ -273,7 +273,7 @@ class SeedRunTest extends TestCase
                 'command' => $command->getName(),
                 '--environment' => 'development',
             ],
-            ['decorated' => false]
+            ['decorated' => false],
         );
 
         $this->assertStringContainsString(implode(PHP_EOL, [

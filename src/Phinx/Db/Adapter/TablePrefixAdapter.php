@@ -59,7 +59,7 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
     {
         $adapterTable = new Table(
             $this->getAdapterTableName($table->getName()),
-            $table->getOptions()
+            $table->getOptions(),
         );
         parent::createTable($adapterTable, $columns, $indexes);
     }
@@ -79,7 +79,7 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
 
         $adapterTable = new Table(
             $this->getAdapterTableName($table->getName()),
-            $table->getOptions()
+            $table->getOptions(),
         );
         $adapter->changePrimaryKey($adapterTable, $newColumns);
     }
@@ -99,7 +99,7 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
 
         $adapterTable = new Table(
             $this->getAdapterTableName($table->getName()),
-            $table->getOptions()
+            $table->getOptions(),
         );
         $adapter->changeComment($adapterTable, $newComment);
     }
@@ -483,7 +483,7 @@ class TablePrefixAdapter extends AdapterWrapper implements DirectActionInterface
 
                 default:
                     throw new InvalidArgumentException(
-                        sprintf("Forgot to implement table prefixing for action: '%s'", get_class($action))
+                        sprintf("Forgot to implement table prefixing for action: '%s'", get_class($action)),
                     );
             }
         }

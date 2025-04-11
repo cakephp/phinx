@@ -199,7 +199,7 @@ class Plan
             ChangeColumn::class,
             function (RenameColumn $a, ChangeColumn $b) {
                 return $a->getNewName() === $b->getColumnName();
-            }
+            },
         );
         $tableUpdates = [];
         foreach ($this->tableUpdates as $update) {
@@ -219,13 +219,13 @@ class Plan
             AddForeignKey::class,
             function (DropForeignKey $a, AddForeignKey $b) {
                 return $a->getForeignKey()->getColumns() === $b->getForeignKey()->getColumns();
-            }
+            },
         );
         $constraints = [];
         foreach ($this->constraints as $constraint) {
             $constraints = array_merge(
                 $constraints,
-                $splitter($this->remapContraintAndIndexConflicts($constraint))
+                $splitter($this->remapContraintAndIndexConflicts($constraint)),
             );
         }
         $this->constraints = $constraints;
@@ -271,7 +271,7 @@ class Plan
                 [$this->indexes, $dropIndexActions] = $this->forgetDropIndex(
                     $action->getTable(),
                     $action->getForeignKey()->getColumns(),
-                    $this->indexes
+                    $this->indexes,
                 );
                 foreach ($dropIndexActions as $dropIndexAction) {
                     $newAlter->addAction($dropIndexAction);

@@ -325,7 +325,7 @@ class MigrateTest extends TestCase
         $commandTester = new CommandTester($command);
         $exitCode = $commandTester->execute(
             ['command' => $command->getName(), '--environment' => 'development', '--date' => 'yesterday'],
-            ['decorated' => false]
+            ['decorated' => false],
         );
 
         $this->assertStringContainsString('using environment development', $commandTester->getDisplay());
@@ -357,7 +357,7 @@ class MigrateTest extends TestCase
         $commandTester = new CommandTester($command);
         $exitCode = $commandTester->execute(
             ['command' => $command->getName(), '--environment' => 'development'],
-            ['decorated' => false, 'capture_stderr_separately' => true]
+            ['decorated' => false, 'capture_stderr_separately' => true],
         );
 
         $this->assertStringContainsString('using environment development', $commandTester->getDisplay());

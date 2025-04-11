@@ -50,7 +50,7 @@ class TablePrefixAdapterTest extends TestCase
             ->method('getOption')
             ->with($this->logicalOr(
                 $this->equalTo('table_prefix'),
-                $this->equalTo('table_suffix')
+                $this->equalTo('table_suffix'),
             ))
             ->will($this->returnCallback(function ($option) use ($options) {
                 return $options[$option];
@@ -103,7 +103,7 @@ class TablePrefixAdapterTest extends TestCase
             ->with($this->callback(
                 function ($table) {
                     return $table->getName() === 'pre_table_suf';
-                }
+                },
             ));
 
         $this->adapter->createTable($table);
@@ -120,7 +120,7 @@ class TablePrefixAdapterTest extends TestCase
             ->method('changePrimaryKey')
             ->with(
                 $this->equalTo($expectedTable),
-                $this->equalTo($newColumns)
+                $this->equalTo($newColumns),
             );
 
         $this->adapter->changePrimaryKey($table, $newColumns);
@@ -137,7 +137,7 @@ class TablePrefixAdapterTest extends TestCase
             ->method('changeComment')
             ->with(
                 $this->equalTo($expectedTable),
-                $this->equalTo($newComment)
+                $this->equalTo($newComment),
             );
 
         $this->adapter->changeComment($table, $newComment);
@@ -150,7 +150,7 @@ class TablePrefixAdapterTest extends TestCase
             ->method('renameTable')
             ->with(
                 $this->equalTo('pre_old_suf'),
-                $this->equalTo('pre_new_suf')
+                $this->equalTo('pre_new_suf'),
             );
 
         $this->adapter->renameTable('old', 'new');
@@ -183,7 +183,7 @@ class TablePrefixAdapterTest extends TestCase
             ->method('hasColumn')
             ->with(
                 $this->equalTo('pre_table_suf'),
-                $this->equalTo('column')
+                $this->equalTo('column'),
             );
 
         $this->adapter->hasColumn('table', 'column');
@@ -201,7 +201,7 @@ class TablePrefixAdapterTest extends TestCase
                 function ($table) {
                     return $table->getName() === 'pre_table_suf';
                 },
-                $this->equalTo($column)
+                $this->equalTo($column),
             ));
 
         $this->adapter->addColumn($table, $column);
@@ -215,7 +215,7 @@ class TablePrefixAdapterTest extends TestCase
             ->with(
                 $this->equalTo('pre_table_suf'),
                 $this->equalTo('column'),
-                $this->equalTo('new_column')
+                $this->equalTo('new_column'),
             );
 
         $this->adapter->renameColumn('table', 'column', 'new_column');
@@ -231,7 +231,7 @@ class TablePrefixAdapterTest extends TestCase
             ->with(
                 $this->equalTo('pre_table_suf'),
                 $this->equalTo('column'),
-                $this->equalTo($newColumn)
+                $this->equalTo($newColumn),
             );
 
         $this->adapter->changeColumn('table', 'column', $newColumn);
@@ -244,7 +244,7 @@ class TablePrefixAdapterTest extends TestCase
             ->method('dropColumn')
             ->with(
                 $this->equalTo('pre_table_suf'),
-                $this->equalTo('column')
+                $this->equalTo('column'),
             );
 
         $this->adapter->dropColumn('table', 'column');
@@ -259,7 +259,7 @@ class TablePrefixAdapterTest extends TestCase
             ->method('hasIndex')
             ->with(
                 $this->equalTo('pre_table_suf'),
-                $this->equalTo($columns)
+                $this->equalTo($columns),
             );
 
         $this->adapter->hasIndex('table', $columns);
@@ -274,7 +274,7 @@ class TablePrefixAdapterTest extends TestCase
             ->method('dropIndex')
             ->with(
                 $this->equalTo('pre_table_suf'),
-                $this->equalTo($columns)
+                $this->equalTo($columns),
             );
 
         $this->adapter->dropIndex('table', $columns);
@@ -287,7 +287,7 @@ class TablePrefixAdapterTest extends TestCase
             ->method('dropIndexByName')
             ->with(
                 $this->equalTo('pre_table_suf'),
-                $this->equalTo('index')
+                $this->equalTo('index'),
             );
 
         $this->adapter->dropIndexByName('table', 'index');
@@ -304,7 +304,7 @@ class TablePrefixAdapterTest extends TestCase
             ->with(
                 $this->equalTo('pre_table_suf'),
                 $this->equalTo($columns),
-                $this->equalTo($constraint)
+                $this->equalTo($constraint),
             );
 
         $this->adapter->hasPrimaryKey('table', $columns, $constraint);
@@ -321,7 +321,7 @@ class TablePrefixAdapterTest extends TestCase
             ->with(
                 $this->equalTo('pre_table_suf'),
                 $this->equalTo($columns),
-                $this->equalTo($constraint)
+                $this->equalTo($constraint),
             );
 
         $this->adapter->hasForeignKey('table', $columns, $constraint);
@@ -339,7 +339,7 @@ class TablePrefixAdapterTest extends TestCase
                 function ($table) {
                     return $table->getName() === 'pre_table_suf';
                 },
-                $this->equalTo($foreignKey)
+                $this->equalTo($foreignKey),
             ));
 
         $this->adapter->addForeignKey($table, $foreignKey);
@@ -356,7 +356,7 @@ class TablePrefixAdapterTest extends TestCase
             ->with(
                 $this->equalTo('pre_table_suf'),
                 $this->equalTo($columns),
-                $this->equalTo($constraint)
+                $this->equalTo($constraint),
             );
 
         $this->adapter->dropForeignKey('table', $columns, $constraint);
@@ -373,7 +373,7 @@ class TablePrefixAdapterTest extends TestCase
                 function ($table) {
                     return $table->getName() === 'pre_table_suf';
                 },
-                $this->equalTo($row)
+                $this->equalTo($row),
             ));
 
         $table = new Table('table', [], $this->adapter);
@@ -417,12 +417,12 @@ class TablePrefixAdapterTest extends TestCase
                     if ($action instanceof AddForeignKey) {
                         $this->assertEquals(
                             'pre_another_table_suf',
-                            $newActions[0]->getForeignKey()->getReferencedTable()->getName()
+                            $newActions[0]->getForeignKey()->getReferencedTable()->getName(),
                         );
                     } elseif ($action instanceof RenameTable) {
                         $this->assertEquals(
                             'pre_new_name_suf',
-                            $newActions[0]->getNewName()
+                            $newActions[0]->getNewName(),
                         );
                     }
                 }

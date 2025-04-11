@@ -48,7 +48,7 @@ You cannot specify un-migrated targets
 <info>phinx breakpoint -e development</info>
 <info>phinx breakpoint -e development -t 20110103081132</info>
 <info>phinx breakpoint -e development -r</info>
-EOT
+EOT,
             );
     }
 

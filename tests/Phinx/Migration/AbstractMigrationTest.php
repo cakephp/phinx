@@ -24,7 +24,7 @@ class AbstractMigrationTest extends TestCase
         $migrationStub->setAdapter($adapterStub);
         $this->assertInstanceOf(
             'Phinx\Db\Adapter\AdapterInterface',
-            $migrationStub->getAdapter()
+            $migrationStub->getAdapter(),
         );
     }
 
@@ -258,7 +258,7 @@ class AbstractMigrationTest extends TestCase
 
         $this->assertInstanceOf(
             'Phinx\Db\Table',
-            $migrationStub->table('test_table')
+            $migrationStub->table('test_table'),
         );
     }
 

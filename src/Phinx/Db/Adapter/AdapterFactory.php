@@ -73,7 +73,7 @@ class AdapterFactory
         if (!is_subclass_of($class, 'Phinx\Db\Adapter\AdapterInterface')) {
             throw new RuntimeException(sprintf(
                 'Adapter class "%s" must implement Phinx\\Db\\Adapter\\AdapterInterface',
-                is_string($class) ? $class : get_class($class)
+                is_string($class) ? $class : get_class($class),
             ));
         }
         $this->adapters[$name] = $class;
@@ -94,7 +94,7 @@ class AdapterFactory
         if (empty($this->adapters[$name])) {
             throw new RuntimeException(sprintf(
                 'Adapter "%s" has not been registered',
-                $name
+                $name,
             ));
         }
 
@@ -128,7 +128,7 @@ class AdapterFactory
         if (!is_subclass_of($class, 'Phinx\Db\Adapter\WrapperInterface')) {
             throw new RuntimeException(sprintf(
                 'Wrapper class "%s" must be implement Phinx\\Db\\Adapter\\WrapperInterface',
-                is_string($class) ? $class : get_class($class)
+                is_string($class) ? $class : get_class($class),
             ));
         }
         $this->wrappers[$name] = $class;
@@ -148,7 +148,7 @@ class AdapterFactory
         if (empty($this->wrappers[$name])) {
             throw new RuntimeException(sprintf(
                 'Wrapper "%s" has not been registered',
-                $name
+                $name,
             ));
         }
 

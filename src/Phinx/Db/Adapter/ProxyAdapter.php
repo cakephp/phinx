@@ -107,7 +107,7 @@ class ProxyAdapter extends AdapterWrapper
                 default:
                     throw new IrreversibleMigrationException(sprintf(
                         'Cannot reverse a "%s" command',
-                        get_class($command)
+                        get_class($command),
                     ));
             }
         }

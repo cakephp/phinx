@@ -225,7 +225,7 @@ abstract class AbstractAdapter implements AdapterInterface
             if (!isset($options['type'])) {
                 throw new InvalidArgumentException(sprintf(
                     'You must specify a type for data domain type "%s".',
-                    $type
+                    $type,
                 ));
             }
 
@@ -238,7 +238,7 @@ abstract class AbstractAdapter implements AdapterInterface
                 throw new InvalidArgumentException(sprintf(
                     'An invalid column type "%s" was specified for data domain type "%s".',
                     $options['type'],
-                    $type
+                    $type,
                 ));
             }
 
@@ -257,7 +257,7 @@ abstract class AbstractAdapter implements AdapterInterface
                     throw new InvalidArgumentException(sprintf(
                         'An invalid limit value "%s" was specified for data domain type "%s".',
                         $options['limit'],
-                        $type
+                        $type,
                     ));
                 }
 
@@ -318,7 +318,7 @@ abstract class AbstractAdapter implements AdapterInterface
             throw new InvalidArgumentException(
                 'There was a problem creating the schema table: ' . $exception->getMessage(),
                 (int)$exception->getCode(),
-                $exception
+                $exception,
             );
         }
     }

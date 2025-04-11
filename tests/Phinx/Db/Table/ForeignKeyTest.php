@@ -24,7 +24,7 @@ class ForeignKeyTest extends TestCase
     {
         $this->assertEquals(
             ForeignKey::SET_NULL,
-            $this->fk->setOptions(['delete' => ForeignKey::SET_NULL])->getOnDelete()
+            $this->fk->setOptions(['delete' => ForeignKey::SET_NULL])->getOnDelete(),
         );
     }
 

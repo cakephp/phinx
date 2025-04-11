@@ -371,14 +371,14 @@ abstract class AbstractCommand extends Command
         if (!is_dir($path)) {
             throw new InvalidArgumentException(sprintf(
                 'Migration directory "%s" does not exist',
-                $path
+                $path,
             ));
         }
 
         if (!is_writable($path)) {
             throw new InvalidArgumentException(sprintf(
                 'Migration directory "%s" is not writable',
-                $path
+                $path,
             ));
         }
     }
@@ -395,14 +395,14 @@ abstract class AbstractCommand extends Command
         if (!is_dir($path)) {
             throw new InvalidArgumentException(sprintf(
                 'Seed directory "%s" does not exist',
-                $path
+                $path,
             ));
         }
 
         if (!is_writable($path)) {
             throw new InvalidArgumentException(sprintf(
                 'Seed directory "%s" is not writable',
-                $path
+                $path,
             ));
         }
     }

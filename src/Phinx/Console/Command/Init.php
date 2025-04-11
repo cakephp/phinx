@@ -50,13 +50,13 @@ class Init extends Command
                 '-f',
                 InputArgument::OPTIONAL,
                 'What format should we use to initialize?',
-                AbstractCommand::FORMAT_DEFAULT
+                AbstractCommand::FORMAT_DEFAULT,
             )
             ->addArgument('path', InputArgument::OPTIONAL, 'Which path should we initialize for Phinx?')
             ->setHelp(sprintf(
                 '%sInitializes the application for Phinx%s',
                 PHP_EOL,
-                PHP_EOL
+                PHP_EOL,
             ));
     }
 
@@ -94,7 +94,7 @@ class Init extends Command
         if (!in_array($format, static::$supportedFormats, true)) {
             throw new InvalidArgumentException(sprintf(
                 'Invalid format "%s". Format must be either ' . implode(', ', static::$supportedFormats) . '.',
-                $format
+                $format,
             ));
         }
 
@@ -118,14 +118,14 @@ class Init extends Command
         if (is_file($path)) {
             throw new InvalidArgumentException(sprintf(
                 'Config file "%s" already exists.',
-                $path
+                $path,
             ));
         }
 
         // Dir is invalid
         throw new InvalidArgumentException(sprintf(
             'Invalid path "%s" for config file.',
-            $path
+            $path,
         ));
     }
 
@@ -145,7 +145,7 @@ class Init extends Command
         if (!is_writable($dirname)) {
             throw new InvalidArgumentException(sprintf(
                 'The directory "%s" is not writable',
-                $dirname
+                $dirname,
             ));
         }
 
@@ -159,14 +159,14 @@ class Init extends Command
         } else {
             throw new RuntimeException(sprintf(
                 'Could not find template for format "%s".',
-                $format
+                $format,
             ));
         }
 
         if (file_put_contents($path, $contents) === false) {
             throw new RuntimeException(sprintf(
                 'The file "%s" could not be written to',
-                $path
+                $path,
             ));
         }
     }

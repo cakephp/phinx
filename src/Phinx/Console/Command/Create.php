@@ -59,7 +59,7 @@ class Create extends AbstractCommand
             ->setHelp(sprintf(
                 '%sCreates a new database migration%s',
                 PHP_EOL,
-                PHP_EOL
+                PHP_EOL,
             ));
 
         // An alternative template.
@@ -127,7 +127,7 @@ class Create extends AbstractCommand
             throw new Exception(
                 'You probably used curly braces to define migration path in your Phinx configuration file, ' .
                 'but no directories have been matched using this pattern. ' .
-                'You need to create a migration directory manually.'
+                'You need to create a migration directory manually.',
             );
         }
 
@@ -179,7 +179,7 @@ class Create extends AbstractCommand
         if ($className !== null && in_array(strtolower($className), $this->keywords)) {
             throw new InvalidArgumentException(sprintf(
                 'The migration class name "%s" is a reserved PHP keyword. Please choose a different class name.',
-                $className
+                $className,
             ));
         }
 
@@ -195,7 +195,7 @@ class Create extends AbstractCommand
             if (!Util::isValidPhinxClassName($className)) {
                 throw new InvalidArgumentException(sprintf(
                     'The migration class name "%s" is invalid. Please use CamelCase format.',
-                    $className
+                    $className,
                 ));
             }
 
@@ -207,7 +207,7 @@ class Create extends AbstractCommand
             throw new InvalidArgumentException(sprintf(
                 'The migration class name "%s%s" already exists',
                 $namespace ? $namespace . '\\' : '',
-                $className
+                $className,
             ));
         }
 
@@ -216,7 +216,7 @@ class Create extends AbstractCommand
         if (is_file($filePath)) {
             throw new InvalidArgumentException(sprintf(
                 'The file "%s" already exists',
-                $filePath
+                $filePath,
             ));
         }
 
@@ -253,7 +253,7 @@ class Create extends AbstractCommand
         if ($altTemplate && !is_file($altTemplate)) {
             throw new InvalidArgumentException(sprintf(
                 'The alternative template file "%s" does not exist',
-                $altTemplate
+                $altTemplate,
             ));
         }
 
@@ -267,12 +267,12 @@ class Create extends AbstractCommand
                     throw new InvalidArgumentException(sprintf(
                         'The class "%s" via the alias "%s" does not exist',
                         $aliasedClassName,
-                        $creationClassName
+                        $creationClassName,
                     ));
                 } elseif (!$aliasedClassName) {
                     throw new InvalidArgumentException(sprintf(
                         'The class "%s" does not exist',
-                        $creationClassName
+                        $creationClassName,
                     ));
                 }
             }
@@ -282,14 +282,14 @@ class Create extends AbstractCommand
                 throw new InvalidArgumentException(sprintf(
                     'The class "%s" does not implement the required interface "%s"',
                     $creationClassName,
-                    self::CREATION_INTERFACE
+                    self::CREATION_INTERFACE,
                 ));
             } elseif ($aliasedClassName && !is_subclass_of($aliasedClassName, self::CREATION_INTERFACE)) {
                 throw new InvalidArgumentException(sprintf(
                     'The class "%s" via the alias "%s" does not implement the required interface "%s"',
                     $aliasedClassName,
                     $creationClassName,
-                    self::CREATION_INTERFACE
+                    self::CREATION_INTERFACE,
                 ));
             }
         }
@@ -321,7 +321,7 @@ class Create extends AbstractCommand
         if (file_put_contents($filePath, $contents) === false) {
             throw new RuntimeException(sprintf(
                 'The file "%s" could not be written to',
-                $path
+                $path,
             ));
         }
 

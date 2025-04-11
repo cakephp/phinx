@@ -81,7 +81,7 @@ class PdoAdapterTest extends TestCase
             true,
             true,
             true,
-            ['fetchAll', 'getSchemaTableName', 'quoteTableName']
+            ['fetchAll', 'getSchemaTableName', 'quoteTableName'],
         );
 
         $schemaTableName = 'log';
@@ -141,7 +141,7 @@ class PdoAdapterTest extends TestCase
         $this->expectExceptionMessage('Invalid version_order configuration option');
         $adapter = $this->getMockForAbstractClass(
             '\Phinx\Db\Adapter\PdoAdapter',
-            [['version_order' => 'invalid']]
+            [['version_order' => 'invalid']],
         );
 
         $this->expectException(RuntimeException::class);
@@ -158,7 +158,7 @@ class PdoAdapterTest extends TestCase
             true,
             true,
             true,
-            ['isDryRunEnabled', 'fetchAll', 'getSchemaTableName', 'quoteTableName']
+            ['isDryRunEnabled', 'fetchAll', 'getSchemaTableName', 'quoteTableName'],
         );
 
         $schemaTableName = 'log';

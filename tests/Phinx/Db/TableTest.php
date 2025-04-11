@@ -37,7 +37,7 @@ class TableTest extends TestCase
                     [$adapter[0], 'created', 'updated', 'created', 'updated', false],
                     [$adapter[0], null, 'amendment_date', 'created_at', 'amendment_date', true],
                     [$adapter[0], 'insertion_date', null, 'insertion_date', 'updated_at', true],
-                ]
+                ],
             );
         }
 
@@ -56,7 +56,7 @@ class TableTest extends TestCase
             $this->assertInstanceOf(
                 'InvalidArgumentException',
                 $e,
-                'Expected exception of type InvalidArgumentException, got ' . get_class($e)
+                'Expected exception of type InvalidArgumentException, got ' . get_class($e),
             );
             $this->assertStringStartsWith('An invalid column type ', $e->getMessage());
         }
@@ -85,7 +85,7 @@ class TableTest extends TestCase
             $this->assertInstanceOf(
                 'RuntimeException',
                 $e,
-                'Expected exception of type RuntimeException, got ' . get_class($e)
+                'Expected exception of type RuntimeException, got ' . get_class($e),
             );
         }
     }

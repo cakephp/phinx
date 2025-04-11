@@ -45,7 +45,7 @@ The <info>test</info> command is used to verify the phinx configuration file and
 <info>phinx test -e development</info>
 
 If the environment option is set, it will test that phinx can connect to the DB associated with that environment
-EOT
+EOT,
             );
     }
 
@@ -68,13 +68,13 @@ EOT
         // Verify the migrations path(s)
         array_map(
             [$this, 'verifyMigrationDirectory'],
-            Util::globAll($this->getConfig()->getMigrationPaths())
+            Util::globAll($this->getConfig()->getMigrationPaths()),
         );
 
         // Verify the seed path(s)
         array_map(
             [$this, 'verifySeedDirectory'],
-            Util::globAll($this->getConfig()->getSeedPaths())
+            Util::globAll($this->getConfig()->getSeedPaths()),
         );
 
         $envName = $input->getOption('environment');
@@ -82,14 +82,14 @@ EOT
             if (!$this->getConfig()->hasEnvironment($envName)) {
                 throw new InvalidArgumentException(sprintf(
                     'The environment "%s" does not exist',
-                    $envName
+                    $envName,
                 ));
             }
 
             $output->writeln(sprintf('<info>validating environment</info> %s', $envName), $this->verbosityLevel);
             $environment = new Environment(
                 $envName,
-                $this->getConfig()->getEnvironment($envName)
+                $this->getConfig()->getEnvironment($envName),
             );
             // validate environment connection
             $environment->getAdapter()->connect();

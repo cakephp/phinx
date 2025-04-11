@@ -43,7 +43,7 @@ The <info>status</info> command prints a list of all migrations, along with thei
 <info>phinx status -e development -f json</info>
 
 The <info>version_order</info> configuration option is used to determine the order of the status migrations.
-EOT
+EOT,
             );
     }
 

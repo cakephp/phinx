@@ -340,7 +340,7 @@ abstract class AbstractMigration implements MigrationInterface
                 method_exists($this, MigrationInterface::DOWN)
             ) {
                 $this->output->writeln(sprintf(
-                    '<comment>warning</comment> Migration contains both change() and up()/down() methods.  <options=bold>Ignoring up() and down()</>.'
+                    '<comment>warning</comment> Migration contains both change() and up()/down() methods.  <options=bold>Ignoring up() and down()</>.',
                 ));
             }
         }

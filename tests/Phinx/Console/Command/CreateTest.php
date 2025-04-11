@@ -60,7 +60,7 @@ class CreateTest extends TestCase
                         'port' => 3006,
                     ],
                 ],
-            ]
+            ],
         );
 
         foreach ($this->config->getMigrationPaths() as $path) {
@@ -582,7 +582,7 @@ class CreateTest extends TestCase
         $commandTester->execute(['command' => $command->getName(), 'name' => 'Foo']);
         $commandTester->execute(['command' => $command->getName(), 'name' => 'Bar']);
 
-        $files = array_map(fn ($file) => basename($file), Util::getFiles($this->config->getMigrationPaths()));
+        $files = array_map(fn($file) => basename($file), Util::getFiles($this->config->getMigrationPaths()));
         sort($files);
         $timestamp = explode('_', $files[0])[0];
         $secondTimestamp = (float)$timestamp + (str_ends_with($timestamp, '59') ? 41 : 1);

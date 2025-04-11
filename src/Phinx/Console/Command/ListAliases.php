@@ -63,17 +63,17 @@ class ListAliases extends AbstractCommand
                             return sprintf('%s %s', str_pad($alias, $maxAliasLength), str_pad($class, $maxClassLength));
                         },
                         array_keys($aliases),
-                        $aliases
-                    )
+                        $aliases,
+                    ),
                 ),
-                $this->verbosityLevel
+                $this->verbosityLevel,
             );
         } else {
             $output->writeln(
                 '<comment>warning</comment> no aliases defined in ' . Util::relativePath(
-                    $this->config->getConfigFilePath()
+                    $this->config->getConfigFilePath(),
                 ),
-                $this->verbosityLevel
+                $this->verbosityLevel,
             );
         }
 

@@ -361,7 +361,7 @@ class ConfigTest extends AbstractConfigTest
 
             $this->assertSame(
                 ['adapter' => 'sqlite', 'name' => 'phinx_testing', 'suffix' => 'sqlite3'],
-                $config->getEnvironment('production')
+                $config->getEnvironment('production'),
             );
         } finally {
             unset($_SERVER['PHINX_TEST_CONFIG_ADAPTER']);
@@ -383,7 +383,7 @@ class ConfigTest extends AbstractConfigTest
         ]);
         $this->assertSame(
             ['adapter' => 'sqlite', 'memory' => true, 'name' => ':memory:'],
-            $config->getEnvironment('production')
+            $config->getEnvironment('production'),
         );
     }
 
@@ -400,7 +400,7 @@ class ConfigTest extends AbstractConfigTest
         ]);
         $this->assertSame(
             ['adapter' => 'sqlite', 'memory' => true, 'name' => ':memory:'],
-            $config->getEnvironment('production')
+            $config->getEnvironment('production'),
         );
     }
 
@@ -416,7 +416,7 @@ class ConfigTest extends AbstractConfigTest
         ]);
         $this->assertSame(
             ['adapter' => 'sqlite', 'memory' => 'yes', 'name' => ':memory:'],
-            $config->getEnvironment('production')
+            $config->getEnvironment('production'),
         );
     }
 

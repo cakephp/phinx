@@ -235,7 +235,7 @@ class Table
             $this->getColumns(),
             function ($column) use ($name) {
                 return $column->getName() === $name;
-            }
+            },
         );
 
         return array_pop($columns);
@@ -315,7 +315,7 @@ class Table
             throw new InvalidArgumentException(sprintf(
                 'An invalid column type "%s" was specified for column "%s".',
                 $action->getColumn()->getType(),
-                $action->getColumn()->getName()
+                $action->getColumn()->getName(),
             ));
         }
 
@@ -492,7 +492,7 @@ class Table
             $referencedTable,
             $referencedColumns,
             $options,
-            $name
+            $name,
         );
         $this->actions->addAction($action);
 
