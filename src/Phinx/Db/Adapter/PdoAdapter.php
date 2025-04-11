@@ -15,6 +15,8 @@ use Cake\Database\Query\DeleteQuery;
 use Cake\Database\Query\InsertQuery;
 use Cake\Database\Query\SelectQuery;
 use Cake\Database\Query\UpdateQuery;
+use Cake\I18n\Date;
+use Cake\I18n\DateTime;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
@@ -430,6 +432,10 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
                 foreach ($row as $v) {
                     if ($v instanceof Literal) {
                         continue;
+                    } elseif ($v instanceof DateTime) {
+                        $vals[] = $v->toDateTimeString();
+                    } elseif ($v instanceof Date) {
+                        $vals[] = $v->toDateString();
                     } elseif (is_bool($v)) {
                         $vals[] = $this->castToBool($v);
                     } else {
