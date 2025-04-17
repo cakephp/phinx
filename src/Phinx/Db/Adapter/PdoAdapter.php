@@ -322,6 +322,32 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     }
 
     /**
+     * Get the parameters array for prepared insert statement
+     *
+     * @param array $row Row to be inserted into DB
+     * @return array
+     */
+    protected function getInsertParameters(array $row): array
+    {
+        $values = [];
+        foreach ($row as $value) {
+            if ($value instanceof Literal) {
+                continue;
+            } elseif ($value instanceof DateTime) {
+                $values[] = $value->toDateTimeString();
+            } elseif ($value instanceof Date) {
+                $values[] = $value->toDateString();
+            } elseif (is_bool($value)) {
+                $values[] = $this->castToBool($value);
+            } else {
+                $values[] = $value;
+            }
+        }
+
+        return $values;
+    }
+
+    /**
      * @inheritDoc
      */
     public function insert(Table $table, array $row): void
@@ -344,21 +370,14 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             $this->output->writeln($sql);
         } else {
             $sql .= '(';
-            $vals = [];
             $values = [];
             foreach ($row as $value) {
                 $values[] = $value instanceof Literal ? (string)$value : '?';
-                if (!($value instanceof Literal)) {
-                    if (is_bool($value)) {
-                        $vals[] = $this->castToBool($value);
-                    } else {
-                        $vals[] = $value;
-                    }
-                }
             }
+            $params = $this->getInsertParameters($row);
             $sql .= implode(', ', $values) . ')';
             $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute($vals);
+            $stmt->execute($params);
         }
     }
 
@@ -426,25 +445,13 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             }
             $sql .= implode(',', $queries);
             $stmt = $this->getConnection()->prepare($sql);
-            $vals = [];
+            $params = [];
 
             foreach ($rows as $row) {
-                foreach ($row as $v) {
-                    if ($v instanceof Literal) {
-                        continue;
-                    } elseif ($v instanceof DateTime) {
-                        $vals[] = $v->toDateTimeString();
-                    } elseif ($v instanceof Date) {
-                        $vals[] = $v->toDateString();
-                    } elseif (is_bool($v)) {
-                        $vals[] = $this->castToBool($v);
-                    } else {
-                        $vals[] = $v;
-                    }
-                }
+                $params = array_merge($params, $this->getInsertParameters($row));
             }
 
-            $stmt->execute($vals);
+            $stmt->execute($params);
         }
     }
 

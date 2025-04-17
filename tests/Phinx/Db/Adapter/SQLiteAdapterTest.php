@@ -1927,6 +1927,34 @@ class SQLiteAdapterTest extends TestCase
         $this->assertEquals($data[1]['created']->toDateTimeString(), $rows[1]['created']);
     }
 
+    public function testInsertDates(): void
+    {
+        $data = [
+            [
+                'name' => 'foo',
+                'created' => new Date(),
+                'column3' => 'foo',
+            ],
+            [
+                'name' => 'bar',
+                'created' => new DateTime(),
+            ],
+        ];
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('name', 'string')
+            ->addColumn('created', 'datetime')
+            ->addColumn('column3', 'string', ['null' => true, 'default' => null])
+            ->insert($data)
+            ->save();
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $this->assertEquals('foo', $rows[0]['name']);
+        $this->assertEquals('bar', $rows[1]['name']);
+        $this->assertEquals($data[0]['created']->toDateString(), $rows[0]['created']);
+        $this->assertEquals($data[1]['created']->toDateTimeString(), $rows[1]['created']);
+        $this->assertEquals('foo', $rows[0]['column3']);
+        $this->assertNull($rows[1]['column3']);
+    }
+
     public function testNullWithoutDefaultValue()
     {
         $this->markTestSkipped('Skipping for now. See Github Issue #265.');
