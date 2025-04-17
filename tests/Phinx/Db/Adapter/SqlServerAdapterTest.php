@@ -5,6 +5,8 @@ namespace Test\Phinx\Db\Adapter;
 
 use BadMethodCallException;
 use Cake\Database\Query;
+use Cake\I18n\Date;
+use Cake\I18n\DateTime;
 use InvalidArgumentException;
 use PDO;
 use Phinx\Db\Adapter\SqlServerAdapter;
@@ -1343,6 +1345,30 @@ WHERE t.name='ntable'");
         $this->assertMatchesRegularExpression('/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/', $rows[0]['column2']);
         $this->assertEquals('2024-01-01 00:00:00.000', $rows[1]['column2']);
         $this->assertEquals('2025-01-01 00:00:00.000', $rows[2]['column2']);
+    }
+
+    public function testBulkInsertDates()
+    {
+        $data = [
+            [
+                'name' => 'foo',
+                'created' => new Date(),
+            ],
+            [
+                'name' => 'bar',
+                'created' => new DateTime(),
+            ],
+        ];
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('name', 'string')
+            ->addColumn('created', 'datetime')
+            ->insert($data)
+            ->save();
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $this->assertEquals('foo', $rows[0]['name']);
+        $this->assertEquals('bar', $rows[1]['name']);
+        $this->assertMatchesRegularExpression('/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/', $rows[0]['created']);
+        $this->assertMatchesRegularExpression('/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/', $rows[1]['created']);
     }
 
     public function testInsertData()

@@ -11,11 +11,11 @@ class UserSeeder extends AbstractSeed
         $data = [
             [
                 'name' => 'foo',
-                'created' => new Date(),
+                'created' => date('Y-m-d H:i:s'),
             ],
             [
                 'name' => 'bar',
-                'created' => new DateTime(),
+                'created' => date('Y-m-d H:i:s'),
             ],
         ];
 
