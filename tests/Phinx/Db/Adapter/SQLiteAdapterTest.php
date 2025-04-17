@@ -1903,7 +1903,7 @@ class SQLiteAdapterTest extends TestCase
         $this->assertEquals('c', $rows[0]['column3']);
     }
 
-    public function testBulkInsertDates()
+    public function testBulkInsertDates(): void
     {
         $data = [
             [
@@ -1923,8 +1923,8 @@ class SQLiteAdapterTest extends TestCase
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
         $this->assertEquals('foo', $rows[0]['name']);
         $this->assertEquals('bar', $rows[1]['name']);
-        $this->assertMatchesRegularExpression($data[0]['created']->toDateString(), $rows[0]['created']);
-        $this->assertMatchesRegularExpression($data[1]['created']->toDateTimeString(), $rows[1]['created']);
+        $this->assertEquals($data[0]['created']->toDateString(), $rows[0]['created']);
+        $this->assertEquals($data[1]['created']->toDateTimeString(), $rows[1]['created']);
     }
 
     public function testNullWithoutDefaultValue()
