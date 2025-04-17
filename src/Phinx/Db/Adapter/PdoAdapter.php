@@ -329,22 +329,22 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     protected function getInsertParameters(array $row): array
     {
-        $values = [];
+        $params = [];
         foreach ($row as $value) {
             if ($value instanceof Literal) {
                 continue;
             } elseif ($value instanceof DateTime) {
-                $values[] = $value->toDateTimeString();
+                $params[] = $value->toDateTimeString();
             } elseif ($value instanceof Date) {
-                $values[] = $value->toDateString();
+                $params[] = $value->toDateString();
             } elseif (is_bool($value)) {
-                $values[] = $this->castToBool($value);
+                $params[] = $this->castToBool($value);
             } else {
-                $values[] = $value;
+                $params[] = $value;
             }
         }
 
-        return $values;
+        return $params;
     }
 
     /**
