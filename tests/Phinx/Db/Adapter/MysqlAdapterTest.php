@@ -2237,8 +2237,8 @@ class MysqlAdapterTest extends TestCase
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
         $this->assertEquals('foo', $rows[0]['name']);
         $this->assertEquals('bar', $rows[1]['name']);
-        $this->assertMatchesRegularExpression('/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/', $rows[0]['created']);
-        $this->assertMatchesRegularExpression('/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/', $rows[1]['created']);
+        $this->assertMatchesRegularExpression($data[0]['created']->toDateTimeString(), $rows[0]['created']);
+        $this->assertMatchesRegularExpression($data[1]['created']->toDateTimeString(), $rows[1]['created']);
     }
 
     public function testInsertData()
