@@ -324,12 +324,11 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * Get the parameters array for prepared insert statement
      *
+     * @param array $params Parameters array to be filled
      * @param array $row Row to be inserted into DB
-     * @return array
      */
-    protected function getInsertParameters(array $row): array
+    protected function getInsertParameters(array &$params, array $row): void
     {
-        $params = [];
         foreach ($row as $value) {
             if ($value instanceof Literal) {
                 continue;
@@ -343,8 +342,6 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
                 $params[] = $value;
             }
         }
-
-        return $params;
     }
 
     /**
@@ -374,7 +371,8 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             foreach ($row as $value) {
                 $values[] = $value instanceof Literal ? (string)$value : '?';
             }
-            $params = $this->getInsertParameters($row);
+            $params = [];
+            $this->getInsertParameters($params, $row);
             $sql .= implode(', ', $values) . ')';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute($params);
@@ -445,10 +443,10 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             }
             $sql .= implode(',', $queries);
             $stmt = $this->getConnection()->prepare($sql);
-            $params = [];
 
+            $params = [];
             foreach ($rows as $row) {
-                $params = array_merge($params, $this->getInsertParameters($row));
+                $this->getInsertParameters($params, $row);
             }
 
             $stmt->execute($params);
