@@ -3,9 +3,12 @@ declare(strict_types=1);
 
 namespace Test\Phinx\Db\Adapter;
 
+use Cake\I18n\Date;
+use Cake\I18n\DateTime;
 use PDO;
 use PDOException;
 use Phinx\Config\Config;
+use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use RuntimeException;
@@ -205,31 +208,42 @@ class PdoAdapterTest extends TestCase
         $this->adapter->execute('SELECT 1;;');
     }
 
-    public function testQuoteValueNumeric()
+    public function quoteValueDataProvider(): array
     {
-        $method = new ReflectionMethod($this->adapter, 'quoteValue');
-        $this->assertSame(1.0, $method->invoke($this->adapter, 1.0));
-        $this->assertSame(2, $method->invoke($this->adapter, 2));
+        return [
+            [1.0, 1.0],
+            [2, 2],
+            [true, 1],
+            [false, 0],
+            [null, 'null'],
+            [Literal::from('CURRENT_TIMESTAMP'), 'CURRENT_TIMESTAMP'],
+        ];
     }
 
-    public function testQuoteValueBoolean()
+    /**
+     * @dataProvider quoteValueDataProvider
+     */
+    public function testQuoteValue($input, $expected): void
     {
         $method = new ReflectionMethod($this->adapter, 'quoteValue');
-        $this->assertSame(1, $method->invoke($this->adapter, true));
-        $this->assertSame(0, $method->invoke($this->adapter, false));
+        $this->assertSame($expected, $method->invoke($this->adapter, $input));
     }
 
-    public function testQuoteValueNull()
+    public function quoteValueStringDataProvider(): array
     {
-        $method = new ReflectionMethod($this->adapter, 'quoteValue');
-        $this->assertSame('null', $method->invoke($this->adapter, null));
+        return [
+            ['mockvalue', "'mockvalue'"],
+            [new Date('2023-01-01'), "'2023-01-01'"],
+            [new DateTime('2023-01-01 12:00:00'), "'2023-01-01 12:00:00'"],
+        ];
     }
 
-    public function testQuoteValueString()
-    {
-        $mockValue = 'mockvalue';
-        $expectedValue = 'mockvalueexpected';
+    /**
+     * @dataProvider quoteValueStringDataProvider
+     */
 
+    public function testQuoteValueString($input, $expected): void
+    {
         /** @var \PDO&\PHPUnit\Framework\MockObject\MockObject $pdo */
         $pdo = $this->getMockBuilder(PDO::class)
             ->disableOriginalConstructor()
@@ -238,12 +252,13 @@ class PdoAdapterTest extends TestCase
 
         $pdo->expects($this->once())
             ->method('quote')
-            ->with($mockValue)
-            ->willReturn($expectedValue);
+            ->willReturnCallback(function (string $input) {
+                return "'$input'";
+            });
 
         $this->adapter->setConnection($pdo);
 
         $method = new ReflectionMethod($this->adapter, 'quoteValue');
-        $this->assertSame($expectedValue, $method->invoke($this->adapter, $mockValue));
+        $this->assertSame($expected, $method->invoke($this->adapter, $input));
     }
 }

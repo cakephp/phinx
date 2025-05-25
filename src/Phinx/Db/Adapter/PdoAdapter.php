@@ -403,6 +403,12 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
             return (string)$value;
         }
 
+        if ($value instanceof DateTime) {
+            $value = $value->toDateTimeString();
+        } elseif ($value instanceof Date) {
+            $value = $value->toDateString();
+        }
+
         return $this->getConnection()->quote($value);
     }
 
