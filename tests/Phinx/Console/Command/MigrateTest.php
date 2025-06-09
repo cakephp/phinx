@@ -332,6 +332,38 @@ class MigrateTest extends TestCase
         $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
     }
 
+    public function testExecuteWithCount(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Migrate());
+
+        /** @var Migrate $command */
+        $command = $application->find('migrate');
+
+        // mock the manager class
+        /** @var Manager&MockObject $managerStub */
+        $managerStub = $this->getMockBuilder(Manager::class)
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+        $managerStub->expects($this->never())
+            ->method('migrate');
+        $managerStub->expects($this->once())
+            ->method('migrateToCount')
+            ->with('development', 5, false);
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(
+            ['command' => $command->getName(), '--environment' => 'development', '--count' => 5],
+            ['decorated' => false],
+        );
+
+        $this->assertStringContainsString('using environment development', $commandTester->getDisplay());
+        $this->assertSame(AbstractCommand::CODE_SUCCESS, $exitCode);
+    }
+
     public function testExecuteWithError(): void
     {
         $exception = new RuntimeException('oops');

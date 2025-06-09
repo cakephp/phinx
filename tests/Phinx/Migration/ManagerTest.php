@@ -1362,6 +1362,24 @@ class ManagerTest extends TestCase
         }
     }
 
+    public function testMigrationByCount(): void
+    {
+        $adapter = $this->prepareEnvironment([
+            'migrations' => $this->getCorrectedPath(__DIR__ . '/_files/reversiblemigrations'),
+        ]);
+
+        $this->manager->migrateToCount('production', 2);
+
+        $this->assertTrue($adapter->hasTable('info'));
+        $this->assertFalse($adapter->hasTable('statuses'));
+        $this->assertTrue($adapter->hasTable('users'));
+
+        $this->manager->migrateToCount('production', 1);
+        $this->assertFalse($adapter->hasTable('info'));
+        $this->assertTrue($adapter->hasTable('statuses'));
+        $this->assertTrue($adapter->hasTable('users'));
+    }
+
     /**
      * Test that rollbacking to version chooses the correct
      * migration (with namespace) to point to.

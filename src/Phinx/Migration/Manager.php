@@ -301,6 +301,22 @@ class Manager
         }
     }
 
+    public function migrateToCount(string $environment, int $count, bool $fake = false): void
+    {
+        $versions = array_keys($this->getMigrations($environment));
+        $env = $this->getEnvironment($environment);
+        $current = $env->getCurrentVersion();
+
+        if ($current === 0) {
+            $version = $versions[$count - 1];
+        } else {
+            $currentIdx = array_search($current, $versions, true);
+            $version = $versions[min($currentIdx + $count, count($versions) - 1)];
+        }
+
+        $this->migrate($environment, $version, $fake);
+    }
+
     /**
      * Migrate an environment to the specified version.
      *
