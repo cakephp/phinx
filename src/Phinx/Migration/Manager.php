@@ -301,6 +301,14 @@ class Manager
         }
     }
 
+    /**
+     * Migrate an environment to a specific number of migrations.
+     *
+     * @param string $environment Environment
+     * @param int $count Number of migrations to apply
+     * @param bool $fake flag that if true, we just record running the migration, but not actually do the migration
+     * @return void
+     */
     public function migrateToCount(string $environment, int $count, bool $fake = false): void
     {
         $versions = array_keys($this->getMigrations($environment));
