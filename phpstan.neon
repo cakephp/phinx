@@ -4,8 +4,6 @@ includes:
 parameters:
 	level: 6
 	treatPhpDocTypesAsCertain: false
-	checkMissingIterableValueType: false
-	checkGenericClassInNonGenericObjectType: false
 	paths:
 		- src/
 	ignoreErrors:
