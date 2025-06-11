@@ -24,7 +24,7 @@ class AbstractSeedTest extends TestCase
         $migrationStub->setAdapter($adapterStub);
         $this->assertInstanceOf(
             'Phinx\Db\Adapter\AdapterInterface',
-            $migrationStub->getAdapter()
+            $migrationStub->getAdapter(),
         );
     }
 }

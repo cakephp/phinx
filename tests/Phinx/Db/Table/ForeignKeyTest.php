@@ -24,7 +24,7 @@ class ForeignKeyTest extends TestCase
     {
         $this->assertEquals(
             ForeignKey::SET_NULL,
-            $this->fk->setOptions(['delete' => ForeignKey::SET_NULL])->getOnDelete()
+            $this->fk->setOptions(['delete' => ForeignKey::SET_NULL])->getOnDelete(),
         );
     }
 
@@ -67,6 +67,36 @@ class ForeignKeyTest extends TestCase
         $this->assertEquals($valueOfConstant, $this->fk->getOnUpdate());
     }
 
+    /**
+     * @param string $dirtyValue
+     * @param string $valueOfConstant
+     * @dataProvider deferrableProvider
+     */
+    public function testDeferrableCanBeSetThroughSetters(string $dirtyValue, string $valueOfConstant): void
+    {
+        $this->fk->setDeferrableMode($dirtyValue);
+        $this->assertEquals($valueOfConstant, $this->fk->getDeferrableMode());
+    }
+
+    /**
+     * @param string $dirtyValue
+     * @param string $valueOfConstant
+     * @dataProvider deferrableProvider
+     */
+    public function testDeferrableCanBeSetThroughOptions(string $dirtyValue, string $valueOfConstant): void
+    {
+        $this->fk->setOptions([
+            'deferrable' => $dirtyValue,
+        ]);
+        $this->assertEquals($valueOfConstant, $this->fk->getDeferrableMode());
+    }
+
+    public function testThrowsErrorForInvalidDeferrableValue(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->fk->setDeferrableMode('invalid_value');
+    }
+
     public function testUnknownActionsNotAllowedThroughSetter()
     {
         $this->expectException(InvalidArgumentException::class);
@@ -92,6 +122,21 @@ class ForeignKeyTest extends TestCase
             ['Set nuLL', ForeignKey::SET_NULL],
             ['no_Action', ForeignKey::NO_ACTION],
             ['Set_nuLL', ForeignKey::SET_NULL],
+        ];
+    }
+
+    public function deferrableProvider(): array
+    {
+        return [
+            ['DEFERRED', ForeignKey::DEFERRED],
+            ['IMMEDIATE', ForeignKey::IMMEDIATE],
+            ['NOT_DEFERRED', ForeignKey::NOT_DEFERRED],
+            ['Deferred', ForeignKey::DEFERRED],
+            ['Immediate', ForeignKey::IMMEDIATE],
+            ['Not_deferred', ForeignKey::NOT_DEFERRED],
+            [ForeignKey::DEFERRED, ForeignKey::DEFERRED],
+            [ForeignKey::IMMEDIATE, ForeignKey::IMMEDIATE],
+            [ForeignKey::NOT_DEFERRED, ForeignKey::NOT_DEFERRED],
         ];
     }
 

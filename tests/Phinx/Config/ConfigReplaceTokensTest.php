@@ -58,15 +58,15 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
 
         $this->assertStringContainsString(
             static::$server['PHINX_TEST_VAR_1'] . '', // force convert to string
-            $config->offsetGet('some-var-1')
+            $config->offsetGet('some-var-1'),
         );
         $this->assertStringNotContainsString(
             static::$server['NON_PHINX_TEST_VAR_1'] . '', // force convert to string
-            $config->offsetGet('some-var-2')
+            $config->offsetGet('some-var-2'),
         );
         $this->assertStringContainsString(
             static::$server['PHINX_TEST_VAR_2'] . '', // force convert to string
-            $config->offsetGet('some-var-3')
+            $config->offsetGet('some-var-3'),
         );
     }
 
@@ -89,15 +89,15 @@ class ConfigReplaceTokensTest extends AbstractConfigTest
 
         $this->assertStringContainsString(
             static::$server['PHINX_TEST_VAR_1'] . '', // force convert to string
-            $folding['some-var-1']
+            $folding['some-var-1'],
         );
         $this->assertStringNotContainsString(
             static::$server['NON_PHINX_TEST_VAR_1'] . '', // force convert to string
-            $folding['some-var-2']
+            $folding['some-var-2'],
         );
         $this->assertStringContainsString(
             static::$server['PHINX_TEST_VAR_2'] . '', // force convert to string
-            $folding['some-var-3']
+            $folding['some-var-3'],
         );
     }
 }

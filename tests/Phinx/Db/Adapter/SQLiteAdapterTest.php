@@ -5,6 +5,8 @@ namespace Test\Phinx\Db\Adapter;
 
 use BadMethodCallException;
 use Cake\Database\Query;
+use Cake\I18n\Date;
+use Cake\I18n\DateTime;
 use Exception;
 use InvalidArgumentException;
 use PDO;
@@ -77,7 +79,7 @@ class SQLiteAdapterTest extends TestCase
 
         $this->assertTrue(
             $this->adapter->getConnection()->inTransaction(),
-            'Underlying PDO instance did not detect new transaction'
+            'Underlying PDO instance did not detect new transaction',
         );
     }
 
@@ -90,7 +92,7 @@ class SQLiteAdapterTest extends TestCase
 
         $this->assertFalse(
             $this->adapter->getConnection()->inTransaction(),
-            'Underlying PDO instance did not detect rolled back transaction'
+            'Underlying PDO instance did not detect rolled back transaction',
         );
     }
 
@@ -103,7 +105,7 @@ class SQLiteAdapterTest extends TestCase
 
         $this->assertFalse(
             $this->adapter->getConnection()->inTransaction(),
-            "Underlying PDO instance didn't detect committed transaction"
+            "Underlying PDO instance didn't detect committed transaction",
         );
     }
 
@@ -176,6 +178,22 @@ class SQLiteAdapterTest extends TestCase
 
         $this->assertTrue($this->adapter->hasTable('ntable'));
         $this->assertTrue($this->adapter->hasColumn('ntable', 'custom_id'));
+        $this->assertTrue($this->adapter->hasPrimaryKey('ntable', 'custom_id'));
+
+        /** @var \Phinx\Db\Table\Column $idColumn */
+        $idColumn = $this->adapter->getColumns('ntable')[0];
+        $this->assertTrue($idColumn->getIdentity());
+    }
+
+    public function testCreateTableIdentityIdColumnStringPrimaryKey()
+    {
+        $table = new Table('ntable', ['id' => false, 'primary_key' => 'custom_id'], $this->adapter);
+        $table->addColumn('custom_id', 'integer', ['identity' => true])
+            ->save();
+
+        $this->assertTrue($this->adapter->hasTable('ntable'));
+        $this->assertTrue($this->adapter->hasColumn('ntable', 'custom_id'));
+        $this->assertTrue($this->adapter->hasPrimaryKey('ntable', 'custom_id'));
 
         /** @var \Phinx\Db\Table\Column $idColumn */
         $idColumn = $this->adapter->getColumns('ntable')[0];
@@ -309,7 +327,7 @@ class SQLiteAdapterTest extends TestCase
                 'master_id',
                 'tbl_master',
                 'id',
-                ['delete' => 'NO_ACTION', 'update' => 'NO_ACTION', 'constraint' => 'fk_master_id']
+                ['delete' => 'NO_ACTION', 'update' => 'NO_ACTION', 'constraint' => 'fk_master_id'],
             )
             ->create();
 
@@ -318,11 +336,11 @@ class SQLiteAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasForeignKey('tbl_child', ['master_id']));
 
         $row = $this->adapter->fetchRow(
-            "SELECT * FROM sqlite_master WHERE `type` = 'table' AND `tbl_name` = 'tbl_child'"
+            "SELECT * FROM sqlite_master WHERE `type` = 'table' AND `tbl_name` = 'tbl_child'",
         );
         $this->assertStringContainsString(
             'CONSTRAINT `fk_master_id` FOREIGN KEY (`master_id`) REFERENCES `tbl_master` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION',
-            $row['sql']
+            $row['sql'],
         );
     }
 
@@ -338,18 +356,18 @@ class SQLiteAdapterTest extends TestCase
                 'master_id',
                 'tbl_master',
                 'id',
-                ['delete' => 'NO_ACTION', 'update' => 'NO_ACTION', 'constraint' => 'fk_master_id']
+                ['delete' => 'NO_ACTION', 'update' => 'NO_ACTION', 'constraint' => 'fk_master_id'],
             );
         $table->create();
 
         $this->assertTrue($this->adapter->hasForeignKey('tbl_child', ['master_id']));
 
         $row = $this->adapter->fetchRow(
-            "SELECT * FROM sqlite_master WHERE `type` = 'table' AND `tbl_name` = 'tbl_child'"
+            "SELECT * FROM sqlite_master WHERE `type` = 'table' AND `tbl_name` = 'tbl_child'",
         );
         $this->assertStringContainsString(
             'CONSTRAINT `fk_master_id` FOREIGN KEY (`master_id`) REFERENCES `tbl_master` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION',
-            $row['sql']
+            $row['sql'],
         );
     }
 
@@ -1023,7 +1041,7 @@ class SQLiteAdapterTest extends TestCase
             ->addColumn('indexcol', 'integer')
             ->addIndex(
                 'indexcol',
-                ['unique' => true]
+                ['unique' => true],
             )
             ->create();
 
@@ -1051,7 +1069,7 @@ class SQLiteAdapterTest extends TestCase
         $this->adapter->execute($triggerSQL);
 
         $rows = $this->adapter->fetchAll(
-            "SELECT * FROM sqlite_master WHERE `type` = 'trigger' AND tbl_name = 't'"
+            "SELECT * FROM sqlite_master WHERE `type` = 'trigger' AND tbl_name = 't'",
         );
         $this->assertCount(1, $rows);
         $this->assertEquals('trigger', $rows[0]['type']);
@@ -1061,7 +1079,7 @@ class SQLiteAdapterTest extends TestCase
         $table->changeColumn('triggercol', 'integer', ['null' => false])->update();
 
         $rows = $this->adapter->fetchAll(
-            "SELECT * FROM sqlite_master WHERE `type` = 'trigger' AND tbl_name = 't'"
+            "SELECT * FROM sqlite_master WHERE `type` = 'trigger' AND tbl_name = 't'",
         );
         $this->assertCount(1, $rows);
         $this->assertEquals('trigger', $rows[0]['type']);
@@ -1500,17 +1518,17 @@ class SQLiteAdapterTest extends TestCase
             ->addForeignKey(
                 ['ref_table_id', 'ref_table_field1'],
                 'ref_table',
-                ['id', 'field1']
+                ['id', 'field1'],
             )
             ->addForeignKey(
                 ['ref_table_field1', 'ref_table_id'],
                 'ref_table',
-                ['field1', 'id']
+                ['field1', 'id'],
             )
             ->addForeignKey(
                 ['ref_table_id', 'ref_table_field1', 'ref_table_field2'],
                 'ref_table',
-                ['id', 'field1', 'field2']
+                ['id', 'field1', 'field2'],
             )
             ->save();
 
@@ -1519,11 +1537,11 @@ class SQLiteAdapterTest extends TestCase
         $this->assertFalse($this->adapter->hasForeignKey($table->getName(), ['ref_table_id', 'ref_table_field1']));
         $this->assertTrue(
             $this->adapter->hasForeignKey($table->getName(), ['ref_table_id', 'ref_table_field1', 'ref_table_field2']),
-            'dropForeignKey() should only affect foreign keys that comprise of exactly the given columns'
+            'dropForeignKey() should only affect foreign keys that comprise of exactly the given columns',
         );
         $this->assertTrue(
             $this->adapter->hasForeignKey($table->getName(), ['ref_table_field1', 'ref_table_id']),
-            'dropForeignKey() should only affect foreign keys that comprise of columns in exactly the given order'
+            'dropForeignKey() should only affect foreign keys that comprise of columns in exactly the given order',
         );
 
         $this->assertTrue($this->adapter->hasForeignKey($table->getName(), ['ref_table_field1', 'ref_table_id']));
@@ -1553,7 +1571,7 @@ class SQLiteAdapterTest extends TestCase
                 'ref_table_fk_2',
                 ['ref_table_id', 'ref_table_field1'],
                 'ref_table',
-                ['id', 'field1']
+                ['id', 'field1'],
             )
             ->save();
 
@@ -1597,14 +1615,14 @@ class SQLiteAdapterTest extends TestCase
             ->addForeignKey(
                 ['ref_table_id', 'ref_table_field1'],
                 'ref_table',
-                ['id', 'field1']
+                ['id', 'field1'],
             )
             ->save();
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(sprintf(
             'No foreign key on column(s) `%s` exists',
-            implode(', ', $columns)
+            implode(', ', $columns),
         ));
 
         $this->adapter->dropForeignKey($table->getName(), $columns);
@@ -1684,7 +1702,7 @@ class SQLiteAdapterTest extends TestCase
                 'limit' => null,
                 'scale' => null,
             ],
-            $this->adapter->getPhinxType('fake')
+            $this->adapter->getPhinxType('fake'),
         );
     }
 
@@ -1738,13 +1756,13 @@ class SQLiteAdapterTest extends TestCase
                 [
                     'column1' => 'value3',
                     'column2' => 3,
-                ]
+                ],
             )
             ->insert(
                 [
                     'column1' => '\'value4\'',
                     'column2' => null,
-                ]
+                ],
             )
             ->save();
         $rows = $this->adapter->fetchAll('SELECT * FROM table1');
@@ -1757,6 +1775,37 @@ class SQLiteAdapterTest extends TestCase
         $this->assertEquals(2, $rows[1]['column2']);
         $this->assertEquals(3, $rows[2]['column2']);
         $this->assertNull($rows[3]['column2']);
+    }
+
+    public function testBulkInsertLiteral()
+    {
+        $data = [
+            [
+                'column1' => 'value1',
+                'column2' => Literal::from('CURRENT_TIMESTAMP'),
+            ],
+            [
+                'column1' => 'value2',
+                'column2' => '2024-01-01 00:00:00',
+            ],
+            [
+                'column1' => 'value3',
+                'column2' => '2025-01-01 00:00:00',
+            ],
+        ];
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'datetime')
+            ->insert($data)
+            ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $this->assertEquals('value1', $rows[0]['column1']);
+        $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals('value3', $rows[2]['column1']);
+        $this->assertMatchesRegularExpression('/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/', $rows[0]['column2']);
+        $this->assertEquals('2024-01-01 00:00:00', $rows[1]['column2']);
+        $this->assertEquals('2025-01-01 00:00:00', $rows[2]['column2']);
     }
 
     public function testInsertData()
@@ -1778,13 +1827,13 @@ class SQLiteAdapterTest extends TestCase
                 [
                     'column1' => 'value3',
                     'column2' => 3,
-                ]
+                ],
             )
             ->insert(
                 [
                     'column1' => '\'value4\'',
                     'column2' => null,
-                ]
+                ],
             )
             ->save();
 
@@ -1798,6 +1847,42 @@ class SQLiteAdapterTest extends TestCase
         $this->assertEquals(2, $rows[1]['column2']);
         $this->assertEquals(3, $rows[2]['column2']);
         $this->assertNull($rows[3]['column2']);
+    }
+
+    public function testInsertLiteral()
+    {
+        $data = [
+            [
+                'column1' => 'value1',
+                'column3' => Literal::from('CURRENT_TIMESTAMP'),
+            ],
+            [
+                'column1' => 'value2',
+                'column3' => '2024-01-01 00:00:00',
+            ],
+            [
+                'column1' => 'value3',
+                'column2' => 'foo',
+                'column3' => '2025-01-01 00:00:00',
+            ],
+        ];
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('column1', 'string')
+            ->addColumn('column2', 'string', ['default' => 'test'])
+            ->addColumn('column3', 'datetime')
+            ->insert($data)
+            ->save();
+
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $this->assertEquals('value1', $rows[0]['column1']);
+        $this->assertEquals('value2', $rows[1]['column1']);
+        $this->assertEquals('value3', $rows[2]['column1']);
+        $this->assertEquals('test', $rows[0]['column2']);
+        $this->assertEquals('test', $rows[1]['column2']);
+        $this->assertEquals('foo', $rows[2]['column2']);
+        $this->assertMatchesRegularExpression('/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/', $rows[0]['column3']);
+        $this->assertEquals('2024-01-01 00:00:00', $rows[1]['column3']);
+        $this->assertEquals('2025-01-01 00:00:00', $rows[2]['column3']);
     }
 
     public function testBulkInsertDataEnum()
@@ -1816,6 +1901,58 @@ class SQLiteAdapterTest extends TestCase
         $this->assertEquals('a', $rows[0]['column1']);
         $this->assertNull($rows[0]['column2']);
         $this->assertEquals('c', $rows[0]['column3']);
+    }
+
+    public function testBulkInsertDates(): void
+    {
+        $data = [
+            [
+                'name' => 'foo',
+                'created' => new Date(),
+            ],
+            [
+                'name' => 'bar',
+                'created' => new DateTime(),
+            ],
+        ];
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('name', 'string')
+            ->addColumn('created', 'datetime')
+            ->insert($data)
+            ->save();
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $this->assertEquals('foo', $rows[0]['name']);
+        $this->assertEquals('bar', $rows[1]['name']);
+        $this->assertEquals($data[0]['created']->toDateString(), $rows[0]['created']);
+        $this->assertEquals($data[1]['created']->toDateTimeString(), $rows[1]['created']);
+    }
+
+    public function testInsertDates(): void
+    {
+        $data = [
+            [
+                'name' => 'foo',
+                'created' => new Date(),
+                'column3' => 'foo',
+            ],
+            [
+                'name' => 'bar',
+                'created' => new DateTime(),
+            ],
+        ];
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('name', 'string')
+            ->addColumn('created', 'datetime')
+            ->addColumn('column3', 'string', ['null' => true, 'default' => null])
+            ->insert($data)
+            ->save();
+        $rows = $this->adapter->fetchAll('SELECT * FROM table1');
+        $this->assertEquals('foo', $rows[0]['name']);
+        $this->assertEquals('bar', $rows[1]['name']);
+        $this->assertEquals($data[0]['created']->toDateString(), $rows[0]['created']);
+        $this->assertEquals($data[1]['created']->toDateTimeString(), $rows[1]['created']);
+        $this->assertEquals('foo', $rows[0]['column3']);
+        $this->assertNull($rows[1]['column3']);
     }
 
     public function testNullWithoutDefaultValue()
@@ -2026,7 +2163,7 @@ OUTPUT;
         $this->assertEquals(0, $stm->rowCount());
         $this->assertEquals(
             ['id' => 2, 'string_col' => 'value2', 'int_col' => '2'],
-            $stm->fetch('assoc')
+            $stm->fetch('assoc'),
         );
 
         $builder = $this->adapter->getQueryBuilder(Query::TYPE_DELETE);
@@ -2347,13 +2484,16 @@ OUTPUT;
     public function testLiteralSupport()
     {
         $createQuery = <<<'INPUT'
-CREATE TABLE `test` (`real_col` DECIMAL)
+CREATE TABLE `test` (`real_col` FOO)
 INPUT;
         $this->adapter->execute($createQuery);
         $table = new Table('test', [], $this->adapter);
         $columns = $table->getColumns();
         $this->assertCount(1, $columns);
-        $this->assertEquals(Literal::from('decimal'), array_pop($columns)->getType());
+        $column = array_pop($columns);
+        $this->assertSame('real_col', $column->getName());
+        $this->assertInstanceOf(Literal::class, $column->getType());
+        $this->assertEquals(Literal::from('FOO'), $column->getType());
     }
 
     /**
@@ -2758,7 +2898,9 @@ INPUT;
             ['jsonb_text', ['name' => SQLiteAdapter::PHINX_TYPE_JSONB, 'limit' => null, 'scale' => null]],
             ['uuid', ['name' => SQLiteAdapter::PHINX_TYPE_UUID, 'limit' => null, 'scale' => null]],
             ['uuid_text', ['name' => SQLiteAdapter::PHINX_TYPE_UUID, 'limit' => null, 'scale' => null]],
-            ['decimal', ['name' => Literal::from('decimal'), 'limit' => null, 'scale' => null]],
+            ['decimal', ['name' => SQLiteAdapter::PHINX_TYPE_DECIMAL, 'limit' => null, 'scale' => null]],
+            ['decimal(10,5)', ['name' => SQLiteAdapter::PHINX_TYPE_DECIMAL, 'limit' => 10, 'scale' => 5]],
+            ['decimal(10, 5)', ['name' => SQLiteAdapter::PHINX_TYPE_DECIMAL, 'limit' => 10, 'scale' => 5]],
             ['point', ['name' => Literal::from('point'), 'limit' => null, 'scale' => null]],
             ['polygon', ['name' => Literal::from('polygon'), 'limit' => null, 'scale' => null]],
             ['linestring', ['name' => Literal::from('linestring'), 'limit' => null, 'scale' => null]],
@@ -2834,7 +2976,7 @@ INPUT;
             ['JSONB_TEXT', ['name' => SQLiteAdapter::PHINX_TYPE_JSONB, 'limit' => null, 'scale' => null]],
             ['UUID', ['name' => SQLiteAdapter::PHINX_TYPE_UUID, 'limit' => null, 'scale' => null]],
             ['UUID_TEXT', ['name' => SQLiteAdapter::PHINX_TYPE_UUID, 'limit' => null, 'scale' => null]],
-            ['DECIMAL', ['name' => Literal::from('decimal'), 'limit' => null, 'scale' => null]],
+            ['DECIMAL', ['name' => SQLiteAdapter::PHINX_TYPE_DECIMAL, 'limit' => null, 'scale' => null]],
             ['POINT', ['name' => Literal::from('point'), 'limit' => null, 'scale' => null]],
             ['POLYGON', ['name' => Literal::from('polygon'), 'limit' => null, 'scale' => null]],
             ['LINESTRING', ['name' => Literal::from('linestring'), 'limit' => null, 'scale' => null]],
@@ -3144,6 +3286,7 @@ INPUT;
             'Arbitrary expression' => ['create table t(a float default ((2) + (2)))', Expression::from('(2) + (2)')],
             'Pathological case 1' => ['create table t(a float default (\'/*\' || \'*/\'))', Expression::from('\'/*\' || \'*/\'')],
             'Pathological case 2' => ['create table t(a float default (\'--\' || \'stuff\'))', Expression::from('\'--\' || \'stuff\'')],
+            'Literal' => ['create table t(a foo default \'bar\')', Literal::from('bar')],
         ];
     }
 
@@ -3391,5 +3534,24 @@ INPUT;
     {
         $adapter = new SQLiteAdapter(SQLITE_DB_CONFIG);
         $this->assertFalse($adapter->getConnection()->getAttribute(PDO::ATTR_PERSISTENT));
+    }
+
+    public function isMemoryProvider(): array
+    {
+        return [
+            [['name' => ':memory:'], true],
+            [['memory' => true], true],
+            [['name' => 'foo', 'memory' => true], true],
+            [['name' => 'bar'], false],
+            [['memory' => false], false],
+        ];
+    }
+
+    /**
+     * @dataProvider isMemoryProvider
+     */
+    public function testIsMemory(array $config, bool $expected): void
+    {
+        $this->assertSame($expected, SQLiteAdapter::isMemory($config));
     }
 }

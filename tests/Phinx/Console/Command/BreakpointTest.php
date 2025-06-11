@@ -58,7 +58,7 @@ class BreakpointTest extends TestCase
                         'port' => 3006,
                     ],
                 ],
-            ]
+            ],
         );
 
         foreach ($this->config->getMigrationPaths() as $path) {
@@ -185,7 +185,7 @@ class BreakpointTest extends TestCase
                 '--remove-all' => true,
                 '--target' => '123456',
             ],
-            ['decorated' => false]
+            ['decorated' => false],
         );
         $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
     }

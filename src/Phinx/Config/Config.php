@@ -82,7 +82,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         if (!is_array($configArray)) {
             throw new RuntimeException(sprintf(
                 'File \'%s\' must be valid YAML',
-                $configFilePath
+                $configFilePath,
             ));
         }
 
@@ -108,7 +108,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         if (!is_array($configArray)) {
             throw new RuntimeException(sprintf(
                 'File \'%s\' must be valid JSON',
-                $configFilePath
+                $configFilePath,
             ));
         }
 
@@ -134,7 +134,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
         if (!is_array($configArray)) {
             throw new RuntimeException(sprintf(
                 'PHP file \'%s\' must return an array',
-                $configFilePath
+                $configFilePath,
             ));
         }
 
@@ -179,7 +179,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
             if (
                 isset($environments[$name]['adapter'])
                 && $environments[$name]['adapter'] === 'sqlite'
-                && !empty($environments[$name]['memory'])
+                && SQLiteAdapter::isMemory($environments[$name])
             ) {
                 $environments[$name]['name'] = SQLiteAdapter::MEMORY;
             }
@@ -212,7 +212,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
 
             throw new RuntimeException(sprintf(
                 'The environment configuration (read from $PHINX_ENVIRONMENT) for \'%s\' is missing',
-                $env
+                $env,
             ));
         }
 
@@ -231,7 +231,7 @@ class Config implements ConfigInterface, NamespaceAwareInterface
 
             throw new RuntimeException(sprintf(
                 'The environment configuration for \'%s\' is missing',
-                $this->values['environments']['default_environment']
+                $this->values['environments']['default_environment'],
             ));
         }
 

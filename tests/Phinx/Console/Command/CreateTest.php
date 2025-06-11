@@ -9,6 +9,7 @@ use Phinx\Config\Config;
 use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Create;
 use Phinx\Console\PhinxApplication;
+use Phinx\Util\Util;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -59,7 +60,7 @@ class CreateTest extends TestCase
                         'port' => 3006,
                     ],
                 ],
-            ]
+            ],
         );
 
         foreach ($this->config->getMigrationPaths() as $path) {
@@ -561,6 +562,33 @@ class CreateTest extends TestCase
         $this->assertStringNotContainsString('public function change()', $migrationContents);
     }
 
+    public function testCreateMigrationWithExistingTimestamp(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+
+        /** @var \Phinx\Migration\Manager $managerStub mock the manager class */
+        $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
+            ->setConstructorArgs([$this->config, $this->input, $this->output])
+            ->getMock();
+
+        $command->setConfig($this->config);
+        $command->setManager($managerStub);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'Foo']);
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'Bar']);
+
+        $files = array_map(fn($file) => basename($file), Util::getFiles($this->config->getMigrationPaths()));
+        sort($files);
+        $timestamp = explode('_', $files[0])[0];
+        $secondTimestamp = (float)$timestamp + (str_ends_with($timestamp, '59') ? 41 : 1);
+        $this->assertEquals([$timestamp . '_foo.php', $secondTimestamp . '_bar.php'], $files);
+    }
+
     public function testCreateMigrationWithInvalidStyleFlagThrows(): void
     {
         $application = new PhinxApplication();
@@ -584,5 +612,21 @@ class CreateTest extends TestCase
 
         $exitCode = $commandTester->execute(['command' => $command->getName(), '--style' => 'foo']);
         $this->assertSame(AbstractCommand::CODE_ERROR, $exitCode);
+    }
+
+    public function testCreateWithKeywordNameThrows(): void
+    {
+        $application = new PhinxApplication();
+        $application->add(new Create());
+
+        /** @var Create $command */
+        $command = $application->find('create');
+        $command->setConfig($this->config);
+
+        $commandTester = new CommandTester($command);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The migration class name "Class" is a reserved PHP keyword. Please choose a different class name.');
+        $commandTester->execute(['command' => $command->getName(), 'name' => 'Class']);
     }
 }

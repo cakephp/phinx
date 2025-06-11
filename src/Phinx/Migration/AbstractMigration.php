@@ -340,7 +340,7 @@ abstract class AbstractMigration implements MigrationInterface
                 method_exists($this, MigrationInterface::DOWN)
             ) {
                 $this->output->writeln(sprintf(
-                    '<comment>warning</comment> Migration contains both change() and up()/down() methods.  <options=bold>Ignoring up() and down()</>.'
+                    '<comment>warning</comment> Migration contains both change() and up()/down() methods.  <options=bold>Ignoring up() and down()</>.',
                 ));
             }
         }
@@ -358,7 +358,7 @@ abstract class AbstractMigration implements MigrationInterface
     {
         foreach ($this->tables as $table) {
             if ($table->hasPendingActions()) {
-                throw new RuntimeException('Migration has pending actions after execution!');
+                throw new RuntimeException(sprintf('Migration %s_%s has pending actions after execution!', $this->getVersion(), $this->getName()));
             }
         }
     }

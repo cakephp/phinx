@@ -76,6 +76,16 @@ You can also provide multiple migration paths by using an array in your configur
             - application/module1/migrations
             - application/module2/migrations
 
+Class namespaces may be specified by adding a key to each migration path:
+
+.. code-block:: yaml
+
+    paths:
+        migrations:
+            App\Module1\Migrations: application/module1/migrations
+            App\Module2\Migrations: application/module2/migrations
+
+
 
 You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 
@@ -138,6 +148,16 @@ You can also use the ``%%PHINX_CONFIG_DIR%%`` token in your path.
 
     paths:
         seeds: '%%PHINX_CONFIG_DIR%%/your/relative/path'
+
+Class namespaces may be specified by adding a key to each seed path:
+
+.. code-block:: yaml
+
+    paths:
+        seeds:
+            App\Module1\Seeds: application/module1/seeds
+            App\Module2\Seeds: application/module2/seeds
+
 
 Custom Seeder Base
 ---------------------
@@ -364,6 +384,26 @@ Phinx currently supports the following database adapters natively:
 * `SQLite <https://www.sqlite.org/>`_: specify the ``sqlite`` adapter.
 * `SQL Server <https://www.microsoft.com/sqlserver>`_: specify the ``sqlsrv`` adapter.
 
+The following settings are available for the adapters:
+
+adapter
+    The name of the adapter to use, e.g. ``pgsql``.
+host
+    The database server's hostname (or IP address).
+port
+    The database server's TCP port number.
+user
+    The username for the database.
+pass
+    The password for the database.
+name
+    The name of the database for this environment. For SQLite, it's recommended to use an absolute path,
+    without the file extension.
+suffix
+    The suffix to use for the SQLite database file. Defaults to ``.sqlite3``.
+schema
+    For PostgreSQL, allows specifying the schema to use for the database. Defaults to ``public``.
+
 For each adapter, you may configure the behavior of the underlying PDO object by setting in your
 config object the lowercase version of the constant name. This works for both PDO options
 (e.g. ``\PDO::ATTR_CASE`` would be ``attr_case``) and adapter specific options (e.g. for MySQL
@@ -520,6 +560,11 @@ For some breaking changes, Phinx offers a way to opt-out of new behavior. The fo
 
 * ``unsigned_primary_keys``: Should Phinx create primary keys as unsigned integers? (default: ``true``)
 * ``column_null_default``: Should Phinx create columns as null by default? (default: ``true``)
+
+Since MySQL ``TIMESTAMP`` fields do not support dates past 2038-01-19, you have the option to use ``DATETIME`` field
+types for fields created by the ``addTimestamps()`` function:
+
+* ``add_timestamps_use_datetime``: Should Phinx create created_at and updated_at fields as datetime? (default: ``false``)
 
 .. code-block:: yaml
 

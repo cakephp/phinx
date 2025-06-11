@@ -4,6 +4,8 @@ namespace Test\Phinx\Config;
 
 use InvalidArgumentException;
 use Phinx\Config\Config;
+use Test\Phinx\DeprecationException;
+use Test\Phinx\TestUtils;
 use UnexpectedValueException;
 
 /**
@@ -126,11 +128,13 @@ class ConfigTest extends AbstractConfigTest
      */
     public function testDefaultDatabaseThrowsDeprecatedNotice()
     {
+        TestUtils::throwUserDeprecatedError();
+
         $configArray = $this->getConfigArray();
         $configArray['environments']['default_database'] = 'production';
         $config = new Config($configArray);
 
-        $this->expectDeprecation();
+        $this->expectException(DeprecationException::class);
         $this->expectExceptionMessage('default_database in the config has been deprecated since 0.12, use default_environment instead.');
         $config->getDefaultEnvironment();
     }
@@ -357,7 +361,7 @@ class ConfigTest extends AbstractConfigTest
 
             $this->assertSame(
                 ['adapter' => 'sqlite', 'name' => 'phinx_testing', 'suffix' => 'sqlite3'],
-                $config->getEnvironment('production')
+                $config->getEnvironment('production'),
             );
         } finally {
             unset($_SERVER['PHINX_TEST_CONFIG_ADAPTER']);
@@ -379,7 +383,7 @@ class ConfigTest extends AbstractConfigTest
         ]);
         $this->assertSame(
             ['adapter' => 'sqlite', 'memory' => true, 'name' => ':memory:'],
-            $config->getEnvironment('production')
+            $config->getEnvironment('production'),
         );
     }
 
@@ -396,7 +400,7 @@ class ConfigTest extends AbstractConfigTest
         ]);
         $this->assertSame(
             ['adapter' => 'sqlite', 'memory' => true, 'name' => ':memory:'],
-            $config->getEnvironment('production')
+            $config->getEnvironment('production'),
         );
     }
 
@@ -412,7 +416,7 @@ class ConfigTest extends AbstractConfigTest
         ]);
         $this->assertSame(
             ['adapter' => 'sqlite', 'memory' => 'yes', 'name' => ':memory:'],
-            $config->getEnvironment('production')
+            $config->getEnvironment('production'),
         );
     }
 

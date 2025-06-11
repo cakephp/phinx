@@ -394,18 +394,23 @@ using the Manager class :
                 $pdo = new PDO('sqlite::memory:', null, null, [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
                 ]);
-                $configArray = require('phinx.php');
+                $configPath = __DIR__ . '/../phinx.php';
+                $configArray = require $configPath;
                 $configArray['environments']['test'] = [
                     'adapter'    => 'sqlite',
-                    'connection' => $pdo
+                    'connection' => $pdo,
+                    'name' => ':memory:',
                 ];
-                $config = new Config($configArray);
+                $config = new Config(
+                    $configArray,
+                    $configPath
+                 );
                 $manager = new Manager($config, new StringInput(' '), new NullOutput());
                 $manager->migrate('test');
                 $manager->seed('test');
+                $this->pdo = $pdo;
                 // You can change default fetch mode after the seeding
                 $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-                $this->pdo = $pdo;
             }
 
         }

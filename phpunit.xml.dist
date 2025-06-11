@@ -3,7 +3,6 @@
     colors="true"
     columns="max"
     convertErrorsToExceptions="true"
-    convertDeprecationsToExceptions="true"
 >
 
     <!--

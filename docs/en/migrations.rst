@@ -21,7 +21,7 @@ command:
         $ vendor/bin/phinx create MyNewMigration
 
 This will create a new migration in the format
-``YYYYMMDDHHMMSS_MyNewMigration.php``, where the first 14 characters are
+``YYYYMMDDHHMMSS_my_new_migration.php``, where the first 14 characters are
 replaced with the current timestamp down to the second.
 
 If you have specified multiple migration paths, you will be asked to select
@@ -892,6 +892,7 @@ Option     Description
 update     set an action to be triggered when the row is updated
 delete     set an action to be triggered when the row is deleted
 constraint set a name to be used by foreign key constraint
+deferrable set the foreign key constraint to be deferrable *(only applies to PostgreSQL)*
 ========== ===========
 
 You can pass one or more of these options to any column with the optional
@@ -1192,7 +1193,7 @@ where its value is the name of the column to position it after.
             }
         }
 
-This would create the new column ``city`` and position it after the ``email`` column. The 
+This would create the new column ``city`` and position it after the ``email`` column. The
 ``\Phinx\Db\Adapter\MysqlAdapter::FIRST`` constant can be used to specify that the new column should be
 created as the first column in that table.
 
@@ -1578,6 +1579,31 @@ We can add named foreign keys using the ``constraint`` parameter. This feature i
             }
         }
 
+For PostgreSQL, you can set if the foreign key is deferrable. The available options are ``DEFERRED`` (corresponds to
+``DEFERRABLE INITIALLY DEFERRED``), ``IMMEDIATE`` (corresponds to ``DEFERRABLE INITIALLY IMMEDIATE``), and ``NOT_DEFERRED``
+(corresponds to ``NOT DEFERRABLE``).
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            public function change()
+            {
+                $table = $this->table('phones');
+                $table->addColumn('name', 'string')
+                      ->addColumn('manufacturer_name', 'string')
+                      ->addForeignKey('manufacturer_name',
+                                      'manufacturers ',
+                                      'name',
+                                      ['deferrable' => 'DEFERRED'])
+                      ->save();
+            }
+        }
+
 We can also easily check if a foreign key exists:
 
 .. code-block:: php
@@ -1653,7 +1679,7 @@ Phinx provides access to a Query builder object, that you may use to execute com
 
 The Query builder is provided by the `cakephp/database <https://github.com/cakephp/database>`_ project, and should
 be easy to work with as it resembles very closely plain SQL. Accesing the query builder is done by calling the
-``getQueryBuilder()`` function:
+``getQueryBuilder(string $type)`` function. The ``string $type`` options are `'select'`, `'insert'`, `'update'` and `'delete'`:
 
 
 .. code-block:: php
@@ -1669,11 +1695,39 @@ be easy to work with as it resembles very closely plain SQL. Accesing the query 
              */
             public function up()
             {
-                $builder = $this->getQueryBuilder();
+                $builder = $this->getQueryBuilder('select');
                 $statement = $builder->select('*')->from('users')->execute();
                 var_dump($statement->fetchAll());
             }
         }
+
+Alternatively, the following methods are available to enhance code organization and improve clarity:
+
+* ``getSelectBuilder()``: Returns a SelectQuery object for building SELECT statements.
+* ``getInsertBuilder()``: Returns an InsertQuery object for building INSERT statements.
+* ``getUpdateBuilder()``: Returns an UpdateQuery object for building UPDATE statements.
+* ``getDeleteBuilder()``: Returns a DeleteQuery object for building DELETE statements.
+
+
+.. code-block:: php
+
+        <?php
+
+        use Phinx\Migration\AbstractMigration;
+
+        class MyNewMigration extends AbstractMigration
+        {
+            /**
+             * Migrate Up.
+             */
+            public function up()
+            {
+                $builder = $this->getSelectBuilder();
+                $statement = $builder->select('*')->from('users')->execute();
+                var_dump($statement->fetchAll());
+            }
+        }
+
 
 Selecting Fields
 ~~~~~~~~~~~~~~~~
@@ -1864,7 +1918,7 @@ Creating insert queries is also possible:
 .. code-block:: php
 
     <?php
-    $builder = $this->getQueryBuilder();
+    $builder = $this->getQueryBuilder('insert');
     $builder
         ->insert(['first_name', 'last_name'])
         ->into('users')
@@ -1879,13 +1933,13 @@ For increased performance, you can use another builder object as the values for 
 
     <?php
 
-    $namesQuery = $this->getQueryBuilder();
+    $namesQuery = $this->getQueryBuilder('select');
     $namesQuery
         ->select(['fname', 'lname'])
         ->from('users')
         ->where(['is_active' => true]);
 
-    $builder = $this->getQueryBuilder();
+    $builder = $this->getQueryBuilder('insert');
     $st = $builder
         ->insert(['first_name', 'last_name'])
         ->into('names')
@@ -1911,7 +1965,7 @@ Creating update queries is similar to both inserting and selecting:
 .. code-block:: php
 
     <?php
-    $builder = $this->getQueryBuilder();
+    $builder = $this->getQueryBuilder('update');
     $builder
         ->update('users')
         ->set('fname', 'Snow')
@@ -1927,7 +1981,7 @@ Finally, delete queries:
 .. code-block:: php
 
     <?php
-    $builder = $this->getQueryBuilder();
+    $builder = $this->getQueryBuilder('delete');
     $builder
         ->delete('users')
         ->where(['accepted_gdpr' => false])

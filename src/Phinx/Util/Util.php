@@ -47,11 +47,26 @@ class Util
      *
      * @return string
      */
-    public static function getCurrentTimestamp(): string
+    public static function getCurrentTimestamp(?int $offset = null): string
     {
         $dt = new DateTime('now', new DateTimeZone('UTC'));
+        if ($offset) {
+            $dt->modify('+' . $offset . ' seconds');
+        }
 
         return $dt->format(static::DATE_FORMAT);
+    }
+
+    /**
+     * Checks that the given timestamp is a unique prefix for any files in the given path.
+     *
+     * @param string $path Path to check
+     * @param string $timestamp Timestamp to check
+     * @return bool
+     */
+    public static function isUniqueTimestamp(string $path, string $timestamp): bool
+    {
+        return !count(static::glob($path . DIRECTORY_SEPARATOR . $timestamp . '*.php'));
     }
 
     /**
@@ -100,15 +115,32 @@ class Util
     }
 
     /**
+     * Given a string, convert it to snake_case.
+     *
+     * @param string $string String to convert
+     * @return string
+     */
+    public static function toSnakeCase(string $string): string
+    {
+        $snake = function ($matches) {
+            return '_' . strtolower($matches[0]);
+        };
+
+        return preg_replace_callback('/\d+|[A-Z]/', $snake, $string);
+    }
+
+    /**
      * Turn migration names like 'CreateUserTable' into file names like
      * '12345678901234_create_user_table.php' or 'LimitResourceNamesTo30Chars' into
      * '12345678901234_limit_resource_names_to_30_chars.php'.
      *
+     * @deprecated Will be removed in 0.17.0
      * @param string $className Class Name
      * @return string
      */
     public static function mapClassNameToFileName(string $className): string
     {
+        trigger_error('Util::mapClassNameToFileName is deprecated since 0.16.6, and will be removed in a future release.', E_USER_DEPRECATED);
         $snake = function ($matches) {
             return '_' . strtolower($matches[0]);
         };

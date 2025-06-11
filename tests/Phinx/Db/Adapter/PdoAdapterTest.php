@@ -3,11 +3,17 @@ declare(strict_types=1);
 
 namespace Test\Phinx\Db\Adapter;
 
+use Cake\I18n\Date;
+use Cake\I18n\DateTime;
 use PDO;
 use PDOException;
 use Phinx\Config\Config;
+use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 use RuntimeException;
+use Test\Phinx\DeprecationException;
+use Test\Phinx\TestUtils;
 
 class PdoAdapterTest extends TestCase
 {
@@ -50,9 +56,11 @@ class PdoAdapterTest extends TestCase
 
     public function testOptionsSetDefaultMigrationTableThrowsDeprecation()
     {
+        TestUtils::throwUserDeprecatedError();
+
         $this->assertEquals('phinxlog', $this->adapter->getSchemaTableName());
 
-        $this->expectDeprecation();
+        $this->expectException(DeprecationException::class);
         $this->expectExceptionMessage('The default_migration_table setting for adapter has been deprecated since 0.13.0. Use `migration_table` instead.');
         $this->adapter->setOptions(['default_migration_table' => 'schema_table_test']);
         $this->assertEquals('schema_table_test', $this->adapter->getSchemaTableName());
@@ -77,7 +85,7 @@ class PdoAdapterTest extends TestCase
             true,
             true,
             true,
-            ['fetchAll', 'getSchemaTableName', 'quoteTableName']
+            ['fetchAll', 'getSchemaTableName', 'quoteTableName'],
         );
 
         $schemaTableName = 'log';
@@ -137,7 +145,7 @@ class PdoAdapterTest extends TestCase
         $this->expectExceptionMessage('Invalid version_order configuration option');
         $adapter = $this->getMockForAbstractClass(
             '\Phinx\Db\Adapter\PdoAdapter',
-            [['version_order' => 'invalid']]
+            [['version_order' => 'invalid']],
         );
 
         $this->expectException(RuntimeException::class);
@@ -154,7 +162,7 @@ class PdoAdapterTest extends TestCase
             true,
             true,
             true,
-            ['isDryRunEnabled', 'fetchAll', 'getSchemaTableName', 'quoteTableName']
+            ['isDryRunEnabled', 'fetchAll', 'getSchemaTableName', 'quoteTableName'],
         );
 
         $schemaTableName = 'log';
@@ -184,7 +192,7 @@ class PdoAdapterTest extends TestCase
     {
         /** @var \PDO&\PHPUnit\Framework\MockObject\MockObject $pdo */
         $pdo = $this->getMockBuilder(PDO::class)->disableOriginalConstructor()->onlyMethods(['exec'])->getMock();
-        $pdo->expects($this->once())->method('exec')->with('SELECT 1;')->will($this->returnValue(1));
+        $pdo->expects($this->once())->method('exec')->with('SELECT 1')->will($this->returnValue(1));
 
         $this->adapter->setConnection($pdo);
         $this->adapter->execute('SELECT 1');
@@ -194,9 +202,63 @@ class PdoAdapterTest extends TestCase
     {
         /** @var \PDO&\PHPUnit\Framework\MockObject\MockObject $pdo */
         $pdo = $this->getMockBuilder(PDO::class)->disableOriginalConstructor()->onlyMethods(['exec'])->getMock();
-        $pdo->expects($this->once())->method('exec')->with('SELECT 1;')->will($this->returnValue(1));
+        $pdo->expects($this->once())->method('exec')->with('SELECT 1')->will($this->returnValue(1));
 
         $this->adapter->setConnection($pdo);
         $this->adapter->execute('SELECT 1;;');
+    }
+
+    public function quoteValueDataProvider(): array
+    {
+        return [
+            [1.0, 1.0],
+            [2, 2],
+            [true, 1],
+            [false, 0],
+            [null, 'null'],
+            [Literal::from('CURRENT_TIMESTAMP'), 'CURRENT_TIMESTAMP'],
+        ];
+    }
+
+    /**
+     * @dataProvider quoteValueDataProvider
+     */
+    public function testQuoteValue($input, $expected): void
+    {
+        $method = new ReflectionMethod($this->adapter, 'quoteValue');
+        $this->assertSame($expected, $method->invoke($this->adapter, $input));
+    }
+
+    public function quoteValueStringDataProvider(): array
+    {
+        return [
+            ['mockvalue', "'mockvalue'"],
+            [new Date('2023-01-01'), "'2023-01-01'"],
+            [new DateTime('2023-01-01 12:00:00'), "'2023-01-01 12:00:00'"],
+        ];
+    }
+
+    /**
+     * @dataProvider quoteValueStringDataProvider
+     */
+
+    public function testQuoteValueString($input, $expected): void
+    {
+        /** @var \PDO&\PHPUnit\Framework\MockObject\MockObject $pdo */
+        $pdo = $this->getMockBuilder(PDO::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['quote'])
+            ->getMock();
+
+        $pdo->expects($this->once())
+            ->method('quote')
+            ->willReturnCallback(function (string $input) {
+                return "'$input'";
+            });
+
+        $this->adapter->setConnection($pdo);
+
+        $method = new ReflectionMethod($this->adapter, 'quoteValue');
+        $this->assertSame($expected, $method->invoke($this->adapter, $input));
     }
 }

@@ -14,12 +14,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.1', '8.2', '8.3']
+        php-version: ['8.1', '8.4']
         db-type: [sqlite, mysql, pgsql]
         prefer-lowest: ['']
         include:
-          - php-version: '8.3'
-            db-type: sqlite
+          - php-version: '8.2'
+            db-type: mysql
             prefer-lowest: ''
           - php-version: '8.1'
             db-type: sqlite
@@ -27,7 +27,7 @@ jobs:
 
     steps:
     - name: Setup MySQL latest
-      if: matrix.db-type == 'mysql' && matrix.php-version == '8.3'
+      if: matrix.db-type == 'mysql' && matrix.php-version == '8.4'
       run: docker run --rm --name=mysqld -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cakephp -p 3306:3306 -d mysql:8.4
 
     - name: Setup MySQL 8.0
@@ -91,7 +91,7 @@ jobs:
             n=$((n+1))
             sleep 2
           done
-          mysql -h 127.0.0.1 -u root -proot -D phinx -e 'SELECT 1;'
+          mysql -h 127.0.0.1 -u root -proot -D phinx -e 'SELECT 1'
         fi
         if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then psql -c 'CREATE DATABASE phinx;' postgresql://postgres:postgres@127.0.0.1; fi
 
@@ -101,7 +101,7 @@ jobs:
         if [[ ${{ matrix.db-type }} == 'mysql' ]]; then export MYSQL_DSN='mysql://root:root@127.0.0.1/phinx'; fi
         if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then export PGSQL_DSN='pgsql://postgres:postgres@127.0.0.1/phinx'; fi
 
-        if [[ ${{ matrix.php-version }} == '8.2' ]]; then
+        if [[ ${{ matrix.prefer-lowest != 'prefer-lowest' }} ]]; then
           export CODECOVERAGE=1 && vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
         else
           vendor/bin/phpunit
@@ -112,8 +112,10 @@ jobs:
       run: composer require --dev dereuromark/composer-prefer-lowest && vendor/bin/validate-prefer-lowest -m
 
     - name: Submit code coverage
-      if: matrix.php-version == '8.2'
-      uses: codecov/codecov-action@v4
+      if: ${{ matrix.prefer-lowest != 'prefer-lowest' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
 
   testsuite-windows:
     runs-on: windows-2022
@@ -181,7 +183,9 @@ jobs:
           vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
 
     - name: Submit code coverage
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
 
   cs-stan:
     name: Coding Standard & Static Analysis

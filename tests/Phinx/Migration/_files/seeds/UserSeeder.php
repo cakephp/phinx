@@ -1,5 +1,7 @@
 <?php
 
+use Cake\I18n\Date;
+use Cake\I18n\DateTime;
 use Phinx\Seed\AbstractSeed;
 
 class UserSeeder extends AbstractSeed

@@ -35,6 +35,7 @@ class SeedRun extends AbstractCommand
 
         $this->setDescription('Run database seeders')
             ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
+            ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
             ->setHelp(
                 <<<EOT
 The <info>seed:run</info> command runs all available or individual seeders
@@ -44,7 +45,7 @@ The <info>seed:run</info> command runs all available or individual seeders
 <info>phinx seed:run -e development -s UserSeeder -s PermissionSeeder -s LogSeeder</info>
 <info>phinx seed:run -e development -v</info>
 
-EOT
+EOT,
             );
     }
 
@@ -64,41 +65,9 @@ EOT
         /** @var string|null $environment */
         $environment = $input->getOption('environment');
 
-        if ($environment === null) {
-            $environment = $this->getConfig()->getDefaultEnvironment();
-            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment, $this->verbosityLevel);
-        } else {
-            $output->writeln('<info>using environment</info> ' . $environment, $this->verbosityLevel);
-        }
-
-        if (!$this->getConfig()->hasEnvironment($environment)) {
-            $output->writeln(sprintf('<error>The environment "%s" does not exist</error>', $environment));
-
+        $success = $this->writeInformationOutput($environment, $output);
+        if (!$success) {
             return self::CODE_ERROR;
-        }
-
-        $envOptions = $this->getConfig()->getEnvironment($environment);
-        if (isset($envOptions['adapter'])) {
-            $output->writeln('<info>using adapter</info> ' . $envOptions['adapter'], $this->verbosityLevel);
-        }
-
-        if (isset($envOptions['wrapper'])) {
-            $output->writeln('<info>using wrapper</info> ' . $envOptions['wrapper'], $this->verbosityLevel);
-        }
-
-        if (isset($envOptions['name'])) {
-            $output->writeln('<info>using database</info> ' . $envOptions['name'], $this->verbosityLevel);
-        } else {
-            $output->writeln('<error>Could not determine database name! Please specify a database name in your config file.</error>');
-
-            return self::CODE_ERROR;
-        }
-
-        if (isset($envOptions['table_prefix'])) {
-            $output->writeln('<info>using table prefix</info> ' . $envOptions['table_prefix'], $this->verbosityLevel);
-        }
-        if (isset($envOptions['table_suffix'])) {
-            $output->writeln('<info>using table suffix</info> ' . $envOptions['table_suffix'], $this->verbosityLevel);
         }
 
         $start = microtime(true);
