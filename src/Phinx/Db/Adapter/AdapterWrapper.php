@@ -477,9 +477,9 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     /**
      * {@inheritDoc}
      */
-    public function preExecuteActions(): array
+    public function preExecuteActions(array $updateSequences): array
     {
-        return $this->getAdapter()->preExecuteActions();
+        return $this->getAdapter()->preExecuteActions($updateSequences);
     }
 
     /**
