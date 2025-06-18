@@ -1034,57 +1034,52 @@ PCRE_PATTERN;
      * the given table, and of those tables whose constraints are
      * targeting it.
      *
-     * @param \Phinx\Db\Util\AlterInstructions $instructions The instructions to process
-     * @param string $tableName The name of the table for which to check constraints.
+     * @param string|array<string> $tableName The name of the table for which to check constraints.
      * @return \Phinx\Db\Util\AlterInstructions
      */
-    protected function validateForeignKeys(AlterInstructions $instructions, string $tableName): AlterInstructions
+    protected function validateForeignKeys(string|array $tableNames): void
     {
-        $instructions->addPostStep(function ($state) use ($tableName) {
-            $tablesToCheck = [
-                $tableName,
-            ];
+        if (!is_array($tableNames)) {
+            $tableNames = [$tableNames];
+        }
 
-            $otherTables = $this
-                ->query(
-                    "SELECT name FROM sqlite_master WHERE type = 'table' AND name != ?",
-                    [$tableName],
-                )
-                ->fetchAll();
+        $tablesToCheck = $tableNames;
 
-            foreach ($otherTables as $otherTable) {
-                $foreignKeyList = $this->getTableInfo($otherTable['name'], 'foreign_key_list');
-                foreach ($foreignKeyList as $foreignKey) {
-                    if (strcasecmp($foreignKey['table'], $tableName) === 0) {
-                        $tablesToCheck[] = $otherTable['name'];
-                        break;
-                    }
+        $otherTables = $this
+            ->query(
+                "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT IN (" . implode(',',array_fill(0, count($tableNames), '?')) . ')',
+                $tableNames
+            )
+            ->fetchAll();
+
+        foreach ($otherTables as $otherTable) {
+            $foreignKeyList = $this->getTableInfo($otherTable['name'], 'foreign_key_list');
+            foreach ($foreignKeyList as $foreignKey) {
+                if (in_array(strtolower($foreignKey['table']), $tableNames)) {
+                    $tablesToCheck[] = $otherTable['name'];
+                    break;
                 }
             }
+        }
 
-            $tablesToCheck = array_unique(array_map('strtolower', $tablesToCheck));
+        $tablesToCheck = array_unique(array_map('strtolower', $tablesToCheck));
 
-            foreach ($tablesToCheck as $tableToCheck) {
-                $schema = $this->getSchemaName($tableToCheck, true)['schema'];
+        foreach ($tablesToCheck as $tableToCheck) {
+            $schema = $this->getSchemaName($tableToCheck, true)['schema'];
 
-                $stmt = $this->query(
-                    sprintf('PRAGMA %sforeign_key_check(%s)', $schema, $this->quoteTableName($tableToCheck)),
-                );
-                $row = $stmt->fetch();
-                $stmt->closeCursor();
+            $stmt = $this->query(
+                sprintf('PRAGMA %sforeign_key_check(%s)', $schema, $this->quoteTableName($tableToCheck)),
+            );
+            $row = $stmt->fetch();
+            $stmt->closeCursor();
 
-                if (is_array($row)) {
-                    throw new RuntimeException(sprintf(
-                        'Integrity constraint violation: FOREIGN KEY constraint on `%s` failed.',
-                        $tableToCheck,
-                    ));
-                }
+            if (is_array($row)) {
+                throw new RuntimeException(sprintf(
+                    'Integrity constraint violation: FOREIGN KEY constraint on `%s` failed.',
+                    $tableToCheck,
+                ));
             }
-
-            return $state;
-        });
-
-        return $instructions;
+        }
     }
 
     /**
@@ -1239,7 +1234,6 @@ PCRE_PATTERN;
         string $tableName,
         ?string $renamedOrRemovedColumnName = null,
         ?string $newColumnName = null,
-        bool $validateForeignKeys = true,
     ): AlterInstructions {
         $instructions = $this->bufferIndicesAndTriggers($instructions, $tableName);
 
@@ -1251,25 +1245,8 @@ PCRE_PATTERN;
             }
         }
 
-        $foreignKeysEnabled = (bool)$this->fetchRow('PRAGMA foreign_keys')['foreign_keys'];
-
-        if ($foreignKeysEnabled) {
-            $instructions->addPostStep('PRAGMA foreign_keys = OFF');
-        }
-
         $instructions = $this->copyAndDropTmpTable($instructions, $tableName);
         $instructions = $this->recreateIndicesAndTriggers($instructions);
-
-        if ($foreignKeysEnabled) {
-            $instructions->addPostStep('PRAGMA foreign_keys = ON');
-        }
-
-        if (
-            $foreignKeysEnabled &&
-            $validateForeignKeys
-        ) {
-            $instructions = $this->validateForeignKeys($instructions, $tableName);
-        }
 
         return $instructions;
     }
@@ -1661,7 +1638,7 @@ PCRE_PATTERN;
             return $newState + $state;
         });
 
-        return $this->endAlterByCopyTable($instructions, $tableName, null, null, false);
+        return $this->endAlterByCopyTable($instructions, $tableName, null, null);
     }
 
     /**
@@ -2012,5 +1989,32 @@ PCRE_PATTERN;
         }
 
         return $this->decoratedConnection = $this->buildConnection(SqliteDriver::class, $options);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function preExecuteActions(): array
+    {
+        $foreignKeysEnabled = (bool)$this->fetchRow('PRAGMA foreign_keys')['foreign_keys'];
+
+        if ($foreignKeysEnabled) {
+            $this->execute('PRAGMA foreign_keys = OFF');
+        }
+
+        return [
+            'foreignKeysEnabled' => $foreignKeysEnabled,
+        ];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function postExecuteActions(array $tableNames, array $preOptions): void
+    {
+        if ($preOptions['foreignKeysEnabled']) {
+            $this->execute('PRAGMA foreign_keys = ON');
+            $this->validateForeignKeys($tableNames);
+        }
     }
 }

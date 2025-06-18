@@ -2387,6 +2387,7 @@ OUTPUT;
      */
     public function testAlterTableDoesViolateForeignKeyConstraintOnSourceTableChange()
     {
+        /** @var \Phinx\Db\Adapter\AdapterInterface&\PHPUnit\Framework\MockObject\MockObject */
         $adapter = $this
             ->getMockBuilder(SQLiteAdapter::class)
             ->setConstructorArgs([SQLITE_DB_CONFIG, new ArrayInput([]), new NullOutput()])

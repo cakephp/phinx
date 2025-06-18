@@ -1003,6 +1003,14 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
 
     /**
      * {@inheritDoc}
+     */
+    public function preExecuteActions(): array
+    {
+        return [];
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @throws \InvalidArgumentException
      * @return void
@@ -1125,5 +1133,13 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
         }
 
         $this->executeAlterSteps($table->getName(), $instructions);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function postExecuteActions(array $tableNames, array $preOptions): void
+    {
+
     }
 }

@@ -143,15 +143,21 @@ class Plan
      */
     public function execute(AdapterInterface $executor): void
     {
+        $preOptions = $executor->preExecuteActions();
+
         foreach ($this->tableCreates as $newTable) {
             $executor->createTable($newTable->getTable(), $newTable->getColumns(), $newTable->getIndexes());
         }
 
+        $tables = [];
         foreach ($this->updatesSequence() as $updates) {
             foreach ($updates as $update) {
+                $tables[] = $update->getTable()->getName();
                 $executor->executeActions($update->getTable(), $update->getActions());
             }
         }
+
+        $executor->postExecuteActions(array_unique($tables), $preOptions);
     }
 
     /**
