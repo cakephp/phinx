@@ -278,9 +278,10 @@ interface AdapterInterface
     /**
      * Function to be called before executing any migration actions.
      *
+     * @param \Phinx\Db\Plan\AlterTable[][] $updateSequences List of update sequences to be executed
      * @return array
      */
-    public function preExecuteActions(): array;
+    public function preExecuteActions(array $updateSequences): array;
 
     /**
      * Executes a list of migration actions for the given table

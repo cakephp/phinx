@@ -1004,7 +1004,7 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
     /**
      * {@inheritDoc}
      */
-    public function preExecuteActions(): array
+    public function preExecuteActions(array $updateSequences): array
     {
         return [];
     }

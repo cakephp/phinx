@@ -14,6 +14,7 @@ use Cake\Database\Driver\Sqlite as SqliteDriver;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
+use Phinx\Db\Action\AddForeignKey;
 use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Db\Table\Index;
@@ -1648,7 +1649,6 @@ PCRE_PATTERN;
 
         $tableName = $table->getName();
         $instructions->addPostStep(function ($state) use ($foreignKey, $tableName) {
-            $this->execute('pragma foreign_keys = ON');
             $sql = substr($state['createSQL'], 0, -1) . ',' . $this->getForeignKeySqlDefinition($foreignKey) . '); ';
 
             //Delete indexes from original table and recreate them in temporary table
@@ -1992,9 +1992,22 @@ PCRE_PATTERN;
     /**
      * {@inheritDoc}
      */
-    public function preExecuteActions(): array
+    public function preExecuteActions(array $updateSequences): array
     {
         $foreignKeysEnabled = (bool)$this->fetchRow('PRAGMA foreign_keys')['foreign_keys'];
+
+        if (!$foreignKeysEnabled) {
+            foreach ($updateSequences as $updates) {
+                foreach ($updates as $update) {
+                    foreach ($update->getActions() as $action) {
+                        if ($action instanceof AddForeignKey) {
+                            $foreignKeysEnabled = true;
+                            break 3;
+                        }
+                    }
+                }
+            }
+        }
 
         if ($foreignKeysEnabled) {
             $this->execute('PRAGMA foreign_keys = OFF');

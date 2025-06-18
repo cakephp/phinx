@@ -2397,14 +2397,19 @@ OUTPUT;
         $adapterReflection = new ReflectionObject($adapter);
         $queryReflection = $adapterReflection->getParentClass()->getMethod('query');
 
+        $count = 0;
         $adapter
             ->expects($this->atLeastOnce())
             ->method('query')
-            ->willReturnCallback(function (string $sql, array $params = []) use ($adapter, $queryReflection) {
+            ->willReturnCallback(function (string $sql, array $params = []) use ($adapter, &$count, $queryReflection) {
                 if ($sql === 'PRAGMA foreign_key_check(`comments`)') {
-                    $adapter->execute('PRAGMA foreign_keys = OFF');
-                    $adapter->execute('DELETE FROM articles');
-                    $adapter->execute('PRAGMA foreign_keys = ON');
+                    $count++;
+
+                    if ($count > 1) {
+                        $adapter->execute('PRAGMA foreign_keys = OFF');
+                        $adapter->execute('DELETE FROM articles');
+                        $adapter->execute('PRAGMA foreign_keys = ON');
+                    }
                 }
 
                 return $queryReflection->invoke($adapter, $sql, $params);
