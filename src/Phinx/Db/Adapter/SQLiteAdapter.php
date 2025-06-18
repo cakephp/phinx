@@ -1035,7 +1035,7 @@ PCRE_PATTERN;
      * the given table, and of those tables whose constraints are
      * targeting it.
      *
-     * @param string|array<string> $tableName The name of the table for which to check constraints.
+     * @param string|array<string> $tableNames The name of the table for which to check constraints.
      * @return void
      */
     protected function validateForeignKeys(string|array $tableNames): void
