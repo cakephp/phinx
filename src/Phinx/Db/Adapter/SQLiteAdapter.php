@@ -1048,8 +1048,8 @@ PCRE_PATTERN;
 
         $otherTables = $this
             ->query(
-                "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT IN (" . implode(',',array_fill(0, count($tableNames), '?')) . ')',
-                $tableNames
+                "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT IN (" . implode(',', array_fill(0, count($tableNames), '?')) . ')',
+                $tableNames,
             )
             ->fetchAll();
 

@@ -1140,6 +1140,5 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     public function postExecuteActions(array $tableNames, array $preOptions): void
     {
-
     }
 }
