@@ -1035,7 +1035,7 @@ PCRE_PATTERN;
      * targeting it.
      *
      * @param string|array<string> $tableName The name of the table for which to check constraints.
-     * @return \Phinx\Db\Util\AlterInstructions
+     * @return void
      */
     protected function validateForeignKeys(string|array $tableNames): void
     {
@@ -1225,8 +1225,6 @@ PCRE_PATTERN;
      * @param ?string $renamedOrRemovedColumnName The name of the renamed or removed column when part of a column
      *  rename/drop operation.
      * @param ?string $newColumnName The new column name when part of a column rename operation.
-     * @param bool $validateForeignKeys Whether to validate foreign keys after the copy and drop operations. Note that
-     *  enabling this option only has an effect when the `foreign_keys` PRAGMA is set to `ON`!
      * @return \Phinx\Db\Util\AlterInstructions
      */
     protected function endAlterByCopyTable(
