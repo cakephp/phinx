@@ -168,11 +168,17 @@ class Plan
      */
     public function executeInverse(AdapterInterface $executor): void
     {
+        $preOptions = $executor->preExecuteActions();
+        $tables = [];
+
         foreach ($this->inverseUpdatesSequence() as $updates) {
             foreach ($updates as $update) {
+                $tables[] = $update->getTable()->getName();
                 $executor->executeActions($update->getTable(), $update->getActions());
             }
         }
+
+        $executor->postExecuteActions(array_unique($tables), $preOptions);
 
         foreach ($this->tableCreates as $newTable) {
             $executor->createTable($newTable->getTable(), $newTable->getColumns(), $newTable->getIndexes());
