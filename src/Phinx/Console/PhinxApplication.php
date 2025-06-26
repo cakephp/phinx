@@ -94,6 +94,10 @@ class PhinxApplication extends Application
         }
 
         // Otherwise fallback to the version as reported by composer
-        return $this->version = InstalledVersions::getPrettyVersion('robmorgan/phinx') ?? 'UNKNOWN';
+        if (class_exists(InstalledVersions::class)) {
+            return $this->version = InstalledVersions::getPrettyVersion('robmorgan/phinx') ?? 'UNKNOWN';
+        }
+
+        return $this->version = 'UNKNOWN';
     }
 }
