@@ -22,7 +22,7 @@ use Phinx\Console\Command\Test;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
-use \Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -59,12 +59,12 @@ class PhinxApplication extends Application
     /**
      * Setup default input definition.
      *
-     * @return InputDefinition the overridden input definition.
+     * @return \Symfony\Component\Console\Input\InputDefinition the overridden input definition.
      */
     protected function getDefaultInputDefinition(): InputDefinition
     {
         $definition = parent::getDefaultInputDefinition();
-        $definition->addOption(new \Symfony\Component\Console\Input\InputOption('--configuration', '-c', InputOption::VALUE_REQUIRED, 'The configuration file to load'));
+        $definition->addOption(new InputOption('--configuration', '-c', InputOption::VALUE_REQUIRED, 'The configuration file to load'));
 
         return $definition;
     }
