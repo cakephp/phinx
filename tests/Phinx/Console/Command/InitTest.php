@@ -82,9 +82,53 @@ class InitTest extends TestCase
         $this->writeConfig(uniqid() . $format);
     }
 
+    public function configurationOptionDataProvider(): array
+    {
+        return [
+            ['phinx.php'],
+            [sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.php'],
+        ];
+    }
+
+    /**
+     * @dataProvider configurationOptionDataProvider
+     */
+    public function testConfigurationOption($configPath): void
+    {
+        $currentDir = getcwd();
+        $expectedPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'phinx.php';
+        try {
+            chdir(sys_get_temp_dir());
+            $application = new PhinxApplication();
+            $application->add(new Init());
+            $command = $application->find('init');
+            $commandTester = new CommandTester($command);
+
+            $command = [
+                '--configuration' => $configPath,
+                'command' => $command->getName(),
+            ];
+
+            $exitCode = $commandTester->execute($command, ['decorated' => false]);
+            $this->assertEquals(AbstractCommand::CODE_SUCCESS, $exitCode);
+
+            $this->assertStringContainsString(
+                "created $expectedPath",
+                $commandTester->getDisplay(),
+            );
+
+            $this->assertFileExists(
+                $expectedPath,
+                'Phinx configuration not existent',
+            );
+        } finally {
+            chdir($currentDir);
+        }
+    }
+
     public function testDefaults()
     {
-        $current_dir = getcwd();
+        $currentDir = getcwd();
 
         try {
             chdir(sys_get_temp_dir());
@@ -107,13 +151,13 @@ class InitTest extends TestCase
                 'Phinx configuration not existent',
             );
         } finally {
-            chdir($current_dir);
+            chdir($currentDir);
         }
     }
 
     public function testYamlFormat()
     {
-        $current_dir = getcwd();
+        $currentDir = getcwd();
 
         try {
             chdir(sys_get_temp_dir());
@@ -136,7 +180,7 @@ class InitTest extends TestCase
                 'Phinx configuration not existent',
             );
         } finally {
-            chdir($current_dir);
+            chdir($currentDir);
         }
     }
 
