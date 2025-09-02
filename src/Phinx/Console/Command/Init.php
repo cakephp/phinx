@@ -102,7 +102,8 @@ class Init extends Command
         $path = (string)$input->getArgument('path');
 
         if (!$path) {
-            if ($input->hasOption('configuration')) {
+            $path = $input->hasOption('configuration') ? (string)$input->getOption('configuration') : null;
+            if ($path) {
                 $path = (string)$input->getOption('configuration');
                 if (DIRECTORY_SEPARATOR === '/') {
                     $isAbsolute = ($path[0] === '/');
