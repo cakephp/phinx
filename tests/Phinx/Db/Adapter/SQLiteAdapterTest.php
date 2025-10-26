@@ -1319,6 +1319,9 @@ class SQLiteAdapterTest extends TestCase
             ['column15', 'smallinteger', []],
             ['column15', 'integer', []],
             ['column23', 'json', []],
+            ['decimal_precision_scale', 'decimal', ['precision' => 10, 'scale' => 2]],
+            ['decimal_precision_zero_scale', 'decimal', ['precision' => 10, 'scale' => 0]],
+            ['decimal_precision', 'decimal', ['precision' => 10]],
         ];
     }
 

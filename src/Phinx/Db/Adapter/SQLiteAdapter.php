@@ -1868,8 +1868,12 @@ PCRE_PATTERN;
                 $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
             }
         }
-        if ($column->getPrecision() && $column->getScale()) {
-            $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
+        if ($column->getPrecision() || $column->getScale()) {
+            $def .= sprintf(
+                '(%s, %s)',
+                $column->getPrecision() ?: 10,
+                $column->getScale() ?: 0,
+            );
         }
 
         $default = $column->getDefault();
