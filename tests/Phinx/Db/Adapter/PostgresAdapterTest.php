@@ -1258,6 +1258,7 @@ class PostgresAdapterTest extends TestCase
             ['column13', 'string', ['limit' => 10]],
             ['column16', 'interval', []],
             ['decimal_precision_scale', 'decimal', ['precision' => 10, 'scale' => 2]],
+            ['decimal_precision_zero_scale', 'decimal', ['precision' => 12, 'scale' => 0]],
             ['decimal_limit', 'decimal', ['limit' => 10]],
             ['decimal_precision', 'decimal', ['precision' => 10]],
         ];
@@ -1283,6 +1284,18 @@ class PostgresAdapterTest extends TestCase
             $this->assertEquals($actualType, $columns[1]->getType());
         } else {
             $this->assertEquals(['name' => $actualType] + $options, $columns[1]->getType());
+        }
+
+        if (isset($options['limit'])) {
+            $this->assertEquals($options['limit'], $columns[1]->getLimit());
+        }
+
+        if (isset($options['precision'])) {
+            $this->assertEquals($options['precision'], $columns[1]->getPrecision());
+        }
+
+        if (isset($options['scale'])) {
+            $this->assertEquals($options['scale'], $columns[1]->getScale());
         }
     }
 

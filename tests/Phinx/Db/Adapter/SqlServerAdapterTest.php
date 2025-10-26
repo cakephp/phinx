@@ -709,6 +709,7 @@ WHERE t.name='ntable'");
             ['column13', 'tinyinteger', ['default' => 5]],
             ['column14', 'smallinteger', ['default' => 5]],
             ['decimal_precision_scale', 'decimal', ['precision' => 10, 'scale' => 2]],
+            ['decimal_precision_zero_scale', 'decimal', ['precision' => 10, 'scale' => 0]],
             ['decimal_limit', 'decimal', ['limit' => 10]],
             ['decimal_precision', 'decimal', ['precision' => 10]],
         ];
@@ -728,6 +729,18 @@ WHERE t.name='ntable'");
         $this->assertCount(2, $columns);
         $this->assertEquals($colName, $columns[$colName]->getName());
         $this->assertEquals($type, $columns[$colName]->getType());
+
+        if (isset($options['limit'])) {
+            $this->assertEquals($options['limit'], $columns[1]->getLimit());
+        }
+
+        if (isset($options['precision'])) {
+            $this->assertEquals($options['precision'], $columns[1]->getPrecision());
+        }
+
+        if (isset($options['scale'])) {
+            $this->assertEquals($options['scale'], $columns[1]->getScale());
+        }
     }
 
     public function testAddIndex()

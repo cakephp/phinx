@@ -956,9 +956,10 @@ class MysqlAdapter extends PdoAdapter
     {
         $type = (string)$type;
         switch ($type) {
+            case static::PHINX_TYPE_DECIMAL:
+                return ['name' => $type, 'precision' => 10, 'scale' => 0];
             case static::PHINX_TYPE_FLOAT:
             case static::PHINX_TYPE_DOUBLE:
-            case static::PHINX_TYPE_DECIMAL:
             case static::PHINX_TYPE_DATE:
             case static::PHINX_TYPE_ENUM:
             case static::PHINX_TYPE_SET:
@@ -1355,8 +1356,12 @@ class MysqlAdapter extends PdoAdapter
             $sqlType = $this->getSqlType($column->getType(), $column->getLimit());
             $def = strtoupper($sqlType['name']);
         }
-        if ($column->getPrecision() && $column->getScale() !== null) {
-            $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
+        if ($column->getPrecision() || $column->getScale()) {
+            $def .= sprintf(
+                '(%s, %s)',
+                $column->getPrecision() ?: $sqlType['precision'],
+                $column->getScale() ?: $sqlType['scale'],
+            );
         } elseif (isset($sqlType['limit'])) {
             $def .= '(' . $sqlType['limit'] . ')';
         }

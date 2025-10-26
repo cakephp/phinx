@@ -1063,8 +1063,9 @@ ORDER BY T.[name], I.[index_id];";
     {
         $type = (string)$type;
         switch ($type) {
-            case static::PHINX_TYPE_FLOAT:
             case static::PHINX_TYPE_DECIMAL:
+                return ['name' => $type, 'precision' => 18, 'scale' => 0];
+            case static::PHINX_TYPE_FLOAT:
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIME:
             case static::PHINX_TYPE_DATE:
@@ -1237,7 +1238,7 @@ ORDER BY T.[name], I.[index_id];";
                 'tinyint',
                 'smallint',
             ];
-            if ($sqlType['name'] === static::PHINX_TYPE_DECIMAL && $column->getPrecision() && $column->getScale()) {
+            if ($sqlType['name'] === static::PHINX_TYPE_DECIMAL && ($column->getPrecision() || $column->getScale())) {
                 $buffer[] = sprintf(
                     '(%s, %s)',
                     $column->getPrecision() ?: $sqlType['precision'],
