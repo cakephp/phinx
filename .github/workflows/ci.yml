@@ -102,7 +102,7 @@ jobs:
         if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then export PGSQL_DSN='pgsql://postgres:postgres@127.0.0.1/phinx'; fi
 
         if [[ ${{ matrix.prefer-lowest != 'prefer-lowest' }} ]]; then
-          export CODECOVERAGE=1 && vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
+          export CODECOVERAGE=1 && vendor/bin/phpunit --coverage-clover=coverage.xml
         else
           vendor/bin/phpunit
         fi
@@ -180,7 +180,7 @@ jobs:
         SQLSRV_DSN: 'sqlsrv://(localdb)\MSSQLLocalDB/phinx'
         CODECOVERAGE: 1
       run: |
-          vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
+          vendor/bin/phpunit --coverage-clover=coverage.xml
 
     - name: Submit code coverage
       uses: codecov/codecov-action@v5
