@@ -11,7 +11,7 @@ use Phinx\Config\Config;
  * @group config
  * @covers \Phinx\Config\Config::getSeedTemplateFile
  */
-class ConfigSeedTemplatePathsTest extends AbstractConfigTest
+class ConfigSeedTemplatePathsTest extends AbstractConfigTestCase
 {
     public function testTemplateAndPathAreSet()
     {

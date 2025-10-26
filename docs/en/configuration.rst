@@ -432,7 +432,7 @@ not recommended to override this.
 MySQL
 `````````````````
 
-The MySQL adapter has an unfortunate limitation in that it certain actions causes an
+The MySQL adapter has an unfortunate limitation in that certain actions cause an
 `implicit commit <https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html>`_ regardless of transaction
 state. Notably this list includes ``CREATE TABLE``, ``ALTER TABLE``, and ``DROP TABLE``, which are the most
 common operations that Phinx will run. This means that unlike other adapters which will attempt to gracefully

@@ -20,7 +20,9 @@ use Phinx\Console\Command\SeedRun;
 use Phinx\Console\Command\Status;
 use Phinx\Console\Command\Test;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -52,6 +54,19 @@ class PhinxApplication extends Application
             new SeedRun(),
             new ListAliases(),
         ]);
+    }
+
+    /**
+     * Setup default input definition.
+     *
+     * @return \Symfony\Component\Console\Input\InputDefinition the overridden input definition.
+     */
+    protected function getDefaultInputDefinition(): InputDefinition
+    {
+        $definition = parent::getDefaultInputDefinition();
+        $definition->addOption(new InputOption('--configuration', '-c', InputOption::VALUE_REQUIRED, 'The configuration file to load'));
+
+        return $definition;
     }
 
     /**
@@ -94,6 +109,10 @@ class PhinxApplication extends Application
         }
 
         // Otherwise fallback to the version as reported by composer
-        return $this->version = InstalledVersions::getPrettyVersion('robmorgan/phinx') ?? 'UNKNOWN';
+        if (class_exists(InstalledVersions::class)) {
+            return $this->version = InstalledVersions::getPrettyVersion('robmorgan/phinx') ?? 'UNKNOWN';
+        }
+
+        return $this->version = 'UNKNOWN';
     }
 }

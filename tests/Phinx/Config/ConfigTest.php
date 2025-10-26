@@ -14,7 +14,7 @@ use UnexpectedValueException;
  * @package Test\Phinx\Config
  * @group config
  */
-class ConfigTest extends AbstractConfigTest
+class ConfigTest extends AbstractConfigTestCase
 {
     /**
      * @covers \Phinx\Config\Config::getEnvironments
@@ -313,7 +313,7 @@ class ConfigTest extends AbstractConfigTest
     {
         // get config stub
         $configStub = $this->getMockBuilder('\Phinx\Config\Config')
-            ->setMethods(['getVersionOrder'])
+            ->onlyMethods(['getVersionOrder'])
             ->setConstructorArgs([[]])
             ->getMock();
 

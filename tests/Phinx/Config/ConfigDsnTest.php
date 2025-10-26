@@ -11,7 +11,7 @@ use Phinx\Config\Config;
  * @group config
  * @covers \Phinx\Config\Config::getEnvironment
  */
-class ConfigDsnTest extends AbstractConfigTest
+class ConfigDsnTest extends AbstractConfigTestCase
 {
     public function testConnectionOptionsCanBeSpecifiedWithDsn()
     {

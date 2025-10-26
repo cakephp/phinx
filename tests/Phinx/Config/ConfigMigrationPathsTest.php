@@ -12,7 +12,7 @@ use UnexpectedValueException;
  * @group config
  * @covers \Phinx\Config\Config::getMigrationPaths
  */
-class ConfigMigrationPathsTest extends AbstractConfigTest
+class ConfigMigrationPathsTest extends AbstractConfigTestCase
 {
     public function testGetMigrationPathsThrowsExceptionForNoPath()
     {

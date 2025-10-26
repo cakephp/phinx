@@ -10,10 +10,10 @@ use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Create;
 use Phinx\Console\PhinxApplication;
 use Phinx\Util\Util;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Tester\CommandTester;
-use Test\Phinx\TestCase;
 use Test\Phinx\TestUtils;
 
 /**

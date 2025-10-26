@@ -6,9 +6,9 @@ namespace Test\Phinx\Util;
 use DateTime;
 use DateTimeZone;
 use Phinx\Util\Util;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Test\Phinx\DeprecationException;
-use Test\Phinx\TestCase;
 use Test\Phinx\TestUtils;
 
 class UtilTest extends TestCase

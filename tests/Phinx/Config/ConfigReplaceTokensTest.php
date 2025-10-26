@@ -10,7 +10,7 @@ use Phinx\Config\Config;
  * @package Test\Phinx\Config
  * @group config
  */
-class ConfigReplaceTokensTest extends AbstractConfigTest
+class ConfigReplaceTokensTest extends AbstractConfigTestCase
 {
     /**
      * Data to be saved to $_SERVER and checked later

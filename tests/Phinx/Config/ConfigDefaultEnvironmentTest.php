@@ -12,7 +12,7 @@ use RuntimeException;
  * @group config
  * @covers \Phinx\Config\Config::getDefaultEnvironment
  */
-class ConfigDefaultEnvironmentTest extends AbstractConfigTest
+class ConfigDefaultEnvironmentTest extends AbstractConfigTestCase
 {
     public function testGetDefaultEnvironment()
     {

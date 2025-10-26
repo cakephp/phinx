@@ -475,11 +475,27 @@ abstract class AdapterWrapper implements AdapterInterface, WrapperInterface
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function preExecuteActions(array $updateSequences): array
+    {
+        return $this->getAdapter()->preExecuteActions($updateSequences);
+    }
+
+    /**
      * @inheritDoc
      */
     public function executeActions(Table $table, array $actions): void
     {
         $this->getAdapter()->executeActions($table, $actions);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function postExecuteActions(array $tableNames, array $preOptions): void
+    {
+        $this->getAdapter()->postExecuteActions($tableNames, $preOptions);
     }
 
     /**

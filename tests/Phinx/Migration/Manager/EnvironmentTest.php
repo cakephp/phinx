@@ -148,10 +148,15 @@ class EnvironmentTest extends TestCase
         $this->environment->setAdapter($adapterStub);
 
         // up
-        $upMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['mockenv', '20110301080000'])
-            ->setMethods(['up'])
-            ->getMock();
+        $upMigration = $this->getMockForAbstractClass(
+            '\Phinx\Migration\AbstractMigration',
+            ['mockenv', '20110301080000'],
+            '',
+            true,
+            true,
+            true,
+            ['up'],
+        );
         $upMigration->expects($this->once())
                     ->method('up');
 
@@ -171,10 +176,15 @@ class EnvironmentTest extends TestCase
         $this->environment->setAdapter($adapterStub);
 
         // down
-        $downMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['mockenv', '20110301080000'])
-            ->setMethods(['down'])
-            ->getMock();
+        $downMigration = $this->getMockForAbstractClass(
+            '\Phinx\Migration\AbstractMigration',
+            ['mockenv', '20110301080000'],
+            '',
+            true,
+            true,
+            true,
+            ['down'],
+        );
         $downMigration->expects($this->once())
                       ->method('down');
 
@@ -200,10 +210,15 @@ class EnvironmentTest extends TestCase
         $this->environment->setAdapter($adapterStub);
 
         // migrate
-        $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['mockenv', '20110301080000'])
-            ->setMethods(['up'])
-            ->getMock();
+        $migration = $this->getMockForAbstractClass(
+            '\Phinx\Migration\AbstractMigration',
+            ['mockenv', '20110301080000'],
+            '',
+            true,
+            true,
+            true,
+            ['up'],
+        );
         $migration->expects($this->once())
                   ->method('up');
 
@@ -223,10 +238,15 @@ class EnvironmentTest extends TestCase
         $this->environment->setAdapter($adapterStub);
 
         // migration
-        $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['mockenv', '20130301080000'])
-            ->setMethods(['change'])
-            ->getMock();
+        $migration = $this->getMockForAbstractClass(
+            '\Phinx\Migration\AbstractMigration',
+            ['mockenv', '20130301080000'],
+            '',
+            true,
+            true,
+            true,
+            ['change'],
+        );
         $migration->expects($this->once())
                   ->method('change');
 
@@ -246,10 +266,15 @@ class EnvironmentTest extends TestCase
         $this->environment->setAdapter($adapterStub);
 
         // migration
-        $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['mockenv', '20130301080000'])
-            ->setMethods(['change'])
-            ->getMock();
+        $migration = $this->getMockForAbstractClass(
+            '\Phinx\Migration\AbstractMigration',
+            ['mockenv', '20130301080000'],
+            '',
+            true,
+            true,
+            true,
+            ['change'],
+        );
         $migration->expects($this->once())
                   ->method('change');
 
@@ -269,10 +294,15 @@ class EnvironmentTest extends TestCase
         $this->environment->setAdapter($adapterStub);
 
         // migration
-        $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['mockenv', '20130301080000'])
-            ->setMethods(['change'])
-            ->getMock();
+        $migration = $this->getMockForAbstractClass(
+            '\Phinx\Migration\AbstractMigration',
+            ['mockenv', '20130301080000'],
+            '',
+            true,
+            true,
+            true,
+            ['change'],
+        );
         $migration->expects($this->never())
                   ->method('change');
 
@@ -301,10 +331,15 @@ class EnvironmentTest extends TestCase
         $this->environment->setAdapter($adapterStub);
 
         // up
-        $upMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
-            ->setConstructorArgs(['mockenv', '20110301080000'])
-            ->setMethods(['up', 'init'])
-            ->getMock();
+        $upMigration = $this->getMockForAbstractClass(
+            '\Phinx\Migration\AbstractMigration',
+            ['mockenv', '20130301080000'],
+            '',
+            true,
+            true,
+            true,
+            ['up', 'init'],
+        );
         $upMigration->expects($this->once())
                     ->method('up');
         $upMigration->expects($this->once())
@@ -323,9 +358,15 @@ class EnvironmentTest extends TestCase
         $this->environment->setAdapter($adapterStub);
 
         // up
-        $seed = $this->getMockBuilder('\Phinx\Seed\AbstractSeed')
-            ->setMethods(['run', 'init'])
-            ->getMock();
+        $seed = $this->getMockForAbstractClass(
+            '\Phinx\Seed\AbstractSeed',
+            [],
+            '',
+            true,
+            true,
+            true,
+            ['run', 'init'],
+        );
 
         $seed->expects($this->once())
                     ->method('run');

@@ -18,10 +18,15 @@ class ProxyAdapterTest extends TestCase
 
     protected function setUp(): void
     {
-        $stub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
-            ->setConstructorArgs([[]])
-            ->setMethods([])
-            ->getMock();
+        $stub = $this->getMockForAbstractClass(
+            '\Phinx\Db\Adapter\PdoAdapter',
+            [[]],
+            '',
+            true,
+            true,
+            true,
+            ['getColumnForType', 'isValidColumnType'],
+        );
 
         $stub->expects($this->any())
             ->method('isValidColumnType')

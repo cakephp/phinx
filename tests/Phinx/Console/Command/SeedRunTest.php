@@ -209,12 +209,17 @@ class SeedRunTest extends TestCase
         $managerStub = $this->getMockBuilder('\Phinx\Migration\Manager')
             ->setConstructorArgs([$this->config, $this->input, $this->output])
             ->getMock();
-        $managerStub->expects($this->exactly(3))
-                    ->method('seed')->withConsecutive(
-                        [$this->identicalTo('development'), $this->identicalTo('One')],
-                        [$this->identicalTo('development'), $this->identicalTo('Two')],
-                        [$this->identicalTo('development'), $this->identicalTo('Three')],
-                    );
+        $matcher = $this->exactly(3);
+        $managerStub
+            ->expects($matcher)
+            ->method('seed')
+            ->willReturnCallback(function () use ($matcher) {
+                match ($matcher->numberOfInvocations()) {
+                    1 => [$this->identicalTo('development'), $this->identicalTo('One')],
+                    2 => [$this->identicalTo('development'), $this->identicalTo('Two')],
+                    3 => [$this->identicalTo('development'), $this->identicalTo('Three')],
+                };
+            });
 
         $command->setConfig($this->config);
         $command->setManager($managerStub);
