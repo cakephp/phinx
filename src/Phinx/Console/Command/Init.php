@@ -88,9 +88,6 @@ class Init extends Command
      */
     protected function resolvePath(InputInterface $input, string $format): string
     {
-        // get the migration path from the config
-        $path = (string)$input->getArgument('path');
-
         if (!in_array($format, static::$supportedFormats, true)) {
             throw new InvalidArgumentException(sprintf(
                 'Invalid format "%s". Format must be either ' . implode(', ', static::$supportedFormats) . '.',
@@ -98,9 +95,27 @@ class Init extends Command
             ));
         }
 
-        // Fallback
+        // We either get the path to where to create the config path by:
+        //   1. The path argument if set
+        //   2. The configuration option if set
+        //   3. Fallback to a default path of the current directory
+        $path = (string)$input->getArgument('path');
+
         if (!$path) {
-            $path = getcwd() . DIRECTORY_SEPARATOR . self::FILE_NAME . '.' . $format;
+            $path = $input->hasOption('configuration') ? (string)$input->getOption('configuration') : null;
+            if ($path) {
+                $path = (string)$input->getOption('configuration');
+                if (DIRECTORY_SEPARATOR === '/') {
+                    $isAbsolute = ($path[0] === '/');
+                } else {
+                    $isAbsolute = (preg_match('/^[a-zA-Z]:\\\\/', $path) === 1 || $path[0] === '\\');
+                }
+                if (!$isAbsolute) {
+                    $path = getcwd() . DIRECTORY_SEPARATOR . $path;
+                }
+            } else {
+                $path = getcwd() . DIRECTORY_SEPARATOR . self::FILE_NAME . '.' . $format;
+            }
         }
 
         // Adding file name if necessary

@@ -2727,6 +2727,21 @@ INPUT;
         $this->assertEqualsIgnoringCase('CURRENT_TIMESTAMP(3)', $colDef['COLUMN_DEFAULT']);
     }
 
+    public function testCreateTableWithZeroScale(): void
+    {
+        $this->adapter->connect();
+        $table = new Table('test_table', ['id' => false], $this->adapter);
+        $table
+            ->addColumn('col_1', 'decimal', ['null' => false, 'precision' => 15, 'scale' => 0])
+            ->create();
+
+        $columns = $table->getColumns();
+        $this->assertCount(1, $columns);
+        $this->assertSame('col_1', $columns[0]->getName());
+        $this->assertSame(15, $columns[0]->getPrecision());
+        $this->assertSame(0, $columns[0]->getScale());
+    }
+
     public function pdoAttributeProvider()
     {
         return [

@@ -46,7 +46,7 @@ jobs:
       if: matrix.db-type == 'pgsql' && matrix.php-version == '8.1'
       run: docker run --rm --name=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=cakephp -p 5432:5432 -d postgres:9.4
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -57,11 +57,11 @@ jobs:
 
     - name: Get composer cache directory
       id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
     - name: Get date part for cache key
       id: key-date
-      run: echo "::set-output name=date::$(date +'%Y-%m')"
+      run: echo "date=$(date +'%Y-%m')" >> $GITHUB_OUTPUT
 
     - name: Cache composer dependencies
       uses: actions/cache@v4
@@ -102,7 +102,7 @@ jobs:
         if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then export PGSQL_DSN='pgsql://postgres:postgres@127.0.0.1/phinx'; fi
 
         if [[ ${{ matrix.prefer-lowest != 'prefer-lowest' }} ]]; then
-          export CODECOVERAGE=1 && vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
+          export CODECOVERAGE=1 && vendor/bin/phpunit --coverage-clover=coverage.xml
         else
           vendor/bin/phpunit
         fi
@@ -126,11 +126,11 @@ jobs:
       PHP_VERSION: '8.1'
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Get date part for cache key
       id: key-date
-      run: echo "::set-output name=date::$(date +'%Y-%m')"
+      run: echo "date=$(Get-Date -Format 'yyyy-MM')" >> $env:GITHUB_OUTPUT
 
     - name: Setup PHP extensions cache
       id: php-ext-cache
@@ -164,7 +164,7 @@ jobs:
 
     - name: Get composer cache directory
       id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      run: echo "dir=$(composer config cache-files-dir)" >> $env:GITHUB_OUTPUT
 
     - name: Cache composer dependencies
       uses: actions/cache@v4
@@ -180,7 +180,7 @@ jobs:
         SQLSRV_DSN: 'sqlsrv://(localdb)\MSSQLLocalDB/phinx'
         CODECOVERAGE: 1
       run: |
-          vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
+          vendor/bin/phpunit --coverage-clover=coverage.xml
 
     - name: Submit code coverage
       uses: codecov/codecov-action@v5
@@ -192,7 +192,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -202,11 +202,11 @@ jobs:
 
     - name: Get composer cache directory
       id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
     - name: Get date part for cache key
       id: key-date
-      run: echo "::set-output name=date::$(date +'%Y-%m')"
+      run: echo "date=$(date +'%Y-%m')" >> $GITHUB_OUTPUT
 
     - name: Cache composer dependencies
       uses: actions/cache@v4

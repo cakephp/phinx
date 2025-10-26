@@ -18,6 +18,7 @@ use Phinx\Db\Table\Column;
 use Phinx\Db\Table\ForeignKey;
 use Phinx\Util\Expression;
 use Phinx\Util\Literal;
+use PHPUnit\Framework\TestCase;
 use ReflectionObject;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -25,7 +26,6 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
-use Test\Phinx\TestCase;
 use UnexpectedValueException;
 
 class SQLiteAdapterTest extends TestCase
@@ -2387,6 +2387,7 @@ OUTPUT;
      */
     public function testAlterTableDoesViolateForeignKeyConstraintOnSourceTableChange()
     {
+        /** @var \Phinx\Db\Adapter\AdapterInterface&\PHPUnit\Framework\MockObject\MockObject $adapter */
         $adapter = $this
             ->getMockBuilder(SQLiteAdapter::class)
             ->setConstructorArgs([SQLITE_DB_CONFIG, new ArrayInput([]), new NullOutput()])
@@ -2396,14 +2397,19 @@ OUTPUT;
         $adapterReflection = new ReflectionObject($adapter);
         $queryReflection = $adapterReflection->getParentClass()->getMethod('query');
 
+        $count = 0;
         $adapter
             ->expects($this->atLeastOnce())
             ->method('query')
-            ->willReturnCallback(function (string $sql, array $params = []) use ($adapter, $queryReflection) {
+            ->willReturnCallback(function (string $sql, array $params = []) use ($adapter, &$count, $queryReflection) {
                 if ($sql === 'PRAGMA foreign_key_check(`comments`)') {
-                    $adapter->execute('PRAGMA foreign_keys = OFF');
-                    $adapter->execute('DELETE FROM articles');
-                    $adapter->execute('PRAGMA foreign_keys = ON');
+                    $count++;
+
+                    if ($count > 1) {
+                        $adapter->execute('PRAGMA foreign_keys = OFF');
+                        $adapter->execute('DELETE FROM articles');
+                        $adapter->execute('PRAGMA foreign_keys = ON');
+                    }
                 }
 
                 return $queryReflection->invoke($adapter, $sql, $params);

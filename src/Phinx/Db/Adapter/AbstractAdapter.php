@@ -410,4 +410,19 @@ abstract class AbstractAdapter implements AdapterInterface
 
         return in_array($tableName, $this->createdTables, true);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function preExecuteActions(array $updateSequences): array
+    {
+        return [];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function postExecuteActions(array $tableNames, array $preOptions): void
+    {
+    }
 }

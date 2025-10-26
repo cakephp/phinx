@@ -276,6 +276,14 @@ interface AdapterInterface
     public function execute(string $sql, array $params = []): int;
 
     /**
+     * Function to be called before executing any migration actions.
+     *
+     * @param \Phinx\Db\Plan\AlterTable[][] $updateSequences List of update sequences to be executed
+     * @return array
+     */
+    public function preExecuteActions(array $updateSequences): array;
+
+    /**
      * Executes a list of migration actions for the given table
      *
      * @param \Phinx\Db\Table\Table $table The table to execute the actions for
@@ -283,6 +291,15 @@ interface AdapterInterface
      * @return void
      */
     public function executeActions(Table $table, array $actions): void;
+
+    /**
+     * Function to be called after executing any migration actions.
+     *
+     * @param array $tableNames List of table names that were affected by the actions
+     * @param array $preOptions Options that were set before executing the actions
+     * @return void
+     */
+    public function postExecuteActions(array $tableNames, array $preOptions): void;
 
     /**
      * Returns a new Query object
