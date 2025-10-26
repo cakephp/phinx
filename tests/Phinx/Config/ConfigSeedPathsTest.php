@@ -12,7 +12,7 @@ use UnexpectedValueException;
  * @group config
  * @covers \Phinx\Config\Config::getSeedPaths
  */
-class ConfigSeedPathsTest extends AbstractConfigTest
+class ConfigSeedPathsTest extends AbstractConfigTestCase
 {
     public function testGetSeedPathsThrowsExceptionForNoPath()
     {
