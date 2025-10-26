@@ -49,6 +49,6 @@ jobs:
               name: 'phinx.phar',
               owner: context.repo.owner,
               repo: context.repo.repo,
-              release_id: ${{ github.event.release.id }},
-              data: await fs.readFile('./phinx.phar')  # The file to upload.
+              release_id: context.payload.release.id,
+              data: await fs.readFile('./phinx.phar')
             });
