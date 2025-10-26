@@ -1,11 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Variable \\$tval on left side of \\?\\? always exists and is not nullable\\.$#"
-			count: 1
-			path: src/Phinx/Config/Config.php
-
-		-
 			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
 			count: 1
 			path: src/Phinx/Db/Adapter/MysqlAdapter.php
