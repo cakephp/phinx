@@ -9,11 +9,11 @@ use Phinx\Config\Config;
 use Phinx\Console\Command\AbstractCommand;
 use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Migration\Manager;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
 use Test\Phinx\Console\Output\RawBufferedOutput;
-use Test\Phinx\TestCase;
 
 class ManagerTest extends TestCase
 {

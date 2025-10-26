@@ -7,8 +7,8 @@ use InvalidArgumentException;
 use Phinx\Console\Command\AbstractCommand;
 use Phinx\Console\Command\Init;
 use Phinx\Console\PhinxApplication;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
-use Test\Phinx\TestCase;
 
 class InitTest extends TestCase
 {
