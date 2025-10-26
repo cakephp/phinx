@@ -20,7 +20,7 @@ class ProxyAdapterTest extends TestCase
     {
         $stub = $this->getMockBuilder('\Phinx\Db\Adapter\PdoAdapter')
             ->setConstructorArgs([[]])
-            ->setMethods([])
+            ->onlyMethods([])
             ->getMock();
 
         $stub->expects($this->any())

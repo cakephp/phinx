@@ -150,7 +150,7 @@ class EnvironmentTest extends TestCase
         // up
         $upMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
             ->setConstructorArgs(['mockenv', '20110301080000'])
-            ->setMethods(['up'])
+            ->onlyMethods(['up'])
             ->getMock();
         $upMigration->expects($this->once())
                     ->method('up');
@@ -173,7 +173,7 @@ class EnvironmentTest extends TestCase
         // down
         $downMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
             ->setConstructorArgs(['mockenv', '20110301080000'])
-            ->setMethods(['down'])
+            ->onlyMethods(['down'])
             ->getMock();
         $downMigration->expects($this->once())
                       ->method('down');
@@ -202,7 +202,7 @@ class EnvironmentTest extends TestCase
         // migrate
         $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
             ->setConstructorArgs(['mockenv', '20110301080000'])
-            ->setMethods(['up'])
+            ->onlyMethods(['up'])
             ->getMock();
         $migration->expects($this->once())
                   ->method('up');
@@ -225,7 +225,7 @@ class EnvironmentTest extends TestCase
         // migration
         $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
             ->setConstructorArgs(['mockenv', '20130301080000'])
-            ->setMethods(['change'])
+            ->onlyMethods(['change'])
             ->getMock();
         $migration->expects($this->once())
                   ->method('change');
@@ -248,7 +248,7 @@ class EnvironmentTest extends TestCase
         // migration
         $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
             ->setConstructorArgs(['mockenv', '20130301080000'])
-            ->setMethods(['change'])
+            ->onlyMethods(['change'])
             ->getMock();
         $migration->expects($this->once())
                   ->method('change');
@@ -271,7 +271,7 @@ class EnvironmentTest extends TestCase
         // migration
         $migration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
             ->setConstructorArgs(['mockenv', '20130301080000'])
-            ->setMethods(['change'])
+            ->onlyMethods(['change'])
             ->getMock();
         $migration->expects($this->never())
                   ->method('change');
@@ -303,7 +303,7 @@ class EnvironmentTest extends TestCase
         // up
         $upMigration = $this->getMockBuilder('\Phinx\Migration\AbstractMigration')
             ->setConstructorArgs(['mockenv', '20110301080000'])
-            ->setMethods(['up', 'init'])
+            ->onlyMethods(['up', 'init'])
             ->getMock();
         $upMigration->expects($this->once())
                     ->method('up');
@@ -324,7 +324,7 @@ class EnvironmentTest extends TestCase
 
         // up
         $seed = $this->getMockBuilder('\Phinx\Seed\AbstractSeed')
-            ->setMethods(['run', 'init'])
+            ->onlyMethods(['run', 'init'])
             ->getMock();
 
         $seed->expects($this->once())

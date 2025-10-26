@@ -313,7 +313,7 @@ class ConfigTest extends AbstractConfigTest
     {
         // get config stub
         $configStub = $this->getMockBuilder('\Phinx\Config\Config')
-            ->setMethods(['getVersionOrder'])
+            ->onlyMethods(['getVersionOrder'])
             ->setConstructorArgs([[]])
             ->getMock();
 
