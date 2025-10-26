@@ -1359,8 +1359,8 @@ class MysqlAdapter extends PdoAdapter
         if ($column->getPrecision() || $column->getScale()) {
             $def .= sprintf(
                 '(%s, %s)',
-                $column->getPrecision() ?: $sqlType['precision'],
-                $column->getScale() ?: $sqlType['scale'],
+                $column->getPrecision() ?: ($sqlType['precision'] ?? 10),
+                $column->getScale() ?: ($sqlType['scale'] ?? 0),
             );
         } elseif (isset($sqlType['limit'])) {
             $def .= '(' . $sqlType['limit'] . ')';
