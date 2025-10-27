@@ -476,10 +476,15 @@ class SqlServerAdapter extends PdoAdapter
                    ->setNull($columnInfo['null'] !== 'NO')
                    ->setDefault($this->parseDefault($columnInfo['default']))
                    ->setIdentity($columnInfo['identity'] === '1')
+                   ->setScale($columnInfo['scale'])
                    ->setComment($this->getColumnComment($columnInfo['table_name'], $columnInfo['name']));
 
             if (!empty($columnInfo['char_length'])) {
                 $column->setLimit((int)$columnInfo['char_length']);
+            }
+
+            if ($type === self::PHINX_TYPE_DECIMAL) {
+                $column->setPrecision($columnInfo['numeric_precision']);
             }
 
             $columns[$columnInfo['name']] = $column;
