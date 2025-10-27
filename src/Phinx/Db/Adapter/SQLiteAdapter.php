@@ -1869,11 +1869,7 @@ PCRE_PATTERN;
             }
         }
         if ($column->getPrecision() && $column->getScale() !== null) {
-            $def .= sprintf(
-                '(%s, %s)',
-                $column->getPrecision() ?: 10,
-                $column->getScale() ?: 0,
-            );
+            $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         }
 
         $default = $column->getDefault();
