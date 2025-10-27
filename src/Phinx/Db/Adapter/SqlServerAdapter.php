@@ -476,7 +476,7 @@ class SqlServerAdapter extends PdoAdapter
                    ->setNull($columnInfo['null'] !== 'NO')
                    ->setDefault($this->parseDefault($columnInfo['default']))
                    ->setIdentity($columnInfo['identity'] === '1')
-                   ->setScale($columnInfo['scale'])
+                   ->setScale($columnInfo['scale'] ? (int)$columnInfo['scale'] : null)
                    ->setComment($this->getColumnComment($columnInfo['table_name'], $columnInfo['name']));
 
             if (!empty($columnInfo['char_length'])) {
