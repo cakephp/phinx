@@ -484,7 +484,7 @@ class SqlServerAdapter extends PdoAdapter
             }
 
             if ($type === self::PHINX_TYPE_DECIMAL) {
-                $column->setPrecision($columnInfo['precision']);
+                $column->setPrecision((int)$columnInfo['precision']);
             }
 
             $columns[$columnInfo['name']] = $column;
