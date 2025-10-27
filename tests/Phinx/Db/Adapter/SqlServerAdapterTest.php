@@ -731,15 +731,15 @@ WHERE t.name='ntable'");
         $this->assertEquals($type, $columns[$colName]->getType());
 
         if (isset($options['limit'])) {
-            $this->assertEquals($options['limit'], $columns[1]->getLimit());
+            $this->assertEquals($options['limit'], $columns[$colName]->getLimit());
         }
 
         if (isset($options['precision'])) {
-            $this->assertEquals($options['precision'], $columns[1]->getPrecision());
+            $this->assertEquals($options['precision'], $columns[$colName]->getPrecision());
         }
 
         if (isset($options['scale'])) {
-            $this->assertEquals($options['scale'], $columns[1]->getScale());
+            $this->assertEquals($options['scale'], $columns[$colName]->getScale());
         }
     }
 
