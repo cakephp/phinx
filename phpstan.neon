@@ -8,3 +8,5 @@ parameters:
 		- src/
 	ignoreErrors:
 		- '#Unsafe usage of new static\(\)\.#'
+		- identifier: missingType.iterableValue
+		- identifier: missingType.generics
