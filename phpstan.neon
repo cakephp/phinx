@@ -4,9 +4,9 @@ includes:
 parameters:
 	level: 6
 	treatPhpDocTypesAsCertain: false
-	checkMissingIterableValueType: false
-	checkGenericClassInNonGenericObjectType: false
 	paths:
 		- src/
 	ignoreErrors:
 		- '#Unsafe usage of new static\(\)\.#'
+		- identifier: missingType.iterableValue
+		- identifier: missingType.generics
