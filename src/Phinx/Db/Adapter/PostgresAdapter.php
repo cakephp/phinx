@@ -1280,7 +1280,7 @@ class PostgresAdapter extends PdoAdapter
                     self::PHINX_TYPE_BINARY,
                 ], true)
             ) {
-                if ($column->getLimit() || isset($sqlType['limit'])) {
+                if ($column->getLimit() || (!$column->hasLimitSet() && isset($sqlType['limit']))) {
                     $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
                 }
             }

@@ -1250,7 +1250,7 @@ ORDER BY T.[name], I.[index_id];";
                     $column->getPrecision() ?: $sqlType['precision'],
                     $column->getScale() ?: $sqlType['scale'],
                 );
-            } elseif (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || isset($sqlType['limit']))) {
+            } elseif (!in_array($sqlType['name'], $noLimits) && ($column->getLimit() || (!$column->hasLimitSet() && isset($sqlType['limit'])))) {
                 $buffer[] = sprintf('(%s)', $column->getLimit() ?: $sqlType['limit']);
             }
         }
