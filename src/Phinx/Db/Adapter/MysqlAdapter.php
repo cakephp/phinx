@@ -1364,8 +1364,8 @@ class MysqlAdapter extends PdoAdapter
         }
         if ($column->getPrecision() && $column->getScale() !== null) {
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
-        } elseif ($column->getLimit() || (!$column->hasLimitSet() && isset($sqlType['limit']))) {
-            $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
+        } elseif (($column->getLimit() !== null || !$column->hasLimitSet()) && isset($sqlType['limit'])) {
+            $def .= '(' . $sqlType['limit'] . ')';
         }
 
         $values = $column->getValues();
