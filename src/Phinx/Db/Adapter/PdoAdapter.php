@@ -725,9 +725,16 @@ abstract class PdoAdapter extends AbstractAdapter implements DirectActionInterfa
      */
     protected function getDefaultValueDefinition(mixed $default, string|Literal|null $columnType = null): string
     {
+        $datetimeTypes = [
+            static::PHINX_TYPE_DATETIME,
+            static::PHINX_TYPE_TIMESTAMP,
+            static::PHINX_TYPE_TIME,
+            static::PHINX_TYPE_DATE,
+        ];
+
         if ($default instanceof Literal) {
             $default = (string)$default;
-        } elseif (is_string($default) && stripos($default, 'CURRENT_TIMESTAMP') !== 0) {
+        } elseif (is_string($default) && (!in_array($columnType, $datetimeTypes) || !preg_match('/^(CURRENT_(TIMESTAMP|TIME|DATE))|(NOW)(\(\d*\))?$/i', $default))) {
             // Ensure a defaults of CURRENT_TIMESTAMP(3) is not quoted.
             $default = $this->getConnection()->quote($default);
         } elseif (is_bool($default)) {

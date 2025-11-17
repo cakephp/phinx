@@ -543,7 +543,9 @@ class Table
             throw new RuntimeException('Cannot set both created_at and updated_at columns to false');
         }
 
-        $columnType = FeatureFlags::$addTimestampsUseDateTime ? 'datetime' : 'timestamp';
+        $columnType = FeatureFlags::$addTimestampsUseDateTime
+            ? AdapterInterface::PHINX_TYPE_DATETIME
+            : AdapterInterface::PHINX_TYPE_TIMESTAMP;
 
         if ($createdAt) {
             $this->addColumn($createdAt, $columnType, [

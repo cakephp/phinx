@@ -603,7 +603,7 @@ SQL;
         if ($default === null) {
             $default = 'DEFAULT NULL';
         } else {
-            $default = ltrim($this->getDefaultValueDefinition($default));
+            $default = ltrim($this->getDefaultValueDefinition($default, $newColumn->getType()));
         }
 
         if (empty($default)) {
@@ -1264,7 +1264,7 @@ ORDER BY T.[name], I.[index_id];";
             if ($column->getDefault() === null && $column->isNull()) {
                 $buffer[] = ' DEFAULT NULL';
             } else {
-                $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
+                $buffer[] = $this->getDefaultValueDefinition($column->getDefault(), $column->getType());
             }
         }
 

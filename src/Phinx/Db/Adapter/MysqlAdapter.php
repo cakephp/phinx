@@ -581,7 +581,8 @@ class MysqlAdapter extends PdoAdapter
                 $extra = ' ' . implode(' ', $extras);
 
                 if (($row['Default'] !== null)) {
-                    $extra .= $this->getDefaultValueDefinition($row['Default']);
+                    $phinxType = $this->getPhinxType($row['Type']);
+                    $extra .= $this->getDefaultValueDefinition($row['Default'], $phinxType['name']);
                 }
                 $definition = $row['Type'] . ' ' . $null . $extra . $comment;
 

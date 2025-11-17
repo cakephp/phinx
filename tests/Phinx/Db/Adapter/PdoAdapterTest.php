@@ -8,6 +8,7 @@ use Cake\I18n\DateTime;
 use PDO;
 use PDOException;
 use Phinx\Config\Config;
+use Phinx\Db\Adapter\AdapterInterface;
 use Phinx\Util\Literal;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
@@ -260,5 +261,47 @@ class PdoAdapterTest extends TestCase
 
         $method = new ReflectionMethod($this->adapter, 'quoteValue');
         $this->assertSame($expected, $method->invoke($this->adapter, $input));
+    }
+
+    public function defaultValueDefinitionDataProvider(): array
+    {
+        return [
+            ['some string', AdapterInterface::PHINX_TYPE_STRING, " DEFAULT 'some string'"],
+            [123, AdapterInterface::PHINX_TYPE_INTEGER, ' DEFAULT 123'],
+            [true, AdapterInterface::PHINX_TYPE_BOOLEAN, ' DEFAULT 1'],
+            [false, AdapterInterface::PHINX_TYPE_BOOLEAN, ' DEFAULT 0'],
+            [null, AdapterInterface::PHINX_TYPE_STRING, ''],
+            [Literal::from('foo'), AdapterInterface::PHINX_TYPE_STRING, ' DEFAULT foo'],
+            ['CURRENT_TIMESTAMP', AdapterInterface::PHINX_TYPE_STRING, " DEFAULT 'CURRENT_TIMESTAMP'"],
+            ['CURRENT_TIMESTAMP', AdapterInterface::PHINX_TYPE_DATETIME, ' DEFAULT CURRENT_TIMESTAMP'],
+            ['CURRENT_TIMESTAMP(3)', AdapterInterface::PHINX_TYPE_DATETIME, ' DEFAULT CURRENT_TIMESTAMP(3)'],
+            ['CURRENT_TIMESTAMP()', AdapterInterface::PHINX_TYPE_DATETIME, ' DEFAULT CURRENT_TIMESTAMP()'],
+            ['CURRENT_TIMESTAMP', AdapterInterface::PHINX_TYPE_TIMESTAMP, ' DEFAULT CURRENT_TIMESTAMP'],
+            ['CURRENT_TIME', AdapterInterface::PHINX_TYPE_TIME, ' DEFAULT CURRENT_TIME'],
+            ['CURRENT_DATE', AdapterInterface::PHINX_TYPE_DATE, ' DEFAULT CURRENT_DATE'],
+            ['NOW', AdapterInterface::PHINX_TYPE_DATETIME, ' DEFAULT NOW'],
+        ];
+    }
+
+    /**
+     * @dataProvider defaultValueDefinitionDataProvider
+     */
+    public function testGetDefaultValueDefinition($input, $columnType, $expected): void
+    {
+        /** @var \PDO&\PHPUnit\Framework\MockObject\MockObject $pdo */
+        $pdo = $this->getMockBuilder(PDO::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['quote'])
+            ->getMock();
+
+        $pdo->method('quote')
+            ->willReturnCallback(function (string $input) {
+                return "'$input'";
+            });
+
+        $this->adapter->setConnection($pdo);
+
+        $method = new ReflectionMethod($this->adapter, 'getDefaultValueDefinition');
+        $this->assertSame($expected, $method->invoke($this->adapter, $input, $columnType));
     }
 }
