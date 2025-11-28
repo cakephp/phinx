@@ -296,19 +296,19 @@ class Table
      * @param string|\Phinx\Db\Table\Column $columnName Column Name
      * @param string|\Phinx\Util\Literal|null $type Column Type
      * @param array{
-     *  limit: int,
-     *  length: int,
-     *  default: mixed,
-     *  null: bool,
-     *  after: string,
-     *  comment: string,
-     *  precision: int,
-     *  scale: int,
-     *  signed: bool,
-     *  values: mixed,
-     *  identity: bool,
-     *  update: string,
-     *  timezone: bool,
+     *  limit?: int,
+     *  length?: int,
+     *  default?: mixed,
+     *  null?: bool,
+     *  after?: string,
+     *  comment?: string,
+     *  precision?: int,
+     *  scale?: int,
+     *  signed?: bool,
+     *  values?: mixed,
+     *  identity?: bool,
+     *  update?: string,
+     *  timezone?: bool,
      * } $options Column Options
      * @throws \InvalidArgumentException
      * @return $this
@@ -373,19 +373,19 @@ class Table
      * @param string $columnName Column Name
      * @param string|\Phinx\Db\Table\Column|\Phinx\Util\Literal $newColumnType New Column Type
      * @param array{
-     *  limit: int,
-     *  length: int,
-     *  default: mixed,
-     *  null: bool,
-     *  after: string,
-     *  comment: string,
-     *  precision: int,
-     *  scale: int,
-     *  signed: bool,
-     *  values: mixed,
-     *  identity: bool,
-     *  update: string,
-     *  timezone: bool,
+     *  limit?: int,
+     *  length?: int,
+     *  default?: mixed,
+     *  null?: bool,
+     *  after?: string,
+     *  comment?: string,
+     *  precision?: int,
+     *  scale?: int,
+     *  signed?: bool,
+     *  values?: mixed,
+     *  identity?: bool,
+     *  update?: string,
+     *  timezone?: bool,
      * } $options Options
      * @return $this
      */
