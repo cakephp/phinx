@@ -49,7 +49,7 @@
         "cakephp/cakephp-codesniffer": "^5.0",
         "cakephp/i18n": "^5.0",
         "phpunit/phpunit": "^10.5",
-        "symfony/yaml": "^4.0|^5.0|^6.0|^7.0"
+        "symfony/yaml": "^4.0|^5.0|^6.0|^7.0|^8.0"
     },
     "autoload": {
         "psr-4": {
