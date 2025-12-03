@@ -2797,4 +2797,194 @@ INPUT;
         $adapter = new MysqlAdapter(MYSQL_DB_CONFIG);
         $this->assertFalse($adapter->getConnection()->getAttribute(PDO::ATTR_PERSISTENT));
     }
+
+    public function testAddColumnWithAlgorithmInstant()
+    {
+        $table = new Table('users', [], $this->adapter);
+        $table->addColumn('email', 'string')
+            ->create();
+
+        $table->addColumn('status', 'string', [
+            'null' => true,
+            'algorithm' => MysqlAdapter::ALGORITHM_INSTANT,
+        ])->update();
+
+        $this->assertTrue($this->adapter->hasColumn('users', 'status'));
+    }
+
+    public function testAddColumnWithAlgorithmAndLock()
+    {
+        $table = new Table('products', [], $this->adapter);
+        $table->addColumn('name', 'string')
+            ->create();
+
+        // Use ALGORITHM=INPLACE with LOCK=NONE (INSTANT can't have explicit locks)
+        $table->addColumn('price', 'decimal', [
+            'precision' => 10,
+            'scale' => 2,
+            'null' => true,
+            'algorithm' => MysqlAdapter::ALGORITHM_INPLACE,
+            'lock' => MysqlAdapter::LOCK_NONE,
+        ])->update();
+
+        $this->assertTrue($this->adapter->hasColumn('products', 'price'));
+    }
+
+    public function testChangeColumnWithAlgorithm()
+    {
+        $table = new Table('items', [], $this->adapter);
+        $table->addColumn('description', 'string', ['limit' => 100])
+            ->create();
+
+        $table->changeColumn('description', 'string', [
+            'limit' => 255,
+            'algorithm' => MysqlAdapter::ALGORITHM_INPLACE,
+            'lock' => MysqlAdapter::LOCK_SHARED,
+        ])->update();
+
+        $columns = $this->adapter->getColumns('items');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'description') {
+                $this->assertEquals(255, $column->getLimit());
+            }
+        }
+    }
+
+    public function testBatchedOperationsWithSameAlgorithm()
+    {
+        $table = new Table('batch_test', [], $this->adapter);
+        $table->addColumn('col1', 'string')
+            ->create();
+
+        $table->addColumn('col2', 'string', [
+            'null' => true,
+            'algorithm' => MysqlAdapter::ALGORITHM_INSTANT,
+        ])
+            ->addColumn('col3', 'string', [
+                'null' => true,
+                'algorithm' => MysqlAdapter::ALGORITHM_INSTANT,
+            ])
+            ->update();
+
+        $this->assertTrue($this->adapter->hasColumn('batch_test', 'col2'));
+        $this->assertTrue($this->adapter->hasColumn('batch_test', 'col3'));
+    }
+
+    public function testBatchedOperationsWithConflictingAlgorithmsThrowsException()
+    {
+        $table = new Table('conflict_test', [], $this->adapter);
+        $table->addColumn('col1', 'string')
+            ->create();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Conflicting algorithm specifications');
+
+        $table->addColumn('col2', 'string', [
+            'null' => true,
+            'algorithm' => MysqlAdapter::ALGORITHM_INSTANT,
+        ])
+            ->addColumn('col3', 'string', [
+                'null' => true,
+                'algorithm' => MysqlAdapter::ALGORITHM_COPY,
+            ])
+            ->update();
+    }
+
+    public function testBatchedOperationsWithConflictingLocksThrowsException()
+    {
+        $table = new Table('lock_conflict_test', [], $this->adapter);
+        $table->addColumn('col1', 'string')
+            ->create();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Conflicting lock specifications');
+
+        $table->addColumn('col2', 'string', [
+            'null' => true,
+            'algorithm' => MysqlAdapter::ALGORITHM_INPLACE,
+            'lock' => MysqlAdapter::LOCK_NONE,
+        ])
+            ->addColumn('col3', 'string', [
+                'null' => true,
+                'algorithm' => MysqlAdapter::ALGORITHM_INPLACE,
+                'lock' => MysqlAdapter::LOCK_SHARED,
+            ])
+            ->update();
+    }
+
+    public function testInvalidAlgorithmThrowsException()
+    {
+        $table = new Table('invalid_algo', [], $this->adapter);
+        $table->addColumn('col1', 'string')
+            ->create();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid algorithm');
+
+        $table->addColumn('col2', 'string', [
+            'algorithm' => 'INVALID',
+        ])->update();
+    }
+
+    public function testInvalidLockThrowsException()
+    {
+        $table = new Table('invalid_lock', [], $this->adapter);
+        $table->addColumn('col1', 'string')
+            ->create();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid lock');
+
+        $table->addColumn('col2', 'string', [
+            'lock' => 'INVALID',
+        ])->update();
+    }
+
+    public function testAlgorithmInstantWithExplicitLockThrowsException()
+    {
+        $table = new Table('instant_lock_test', [], $this->adapter);
+        $table->addColumn('col1', 'string')
+            ->create();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('ALGORITHM=INSTANT cannot be combined with LOCK=NONE');
+
+        $table->addColumn('col2', 'string', [
+            'null' => true,
+            'algorithm' => MysqlAdapter::ALGORITHM_INSTANT,
+            'lock' => MysqlAdapter::LOCK_NONE,
+        ])->update();
+    }
+
+    public function testAlgorithmConstantsAreDefined()
+    {
+        $this->assertEquals('DEFAULT', MysqlAdapter::ALGORITHM_DEFAULT);
+        $this->assertEquals('INSTANT', MysqlAdapter::ALGORITHM_INSTANT);
+        $this->assertEquals('INPLACE', MysqlAdapter::ALGORITHM_INPLACE);
+        $this->assertEquals('COPY', MysqlAdapter::ALGORITHM_COPY);
+    }
+
+    public function testLockConstantsAreDefined()
+    {
+        $this->assertEquals('DEFAULT', MysqlAdapter::LOCK_DEFAULT);
+        $this->assertEquals('NONE', MysqlAdapter::LOCK_NONE);
+        $this->assertEquals('SHARED', MysqlAdapter::LOCK_SHARED);
+        $this->assertEquals('EXCLUSIVE', MysqlAdapter::LOCK_EXCLUSIVE);
+    }
+
+    public function testAlgorithmWithMixedCase()
+    {
+        $table = new Table('mixed_case', [], $this->adapter);
+        $table->addColumn('col1', 'string')
+            ->create();
+
+        // Should work with lowercase (use INPLACE with LOCK, not INSTANT)
+        $table->addColumn('col2', 'string', [
+            'null' => true,
+            'algorithm' => 'inplace',
+            'lock' => 'none',
+        ])->update();
+
+        $this->assertTrue($this->adapter->hasColumn('mixed_case', 'col2'));
+    }
 }
