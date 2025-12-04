@@ -2802,6 +2802,10 @@ INPUT;
     {
         $this->adapter->connect();
 
+        if (!$this->usingMysql8()) {
+            $this->markTestSkipped('Cannot test Instant algorithm on mysql versions less than 8');
+        }
+
         $table = new Table('users', [], $this->adapter);
         $table->addColumn('email', 'string')
             ->create();
@@ -2843,7 +2847,7 @@ INPUT;
             ->create();
 
         $table->changeColumn('description', 'string', [
-            'limit' => 255,
+            'limit' => 200,
             'algorithm' => MysqlAdapter::ALGORITHM_INPLACE,
             'lock' => MysqlAdapter::LOCK_SHARED,
         ])->update();
@@ -2851,7 +2855,7 @@ INPUT;
         $columns = $this->adapter->getColumns('items');
         foreach ($columns as $column) {
             if ($column->getName() === 'description') {
-                $this->assertEquals(255, $column->getLimit());
+                $this->assertEquals(200, $column->getLimit());
             }
         }
     }
@@ -2859,6 +2863,10 @@ INPUT;
     public function testBatchedOperationsWithSameAlgorithm(): void
     {
         $this->adapter->connect();
+
+        if (!$this->usingMysql8()) {
+            $this->markTestSkipped('Cannot test Instant algorithm on mysql versions less than 8');
+        }
 
         $table = new Table('batch_test', [], $this->adapter);
         $table->addColumn('col1', 'string')
