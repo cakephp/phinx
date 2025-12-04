@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Test\Phinx\Db\Table;
 
 use Phinx\Config\FeatureFlags;
+use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Table\Column;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -49,5 +50,23 @@ class ColumnTest extends TestCase
         FeatureFlags::$columnNullDefault = false;
         $column = new Column();
         $this->assertFalse($column->isNull());
+    }
+
+    public function testSetAlgorithm(): void
+    {
+        $column = new Column();
+        $this->assertNull($column->getAlgorithm());
+
+        $column->setOptions(['algorithm' => MysqlAdapter::ALGORITHM_INPLACE]);
+        $this->assertSame(MysqlAdapter::ALGORITHM_INPLACE, $column->getAlgorithm());
+    }
+
+    public function testSetLock(): void
+    {
+        $column = new Column();
+        $this->assertNull($column->getLock());
+
+        $column->setOptions(['lock' => MysqlAdapter::LOCK_NONE]);
+        $this->assertSame(MysqlAdapter::LOCK_NONE, $column->getLock());
     }
 }
