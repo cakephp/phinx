@@ -2842,12 +2842,16 @@ INPUT;
     {
         $this->adapter->connect();
 
+        if (version_compare($this->adapter->getAttribute(PDO::ATTR_SERVER_VERSION), '8.0.0') === -1) {
+            $this->markTestSkipped('Cannot test inplace algorithm on mysql versions less than 8');
+        }
+
         $table = new Table('items', [], $this->adapter);
-        $table->addColumn('description', 'string', ['limit' => 10])
+        $table->addColumn('description', 'string', ['limit' => 100])
             ->create();
 
         $table->changeColumn('description', 'string', [
-            'limit' => 20,
+            'limit' => 255,
             'algorithm' => MysqlAdapter::ALGORITHM_INPLACE,
             'lock' => MysqlAdapter::LOCK_SHARED,
         ])->update();
@@ -2855,7 +2859,7 @@ INPUT;
         $columns = $this->adapter->getColumns('items');
         foreach ($columns as $column) {
             if ($column->getName() === 'description') {
-                $this->assertEquals(200, $column->getLimit());
+                $this->assertEquals(255, $column->getLimit());
             }
         }
     }
