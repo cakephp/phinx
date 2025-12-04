@@ -2842,7 +2842,7 @@ INPUT;
     {
         $this->adapter->connect();
 
-        if (version_compare($this->adapter->getAttribute(PDO::ATTR_SERVER_VERSION), '8.0.0') === -1) {
+        if (!$this->usingMysql8()) {
             $this->markTestSkipped('Cannot test inplace algorithm on mysql versions less than 8');
         }
 
