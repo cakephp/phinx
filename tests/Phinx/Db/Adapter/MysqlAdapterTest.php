@@ -2843,11 +2843,11 @@ INPUT;
         $this->adapter->connect();
 
         $table = new Table('items', [], $this->adapter);
-        $table->addColumn('description', 'string', ['limit' => 100])
+        $table->addColumn('description', 'string', ['limit' => 10])
             ->create();
 
         $table->changeColumn('description', 'string', [
-            'limit' => 200,
+            'limit' => 20,
             'algorithm' => MysqlAdapter::ALGORITHM_INPLACE,
             'lock' => MysqlAdapter::LOCK_SHARED,
         ])->update();
