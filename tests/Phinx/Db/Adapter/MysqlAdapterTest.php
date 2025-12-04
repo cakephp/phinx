@@ -2851,7 +2851,7 @@ INPUT;
             ->create();
 
         $table->changeColumn('description', 'string', [
-            'limit' => 255,
+            'limit' => 250,
             'algorithm' => MysqlAdapter::ALGORITHM_INPLACE,
             'lock' => MysqlAdapter::LOCK_SHARED,
         ])->update();
@@ -2859,7 +2859,7 @@ INPUT;
         $columns = $this->adapter->getColumns('items');
         foreach ($columns as $column) {
             if ($column->getName() === 'description') {
-                $this->assertEquals(255, $column->getLimit());
+                $this->assertEquals(250, $column->getLimit());
             }
         }
     }
