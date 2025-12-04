@@ -2798,8 +2798,10 @@ INPUT;
         $this->assertFalse($adapter->getConnection()->getAttribute(PDO::ATTR_PERSISTENT));
     }
 
-    public function testAddColumnWithAlgorithmInstant()
+    public function testAddColumnWithAlgorithmInstant(): void
     {
+        $this->adapter->connect();
+
         $table = new Table('users', [], $this->adapter);
         $table->addColumn('email', 'string')
             ->create();
@@ -2812,8 +2814,10 @@ INPUT;
         $this->assertTrue($this->adapter->hasColumn('users', 'status'));
     }
 
-    public function testAddColumnWithAlgorithmAndLock()
+    public function testAddColumnWithAlgorithmAndLock(): void
     {
+        $this->adapter->connect();
+
         $table = new Table('products', [], $this->adapter);
         $table->addColumn('name', 'string')
             ->create();
@@ -2830,8 +2834,10 @@ INPUT;
         $this->assertTrue($this->adapter->hasColumn('products', 'price'));
     }
 
-    public function testChangeColumnWithAlgorithm()
+    public function testChangeColumnWithAlgorithm(): void
     {
+        $this->adapter->connect();
+
         $table = new Table('items', [], $this->adapter);
         $table->addColumn('description', 'string', ['limit' => 100])
             ->create();
@@ -2850,8 +2856,10 @@ INPUT;
         }
     }
 
-    public function testBatchedOperationsWithSameAlgorithm()
+    public function testBatchedOperationsWithSameAlgorithm(): void
     {
+        $this->adapter->connect();
+
         $table = new Table('batch_test', [], $this->adapter);
         $table->addColumn('col1', 'string')
             ->create();
@@ -2870,8 +2878,10 @@ INPUT;
         $this->assertTrue($this->adapter->hasColumn('batch_test', 'col3'));
     }
 
-    public function testBatchedOperationsWithConflictingAlgorithmsThrowsException()
+    public function testBatchedOperationsWithConflictingAlgorithmsThrowsException(): void
     {
+        $this->adapter->connect();
+
         $table = new Table('conflict_test', [], $this->adapter);
         $table->addColumn('col1', 'string')
             ->create();
@@ -2890,8 +2900,10 @@ INPUT;
             ->update();
     }
 
-    public function testBatchedOperationsWithConflictingLocksThrowsException()
+    public function testBatchedOperationsWithConflictingLocksThrowsException(): void
     {
+        $this->adapter->connect();
+
         $table = new Table('lock_conflict_test', [], $this->adapter);
         $table->addColumn('col1', 'string')
             ->create();
@@ -2912,8 +2924,10 @@ INPUT;
             ->update();
     }
 
-    public function testInvalidAlgorithmThrowsException()
+    public function testInvalidAlgorithmThrowsException(): void
     {
+        $this->adapter->connect();
+
         $table = new Table('invalid_algo', [], $this->adapter);
         $table->addColumn('col1', 'string')
             ->create();
@@ -2926,8 +2940,10 @@ INPUT;
         ])->update();
     }
 
-    public function testInvalidLockThrowsException()
+    public function testInvalidLockThrowsException(): void
     {
+        $this->adapter->connect();
+
         $table = new Table('invalid_lock', [], $this->adapter);
         $table->addColumn('col1', 'string')
             ->create();
@@ -2940,8 +2956,10 @@ INPUT;
         ])->update();
     }
 
-    public function testAlgorithmInstantWithExplicitLockThrowsException()
+    public function testAlgorithmInstantWithExplicitLockThrowsException(): void
     {
+        $this->adapter->connect();
+
         $table = new Table('instant_lock_test', [], $this->adapter);
         $table->addColumn('col1', 'string')
             ->create();
@@ -2956,24 +2974,30 @@ INPUT;
         ])->update();
     }
 
-    public function testAlgorithmConstantsAreDefined()
+    public function testAlgorithmConstantsAreDefined(): void
     {
+        $this->adapter->connect();
+
         $this->assertEquals('DEFAULT', MysqlAdapter::ALGORITHM_DEFAULT);
         $this->assertEquals('INSTANT', MysqlAdapter::ALGORITHM_INSTANT);
         $this->assertEquals('INPLACE', MysqlAdapter::ALGORITHM_INPLACE);
         $this->assertEquals('COPY', MysqlAdapter::ALGORITHM_COPY);
     }
 
-    public function testLockConstantsAreDefined()
+    public function testLockConstantsAreDefined(): void
     {
+        $this->adapter->connect();
+
         $this->assertEquals('DEFAULT', MysqlAdapter::LOCK_DEFAULT);
         $this->assertEquals('NONE', MysqlAdapter::LOCK_NONE);
         $this->assertEquals('SHARED', MysqlAdapter::LOCK_SHARED);
         $this->assertEquals('EXCLUSIVE', MysqlAdapter::LOCK_EXCLUSIVE);
     }
 
-    public function testAlgorithmWithMixedCase()
+    public function testAlgorithmWithMixedCase(): void
     {
+        $this->adapter->connect();
+
         $table = new Table('mixed_case', [], $this->adapter);
         $table->addColumn('col1', 'string')
             ->create();
