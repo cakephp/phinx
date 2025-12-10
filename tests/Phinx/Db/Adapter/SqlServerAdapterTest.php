@@ -691,7 +691,7 @@ WHERE t.name='ntable'");
         $this->assertFalse($this->adapter->hasColumn('t', 'column1'));
     }
 
-    public function columnsProvider()
+    public static function columnsProvider(): array
     {
         return [
             ['column1', 'string', ['null' => true, 'default' => null]],
@@ -718,7 +718,7 @@ WHERE t.name='ntable'");
     /**
      * @dataProvider columnsProvider
      */
-    public function testGetColumns($colName, $type, $options)
+    public function testGetColumns($colName, $type, $options): void
     {
         $table = new Table('t', [], $this->adapter);
         $table
@@ -727,19 +727,23 @@ WHERE t.name='ntable'");
 
         $columns = $this->adapter->getColumns('t');
         $this->assertCount(2, $columns);
-        $this->assertEquals($colName, $columns[$colName]->getName());
-        $this->assertEquals($type, $columns[$colName]->getType());
+
+        $specificColumn = $this->getColumn('t', $colName);
+        $this->assertNotNull($specificColumn);
+
+        $this->assertEquals($colName, $specificColumn->getName());
+        $this->assertEquals($type, $specificColumn->getType());
 
         if (isset($options['limit'])) {
-            $this->assertEquals($options['limit'], $columns[$colName]->getLimit());
+            $this->assertEquals($options['limit'], $specificColumn->getLimit());
         }
 
         if (isset($options['precision'])) {
-            $this->assertEquals($options['precision'], $columns[$colName]->getPrecision());
+            $this->assertEquals($options['precision'], $specificColumn->getPrecision());
         }
 
         if (isset($options['scale'])) {
-            $this->assertEquals($options['scale'], $columns[$colName]->getScale());
+            $this->assertEquals($options['scale'], $specificColumn->getScale());
         }
     }
 
@@ -1662,5 +1666,19 @@ INPUT;
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid PDO attribute: ' . $attribute . ' (\PDO::' . strtoupper($attribute) . ')');
         $adapter->connect();
+    }
+
+    private function getColumn(string $tableName, string $columnName): ?Column
+    {
+        $columns = $this->adapter->getColumns($tableName);
+
+        $filteredColumns = array_filter(
+            $columns,
+            static function ($column) use ($columnName) {
+                return $column->getName() === $columnName;
+            },
+        );
+
+        return array_pop($filteredColumns);
     }
 }
