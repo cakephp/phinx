@@ -479,7 +479,7 @@ WHERE t.name='ntable'");
         }
     }
 
-    public function testAddColumnWithNotNullableNoDefault()
+    public function testAddColumnWithNotNullableNoDefault(): void
     {
         $table = new Table('table1', [], $this->adapter);
         $table
@@ -488,10 +488,12 @@ WHERE t.name='ntable'");
 
         $columns = $this->adapter->getColumns('table1');
         $this->assertCount(2, $columns);
-        $this->assertArrayHasKey('id', $columns);
-        $this->assertArrayHasKey('col', $columns);
-        $this->assertFalse($columns['col']->isNull());
-        $this->assertNull($columns['col']->getDefault());
+        $firstColumn = $columns[0];
+        $this->assertSame('id', $firstColumn->getName());
+        $secondColumn = $columns[1];
+        $this->assertSame('col', $secondColumn->getName());
+        $this->assertFalse($secondColumn->isNull());
+        $this->assertNull($secondColumn->getDefault());
     }
 
     public function testAddColumnWithDefaultBool()
@@ -522,7 +524,7 @@ WHERE t.name='ntable'");
             ->addColumn('checked', Literal::from('bit'), ['default' => 0])
             ->save();
 
-        $column = $this->adapter->getColumns('table1')['checked'];
+        $column = $this->adapter->getColumns('table1')[1];
 
         $this->assertSame('checked', $column->getName());
         $this->assertSame('boolean', $column->getType());
@@ -530,7 +532,7 @@ WHERE t.name='ntable'");
         $this->assertTrue($column->getNull());
     }
 
-    public function testAddColumnWithCustomType()
+    public function testAddColumnWithCustomType(): void
     {
         $this->adapter->setDataDomain([
             'custom' => [
@@ -549,18 +551,17 @@ WHERE t.name='ntable'");
         $this->assertTrue($this->adapter->hasTable('table1'));
 
         $columns = $this->adapter->getColumns('table1');
-        $this->assertArrayHasKey('custom', $columns);
-        $this->assertArrayHasKey('custom_ext', $columns);
+        $this->assertCount(3, $columns);
 
-        $column = $this->adapter->getColumns('table1')['custom'];
-        $this->assertSame('custom', $column->getName());
-        $this->assertSame('geometry', (string)$column->getType());
-        $this->assertTrue($column->getNull());
+        $customColumn = $columns[1];
+        $this->assertSame('custom', $customColumn->getName());
+        $this->assertSame('geometry', (string)$customColumn->getType());
+        $this->assertTrue($customColumn->getNull());
 
-        $column = $this->adapter->getColumns('table1')['custom_ext'];
-        $this->assertSame('custom_ext', $column->getName());
-        $this->assertSame('geometry', (string)$column->getType());
-        $this->assertFalse($column->getNull());
+        $customExtColumn = $columns[2];
+        $this->assertSame('custom_ext', $customExtColumn->getName());
+        $this->assertSame('geometry', (string)$customExtColumn->getType());
+        $this->assertFalse($customExtColumn->getNull());
     }
 
     public function testRenameColumn()
@@ -632,7 +633,7 @@ WHERE t.name='ntable'");
         }
     }
 
-    public function testChangeColumnDefaults()
+    public function testChangeColumnDefaults(): void
     {
         $table = new Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string', ['default' => 'test'])
@@ -640,7 +641,7 @@ WHERE t.name='ntable'");
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
 
         $columns = $this->adapter->getColumns('t');
-        $this->assertSame('test', $columns['column1']->getDefault());
+        $this->assertSame('test', $columns[1]->getDefault());
 
         $newColumn1 = new Column();
         $newColumn1
@@ -650,10 +651,10 @@ WHERE t.name='ntable'");
         $this->assertTrue($this->adapter->hasColumn('t', 'column1'));
 
         $columns = $this->adapter->getColumns('t');
-        $this->assertSame('another test', $columns['column1']->getDefault());
+        $this->assertSame('another test', $columns[1]->getDefault());
     }
 
-    public function testChangeColumnDefaultToNull()
+    public function testChangeColumnDefaultToNull(): void
     {
         $table = new Table('t', [], $this->adapter);
         $table->addColumn('column1', 'string', ['null' => true, 'default' => 'test'])
@@ -664,10 +665,10 @@ WHERE t.name='ntable'");
             ->setDefault(null);
         $table->changeColumn('column1', $newColumn1)->save();
         $columns = $this->adapter->getColumns('t');
-        $this->assertNull($columns['column1']->getDefault());
+        $this->assertNull($columns[1]->getDefault());
     }
 
-    public function testChangeColumnDefaultToZero()
+    public function testChangeColumnDefaultToZero(): void
     {
         $table = new Table('t', [], $this->adapter);
         $table->addColumn('column1', 'integer')
@@ -678,7 +679,7 @@ WHERE t.name='ntable'");
             ->setDefault(0);
         $table->changeColumn('column1', $newColumn1)->save();
         $columns = $this->adapter->getColumns('t');
-        $this->assertSame(0, $columns['column1']->getDefault());
+        $this->assertSame(0, $columns[1]->getDefault());
     }
 
     public function testDropColumn()
