@@ -428,7 +428,7 @@ interface AdapterInterface
      * Returns table columns
      *
      * @param string $tableName Table name
-     * @return list<\Phinx\Db\Table\Column>
+     * @return \Phinx\Db\Table\Column[]
      */
     public function getColumns(string $tableName): array;
 
