@@ -24,6 +24,7 @@ class FeatureFlags
     public static bool $columnNullDefault = true;
     /**
      * @var bool Should Phinx create datetime columns for addTimestamps instead of timestamp?
+     * Also affects start_time and end_time column types in schema table.
      */
     public static bool $addTimestampsUseDateTime = false;
 

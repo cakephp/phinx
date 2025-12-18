@@ -10,6 +10,7 @@ namespace Phinx\Db\Adapter;
 
 use Exception;
 use InvalidArgumentException;
+use Phinx\Config\FeatureFlags;
 use Phinx\Db\Table;
 use Phinx\Db\Table\Column;
 use Phinx\Util\Literal;
@@ -307,11 +308,15 @@ abstract class AbstractAdapter implements AdapterInterface
                 'primary_key' => 'version',
             ];
 
+            $columnType = FeatureFlags::$addTimestampsUseDateTime
+                ? AdapterInterface::PHINX_TYPE_DATETIME
+                : AdapterInterface::PHINX_TYPE_TIMESTAMP;
+
             $table = new Table($this->getSchemaTableName(), $options, $this);
             $table->addColumn('version', 'biginteger', ['null' => false])
                 ->addColumn('migration_name', 'string', ['limit' => 100, 'default' => null, 'null' => true])
-                ->addColumn('start_time', 'timestamp', ['default' => null, 'null' => true])
-                ->addColumn('end_time', 'timestamp', ['default' => null, 'null' => true])
+                ->addColumn('start_time', $columnType, ['default' => null, 'null' => true])
+                ->addColumn('end_time', $columnType, ['default' => null, 'null' => true])
                 ->addColumn('breakpoint', 'boolean', ['default' => false, 'null' => false])
                 ->save();
         } catch (Exception $exception) {

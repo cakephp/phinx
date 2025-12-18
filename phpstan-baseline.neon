@@ -4,3 +4,9 @@ parameters:
 			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
 			count: 1
 			path: src/Phinx/Db/Adapter/MysqlAdapter.php
+
+		-
+			message: "#^Call to an undefined static method Symfony\\\\Component\\\\Console\\\\Application\\:\\:addCommand\\(\\)\\.$#"
+			count: 1
+			path: src/Phinx/Console/PhinxApplication.php
+			reportUnmatched: false

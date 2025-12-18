@@ -20,6 +20,7 @@ use Phinx\Console\Command\SeedRun;
 use Phinx\Console\Command\Status;
 use Phinx\Console\Command\Test;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -88,6 +89,25 @@ class PhinxApplication extends Application
         }
 
         return parent::doRun($input, $output);
+    }
+
+    /**
+     * Adds a command object.
+     *
+     * Provides backwards compatibility for Symfony Console 6.x/7.x where
+     * the add() method exists, and Symfony 8.x where it was removed in
+     * favor of addCommand().
+     *
+     * @param \Symfony\Component\Console\Command\Command $command A Command object
+     * @return \Symfony\Component\Console\Command\Command|null
+     */
+    public function add(Command $command): ?Command
+    {
+        if (method_exists(Application::class, 'addCommand')) {
+            return parent::addCommand($command);
+        }
+
+        return parent::add($command);
     }
 
     /**
