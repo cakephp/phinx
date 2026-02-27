@@ -147,7 +147,11 @@ class MysqlAdapter extends PdoAdapter
             // https://php.net/manual/en/ref.pdo-mysql.php#pdo-mysql.constants
             foreach ($options as $key => $option) {
                 if (strpos($key, 'mysql_attr_') === 0) {
-                    $pdoConstant = '\PDO::' . strtoupper($key);
+                    if (PHP_VERSION_ID < 80400) {
+                        $pdoConstant = '\PDO::' . strtoupper($key);
+                    } else {
+                        $pdoConstant = '\PDO\Mysql::' . strtoupper(substr($key, 6));
+                    }
                     if (!defined($pdoConstant)) {
                         throw new UnexpectedValueException('Invalid PDO attribute: ' . $key . ' (' . $pdoConstant . ')');
                     }
