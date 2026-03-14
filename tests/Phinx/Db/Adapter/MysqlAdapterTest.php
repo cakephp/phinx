@@ -3023,7 +3023,7 @@ INPUT;
 
         $this->assertTrue($this->adapter->hasColumn('mixed_case', 'col2'));
     }
-  
+
     public function testMysqlPdoMultiStatementsEnabled()
     {
         $adapter = new MysqlAdapter(MYSQL_DB_CONFIG + ['mysql_attr_multi_statements' => true]);
