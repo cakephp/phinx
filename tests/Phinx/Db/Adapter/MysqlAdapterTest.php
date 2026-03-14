@@ -2731,19 +2731,19 @@ INPUT;
     public function pdoAttributeProvider()
     {
         return [
-            ['mysql_attr_invalid'],
-            ['attr_invalid'],
+            ['mysql_attr_invalid', PHP_VERSION_ID < 80400 ? '\PDO::MYSQL_ATTR_INVALID' : '\PDO\Mysql::ATTR_INVALID'],
+            ['attr_invalid', '\PDO::ATTR_INVALID'],
         ];
     }
 
     /**
      * @dataProvider pdoAttributeProvider
      */
-    public function testInvalidPdoAttribute($attribute)
+    public function testInvalidPdoAttribute($attribute, $constant)
     {
         $adapter = new MysqlAdapter(MYSQL_DB_CONFIG + [$attribute => true]);
         $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('Invalid PDO attribute: ' . $attribute . ' (\PDO::' . strtoupper($attribute) . ')');
+        $this->expectExceptionMessage('Invalid PDO attribute: ' . $attribute . ' (' . $constant . ')');
         $adapter->connect();
     }
 
@@ -3022,5 +3022,19 @@ INPUT;
         ])->update();
 
         $this->assertTrue($this->adapter->hasColumn('mixed_case', 'col2'));
+    }
+  
+    public function testMysqlPdoMultiStatementsEnabled()
+    {
+        $adapter = new MysqlAdapter(MYSQL_DB_CONFIG + ['mysql_attr_multi_statements' => true]);
+        $result = $adapter->fetchAll('SELECT 1 a; SELECT 2 b;');
+        $this->assertSame([['a' => 1, 0 => 1]], $result);
+    }
+
+    public function testMysqlPdoMultiStatementsDisabled()
+    {
+        $adapter = new MysqlAdapter(MYSQL_DB_CONFIG + ['mysql_attr_multi_statements' => false]);
+        $this->expectException(PDOException::class);
+        $adapter->fetchAll('SELECT 1 a; SELECT 2 b;');
     }
 }
