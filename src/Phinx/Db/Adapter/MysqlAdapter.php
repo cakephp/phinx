@@ -94,6 +94,77 @@ class MysqlAdapter extends PdoAdapter
     public const FIRST = 'FIRST';
 
     /**
+     * MySQL ALTER TABLE ALGORITHM options
+     *
+     * These constants control how MySQL performs ALTER TABLE operations:
+     * - ALGORITHM_DEFAULT: Let MySQL choose the best algorithm
+     * - ALGORITHM_INSTANT: Instant operation (no table copy, MySQL 8.0+ / MariaDB 10.3+)
+     * - ALGORITHM_INPLACE: In-place operation (no full table copy)
+     * - ALGORITHM_COPY: Traditional table copy algorithm
+     *
+     * Usage:
+     * ```php
+     * use Migrations\Db\Adapter\MysqlAdapter;
+     *
+     * // ALGORITHM=INSTANT alone (recommended)
+     * $table->addColumn('status', 'string', [
+     *     'null' => true,
+     *     'algorithm' => MysqlAdapter::ALGORITHM_INSTANT,
+     * ]);
+     *
+     * // Or with ALGORITHM=INPLACE and explicit LOCK
+     * $table->addColumn('status', 'string', [
+     *     'algorithm' => MysqlAdapter::ALGORITHM_INPLACE,
+     *     'lock' => MysqlAdapter::LOCK_NONE,
+     * ]);
+     * ```
+     *
+     * Important: ALGORITHM=INSTANT cannot be combined with LOCK=NONE, LOCK=SHARED,
+     * or LOCK=EXCLUSIVE (MySQL restriction). Use ALGORITHM=INSTANT alone or with
+     * LOCK=DEFAULT only.
+     *
+     * Note: ALGORITHM_INSTANT requires MySQL 8.0+ or MariaDB 10.3+ and only works for
+     * compatible operations (adding nullable columns, dropping columns, etc.).
+     * If the operation cannot be performed instantly, MySQL will return an error.
+     *
+     * @see https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+     * @see https://dev.mysql.com/doc/refman/8.0/en/innodb-online-ddl-operations.html
+     * @see https://mariadb.com/kb/en/alter-table/#algorithm
+     */
+    public const ALGORITHM_DEFAULT = 'DEFAULT';
+    public const ALGORITHM_INSTANT = 'INSTANT';
+    public const ALGORITHM_INPLACE = 'INPLACE';
+    public const ALGORITHM_COPY = 'COPY';
+
+    /**
+     * MySQL ALTER TABLE LOCK options
+     *
+     * These constants control the locking behavior during ALTER TABLE operations:
+     * - LOCK_DEFAULT: Let MySQL choose the appropriate lock level
+     * - LOCK_NONE: Allow concurrent reads and writes (least restrictive)
+     * - LOCK_SHARED: Allow concurrent reads, block writes
+     * - LOCK_EXCLUSIVE: Block all concurrent access (most restrictive)
+     *
+     * Usage:
+     * ```php
+     * use Migrations\Db\Adapter\MysqlAdapter;
+     *
+     * $table->changeColumn('name', 'string', [
+     *     'limit' => 500,
+     *     'algorithm' => MysqlAdapter::ALGORITHM_INPLACE,
+     *     'lock' => MysqlAdapter::LOCK_NONE,
+     * ]);
+     * ```
+     *
+     * @see https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+     * @see https://mariadb.com/kb/en/alter-table/#lock
+     */
+    public const LOCK_DEFAULT = 'DEFAULT';
+    public const LOCK_NONE = 'NONE';
+    public const LOCK_SHARED = 'SHARED';
+    public const LOCK_EXCLUSIVE = 'EXCLUSIVE';
+
+    /**
      * {@inheritDoc}
      *
      * @throws \RuntimeException
@@ -147,7 +218,11 @@ class MysqlAdapter extends PdoAdapter
             // https://php.net/manual/en/ref.pdo-mysql.php#pdo-mysql.constants
             foreach ($options as $key => $option) {
                 if (strpos($key, 'mysql_attr_') === 0) {
-                    $pdoConstant = '\PDO::' . strtoupper($key);
+                    if (PHP_VERSION_ID < 80400) {
+                        $pdoConstant = '\PDO::' . strtoupper($key);
+                    } else {
+                        $pdoConstant = '\PDO\Mysql::' . strtoupper(substr($key, 6));
+                    }
                     if (!defined($pdoConstant)) {
                         throw new UnexpectedValueException('Invalid PDO attribute: ' . $key . ' (' . $pdoConstant . ')');
                     }
@@ -533,7 +608,16 @@ class MysqlAdapter extends PdoAdapter
 
         $alter .= $this->afterClause($column);
 
-        return new AlterInstructions([$alter]);
+        $instructions = new AlterInstructions([$alter]);
+
+        if ($column->getAlgorithm() !== null) {
+            $instructions->setAlgorithm($column->getAlgorithm());
+        }
+        if ($column->getLock() !== null) {
+            $instructions->setLock($column->getLock());
+        }
+
+        return $instructions;
     }
 
     /**
@@ -616,7 +700,16 @@ class MysqlAdapter extends PdoAdapter
             $this->afterClause($newColumn),
         );
 
-        return new AlterInstructions([$alter]);
+        $instructions = new AlterInstructions([$alter]);
+
+        if ($newColumn->getAlgorithm() !== null) {
+            $instructions->setAlgorithm($newColumn->getAlgorithm());
+        }
+        if ($newColumn->getLock() !== null) {
+            $instructions->setLock($newColumn->getLock());
+        }
+
+        return $instructions;
     }
 
     /**
@@ -1508,6 +1601,92 @@ class MysqlAdapter extends PdoAdapter
         }
 
         return $def;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Overridden to support ALGORITHM and LOCK clauses from AlterInstructions.
+     *
+     * @param string $tableName The table name
+     * @param \Phinx\Db\Util\AlterInstructions $instructions The alter instructions
+     * @throws \InvalidArgumentException
+     * @return void
+     */
+    protected function executeAlterSteps(string $tableName, AlterInstructions $instructions): void
+    {
+        $algorithm = $instructions->getAlgorithm();
+        $lock = $instructions->getLock();
+
+        if ($algorithm === null && $lock === null) {
+            parent::executeAlterSteps($tableName, $instructions);
+
+            return;
+        }
+
+        $algorithmLockClause = '';
+        $upperAlgorithm = null;
+        $upperLock = null;
+
+        if ($algorithm !== null) {
+            $upperAlgorithm = strtoupper($algorithm);
+            $validAlgorithms = [
+                self::ALGORITHM_DEFAULT,
+                self::ALGORITHM_INSTANT,
+                self::ALGORITHM_INPLACE,
+                self::ALGORITHM_COPY,
+            ];
+            if (!in_array($upperAlgorithm, $validAlgorithms, true)) {
+                throw new InvalidArgumentException(sprintf(
+                    'Invalid algorithm "%s". Valid options: %s',
+                    $algorithm,
+                    implode(', ', $validAlgorithms),
+                ));
+            }
+            $algorithmLockClause .= ', ALGORITHM=' . $upperAlgorithm;
+        }
+
+        if ($lock !== null) {
+            $upperLock = strtoupper($lock);
+            $validLocks = [
+                self::LOCK_DEFAULT,
+                self::LOCK_NONE,
+                self::LOCK_SHARED,
+                self::LOCK_EXCLUSIVE,
+            ];
+            if (!in_array($upperLock, $validLocks, true)) {
+                throw new InvalidArgumentException(sprintf(
+                    'Invalid lock "%s". Valid options: %s',
+                    $lock,
+                    implode(', ', $validLocks),
+                ));
+            }
+            $algorithmLockClause .= ', LOCK=' . $upperLock;
+        }
+
+        if ($upperAlgorithm === self::ALGORITHM_INSTANT && $upperLock !== null && $upperLock !== self::LOCK_DEFAULT) {
+            throw new InvalidArgumentException(
+                'ALGORITHM=INSTANT cannot be combined with LOCK=NONE, LOCK=SHARED, or LOCK=EXCLUSIVE. ' .
+                'Either use ALGORITHM=INSTANT alone, or use ALGORITHM=INSTANT with LOCK=DEFAULT.',
+            );
+        }
+
+        $alterTemplate = sprintf('ALTER TABLE %s %%s', $this->quoteTableName($tableName));
+
+        if ($instructions->getAlterParts()) {
+            $alter = sprintf($alterTemplate, implode(', ', $instructions->getAlterParts()) . $algorithmLockClause);
+            $this->execute($alter);
+        }
+
+        $state = [];
+        foreach ($instructions->getPostSteps() as $instruction) {
+            if (is_callable($instruction)) {
+                $state = $instruction($state);
+                continue;
+            }
+
+            $this->execute($instruction);
+        }
     }
 
     /**

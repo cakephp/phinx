@@ -77,13 +77,16 @@ install [docker-compose](https://docs.docker.com/compose/) for your platform.
     docker-compose run --rm phinx
     ```
 
-1. Install dependencies:
+    If you use Mac with Apple Silicon add `platform: linux/amd64` for `mysql` and `postgres` services first. Otherwise,
+    you might have an error `no matching manifest for linux/arm64/v8 in the manifest list entries`
+
+2. Install dependencies:
 
     ```
     composer update
     ```
 
-1. Run unittest:
+3. Run unittest:
 
     ```
     vendor/bin/phpunit
